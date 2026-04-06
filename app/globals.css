@@ -1,6 +1,7 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
+@plugin "@tailwindcss/typography";
 
 @custom-variant dark (&:is(.dark *));
 
@@ -49,8 +50,6 @@
 }
 
 :root {
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
   --card: oklch(1 0 0);
   --card-foreground: oklch(0.145 0 0);
   --popover: oklch(1 0 0);
@@ -72,7 +71,7 @@
   --chart-3: oklch(0.439 0 0);
   --chart-4: oklch(0.371 0 0);
   --chart-5: oklch(0.269 0 0);
-  --radius: 0;
+  --radius: 0.625rem;
   --sidebar: oklch(0.985 0 0);
   --sidebar-foreground: oklch(0.145 0 0);
   --sidebar-primary: oklch(0.205 0 0);
@@ -81,6 +80,8 @@
   --sidebar-accent-foreground: oklch(0.205 0 0);
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: oklch(0.708 0 0);
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.145 0 0);
 }
 
 .dark {
@@ -127,4 +128,43 @@
   html {
     @apply font-sans;
   }
+}
+
+@utility text-huge {
+  font-size: clamp(2.8rem, 10vw, 7.5rem);
+}
+
+@utility text-title {
+  font-size: clamp(2rem, 6vw, 4rem);
+}
+
+@utility text-subtitle {
+  font-size: clamp(1.25rem, 3vw, 2rem);
+}
+
+@utility text-base-fluid {
+  font-size: clamp(1rem, 1.1vw, 1.125rem);
+}
+
+@utility gap-fluid {
+  gap: clamp(1.5rem, 4vw, 3rem);
+}
+
+@utility my-section {
+  margin-top: clamp(6rem, 12vw, 12rem);
+  margin-bottom: clamp(6rem, 12vw, 12rem);
+}
+
+@utility py-section {
+  padding-top: clamp(6rem, 12vw, 12rem);
+  padding-bottom: clamp(6rem, 12vw, 12rem);
+}
+
+@utility px-container {
+  padding-left: clamp(1.5rem, 6vw, 4rem);
+  padding-right: clamp(1.5rem, 6vw, 4rem);
+}
+
+@utility gap-fluid {
+  gap: clamp(1.5rem, 4vw, 3rem);
 }
