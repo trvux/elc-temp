@@ -13,20 +13,18 @@ import {
   CardTitle,
   CardDescription,
 } from "@/components/ui/card";
-import {
-  Field,
-  FieldLabel,
-  FieldContent,
-} from "@/components/ui/field";
+import { Field, FieldLabel, FieldContent } from "@/components/ui/field";
 import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
+import { capitalize } from "@/lib/utils";
 
 type Settings = Record<string, string>;
 
 const SETTINGS_CONFIG = [
   {
     section: "Trang chủ (Hero Section)",
-    description: "Cấu hình nội dung tiêu đề và nút kêu gọi hành động (CTA) đầu trang chủ.",
+    description:
+      "Cấu hình nội dung tiêu đề và nút kêu gọi hành động (CTA) đầu trang chủ.",
     fields: [
       {
         key: "hero_title",
@@ -56,7 +54,8 @@ const SETTINGS_CONFIG = [
   },
   {
     section: "Thông tin công ty",
-    description: "Thông tin cơ bản dùng cho các thẻ SEO, chân trang (Footer) và trang liên diện.",
+    description:
+      "Thông tin cơ bản dùng cho các thẻ SEO, chân trang (Footer) và trang liên diện.",
     fields: [
       {
         key: "company_name",
@@ -92,7 +91,8 @@ const SETTINGS_CONFIG = [
   },
   {
     section: "Cấu hình SEO Tổng thể",
-    description: "Cài đặt mặc định cho việc tối ưu hóa công cụ tìm kiếm trên toàn trang web.",
+    description:
+      "Cài đặt mặc định cho việc tối ưu hóa công cụ tìm kiếm trên toàn trang web.",
     fields: [
       {
         key: "seo_title",
@@ -138,9 +138,14 @@ export default function SettingsPage() {
 
   function handleChange(key: string, value: string) {
     // Tự động viết hoa chữ cái đầu cho các trường văn bản, trừ các trường kỹ thuật
-    const isTechnicalField = key.includes("url") || key.includes("email") || key.includes("phone") || key.includes("keywords");
-    const finalValue = !isTechnicalField && value ? value.charAt(0).toUpperCase() + value.slice(1) : value;
-    
+    const isTechnicalField =
+      key.includes("url") ||
+      key.includes("email") ||
+      key.includes("phone") ||
+      key.includes("keywords");
+    const finalValue =
+      !isTechnicalField && value ? capitalize(value) : value;
+
     setSettings((prev) => ({ ...prev, [key]: finalValue }));
   }
 
@@ -174,8 +179,10 @@ export default function SettingsPage() {
     <div className="max-w-4xl pb-20">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">Cài đặt hệ thống</h1>
-          <p className="text-sm text-muted-foreground mt-1">
+          <h1 className="text-2xl font-bold tracking-tight">
+            Cài đặt hệ thống
+          </h1>
+          <p className="text-sm text-muted-foreground">
             Quản lý nội dung trang chủ, thông tin doanh nghiệp và cấu hình SEO.
           </p>
         </div>
@@ -183,16 +190,23 @@ export default function SettingsPage() {
 
       <div className="space-y-8">
         {SETTINGS_CONFIG.map((section, i) => (
-          <Card key={i} className="overflow-hidden border-muted/60 shadow-sm">
-            <CardHeader className="bg-muted/10">
-              <CardTitle className="text-lg">{section.section}</CardTitle>
-              <CardDescription>{section.description}</CardDescription>
+          <Card
+            key={i}
+            className="overflow-hidden border-border/40 shadow-sm rounded-2xl"
+          >
+            <CardHeader className="bg-muted/30">
+              <CardTitle className="text-lg font-bold tracking-tight">
+                {section.section}
+              </CardTitle>
+              <CardDescription className="text-sm">
+                {section.description}
+              </CardDescription>
             </CardHeader>
             <Separator />
             <CardContent className="p-6 space-y-6">
               {section.fields.map((field) => (
                 <Field key={field.key}>
-                  <FieldLabel className="mb-2 text-sm font-medium uppercase tracking-wider text-muted-foreground/80">
+                  <FieldLabel className="mb-2 font-medium">
                     {field.label}
                   </FieldLabel>
                   <FieldContent>
@@ -200,7 +214,9 @@ export default function SettingsPage() {
                       <Textarea
                         placeholder={field.placeholder}
                         value={settings[field.key] || ""}
-                        onChange={(e) => handleChange(field.key, e.target.value)}
+                        onChange={(e) =>
+                          handleChange(field.key, e.target.value)
+                        }
                         rows={4}
                         className="resize-none"
                       />
@@ -208,7 +224,9 @@ export default function SettingsPage() {
                       <Input
                         placeholder={field.placeholder}
                         value={settings[field.key] || ""}
-                        onChange={(e) => handleChange(field.key, e.target.value)}
+                        onChange={(e) =>
+                          handleChange(field.key, e.target.value)
+                        }
                       />
                     )}
                   </FieldContent>
@@ -220,7 +238,7 @@ export default function SettingsPage() {
       </div>
 
       <div className="mt-10 flex justify-end">
-        <Button onClick={handleSave} disabled={saving} size="lg" className="px-10">
+        <Button onClick={handleSave} disabled={saving}>
           {saving ? "Đang lưu..." : "Lưu cài đặt"}
         </Button>
       </div>

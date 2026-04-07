@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -11,14 +11,8 @@ import {
   FieldGroup,
   FieldLabel,
 } from "@/components/ui/field";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+import { DataTable } from "@/components/ui/data-table";
+import { getColumns, type CategoryRow } from "./columns";
 import { AdminDialog } from "@/components/admin/admin-dialog";
 import { DeleteDialog } from "@/components/admin/delete-dialog";
 import {
@@ -28,20 +22,18 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Badge } from "@/components/ui/badge";
-import { Fragment } from "react";
-import { Pencil, Trash2, Plus, CornerDownRight } from "lucide-react";
+import { Plus, CornerDownRight } from "lucide-react";
 import { toast } from "sonner";
+import { capitalize } from "@/lib/utils";
 
 type Category = {
   id: string;
   name: string;
   type: "product" | "project";
   parent_id: string | null;
+  slug: string;
   created_at: string;
 };
-
-type CategoryWithChildren = Category & { children: Category[] };
 
 export default function CategoriesPage() {
   const [categories, setCategories] = useState<Category[]>([]);
@@ -52,6 +44,7 @@ export default function CategoriesPage() {
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
   const [name, setName] = useState("");
+  const [internalSlug, setInternalSlug] = useState("");
   const [type, setType] = useState<"product" | "project">("product");
   const [parentId, setParentId] = useState<string>("none");
 
@@ -71,12 +64,48 @@ export default function CategoriesPage() {
     fetchCategories();
   }, []);
 
-  // Build tree: only top-level + their children (2 levels max)
-  const parents = categories.filter((c) => !c.parent_id);
-  const tree: CategoryWithChildren[] = parents.map((p) => ({
-    ...p,
-    children: categories.filter((c) => c.parent_id === p.id),
-  }));
+  const flattenedData = useMemo(() => {
+    const parents = categories.filter((c) => !c.parent_id);
+    const result: CategoryRow[] = [];
+
+    parents.forEach((p) => {
+      result.push({ ...p, level: 0 });
+      const children = categories.filter((c) => c.parent_id === p.id);
+      children.forEach((c) => {
+        result.push({ ...c, level: 1 });
+      });
+    });
+
+    return result;
+  }, [categories]);
+
+  const columns = useMemo(
+    () =>
+      getColumns({
+        onEdit: (cat) => openEdit(cat as unknown as Category),
+        onDelete: openDelete,
+      }),
+    [categories],
+  ); // Re-memo if needed, though functions are stable enough here
+
+  function generateSlug(text: string): string {
+    return text
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/đ/g, "d")
+      .replace(/[^a-z0-9\s-]/g, "")
+      .trim()
+      .replace(/\s+/g, "-");
+  }
+
+  const fullSlug = useMemo(() => {
+    if (parentId === "none") return internalSlug;
+    const parent = categories.find((c) => c.id === parentId);
+    if (!parent) return internalSlug;
+    // Parent slug is already the base (level 1)
+    return `${parent.slug}/${internalSlug}`;
+  }, [parentId, internalSlug, categories]);
 
   // Only parents of same type shown as parent options
   function parentOptions(forType: "product" | "project") {
@@ -86,6 +115,7 @@ export default function CategoriesPage() {
   function openCreate() {
     setEditing(null);
     setName("");
+    setInternalSlug("");
     setType("product");
     setParentId("none");
     setOpen(true);
@@ -94,6 +124,9 @@ export default function CategoriesPage() {
   function openEdit(cat: Category) {
     setEditing(cat);
     setName(cat.name);
+    // If it's a child, only show the last part of the slug in the input
+    const slugParts = cat.slug?.split("/") || [""];
+    setInternalSlug(slugParts[slugParts.length - 1]);
     setType(cat.type);
     setParentId(cat.parent_id ?? "none");
     setOpen(true);
@@ -104,6 +137,7 @@ export default function CategoriesPage() {
 
     const payload = {
       name: name.trim(),
+      slug: fullSlug,
       type,
       parent_id: parentId === "none" ? null : parentId,
     };
@@ -122,6 +156,28 @@ export default function CategoriesPage() {
         toast.error("Lỗi khi cập nhật");
         return;
       }
+
+      // Propagate changes to children if this is a parent category
+      if (!editing.parent_id) {
+        const typeChanged = editing.type !== type;
+        const slugChanged = editing.slug !== fullSlug;
+
+        if (typeChanged || slugChanged) {
+          const children = categories.filter((c) => c.parent_id === editing.id);
+          for (const child of children) {
+            const childInternalSlug = child.slug.split("/").pop() || "";
+            const newChildSlug = `${fullSlug}/${childInternalSlug}`;
+            await supabase
+              .from("categories")
+              .update({
+                type: type, // Sync type
+                slug: newChildSlug, // Sync slug prefix
+              })
+              .eq("id", child.id);
+          }
+        }
+      }
+
       toast.success("Đã cập nhật danh mục");
     } else {
       const { error } = await supabase.from("categories").insert(payload);
@@ -148,7 +204,10 @@ export default function CategoriesPage() {
 
   async function handleDelete() {
     if (!deletingId) return;
-    const { error } = await supabase.from("categories").delete().eq("id", deletingId);
+    const { error } = await supabase
+      .from("categories")
+      .delete()
+      .eq("id", deletingId);
     if (error) {
       toast.error("Lỗi khi xóa");
       return;
@@ -159,135 +218,26 @@ export default function CategoriesPage() {
   }
 
   return (
-    <div>
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold">Danh mục</h1>
+    <div className="space-y-8">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight">Danh mục</h1>
+          <p className="text-sm text-muted-foreground">
+            Quản lý cấu trúc danh mục sản phẩm và dự án.
+          </p>
+        </div>
         <Button onClick={openCreate}>
           <Plus size={16} className="mr-2" />
           Thêm danh mục
         </Button>
       </div>
 
-      <div className="bg-white rounded-lg border">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Tên danh mục</TableHead>
-              <TableHead>Loại</TableHead>
-              <TableHead>Cấp</TableHead>
-              <TableHead className="w-24">Thao tác</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {loading ? (
-              <TableRow>
-                <TableCell
-                  colSpan={4}
-                  className="text-center text-gray-400 py-8"
-                >
-                  Đang tải...
-                </TableCell>
-              </TableRow>
-            ) : tree.length === 0 ? (
-              <TableRow>
-                <TableCell
-                  colSpan={4}
-                  className="text-center text-gray-400 py-8"
-                >
-                  Chưa có danh mục nào
-                </TableCell>
-              </TableRow>
-            ) : (
-              tree.map((parent) => (
-                <Fragment key={parent.id}>
-                  {/* Parent row */}
-                  <TableRow key={parent.id} className="bg-gray-50/50">
-                    <TableCell className="font-semibold">
-                      {parent.name}
-                    </TableCell>
-                    <TableCell>
-                      <Badge
-                        variant={
-                          parent.type === "product" ? "default" : "secondary"
-                        }
-                      >
-                        {parent.type === "product" ? "Sản phẩm" : "Công trình"}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>
-                      <span className="text-xs text-gray-400">Cấp 1</span>
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex gap-2">
-                        <Button
-                          size="icon"
-                          variant="ghost"
-                          onClick={() => openEdit(parent)}
-                        >
-                          <Pencil size={16} />
-                        </Button>
-                        <Button
-                          size="icon"
-                          variant="destructive"
-                          onClick={() => openDelete(parent.id)}
-                        >
-                          <Trash2 size={16} />
-                        </Button>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-
-                  {/* Children rows */}
-                  {parent.children.map((child) => (
-                    <TableRow key={child.id}>
-                      <TableCell>
-                        <span className="flex items-center gap-1.5 pl-4 text-gray-600">
-                          <CornerDownRight
-                            size={14}
-                            className="text-gray-300 shrink-0"
-                          />
-                          {child.name}
-                        </span>
-                      </TableCell>
-                      <TableCell>
-                        <Badge
-                          variant={
-                            child.type === "product" ? "default" : "secondary"
-                          }
-                          className="opacity-60"
-                        >
-                          {child.type === "product" ? "Sản phẩm" : "Công trình"}
-                        </Badge>
-                      </TableCell>
-                      <TableCell>
-                        <span className="text-xs text-gray-400">Cấp 2</span>
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex gap-2">
-                          <Button
-                            size="icon"
-                            variant="ghost"
-                            onClick={() => openEdit(child)}
-                          >
-                            <Pencil size={16} />
-                          </Button>
-                          <Button
-                            size="icon"
-                            variant="destructive"
-                            onClick={() => openDelete(child.id)}
-                          >
-                            <Trash2 size={16} />
-                          </Button>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </Fragment>
-              ))
-            )}
-          </TableBody>
-        </Table>
-      </div>
+      <DataTable
+        columns={columns}
+        data={flattenedData}
+        searchKey="name"
+        searchPlaceholder="Tìm kiếm danh mục..."
+      />
 
       <AdminDialog
         open={open}
@@ -303,7 +253,7 @@ export default function CategoriesPage() {
         <div className="space-y-6">
           <FieldGroup>
             <Field orientation="horizontal">
-              <FieldLabel className="min-w-[120px] pt-2">
+              <FieldLabel className="min-w-[140px] pt-2 font-medium">
                 Tên danh mục
               </FieldLabel>
               <FieldContent>
@@ -313,14 +263,42 @@ export default function CategoriesPage() {
                   value={name}
                   onChange={(e) => {
                     const val = (e.target as HTMLInputElement).value;
-                    setName(val.charAt(0).toUpperCase() + val.slice(1));
+                    const capitalized = capitalize(val);
+                    setName(capitalized);
+                    if (!editing) {
+                      setInternalSlug(generateSlug(capitalized));
+                    }
                   }}
                 />
               </FieldContent>
             </Field>
 
             <Field orientation="horizontal">
-              <FieldLabel className="min-w-[120px] pt-2">Loại</FieldLabel>
+              <FieldLabel className="min-w-[140px] pt-2 font-medium">
+                Slug / Đường dẫn
+              </FieldLabel>
+              <FieldContent>
+                <Input
+                  className="w-full font-mono text-sm"
+                  placeholder="may-lanh-am-tran"
+                  value={internalSlug}
+                  onChange={(e) =>
+                    setInternalSlug(generateSlug(e.target.value))
+                  }
+                />
+                <FieldDescription className="mt-1.5 text-xs">
+                  Đường dẫn đầy đủ:{" "}
+                  <span className="font-mono text-primary font-medium">
+                    /{fullSlug || "..."}
+                  </span>
+                </FieldDescription>
+              </FieldContent>
+            </Field>
+
+            <Field orientation="horizontal">
+              <FieldLabel className="min-w-[140px] pt-2 font-medium">
+                Loại
+              </FieldLabel>
               <FieldContent>
                 <Select
                   value={type}
@@ -341,7 +319,7 @@ export default function CategoriesPage() {
             </Field>
 
             <Field orientation="horizontal">
-              <FieldLabel className="min-w-[120px] pt-2">
+              <FieldLabel className="min-w-[140px] pt-2 font-medium">
                 Danh mục cha
               </FieldLabel>
               <FieldContent>
@@ -361,7 +339,7 @@ export default function CategoriesPage() {
                   </SelectContent>
                 </Select>
                 {parentId !== "none" && (
-                  <FieldDescription className="mt-1.5 flex items-center gap-1">
+                  <FieldDescription className="mt-1.5 flex items-center gap-1 text-xs">
                     Đường dẫn:
                     <span className="font-medium text-foreground">
                       {categories.find((c) => c.id === parentId)?.name}

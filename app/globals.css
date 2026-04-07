@@ -126,53 +126,11 @@
     @apply bg-background text-foreground;
   }
   html {
-    @apply font-sans;
+    @apply font-sans antialiased;
   }
 }
 
-@utility text-huge {
-  font-size: clamp(2.8rem, 10vw, 7.5rem);
-}
-
-@utility text-title {
-  font-size: clamp(1.75rem, 4vw, 3rem);
-}
-
-@utility text-subtitle {
-  font-size: clamp(1.125rem, 2vw, 1.5rem);
-}
-
-@utility text-base-fluid {
-  font-size: clamp(1rem, 1.1vw, 1.125rem);
-}
-
-@utility gap-fluid {
-  gap: clamp(1.5rem, 4vw, 3rem);
-}
-
-@utility my-section {
-  margin-top: clamp(4rem, 6vw, 6rem);
-  margin-bottom: clamp(4rem, 6vw, 6rem);
-}
-
-@utility py-section {
-  padding-top: clamp(4rem, 6vw, 6rem);
-  padding-bottom: clamp(4rem, 6vw, 6rem);
-}
-
-@utility pt-section {
-  padding-top: clamp(4rem, 6vw, 6rem);
-}
-
-@utility pb-section {
-  padding-bottom: clamp(4rem, 6vw, 6rem);
-}
-
 @utility px-container {
-  padding-left: clamp(1.5rem, 6vw, 4rem);
-  padding-right: clamp(1.5rem, 6vw, 4rem);
-}
-
-@utility gap-fluid {
-  gap: clamp(1.5rem, 4vw, 3rem);
+  padding-left: clamp(1.5rem, 6vw, 5rem);
+  padding-right: clamp(1.5rem, 6vw, 5rem);
 }

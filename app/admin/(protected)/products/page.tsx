@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,30 +12,32 @@ import {
   FieldLabel,
 } from "@/components/ui/field";
 import { TiptapEditor } from "@/components/ui/tiptap-editor";
-import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+import { DataTable } from "@/components/ui/data-table";
+import { getColumns, type ProductRow } from "./columns";
 import { AdminDialog } from "@/components/admin/admin-dialog";
 import { DeleteDialog } from "@/components/admin/delete-dialog";
 import {
   Select,
   SelectContent,
+  SelectGroup,
   SelectItem,
+  SelectLabel,
+  SelectSeparator,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Pencil, Trash2, Plus, X, Upload } from "lucide-react";
+import { Plus, X, Upload } from "lucide-react";
 import { toast } from "sonner";
+import { capitalize } from "@/lib/utils";
 import Image from "next/image";
 
-type Category = { id: string; name: string };
+type Category = {
+  id: string;
+  name: string;
+  parent_id: string | null;
+  slug: string;
+};
 type Product = {
   id: string;
   slug: string;
@@ -75,6 +77,11 @@ export default function ProductsPage() {
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
+  // Filter states
+  const [filterCategoryId, setFilterCategoryId] = useState<string>("all");
+  const [filterIsFeatured, setFilterIsFeatured] = useState<string>("all");
+  const [filterIsPublished, setFilterIsPublished] = useState<string>("all");
+
   // Form fields
   const [name, setName] = useState("");
   const [slug, setSlug] = useState("");
@@ -101,18 +108,86 @@ export default function ProductsPage() {
     const [{ data: prod }, { data: cats }] = await Promise.all([
       supabase
         .from("products")
-        .select("*, categories(name)")
+        .select("*, categories(name, parent_id)")
         .order("order_index"),
       supabase.from("categories").select("*").eq("type", "product"),
     ]);
-    setProducts(prod || []);
+
+    // Enrich products with full category path for table display
+    const enrichedProd = prod?.map((p) => {
+      if (!p.categories || !p.category_id) return p;
+      const cat = cats?.find((c) => c.id === p.category_id);
+      if (cat?.parent_id) {
+        const parent = cats?.find((c) => c.id === cat.parent_id);
+        if (parent) {
+          return {
+            ...p,
+            categories: {
+              ...p.categories,
+              name: `${parent.name} > ${cat.name}`,
+            },
+          };
+        }
+      }
+      return p;
+    });
+
+    setProducts(enrichedProd || []);
     setCategories(cats || []);
     setLoading(false);
   }
 
+  const filteredProducts = useMemo(() => {
+    return products.filter((p) => {
+      const matchCategory =
+        filterCategoryId === "all" || p.category_id === filterCategoryId;
+      const matchFeatured =
+        filterIsFeatured === "all" ||
+        (filterIsFeatured === "true" ? p.is_featured : !p.is_featured);
+      const matchPublished =
+        filterIsPublished === "all" ||
+        (filterIsPublished === "true" ? p.is_published : !p.is_published);
+      return matchCategory && matchFeatured && matchPublished;
+    });
+  }, [products, filterCategoryId, filterIsFeatured, filterIsPublished]);
+
   useEffect(() => {
     fetchData();
   }, []);
+
+  const flattenedCategories = useMemo(() => {
+    const result: (Category & { displayName: string; isParent: boolean })[] =
+      [];
+    const parents = categories.filter((c) => !c.parent_id);
+
+    parents.forEach((parent) => {
+      result.push({
+        ...parent,
+        displayName: parent.name,
+        isParent: true,
+      });
+
+      const children = categories.filter((c) => c.parent_id === parent.id);
+      children.forEach((child) => {
+        result.push({
+          ...child,
+          displayName: `↳ ${child.name}`,
+          isParent: false,
+        });
+      });
+    });
+
+    return result;
+  }, [categories]);
+
+  const columns = useMemo(
+    () =>
+      getColumns({
+        onEdit: (p) => openEdit(p as unknown as Product),
+        onDelete: openDelete,
+      }),
+    [products],
+  );
 
   function openCreate() {
     setEditing(null);
@@ -208,6 +283,11 @@ export default function ProductsPage() {
       return;
     }
 
+    if (!sku.trim()) {
+      toast.error("Nhập mã SKU (SKU là bắt buộc và không được trùng)");
+      return;
+    }
+
     const specsObj = specs.reduce(
       (acc, { key, value }) => {
         if (key.trim()) acc[key.trim()] = value;
@@ -264,7 +344,10 @@ export default function ProductsPage() {
 
   async function handleDelete() {
     if (!deletingId) return;
-    const { error } = await supabase.from("products").delete().eq("id", deletingId);
+    const { error } = await supabase
+      .from("products")
+      .delete()
+      .eq("id", deletingId);
     if (error) {
       toast.error("Lỗi xóa");
       return;
@@ -276,115 +359,88 @@ export default function ProductsPage() {
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold">Sản phẩm</h1>
-        <Button onClick={openCreate}>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 mb-8">
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight">Sản phẩm</h1>
+          <p className="text-sm text-muted-foreground">
+            Quản lý danh sách sản phẩm, giá bán và thông số kỹ thuật.
+          </p>
+        </div>
+        <Button onClick={openCreate} className="h-9">
           <Plus size={16} className="mr-2" /> Thêm sản phẩm
         </Button>
       </div>
 
-      <div className="bg-white rounded-lg border">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Ảnh</TableHead>
-              <TableHead>Tên sản phẩm</TableHead>
-              <TableHead>SKU</TableHead>
-              <TableHead>Danh mục</TableHead>
-              <TableHead>Giá gốc</TableHead>
-              <TableHead>Giá bán</TableHead>
-              <TableHead>Nổi bật</TableHead>
-              <TableHead>Trạng thái</TableHead>
-              <TableHead className="w-24">Thao tác</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {loading ? (
-              <TableRow>
-                <TableCell
-                  colSpan={9}
-                  className="text-center py-8 text-gray-400"
+      <div className="flex flex-wrap items-center gap-4 mb-1">
+        <div className="w-full md:w-auto">
+          <Select value={filterCategoryId} onValueChange={setFilterCategoryId}>
+            <SelectTrigger className="w-full md:w-[200px]">
+              <SelectValue placeholder="Tất cả danh mục" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Tất cả danh mục</SelectItem>
+              {flattenedCategories.map((c) => (
+                <SelectItem
+                  key={c.id}
+                  value={c.id}
+                  className={c.isParent ? "font-bold" : "pl-6"}
                 >
-                  Đang tải...
-                </TableCell>
-              </TableRow>
-            ) : products.length === 0 ? (
-              <TableRow>
-                <TableCell
-                  colSpan={9}
-                  className="text-center py-8 text-gray-400"
-                >
-                  Chưa có sản phẩm nào
-                </TableCell>
-              </TableRow>
-            ) : (
-              products.map((p) => (
-                <TableRow key={p.id}>
-                  <TableCell>
-                    {p.images?.[0] ? (
-                      <Image
-                        src={p.images[0]}
-                        alt={p.name}
-                        width={60}
-                        height={60}
-                        className="rounded object-cover"
-                      />
-                    ) : (
-                      <div className="w-[60px] h-[60px] bg-gray-100 rounded flex items-center justify-center text-gray-400 text-[10px]">
-                        KHÔNG CÓ ẢNH
-                      </div>
-                    )}
-                  </TableCell>
-                  <TableCell className="font-medium">{p.name}</TableCell>
-                  <TableCell className="text-gray-500 text-sm">
-                    {p.sku || "—"}
-                  </TableCell>
-                  <TableCell>{p.categories?.name || "—"}</TableCell>
-                  <TableCell className="text-sm">
-                    {formatVND(p.original_price)}
-                  </TableCell>
-                  <TableCell className="text-sm font-medium text-green-600">
-                    {formatVND(p.sale_price || p.original_price)}
-                    {p.discount_percent > 0 && (
-                      <span className="ml-1 text-xs text-red-500">
-                        -{p.discount_percent}%
-                      </span>
-                    )}
-                  </TableCell>
-                  <TableCell>
-                    <Badge variant={p.is_featured ? "default" : "outline"}>
-                      {p.is_featured ? "Nổi bật" : "Thường"}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>
-                    <Badge variant={p.is_published ? "default" : "secondary"}>
-                      {p.is_published ? "Hiện" : "Ẩn"}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex gap-2">
-                      <Button
-                        size="icon"
-                        variant="ghost"
-                        onClick={() => openEdit(p)}
-                      >
-                        <Pencil size={16} />
-                      </Button>
-                      <Button
-                        size="icon"
-                        variant="destructive"
-                        onClick={() => openDelete(p.id)}
-                      >
-                        <Trash2 size={16} />
-                      </Button>
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ))
-            )}
-          </TableBody>
-        </Table>
+                  {c.displayName}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+        <div className="w-full md:w-auto">
+          <Select value={filterIsFeatured} onValueChange={setFilterIsFeatured}>
+            <SelectTrigger className="w-full md:w-[150px]">
+              <SelectValue placeholder="Mức độ" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Tất cả mức độ</SelectItem>
+              <SelectItem value="true">Nổi bật</SelectItem>
+              <SelectItem value="false">Thường</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+        <div className="w-full md:w-auto">
+          <Select
+            value={filterIsPublished}
+            onValueChange={setFilterIsPublished}
+          >
+            <SelectTrigger className="w-full md:w-[150px]">
+              <SelectValue placeholder="Trạng thái" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Tất cả trạng thái</SelectItem>
+              <SelectItem value="true">Đang hiển thị</SelectItem>
+              <SelectItem value="false">Đang ẩn</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+        {(filterCategoryId !== "all" ||
+          filterIsFeatured !== "all" ||
+          filterIsPublished !== "all") && (
+          <Button
+            variant="ghost"
+            onClick={() => {
+              setFilterCategoryId("all");
+              setFilterIsFeatured("all");
+              setFilterIsPublished("all");
+            }}
+            className="h-10 text-muted-foreground"
+          >
+            Xóa lọc
+          </Button>
+        )}
       </div>
+
+      <DataTable
+        columns={columns}
+        data={filteredProducts}
+        searchKey="name"
+        searchPlaceholder="Tìm kiếm tên, SKU, danh mục..."
+      />
 
       <AdminDialog
         open={open}
@@ -396,67 +452,148 @@ export default function ProductsPage() {
         <div className="space-y-8">
           <FieldGroup>
             {/* Thông tin cơ bản */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <Field>
-                <FieldLabel className="mb-2">Tên sản phẩm *</FieldLabel>
-                <FieldContent>
-                  <Input
-                    placeholder="VD: Máy lạnh Daikin 1.5HP"
-                    value={name}
-                    onChange={(e) => {
-                      const val = e.target.value;
-                      const capitalized = val.charAt(0).toUpperCase() + val.slice(1);
-                      setName(capitalized);
-                      if (!editing) setSlug(generateSlug(capitalized));
-                    }}
-                  />
-                </FieldContent>
-              </Field>
-              <Field>
-                <FieldLabel className="mb-2">SKU</FieldLabel>
-                <FieldContent>
-                  <Input
-                    placeholder="VD: DAI-FTKY35"
-                    value={sku}
-                    onChange={(e) => setSku(e.target.value)}
-                  />
-                </FieldContent>
-              </Field>
-            </div>
+            <div className="bg-muted/10 p-6 rounded-2xl border border-border/40 transition-colors hover:border-border/60">
+              <h3 className="text-fluid-sm font-bold capitalize tracking-widest text-muted-foreground/60 mb-6">
+                Thông tin chung
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
+                <div className="md:col-span-8">
+                  <Field>
+                    <FieldLabel className="mb-2 font-medium">
+                      Tên sản phẩm *
+                    </FieldLabel>
+                    <FieldContent>
+                      <Input
+                        placeholder="VD: Máy lạnh Daikin 1.5HP"
+                        value={name}
+                        onChange={(e) => {
+                          const val = e.target.value;
+                          const capitalized = capitalize(val);
+                          setName(capitalized);
+                          setSlug(
+                            generateSlug(
+                              `${capitalized}${sku ? "-" + sku : ""}`,
+                            ),
+                          );
+                        }}
+                      />
+                    </FieldContent>
+                  </Field>
+                </div>
+                <div className="md:col-span-4">
+                  <Field>
+                    <FieldLabel className="mb-2 font-medium text-primary">
+                      SKU / Mã SP *
+                    </FieldLabel>
+                    <FieldContent>
+                      <Input
+                        className="border-primary/20 focus:border-primary"
+                        placeholder="VD: DAI-FTKY35"
+                        value={sku}
+                        onChange={(e) => {
+                          const val = e.target.value.toUpperCase();
+                          setSku(val);
+                          // Slug sẽ bao gồm cả SKU để đảm bảo duy nhất dù trùng tên
+                          setSlug(
+                            generateSlug(`${name}${val ? "-" + val : ""}`),
+                          );
+                        }}
+                      />
+                    </FieldContent>
+                  </Field>
+                </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <Field>
-                <FieldLabel className="mb-2">Slug (URL)</FieldLabel>
-                <FieldContent>
-                  <Input
-                    placeholder="may-lanh-daikin-1-5hp"
-                    value={slug}
-                    onChange={(e) => setSlug(e.target.value)}
-                  />
-                  <FieldDescription>URL: /san-pham/{slug || 'slug'}</FieldDescription>
-                </FieldContent>
-              </Field>
-              <Field>
-                <FieldLabel className="mb-2">Danh mục</FieldLabel>
-                <FieldContent>
-                  <Select value={categoryId} onValueChange={setCategoryId}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Chọn danh mục" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {categories.map((c) => (
-                        <SelectItem key={c.id} value={c.id}>
-                          {c.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </FieldContent>
-              </Field>
+                <div className="md:col-span-5">
+                  <Field>
+                    <FieldLabel className="mb-2 font-medium">
+                      Danh mục
+                    </FieldLabel>
+                    <FieldContent>
+                      <Select value={categoryId} onValueChange={setCategoryId}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Chọn danh mục" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {categories
+                            .filter((c) => !c.parent_id)
+                            .map((parent) => {
+                              const children = categories.filter(
+                                (c) => c.parent_id === parent.id,
+                              );
+                              return (
+                                <SelectGroup key={parent.id}>
+                                  <SelectLabel className="font-bold text-foreground py-2 px-2 capitalize text-fluid-tiny tracking-wider opacity-50">
+                                    {parent.name}
+                                  </SelectLabel>
+                                  {children.length > 0 ? (
+                                    children.map((child) => (
+                                      <SelectItem
+                                        key={child.id}
+                                        value={child.id}
+                                        className="pl-6"
+                                      >
+                                        {child.name}
+                                      </SelectItem>
+                                    ))
+                                  ) : (
+                                    <div className="text-[10px] italic text-muted-foreground px-6 py-1">
+                                      Chưa có danh mục con
+                                    </div>
+                                  )}
+                                  <SelectSeparator />
+                                </SelectGroup>
+                              );
+                            })}
+                        </SelectContent>
+                      </Select>
+                    </FieldContent>
+                  </Field>
+                </div>
+
+                <div className="md:col-span-7">
+                  <Field>
+                    <FieldLabel className="mb-2 font-medium">
+                      Slug (Đường dẫn tinh gọn)
+                    </FieldLabel>
+                    <FieldContent>
+                      <Input
+                        className="font-mono text-sm"
+                        placeholder="may-lanh-daikin-1-5hp"
+                        value={slug}
+                        onChange={(e) => setSlug(e.target.value)}
+                      />
+                    </FieldContent>
+                  </Field>
+                </div>
+
+                <div className="md:col-span-12">
+                  <div className="bg-white/50 border rounded-lg p-3 flex items-center gap-2">
+                    <div className="text-[10px] bg-muted/50 px-2 py-0.5 rounded font-bold capitalize text-muted-foreground/70 shrink-0 select-none">
+                      Xem trước URL
+                    </div>
+                    <p className="text-xs font-mono text-muted-foreground truncate">
+                      /san-pham/
+                      <span className="text-primary font-medium">
+                        {(() => {
+                          const cat = categories.find(
+                            (c) => c.id === categoryId,
+                          );
+                          return cat?.slug ? `${cat.slug}/` : "";
+                        })()}
+                      </span>
+                      <span className="text-primary font-bold">
+                        {slug || "slug-san-pham"}
+                      </span>
+                    </p>
+                  </div>
+                </div>
+              </div>
             </div>
 
             <Field>
-              <FieldLabel className="mb-2">Mô tả sản phẩm</FieldLabel>
+              <FieldLabel className="mb-2 font-medium">
+                Mô tả sản phẩm
+              </FieldLabel>
               <FieldContent>
                 <TiptapEditor
                   value={description}
@@ -465,9 +602,13 @@ export default function ProductsPage() {
                   uploadImage={async (file) => {
                     const ext = file.name.split(".").pop();
                     const fileName = `products/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
-                    const { error } = await supabase.storage.from("images").upload(fileName, file);
+                    const { error } = await supabase.storage
+                      .from("images")
+                      .upload(fileName, file);
                     if (error) throw error;
-                    const { data } = supabase.storage.from("images").getPublicUrl(fileName);
+                    const { data } = supabase.storage
+                      .from("images")
+                      .getPublicUrl(fileName);
                     return data.publicUrl;
                   }}
                 />
@@ -476,11 +617,15 @@ export default function ProductsPage() {
 
             {/* Giá bán */}
             <div className="space-y-6">
-              <h3 className="font-semibold text-base">Thiết lập giá bán</h3>
-              
+              <h3 className="font-semibold text-fluid-h3 tracking-tight">
+                Thiết lập giá bán
+              </h3>
+
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <Field>
-                  <FieldLabel className="mb-2 text-muted-foreground font-normal">Giá gốc (VNĐ)</FieldLabel>
+                  <FieldLabel className="mb-2 text-muted-foreground font-normal">
+                    Giá gốc (VNĐ)
+                  </FieldLabel>
                   <FieldContent>
                     <Input
                       type="number"
@@ -491,7 +636,9 @@ export default function ProductsPage() {
                   </FieldContent>
                 </Field>
                 <Field>
-                  <FieldLabel className="mb-2 text-muted-foreground font-normal">Giảm giá (%)</FieldLabel>
+                  <FieldLabel className="mb-2 text-muted-foreground font-normal">
+                    Giảm giá (%)
+                  </FieldLabel>
                   <FieldContent>
                     <Input
                       type="number"
@@ -499,12 +646,16 @@ export default function ProductsPage() {
                       min="0"
                       max="100"
                       value={discountPercent || ""}
-                      onChange={(e) => setDiscountPercent(Number(e.target.value))}
+                      onChange={(e) =>
+                        setDiscountPercent(Number(e.target.value))
+                      }
                     />
                   </FieldContent>
                 </Field>
                 <Field>
-                  <FieldLabel className="mb-2 text-muted-foreground font-normal">Ghi đè giá bán</FieldLabel>
+                  <FieldLabel className="mb-2 text-muted-foreground font-normal">
+                    Ghi đè giá bán
+                  </FieldLabel>
                   <FieldContent>
                     <Input
                       type="number"
@@ -518,14 +669,17 @@ export default function ProductsPage() {
 
               <div className="bg-muted/30 border rounded-lg p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div className="space-y-1">
-                  <p className="text-xs text-muted-foreground uppercase font-semibold">Giá bán cuối cùng</p>
-                  <p className="text-2xl font-bold text-green-600 leading-none">
+                  <p className="text-xs text-muted-foreground capitalize font-semibold">
+                    Giá bán cuối cùng
+                  </p>
+                  <p className="text-fluid-h2 font-bold text-primary leading-none">
                     {formatVND(computedSalePrice)}
                   </p>
                 </div>
                 {discountPercent > 0 && (
                   <div className="bg-red-50 dark:bg-red-950/20 px-3 py-2 rounded text-sm text-red-600 dark:text-red-400 font-medium">
-                    Tiết kiệm {formatVND(originalPrice - computedSalePrice)} (-{discountPercent}%)
+                    Tiết kiệm {formatVND(originalPrice - computedSalePrice)} (-
+                    {discountPercent}%)
                   </div>
                 )}
               </div>
@@ -534,15 +688,19 @@ export default function ProductsPage() {
             {/* Thông số kỹ thuật */}
             <div className="space-y-6 pt-4">
               <div className="flex items-center justify-between">
-                <h3 className="font-semibold text-base">Thông số kỹ thuật</h3>
-                <Button size="sm" variant="outline" onClick={addSpec} className="h-8">
+                <h3 className="font-semibold text-fluid-h3 tracking-tight">
+                  Thông số kỹ thuật
+                </h3>
+                <Button size="sm" variant="outline" onClick={addSpec}>
                   <Plus size={14} className="mr-1.5" /> Thêm thông số
                 </Button>
               </div>
-              
+
               {specs.length === 0 ? (
                 <div className="text-center py-8 border-2 border-dashed rounded-lg bg-muted/20">
-                  <p className="text-sm text-muted-foreground">Chưa có thông số kỹ thuật nào.</p>
+                  <p className="text-sm text-muted-foreground">
+                    Chưa có thông số kỹ thuật nào.
+                  </p>
                 </div>
               ) : (
                 <div className="space-y-3">
@@ -576,15 +734,21 @@ export default function ProductsPage() {
 
             {/* Hình ảnh */}
             <Field>
-              <FieldLabel className="mb-2">Hình ảnh sản phẩm</FieldLabel>
+              <FieldLabel className="mb-2 font-medium">
+                Hình ảnh sản phẩm
+              </FieldLabel>
               <FieldContent>
                 <label className="flex flex-col items-center justify-center gap-2 border-2 border-dashed rounded-xl p-8 cursor-pointer hover:bg-muted/50 transition-colors border-muted-foreground/20">
                   <div className="bg-primary/10 p-3 rounded-full">
                     <Upload size={24} className="text-primary" />
                   </div>
                   <div className="text-center">
-                    <p className="text-sm font-medium">Nhấn để tải lên sản phẩm</p>
-                    <p className="text-xs text-muted-foreground mt-1">Hỗ trợ tối đa 10 ảnh cùng lúc</p>
+                    <p className="text-sm font-medium">
+                      Nhấn để tải lên sản phẩm
+                    </p>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Hỗ trợ tối đa 10 ảnh cùng lúc
+                    </p>
                   </div>
                   <input
                     type="file"
@@ -599,7 +763,10 @@ export default function ProductsPage() {
                 {images.length > 0 && (
                   <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 mt-6">
                     {images.map((url, i) => (
-                      <div key={i} className="relative group aspect-square ring-1 ring-muted rounded-lg overflow-hidden bg-muted/30">
+                      <div
+                        key={i}
+                        className="relative group aspect-square ring-1 ring-muted rounded-lg overflow-hidden bg-muted/30"
+                      >
                         <Image
                           src={url}
                           alt=""
@@ -611,7 +778,9 @@ export default function ProductsPage() {
                             size="icon"
                             variant="destructive"
                             className="h-8 w-8"
-                            onClick={() => setImages(images.filter((_, idx) => idx !== i))}
+                            onClick={() =>
+                              setImages(images.filter((_, idx) => idx !== i))
+                            }
                           >
                             <X size={14} />
                           </Button>
@@ -626,13 +795,22 @@ export default function ProductsPage() {
             {/* Điều khiển cuối */}
             <div className="flex flex-wrap items-center justify-between gap-6 border-t pt-8 pb-4">
               <div className="flex items-center gap-8">
-                <Field orientation="horizontal" className="w-auto gap-3 flex items-center">
+                <Field
+                  orientation="horizontal"
+                  className="w-auto gap-3 flex items-center"
+                >
                   <FieldLabel className="w-auto mb-0">Nổi bật</FieldLabel>
                   <FieldContent className="flex items-center min-h-0">
-                    <Switch checked={isFeatured} onCheckedChange={setIsFeatured} />
+                    <Switch
+                      checked={isFeatured}
+                      onCheckedChange={setIsFeatured}
+                    />
                   </FieldContent>
                 </Field>
-                <Field orientation="horizontal" className="w-auto gap-3 flex items-center">
+                <Field
+                  orientation="horizontal"
+                  className="w-auto gap-3 flex items-center"
+                >
                   <FieldLabel className="w-auto mb-0">Hiển thị</FieldLabel>
                   <FieldContent className="flex items-center min-h-0">
                     <Switch
@@ -641,8 +819,13 @@ export default function ProductsPage() {
                     />
                   </FieldContent>
                 </Field>
-                <Field orientation="horizontal" className="w-auto gap-3 flex items-center">
-                  <FieldLabel className="w-auto mb-0 flex items-center h-full">Thứ tự</FieldLabel>
+                <Field
+                  orientation="horizontal"
+                  className="w-auto gap-3 flex items-center"
+                >
+                  <FieldLabel className="w-auto mb-0 flex items-center h-full">
+                    Thứ tự
+                  </FieldLabel>
                   <FieldContent className="flex items-center min-h-0">
                     <Input
                       type="number"
@@ -654,10 +837,10 @@ export default function ProductsPage() {
                 </Field>
               </div>
               <div className="flex gap-3">
-                <Button variant="outline" onClick={() => setOpen(false)} className="px-6">
+                <Button variant="outline" onClick={() => setOpen(false)}>
                   Hủy
                 </Button>
-                <Button onClick={handleSave} className="min-w-[140px] px-6">
+                <Button onClick={handleSave}>
                   {editing ? "Cập nhật sản phẩm" : "Tạo sản phẩm mới"}
                 </Button>
               </div>

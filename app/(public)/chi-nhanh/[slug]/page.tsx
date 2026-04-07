@@ -37,23 +37,23 @@ export default async function BranchDetail({ params }: PageProps) {
   }
 
   return (
-    <main className="w-full pt-32 pb-24 px-4 min-h-screen bg-white font-sans tracking-tight selection:bg-zinc-900 selection:text-white">
+    <main className="w-full pt-30 pb-40 px-container min-h-screen bg-background font-sans tracking-tight">
       <div className="max-w-[800px] mx-auto">
         {/* TOC Header */}
         <header className="mb-6 flex flex-col md:flex-row md:items-center justify-between gap-6">
-          <div className="text-[12px] font-bold uppercase tracking-widest text-zinc-900 opacity-90 truncate">
+          <div className="text-fluid-xs font-bold capitalize tracking-widest text-foreground opacity-90 truncate">
             Không Gian Kiến Trúc
           </div>
           <div className="scale-90 origin-left md:origin-right shrink-0">
             <BranchTOC branches={allBranches} currentSlug={slug} />
           </div>
         </header>
-        <Separator className="mb-16 bg-zinc-100" />
+        <Separator className="mb-16" />
 
         <article className="animate-in fade-in duration-1000 ease-out">
           {/* Massive Title */}
           <div className="mb-16">
-            <h1 className="text-[clamp(48px,6vw,96px)] font-black tracking-tighter text-zinc-900 leading-[0.85] lowercase first-letter:uppercase">
+            <h1 className="text-fluid-h1 font-black tracking-tighter text-foreground leading-[0.85] lowercase first-letter:capitalize">
               {branch.name}
             </h1>
           </div>
@@ -61,23 +61,27 @@ export default async function BranchDetail({ params }: PageProps) {
           {/* Branch Details Grid (Premium Black & White blocks) */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 md:gap-8 my-20">
             {/* Dark Card - Location */}
-            <div className="aspect-square bg-zinc-900 text-white p-8 md:p-10 flex flex-col justify-end">
+            <div className="aspect-square bg-primary text-primary-foreground p-8 md:p-10 flex flex-col justify-end">
               <div className="mb-auto">
-                <div className="w-8 h-8 rounded-full border border-white/20 flex items-center justify-center">
-                  <MapPin size={12} className="text-white" strokeWidth={3} />
+                <div className="w-8 h-8 rounded-full border border-primary-foreground/20 flex items-center justify-center">
+                  <MapPin
+                    size={12}
+                    className="text-primary-foreground"
+                    strokeWidth={3}
+                  />
                 </div>
               </div>
-              <h3 className="text-2xl font-bold mb-4 tracking-tight">
+              <h3 className="text-fluid-h2 font-bold mb-4 tracking-tight">
                 Tọa độ chính thức
               </h3>
-              <p className="text-[14px] md:text-[15px] text-zinc-400 font-medium leading-[1.6]">
+              <p className="text-fluid-base text-primary-foreground/60 font-medium leading-[1.6]">
                 {branch.address}
               </p>
               <a
                 href={branch.maps_url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-1.5 text-[10px] font-bold text-white uppercase tracking-[0.2em] hover:underline hover:underline-offset-4 mt-8 transition-all"
+                className="inline-flex items-center gap-1.5 text-fluid-xs font-bold text-primary-foreground capitalize tracking-[0.2em] hover:underline hover:underline-offset-4 mt-8 transition-all"
               >
                 Chỉ đường di chuyển{" "}
                 <Navigation2 size={12} className="rotate-45" />
@@ -85,29 +89,29 @@ export default async function BranchDetail({ params }: PageProps) {
             </div>
 
             {/* Light Card - Contact */}
-            <div className="aspect-square bg-[#f4f4f4] p-8 md:p-10 flex flex-col justify-between">
-              <div className="text-[10px] font-bold uppercase tracking-[0.3em] text-zinc-400">
+            <div className="aspect-square bg-muted/30 p-8 md:p-10 flex flex-col justify-between border border-border/40">
+              <div className="text-[10px] font-bold capitalize tracking-[0.3em] text-muted-foreground/40">
                 Kết nối trực tiếp
               </div>
               <div className="flex flex-col gap-10">
                 <div>
-                  <span className="text-[10px] uppercase font-bold tracking-[0.2em] text-zinc-400 block mb-2">
+                  <span className="text-fluid-xs capitalize font-bold tracking-[0.2em] text-muted-foreground/30 block mb-2">
                     Đường dây nóng
                   </span>
                   <PhoneConfirmation phone={branch.phone}>
-                    <div className="text-3xl md:text-[40px] font-black tracking-tighter text-zinc-900 cursor-pointer hover:text-zinc-600 transition-colors leading-none">
+                    <div className="text-4xl md:text-5xl font-black tracking-tighter text-foreground cursor-pointer hover:text-primary transition-colors leading-none">
                       {branch.phone}
                     </div>
                   </PhoneConfirmation>
                 </div>
 
                 <div>
-                  <span className="text-[10px] uppercase font-bold tracking-[0.2em] text-zinc-400 block mb-2">
+                  <span className="text-fluid-xs capitalize font-bold tracking-[0.2em] text-muted-foreground/30 block mb-2">
                     Thư điện tử
                   </span>
                   <a
                     href={`mailto:${branch.email}`}
-                    className="text-lg md:text-xl font-bold tracking-tight text-zinc-500 hover:text-zinc-900 transition-colors"
+                    className="text-fluid-base font-bold tracking-tight text-muted-foreground hover:text-foreground transition-colors"
                   >
                     {branch.email}
                   </a>
@@ -119,17 +123,17 @@ export default async function BranchDetail({ params }: PageProps) {
           {/* Description with Clean Editorial Typography */}
           {branch.description && branch.description.trim() !== "" && (
             <>
-              <Separator className="mt-32 mb-20 bg-zinc-100" />
+              <Separator className="mt-32 mb-20" />
               <div className="mb-32">
                 <div
                   className="prose prose-zinc prose-lg max-w-none 
                       font-sans 
-                      prose-p:leading-[1.8] prose-p:text-[16px] md:prose-p:text-[18px] prose-p:text-zinc-500 prose-p:font-medium
-                      prose-headings:font-sans prose-headings:font-black prose-headings:tracking-tighter prose-headings:text-zinc-900 
+                      prose-p:leading-[1.8] prose-p:text-fluid-base prose-p:text-muted-foreground/80 prose-p:font-medium
+                      prose-headings:font-sans prose-headings:font-black prose-headings:tracking-tighter prose-headings:text-foreground 
                       prose-headings:text-3xl md:prose-headings:text-5xl
                       prose-headings:mt-16 prose-headings:mb-8
-                      prose-a:text-zinc-900 prose-a:underline prose-a:underline-offset-4
-                      prose-strong:text-zinc-900"
+                      prose-a:text-primary prose-a:underline prose-a:underline-offset-4
+                      prose-strong:text-foreground"
                   dangerouslySetInnerHTML={{ __html: branch.description }}
                 />
               </div>
@@ -139,16 +143,16 @@ export default async function BranchDetail({ params }: PageProps) {
           {/* Interactive Map Section - Massive Edge-to-Edge */}
           {branch.maps_embed && (
             <>
-              <Separator className="my-20 bg-zinc-100" />
+              <Separator className="my-20" />
               <div className="mt-16">
                 {/* Meaningful Context Label */}
                 <div className="mb-10 text-center">
-                  <h2 className="text-3xl md:text-5xl font-black tracking-tighter text-zinc-900">
+                  <h2 className="text-fluid-h1 font-black tracking-tighter text-foreground">
                     Bản đồ vệ tinh
                   </h2>
                 </div>
 
-                <div className="w-[100vw] relative left-1/2 -translate-x-1/2 h-[50vh] md:h-[70vh] min-h-[500px] bg-zinc-100 border-y border-zinc-200">
+                <div className="w-[100vw] relative left-1/2 -translate-x-1/2 h-[50vh] md:h-[70vh] min-h-[500px] bg-muted/20 border-y border-border">
                   <iframe
                     src={
                       branch.maps_embed.match(/src="([^"]+)"/)?.[1] ||
@@ -168,11 +172,14 @@ export default async function BranchDetail({ params }: PageProps) {
           )}
         </article>
 
-        <Separator className="mt-20 mb-10 bg-zinc-100" />
+        <Separator className="mt-20 mb-10" />
 
-        <footer className="flex items-center justify-between text-[12px] text-zinc-400 font-medium">
+        <footer className="flex items-center justify-between text-fluid-xs text-muted-foreground font-medium italic">
           <span>&copy; {new Date().getFullYear()} ELC Global Network</span>
-          <a href="#" className="hover:text-zinc-900 transition-colors">
+          <a
+            href="#"
+            className="hover:text-primary transition-colors not-italic font-bold capitalize tracking-widest"
+          >
             Trở lên đầu trang
           </a>
         </footer>

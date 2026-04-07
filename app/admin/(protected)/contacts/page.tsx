@@ -1,17 +1,18 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { DataTable } from "@/components/ui/data-table";
+import { getColumns, type ContactRow } from "./columns";
 import { AdminDialog } from "@/components/admin/admin-dialog";
 import { DeleteDialog } from "@/components/admin/delete-dialog";
 import {
@@ -22,13 +23,6 @@ import {
   FieldLabel,
 } from "@/components/ui/field";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
   Pencil,
   Trash2,
   Plus,
@@ -37,10 +31,10 @@ import {
   MessageCircle,
   Globe,
   Link,
-  X,
 } from "lucide-react";
 
 import { toast } from "sonner";
+import { capitalize } from "@/lib/utils";
 
 type Contact = {
   id: string;
@@ -58,13 +52,6 @@ const CONTACT_TYPES = [
   { value: "website", label: "Website", icon: Link },
 ];
 
-function getIcon(type: string) {
-  const found = CONTACT_TYPES.find((t) => t.value === type);
-  if (!found) return <Globe size={16} />;
-  const Icon = found.icon;
-  return <Icon size={16} />;
-}
-
 export default function ContactsPage() {
   const [contacts, setContacts] = useState<Contact[]>([]);
   const [loading, setLoading] = useState(true);
@@ -72,6 +59,9 @@ export default function ContactsPage() {
   const [editing, setEditing] = useState<Contact | null>(null);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+
+  // Filter states
+  const [filterType, setFilterType] = useState<string>("all");
 
   const [type, setType] = useState("phone");
   const [label, setLabel] = useState("");
@@ -92,6 +82,22 @@ export default function ContactsPage() {
   useEffect(() => {
     fetchContacts();
   }, []);
+
+  const filteredContacts = useMemo(() => {
+    return contacts.filter((c) => {
+      const matchType = filterType === "all" || c.type === filterType;
+      return matchType;
+    });
+  }, [contacts, filterType]);
+
+  const columns = useMemo(
+    () =>
+      getColumns({
+        onEdit: (c) => openEdit(c as unknown as Contact),
+        onDelete: openDelete,
+      }),
+    [contacts],
+  );
 
   function openCreate() {
     setEditing(null);
@@ -156,7 +162,10 @@ export default function ContactsPage() {
 
   async function handleDelete() {
     if (!deletingId) return;
-    const { error } = await supabase.from("contacts").delete().eq("id", deletingId);
+    const { error } = await supabase
+      .from("contacts")
+      .delete()
+      .eq("id", deletingId);
     if (error) {
       toast.error("Lỗi xóa");
       return;
@@ -168,89 +177,54 @@ export default function ContactsPage() {
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 mb-8">
         <div>
-          <h1 className="text-2xl font-bold">Liên hệ</h1>
-          <p className="text-sm text-muted-foreground mt-1">Cấu hình các kênh liên lạc hiển thị trên website.</p>
+          <h1 className="text-2xl font-bold tracking-tight">Liên hệ</h1>
+          <p className="text-sm text-muted-foreground mt-1">
+            Cấu hình các kênh liên lạc hiển thị trên website.
+          </p>
         </div>
-        <Button onClick={openCreate}>
+        <Button onClick={openCreate} className="h-9">
           <Plus size={16} className="mr-2" /> Thêm liên hệ
         </Button>
       </div>
 
-      <div className="bg-white rounded-lg border">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Loại</TableHead>
-              <TableHead>Nhãn</TableHead>
-              <TableHead>Giá trị</TableHead>
-              <TableHead>Thứ tự</TableHead>
-              <TableHead className="w-24">Thao tác</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {loading ? (
-              <TableRow>
-                <TableCell
-                  colSpan={5}
-                  className="text-center py-8 text-gray-400"
-                >
-                  Đang tải...
-                </TableCell>
-              </TableRow>
-            ) : contacts.length === 0 ? (
-              <TableRow>
-                <TableCell
-                  colSpan={5}
-                  className="text-center py-8 text-gray-400"
-                >
-                  Chưa có liên hệ nào
-                </TableCell>
-              </TableRow>
-            ) : (
-              contacts.map((c) => (
-                <TableRow key={c.id}>
-                  <TableCell>
-                    <div className="flex items-center gap-2 text-sm">
-                      {getIcon(c.type)}
-                      <span className="capitalize">
-                        {CONTACT_TYPES.find((t) => t.value === c.type)?.label ||
-                          c.type}
-                      </span>
-                    </div>
-                  </TableCell>
-                  <TableCell className="text-sm text-gray-600">
-                    {c.label || "—"}
-                  </TableCell>
-                  <TableCell className="text-sm font-medium">
-                    {c.value}
-                  </TableCell>
-                  <TableCell>{c.order_index}</TableCell>
-                  <TableCell>
-                    <div className="flex gap-2">
-                      <Button
-                        size="icon"
-                        variant="ghost"
-                        onClick={() => openEdit(c)}
-                      >
-                        <Pencil size={16} />
-                      </Button>
-                      <Button
-                        size="icon"
-                        variant="destructive"
-                        onClick={() => openDelete(c.id)}
-                      >
-                        <Trash2 size={16} />
-                      </Button>
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ))
-            )}
-          </TableBody>
-        </Table>
+      <div className="flex flex-wrap items-center gap-4 mb-1">
+        <div className="w-full md:w-auto">
+          <Select value={filterType} onValueChange={setFilterType}>
+            <SelectTrigger className="w-full md:w-[200px]">
+              <SelectValue placeholder="Loại liên hệ" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Tất cả các loại</SelectItem>
+              {CONTACT_TYPES.map((t) => (
+                <SelectItem key={t.value} value={t.value}>
+                  <div className="flex items-center gap-2">
+                    <t.icon size={16} className="text-muted-foreground" />
+                    {t.label}
+                  </div>
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+        {filterType !== "all" && (
+          <Button
+            variant="ghost"
+            onClick={() => setFilterType("all")}
+            className="h-10 text-muted-foreground"
+          >
+            Xóa lọc
+          </Button>
+        )}
       </div>
+
+      <DataTable
+        columns={columns}
+        data={filteredContacts}
+        searchKey="value"
+        searchPlaceholder="Tìm kiếm nhãn, giá trị..."
+      />
 
       <AdminDialog
         open={open}
@@ -263,7 +237,9 @@ export default function ContactsPage() {
           <FieldGroup>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <Field>
-                <FieldLabel className="mb-2">Loại liên hệ</FieldLabel>
+                <FieldLabel className="mb-2 font-medium">
+                  Loại liên hệ
+                </FieldLabel>
                 <FieldContent>
                   <Select value={type} onValueChange={handleTypeChange}>
                     <SelectTrigger>
@@ -284,7 +260,9 @@ export default function ContactsPage() {
               </Field>
 
               <Field>
-                <FieldLabel className="mb-2">Thứ tự hiển thị</FieldLabel>
+                <FieldLabel className="mb-2 font-medium">
+                  Thứ tự hiển thị
+                </FieldLabel>
                 <FieldContent>
                   <Input
                     type="number"
@@ -296,22 +274,26 @@ export default function ContactsPage() {
             </div>
 
             <Field>
-              <FieldLabel className="mb-2">Nhãn hiển thị</FieldLabel>
+              <FieldLabel className="mb-2 font-medium">
+                Nhãn hiển thị
+              </FieldLabel>
               <FieldContent>
                 <Input
                   placeholder="VD: Hotline, CSKH, Fanpage..."
                   value={label}
                   onChange={(e) => {
                     const val = (e.target as HTMLInputElement).value;
-                    setLabel(val.charAt(0).toUpperCase() + val.slice(1));
+                    setLabel(capitalize(val));
                   }}
                 />
-                <FieldDescription>Tên ngắn gọn mô tả thông tin liên hệ.</FieldDescription>
+                <FieldDescription className="text-xs italic">
+                  Tên ngắn gọn mô tả thông tin liên hệ.
+                </FieldDescription>
               </FieldContent>
             </Field>
 
             <Field>
-              <FieldLabel className="mb-2">
+              <FieldLabel className="mb-2 font-medium">
                 {type === "phone"
                   ? "Số điện thoại"
                   : type === "email"
@@ -335,10 +317,10 @@ export default function ContactsPage() {
           </FieldGroup>
 
           <div className="flex justify-end gap-3 border-t pt-6">
-            <Button variant="outline" onClick={() => setOpen(false)} className="px-6">
+            <Button variant="outline" onClick={() => setOpen(false)}>
               Hủy
             </Button>
-            <Button onClick={handleSave} className="min-w-[120px] px-6">
+            <Button onClick={handleSave}>
               {editing ? "Cập nhật" : "Tạo mới"}
             </Button>
           </div>

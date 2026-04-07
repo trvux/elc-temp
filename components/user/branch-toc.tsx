@@ -46,13 +46,13 @@ export function BranchTOC({ branches, currentSlug }: BranchTOCProps) {
           variant="outline"
           role="combobox"
           aria-expanded={open}
-          className="w-[220px] justify-between text-zinc-500 hover:text-zinc-900 border-zinc-200"
+          className="w-[220px] justify-between text-muted-foreground hover:text-foreground border-border"
         >
           <span className="font-medium text-[14px]">Tìm kiếm chi nhánh</span>
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-[220px] p-0 shadow-lg border-zinc-100">
+      <PopoverContent className="w-[220px] p-0 shadow-lg border-border">
         <Command>
           <CommandInput placeholder="Nhập tên chi nhánh..." />
           <CommandList>

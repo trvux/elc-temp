@@ -8,22 +8,22 @@ export default async function ProjectsPage() {
   // Fetch all published projects and categories
   const { data: projects } = await supabase
     .from("projects")
-    .select("*, categories(name)")
+    .select("*, categories(name, slug, parent:parent_id(name))")
     .eq("is_published", true)
     .order("order_index", { ascending: true });
 
   const allProjects = projects || [];
 
   return (
-    <main className="w-full bg-white pt-24 pb-48 font-sans">
+    <main className="w-full bg-background pt-24 pb-48 font-sans">
       {/* Centered Container with Fluid Padding */}
       <div className="mx-auto w-full px-container max-w-[1400px]">
         {/* Clean Header - Centered */}
         <header className="py-20 flex flex-col items-center text-center space-y-4">
-          <h1 className="text-[clamp(24px,3vw,40px)] font-bold tracking-tight text-zinc-900">
+          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight text-foreground">
             Công Trình Tiêu Biểu
           </h1>
-          <p className="text-[clamp(12px,1.2vw,14px)] text-zinc-500 tracking-widest uppercase font-medium">
+          <p className="text-xs md:text-sm text-muted-foreground tracking-widest capitalize font-medium">
             {allProjects.length} Dự án đã hoàn thiện
           </p>
         </header>
@@ -33,11 +33,10 @@ export default async function ProjectsPage() {
           {allProjects.map((project) => (
             <Link
               key={project.id}
-              href={`/cong-trinh/${project.slug}`}
+              href={`/cong-trinh/${project.categories?.slug ? project.categories.slug + "/" : ""}${project.slug}`}
               className="group flex flex-col"
             >
-              {/* Image with Zara Aspect Ratio */}
-              <div className="relative aspect-[2/3] w-full overflow-hidden bg-[#f9f9f9]">
+              <div className="relative aspect-[2/3] w-full overflow-hidden bg-muted/20">
                 {project.images?.[0] ? (
                   <Image
                     src={project.images[0]}
@@ -47,7 +46,7 @@ export default async function ProjectsPage() {
                     sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                   />
                 ) : (
-                  <div className="w-full h-full flex items-center justify-center text-zinc-300 text-[10px] font-bold capitalize tracking-[0.3em]">
+                  <div className="w-full h-full flex items-center justify-center text-muted-foreground/30 text-[10px] font-bold capitalize tracking-[0.3em]">
                     Gallery
                   </div>
                 )}
@@ -56,10 +55,10 @@ export default async function ProjectsPage() {
               {/* Info with refined spacing */}
               <div className="mt-6 flex flex-col space-y-2 px-0.5">
                 <div className="flex flex-wrap items-center gap-3">
-                  <h3 className="text-[clamp(12px,1.2vw,16px)] font-bold text-zinc-900 leading-tight tracking-tight lowercase first-letter:capitalize shrink-0">
+                  <h3 className="text-base md:text-lg font-bold text-foreground leading-tight tracking-tight lowercase first-letter:capitalize shrink-0">
                     {project.title}
                   </h3>
-                  <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md border border-zinc-200 text-zinc-500 text-[10px] md:text-[11px] font-medium bg-transparent shrink-0">
+                  <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md border border-border text-muted-foreground text-[10px] md:text-[11px] font-medium bg-transparent shrink-0">
                     <svg
                       width="10"
                       height="10"
@@ -70,11 +69,13 @@ export default async function ProjectsPage() {
                     >
                       <path d="M12 2C12 2 12 9 19 12C12 15 12 22 12 22C12 22 12 15 5 12C12 9 12 2 12 2Z" />
                     </svg>
-                    {project.categories?.name || "Khác"}
+                    {project.categories?.parent?.name
+                      ? `${project.categories.parent.name} / ${project.categories.name}`
+                      : project.categories?.name || "Khác"}
                   </span>
                 </div>
                 <div className="flex items-center">
-                  <span className="text-zinc-400 font-bold tracking-widest capitalize text-[10px] opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+                  <span className="text-muted-foreground font-bold tracking-widest capitalize text-[10px] opacity-0 group-hover:opacity-100 transition-opacity duration-500">
                     Xem chi tiết
                   </span>
                 </div>
@@ -85,7 +86,7 @@ export default async function ProjectsPage() {
 
         {!allProjects.length && (
           <div className="col-span-full py-24 text-center">
-            <p className="text-zinc-400 italic text-[12px] capitalize tracking-widest">
+            <p className="text-muted-foreground/60 italic text-xs md:text-sm capitalize tracking-widest">
               Hiện chưa có công trình nào.
             </p>
           </div>

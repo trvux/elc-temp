@@ -48,14 +48,14 @@ export function InfoTOC({ pages, currentSlug, basePath = "" }: InfoTOCProps) {
           variant="outline"
           role="combobox"
           aria-expanded={open}
-          className="w-[200px] justify-between text-zinc-500 hover:text-zinc-900 border-zinc-200"
+          className="w-[200px] justify-between text-muted-foreground hover:text-foreground border-border"
         >
           {/* Sentence case instead of all caps as requested */}
           <span className="font-medium text-[14px]">Tìm kiếm thông tin</span>
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-[200px] p-0 shadow-lg border-zinc-100">
+      <PopoverContent className="w-[200px] p-0 shadow-lg border-border">
         <Command>
           <CommandInput placeholder="Tìm kiếm trang..." />
           <CommandList>

@@ -15,8 +15,8 @@ export default async function InformationHub() {
 
   if (!allPages) {
     return (
-      <main className="w-full pt-32 pb-24 px-4 max-w-3xl mx-auto text-center font-sans font-medium">
-        <p className="text-zinc-300">Đang tải...</p>
+      <main className="w-full pt-24 pb-48 px-4 max-w-3xl mx-auto text-center font-sans font-medium">
+        <p className="text-muted-foreground/40">Đang tải...</p>
       </main>
     );
   }
@@ -24,26 +24,26 @@ export default async function InformationHub() {
   const currentTitle = "Thông tin về ELC";
 
   return (
-    <main className="w-full pt-32 pb-24 px-4 min-h-screen bg-white font-sans tracking-tight">
+    <main className="w-full pt-30 pb-48 px-4 min-h-screen bg-background font-sans tracking-tight">
       <div className="max-w-[750px] mx-auto">
         <header className="mb-6 flex flex-col md:flex-row md:items-center justify-between gap-6">
-          <div className="text-[13px] font-bold uppercase tracking-widest text-zinc-900 opacity-90 truncate">
+          <div className="text-[13px] font-bold capitalize tracking-widest text-foreground opacity-90 truncate">
             {currentTitle}
           </div>
           <div className="scale-90 origin-left md:origin-right shrink-0">
             <InfoTOC pages={allPages || []} />
           </div>
         </header>
-        <Separator className="mb-12 bg-zinc-100" />
+        <Separator className="mb-12 bg-border/30" />
 
         <article className="animate-in fade-in duration-1000 ease-out">
           <div
             className="prose prose-zinc prose-lg md:prose-xl max-w-none 
                font-serif 
-               prose-p:leading-[1.65] prose-p:my-10 prose-p:text-[20px] prose-p:text-zinc-800 
-               prose-headings:font-sans prose-headings:font-bold prose-headings:tracking-tight prose-headings:text-zinc-900 
+               prose-p:leading-[1.65] prose-p:my-10 prose-p:text-lg md:prose-p:text-xl prose-p:text-foreground/90 
+               prose-headings:font-sans prose-headings:font-bold prose-headings:tracking-tight prose-headings:text-foreground 
                prose-headings:mt-16 prose-headings:mb-6
-               prose-a:text-zinc-900 prose-a:underline prose-a:underline-offset-4
+               prose-a:text-primary prose-a:underline prose-a:underline-offset-4
                prose-img:rounded-none prose-img:w-full prose-img:block prose-img:mx-auto prose-img:my-12"
           >
             <p>
@@ -65,38 +65,38 @@ export default async function InformationHub() {
             <div className="not-prose my-12">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 md:gap-8">
                 {/* Dark Card */}
-                <div className="aspect-square bg-zinc-900 text-white p-8 md:p-10 flex flex-col justify-end">
+                <div className="aspect-square bg-primary text-primary-foreground p-8 md:p-10 flex flex-col justify-end">
                   <div className="mb-auto">
-                    <div className="w-8 h-8 rounded-full border border-white/20 flex items-center justify-center">
-                      <span className="w-2 h-2 bg-white rounded-full text-zinc-900 flex items-center justify-center text-[10px]"></span>
+                    <div className="w-8 h-8 rounded-full border border-primary-foreground/20 flex items-center justify-center">
+                      <span className="w-2 h-2 bg-primary-foreground rounded-full text-primary flex items-center justify-center text-[10px]"></span>
                     </div>
                   </div>
                   <h3 className="text-xl font-bold mb-4 tracking-tight">
                     Lifetime Legacy
                   </h3>
-                  <p className="text-[13px] text-zinc-400 font-medium leading-[1.6]">
+                  <p className="text-[13px] text-primary-foreground/60 font-medium leading-[1.6]">
                     Truy cập toàn bộ văn bản thỏa thuận, cam kết bảo hành và đặc
                     quyền bảo dưỡng trọn vòng đời cho sản phẩm của ELC.
                   </p>
                 </div>
 
                 {/* Light Card */}
-                <div className="aspect-square bg-[#f4f4f4] p-8 md:p-10 flex flex-col justify-between">
-                  <div className="text-[10px] font-bold uppercase tracking-[0.3em] text-zinc-400">
+                <div className="aspect-square bg-muted/30 p-8 md:p-10 flex flex-col justify-between">
+                  <div className="text-[10px] font-bold capitalize tracking-[0.3em] text-muted-foreground/40">
                     Response Rate
                   </div>
                   <div>
-                    <div className="text-5xl md:text-6xl font-black tracking-tighter text-zinc-900 mb-1">
+                    <div className="text-5xl md:text-6xl font-black tracking-tighter text-foreground mb-1">
                       100
-                      <span className="text-[32px] align-top text-zinc-900">
+                      <span className="text-[32px] align-top text-foreground">
                         %
                       </span>
                     </div>
-                    <div className="text-4xl md:text-5xl font-black tracking-tighter text-zinc-300 mb-6">
+                    <div className="text-4xl md:text-5xl font-black tracking-tighter text-muted-foreground/20 mb-6">
                       SLA
                     </div>
-                    <div className="h-px w-full bg-zinc-200 mb-4"></div>
-                    <p className="text-[11px] font-bold text-zinc-900 uppercase tracking-widest">
+                    <div className="h-px w-full bg-border mb-4"></div>
+                    <p className="text-[11px] font-bold text-foreground capitalize tracking-widest">
                       Hỗ trợ tức thời
                     </p>
                   </div>
@@ -112,11 +112,11 @@ export default async function InformationHub() {
           </div>
         </article>
 
-        <Separator className="mt-40 mb-10 bg-zinc-100" />
-        
-        <footer className="flex items-center justify-between text-[12px] text-zinc-400 font-medium">
+        <Separator className="mt-40 mb-10 bg-border/30" />
+
+        <footer className="flex items-center justify-between text-[12px] text-muted-foreground font-medium">
           <span>&copy; {new Date().getFullYear()} ELC Information Hub</span>
-          <a href="#" className="hover:text-zinc-900 transition-colors">
+          <a href="#" className="hover:text-foreground transition-colors">
             Trở lên đầu trang
           </a>
         </footer>

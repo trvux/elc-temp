@@ -64,9 +64,9 @@ export function AdminDialog({
       >
         <div className="flex flex-col p-6 pb-2 shrink-0">
           <DialogHeader className="pr-10">
-            {title && <DialogTitle className="text-xl">{title}</DialogTitle>}
+            {title && <DialogTitle className="text-lg font-bold tracking-tight">{title}</DialogTitle>}
             {description && (
-              <DialogDescription id="dialog-description">
+              <DialogDescription id="dialog-description" className="text-sm">
                 {description}
               </DialogDescription>
             )}

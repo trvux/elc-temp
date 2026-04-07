@@ -17,7 +17,6 @@ export function CTASection({ settings }: CTASectionProps) {
     <section className="flex-1 flex flex-col justify-center w-full relative">
       <div className="max-w-7xl px-container py-section mx-auto w-full">
         <div className="relative overflow-hidden group">
-
           {/* Subtle Background Glow */}
           <div className="absolute inset-0 opacity-30 dark:opacity-50 pointer-events-none">
             <div className="absolute -top-[20%] -right-[10%] w-[50%] aspect-square bg-white dark:bg-white/10 blur-[120px] rounded-full mix-blend-overlay" />
@@ -25,22 +24,29 @@ export function CTASection({ settings }: CTASectionProps) {
 
           <div className="relative z-10 flex flex-col items-center text-center max-w-4xl mx-auto">
             <div className="inline-flex items-center gap-4 mb-10">
-              <Badge variant="outline" className="text-[10px] uppercase tracking-[0.25em] font-medium px-3 py-1 h-auto rounded-full border-border/50">
+              <Badge
+                variant="outline"
+                className="text-[10px] capitalize tracking-[0.25em] font-medium px-3 py-1 h-auto rounded-full border-border/50"
+              >
                 03 ━ Liên hệ
               </Badge>
             </div>
 
-            <h2 className="text-title font-light tracking-tighter mb-8 leading-tight text-foreground">
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-light tracking-tighter mb-8 leading-tight text-foreground">
               Nâng tầm <br className="hidden sm:block" />
-              <span className="italic text-muted-foreground/80">chuẩn mực</span> không gian.
+              <span className="italic text-muted-foreground/80">
+                chuẩn mực
+              </span>{" "}
+              không gian.
             </h2>
 
-            <p className="text-base-fluid text-muted-foreground max-w-xl font-light leading-relaxed mb-10">
-              Đội ngũ chuyên gia của ELC sẵn sàng đồng hành tư vấn giải pháp không khí tối ưu nhất, phù hợp đặc tính từng không gian kiến trúc.
+            <p className="text-sm md:text-base text-muted-foreground max-w-xl font-light leading-relaxed mb-10">
+              Đội ngũ chuyên gia của ELC sẵn sàng đồng hành tư vấn giải pháp
+              không khí tối ưu nhất, phù hợp đặc tính từng không gian kiến trúc.
             </p>
 
             <div className="flex flex-col sm:flex-row items-center justify-center gap-fluid w-full max-w-lg">
-              <PhoneConfirmation phone={phone.replace(/\s/g, '')}>
+              <PhoneConfirmation phone={phone.replace(/\s/g, "")}>
                 <Button
                   asChild
                   size="lg"
@@ -59,16 +65,14 @@ export function CTASection({ settings }: CTASectionProps) {
                 variant="outline"
                 className="h-14 w-full sm:w-auto border-border text-foreground px-10 rounded-full font-medium tracking-wide hover:bg-muted transition-colors shadow-none bg-transparent backdrop-blur-md"
               >
-                <Link href="/thong-tin?slug=contact-us">
-                  Yêu cầu tư vấn
-                </Link>
+                <Link href="/thong-tin?slug=contact-us">Yêu cầu tư vấn</Link>
               </Button>
             </div>
 
             <Separator className="my-10 max-w-xs opacity-30" />
 
             {/* Email */}
-            <p className="text-[11px] uppercase tracking-widest text-muted-foreground font-medium">
+            <p className="text-[11px] capitalize tracking-widest text-muted-foreground font-medium">
               hoặc email{" "}
               <a
                 href={`mailto:${email}`}

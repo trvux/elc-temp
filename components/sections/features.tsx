@@ -48,20 +48,23 @@ export function FeaturesSection({ products }: FeaturesSectionProps) {
         <div className="relative z-10 mb-12 flex flex-col md:flex-row md:items-end justify-between gap-6">
           <div className="max-w-2xl">
             <div className="inline-flex items-center gap-4 mb-8">
-              <Badge variant="outline" className="text-[10px] uppercase tracking-[0.25em] font-medium px-3 py-1 h-auto rounded-full border-border/50">
+              <Badge
+                variant="outline"
+                className="text-[10px] capitalize tracking-[0.25em] font-medium px-3 py-1 h-auto rounded-full border-border/50"
+              >
                 02 ━ Bộ sưu tập
               </Badge>
             </div>
-            <h2 className="text-title font-light tracking-tighter mb-4 leading-tight text-foreground">
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-light tracking-tighter mb-4 leading-tight text-foreground">
               Giải Pháp Thông Minh <br />
               <span className="text-muted-foreground/80 italic">
                 Độc quyền bởi ELC.
               </span>
             </h2>
           </div>
-          <p className="text-base-fluid text-muted-foreground max-w-sm leading-relaxed font-light mb-4 md:mb-0">
-            Chúng tôi tinh tuyển những thiết kế và công nghệ hàng đầu toàn cầu để
-            kiến tạo không gian hoàn mỹ.
+          <p className="text-sm md:text-base text-muted-foreground max-w-sm leading-relaxed font-light mb-4 md:mb-0">
+            Chúng tôi tinh tuyển những thiết kế và công nghệ hàng đầu toàn cầu
+            để kiến tạo không gian hoàn mỹ.
           </p>
         </div>
 
@@ -102,14 +105,23 @@ export function FeaturesSection({ products }: FeaturesSectionProps) {
                     <h3 className="text-xl font-medium tracking-tight text-foreground line-clamp-1 group-hover:italic transition-all">
                       {product.name}
                     </h3>
-                    <Badge variant="secondary" className="mt-0.5 text-[10px] uppercase tracking-widest font-medium whitespace-nowrap shrink-0">
+                    <Badge
+                      variant="secondary"
+                      className="mt-0.5 text-[10px] capitalize tracking-widest font-medium whitespace-nowrap shrink-0"
+                    >
                       {product.categories?.name || "Sản phẩm"}
                     </Badge>
                   </div>
 
                   <p className="text-foreground text-sm font-medium px-1 tracking-wide -mt-2">
-                    {(product.sale_price || product.original_price)
-                      ? new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format((product.sale_price || product.original_price) as number)
+                    {product.sale_price || product.original_price
+                      ? new Intl.NumberFormat("vi-VN", {
+                          style: "currency",
+                          currency: "VND",
+                        }).format(
+                          (product.sale_price ||
+                            product.original_price) as number,
+                        )
                       : "Liên hệ"}
                   </p>
                 </Link>

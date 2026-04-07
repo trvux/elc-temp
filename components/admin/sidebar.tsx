@@ -3,11 +3,7 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
-import {
-  Avatar,
-  AvatarFallback,
-  AvatarImage,
-} from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -81,9 +77,13 @@ function NavUser({ user }: { user: UserInfo }) {
                   {user.name.slice(0, 2).toUpperCase()}
                 </AvatarFallback>
               </Avatar>
-              <div className="grid flex-1 text-left text-sm leading-tight">
-                <span className="truncate font-medium">{user.name}</span>
-                <span className="truncate text-xs">{user.email}</span>
+              <div className="grid flex-1 text-left leading-tight">
+                <span className="truncate text-sm font-semibold">
+                  {user.name}
+                </span>
+                <span className="truncate text-xs text-muted-foreground">
+                  {user.email}
+                </span>
               </div>
               <ChevronsUpDown className="ml-auto size-4" />
             </SidebarMenuButton>
@@ -102,9 +102,13 @@ function NavUser({ user }: { user: UserInfo }) {
                     {user.name.slice(0, 2).toUpperCase()}
                   </AvatarFallback>
                 </Avatar>
-                <div className="grid flex-1 text-left text-sm leading-tight">
-                  <span className="truncate font-medium">{user.name}</span>
-                  <span className="truncate text-xs">{user.email}</span>
+                <div className="grid flex-1 text-left leading-tight">
+                  <span className="truncate text-sm font-semibold">
+                    {user.name}
+                  </span>
+                  <span className="truncate text-xs text-muted-foreground">
+                    {user.email}
+                  </span>
                 </div>
               </div>
             </DropdownMenuLabel>
@@ -133,13 +137,15 @@ export default function AdminSidebar({ user }: { user: UserInfo }) {
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" asChild>
               <Link href="/admin">
-                <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
+                <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-primary text-primary-foreground shadow-sm">
                   <ShieldCheck className="size-4" />
                 </div>
-                <div className="grid flex-1 text-left text-sm leading-tight">
-                  <span className="truncate font-semibold">Bảng điều khiển</span>
-                  <span className="truncate text-xs text-muted-foreground">
-                    Quản lý nội dung
+                <div className="grid flex-1 text-left leading-tight">
+                  <span className="truncate text-sm font-bold capitalize tracking-tight">
+                    ELC ADMIN
+                  </span>
+                  <span className="truncate text-xs text-muted-foreground font-medium capitalize tracking-wider">
+                    Hệ thống quản trị
                   </span>
                 </div>
               </Link>
@@ -158,9 +164,10 @@ export default function AdminSidebar({ user }: { user: UserInfo }) {
                   asChild
                   tooltip={item.label}
                   isActive={pathname === item.href}
+                  className="font-medium text-sm transition-all data-[active=true]:bg-sidebar-accent data-[active=true]:text-sidebar-accent-foreground active:scale-[0.98]"
                 >
                   <Link href={item.href}>
-                    <item.icon />
+                    <item.icon className="size-4" />
                     <span>{item.label}</span>
                   </Link>
                 </SidebarMenuButton>
