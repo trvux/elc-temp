@@ -38,7 +38,7 @@ export default async function Home() {
   return (
     <main className="relative flex flex-col w-full bg-background selection:bg-primary selection:text-primary-foreground min-h-screen overflow-x-hidden">
       {/* 1. HERO SECTION - Light */}
-      <div className="w-full bg-background text-foreground pb-24">
+      <div className="w-full bg-background text-foreground pb-32">
         <HeroSection
           title={settings.hero_title}
           subtitle={settings.hero_subtitle}
@@ -50,7 +50,7 @@ export default async function Home() {
 
       {/* 2. SHOWCASE SECTION (Projects) - Dark Seamless Overlap */}
       <div
-        className="w-full flex-1 relative dark bg-background text-foreground pt-30 pb-30 -mt-32 shadow-[0_-30px_60px_rgba(0,0,0,0.1)] border-t border-white/5 overflow-hidden"
+        className="w-full relative dark bg-background text-foreground -mt-32 min-h-screen flex flex-col shadow-[0_-30px_60px_rgba(0,0,0,0.1)] border-t border-white/5 overflow-hidden"
         style={{
           borderTopLeftRadius: "clamp(3rem, 6vw, 6rem)",
           borderTopRightRadius: "clamp(3rem, 6vw, 6rem)",
@@ -61,7 +61,7 @@ export default async function Home() {
 
       {/* 3. PRODUCTS SECTION (Features) - Soft Contrast Seamless Overlap */}
       <div
-        className="w-full flex-1 relative bg-secondary text-secondary-foreground pt-30 pb-30 -mt-32 shadow-[0_-30px_60px_rgba(0,0,0,0.05)] border-t border-border/50 overflow-hidden"
+        className="w-full relative bg-secondary text-secondary-foreground -mt-32 min-h-screen flex flex-col shadow-[0_-30px_60px_rgba(0,0,0,0.05)] border-t border-border/50 overflow-hidden"
         style={{
           borderTopLeftRadius: "clamp(3rem, 6vw, 6rem)",
           borderTopRightRadius: "clamp(3rem, 6vw, 6rem)",
@@ -72,7 +72,7 @@ export default async function Home() {
 
       {/* 4. CTA SECTION - Dark High Contrast Seamless Overlap */}
       <div
-        className="w-full flex-1 relative dark bg-background text-foreground pt-30 pb-30 -mt-32 shadow-[0_-30px_60px_rgba(0,0,0,0.15)] border-t border-white/5 overflow-hidden"
+        className="w-full relative dark bg-background text-foreground -mt-32 min-h-screen flex flex-col shadow-[0_-30px_60px_rgba(0,0,0,0.15)] border-t border-white/5 overflow-hidden"
         style={{
           borderTopLeftRadius: "clamp(3rem, 6vw, 6rem)",
           borderTopRightRadius: "clamp(3rem, 6vw, 6rem)",

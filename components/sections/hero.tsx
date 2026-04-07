@@ -31,7 +31,7 @@ export function HeroSection({
   const secondHalf = words.slice(Math.ceil(words.length / 2)).join(" ");
 
   return (
-    <section className="relative flex min-h-[96vh] w-full flex-col px-container py-section justify-between border-b border-black/5 dark:border-white/5">
+    <section className="relative flex min-h-screen w-full flex-col px-container py-section justify-between border-b border-black/5 dark:border-white/5">
       {/* Background Layer */}
       <div className="absolute inset-0 -z-10 bg-background"></div>
 
