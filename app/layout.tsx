@@ -48,7 +48,13 @@ export default function RootLayout({
         newsreader.variable,
       )}
     >
-      <body suppressHydrationWarning className={cn("min-h-full flex flex-col text-foreground", inter.className)}>
+      <body
+        suppressHydrationWarning
+        className={cn(
+          "min-h-full flex flex-col text-foreground",
+          inter.className,
+        )}
+      >
         <TooltipProvider>
           {children}
           <Toaster position="top-center" richColors />
