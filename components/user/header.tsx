@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { Menu } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -9,6 +10,7 @@ import { Button } from "@/components/ui/button";
 export function Header() {
   const [isScrolled, setIsScrolled] = React.useState(false);
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
+  const pathname = usePathname();
 
   React.useEffect(() => {
     const handleScroll = () => {
@@ -58,16 +60,29 @@ export function Header() {
 
           {/* Center: Navigation */}
           <nav className="hidden items-center md:flex px-2 lg:px-6">
-            {navLinks.map((link) => (
-              <Link
-                key={link.name}
-                href={link.href}
-                className="group relative px-3 lg:px-6 py-2 text-xs lg:text-sm font-medium text-muted-foreground transition-all hover:text-foreground whitespace-nowrap"
-              >
-                {link.name}
-                <span className="absolute bottom-1.5 left-2 right-2 lg:left-4 lg:right-4 h-0.5 bg-primary/80 scale-x-0 transition-transform duration-300 group-hover:scale-x-100" />
-              </Link>
-            ))}
+            {navLinks.map((link) => {
+              const isActive = link.href === "/"
+                ? pathname === "/"
+                : pathname.startsWith(link.href);
+              return (
+                <Link
+                  key={link.name}
+                  href={link.href}
+                  className={cn(
+                    "group relative px-3 lg:px-6 py-2 text-xs lg:text-sm font-medium transition-all whitespace-nowrap",
+                    isActive
+                      ? "text-foreground font-semibold"
+                      : "text-muted-foreground hover:text-foreground",
+                  )}
+                >
+                  {link.name}
+                  <span className={cn(
+                    "absolute bottom-1.5 left-2 right-2 lg:left-4 lg:right-4 h-0.5 bg-primary/80 transition-transform duration-300",
+                    isActive ? "scale-x-100" : "scale-x-0 group-hover:scale-x-100",
+                  )} />
+                </Link>
+              );
+            })}
           </nav>
 
           {/* Right: CTA Button */}
@@ -114,16 +129,26 @@ export function Header() {
       >
         <div className="bg-background/95 backdrop-blur-3xl px-10 py-10 rounded-b-[3rem] shadow-xl border-b border-border">
           <nav className="flex flex-col items-center justify-center gap-8">
-            {navLinks.map((link) => (
-              <Link
-                key={link.name}
-                href={link.href}
-                onClick={() => setIsMenuOpen(false)}
-                className="text-2xl font-bold tracking-tight text-foreground transition-all hover:text-primary active:scale-95"
-              >
-                {link.name}
-              </Link>
-            ))}
+            {navLinks.map((link) => {
+              const isActive = link.href === "/"
+                ? pathname === "/"
+                : pathname.startsWith(link.href);
+              return (
+                <Link
+                  key={link.name}
+                  href={link.href}
+                  onClick={() => setIsMenuOpen(false)}
+                  className={cn(
+                    "text-2xl tracking-tight transition-all active:scale-95",
+                    isActive
+                      ? "font-black text-primary"
+                      : "font-bold text-foreground hover:text-primary",
+                  )}
+                >
+                  {link.name}
+                </Link>
+              );
+            })}
           </nav>
         </div>
       </div>
