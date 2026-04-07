@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+// Import the "Beautiful" Field components
 import { Textarea } from "@/components/ui/textarea";
 import {
   Card,
@@ -13,6 +13,11 @@ import {
   CardTitle,
   CardDescription,
 } from "@/components/ui/card";
+import {
+  Field,
+  FieldLabel,
+  FieldContent,
+} from "@/components/ui/field";
 import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
 
@@ -20,8 +25,8 @@ type Settings = Record<string, string>;
 
 const SETTINGS_CONFIG = [
   {
-    section: "Hero Section",
-    description: "Nội dung phần đầu trang chủ",
+    section: "Trang chủ (Hero Section)",
+    description: "Cấu hình nội dung tiêu đề và nút kêu gọi hành động (CTA) đầu trang chủ.",
     fields: [
       {
         key: "hero_title",
@@ -37,74 +42,74 @@ const SETTINGS_CONFIG = [
       },
       {
         key: "hero_cta_text",
-        label: "Nút CTA (text)",
+        label: "Nội dung nút CTA",
         placeholder: "VD: Xem công trình",
         type: "input",
       },
       {
         key: "hero_cta_url",
-        label: "Nút CTA (link)",
-        placeholder: "VD: /projects",
+        label: "Đường dẫn nút CTA",
+        placeholder: "VD: /cong-trinh",
         type: "input",
       },
     ],
   },
   {
     section: "Thông tin công ty",
-    description: "Dùng cho SEO và footer",
+    description: "Thông tin cơ bản dùng cho các thẻ SEO, chân trang (Footer) và trang liên diện.",
     fields: [
       {
         key: "company_name",
-        label: "Tên công ty",
-        placeholder: "VD: Điện Máy ABC",
+        label: "Tên chính thức công ty",
+        placeholder: "VD: Công ty Điện Máy ABC",
         type: "input",
       },
       {
         key: "company_short_desc",
-        label: "Mô tả công ty",
-        placeholder: "Mô tả ngắn về công ty...",
+        label: "Mô tả ngắn gọn",
+        placeholder: "Mô tả vắn tắt về lĩnh vực hoạt động...",
         type: "textarea",
       },
       {
         key: "company_address",
-        label: "Địa chỉ chính",
+        label: "Địa chỉ văn phòng",
         placeholder: "123 Nguyễn Văn A, Q.1, TP.HCM",
         type: "input",
       },
       {
         key: "company_phone",
-        label: "Hotline",
+        label: "Số điện thoại Hotline",
         placeholder: "0909 123 456",
         type: "input",
       },
       {
         key: "company_email",
-        label: "Email",
+        label: "Địa chỉ Email hỗ trợ",
         placeholder: "contact@company.com",
         type: "input",
       },
     ],
   },
   {
-    section: "SEO",
-    description: "Tối ưu cho tìm kiếm Google",
+    section: "Cấu hình SEO Tổng thể",
+    description: "Cài đặt mặc định cho việc tối ưu hóa công cụ tìm kiếm trên toàn trang web.",
     fields: [
       {
         key: "seo_title",
-        label: "SEO Title",
-        placeholder: "Điện Máy ABC - Bán & Sửa Chữa Điện Máy",
+        label: "SEO Global Title",
+        placeholder: "Điện Máy ABC - Giải pháp điện lạnh chuyên nghiệp",
         type: "input",
       },
       {
         key: "seo_description",
-        label: "SEO Description",
-        placeholder: "Mô tả hiển thị trên Google (160 ký tự)",
+        label: "SEO Global Description",
+        placeholder: "Mô tả hiển thị mặc định trên Google...",
         type: "textarea",
       },
       {
         key: "seo_keywords",
-        label: "Keywords",
-        placeholder: "điện máy, sửa chữa, máy lạnh, tủ lạnh...",
+        label: "Từ khóa chính (Keywords)",
+        placeholder: "điện máy, sửa chữa máy lạnh, lắp đặt điện lạnh...",
         type: "input",
       },
     ],
@@ -132,7 +137,11 @@ export default function SettingsPage() {
   }, []);
 
   function handleChange(key: string, value: string) {
-    setSettings((prev) => ({ ...prev, [key]: value }));
+    // Tự động viết hoa chữ cái đầu cho các trường văn bản, trừ các trường kỹ thuật
+    const isTechnicalField = key.includes("url") || key.includes("email") || key.includes("phone") || key.includes("keywords");
+    const finalValue = !isTechnicalField && value ? value.charAt(0).toUpperCase() + value.slice(1) : value;
+    
+    setSettings((prev) => ({ ...prev, [key]: finalValue }));
   }
 
   async function handleSave() {
@@ -147,7 +156,7 @@ export default function SettingsPage() {
     if (error) {
       toast.error("Lỗi lưu cài đặt");
     } else {
-      toast.success("Đã lưu cài đặt");
+      toast.success("Đã lưu tất cả cài đặt");
     }
 
     setSaving(false);
@@ -155,59 +164,64 @@ export default function SettingsPage() {
 
   if (loading)
     return (
-      <div className="text-center py-8 text-muted-foreground">Đang tải...</div>
+      <div className="flex flex-col items-center justify-center py-20 text-muted-foreground gap-4">
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+        <p className="text-sm font-medium">Đang tải cấu hình...</p>
+      </div>
     );
 
   return (
-    <div className="max-w-3xl">
-      <div className="flex items-center justify-between mb-6">
+    <div className="max-w-4xl pb-20">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
         <div>
-          <h1 className="text-2xl font-bold">Cài đặt</h1>
+          <h1 className="text-2xl font-bold tracking-tight">Cài đặt hệ thống</h1>
           <p className="text-sm text-muted-foreground mt-1">
-            Cấu hình nội dung và SEO cho website
+            Quản lý nội dung trang chủ, thông tin doanh nghiệp và cấu hình SEO.
           </p>
         </div>
-        <Button onClick={handleSave} disabled={saving}>
-          {saving ? "Đang lưu..." : "Lưu tất cả"}
-        </Button>
       </div>
 
-      <div className="space-y-6">
+      <div className="space-y-8">
         {SETTINGS_CONFIG.map((section, i) => (
-          <Card key={i}>
-            <CardHeader>
-              <CardTitle>{section.section}</CardTitle>
+          <Card key={i} className="overflow-hidden border-muted/60 shadow-sm">
+            <CardHeader className="bg-muted/10">
+              <CardTitle className="text-lg">{section.section}</CardTitle>
               <CardDescription>{section.description}</CardDescription>
             </CardHeader>
             <Separator />
-            <CardContent className="pt-6 space-y-4">
+            <CardContent className="p-6 space-y-6">
               {section.fields.map((field) => (
-                <div key={field.key} className="space-y-2">
-                  <Label>{field.label}</Label>
-                  {field.type === "textarea" ? (
-                    <Textarea
-                      placeholder={field.placeholder}
-                      value={settings[field.key] || ""}
-                      onChange={(e) => handleChange(field.key, e.target.value)}
-                      rows={3}
-                    />
-                  ) : (
-                    <Input
-                      placeholder={field.placeholder}
-                      value={settings[field.key] || ""}
-                      onChange={(e) => handleChange(field.key, e.target.value)}
-                    />
-                  )}
-                </div>
+                <Field key={field.key}>
+                  <FieldLabel className="mb-2 text-sm font-medium uppercase tracking-wider text-muted-foreground/80">
+                    {field.label}
+                  </FieldLabel>
+                  <FieldContent>
+                    {field.type === "textarea" ? (
+                      <Textarea
+                        placeholder={field.placeholder}
+                        value={settings[field.key] || ""}
+                        onChange={(e) => handleChange(field.key, e.target.value)}
+                        rows={4}
+                        className="resize-none"
+                      />
+                    ) : (
+                      <Input
+                        placeholder={field.placeholder}
+                        value={settings[field.key] || ""}
+                        onChange={(e) => handleChange(field.key, e.target.value)}
+                      />
+                    )}
+                  </FieldContent>
+                </Field>
               ))}
             </CardContent>
           </Card>
         ))}
       </div>
 
-      <div className="mt-6 flex justify-end">
-        <Button onClick={handleSave} disabled={saving} size="lg">
-          {saving ? "Đang lưu..." : "Lưu tất cả cài đặt"}
+      <div className="mt-10 flex justify-end">
+        <Button onClick={handleSave} disabled={saving} size="lg" className="px-10">
+          {saving ? "Đang lưu..." : "Lưu cài đặt"}
         </Button>
       </div>
     </div>

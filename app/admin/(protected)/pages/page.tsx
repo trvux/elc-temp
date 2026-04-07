@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
@@ -16,17 +15,21 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { AdminDialog } from "@/components/admin/admin-dialog";
+import { DeleteDialog } from "@/components/admin/delete-dialog";
 import {
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
+// Import the "Beautiful" Field components
+import {
+  Field,
+  FieldLabel,
+  FieldDescription,
+  FieldContent,
+  FieldGroup,
+} from "@/components/ui/field";
 import { Pencil, Trash2, Plus, ExternalLink, ChevronDown } from "lucide-react";
 import { toast } from "sonner";
 import { TiptapEditor } from "@/components/ui/tiptap-editor";
@@ -59,6 +62,8 @@ export default function PagesPage() {
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<Page | null>(null);
   const [seoOpen, setSeoOpen] = useState(false);
+  const [deleteOpen, setDeleteOpen] = useState(false);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
   const [title, setTitle] = useState("");
   const [slug, setSlug] = useState("");
@@ -153,14 +158,20 @@ export default function PagesPage() {
     fetchPages();
   }
 
-  async function handleDelete(id: string) {
-    if (!confirm("Xóa trang này?")) return;
-    const { error } = await supabase.from("pages").delete().eq("id", id);
+  function openDelete(id: string) {
+    setDeletingId(id);
+    setDeleteOpen(true);
+  }
+
+  async function handleDelete() {
+    if (!deletingId) return;
+    const { error } = await supabase.from("pages").delete().eq("id", deletingId);
     if (error) {
       toast.error("Lỗi xóa");
       return;
     }
     toast.success("Đã xóa");
+    setDeleteOpen(false);
     fetchPages();
   }
 
@@ -242,9 +253,8 @@ export default function PagesPage() {
                       </Button>
                       <Button
                         size="icon"
-                        variant="ghost"
-                        className="text-red-500"
-                        onClick={() => handleDelete(p.id)}
+                        variant="destructive"
+                        onClick={() => openDelete(p.id)}
                       >
                         <Trash2 size={16} />
                       </Button>
@@ -257,128 +267,148 @@ export default function PagesPage() {
         </Table>
       </div>
 
-      <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent aria-describedby={undefined}>
-          <DialogHeader>
-            <DialogTitle>
-              {editing ? `Sửa: ${editing.title}` : "Tạo trang mới"}
-            </DialogTitle>
-          </DialogHeader>
+      <AdminDialog
+        open={open}
+        onOpenChange={setOpen}
+        size="3xl"
+        title={editing ? `Sửa: ${editing.title}` : "Tạo trang mới"}
+        description="Quản lý nội dung trang tĩnh và cấu hình SEO để tối ưu hóa hiển thị."
+      >
+        <div className="space-y-8">
+          <FieldGroup>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <Field>
+                <FieldLabel className="mb-2">Tiêu đề trang *</FieldLabel>
+                <FieldContent>
+                  <Input
+                    placeholder="VD: Về chúng tôi"
+                    value={title}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      const capitalized = val.charAt(0).toUpperCase() + val.slice(1);
+                      setTitle(capitalized);
+                      if (!editing) setSlug(generateSlug(capitalized));
+                    }}
+                  />
+                  <FieldDescription>Tiêu đề chính hiển thị trên bài viết.</FieldDescription>
+                </FieldContent>
+              </Field>
 
-          <div className="space-y-4 pt-2">
-            {/* Title */}
-            <div className="space-y-2">
-              <Label>Tiêu đề *</Label>
-              <Input
-                placeholder="VD: Về chúng tôi"
-                value={title}
-                onChange={(e) => {
-                  setTitle(e.target.value);
-                  if (!editing) setSlug(generateSlug(e.target.value));
-                }}
-              />
+              <Field>
+                <FieldLabel className="mb-2">Slug (URL) *</FieldLabel>
+                <FieldContent>
+                  <Input
+                    placeholder="ve-chung-toi"
+                    value={slug}
+                    onChange={(e) => setSlug(e.target.value)}
+                  />
+                  <FieldDescription>
+                    Đường dẫn: <span className="font-medium text-primary">/{slug || "slug"}</span>
+                  </FieldDescription>
+                </FieldContent>
+              </Field>
             </div>
 
-            {/* Slug */}
-            <div className="space-y-2">
-              <Label>Slug (URL) *</Label>
-              <Input
-                placeholder="ve-chung-toi"
-                value={slug}
-                onChange={(e) => setSlug(e.target.value)}
-              />
-              <p className="text-xs text-gray-400">
-                URL công khai:{" "}
-                <span className="text-gray-600 font-mono">
-                  /{slug || "slug"}
-                </span>
-              </p>
-            </div>
-
-            {/* Content */}
-            <div className="space-y-2">
-              <Label>Nội dung</Label>
-              <TiptapEditor
-                value={content}
-                onChange={setContent}
-                placeholder="Viết nội dung trang..."
-                uploadImage={async (file) => {
-                  const ext = file.name.split(".").pop();
-                  const fileName = `pages/${Date.now()}-${Math.random()
-                    .toString(36)
-                    .slice(2)}.${ext}`;
-                  const { error } = await supabase.storage
-                    .from("images")
-                    .upload(fileName, file);
-                  if (error) throw error;
-                  const { data } = supabase.storage
-                    .from("images")
-                    .getPublicUrl(fileName);
-                  return data.publicUrl;
-                }}
-              />
-            </div>
-
-            {/* Published */}
-            <div className="flex items-center gap-3">
-              <Switch checked={isPublished} onCheckedChange={setIsPublished} />
-              <Label>Hiển thị công khai</Label>
-            </div>
+            <Field>
+              <FieldLabel className="mb-2">Nội dung trang</FieldLabel>
+              <FieldContent>
+                <TiptapEditor
+                  value={content}
+                  onChange={setContent}
+                  placeholder="Viết nội dung trang..."
+                  uploadImage={async (file) => {
+                    const ext = file.name.split(".").pop();
+                    const fileName = `pages/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
+                    const { error } = await supabase.storage.from("images").upload(fileName, file);
+                    if (error) throw error;
+                    const { data } = supabase.storage.from("images").getPublicUrl(fileName);
+                    return data.publicUrl;
+                  }}
+                />
+              </FieldContent>
+            </Field>
 
             {/* SEO — collapsible */}
-            <Collapsible open={seoOpen} onOpenChange={setSeoOpen}>
-              <CollapsibleTrigger className="flex items-center gap-2 text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors w-full">
+            <Collapsible open={seoOpen} onOpenChange={setSeoOpen} className="border rounded-xl overflow-hidden bg-muted/20">
+              <CollapsibleTrigger className="flex items-center gap-2 text-sm font-semibold p-4 hover:bg-muted/30 transition-all w-full">
                 <ChevronDown
                   size={16}
-                  className={`transition-transform ${seoOpen ? "rotate-180" : ""}`}
+                  className={`transition-transform duration-200 ${seoOpen ? "rotate-180" : ""}`}
                 />
-                SEO (tuỳ chọn)
+                Tối ưu hóa tìm kiếm (SEO Meta)
                 {(metaTitle || metaDescription) && (
-                  <span className="ml-auto text-xs bg-green-100 text-green-700 px-1.5 py-0.5 rounded">
+                  <Badge variant="outline" className="ml-auto bg-green-500/10 text-green-600 border-green-500/20">
                     Đã cấu hình
-                  </span>
+                  </Badge>
                 )}
               </CollapsibleTrigger>
-              <CollapsibleContent className="mt-3 space-y-3 border rounded-lg p-4 bg-gray-50">
-                <div className="space-y-2">
-                  <Label className="text-sm">
-                    Meta Title{" "}
-                    <span className="text-gray-400 font-normal">
-                      (mặc định = tiêu đề trang)
-                    </span>
-                  </Label>
-                  <Input
-                    placeholder={title || "Tiêu đề hiển thị trên Google"}
-                    value={metaTitle}
-                    onChange={(e) => setMetaTitle(e.target.value)}
-                    maxLength={60}
-                  />
-                  <p className="text-xs text-gray-400">
-                    {metaTitle.length}/60 ký tự
-                  </p>
-                </div>
-                <div className="space-y-2">
-                  <Label className="text-sm">Meta Description</Label>
-                  <Textarea
-                    placeholder="Mô tả ngắn hiển thị trên kết quả tìm kiếm..."
-                    value={metaDescription}
-                    onChange={(e) => setMetaDescription(e.target.value)}
-                    rows={3}
-                    maxLength={160}
-                  />
-                  <p className="text-xs text-gray-400">
-                    {metaDescription.length}/160 ký tự
-                  </p>
-                </div>
+              <CollapsibleContent className="p-6 pt-0 space-y-6">
+                <Field>
+                  <FieldLabel className="mb-2 font-normal text-muted-foreground">SEO Title</FieldLabel>
+                  <FieldContent>
+                    <Input
+                      placeholder={title || "Tiêu đề hiển thị trên Google"}
+                      value={metaTitle}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        setMetaTitle(val.charAt(0).toUpperCase() + val.slice(1));
+                      }}
+                      maxLength={60}
+                    />
+                    <div className="flex justify-between mt-1 text-[10px] uppercase font-bold tracking-wider">
+                      <span className="text-muted-foreground/60">Độ dài tiêu đề tối ưu (dưới 60)</span>
+                      <span className={metaTitle.length > 60 ? "text-destructive" : "text-primary"}>{metaTitle.length}/60</span>
+                    </div>
+                  </FieldContent>
+                </Field>
+                
+                <Field>
+                  <FieldLabel className="mb-2 font-normal text-muted-foreground">SEO Description</FieldLabel>
+                  <FieldContent>
+                    <Textarea
+                      placeholder="Mô tả ngắn hiển thị trên kết quả tìm kiếm..."
+                      value={metaDescription}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        setMetaDescription(val.charAt(0).toUpperCase() + val.slice(1));
+                      }}
+                      rows={3}
+                      maxLength={160}
+                    />
+                    <div className="flex justify-between mt-1 text-[10px] uppercase font-bold tracking-wider">
+                      <span className="text-muted-foreground/60">Mô tả ngắn gọn (dưới 160)</span>
+                      <span className={metaDescription.length > 160 ? "text-destructive" : "text-primary"}>{metaDescription.length}/160</span>
+                    </div>
+                  </FieldContent>
+                </Field>
               </CollapsibleContent>
             </Collapsible>
 
-            <Button className="w-full" onClick={handleSave}>
-              {editing ? "Cập nhật" : "Tạo trang"}
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
+            <div className="flex items-center justify-between border-t pt-8 pb-4">
+              <Field orientation="horizontal" className="w-auto gap-3 flex items-center">
+                <FieldLabel className="w-auto mb-0">Hiển thị công khai</FieldLabel>
+                <FieldContent className="flex items-center min-h-0">
+                  <Switch checked={isPublished} onCheckedChange={setIsPublished} />
+                </FieldContent>
+              </Field>
+              <div className="flex gap-3">
+                <Button variant="outline" onClick={() => setOpen(false)} className="px-6">
+                  Hủy
+                </Button>
+                <Button onClick={handleSave} className="min-w-[140px] px-6">
+                  {editing ? "Cập nhật trang" : "Tạo trang ngay"}
+                </Button>
+              </div>
+            </div>
+          </FieldGroup>
+        </div>
+      </AdminDialog>
+
+      <DeleteDialog
+        open={deleteOpen}
+        onOpenChange={setDeleteOpen}
+        onConfirm={handleDelete}
+      />
     </div>
   );
 }

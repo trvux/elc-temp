@@ -4,7 +4,13 @@ import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import {
+  Field,
+  FieldContent,
+  FieldDescription,
+  FieldGroup,
+  FieldLabel,
+} from "@/components/ui/field";
 import { TiptapEditor } from "@/components/ui/tiptap-editor";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
@@ -16,12 +22,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { AdminDialog } from "@/components/admin/admin-dialog";
+import { DeleteDialog } from "@/components/admin/delete-dialog";
 import {
   Select,
   SelectContent,
@@ -54,6 +56,8 @@ export default function ProjectsPage() {
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<Project | null>(null);
   const [uploading, setUploading] = useState(false);
+  const [deleteOpen, setDeleteOpen] = useState(false);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
@@ -169,14 +173,20 @@ export default function ProjectsPage() {
     fetchData();
   }
 
-  async function handleDelete(id: string) {
-    if (!confirm("Xóa công trình này?")) return;
-    const { error } = await supabase.from("projects").delete().eq("id", id);
+  function openDelete(id: string) {
+    setDeletingId(id);
+    setDeleteOpen(true);
+  }
+
+  async function handleDelete() {
+    if (!deletingId) return;
+    const { error } = await supabase.from("projects").delete().eq("id", deletingId);
     if (error) {
       toast.error("Lỗi xóa");
       return;
     }
     toast.success("Đã xóa");
+    setDeleteOpen(false);
     fetchData();
   }
   function generateSlug(text: string): string {
@@ -243,8 +253,8 @@ export default function ProjectsPage() {
                         className="rounded object-cover"
                       />
                     ) : (
-                      <div className="w-[60px] h-[60px] bg-gray-100 rounded flex items-center justify-center text-gray-400 text-xs">
-                        No img
+                      <div className="w-[60px] h-[60px] bg-gray-100 rounded flex items-center justify-center text-gray-400 text-[10px]">
+                        KHÔNG CÓ ẢNH
                       </div>
                     )}
                   </TableCell>
@@ -267,9 +277,8 @@ export default function ProjectsPage() {
                       </Button>
                       <Button
                         size="icon"
-                        variant="ghost"
-                        className="text-red-500"
-                        onClick={() => handleDelete(p.id)}
+                        variant="destructive"
+                        onClick={() => openDelete(p.id)}
                       >
                         <Trash2 size={16} />
                       </Button>
@@ -282,138 +291,175 @@ export default function ProjectsPage() {
         </Table>
       </div>
 
-      <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent aria-describedby={undefined}>
-          <DialogHeader>
-            <DialogTitle>
-              {editing ? "Sửa công trình" : "Thêm công trình"}
-            </DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4 pt-2">
-            <div className="space-y-2">
-              <Label>Tên công trình *</Label>
-              <Input
-                placeholder="VD: Lắp máy lạnh nhà anh Tuấn Q.1"
-                value={title}
-                onChange={(e) => {
-                  setTitle(e.target.value);
-                  if (!editing) setSlug(generateSlug(e.target.value));
-                }}
-                className="break-all"
-              />
+      <AdminDialog
+        open={open}
+        onOpenChange={setOpen}
+        size="3xl"
+        title={editing ? "Sửa công trình" : "Thêm công trình"}
+        description="Quản lý chi tiết công trình, hình ảnh và SEO để thu hút khách hàng."
+      >
+        <div className="space-y-8">
+          <FieldGroup>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <Field>
+                <FieldLabel className="mb-2">Tên công trình *</FieldLabel>
+                <FieldContent>
+                  <Input
+                    placeholder="VD: Lắp máy lạnh nhà anh Tuấn Q.1"
+                    value={title}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      const capitalized = val.charAt(0).toUpperCase() + val.slice(1);
+                      setTitle(capitalized);
+                      if (!editing) setSlug(generateSlug(capitalized));
+                    }}
+                  />
+                </FieldContent>
+              </Field>
+
+              <Field>
+                <FieldLabel className="mb-2">Slug (URL)</FieldLabel>
+                <FieldContent>
+                  <Input
+                    placeholder="lap-may-lanh-nha-anh-tuan-q1"
+                    value={slug}
+                    onChange={(e) => setSlug(e.target.value)}
+                  />
+                  <FieldDescription>URL: /cong-trinh/{slug || 'slug'}</FieldDescription>
+                </FieldContent>
+              </Field>
             </div>
 
-            <div className="space-y-2">
-              <Label>Slug (URL)</Label>
-              <Input
-                placeholder="lap-may-lanh-nha-anh-tuan-q1"
-                value={slug}
-                onChange={(e) => setSlug(e.target.value)}
-              />
-              <p className="text-xs text-gray-400">URL: /projects/{slug || 'slug'}</p>
-            </div>
+            <Field>
+              <FieldLabel className="mb-2">Danh mục</FieldLabel>
+              <FieldContent>
+                <Select value={categoryId} onValueChange={setCategoryId}>
+                  <SelectTrigger className="w-full md:w-1/2">
+                    <SelectValue placeholder="Chọn danh mục" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {categories.map((c) => (
+                      <SelectItem key={c.id} value={c.id}>
+                        {c.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </FieldContent>
+            </Field>
 
-            <div className="space-y-2">
-              <Label>Danh mục</Label>
-              <Select value={categoryId} onValueChange={setCategoryId}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Chọn danh mục" />
-                </SelectTrigger>
-                <SelectContent>
-                  {categories.map((c) => (
-                    <SelectItem key={c.id} value={c.id}>
-                      {c.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="space-y-2">
-              <Label>Mô tả</Label>
-              <TiptapEditor
-                value={description}
-                onChange={setDescription}
-                placeholder="Mô tả công trình..."
-                uploadImage={async (file) => {
-                  const ext = file.name.split(".").pop();
-                  const fileName = `projects/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
-                  const { error } = await supabase.storage.from("images").upload(fileName, file);
-                  if (error) throw error;
-                  const { data } = supabase.storage.from("images").getPublicUrl(fileName);
-                  return data.publicUrl;
-                }}
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label>Ảnh công trình</Label>
-              <label className="flex items-center gap-2 border-2 border-dashed rounded-lg p-4 cursor-pointer hover:bg-gray-50 transition-colors">
-                <Upload size={18} className="text-gray-400" />
-                <span className="text-sm text-gray-500">
-                  {uploading
-                    ? "Đang upload..."
-                    : "Click để chọn ảnh (có thể chọn nhiều)"}
-                </span>
-                <input
-                  type="file"
-                  accept="image/*"
-                  multiple
-                  className="hidden"
-                  onChange={handleUpload}
-                  disabled={uploading}
+            <Field>
+              <FieldLabel className="mb-2">Mô tả công trình</FieldLabel>
+              <FieldContent>
+                <TiptapEditor
+                  value={description}
+                  onChange={setDescription}
+                  placeholder="Mô tả công trình..."
+                  uploadImage={async (file) => {
+                    const ext = file.name.split(".").pop();
+                    const fileName = `projects/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
+                    const { error } = await supabase.storage.from("images").upload(fileName, file);
+                    if (error) throw error;
+                    const { data } = supabase.storage.from("images").getPublicUrl(fileName);
+                    return data.publicUrl;
+                  }}
                 />
-              </label>
-              {images.length > 0 && (
-                <div className="grid grid-cols-3 gap-2 mt-2">
-                  {images.map((url, i) => (
-                    <div key={i} className="relative group">
-                      <Image
-                        src={url}
-                        alt=""
-                        width={120}
-                        height={120}
-                        className="rounded object-cover w-full h-[100px]"
-                      />
-                      <button
-                        onClick={() =>
-                          setImages(images.filter((_, idx) => idx !== i))
-                        }
-                        className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-0.5 opacity-0 group-hover:opacity-100 transition-opacity"
-                      >
-                        <X size={12} />
-                      </button>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
+              </FieldContent>
+            </Field>
 
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label>Thứ tự hiển thị</Label>
-                <Input
-                  type="number"
-                  value={orderIndex}
-                  onChange={(e) => setOrderIndex(Number(e.target.value))}
-                  className="break-all"
-                />
+            <Field>
+              <FieldLabel className="mb-2">Hình ảnh công trình</FieldLabel>
+              <FieldContent>
+                <label className="flex flex-col items-center justify-center gap-2 border-2 border-dashed rounded-xl p-8 cursor-pointer hover:bg-muted/50 transition-colors border-muted-foreground/20">
+                  <div className="bg-primary/10 p-3 rounded-full">
+                    <Upload size={24} className="text-primary" />
+                  </div>
+                  <div className="text-center">
+                    <p className="text-sm font-medium">
+                      {uploading ? "Đang xử lý..." : "Nhấn để tải lên hoặc kéo thả"}
+                    </p>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      PNG, JPG up to 10MB (Có thể chọn nhiều)
+                    </p>
+                  </div>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    className="hidden"
+                    onChange={handleUpload}
+                    disabled={uploading}
+                  />
+                </label>
+
+                {images.length > 0 && (
+                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 mt-6">
+                    {images.map((url, i) => (
+                      <div key={i} className="relative group aspect-square ring-1 ring-muted rounded-lg overflow-hidden bg-muted/30">
+                        <Image
+                          src={url}
+                          alt=""
+                          fill
+                          className="object-cover transition-transform group-hover:scale-105"
+                        />
+                        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                          <Button
+                            size="icon"
+                            variant="destructive"
+                            className="h-8 w-8"
+                            onClick={() => setImages(images.filter((_, idx) => idx !== i))}
+                          >
+                            <X size={14} />
+                          </Button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </FieldContent>
+            </Field>
+
+            <div className="flex items-center justify-between border-t pt-6">
+              <div className="flex items-center gap-8">
+                <Field orientation="horizontal" className="w-auto">
+                  <FieldLabel className="w-auto">Hiển thị</FieldLabel>
+                  <FieldContent>
+                    <Switch
+                      checked={isPublished}
+                      onCheckedChange={setIsPublished}
+                    />
+                  </FieldContent>
+                </Field>
+                <Field orientation="horizontal" className="w-auto">
+                  <FieldLabel className="w-auto">Thứ tự</FieldLabel>
+                  <FieldContent>
+                    <Input
+                      type="number"
+                      className="w-20"
+                      value={orderIndex}
+                      onChange={(e) => setOrderIndex(Number(e.target.value))}
+                    />
+                  </FieldContent>
+                </Field>
               </div>
-              <div className="flex items-center gap-3 pt-6">
-                <Switch
-                  checked={isPublished}
-                  onCheckedChange={setIsPublished}
-                />
-                <Label>Hiển thị công khai</Label>
+              <div className="flex gap-3">
+                <Button variant="outline" onClick={() => setOpen(false)}>
+                  Hủy
+                </Button>
+                <Button onClick={handleSave} className="min-w-[120px]">
+                  {editing ? "Cập nhật" : "Tạo mới"}
+                </Button>
               </div>
             </div>
+          </FieldGroup>
+        </div>
+      </AdminDialog>
 
-            <Button className="w-full" onClick={handleSave}>
-              {editing ? "Cập nhật" : "Tạo mới"}
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
+      <DeleteDialog
+        open={deleteOpen}
+        onOpenChange={setDeleteOpen}
+        onConfirm={handleDelete}
+      />
     </div>
   );
 }

@@ -1,30 +1,60 @@
 import type { Metadata } from "next";
 import { Header } from "@/components/user/header";
 import { Footer } from "@/components/user/footer";
+import { createClient } from "@/lib/supabase/server";
 
 export const metadata: Metadata = {
-  title: "ELC Template",
-  description: "Giải pháp thiết kế website chuyên nghiệp",
-  openGraph: {
-    type: "website",
-    locale: "vi_VN",
-    url: "https://elc.vn",
-    siteName: "ELC",
-    title: "ELC Template",
-    description: "Giải pháp thiết kế website chuyên nghiệp",
-  },
+  title: "Điện máy ELC",
+  description: "Điện máy ELC",
 };
 
-export default function PublicLayout({
+export default async function PublicLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const supabase = await createClient();
+
+  // Parallel fetch for footer data
+  const [
+    { data: branches },
+    { data: projects },
+    { data: pages },
+    { data: settingsData },
+  ] = await Promise.all([
+    supabase
+      .from("branches")
+      .select("name, slug, is_published")
+      .eq("is_published", true)
+      .order("order_index"),
+    supabase
+      .from("projects")
+      .select("title, id")
+      .eq("is_published", true)
+      .limit(6),
+    supabase
+      .from("pages")
+      .select("title, slug")
+      .eq("is_published", true)
+      .limit(6),
+    supabase.from("site_settings").select("*"),
+  ]);
+
+  const settings: Record<string, string> = {};
+  settingsData?.forEach((item) => {
+    settings[item.key] = item.value;
+  });
+
   return (
     <>
       <Header />
       <main className="flex-1">{children}</main>
-      <Footer />
+      <Footer
+        branches={branches || []}
+        projects={projects || []}
+        pages={pages || []}
+        settings={settings}
+      />
     </>
   );
 }

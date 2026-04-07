@@ -1,60 +1,118 @@
 import React from "react";
 import Image from "next/image";
+import Link from "next/link";
+import { ArrowUpRight } from "lucide-react";
 
-export function ShowcaseSection() {
+interface Project {
+  id: string;
+  slug: string;
+  title: string;
+  description: string;
+  images: string[];
+  categories?: { name: string };
+}
+
+interface ShowcaseSectionProps {
+  projects: Project[];
+}
+
+export function ShowcaseSection({ projects }: ShowcaseSectionProps) {
+  // Use first project as main featured, others as list
+  const mainProject = projects?.[0];
+  const otherProjects = projects?.slice(1);
+
+  if (!mainProject) return null;
+
   return (
     <section className="relative w-full py-section overflow-hidden">
       <div className="px-container max-w-7xl mx-auto">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
-          <div className="relative z-10">
-            <h2 className="text-title font-bold tracking-tight mb-8 leading-[1.1]">
-              Công trình <br />
-              <span className="text-muted-foreground/30">Nghệ thuật & Kỹ thuật.</span>
-            </h2>
-            <p className="text-base-fluid text-muted-foreground mb-12 max-w-lg leading-relaxed">
-              Dự án Penthouse tại Quận 1 - nơi hệ thống điều hòa Stealth của ELC được tích hợp vô hình 
-              vào trần cao, duy trì luồng khí tươi mát 24/7 mà không ảnh hưởng đến thiết kế nội thất.
-            </p>
-            
-            <div className="space-y-8">
-              {[
-                { label: "Dự án", value: "Penthouse Horizon" },
-                { label: "Giải pháp", value: "Multi-V Stealth & Fresh Air" },
-                { label: "Diện tích", value: "450 m2" },
-              ].map((stat, i) => (
-                <div key={i} className="flex items-center gap-4">
-                  <div className="h-px w-8 bg-primary" />
-                  <div>
-                    <span className="text-[10px] uppercase tracking-widest text-muted-foreground/60 block mb-1">
-                      {stat.label}
-                    </span>
-                    <span className="text-sm font-bold uppercase tracking-wider">
-                      {stat.value}
-                    </span>
+        <div className="flex flex-col lg:flex-row gap-fluid items-center">
+          
+          {/* Main Visual - Left side */}
+          <div className="w-full lg:w-1/2 order-2 lg:order-1 relative flex justify-center lg:justify-end pr-0 lg:pr-12">
+            <div className="w-full max-w-md relative">
+              <div className="absolute -inset-4 bg-muted rounded-[2rem] -z-10" />
+              <Link href={`/cong-trinh/${mainProject.slug}`} className="block w-full">
+                <div className="relative aspect-[4/5] rounded-[1.5rem] overflow-hidden group cursor-pointer animate-in fade-in slide-in-from-bottom-8 duration-[1.5s]">
+                {mainProject.images?.[0] && (
+                  <Image
+                    src={mainProject.images[0]}
+                    alt={mainProject.title}
+                    fill
+                    className="object-cover transition-transform duration-[2s] group-hover:scale-[1.03]"
+                    sizes="(max-width: 768px) 100vw, 50vw"
+                  />
+                )}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/0 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
+                
+                {/* Subtle Hover Action */}
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-all duration-700 z-10 flex flex-col items-center gap-4">
+                  <div className="bg-white/90 backdrop-blur-md text-black h-20 w-20 rounded-full flex items-center justify-center scale-75 group-hover:scale-100 transition-transform duration-700 shadow-2xl">
+                    <ArrowUpRight className="h-8 w-8 stroke-[1px]" />
                   </div>
                 </div>
-              ))}
-            </div>
-          </div>
 
-          <div className="relative aspect-square md:aspect-video lg:aspect-[4/5] rounded-4xl overflow-hidden shadow-2xl group">
-            <Image
-              src="/images/showcase-1.png"
-              alt="Penthouse showcase"
-              fill
-              className="object-cover transition-transform duration-1000 group-hover:scale-110"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700 flex flex-col justify-end p-12">
-              <span className="text-white/60 text-xs uppercase tracking-widest mb-2">Showcase 01</span>
-              <h3 className="text-white text-2xl font-bold">Horizon Residence</h3>
+                {/* Subtitle bottom on hover */}
+                <div className="absolute bottom-8 left-8 right-8 text-white translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-700 z-10">
+                   <p className="text-sm font-medium tracking-wide">Xem chi tiết</p>
+                </div>
+              </div>
+            </Link>
+          </div>
+        </div>
+
+          {/* Typography & Context - Right side */}
+          <div className="w-full lg:w-1/2 order-1 lg:order-2 flex flex-col justify-center relative animate-in fade-in slide-in-from-bottom-8 duration-[1.5s] delay-300">
+            <div className="relative z-10">
+              <div className="inline-flex items-center gap-4 mb-10">
+                <span className="text-[10px] uppercase tracking-[0.3em] font-medium text-muted-foreground">
+                  01 ━ Dự án nổi bật
+                </span>
+              </div>
+              
+              <h2 className="text-title font-light tracking-tighter mb-8 leading-[1.05] text-foreground">
+                <span className="block italic text-muted-foreground/80">{mainProject.title.split(' ')[0]}</span>
+                <span className="block">{mainProject.title.split(' ').slice(1).join(' ')}</span>
+              </h2>
+              
+              <p className="text-base-fluid text-muted-foreground mb-12 leading-relaxed font-light line-clamp-4 max-w-md">
+                {mainProject.description?.replace(/<[^>]*>?/gm, '')}
+              </p>
+              
+              <div className="grid grid-cols-2 gap-8 mb-16 max-w-sm">
+                <div className="flex flex-col gap-2">
+                  <span className="text-[10px] uppercase tracking-[0.2em] font-medium text-muted-foreground">Danh mục</span>
+                  <span className="text-sm font-medium text-foreground">{mainProject.categories?.name || "Kiến trúc"}</span>
+                </div>
+                <div className="flex flex-col gap-2">
+                  <span className="text-[10px] uppercase tracking-[0.2em] font-medium text-muted-foreground">Năm</span>
+                  <span className="text-sm font-medium text-foreground">2026</span>
+                </div>
+              </div>
+
+              {/* Other Projects Miniature List */}
+              {otherProjects && otherProjects.length > 0 && (
+                <div className="pt-12 border-t border-border opacity-80 hover:opacity-100 transition-opacity">
+                  <div className="flex flex-col gap-4">
+                    {otherProjects.slice(0, 2).map((p) => (
+                      <Link 
+                        key={p.id} 
+                        href={`/cong-trinh/${p.slug}`}
+                        className="group flex items-center justify-between py-3 hover:pl-4 transition-all duration-300"
+                      >
+                        <div className="flex items-center gap-5">
+                          <span className="text-[10px] font-medium text-muted-foreground">0{otherProjects.indexOf(p) + 2}</span>
+                          <span className="text-sm md:text-base font-light text-foreground group-hover:italic transition-all uppercase tracking-wide">{p.title}</span>
+                        </div>
+                        <ArrowUpRight className="h-4 w-4 text-muted-foreground group-hover:text-foreground opacity-0 group-hover:opacity-100 transition-all -translate-x-2 group-hover:translate-x-0" />
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>
-      </div>
-      
-      {/* Decorative large text behind */}
-      <div className="absolute -bottom-10 -left-10 text-[20vw] font-black text-black/5 pointer-events-none select-none tracking-tighter">
-        ELC_SHOWCASE
       </div>
     </section>
   );

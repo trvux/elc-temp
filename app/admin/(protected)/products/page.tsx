@@ -4,7 +4,13 @@ import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import {
+  Field,
+  FieldContent,
+  FieldDescription,
+  FieldGroup,
+  FieldLabel,
+} from "@/components/ui/field";
 import { TiptapEditor } from "@/components/ui/tiptap-editor";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
@@ -16,12 +22,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { AdminDialog } from "@/components/admin/admin-dialog";
+import { DeleteDialog } from "@/components/admin/delete-dialog";
 import {
   Select,
   SelectContent,
@@ -70,6 +72,8 @@ export default function ProductsPage() {
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<Product | null>(null);
   const [uploading, setUploading] = useState(false);
+  const [deleteOpen, setDeleteOpen] = useState(false);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
   // Form fields
   const [name, setName] = useState("");
@@ -253,14 +257,20 @@ export default function ProductsPage() {
     fetchData();
   }
 
-  async function handleDelete(id: string) {
-    if (!confirm("Xóa sản phẩm này?")) return;
-    const { error } = await supabase.from("products").delete().eq("id", id);
+  function openDelete(id: string) {
+    setDeletingId(id);
+    setDeleteOpen(true);
+  }
+
+  async function handleDelete() {
+    if (!deletingId) return;
+    const { error } = await supabase.from("products").delete().eq("id", deletingId);
     if (error) {
       toast.error("Lỗi xóa");
       return;
     }
     toast.success("Đã xóa");
+    setDeleteOpen(false);
     fetchData();
   }
 
@@ -320,8 +330,8 @@ export default function ProductsPage() {
                         className="rounded object-cover"
                       />
                     ) : (
-                      <div className="w-[60px] h-[60px] bg-gray-100 rounded flex items-center justify-center text-gray-400 text-xs">
-                        No img
+                      <div className="w-[60px] h-[60px] bg-gray-100 rounded flex items-center justify-center text-gray-400 text-[10px]">
+                        KHÔNG CÓ ẢNH
                       </div>
                     )}
                   </TableCell>
@@ -362,9 +372,8 @@ export default function ProductsPage() {
                       </Button>
                       <Button
                         size="icon"
-                        variant="ghost"
-                        className="text-red-500"
-                        onClick={() => handleDelete(p.id)}
+                        variant="destructive"
+                        onClick={() => openDelete(p.id)}
                       >
                         <Trash2 size={16} />
                       </Button>
@@ -377,246 +386,291 @@ export default function ProductsPage() {
         </Table>
       </div>
 
-      <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent aria-describedby={undefined}>
-          <DialogHeader>
-            <DialogTitle>
-              {editing ? "Sửa sản phẩm" : "Thêm sản phẩm"}
-            </DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4 pt-2">
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label>Tên sản phẩm *</Label>
-                <Input
-                  placeholder="VD: Máy lạnh Daikin 1.5HP"
-                  value={name}
-                  onChange={(e) => {
-                    setName(e.target.value);
-                    if (!editing) setSlug(generateSlug(e.target.value));
+      <AdminDialog
+        open={open}
+        onOpenChange={setOpen}
+        size="4xl"
+        title={editing ? "Sửa sản phẩm" : "Thêm sản phẩm"}
+        description="Cập nhật thông tin chi tiết, giá bán và thông số kỹ thuật cho sản phẩm."
+      >
+        <div className="space-y-8">
+          <FieldGroup>
+            {/* Thông tin cơ bản */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <Field>
+                <FieldLabel className="mb-2">Tên sản phẩm *</FieldLabel>
+                <FieldContent>
+                  <Input
+                    placeholder="VD: Máy lạnh Daikin 1.5HP"
+                    value={name}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      const capitalized = val.charAt(0).toUpperCase() + val.slice(1);
+                      setName(capitalized);
+                      if (!editing) setSlug(generateSlug(capitalized));
+                    }}
+                  />
+                </FieldContent>
+              </Field>
+              <Field>
+                <FieldLabel className="mb-2">SKU</FieldLabel>
+                <FieldContent>
+                  <Input
+                    placeholder="VD: DAI-FTKY35"
+                    value={sku}
+                    onChange={(e) => setSku(e.target.value)}
+                  />
+                </FieldContent>
+              </Field>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <Field>
+                <FieldLabel className="mb-2">Slug (URL)</FieldLabel>
+                <FieldContent>
+                  <Input
+                    placeholder="may-lanh-daikin-1-5hp"
+                    value={slug}
+                    onChange={(e) => setSlug(e.target.value)}
+                  />
+                  <FieldDescription>URL: /san-pham/{slug || 'slug'}</FieldDescription>
+                </FieldContent>
+              </Field>
+              <Field>
+                <FieldLabel className="mb-2">Danh mục</FieldLabel>
+                <FieldContent>
+                  <Select value={categoryId} onValueChange={setCategoryId}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Chọn danh mục" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {categories.map((c) => (
+                        <SelectItem key={c.id} value={c.id}>
+                          {c.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </FieldContent>
+              </Field>
+            </div>
+
+            <Field>
+              <FieldLabel className="mb-2">Mô tả sản phẩm</FieldLabel>
+              <FieldContent>
+                <TiptapEditor
+                  value={description}
+                  onChange={setDescription}
+                  placeholder="Mô tả sản phẩm..."
+                  uploadImage={async (file) => {
+                    const ext = file.name.split(".").pop();
+                    const fileName = `products/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
+                    const { error } = await supabase.storage.from("images").upload(fileName, file);
+                    if (error) throw error;
+                    const { data } = supabase.storage.from("images").getPublicUrl(fileName);
+                    return data.publicUrl;
                   }}
-                  className="break-all"
                 />
+              </FieldContent>
+            </Field>
+
+            {/* Giá bán */}
+            <div className="space-y-6">
+              <h3 className="font-semibold text-base">Thiết lập giá bán</h3>
+              
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <Field>
+                  <FieldLabel className="mb-2 text-muted-foreground font-normal">Giá gốc (VNĐ)</FieldLabel>
+                  <FieldContent>
+                    <Input
+                      type="number"
+                      placeholder="0"
+                      value={originalPrice || ""}
+                      onChange={(e) => setOriginalPrice(Number(e.target.value))}
+                    />
+                  </FieldContent>
+                </Field>
+                <Field>
+                  <FieldLabel className="mb-2 text-muted-foreground font-normal">Giảm giá (%)</FieldLabel>
+                  <FieldContent>
+                    <Input
+                      type="number"
+                      placeholder="0"
+                      min="0"
+                      max="100"
+                      value={discountPercent || ""}
+                      onChange={(e) => setDiscountPercent(Number(e.target.value))}
+                    />
+                  </FieldContent>
+                </Field>
+                <Field>
+                  <FieldLabel className="mb-2 text-muted-foreground font-normal">Ghi đè giá bán</FieldLabel>
+                  <FieldContent>
+                    <Input
+                      type="number"
+                      placeholder={`Tự tính: ${formatVND(computedSalePrice)}`}
+                      value={salePriceOverride}
+                      onChange={(e) => setSalePriceOverride(e.target.value)}
+                    />
+                  </FieldContent>
+                </Field>
               </div>
-              <div className="space-y-2">
-                <Label>SKU</Label>
-                <Input
-                  placeholder="VD: DAI-FTKY35"
-                  value={sku}
-                  onChange={(e) => setSku(e.target.value)}
-                className="break-all"
-              />
-              </div>
-            </div>
 
-            <div className="space-y-2">
-              <Label>Slug (URL)</Label>
-              <Input
-                placeholder="may-lanh-daikin-1-5hp"
-                value={slug}
-                onChange={(e) => setSlug(e.target.value)}
-              />
-              <p className="text-xs text-gray-400">URL: /products/{slug || 'slug'}</p>
-            </div>
-
-            <div className="space-y-2">
-              <Label>Danh mục</Label>
-              <Select value={categoryId} onValueChange={setCategoryId}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Chọn danh mục" />
-                </SelectTrigger>
-                <SelectContent>
-                  {categories.map((c) => (
-                    <SelectItem key={c.id} value={c.id}>
-                      {c.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="space-y-2">
-              <Label>Mô tả</Label>
-              <TiptapEditor
-                value={description}
-                onChange={setDescription}
-                placeholder="Mô tả sản phẩm..."
-                uploadImage={async (file) => {
-                  const ext = file.name.split(".").pop();
-                  const fileName = `products/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
-                  const { error } = await supabase.storage.from("images").upload(fileName, file);
-                  if (error) throw error;
-                  const { data } = supabase.storage.from("images").getPublicUrl(fileName);
-                  return data.publicUrl;
-                }}
-              />
-            </div>
-
-            {/* Giá */}
-            <div className="border rounded-lg p-4 space-y-3">
-              <Label className="text-base font-semibold">Giá bán</Label>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label>Giá gốc (VNĐ)</Label>
-                  <Input
-                    type="number"
-                    placeholder="0"
-                    value={originalPrice || ""}
-                    onChange={(e) => setOriginalPrice(Number(e.target.value))}
-                className="break-all"
-              />
+              <div className="bg-muted/30 border rounded-lg p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div className="space-y-1">
+                  <p className="text-xs text-muted-foreground uppercase font-semibold">Giá bán cuối cùng</p>
+                  <p className="text-2xl font-bold text-green-600 leading-none">
+                    {formatVND(computedSalePrice)}
+                  </p>
                 </div>
-                <div className="space-y-2">
-                  <Label>Giảm giá (%)</Label>
-                  <Input
-                    type="number"
-                    placeholder="0"
-                    min="0"
-                    max="100"
-                    value={discountPercent || ""}
-                    onChange={(e) => setDiscountPercent(Number(e.target.value))}
-                className="break-all"
-              />
-                </div>
-              </div>
-              <div className="space-y-2">
-                <Label>Override giá bán (để trống = tự tính từ %)</Label>
-                <Input
-                  type="number"
-                  placeholder={`Tự tính: ${formatVND(computedSalePrice)}`}
-                  value={salePriceOverride}
-                  onChange={(e) => setSalePriceOverride(e.target.value)}
-                className="break-all"
-              />
-              </div>
-              <div className="bg-gray-50 rounded p-3 text-sm">
-                <span className="text-gray-500">Giá bán cuối: </span>
-                <span className="font-bold text-green-600 text-base">
-                  {formatVND(computedSalePrice)}
-                </span>
                 {discountPercent > 0 && (
-                  <span className="ml-2 text-red-500">
-                    (-{discountPercent}% = tiết kiệm{" "}
-                    {formatVND(originalPrice - computedSalePrice)})
-                  </span>
+                  <div className="bg-red-50 dark:bg-red-950/20 px-3 py-2 rounded text-sm text-red-600 dark:text-red-400 font-medium">
+                    Tiết kiệm {formatVND(originalPrice - computedSalePrice)} (-{discountPercent}%)
+                  </div>
                 )}
               </div>
             </div>
 
             {/* Thông số kỹ thuật */}
-            <div className="border rounded-lg p-4 space-y-3">
+            <div className="space-y-6 pt-4">
               <div className="flex items-center justify-between">
-                <Label className="text-base font-semibold">
-                  Thông số kỹ thuật
-                </Label>
-                <Button size="sm" variant="outline" onClick={addSpec}>
-                  <Plus size={14} className="mr-1" /> Thêm thông số
+                <h3 className="font-semibold text-base">Thông số kỹ thuật</h3>
+                <Button size="sm" variant="outline" onClick={addSpec} className="h-8">
+                  <Plus size={14} className="mr-1.5" /> Thêm thông số
                 </Button>
               </div>
-              {specs.length === 0 && (
-                <p className="text-sm text-gray-400">
-                  Chưa có thông số. VD: Công suất → 1.5HP
-                </p>
-              )}
-              {specs.map((spec, i) => (
-                <div key={i} className="flex gap-2 items-center">
-                  <Input
-                    placeholder="Tên thông số (VD: Công suất)"
-                    value={spec.key}
-                    onChange={(e) => updateSpec(i, "key", e.target.value)}
-                className="break-all"
-              />
-                  <Input
-                    placeholder="Giá trị (VD: 1.5HP)"
-                    value={spec.value}
-                    onChange={(e) => updateSpec(i, "value", e.target.value)}
-                className="break-all"
-              />
-                  <Button
-                    size="icon"
-                    variant="ghost"
-                    className="text-red-500 shrink-0"
-                    onClick={() => removeSpec(i)}
-                  >
-                    <X size={16} />
-                  </Button>
+              
+              {specs.length === 0 ? (
+                <div className="text-center py-8 border-2 border-dashed rounded-lg bg-muted/20">
+                  <p className="text-sm text-muted-foreground">Chưa có thông số kỹ thuật nào.</p>
                 </div>
-              ))}
-            </div>
-
-            {/* Upload ảnh */}
-            <div className="space-y-2">
-              <Label>Ảnh sản phẩm</Label>
-              <label className="flex items-center gap-2 border-2 border-dashed rounded-lg p-4 cursor-pointer hover:bg-gray-50 transition-colors">
-                <Upload size={18} className="text-gray-400" />
-                <span className="text-sm text-gray-500">
-                  {uploading
-                    ? "Đang upload..."
-                    : "Click để chọn ảnh (có thể chọn nhiều)"}
-                </span>
-                <input
-                  type="file"
-                  accept="image/*"
-                  multiple
-                  className="hidden"
-                  onChange={handleUpload}
-                  disabled={uploading}
-                />
-              </label>
-              {images.length > 0 && (
-                <div className="grid grid-cols-3 gap-2 mt-2">
-                  {images.map((url, i) => (
-                    <div key={i} className="relative group">
-                      <Image
-                        src={url}
-                        alt=""
-                        width={120}
-                        height={120}
-                        className="rounded object-cover w-full h-[100px]"
+              ) : (
+                <div className="space-y-3">
+                  {specs.map((spec, i) => (
+                    <div key={i} className="flex gap-2 items-center group">
+                      <Input
+                        placeholder="Tên (VD: Công suất)"
+                        value={spec.key}
+                        className="flex-1"
+                        onChange={(e) => updateSpec(i, "key", e.target.value)}
                       />
-                      <button
-                        onClick={() =>
-                          setImages(images.filter((_, idx) => idx !== i))
-                        }
-                        className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-0.5 opacity-0 group-hover:opacity-100 transition-opacity"
+                      <Input
+                        placeholder="Giá trị (VD: 1.5HP)"
+                        value={spec.value}
+                        className="flex-1"
+                        onChange={(e) => updateSpec(i, "value", e.target.value)}
+                      />
+                      <Button
+                        size="icon"
+                        variant="ghost"
+                        className="text-muted-foreground hover:text-destructive shrink-0"
+                        onClick={() => removeSpec(i)}
                       >
-                        <X size={12} />
-                      </button>
+                        <X size={16} />
+                      </Button>
                     </div>
                   ))}
                 </div>
               )}
             </div>
 
-            <div className="grid grid-cols-3 gap-4">
-              <div className="space-y-2">
-                <Label>Thứ tự hiển thị</Label>
-                <Input
-                  type="number"
-                  value={orderIndex}
-                  onChange={(e) => setOrderIndex(Number(e.target.value))}
-                className="break-all"
-              />
+            {/* Hình ảnh */}
+            <Field>
+              <FieldLabel className="mb-2">Hình ảnh sản phẩm</FieldLabel>
+              <FieldContent>
+                <label className="flex flex-col items-center justify-center gap-2 border-2 border-dashed rounded-xl p-8 cursor-pointer hover:bg-muted/50 transition-colors border-muted-foreground/20">
+                  <div className="bg-primary/10 p-3 rounded-full">
+                    <Upload size={24} className="text-primary" />
+                  </div>
+                  <div className="text-center">
+                    <p className="text-sm font-medium">Nhấn để tải lên sản phẩm</p>
+                    <p className="text-xs text-muted-foreground mt-1">Hỗ trợ tối đa 10 ảnh cùng lúc</p>
+                  </div>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    className="hidden"
+                    onChange={handleUpload}
+                    disabled={uploading}
+                  />
+                </label>
+
+                {images.length > 0 && (
+                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 mt-6">
+                    {images.map((url, i) => (
+                      <div key={i} className="relative group aspect-square ring-1 ring-muted rounded-lg overflow-hidden bg-muted/30">
+                        <Image
+                          src={url}
+                          alt=""
+                          fill
+                          className="object-cover transition-transform group-hover:scale-105"
+                        />
+                        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                          <Button
+                            size="icon"
+                            variant="destructive"
+                            className="h-8 w-8"
+                            onClick={() => setImages(images.filter((_, idx) => idx !== i))}
+                          >
+                            <X size={14} />
+                          </Button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </FieldContent>
+            </Field>
+
+            {/* Điều khiển cuối */}
+            <div className="flex flex-wrap items-center justify-between gap-6 border-t pt-8 pb-4">
+              <div className="flex items-center gap-8">
+                <Field orientation="horizontal" className="w-auto gap-3 flex items-center">
+                  <FieldLabel className="w-auto mb-0">Nổi bật</FieldLabel>
+                  <FieldContent className="flex items-center min-h-0">
+                    <Switch checked={isFeatured} onCheckedChange={setIsFeatured} />
+                  </FieldContent>
+                </Field>
+                <Field orientation="horizontal" className="w-auto gap-3 flex items-center">
+                  <FieldLabel className="w-auto mb-0">Hiển thị</FieldLabel>
+                  <FieldContent className="flex items-center min-h-0">
+                    <Switch
+                      checked={isPublished}
+                      onCheckedChange={setIsPublished}
+                    />
+                  </FieldContent>
+                </Field>
+                <Field orientation="horizontal" className="w-auto gap-3 flex items-center">
+                  <FieldLabel className="w-auto mb-0 flex items-center h-full">Thứ tự</FieldLabel>
+                  <FieldContent className="flex items-center min-h-0">
+                    <Input
+                      type="number"
+                      className="w-20"
+                      value={orderIndex}
+                      onChange={(e) => setOrderIndex(Number(e.target.value))}
+                    />
+                  </FieldContent>
+                </Field>
               </div>
-              <div className="flex items-center gap-2 pt-6">
-                <Switch checked={isFeatured} onCheckedChange={setIsFeatured} />
-                <Label>Nổi bật</Label>
-              </div>
-              <div className="flex items-center gap-2 pt-6">
-                <Switch
-                  checked={isPublished}
-                  onCheckedChange={setIsPublished}
-                />
-                <Label>Hiển thị</Label>
+              <div className="flex gap-3">
+                <Button variant="outline" onClick={() => setOpen(false)} className="px-6">
+                  Hủy
+                </Button>
+                <Button onClick={handleSave} className="min-w-[140px] px-6">
+                  {editing ? "Cập nhật sản phẩm" : "Tạo sản phẩm mới"}
+                </Button>
               </div>
             </div>
+          </FieldGroup>
+        </div>
+      </AdminDialog>
 
-            <Button className="w-full" onClick={handleSave}>
-              {editing ? "Cập nhật" : "Tạo mới"}
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
+      <DeleteDialog
+        open={deleteOpen}
+        onOpenChange={setDeleteOpen}
+        onConfirm={handleDelete}
+      />
     </div>
   );
 }

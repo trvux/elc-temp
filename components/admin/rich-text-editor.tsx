@@ -4,6 +4,7 @@ import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import Placeholder from "@tiptap/extension-placeholder";
 import Typography from "@tiptap/extension-typography";
+import Link from "@tiptap/extension-link";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import {
@@ -18,8 +19,11 @@ import {
   Minus,
   Undo,
   Redo,
+  Link as LinkIcon,
+  Unlink as UnlinkIcon,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import React from "react";
 
 interface RichTextEditorProps {
   value: string;
@@ -37,6 +41,12 @@ export default function RichTextEditor({
     extensions: [
       StarterKit,
       Typography,
+      Link.configure({
+        openOnClick: false,
+        HTMLAttributes: {
+          class: "text-blue-600 underline cursor-pointer",
+        },
+      }),
       Placeholder.configure({
         placeholder: placeholder || "Nhập nội dung...",
       }),
@@ -52,6 +62,27 @@ export default function RichTextEditor({
       },
     },
   });
+
+  const setLink = React.useCallback(() => {
+    if (!editor) return;
+
+    const previousUrl = editor.getAttributes("link").href;
+    const url = window.prompt("Nhập URL (ví dụ: https://google.com):", previousUrl);
+
+    // Cancelled
+    if (url === null) {
+      return;
+    }
+
+    // Empty URL - remove link
+    if (url === "") {
+      editor.chain().focus().extendMarkRange("link").unsetLink().run();
+      return;
+    }
+
+    // Set link
+    editor.chain().focus().extendMarkRange("link").setLink({ href: url }).run();
+  }, [editor]);
 
   if (!editor) return null;
 
@@ -99,6 +130,19 @@ export default function RichTextEditor({
       action: () => editor.chain().focus().toggleItalic().run(),
       active: editor.isActive("italic"),
       title: "Italic",
+    },
+    null,
+    {
+      icon: LinkIcon,
+      action: setLink,
+      active: editor.isActive("link"),
+      title: "Insert Link",
+    },
+    {
+      icon: UnlinkIcon,
+      action: () => editor.chain().focus().unsetLink().run(),
+      disabled: !editor.isActive("link"),
+      title: "Remove Link",
     },
     null,
     {

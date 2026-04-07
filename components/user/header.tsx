@@ -5,20 +5,6 @@ import Link from "next/link";
 import { Menu } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from "@/components/ui/sheet";
-
-const navigation = [
-  { name: "Trang chủ", href: "/" },
-  { name: "Dự án", href: "/du-an" },
-  //   { name: "Sản phẩm", href: "/san-pham" },
-  { name: "Liên hệ", href: "/lien-he" },
-];
 
 export function Header() {
   const [isScrolled, setIsScrolled] = React.useState(false);
@@ -31,6 +17,14 @@ export function Header() {
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
+
+  const navLinks = [
+    { name: "Trang chủ", href: "/" },
+    { name: "Công trình", href: "/cong-trinh" },
+    { name: "Sản phẩm", href: "/san-pham" },
+    { name: "Chi nhánh", href: "/chi-nhanh" },
+    { name: "Thông tin", href: "/thong-tin" },
+  ];
 
   return (
     <>
@@ -52,23 +46,25 @@ export function Header() {
           <div className="flex-1 flex justify-start">
             <Link
               href="/"
-              className="flex items-center gap-2 transition-transform hover:scale-105 active:scale-95"
+              className="flex items-center gap-2 transition-transform hover:scale-105 active:scale-95 group"
             >
-              <span className="text-xl font-bold italic tracking-tight text-primary">
-                ELC
-              </span>
+              <div className=" p-1.5 rounded-lg transition-transform group-hover:rotate-6">
+                <span className="text-xl font-black italic tracking-tighter text-primary uppercase">
+                  ELC
+                </span>
+              </div>
             </Link>
           </div>
 
-          {/* Center: Navigation */}
+          {/* Center: Navigation - Simple links as requested */}
           <nav className="hidden items-center md:flex px-6">
-            {navigation.map((item) => (
+            {navLinks.map((link) => (
               <Link
-                key={item.name}
-                href={item.href}
+                key={link.name}
+                href={link.href}
                 className="group relative px-6 py-2 text-sm font-medium text-muted-foreground transition-all hover:text-foreground"
               >
-                {item.name}
+                {link.name}
                 <span className="absolute bottom-1.5 left-4 right-4 h-0.5 bg-primary/80 scale-x-0 transition-transform duration-300 group-hover:scale-x-100" />
               </Link>
             ))}
@@ -77,27 +73,29 @@ export function Header() {
           {/* Right: CTA Button */}
           <div className="flex-1 flex items-center justify-end gap-3">
             <Button
+              asChild
               variant="default"
               size="sm"
-              className="hidden rounded-lg px-4 py-4 font-semibold md:inline-flex"
+              className="hidden md:inline-flex rounded-lg px-5 py-4 font-bold hover:scale-105 transition-all shadow-lg shadow-primary/10"
             >
-              Bắt đầu ngay
+              <Link href="/cong-trinh">
+                Khám phá ngay
+              </Link>
             </Button>
 
             <Button
               variant="ghost"
               size="icon"
-              className="h-10 w-10 rounded-lg md:hidden"
+              className="h-10 w-10 md:hidden"
               onClick={() => setIsMenuOpen(true)}
             >
               <Menu className="h-5 w-5" />
-              <span className="sr-only">Open menu</span>
             </Button>
           </div>
         </div>
       </header>
 
-      {/* Mobile Menu Dropdown Overlay (Backdrop) */}
+      {/* Mobile Menu */}
       <div
         className={cn(
           "fixed inset-0 z-40 bg-black/85 transition-opacity duration-500 md:hidden",
@@ -106,7 +104,6 @@ export function Header() {
         onClick={() => setIsMenuOpen(false)}
       />
 
-      {/* Mobile Menu Dropdown */}
       <div
         className={cn(
           "fixed inset-x-0 top-0 z-50 origin-top transform transition-all duration-500 ease-in-out md:hidden",
@@ -115,16 +112,16 @@ export function Header() {
             : "-translate-y-full opacity-0 pointer-events-none",
         )}
       >
-        <div className="bg-background/95 backdrop-blur-3xl px-10 py-10 rounded-b-3xl shadow-xl border-b border-border">
-          <nav className="flex flex-wrap items-center justify-center gap-x-10 gap-y-4">
-            {navigation.map((item) => (
+        <div className="bg-background/95 backdrop-blur-3xl px-10 py-10 rounded-b-[3rem] shadow-xl border-b border-border">
+          <nav className="flex flex-col items-center justify-center gap-8">
+            {navLinks.map((link) => (
               <Link
-                key={item.name}
-                href={item.href}
+                key={link.name}
+                href={link.href}
                 onClick={() => setIsMenuOpen(false)}
-                className="text-base font-semibold tracking-tight text-muted-foreground transition-all duration-300 hover:text-primary active:scale-95"
+                className="text-2xl font-bold tracking-tight text-foreground transition-all hover:text-primary active:scale-95"
               >
-                {item.name}
+                {link.name}
               </Link>
             ))}
           </nav>

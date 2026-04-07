@@ -1,11 +1,12 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useCallback, useState } from "react";
 import { useEditor, EditorContent } from "@tiptap/react";
 import { BubbleMenu } from "@tiptap/react/menus";
 import StarterKit from "@tiptap/starter-kit";
 import ImageExtension from "@tiptap/extension-image";
 import Placeholder from "@tiptap/extension-placeholder";
+import Link from "@tiptap/extension-link";
 import {
   Bold,
   Italic,
@@ -16,8 +17,19 @@ import {
   Heading3,
   Undo,
   Redo,
+  Link as LinkIcon,
+  Unlink as UnlinkIcon,
+  Check,
+  X,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 
 interface TiptapEditorProps {
   value: string;
@@ -35,12 +47,19 @@ export function TiptapEditor({
   uploadImage,
 }: TiptapEditorProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [linkUrl, setLinkUrl] = useState("");
 
   const editor = useEditor({
     immediatelyRender: false,
     extensions: [
       StarterKit,
       ImageExtension.configure({ inline: false, allowBase64: false }),
+      Link.configure({
+        openOnClick: false,
+        HTMLAttributes: {
+          class: "text-blue-600 underline cursor-pointer",
+        },
+      }),
       Placeholder.configure({ placeholder }),
     ],
     content: value,
@@ -55,13 +74,22 @@ export function TiptapEditor({
     },
   });
 
-  // Sync external value (openEdit)
+  // Sync external value
   useEffect(() => {
     if (!editor) return;
     if (editor.getHTML() !== value) {
       editor.commands.setContent(value || "", { emitUpdate: false });
     }
   }, [value, editor]);
+
+  const handleSetLink = useCallback(() => {
+    if (!editor) return;
+    if (linkUrl === "") {
+      editor.chain().focus().extendMarkRange("link").unsetLink().run();
+    } else {
+      editor.chain().focus().extendMarkRange("link").setLink({ href: linkUrl }).run();
+    }
+  }, [editor, linkUrl]);
 
   async function handleImageFile(file: File) {
     if (!editor || !uploadImage) return;
@@ -77,7 +105,7 @@ export function TiptapEditor({
 
   const tb = (active: boolean) =>
     cn(
-      "p-1.5 rounded transition-colors",
+      "p-1.5 rounded transition-colors disabled:opacity-30",
       active
         ? "bg-gray-200 text-gray-900"
         : "text-gray-500 hover:bg-gray-100 hover:text-gray-800",
@@ -85,7 +113,7 @@ export function TiptapEditor({
 
   const bb = (active: boolean) =>
     cn(
-      "px-1.5 py-1 rounded transition-colors flex items-center justify-center",
+      "px-1.5 py-1 rounded transition-colors flex items-center justify-center disabled:opacity-30",
       active
         ? "bg-white/20 text-white"
         : "text-gray-300 hover:bg-white/10 hover:text-white",
@@ -154,6 +182,50 @@ export function TiptapEditor({
           <ListOrdered size={14} />
         </button>
 
+        <div className="w-px h-4 bg-gray-200 mx-0.5" />
+
+        <Popover>
+          <PopoverTrigger asChild>
+            <button
+              type="button"
+              className={tb(editor.isActive("link"))}
+              title="Insert link"
+              onClick={() => setLinkUrl(editor.getAttributes("link").href || "")}
+            >
+              <LinkIcon size={14} />
+            </button>
+          </PopoverTrigger>
+          <PopoverContent className="w-80 p-3" side="bottom" align="start">
+             <div className="space-y-3">
+                <h4 className="font-medium text-sm">Chèn liên kết</h4>
+                <div className="flex gap-2">
+                   <Input 
+                      placeholder="https://example.com" 
+                      value={linkUrl} 
+                      onChange={(e) => setLinkUrl(e.target.value)}
+                      className="h-8 text-xs"
+                      onKeyDown={(e) => {
+                         if (e.key === "Enter") handleSetLink();
+                      }}
+                   />
+                   <Button size="sm" className="h-8 px-2" onClick={handleSetLink}>
+                      <Check size={14} />
+                   </Button>
+                </div>
+                {editor.isActive("link") && (
+                   <Button 
+                      variant="ghost" 
+                      className="w-full h-8 text-red-500 hover:text-red-600 hover:bg-red-50 text-xs justify-start px-2"
+                      onClick={() => editor.chain().focus().unsetLink().run()}
+                   >
+                      <UnlinkIcon size={12} className="mr-2" />
+                      Xóa liên kết
+                   </Button>
+                )}
+             </div>
+          </PopoverContent>
+        </Popover>
+
         {uploadImage && (
           <>
             <div className="w-px h-4 bg-gray-200 mx-0.5" />
@@ -174,7 +246,7 @@ export function TiptapEditor({
           type="button"
           onClick={() => editor.chain().focus().undo().run()}
           disabled={!editor.can().undo()}
-          className={cn(tb(false), "disabled:opacity-30")}
+          className={tb(false)}
           title="Undo"
         >
           <Undo size={14} />
@@ -183,7 +255,7 @@ export function TiptapEditor({
           type="button"
           onClick={() => editor.chain().focus().redo().run()}
           disabled={!editor.can().redo()}
-          className={cn(tb(false), "disabled:opacity-30")}
+          className={tb(false)}
           title="Redo"
         >
           <Redo size={14} />
@@ -194,7 +266,7 @@ export function TiptapEditor({
       <BubbleMenu
         editor={editor}
         options={{ placement: "top", offset: 8 }}
-        className="flex items-center gap-0.5 bg-gray-900 rounded-lg px-1.5 py-1 shadow-lg z-50"
+        className="flex items-center gap-0.5 bg-zinc-900 rounded-lg px-2 py-1.5 shadow-xl z-50 animate-in fade-in zoom-in duration-200"
       >
         <button
           type="button"
@@ -210,7 +282,45 @@ export function TiptapEditor({
         >
           <Italic size={13} />
         </button>
-        <div className="w-px h-3.5 bg-gray-600 mx-0.5" />
+        
+        <div className="w-px h-3.5 bg-zinc-700 mx-1" />
+
+        <Popover>
+          <PopoverTrigger asChild>
+            <button
+              type="button"
+              className={bb(editor.isActive("link"))}
+              onClick={() => setLinkUrl(editor.getAttributes("link").href || "")}
+            >
+              <LinkIcon size={13} />
+            </button>
+          </PopoverTrigger>
+          <PopoverContent className="w-72 p-2 bg-white dark:bg-zinc-950 border shadow-xl rounded-md" side="top" sideOffset={12}>
+             <div className="flex gap-2">
+                <Input 
+                   placeholder="Dán link hoặc gõ..." 
+                   value={linkUrl} 
+                   onChange={(e) => setLinkUrl(e.target.value)}
+                   className="h-8 text-xs flex-1"
+                   onKeyDown={(e) => {
+                      if (e.key === "Enter") handleSetLink();
+                   }}
+                   autoFocus
+                />
+                <Button size="icon" variant="default" className="h-8 w-8 shrink-0" onClick={handleSetLink}>
+                   <Check size={14} />
+                </Button>
+                {editor.isActive("link") && (
+                   <Button size="icon" variant="destructive" className="h-8 w-8 shrink-0" onClick={() => editor.chain().focus().unsetLink().run()}>
+                      <UnlinkIcon size={14} />
+                   </Button>
+                )}
+             </div>
+          </PopoverContent>
+        </Popover>
+
+        <div className="w-px h-3.5 bg-zinc-700 mx-1" />
+        
         <button
           type="button"
           onClick={() =>
@@ -218,7 +328,7 @@ export function TiptapEditor({
           }
           className={bb(editor.isActive("heading", { level: 2 }))}
         >
-          <span className="text-xs font-bold">H2</span>
+          <span className="text-[10px] font-bold">H2</span>
         </button>
         <button
           type="button"
@@ -227,9 +337,11 @@ export function TiptapEditor({
           }
           className={bb(editor.isActive("heading", { level: 3 }))}
         >
-          <span className="text-xs font-bold">H3</span>
+          <span className="text-[10px] font-bold">H3</span>
         </button>
-        <div className="w-px h-3.5 bg-gray-600 mx-0.5" />
+        
+        <div className="w-px h-3.5 bg-zinc-700 mx-1" />
+        
         <button
           type="button"
           onClick={() => editor.chain().focus().toggleBulletList().run()}

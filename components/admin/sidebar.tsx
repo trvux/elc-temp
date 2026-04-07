@@ -43,7 +43,7 @@ import {
 } from "lucide-react";
 
 const navItems = [
-  { href: "/admin", label: "Dashboard", icon: LayoutDashboard },
+  { href: "/admin", label: "Tổng quan", icon: LayoutDashboard },
   { href: "/admin/categories", label: "Danh mục", icon: Tag },
   { href: "/admin/projects", label: "Công trình", icon: FolderKanban },
   { href: "/admin/products", label: "Sản phẩm", icon: Package },
@@ -137,7 +137,7 @@ export default function AdminSidebar({ user }: { user: UserInfo }) {
                   <ShieldCheck className="size-4" />
                 </div>
                 <div className="grid flex-1 text-left text-sm leading-tight">
-                  <span className="truncate font-semibold">Admin Panel</span>
+                  <span className="truncate font-semibold">Bảng điều khiển</span>
                   <span className="truncate text-xs text-muted-foreground">
                     Quản lý nội dung
                   </span>

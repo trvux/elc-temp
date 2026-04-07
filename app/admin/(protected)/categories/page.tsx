@@ -4,7 +4,13 @@ import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import {
+  Field,
+  FieldContent,
+  FieldDescription,
+  FieldGroup,
+  FieldLabel,
+} from "@/components/ui/field";
 import {
   Table,
   TableBody,
@@ -13,12 +19,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { AdminDialog } from "@/components/admin/admin-dialog";
+import { DeleteDialog } from "@/components/admin/delete-dialog";
 import {
   Select,
   SelectContent,
@@ -46,6 +48,8 @@ export default function CategoriesPage() {
   const [loading, setLoading] = useState(true);
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<Category | null>(null);
+  const [deleteOpen, setDeleteOpen] = useState(false);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
   const [name, setName] = useState("");
   const [type, setType] = useState<"product" | "project">("product");
@@ -132,19 +136,25 @@ export default function CategoriesPage() {
     fetchCategories();
   }
 
-  async function handleDelete(id: string) {
+  function openDelete(id: string) {
     const hasChildren = categories.some((c) => c.parent_id === id);
     if (hasChildren) {
-      toast.error("Xóa danh mục con trước rồi mới xóa được danh mục cha");
+      toast.error("Vui lòng xóa các danh mục con trước");
       return;
     }
-    if (!confirm("Xóa danh mục này?")) return;
-    const { error } = await supabase.from("categories").delete().eq("id", id);
+    setDeletingId(id);
+    setDeleteOpen(true);
+  }
+
+  async function handleDelete() {
+    if (!deletingId) return;
+    const { error } = await supabase.from("categories").delete().eq("id", deletingId);
     if (error) {
       toast.error("Lỗi khi xóa");
       return;
     }
     toast.success("Đã xóa danh mục");
+    setDeleteOpen(false);
     fetchCategories();
   }
 
@@ -171,13 +181,19 @@ export default function CategoriesPage() {
           <TableBody>
             {loading ? (
               <TableRow>
-                <TableCell colSpan={4} className="text-center text-gray-400 py-8">
+                <TableCell
+                  colSpan={4}
+                  className="text-center text-gray-400 py-8"
+                >
                   Đang tải...
                 </TableCell>
               </TableRow>
             ) : tree.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={4} className="text-center text-gray-400 py-8">
+                <TableCell
+                  colSpan={4}
+                  className="text-center text-gray-400 py-8"
+                >
                   Chưa có danh mục nào
                 </TableCell>
               </TableRow>
@@ -186,9 +202,15 @@ export default function CategoriesPage() {
                 <Fragment key={parent.id}>
                   {/* Parent row */}
                   <TableRow key={parent.id} className="bg-gray-50/50">
-                    <TableCell className="font-semibold">{parent.name}</TableCell>
+                    <TableCell className="font-semibold">
+                      {parent.name}
+                    </TableCell>
                     <TableCell>
-                      <Badge variant={parent.type === "product" ? "default" : "secondary"}>
+                      <Badge
+                        variant={
+                          parent.type === "product" ? "default" : "secondary"
+                        }
+                      >
                         {parent.type === "product" ? "Sản phẩm" : "Công trình"}
                       </Badge>
                     </TableCell>
@@ -197,14 +219,17 @@ export default function CategoriesPage() {
                     </TableCell>
                     <TableCell>
                       <div className="flex gap-2">
-                        <Button size="icon" variant="ghost" onClick={() => openEdit(parent)}>
+                        <Button
+                          size="icon"
+                          variant="ghost"
+                          onClick={() => openEdit(parent)}
+                        >
                           <Pencil size={16} />
                         </Button>
                         <Button
                           size="icon"
-                          variant="ghost"
-                          className="text-red-500 hover:text-red-600"
-                          onClick={() => handleDelete(parent.id)}
+                          variant="destructive"
+                          onClick={() => openDelete(parent.id)}
                         >
                           <Trash2 size={16} />
                         </Button>
@@ -217,12 +242,20 @@ export default function CategoriesPage() {
                     <TableRow key={child.id}>
                       <TableCell>
                         <span className="flex items-center gap-1.5 pl-4 text-gray-600">
-                          <CornerDownRight size={14} className="text-gray-300 shrink-0" />
+                          <CornerDownRight
+                            size={14}
+                            className="text-gray-300 shrink-0"
+                          />
                           {child.name}
                         </span>
                       </TableCell>
                       <TableCell>
-                        <Badge variant={child.type === "product" ? "default" : "secondary"} className="opacity-60">
+                        <Badge
+                          variant={
+                            child.type === "product" ? "default" : "secondary"
+                          }
+                          className="opacity-60"
+                        >
                           {child.type === "product" ? "Sản phẩm" : "Công trình"}
                         </Badge>
                       </TableCell>
@@ -231,14 +264,17 @@ export default function CategoriesPage() {
                       </TableCell>
                       <TableCell>
                         <div className="flex gap-2">
-                          <Button size="icon" variant="ghost" onClick={() => openEdit(child)}>
+                          <Button
+                            size="icon"
+                            variant="ghost"
+                            onClick={() => openEdit(child)}
+                          >
                             <Pencil size={16} />
                           </Button>
                           <Button
                             size="icon"
-                            variant="ghost"
-                            className="text-red-500 hover:text-red-600"
-                            onClick={() => handleDelete(child.id)}
+                            variant="destructive"
+                            onClick={() => openDelete(child.id)}
                           >
                             <Trash2 size={16} />
                           </Button>
@@ -253,78 +289,114 @@ export default function CategoriesPage() {
         </Table>
       </div>
 
-      <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent aria-describedby={undefined}>
-          <DialogHeader>
-            <DialogTitle>
-              {editing ? "Sửa danh mục" : "Thêm danh mục"}
-            </DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4 pt-2">
-            <div className="space-y-2">
-              <Label>Tên danh mục</Label>
-              <Input
-                placeholder="VD: Máy lạnh âm trần"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-              />
-            </div>
+      <AdminDialog
+        open={open}
+        onOpenChange={setOpen}
+        size="lg"
+        title={editing ? "Sửa danh mục" : "Thêm danh mục"}
+        description={
+          editing
+            ? "Cập nhật thông tin cho danh mục này."
+            : "Điền thông tin bên dưới để tạo danh mục mới."
+        }
+      >
+        <div className="space-y-6">
+          <FieldGroup>
+            <Field orientation="horizontal">
+              <FieldLabel className="min-w-[120px] pt-2">
+                Tên danh mục
+              </FieldLabel>
+              <FieldContent>
+                <Input
+                  className="w-full"
+                  placeholder="VD: Máy lạnh âm trần"
+                  value={name}
+                  onChange={(e) => {
+                    const val = (e.target as HTMLInputElement).value;
+                    setName(val.charAt(0).toUpperCase() + val.slice(1));
+                  }}
+                />
+              </FieldContent>
+            </Field>
 
-            <div className="space-y-2">
-              <Label>Loại</Label>
-              <Select
-                value={type}
-                onValueChange={(v) => {
-                  setType(v as "product" | "project");
-                  setParentId("none"); // reset parent when type changes
-                }}
-              >
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="product">Sản phẩm</SelectItem>
-                  <SelectItem value="project">Công trình</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+            <Field orientation="horizontal">
+              <FieldLabel className="min-w-[120px] pt-2">Loại</FieldLabel>
+              <FieldContent>
+                <Select
+                  value={type}
+                  onValueChange={(v) => {
+                    setType(v as "product" | "project");
+                    setParentId("none");
+                  }}
+                >
+                  <SelectTrigger className="w-full">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="product">Sản phẩm</SelectItem>
+                    <SelectItem value="project">Công trình</SelectItem>
+                  </SelectContent>
+                </Select>
+              </FieldContent>
+            </Field>
 
-            <div className="space-y-2">
-              <Label>
-                Danh mục cha{" "}
-                <span className="text-gray-400 font-normal">(tuỳ chọn)</span>
-              </Label>
-              <Select value={parentId} onValueChange={setParentId}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Không có (cấp 1)" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="none">— Không có (cấp 1) —</SelectItem>
-                  {parentOptions(type)
-                    .filter((p) => p.id !== editing?.id)
-                    .map((p) => (
-                      <SelectItem key={p.id} value={p.id}>
-                        {p.name}
-                      </SelectItem>
-                    ))}
-                </SelectContent>
-              </Select>
-              {parentId !== "none" && (
-                <p className="text-xs text-gray-400">
-                  Đường dẫn:{" "}
-                  <span className="text-gray-600">
-                    {categories.find((c) => c.id === parentId)?.name} › {name || "..."}
-                  </span>
-                </p>
-              )}
-            </div>
+            <Field orientation="horizontal">
+              <FieldLabel className="min-w-[120px] pt-2">
+                Danh mục cha
+              </FieldLabel>
+              <FieldContent>
+                <Select value={parentId} onValueChange={setParentId}>
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Không có (cấp 1)" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="none">Không có (cấp 1)</SelectItem>
+                    {parentOptions(type)
+                      .filter((p) => p.id !== editing?.id)
+                      .map((p) => (
+                        <SelectItem key={p.id} value={p.id}>
+                          {p.name}
+                        </SelectItem>
+                      ))}
+                  </SelectContent>
+                </Select>
+                {parentId !== "none" && (
+                  <FieldDescription className="mt-1.5 flex items-center gap-1">
+                    Đường dẫn:
+                    <span className="font-medium text-foreground">
+                      {categories.find((c) => c.id === parentId)?.name}
+                    </span>
+                    <CornerDownRight
+                      size={12}
+                      className="mx-0.5 text-muted-foreground"
+                    />
+                    <span className="font-medium text-primary">
+                      {name || "..."}
+                    </span>
+                  </FieldDescription>
+                )}
+              </FieldContent>
+            </Field>
+          </FieldGroup>
 
-            <Button className="w-full" onClick={handleSave}>
+          <div className="flex justify-end gap-3 pt-4 border-t">
+            <Button variant="outline" onClick={() => setOpen(false)}>
+              Hủy
+            </Button>
+            <Button onClick={handleSave} className="min-w-[100px]">
               {editing ? "Cập nhật" : "Tạo mới"}
             </Button>
           </div>
-        </DialogContent>
-      </Dialog>
+        </div>
+      </AdminDialog>
+
+      <DeleteDialog
+        open={deleteOpen}
+        onOpenChange={setDeleteOpen}
+        onConfirm={handleDelete}
+        title="Xóa danh mục này?"
+        description="Lưu ý: Tất cả danh mục con (nếu có) cũng sẽ bị xóa vĩnh viễn khỏi hệ thống."
+      />
     </div>
   );
 }

@@ -12,8 +12,8 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "ELC Template",
-  description: "Giải pháp thiết kế website chuyên nghiệp",
+  title: "Điện máy ELC",
+  description: "Điện máy ELC",
 };
 
 export default function RootLayout({
@@ -30,7 +30,7 @@ export default function RootLayout({
       <body className="min-h-full flex flex-col text-foreground font-sans">
         <TooltipProvider>
           {children}
-          <Toaster />
+          <Toaster position="top-center" richColors />
         </TooltipProvider>
       </body>
     </html>

@@ -4,7 +4,13 @@ import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import {
+  Field,
+  FieldContent,
+  FieldDescription,
+  FieldGroup,
+  FieldLabel,
+} from "@/components/ui/field";
 import { Textarea } from "@/components/ui/textarea";
 import { TiptapEditor } from "@/components/ui/tiptap-editor";
 import { Badge } from "@/components/ui/badge";
@@ -17,12 +23,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { AdminDialog } from "@/components/admin/admin-dialog";
+import { DeleteDialog } from "@/components/admin/delete-dialog";
 import { Pencil, Trash2, Plus } from "lucide-react";
 import { toast } from "sonner";
 
@@ -56,6 +58,8 @@ export default function BranchesPage() {
   const [loading, setLoading] = useState(true);
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<Branch | null>(null);
+  const [deleteOpen, setDeleteOpen] = useState(false);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
   const [name, setName] = useState("");
   const [slug, setSlug] = useState("");
@@ -84,8 +88,9 @@ export default function BranchesPage() {
   }, []);
 
   function handleNameChange(val: string) {
-    setName(val);
-    if (!editing) setSlug(generateSlug(val));
+    const capitalized = val.charAt(0).toUpperCase() + val.slice(1);
+    setName(capitalized);
+    if (!editing) setSlug(generateSlug(capitalized));
   }
 
   function openCreate() {
@@ -164,14 +169,23 @@ export default function BranchesPage() {
     fetchBranches();
   }
 
-  async function handleDelete(id: string) {
-    if (!confirm("Xóa chi nhánh này?")) return;
-    const { error } = await supabase.from("branches").delete().eq("id", id);
+  function openDelete(id: string) {
+    setDeletingId(id);
+    setDeleteOpen(true);
+  }
+
+  async function handleDelete() {
+    if (!deletingId) return;
+    const { error } = await supabase
+      .from("branches")
+      .delete()
+      .eq("id", deletingId);
     if (error) {
       toast.error("Lỗi xóa");
       return;
     }
     toast.success("Đã xóa");
+    setDeleteOpen(false);
     fetchBranches();
   }
 
@@ -181,7 +195,7 @@ export default function BranchesPage() {
         <div>
           <h1 className="text-2xl font-bold">Chi nhánh</h1>
           <p className="text-sm text-gray-500 mt-1">
-            Mỗi chi nhánh có URL riêng để tăng độ phủ SEO
+            Quản lý địa điểm chi nhánh và đường dẫn chuẩn SEO.
           </p>
         </div>
         <Button onClick={openCreate}>
@@ -194,9 +208,9 @@ export default function BranchesPage() {
           <TableHeader>
             <TableRow>
               <TableHead>Tên chi nhánh</TableHead>
-              <TableHead>Slug (URL)</TableHead>
+              <TableHead>Đường dẫn (URL)</TableHead>
               <TableHead>Địa chỉ</TableHead>
-              <TableHead>Phone</TableHead>
+              <TableHead>Số điện thoại</TableHead>
               <TableHead>Trạng thái</TableHead>
               <TableHead className="w-24">Thao tác</TableHead>
             </TableRow>
@@ -232,7 +246,9 @@ export default function BranchesPage() {
                   <TableCell className="text-sm text-gray-600 break-words max-w-[200px]">
                     {b.address || "—"}
                   </TableCell>
-                  <TableCell className="text-sm whitespace-nowrap">{b.phone || "—"}</TableCell>
+                  <TableCell className="text-sm whitespace-nowrap">
+                    {b.phone || "—"}
+                  </TableCell>
                   <TableCell>
                     <Badge variant={b.is_published ? "default" : "secondary"}>
                       {b.is_published ? "Hiện" : "Ẩn"}
@@ -249,9 +265,8 @@ export default function BranchesPage() {
                       </Button>
                       <Button
                         size="icon"
-                        variant="ghost"
-                        className="text-red-500"
-                        onClick={() => handleDelete(b.id)}
+                        variant="destructive"
+                        onClick={() => openDelete(b.id)}
                       >
                         <Trash2 size={16} />
                       </Button>
@@ -264,130 +279,160 @@ export default function BranchesPage() {
         </Table>
       </div>
 
-      <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent aria-describedby={undefined}>
-          <DialogHeader>
-            <DialogTitle>
-              {editing ? "Sửa chi nhánh" : "Thêm chi nhánh"}
-            </DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4 pt-2">
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label>Tên chi nhánh *</Label>
-                <Input
-                  placeholder="VD: Văn phòng Quận 1"
-                  value={name}
-                  onChange={(e) => handleNameChange(e.target.value)}
-                className="break-all"
-              />
-              </div>
-              <div className="space-y-2">
-                <Label>Slug (URL) *</Label>
-                <Input
-                  placeholder="van-phong-quan-1"
-                  value={slug}
-                  onChange={(e) => setSlug(e.target.value)}
-                className="break-all"
-              />
-                <p className="text-xs text-gray-400">
-                  URL: /chi-nhanh/{slug || "slug"}
-                </p>
-              </div>
+      <AdminDialog
+        open={open}
+        onOpenChange={setOpen}
+        size="2xl"
+        title={editing ? "Sửa chi nhánh" : "Thêm chi nhánh"}
+        description="Điền thông tin chi nhánh để hiển thị trên website và tối ưu local SEO."
+      >
+        <div className="space-y-8">
+          <FieldGroup>
+            <div className="grid grid-cols-2 gap-6">
+              <Field>
+                <FieldLabel className="mb-2">Tên chi nhánh *</FieldLabel>
+                <FieldContent>
+                  <Input
+                    placeholder="VD: Văn phòng bán hàng - Quận 1"
+                    value={name}
+                    onChange={(e) => handleNameChange(e.target.value)}
+                  />
+                </FieldContent>
+              </Field>
+              <Field>
+                <FieldLabel className="mb-2">Đường dẫn (URL) *</FieldLabel>
+                <FieldContent>
+                  <Input
+                    placeholder="van-phong-quan-1"
+                    value={slug}
+                    onChange={(e) => setSlug(e.target.value)}
+                  />
+                  <FieldDescription>
+                    URL: /chi-nhanh/{slug || "slug"}
+                  </FieldDescription>
+                </FieldContent>
+              </Field>
             </div>
 
-            <div className="space-y-2">
-              <Label>Mô tả chi nhánh</Label>
-              <TiptapEditor
-                value={description}
-                onChange={setDescription}
-                placeholder="VD: Văn phòng tiếp khách, tư vấn và báo giá..."
-              />
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label>Số điện thoại</Label>
-                <Input
-                  placeholder="0909 123 456"
-                  value={phone}
-                  onChange={(e) => setPhone(e.target.value)}
-                className="break-all"
-              />
-              </div>
-              <div className="space-y-2">
-                <Label>Email</Label>
-                <Input
-                  placeholder="contact@company.com"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                className="break-all"
-              />
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <Label>Địa chỉ</Label>
-              <Input
-                placeholder="123 Nguyễn Văn A, P.Bến Nghé, Q.1, TP.HCM"
-                value={address}
-                onChange={(e) => setAddress(e.target.value)}
-                className="break-all"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label>Link Google Maps</Label>
-              <Input
-                placeholder="https://maps.google.com/..."
-                value={mapsUrl}
-                onChange={(e) => setMapsUrl(e.target.value)}
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label>Google Maps Embed (iframe src)</Label>
-              <Textarea
-                placeholder='Paste cả thẻ <iframe ...> hoặc chỉ URL trong src="..."'
-                value={mapsEmbed}
-                onChange={(e) => {
-                  const val = e.target.value;
-                  const match = val.match(/src="([^"]+)"/);
-                  setMapsEmbed(match ? match[1] : val);
-                }}
-                rows={3}
-                className="break-all"
-              />
-              <p className="text-xs text-gray-400">
-                Paste cả thẻ iframe cũng được — tự động lấy URL trong src
-              </p>
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label>Thứ tự hiển thị</Label>
-                <Input
-                  type="number"
-                  value={orderIndex}
-                  onChange={(e) => setOrderIndex(Number(e.target.value))}
-                className="break-all"
-              />
-              </div>
-              <div className="flex items-center gap-2 pt-6">
-                <Switch
-                  checked={isPublished}
-                  onCheckedChange={setIsPublished}
+            <Field>
+              <FieldLabel className="mb-2">Mô tả chi nhánh</FieldLabel>
+              <FieldContent>
+                <TiptapEditor
+                  value={description}
+                  onChange={setDescription}
+                  placeholder="Mô tả dịch vụ, vị trí của chi nhánh..."
                 />
-                <Label>Hiển thị công khai</Label>
-              </div>
+              </FieldContent>
+            </Field>
+
+            <div className="grid grid-cols-2 gap-6">
+              <Field>
+                <FieldLabel className="mb-2">Số điện thoại</FieldLabel>
+                <FieldContent>
+                  <Input
+                    placeholder="0909 123 456"
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
+                  />
+                </FieldContent>
+              </Field>
+              <Field>
+                <FieldLabel className="mb-2">Email</FieldLabel>
+                <FieldContent>
+                  <Input
+                    placeholder="contact@company.com"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                  />
+                </FieldContent>
+              </Field>
             </div>
 
-            <Button className="w-full" onClick={handleSave}>
-              {editing ? "Cập nhật" : "Tạo mới"}
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
+            <Field>
+              <FieldLabel className="mb-2">Địa chỉ</FieldLabel>
+              <FieldContent>
+                <Input
+                  placeholder="Địa chỉ chi nhánh..."
+                  value={address}
+                  onChange={(e) => {
+                    const val = (e.target as HTMLInputElement).value;
+                    setAddress(val.charAt(0).toUpperCase() + val.slice(1));
+                  }}
+                />
+              </FieldContent>
+            </Field>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 border-t pt-6">
+              <Field>
+                <FieldLabel className="mb-2">Link Google Maps</FieldLabel>
+                <FieldContent>
+                  <Input
+                    placeholder="https://maps.google.com/..."
+                    value={mapsUrl}
+                    onChange={(e) => setMapsUrl(e.target.value)}
+                  />
+                </FieldContent>
+              </Field>
+              <Field>
+                <FieldLabel className="mb-2">
+                  Google Maps Embed (URL/iframe)
+                </FieldLabel>
+                <FieldContent>
+                  <Textarea
+                    placeholder="Paste iframe hoặc URL src..."
+                    value={mapsEmbed}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      const match = val.match(/src="([^"]+)"/);
+                      setMapsEmbed(match ? match[1] : val);
+                    }}
+                    rows={2}
+                  />
+                </FieldContent>
+              </Field>
+            </div>
+
+            <div className="flex items-center justify-between border-t pt-6">
+              <div className="flex items-center gap-8">
+                <Field orientation="horizontal" className="w-auto">
+                  <FieldLabel className="w-auto">Hiển thị</FieldLabel>
+                  <FieldContent>
+                    <Switch
+                      checked={isPublished}
+                      onCheckedChange={setIsPublished}
+                    />
+                  </FieldContent>
+                </Field>
+                <Field orientation="horizontal" className="w-auto">
+                  <FieldLabel className="w-auto">Thứ tự</FieldLabel>
+                  <FieldContent>
+                    <Input
+                      type="number"
+                      className="w-20"
+                      value={orderIndex}
+                      onChange={(e) => setOrderIndex(Number(e.target.value))}
+                    />
+                  </FieldContent>
+                </Field>
+              </div>
+              <div className="flex gap-3">
+                <Button variant="outline" onClick={() => setOpen(false)}>
+                  Hủy
+                </Button>
+                <Button onClick={handleSave} className="min-w-[120px]">
+                  {editing ? "Cập nhật" : "Tạo mới"}
+                </Button>
+              </div>
+            </div>
+          </FieldGroup>
+        </div>
+      </AdminDialog>
+
+      <DeleteDialog
+        open={deleteOpen}
+        onOpenChange={setDeleteOpen}
+        onConfirm={handleDelete}
+      />
     </div>
   );
 }

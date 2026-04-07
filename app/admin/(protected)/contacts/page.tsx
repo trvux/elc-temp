@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import {
   Table,
   TableBody,
@@ -13,12 +12,15 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { AdminDialog } from "@/components/admin/admin-dialog";
+import { DeleteDialog } from "@/components/admin/delete-dialog";
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+  Field,
+  FieldContent,
+  FieldDescription,
+  FieldGroup,
+  FieldLabel,
+} from "@/components/ui/field";
 import {
   Select,
   SelectContent,
@@ -35,6 +37,7 @@ import {
   MessageCircle,
   Globe,
   Link,
+  X,
 } from "lucide-react";
 
 import { toast } from "sonner";
@@ -67,6 +70,8 @@ export default function ContactsPage() {
   const [loading, setLoading] = useState(true);
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<Contact | null>(null);
+  const [deleteOpen, setDeleteOpen] = useState(false);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
   const [type, setType] = useState("phone");
   const [label, setLabel] = useState("");
@@ -144,21 +149,30 @@ export default function ContactsPage() {
     fetchContacts();
   }
 
-  async function handleDelete(id: string) {
-    if (!confirm("Xóa liên hệ này?")) return;
-    const { error } = await supabase.from("contacts").delete().eq("id", id);
+  function openDelete(id: string) {
+    setDeletingId(id);
+    setDeleteOpen(true);
+  }
+
+  async function handleDelete() {
+    if (!deletingId) return;
+    const { error } = await supabase.from("contacts").delete().eq("id", deletingId);
     if (error) {
       toast.error("Lỗi xóa");
       return;
     }
     toast.success("Đã xóa");
+    setDeleteOpen(false);
     fetchContacts();
   }
 
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold">Liên hệ</h1>
+        <div>
+          <h1 className="text-2xl font-bold">Liên hệ</h1>
+          <p className="text-sm text-muted-foreground mt-1">Cấu hình các kênh liên lạc hiển thị trên website.</p>
+        </div>
         <Button onClick={openCreate}>
           <Plus size={16} className="mr-2" /> Thêm liên hệ
         </Button>
@@ -224,9 +238,8 @@ export default function ContactsPage() {
                       </Button>
                       <Button
                         size="icon"
-                        variant="ghost"
-                        className="text-red-500"
-                        onClick={() => handleDelete(c.id)}
+                        variant="destructive"
+                        onClick={() => openDelete(c.id)}
                       >
                         <Trash2 size={16} />
                       </Button>
@@ -239,80 +252,104 @@ export default function ContactsPage() {
         </Table>
       </div>
 
-      <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent aria-describedby={undefined}>
-          <DialogHeader>
-            <DialogTitle>
-              {editing ? "Sửa liên hệ" : "Thêm liên hệ"}
-            </DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4 pt-2">
-            <div className="space-y-2">
-              <Label>Loại liên hệ</Label>
-              <Select value={type} onValueChange={handleTypeChange}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {CONTACT_TYPES.map((t) => (
-                    <SelectItem key={t.value} value={t.value}>
-                      <div className="flex items-center gap-2">
-                        <t.icon size={16} />
-                        {t.label}
-                      </div>
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+      <AdminDialog
+        open={open}
+        onOpenChange={setOpen}
+        size="lg"
+        title={editing ? "Sửa liên hệ" : "Thêm liên hệ"}
+        description="Thông tin này sẽ hiển thị ở chân trang hoặc trang liên hệ."
+      >
+        <div className="space-y-6">
+          <FieldGroup>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <Field>
+                <FieldLabel className="mb-2">Loại liên hệ</FieldLabel>
+                <FieldContent>
+                  <Select value={type} onValueChange={handleTypeChange}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {CONTACT_TYPES.map((t) => (
+                        <SelectItem key={t.value} value={t.value}>
+                          <div className="flex items-center gap-2">
+                            <t.icon size={16} />
+                            {t.label}
+                          </div>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </FieldContent>
+              </Field>
+
+              <Field>
+                <FieldLabel className="mb-2">Thứ tự hiển thị</FieldLabel>
+                <FieldContent>
+                  <Input
+                    type="number"
+                    value={orderIndex}
+                    onChange={(e) => setOrderIndex(Number(e.target.value))}
+                  />
+                </FieldContent>
+              </Field>
             </div>
 
-            <div className="space-y-2">
-              <Label>Nhãn hiển thị</Label>
-              <Input
-                placeholder="VD: Hotline, CSKH, Fanpage..."
-                value={label}
-                onChange={(e) => setLabel(e.target.value)}
-                className="break-all"
-              />
-            </div>
+            <Field>
+              <FieldLabel className="mb-2">Nhãn hiển thị</FieldLabel>
+              <FieldContent>
+                <Input
+                  placeholder="VD: Hotline, CSKH, Fanpage..."
+                  value={label}
+                  onChange={(e) => {
+                    const val = (e.target as HTMLInputElement).value;
+                    setLabel(val.charAt(0).toUpperCase() + val.slice(1));
+                  }}
+                />
+                <FieldDescription>Tên ngắn gọn mô tả thông tin liên hệ.</FieldDescription>
+              </FieldContent>
+            </Field>
 
-            <div className="space-y-2">
-              <Label>
+            <Field>
+              <FieldLabel className="mb-2">
                 {type === "phone"
                   ? "Số điện thoại"
                   : type === "email"
                     ? "Địa chỉ email"
                     : "URL / Link"}
-              </Label>
-              <Input
-                placeholder={
-                  type === "phone"
-                    ? "0909 123 456"
-                    : type === "email"
-                      ? "contact@company.com"
-                      : "https://..."
-                }
-                value={value}
-                onChange={(e) => setValue(e.target.value)}
-              />
-            </div>
+              </FieldLabel>
+              <FieldContent>
+                <Input
+                  placeholder={
+                    type === "phone"
+                      ? "0909 123 456"
+                      : type === "email"
+                        ? "contact@company.com"
+                        : "https://..."
+                  }
+                  value={value}
+                  onChange={(e) => setValue(e.target.value)}
+                />
+              </FieldContent>
+            </Field>
+          </FieldGroup>
 
-            <div className="space-y-2">
-              <Label>Thứ tự hiển thị</Label>
-              <Input
-                type="number"
-                value={orderIndex}
-                onChange={(e) => setOrderIndex(Number(e.target.value))}
-                className="break-all"
-              />
-            </div>
-
-            <Button className="w-full" onClick={handleSave}>
+          <div className="flex justify-end gap-3 border-t pt-6">
+            <Button variant="outline" onClick={() => setOpen(false)} className="px-6">
+              Hủy
+            </Button>
+            <Button onClick={handleSave} className="min-w-[120px] px-6">
               {editing ? "Cập nhật" : "Tạo mới"}
             </Button>
           </div>
-        </DialogContent>
-      </Dialog>
+        </div>
+      </AdminDialog>
+
+      <DeleteDialog
+        open={deleteOpen}
+        onOpenChange={setDeleteOpen}
+        onConfirm={handleDelete}
+      />
     </div>
   );
 }
