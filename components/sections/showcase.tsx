@@ -26,12 +26,12 @@ export function ShowcaseSection({ projects }: ShowcaseSectionProps) {
   if (!mainProject) return null;
 
   return (
-    <section className="relative w-full flex-1 flex flex-col justify-center py-section overflow-hidden">
+    <section className="relative w-full flex-1 flex flex-col justify-center pt-section pb-20 sm:pb-28 lg:pb-44 overflow-hidden">
       <div className="px-container max-w-7xl mx-auto w-full">
         <div className="flex flex-col lg:flex-row gap-fluid items-center">
 
           {/* Main Visual - Left side */}
-          <div className="w-full lg:w-1/2 order-2 lg:order-1 relative flex justify-center lg:justify-end pr-0 lg:pr-12">
+          <div className="w-full lg:w-1/2 order-1 relative flex justify-center lg:justify-end pr-0 lg:pr-12">
             <div className="w-full max-w-md relative">
               <div className="absolute -inset-4 bg-muted rounded-[2rem] -z-10" />
               <Link href={`/cong-trinh/${mainProject.slug}`} className="block w-full">
@@ -64,7 +64,7 @@ export function ShowcaseSection({ projects }: ShowcaseSectionProps) {
           </div>
 
           {/* Typography & Context - Right side */}
-          <div className="w-full lg:w-1/2 order-1 lg:order-2 flex flex-col justify-center relative animate-in fade-in slide-in-from-bottom-8 duration-[1.5s] delay-300">
+          <div className="w-full lg:w-1/2 order-2 flex flex-col justify-center relative animate-in fade-in slide-in-from-bottom-8 duration-[1.5s] delay-300">
             <div className="relative z-10">
               <div className="inline-flex items-center gap-4 mb-10">
                 <Badge variant="outline" className="text-[10px] uppercase tracking-[0.25em] font-medium px-3 py-1 h-auto rounded-full border-border/50">

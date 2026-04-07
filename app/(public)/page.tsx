@@ -38,7 +38,7 @@ export default async function Home() {
   return (
     <main className="relative flex flex-col w-full bg-background selection:bg-primary selection:text-primary-foreground min-h-screen overflow-x-hidden">
       {/* 1. HERO SECTION - Light */}
-      <div className="w-full bg-background text-foreground pb-32">
+      <div className="w-full bg-background text-foreground pb-12 sm:pb-20 lg:pb-32">
         <HeroSection
           title={settings.hero_title}
           subtitle={settings.hero_subtitle}
@@ -50,10 +50,10 @@ export default async function Home() {
 
       {/* 2. SHOWCASE SECTION (Projects) - Dark Seamless Overlap */}
       <div
-        className="w-full relative dark bg-background text-foreground -mt-32 min-h-screen flex flex-col shadow-[0_-30px_60px_rgba(0,0,0,0.1)] border-t border-white/5 overflow-hidden"
+        className="w-full relative dark bg-background text-foreground -mt-12 sm:-mt-20 lg:-mt-32 min-h-screen flex flex-col shadow-[0_-20px_40px_rgba(0,0,0,0.1)] border-t border-white/5 overflow-hidden"
         style={{
-          borderTopLeftRadius: "clamp(3rem, 6vw, 6rem)",
-          borderTopRightRadius: "clamp(3rem, 6vw, 6rem)",
+          borderTopLeftRadius: "clamp(1.5rem, 4vw, 6rem)",
+          borderTopRightRadius: "clamp(1.5rem, 4vw, 6rem)",
         }}
       >
         <ShowcaseSection projects={projects || []} />
@@ -61,10 +61,10 @@ export default async function Home() {
 
       {/* 3. PRODUCTS SECTION (Features) - Soft Contrast Seamless Overlap */}
       <div
-        className="w-full relative bg-secondary text-secondary-foreground -mt-32 min-h-screen flex flex-col shadow-[0_-30px_60px_rgba(0,0,0,0.05)] border-t border-border/50 overflow-hidden"
+        className="w-full relative bg-secondary text-secondary-foreground -mt-12 sm:-mt-20 lg:-mt-32 min-h-screen flex flex-col shadow-[0_-20px_40px_rgba(0,0,0,0.05)] border-t border-border/50 overflow-hidden"
         style={{
-          borderTopLeftRadius: "clamp(3rem, 6vw, 6rem)",
-          borderTopRightRadius: "clamp(3rem, 6vw, 6rem)",
+          borderTopLeftRadius: "clamp(1.5rem, 4vw, 6rem)",
+          borderTopRightRadius: "clamp(1.5rem, 4vw, 6rem)",
         }}
       >
         <FeaturesSection products={featuredProducts || []} />
@@ -72,10 +72,10 @@ export default async function Home() {
 
       {/* 4. CTA SECTION - Dark High Contrast Seamless Overlap */}
       <div
-        className="w-full relative dark bg-background text-foreground -mt-32 min-h-screen flex flex-col shadow-[0_-30px_60px_rgba(0,0,0,0.15)] border-t border-white/5 overflow-hidden"
+        className="w-full relative dark bg-background text-foreground -mt-12 sm:-mt-20 lg:-mt-32 min-h-screen flex flex-col shadow-[0_-20px_40px_rgba(0,0,0,0.15)] border-t border-white/5 overflow-hidden"
         style={{
-          borderTopLeftRadius: "clamp(3rem, 6vw, 6rem)",
-          borderTopRightRadius: "clamp(3rem, 6vw, 6rem)",
+          borderTopLeftRadius: "clamp(1.5rem, 4vw, 6rem)",
+          borderTopRightRadius: "clamp(1.5rem, 4vw, 6rem)",
         }}
       >
         <CTASection settings={settings} />

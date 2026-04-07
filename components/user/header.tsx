@@ -56,16 +56,16 @@ export function Header() {
             </Link>
           </div>
 
-          {/* Center: Navigation - Simple links as requested */}
-          <nav className="hidden items-center md:flex px-6">
+          {/* Center: Navigation */}
+          <nav className="hidden items-center md:flex px-2 lg:px-6">
             {navLinks.map((link) => (
               <Link
                 key={link.name}
                 href={link.href}
-                className="group relative px-6 py-2 text-sm font-medium text-muted-foreground transition-all hover:text-foreground"
+                className="group relative px-3 lg:px-6 py-2 text-xs lg:text-sm font-medium text-muted-foreground transition-all hover:text-foreground whitespace-nowrap"
               >
                 {link.name}
-                <span className="absolute bottom-1.5 left-4 right-4 h-0.5 bg-primary/80 scale-x-0 transition-transform duration-300 group-hover:scale-x-100" />
+                <span className="absolute bottom-1.5 left-2 right-2 lg:left-4 lg:right-4 h-0.5 bg-primary/80 scale-x-0 transition-transform duration-300 group-hover:scale-x-100" />
               </Link>
             ))}
           </nav>
@@ -76,7 +76,7 @@ export function Header() {
               asChild
               variant="default"
               size="sm"
-              className="hidden md:inline-flex rounded-lg px-5 py-4 font-bold hover:scale-105 transition-all shadow-lg shadow-primary/10"
+              className="hidden md:inline-flex rounded-lg px-3 lg:px-5 py-4 text-xs lg:text-sm font-bold hover:scale-105 transition-all shadow-lg shadow-primary/10"
             >
               <Link href="/cong-trinh">
                 Khám phá ngay

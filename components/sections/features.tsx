@@ -43,7 +43,7 @@ export function FeaturesSection({ products }: FeaturesSectionProps) {
 
   return (
     <section className="flex-1 flex flex-col justify-center w-full relative">
-      <div className="max-w-7xl px-container py-section mx-auto w-full">
+      <div className="max-w-7xl px-container pt-section pb-20 sm:pb-28 lg:pb-44 mx-auto w-full">
         {/* Header */}
         <div className="relative z-10 mb-12 flex flex-col md:flex-row md:items-end justify-between gap-6">
           <div className="max-w-2xl">
@@ -76,7 +76,7 @@ export function FeaturesSection({ products }: FeaturesSectionProps) {
                   href={`/san-pham/${product.slug}`}
                   className="group relative flex flex-col gap-4"
                 >
-                  <Card className="relative w-full aspect-[4/3] overflow-hidden p-4 sm:p-6 border-border/40 shadow-none ring-0 bg-background gap-0 py-0 rounded-[1.25rem] transition-shadow duration-500 group-hover:shadow-md">
+                  <Card className="relative w-full aspect-[4/3] overflow-hidden p-0 sm:p-6 bg-transparent sm:bg-background border-0 sm:border sm:border-border/40 shadow-none ring-0 gap-0 py-0 rounded-[1.25rem] transition-shadow duration-500 sm:group-hover:shadow-md">
                     <div className="relative w-full h-full rounded-lg overflow-hidden">
                       {product.images?.[0] ? (
                         <Image

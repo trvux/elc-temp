@@ -31,7 +31,7 @@ export function HeroSection({
   const secondHalf = words.slice(Math.ceil(words.length / 2)).join(" ");
 
   return (
-    <section className="relative flex min-h-screen w-full flex-col px-container py-section justify-between border-b border-black/5 dark:border-white/5">
+    <section className="relative flex min-h-screen w-full flex-col px-container pt-24 sm:pt-section pb-section justify-between border-b border-black/5 dark:border-white/5">
       {/* Background Layer */}
       <div className="absolute inset-0 -z-10 bg-background"></div>
 
@@ -58,18 +58,20 @@ export function HeroSection({
         </div>
       )}
 
-      {/* Top row: Brand & Subtle Meta Info */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center relative z-10 max-w-7xl mx-auto w-full gap-8 animate-in fade-in slide-in-from-top-8 duration-1000">
-        <div className="flex cursor-pointer items-center gap-4 rounded-full border border-border/50 bg-background/60 px-3 py-1.5 backdrop-blur-xl transition-all hover:bg-background hover:shadow-sm">
-          <div className="flex -space-x-2.5 transition-all duration-500 hover:-space-x-1">
+      {/* Center: Massive Editorial Headline */}
+      <div className="flex-1 flex flex-col justify-center items-center relative z-10 w-full animate-in fade-in slide-in-from-bottom-12 duration-[1.5s]">
+
+        {/* Partner badge - centered, all breakpoints */}
+        <div className="flex items-center gap-2.5 mb-8 rounded-full border border-border/50 bg-background/60 px-2.5 py-1 backdrop-blur-xl">
+          <div className="flex -space-x-1.5">
             {["samsung.com", "sony.com", "lg.com", "panasonic.com"].map(
               (domain, i) => (
                 <div
                   key={i}
-                  className="flex h-7 w-7 items-center justify-center overflow-hidden rounded-full border border-border bg-white shadow-sm transition-transform duration-500"
+                  className="flex h-5 w-5 items-center justify-center overflow-hidden rounded-full border border-border bg-white shadow-sm"
                 >
                   <img
-                    src={`https://www.google.com/s2/favicons?domain=${domain}&sz=64`}
+                    src={`https://www.google.com/s2/favicons?domain=${domain}&sz=32`}
                     alt={domain}
                     className="h-[55%] w-[55%] object-contain"
                   />
@@ -77,29 +79,12 @@ export function HeroSection({
               ),
             )}
           </div>
-          <div className="flex items-center border-l border-border/50 pl-3 pr-2 text-[10px] font-medium tracking-[0.15em] uppercase">
+          <div className="flex items-center border-l border-border/50 pl-2 pr-1 text-[9px] font-medium tracking-[0.15em] uppercase">
             <span className="opacity-40">Đối tác: </span>
-            <span className="mx-1 font-bold">Hàng đầu</span>
+            <span className="ml-1 font-bold">Hàng đầu</span>
           </div>
         </div>
 
-        <div className="hidden lg:flex items-center gap-6">
-          <span className="text-[10px] tracking-[0.2em] text-muted-foreground uppercase">
-            Tinh tế
-          </span>
-          <div className="w-1 h-1 rounded-full bg-border"></div>
-          <span className="text-[10px] tracking-[0.2em] text-muted-foreground uppercase">
-            Tĩnh lặng
-          </span>
-          <div className="w-1 h-1 rounded-full bg-border"></div>
-          <span className="text-[10px] tracking-[0.2em] text-muted-foreground uppercase">
-            Hoàn mỹ
-          </span>
-        </div>
-      </div>
-
-      {/* Center: Massive Editorial Headline */}
-      <div className="flex-1 flex flex-col justify-center items-center relative z-10 w-full animate-in fade-in slide-in-from-bottom-12 duration-[1.5s]">
         <h1 className="text-huge font-light tracking-tighter leading-[0.9] text-center w-full max-w-7xl flex flex-col group cursor-default">
           <span className="block text-foreground pr-[5%] origin-left transition-transform duration-700 group-hover:-translate-y-1">
             {firstHalf}
@@ -111,7 +96,7 @@ export function HeroSection({
       </div>
 
       {/* Bottom row: Subtitle, CTA & Scroll indicator */}
-      <div className="flex flex-col lg:flex-row justify-between items-end relative z-10 max-w-7xl mx-auto w-full gap-12 mt-12 animate-in fade-in slide-in-from-bottom-8 duration-1000 delay-300">
+      <div className="flex flex-col lg:flex-row justify-between items-start lg:items-end relative z-10 max-w-7xl mx-auto w-full gap-12 mt-12 animate-in fade-in slide-in-from-bottom-8 duration-1000 delay-300">
         <div className="max-w-md">
           <span className="text-[10px] tracking-[0.2em] uppercase text-muted-foreground block mb-6 px-1 lg:hidden">
             Giới thiệu

@@ -160,6 +160,14 @@
   padding-bottom: clamp(4rem, 6vw, 6rem);
 }
 
+@utility pt-section {
+  padding-top: clamp(4rem, 6vw, 6rem);
+}
+
+@utility pb-section {
+  padding-bottom: clamp(4rem, 6vw, 6rem);
+}
+
 @utility px-container {
   padding-left: clamp(1.5rem, 6vw, 4rem);
   padding-right: clamp(1.5rem, 6vw, 4rem);
