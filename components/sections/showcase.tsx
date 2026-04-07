@@ -45,6 +45,7 @@ export function ShowcaseSection({ projects }: ShowcaseSectionProps) {
                       fill
                       className="object-cover transition-transform duration-[2s] group-hover:scale-[1.03]"
                       sizes="(max-width: 768px) 100vw, 50vw"
+                      priority
                     />
                   )}
                   <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/0 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700" />

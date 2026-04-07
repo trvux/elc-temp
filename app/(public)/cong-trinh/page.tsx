@@ -47,7 +47,7 @@ export default async function ProjectsPage() {
 
         {/* Zara Editorial Grid - Much more spacious */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-12 md:gap-x-16 gap-y-32 md:gap-y-40">
-          {allProjects.map((project: Project) => (
+          {allProjects.map((project: Project, index: number) => (
             <Link
               key={project.id}
               href={`/cong-trinh/${project.categories?.slug ? project.categories.slug + "/" : ""}${project.slug}`}
@@ -62,6 +62,7 @@ export default async function ProjectsPage() {
                       fill
                       className="object-cover transition-transform duration-1000 group-hover:scale-105"
                       sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                      priority={index < 2}
                     />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center text-muted-foreground/30 text-[10px] font-bold capitalize tracking-[0.3em]">
