@@ -164,7 +164,7 @@ export default function AdminSidebar({ user }: { user: UserInfo }) {
                   asChild
                   tooltip={item.label}
                   isActive={pathname === item.href}
-                  className="font-medium text-sm transition-all data-[active=true]:bg-sidebar-accent data-[active=true]:text-sidebar-accent-foreground active:scale-[0.98]"
+                  className="text-sm transition-all data-[active=true]:bg-primary data-[active=true]:text-primary-foreground data-[active=true]:font-medium active:scale-[0.98]"
                 >
                   <Link href={item.href}>
                     <item.icon className="size-4" />

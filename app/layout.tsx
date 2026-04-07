@@ -9,6 +9,7 @@ const inter = Inter({
   subsets: ["latin"],
   weight: ["400", "500", "600", "700", "800"],
   variable: "--font-inter",
+  display: "swap",
 });
 
 const crimsonPro = Crimson_Pro({
@@ -16,12 +17,14 @@ const crimsonPro = Crimson_Pro({
   weight: ["400", "500", "600", "700", "800", "900"],
   style: ["normal", "italic"],
   variable: "--font-crimson-pro",
+  display: "swap",
 });
 
 const newsreader = Newsreader({
   subsets: ["latin"],
   style: ["normal", "italic"],
   variable: "--font-newsreader",
+  display: "swap",
 });
 
 export const metadata: Metadata = {
@@ -37,6 +40,7 @@ export default function RootLayout({
   return (
     <html
       lang="vi"
+      suppressHydrationWarning
       className={cn(
         "h-full antialiased",
         inter.variable,
@@ -44,7 +48,7 @@ export default function RootLayout({
         newsreader.variable,
       )}
     >
-      <body className="min-h-full flex flex-col text-foreground font-sans">
+      <body suppressHydrationWarning className={cn("min-h-full flex flex-col text-foreground", inter.className)}>
         <TooltipProvider>
           {children}
           <Toaster position="top-center" richColors />

@@ -3,7 +3,7 @@
 import * as React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Menu } from "lucide-react";
+import { Menu, ArrowRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
@@ -82,8 +82,8 @@ export function Header() {
                     className={cn(
                       "absolute bottom-1.5 left-2 right-2 lg:left-4 lg:right-4 h-0.5 bg-primary/80 transition-transform duration-300",
                       isActive
-                      ? "scale-x-0"
-                      : "scale-x-0 group-hover:scale-x-100",
+                        ? "scale-x-0"
+                        : "scale-x-0 group-hover:scale-x-100",
                     )}
                   />
                 </Link>
@@ -96,10 +96,12 @@ export function Header() {
             <Button
               asChild
               variant="default"
-              size="default"
-              className="hidden md:inline-flex rounded-full font-bold hover:scale-105 transition-all shadow-xl shadow-primary/10 tracking-tight px-8"
+              size="icon"
+              className="hidden md:inline-flex rounded-full font-bold hover:scale-105 transition-all shadow-xl shadow-primary/10 h-10 w-10"
             >
-              <Link href="/cong-trinh">Khám phá ngay</Link>
+              <Link href="/cong-trinh">
+                <ArrowRight size={20} className="w-5 h-5" />
+              </Link>
             </Button>
 
             <Sheet open={isMenuOpen} onOpenChange={setIsMenuOpen}>
@@ -109,7 +111,7 @@ export function Header() {
                   size="icon"
                   className="h-10 w-10 md:hidden"
                 >
-                  <Menu className="h-5 w-5" />
+                  <Menu size={20} className="w-5 h-5" />
                 </Button>
               </SheetTrigger>
               <SheetContent
