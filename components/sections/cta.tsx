@@ -31,8 +31,8 @@ export function CTASection({ settings }: CTASectionProps) {
             </div>
 
             <h2 className="text-title font-light tracking-tighter mb-8 leading-tight text-foreground">
-              Bắt đầu <br className="hidden sm:block" />
-              <span className="italic text-muted-foreground/80">hành trình</span> kiến tạo.
+              Nâng tầm <br className="hidden sm:block" />
+              <span className="italic text-muted-foreground/80">chuẩn mực</span> không gian.
             </h2>
 
             <p className="text-base-fluid text-muted-foreground max-w-xl font-light leading-relaxed mb-10">
