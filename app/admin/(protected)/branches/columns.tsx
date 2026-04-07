@@ -3,6 +3,7 @@
 import { ColumnDef } from "@tanstack/react-table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { ButtonGroup } from "@/components/ui/button-group";
 import { Pencil, Trash2 } from "lucide-react";
 
 export type BranchRow = {
@@ -26,7 +27,11 @@ export const getColumns = ({
   {
     accessorKey: "name",
     header: "Tên chi nhánh",
-    cell: ({ row }) => <span className="text-sm font-semibold tracking-tight">{row.original.name}</span>,
+    cell: ({ row }) => (
+      <span className="text-sm font-semibold tracking-tight">
+        {row.original.name}
+      </span>
+    ),
   },
   {
     accessorKey: "slug",
@@ -40,12 +45,20 @@ export const getColumns = ({
   {
     accessorKey: "address",
     header: "Địa chỉ",
-    cell: ({ row }) => <span className="text-xs text-muted-foreground/70 truncate max-w-[250px] inline-block">{row.original.address || "—"}</span>,
+    cell: ({ row }) => (
+      <span className="text-xs text-muted-foreground/70 truncate max-w-[250px] inline-block">
+        {row.original.address || "—"}
+      </span>
+    ),
   },
   {
     accessorKey: "phone",
     header: "Điện thoại",
-    cell: ({ row }) => <span className="text-sm font-medium whitespace-nowrap">{row.original.phone || "—"}</span>,
+    cell: ({ row }) => (
+      <span className="text-sm font-medium whitespace-nowrap">
+        {row.original.phone || "—"}
+      </span>
+    ),
   },
   {
     accessorKey: "is_published",
@@ -62,22 +75,24 @@ export const getColumns = ({
     cell: ({ row }) => {
       const branch = row.original;
       return (
-        <div className="flex gap-2">
+        <ButtonGroup>
           <Button
             size="icon"
-            variant="ghost"
+            variant="outline"
+            className="h-8 w-8"
             onClick={() => onEdit(branch)}
           >
-            <Pencil size={16} />
+            <Pencil size={14} />
           </Button>
           <Button
             size="icon"
-            variant="destructive"
+            variant="outline"
+            className="h-8 w-8 text-destructive hover:text-destructive hover:bg-destructive/10"
             onClick={() => onDelete(branch.id)}
           >
-            <Trash2 size={16} />
+            <Trash2 size={14} />
           </Button>
-        </div>
+        </ButtonGroup>
       );
     },
   },

@@ -6,7 +6,13 @@ import { usePathname } from "next/navigation";
 import { Menu, ArrowRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import {
+  Sheet,
+  SheetContent,
+  SheetTrigger,
+  SheetTitle,
+  SheetDescription,
+} from "@/components/ui/sheet";
 
 export function Header() {
   const [isScrolled, setIsScrolled] = React.useState(false);
@@ -39,7 +45,7 @@ export function Header() {
       >
         <div
           className={cn(
-            "mx-auto max-w-7xl flex items-center justify-between rounded-xl px-container py-2.5 transition-all duration-500 ease-in-out",
+            "mx-auto max-w-7xl flex items-center justify-between rounded-xl px-container py-1 transition-all duration-500 ease-in-out",
             isScrolled && !isMenuOpen
               ? "border border-border/50 bg-background/80 shadow-2xl backdrop-blur-xl scale-95"
               : "bg-transparent border-transparent shadow-none scale-100",
@@ -116,8 +122,13 @@ export function Header() {
               </SheetTrigger>
               <SheetContent
                 side="top"
-                className="h-[100dvh] pt-20 border-none bg-background/95 backdrop-blur-3xl rounded-b-[3rem]"
+                className="h-[100dvh] pt-2 border-none bg-background/80 backdrop-blur-3xl rounded-b-[3rem]"
+                showCloseButton={false}
               >
+                <SheetTitle className="sr-only">Menu</SheetTitle>
+                <SheetDescription className="sr-only">
+                  Mobile navigation menu for ELC.
+                </SheetDescription>
                 <nav className="flex flex-col items-center justify-center gap-8 py-10">
                   {navLinks.map((link) => {
                     const isActive =
@@ -130,10 +141,10 @@ export function Header() {
                         href={link.href}
                         onClick={() => setIsMenuOpen(false)}
                         className={cn(
-                          "text-fluid-h2 tracking-tighter transition-all active:scale-95",
+                          "tracking-tighter transition-all active:scale-95",
                           isActive
-                            ? "font-black text-primary"
-                            : "font-bold text-foreground hover:text-primary",
+                            ? "text-xl font-bold text-primary"
+                            : "text-xl  font-semibold text-foreground/80 hover:text-primary",
                         )}
                       >
                         {link.name}

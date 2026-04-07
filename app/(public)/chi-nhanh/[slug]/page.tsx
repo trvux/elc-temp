@@ -71,7 +71,7 @@ export default async function BranchDetail({ params }: PageProps) {
                   />
                 </div>
               </div>
-              <h3 className="text-fluid-h2 font-bold mb-4 tracking-tight">
+              <h3 className=" font-bold mb-4 tracking-tight">
                 Tọa độ chính thức
               </h3>
               <p className="text-fluid-base text-primary-foreground/60 font-medium leading-[1.6]">

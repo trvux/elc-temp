@@ -87,7 +87,12 @@ export function TiptapEditor({
     if (linkUrl === "") {
       editor.chain().focus().extendMarkRange("link").unsetLink().run();
     } else {
-      editor.chain().focus().extendMarkRange("link").setLink({ href: linkUrl }).run();
+      editor
+        .chain()
+        .focus()
+        .extendMarkRange("link")
+        .setLink({ href: linkUrl })
+        .run();
     }
   }, [editor, linkUrl]);
 
@@ -190,39 +195,41 @@ export function TiptapEditor({
               type="button"
               className={tb(editor.isActive("link"))}
               title="Insert link"
-              onClick={() => setLinkUrl(editor.getAttributes("link").href || "")}
+              onClick={() =>
+                setLinkUrl(editor.getAttributes("link").href || "")
+              }
             >
               <LinkIcon size={14} />
             </button>
           </PopoverTrigger>
           <PopoverContent className="w-80 p-3" side="bottom" align="start">
-             <div className="space-y-3">
-                <h4 className="font-medium text-sm">Chèn liên kết</h4>
-                <div className="flex gap-2">
-                   <Input 
-                      placeholder="https://example.com" 
-                      value={linkUrl} 
-                      onChange={(e) => setLinkUrl(e.target.value)}
-                      className="h-8 text-xs"
-                      onKeyDown={(e) => {
-                         if (e.key === "Enter") handleSetLink();
-                      }}
-                   />
-                   <Button size="sm" className="h-8 px-2" onClick={handleSetLink}>
-                      <Check size={14} />
-                   </Button>
-                </div>
-                {editor.isActive("link") && (
-                   <Button 
-                      variant="ghost" 
-                      className="w-full h-8 text-red-500 hover:text-red-600 hover:bg-red-50 text-xs justify-start px-2"
-                      onClick={() => editor.chain().focus().unsetLink().run()}
-                   >
-                      <UnlinkIcon size={12} className="mr-2" />
-                      Xóa liên kết
-                   </Button>
-                )}
-             </div>
+            <div className="space-y-3">
+              <h4 className="font-medium text-sm">Chèn liên kết</h4>
+              <div className="flex gap-2">
+                <Input
+                  placeholder="https://example.com"
+                  value={linkUrl}
+                  onChange={(e) => setLinkUrl(e.target.value)}
+                  className="h-8 text-xs"
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") handleSetLink();
+                  }}
+                />
+                <Button size="sm" className="h-8 px-2" onClick={handleSetLink}>
+                  <Check size={14} />
+                </Button>
+              </div>
+              {editor.isActive("link") && (
+                <Button
+                  variant="ghost"
+                  className="w-full h-8 text-red-500 hover:text-red-600 hover:bg-red-50 text-xs justify-start px-2"
+                  onClick={() => editor.chain().focus().unsetLink().run()}
+                >
+                  <UnlinkIcon size={12} className="mr-2" />
+                  Xóa liên kết
+                </Button>
+              )}
+            </div>
           </PopoverContent>
         </Popover>
 
@@ -282,7 +289,7 @@ export function TiptapEditor({
         >
           <Italic size={13} />
         </button>
-        
+
         <div className="w-px h-3.5 bg-zinc-700 mx-1" />
 
         <Popover>
@@ -290,37 +297,53 @@ export function TiptapEditor({
             <button
               type="button"
               className={bb(editor.isActive("link"))}
-              onClick={() => setLinkUrl(editor.getAttributes("link").href || "")}
+              onClick={() =>
+                setLinkUrl(editor.getAttributes("link").href || "")
+              }
             >
               <LinkIcon size={13} />
             </button>
           </PopoverTrigger>
-          <PopoverContent className="w-72 p-2 bg-white dark:bg-zinc-950 border shadow-xl rounded-md" side="top" sideOffset={12}>
-             <div className="flex gap-2">
-                <Input 
-                   placeholder="Dán link hoặc gõ..." 
-                   value={linkUrl} 
-                   onChange={(e) => setLinkUrl(e.target.value)}
-                   className="h-8 text-xs flex-1"
-                   onKeyDown={(e) => {
-                      if (e.key === "Enter") handleSetLink();
-                   }}
-                   autoFocus
-                />
-                <Button size="icon" variant="default" className="h-8 w-8 shrink-0" onClick={handleSetLink}>
-                   <Check size={14} />
+          <PopoverContent
+            className="w-72 p-2 bg-white dark:bg-zinc-950 border shadow-xl rounded-md"
+            side="top"
+            sideOffset={12}
+          >
+            <div className="flex gap-2">
+              <Input
+                placeholder="Dán link hoặc gõ..."
+                value={linkUrl}
+                onChange={(e) => setLinkUrl(e.target.value)}
+                className="h-8 text-xs flex-1"
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") handleSetLink();
+                }}
+                autoFocus
+              />
+              <Button
+                size="icon"
+                variant="default"
+                className="h-8 w-8 shrink-0"
+                onClick={handleSetLink}
+              >
+                <Check size={14} />
+              </Button>
+              {editor.isActive("link") && (
+                <Button
+                  size="icon"
+                  variant="destructive"
+                  className="h-8 w-8 shrink-0"
+                  onClick={() => editor.chain().focus().unsetLink().run()}
+                >
+                  <UnlinkIcon size={14} />
                 </Button>
-                {editor.isActive("link") && (
-                   <Button size="icon" variant="destructive" className="h-8 w-8 shrink-0" onClick={() => editor.chain().focus().unsetLink().run()}>
-                      <UnlinkIcon size={14} />
-                   </Button>
-                )}
-             </div>
+              )}
+            </div>
           </PopoverContent>
         </Popover>
 
         <div className="w-px h-3.5 bg-zinc-700 mx-1" />
-        
+
         <button
           type="button"
           onClick={() =>
@@ -339,9 +362,9 @@ export function TiptapEditor({
         >
           <span className="text-[10px] font-bold">H3</span>
         </button>
-        
+
         <div className="w-px h-3.5 bg-zinc-700 mx-1" />
-        
+
         <button
           type="button"
           onClick={() => editor.chain().focus().toggleBulletList().run()}

@@ -67,7 +67,10 @@ export default function RichTextEditor({
     if (!editor) return;
 
     const previousUrl = editor.getAttributes("link").href;
-    const url = window.prompt("Nhập URL (ví dụ: https://google.com):", previousUrl);
+    const url = window.prompt(
+      "Nhập URL (ví dụ: https://google.com):",
+      previousUrl,
+    );
 
     // Cancelled
     if (url === null) {

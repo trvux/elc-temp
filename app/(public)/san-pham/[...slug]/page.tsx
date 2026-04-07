@@ -2,6 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import { notFound } from "next/navigation";
 import Image from "next/image";
 import { Percent } from "lucide-react";
+import { AspectRatio } from "@/components/ui/aspect-ratio";
 
 export default async function ProductDetail({
   params,
@@ -34,31 +35,35 @@ export default async function ProductDetail({
         <div className="flex flex-col lg:flex-row gap-12 lg:gap-24 xl:gap-32">
           {/* LEFT: Product Images Area - Slimmer & Centered Look */}
           <div className="lg:w-[55%] space-y-8">
-            <div className="relative aspect-[3/4] w-full bg-muted/30 overflow-hidden">
-              {product.images?.[0] && (
-                <Image
-                  src={product.images[0]}
-                  alt={product.name}
-                  fill
-                  className="object-cover"
-                  priority
-                  sizes="(max-width: 1024px) 100vw, 50vw"
-                />
-              )}
+            <div className="w-full bg-muted/30 overflow-hidden">
+              <AspectRatio ratio={3 / 4}>
+                {product.images?.[0] && (
+                  <Image
+                    src={product.images[0]}
+                    alt={product.name}
+                    fill
+                    className="object-cover"
+                    priority
+                    sizes="(max-width: 1024px) 100vw, 50vw"
+                  />
+                )}
+              </AspectRatio>
             </div>
 
             {/* Grid for other images */}
             {product.images && product.images.length > 1 && (
               <div className="grid grid-cols-2 gap-4">
                 {product.images.slice(1).map((img: string, i: number) => (
-                  <div key={i} className="relative aspect-[3/4] bg-muted/30">
-                    <Image
-                      src={img}
-                      alt={`${product.name} ${i}`}
-                      fill
-                      className="object-cover"
-                      sizes="(max-width: 1024px) 50vw, 25vw"
-                    />
+                  <div key={i} className="bg-muted/30">
+                    <AspectRatio ratio={3 / 4}>
+                      <Image
+                        src={img}
+                        alt={`${product.name} ${i}`}
+                        fill
+                        className="object-cover"
+                        sizes="(max-width: 1024px) 50vw, 25vw"
+                      />
+                    </AspectRatio>
                   </div>
                 ))}
               </div>
@@ -156,7 +161,7 @@ export default async function ProductDetail({
                 <div
                   className="prose prose-zinc max-w-none 
                     text-base-fluid leading-[1.65] text-muted-foreground font-medium tracking-wide
-                    prose-p:mb-4"
+                    prose-p:mb-4 prose-img:w-full prose-img:h-auto prose-img:rounded-sm"
                   dangerouslySetInnerHTML={{
                     __html: product.description || "",
                   }}

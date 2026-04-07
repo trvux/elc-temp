@@ -143,8 +143,7 @@ export default function SettingsPage() {
       key.includes("email") ||
       key.includes("phone") ||
       key.includes("keywords");
-    const finalValue =
-      !isTechnicalField && value ? capitalize(value) : value;
+    const finalValue = !isTechnicalField && value ? capitalize(value) : value;
 
     setSettings((prev) => ({ ...prev, [key]: finalValue }));
   }

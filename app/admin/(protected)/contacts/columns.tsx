@@ -2,6 +2,7 @@
 
 import { ColumnDef } from "@tanstack/react-table";
 import { Button } from "@/components/ui/button";
+import { ButtonGroup } from "@/components/ui/button-group";
 import {
   Pencil,
   Trash2,
@@ -90,18 +91,24 @@ export const getColumns = ({
     cell: ({ row }) => {
       const contact = row.original;
       return (
-        <div className="flex gap-2">
-          <Button size="icon" variant="ghost" onClick={() => onEdit(contact)}>
-            <Pencil size={16} />
+        <ButtonGroup>
+          <Button
+            size="icon"
+            variant="outline"
+            className="h-8 w-8"
+            onClick={() => onEdit(contact)}
+          >
+            <Pencil size={14} />
           </Button>
           <Button
             size="icon"
-            variant="destructive"
+            variant="outline"
+            className="h-8 w-8 text-destructive hover:text-destructive hover:bg-destructive/10"
             onClick={() => onDelete(contact.id)}
           >
-            <Trash2 size={16} />
+            <Trash2 size={14} />
           </Button>
-        </div>
+        </ButtonGroup>
       );
     },
   },

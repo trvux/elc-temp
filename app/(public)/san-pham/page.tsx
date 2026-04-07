@@ -2,6 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import Image from "next/image";
 import Link from "next/link";
 import { Percent } from "lucide-react";
+import { AspectRatio } from "@/components/ui/aspect-ratio";
 
 export default async function ProductsHub() {
   const supabase = await createClient();
@@ -37,21 +38,22 @@ export default async function ProductsHub() {
               href={`/san-pham/${product.categories?.slug ? product.categories.slug + "/" : ""}${product.slug}`}
               className="group flex flex-col"
             >
-              {/* Image with Aspect Ratio */}
-              <div className="relative aspect-[2/3] w-full overflow-hidden bg-muted/20">
-                {product.images?.[0] ? (
-                  <Image
-                    src={product.images[0]}
-                    alt={product.name}
-                    fill
-                    className="object-cover transition-transform duration-1000 group-hover:scale-105"
-                    sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 25vw"
-                  />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center text-muted-foreground/30 text-[10px] font-bold capitalize tracking-[0.3em]">
-                    Ảnh SP
-                  </div>
-                )}
+              <div className="w-full overflow-hidden bg-muted/20">
+                <AspectRatio ratio={2 / 3}>
+                  {product.images?.[0] ? (
+                    <Image
+                      src={product.images[0]}
+                      alt={product.name}
+                      fill
+                      className="object-cover transition-transform duration-1000 group-hover:scale-105"
+                      sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 25vw"
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center text-muted-foreground/30 text-[10px] font-bold capitalize tracking-[0.3em]">
+                      Ảnh SP
+                    </div>
+                  )}
+                </AspectRatio>
               </div>
 
               {/* Info with fixed layout to ensure alignment */}

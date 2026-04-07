@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import Image from "next/image";
 import { InfoTOC } from "@/components/user/info-toc";
 import { Badge } from "@/components/ui/badge";
+import { AspectRatio } from "@/components/ui/aspect-ratio";
 
 export default async function ProjectDetail({
   params,
@@ -85,15 +86,17 @@ export default async function ProjectDetail({
         <article className="animate-in fade-in duration-1000 ease-out">
           {/* Hero Image */}
           {images[0] && (
-            <div className="w-full mb-16 relative aspect-[16/9] overflow-hidden bg-muted/20">
-              <Image
-                src={images[0]}
-                alt={project.title}
-                fill
-                className="object-cover"
-                priority
-                sizes="(max-width: 800px) 100vw, 800px"
-              />
+            <div className="w-full mb-16 overflow-hidden bg-muted/20">
+              <AspectRatio ratio={16 / 9}>
+                <Image
+                  src={images[0]}
+                  alt={project.title}
+                  fill
+                  className="object-cover"
+                  priority
+                  sizes="(max-width: 800px) 100vw, 800px"
+                />
+              </AspectRatio>
             </div>
           )}
 
@@ -105,7 +108,7 @@ export default async function ProjectDetail({
                 prose-headings:font-sans prose-headings:font-bold prose-headings:tracking-tight prose-headings:text-foreground
                 prose-headings:mt-16 prose-headings:mb-6
                 prose-a:text-primary prose-a:underline prose-a:underline-offset-4
-                prose-img:rounded-none prose-img:w-full prose-img:block prose-img:mx-auto prose-img:my-12"
+                prose-img:rounded-none prose-img:w-full prose-img:h-auto prose-img:block prose-img:mx-auto prose-img:my-12"
             dangerouslySetInnerHTML={{ __html: project.description || "" }}
           />
 
@@ -115,14 +118,17 @@ export default async function ProjectDetail({
               {images.slice(1).map((img: string, i: number) => (
                 <div
                   key={i}
-                  className="relative aspect-auto w-full bg-muted/20"
+                  className="w-full bg-muted/20"
                 >
-                  <img
-                    src={img}
-                    alt={`${project.title} - ảnh ${i + 1}`}
-                    className="w-full h-auto object-contain"
-                    loading="lazy"
-                  />
+                  <AspectRatio ratio={3 / 2}>
+                    <Image
+                      src={img}
+                      alt={`${project.title} - ảnh ${i + 1}`}
+                      fill
+                      className="object-contain"
+                      sizes="(max-width: 800px) 100vw, 800px"
+                    />
+                  </AspectRatio>
                 </div>
               ))}
             </div>

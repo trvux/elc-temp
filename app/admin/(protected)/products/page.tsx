@@ -672,7 +672,7 @@ export default function ProductsPage() {
                   <p className="text-xs text-muted-foreground capitalize font-semibold">
                     Giá bán cuối cùng
                   </p>
-                  <p className="text-fluid-h2 font-bold text-primary leading-none">
+                  <p className=" font-bold text-primary leading-none">
                     {formatVND(computedSalePrice)}
                   </p>
                 </div>
