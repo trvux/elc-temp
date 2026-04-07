@@ -50,7 +50,7 @@ export default async function Home() {
 
       {/* 2. SHOWCASE SECTION (Projects) - Dark Seamless Overlap */}
       <div
-        className="w-full relative dark bg-background text-foreground -mt-12 sm:-mt-20 lg:-mt-32 min-h-screen flex flex-col shadow-[0_-20px_40px_rgba(0,0,0,0.1)] border-t border-border/10 overflow-hidden"
+        className="w-full relative dark bg-background text-foreground -mt-8 sm:-mt-16 lg:-mt-24 min-h-screen flex flex-col shadow-[0_-20px_40px_rgba(0,0,0,0.1)] border-t border-border/10 overflow-hidden"
         style={{
           borderTopLeftRadius: "clamp(1.5rem, 4vw, 6rem)",
           borderTopRightRadius: "clamp(1.5rem, 4vw, 6rem)",
@@ -61,7 +61,7 @@ export default async function Home() {
 
       {/* 3. PRODUCTS SECTION (Features) - Soft Contrast Seamless Overlap */}
       <div
-        className="w-full relative bg-secondary text-secondary-foreground -mt-12 sm:-mt-20 lg:-mt-32 min-h-screen flex flex-col shadow-[0_-20px_40px_rgba(0,0,0,0.05)] border-t border-border/50 overflow-hidden"
+        className="w-full relative bg-secondary text-secondary-foreground -mt-8 sm:-mt-16 lg:-mt-24 min-h-screen flex flex-col shadow-[0_-20px_40px_rgba(0,0,0,0.05)] border-t border-border/50 overflow-hidden"
         style={{
           borderTopLeftRadius: "clamp(1.5rem, 4vw, 6rem)",
           borderTopRightRadius: "clamp(1.5rem, 4vw, 6rem)",
@@ -72,7 +72,7 @@ export default async function Home() {
 
       {/* 4. CTA SECTION - Dark High Contrast Seamless Overlap */}
       <div
-        className="w-full relative dark bg-background text-foreground -mt-12 sm:-mt-20 lg:-mt-32 min-h-screen flex flex-col shadow-[0_-20px_40px_rgba(0,0,0,0.15)] border-t border-border/10 overflow-hidden"
+        className="w-full relative dark bg-background text-foreground -mt-8 sm:-mt-16 lg:-mt-24 min-h-screen flex flex-col shadow-[0_-20px_40px_rgba(0,0,0,0.15)] border-t border-border/10 overflow-hidden"
         style={{
           borderTopLeftRadius: "clamp(1.5rem, 4vw, 6rem)",
           borderTopRightRadius: "clamp(1.5rem, 4vw, 6rem)",

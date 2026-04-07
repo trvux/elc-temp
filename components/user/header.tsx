@@ -46,7 +46,7 @@ export function Header() {
           )}
         >
           {/* Left: Logo */}
-          <div className="flex-1 flex justify-start">
+          <div className="flex-1 flex justify-start pr-4 lg:pr-8">
             <Link
               href="/"
               className="flex items-center gap-2 transition-transform hover:scale-105 active:scale-95 group"
@@ -82,8 +82,8 @@ export function Header() {
                     className={cn(
                       "absolute bottom-1.5 left-2 right-2 lg:left-4 lg:right-4 h-0.5 bg-primary/80 transition-transform duration-300",
                       isActive
-                        ? "scale-x-100"
-                        : "scale-x-0 group-hover:scale-x-100",
+                      ? "scale-x-0"
+                      : "scale-x-0 group-hover:scale-x-100",
                     )}
                   />
                 </Link>
@@ -92,7 +92,7 @@ export function Header() {
           </nav>
 
           {/* Right: CTA Button */}
-          <div className="flex-1 flex items-center justify-end gap-3">
+          <div className="flex-1 flex items-center justify-end gap-3 pl-4 lg:pl-8">
             <Button
               asChild
               variant="default"

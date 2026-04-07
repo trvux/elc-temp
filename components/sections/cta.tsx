@@ -15,7 +15,7 @@ export function CTASection({ settings }: CTASectionProps) {
 
   return (
     <section className="flex-1 flex flex-col justify-center w-full relative">
-      <div className="max-w-7xl px-container py-section mx-auto w-full">
+      <div className="pt-24 max-w-7xl px-container py-section mx-auto w-full">
         <div className="relative overflow-hidden group">
           {/* Subtle Background Glow */}
           <div className="absolute inset-0 opacity-30 dark:opacity-50 pointer-events-none">
@@ -45,7 +45,7 @@ export function CTASection({ settings }: CTASectionProps) {
               không khí tối ưu nhất, phù hợp đặc tính từng không gian kiến trúc.
             </p>
 
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-fluid w-full max-w-lg">
+            <div className="flex flex-col sm:flex-row items-center justify-center  w-full max-w-lg">
               <PhoneConfirmation phone={phone.replace(/\s/g, "")}>
                 <Button
                   asChild

@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
 import Image from "next/image";
 
@@ -31,7 +32,7 @@ export function HeroSection({
   const secondHalf = words.slice(Math.ceil(words.length / 2)).join(" ");
 
   return (
-    <section className="relative flex min-h-screen w-full flex-col px-container pt-24 sm:pt-section pb-12 sm:pb-24 justify-center border-b border-border/50">
+    <section className="relative flex min-h-screen w-full flex-col pt-24 pb-12 sm:pb-24 justify-center layout-container">
       {/* Background Layer */}
       <div className="absolute inset-0 -z-10 bg-background"></div>
 
@@ -59,64 +60,66 @@ export function HeroSection({
       )}
 
       {/* Center: Massive Editorial Headline & Main Content */}
-      <div className="flex flex-col justify-center items-center relative z-10 w-full animate-in fade-in slide-in-from-bottom-12 duration-[1.5s]">
-        {/* Partner badge - centered, all breakpoints */}
-        <div className="flex items-center gap-2.5 mb-8 rounded-full border border-border/50 bg-background/60 px-2.5 py-1 backdrop-blur-xl">
-          <div className="flex -space-x-1.5">
-            {["samsung.com", "sony.com", "lg.com", "panasonic.com"].map(
-              (domain, i) => (
-                <div
-                  key={i}
-                  className="flex h-5 w-5 items-center justify-center overflow-hidden rounded-full border border-border bg-card shadow-sm"
-                >
-                  <img
-                    src={`https://www.google.com/s2/favicons?domain=${domain}&sz=32`}
-                    alt={domain}
-                    className="h-[55%] w-[55%] object-contain"
-                  />
-                </div>
-              ),
-            )}
-          </div>
-          <div className="flex items-center border-l border-border/50 pl-2 pr-1 text-[9px] font-medium tracking-[0.15em] capitalize">
-            <span className="opacity-40">Đối tác: </span>
-            <span className="ml-1 font-bold">Hàng đầu</span>
-          </div>
-        </div>
-
-        <h1 className="text-6xl md:text-8xl lg:text-9xl font-light tracking-tighter leading-[0.85] text-center w-full max-w-7xl flex flex-col group cursor-default">
-          <span className="block text-foreground pr-[5%] origin-left transition-transform duration-700 group-hover:-translate-y-1">
-            {firstHalf}
-          </span>
-          <span className="block italic text-muted-foreground/60 pl-[5%] origin-right transition-transform duration-700 group-hover:translate-y-1">
-            {secondHalf}
-          </span>
-        </h1>
-
-        {/* Centered Subtitle & Buttons */}
-        <div className="mt-12 flex flex-col items-center text-center max-w-2xl mx-auto animate-in fade-in slide-in-from-bottom-8 duration-1000 delay-300">
-          <p className="text-sm md:text-base text-muted-foreground/80 leading-relaxed font-light text-center">
-            {displaySubtitle}
-          </p>
-          <div className="mt-8 flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
-            <Button
-              asChild
-              size="lg"
-              className="group relative h-12 lg:h-14 rounded-full bg-primary px-8 text-sm font-medium tracking-wide text-primary-foreground transition-all hover:scale-[1.02] active:scale-[0.98] overflow-hidden"
-            >
-              <Link href={displayCtaUrl}>
-                <span className="relative z-10">{displayCtaText}</span>
-                <div className="absolute inset-0 bg-primary-foreground/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-out" />
-              </Link>
-            </Button>
-            <Button
-              asChild
-              size="lg"
+      <div className="layout-container relative z-10">
+        <div className="flex flex-col lg:flex-row items-start justify-between gap-12 lg:gap-24">
+          {/* Left Column: Bold Headline & Buttons */}
+          <div className="w-full lg:w-2/3 flex flex-col items-start animate-in fade-in slide-in-from-bottom-12 duration-[1.5s]">
+            {/* Optional: Partner badge if you still want it */}
+            <Badge
               variant="outline"
-              className="h-12 lg:h-14 rounded-full border-border/50 px-6 font-medium text-foreground hover:bg-muted transition-colors shadow-none"
+              className="mb-10 h-auto gap-2.5 rounded-full border-border bg-background px-2.5 py-1 backdrop-blur-xl font-normal"
             >
-              <Link href="/san-pham">Bộ sưu tập</Link>
-            </Button>
+              <div className="flex -space-x-2">
+                {["samsung.com", "sony.com", "lg.com", "panasonic.com"].map(
+                  (domain, i) => (
+                    <div
+                      key={i}
+                      className="relative flex h-5 w-5 items-center justify-center overflow-hidden rounded-full border border-border bg-card shadow-sm transition-all duration-500 ease-in-out hover:scale-125 hover:z-30 hover:mx-1 cursor-default"
+                    >
+                      <img
+                        src={`https://www.google.com/s2/favicons?domain=${domain}&sz=32`}
+                        alt={domain}
+                        className="h-[55%] w-[55%] object-contain"
+                      />
+                    </div>
+                  ),
+                )}
+              </div>
+              <div className="flex items-center border-l border-border/50 pl-2 pr-1 text-xs font-base  capitalize">
+                <span>Partners</span>
+              </div>
+            </Badge>
+
+            <h1 className="font-sans font-bold text-foreground text-[clamp(2.2rem,6vw,4.8rem)] leading-[1.02] tracking-[-0.03em] text-left w-full group cursor-default">
+              {displayTitle}
+            </h1>
+
+            <div className="mt-10 flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
+              <Button
+                asChild
+                size="lg"
+                className="group relative px-8 font-bold h-10"
+              >
+                <Link href={displayCtaUrl}>
+                  <span className="relative z-10">{displayCtaText}</span>
+                </Link>
+              </Button>
+              <Button
+                asChild
+                size="lg"
+                variant="outline"
+                className="group relative px-8 h-10 "
+              >
+                <Link href="/san-pham">Bộ sưu tập</Link>
+              </Button>
+            </div>
+          </div>
+
+          {/* Right Column: Serif Subtitle */}
+          <div className="w-full lg:w-[30%] lg:pt-20 flex flex-col animate-in fade-in slide-in-from-bottom-8 duration-1000 delay-300">
+            <p className="font-newsreader text-[clamp(1rem,1.5vw,1.2rem)] text-muted-foreground/80 leading-relaxed text-left italic border-l-[1px] border-border/20 pl-6 lg:pl-0 lg:border-none">
+              {displaySubtitle}
+            </p>
           </div>
         </div>
       </div>
