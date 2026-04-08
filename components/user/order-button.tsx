@@ -127,7 +127,7 @@ export function OrderButton({ contacts }: OrderButtonProps) {
         <DrawerTrigger asChild>{TriggerButton}</DrawerTrigger>
         <DrawerContent className="px-container pb-12">
           <DrawerHeader className="px-0 pt-8 pb-4">
-            <DrawerTitle className="text-left text-[14px] font-bold uppercase tracking-[0.2em] text-foreground">
+            <DrawerTitle className="text-left text-[14px] font-bold capitalize tracking-tight text-foreground">
               Liên hệ đặt hàng
             </DrawerTitle>
             <DrawerDescription className="text-left text-[11px]">
