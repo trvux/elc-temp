@@ -151,10 +151,13 @@ export function FeaturesSection({ products }: FeaturesSectionProps) {
                                 <span className="text-[9px] font-bold text-foreground tracking-tighter">
                                   -{product.discount_percent}
                                 </span>
-                                <Percent className="w-2.5 h-2.5" strokeWidth={2.5} />
+                                <Percent
+                                  className="w-2.5 h-2.5"
+                                  strokeWidth={2.5}
+                                />
                               </div>
                             </div>
-                            <span className="font-bold text-foreground tracking-tight text-base sm:text-lg block">
+                            <span className=" font-bold text-foreground tracking-tight text-xl sm:text-2xl block">
                               {new Intl.NumberFormat("vi-VN", {
                                 style: "currency",
                                 currency: "VND",
