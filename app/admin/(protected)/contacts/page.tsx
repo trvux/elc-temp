@@ -48,6 +48,7 @@ const CONTACT_TYPES = [
   { value: "phone", label: "Điện thoại", icon: Phone },
   { value: "email", label: "Email", icon: Mail },
   { value: "facebook", label: "Facebook", icon: Globe },
+  { value: "messenger", label: "Messenger", icon: MessageCircle },
   { value: "zalo", label: "Zalo", icon: MessageCircle },
   { value: "website", label: "Website", icon: Link },
 ];

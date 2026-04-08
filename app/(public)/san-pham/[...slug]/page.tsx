@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import Image from "next/image";
 import { Percent } from "lucide-react";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
+import { OrderButton } from "@/components/user/order-button";
 
 interface SpecSubItem {
   label: string;
@@ -27,13 +28,19 @@ export default async function ProductDetail({
 
   const supabase = await createClient();
 
-  // Fetch product data with category
-  const { data: product } = await supabase
-    .from("products")
-    .select("*, categories!inner(name, slug)")
-    .eq("slug", leafSlug)
-    .eq("categories.slug", categoryPath)
-    .single();
+  // Fetch product data with category and contacts
+  const [
+    { data: product },
+    { data: contacts }
+  ] = await Promise.all([
+    supabase
+      .from("products")
+      .select("*, categories!inner(name, slug)")
+      .eq("slug", leafSlug)
+      .eq("categories.slug", categoryPath)
+      .single(),
+    supabase.from("contacts").select("*").order("order_index")
+  ]);
 
   if (!product) {
     notFound();
@@ -144,9 +151,7 @@ export default async function ProductDetail({
                   {product.categories?.name}
                 </div>
 
-                <button className="w-full py-4 border border-foreground text-[10px] font-bold capitalize tracking-[0.3em] hover:bg-foreground hover:text-background transition-all duration-300">
-                  Thêm vào giỏ hàng
-                </button>
+                <OrderButton contacts={contacts || []} />
               </div>
 
               {/* Technical Specifications */}

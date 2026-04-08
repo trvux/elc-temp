@@ -17,6 +17,21 @@ export function FacebookIcon({ size = 16, ...props }: IconProps) {
   );
 }
 
+export function MessengerIcon({ size = 16, ...props }: IconProps) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="currentColor"
+      {...props}
+    >
+      <path d="M12 0C5.373 0 0 4.974 0 11.111c0 3.498 1.744 6.614 4.469 8.654V24l4.088-2.242c1.112.308 2.289.475 3.51.475 6.627 0 12-4.975 12-11.111C24 4.974 18.627 0 12 0zm1.293 14.394l-3.047-3.253-5.942 3.253 6.538-6.938 3.116 3.253 5.873-3.253-6.538 6.938z" />
+    </svg>
+  );
+}
+
 export function ZaloIcon({ size = 16, ...props }: IconProps) {
   return (
     <svg
