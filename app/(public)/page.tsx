@@ -22,7 +22,7 @@ export default async function Home() {
       .limit(5),
     supabase
       .from("products")
-      .select("*, categories(name, slug)")
+      .select("*, categories(name, slug, parent:parent_id(name, slug))")
       .eq("is_published", true)
       .eq("is_featured", true)
       .order("order_index", { ascending: true })
