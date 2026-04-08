@@ -121,12 +121,12 @@ export function Footer({ branches, projects, pages, settings }: FooterProps) {
             </h4>
             <nav className="flex flex-col gap-3 text-xs">
               <span className="cursor-default">{phone}</span>
-              <a
+              <Link
                 href={`mailto:${email}`}
                 className="hover:text-primary-foreground transition-colors truncate"
               >
                 {email}
-              </a>
+              </Link>
               <span className="cursor-default leading-relaxed">{address}</span>
             </nav>
           </div>

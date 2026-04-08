@@ -1,3 +1,4 @@
+import Link from "next/link";
 import React from "react";
 import { createClient } from "@/lib/supabase/server";
 import { InfoTOC } from "@/components/user/info-toc";
@@ -116,9 +117,9 @@ export default async function InformationHub() {
 
         <footer className="flex items-center justify-between text-[12px] text-muted-foreground font-medium">
           <span>&copy; {new Date().getFullYear()} ELC Information Hub</span>
-          <a href="#" className="hover:text-foreground transition-colors">
+          <Link href="#" className="hover:text-foreground transition-colors">
             Trở lên đầu trang
-          </a>
+          </Link>
         </footer>
       </div>
     </main>

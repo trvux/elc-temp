@@ -7,6 +7,7 @@ import StarterKit from "@tiptap/starter-kit";
 import ImageExtension from "@tiptap/extension-image";
 import Placeholder from "@tiptap/extension-placeholder";
 import Link from "@tiptap/extension-link";
+import Typography from "@tiptap/extension-typography";
 import {
   Bold,
   Italic,
@@ -53,7 +54,14 @@ export function TiptapEditor({
     immediatelyRender: false,
     extensions: [
       StarterKit,
-      ImageExtension.configure({ inline: false, allowBase64: false }),
+      Typography,
+      ImageExtension.configure({
+        inline: true,
+        allowBase64: true,
+        HTMLAttributes: {
+          class: "max-w-full h-auto rounded-lg my-4 mx-auto block outline-none ring-1 ring-border shadow-sm",
+        },
+      }),
       Link.configure({
         openOnClick: false,
         HTMLAttributes: {
@@ -69,7 +77,7 @@ export function TiptapEditor({
     editorProps: {
       attributes: {
         class:
-          "prose prose-sm max-w-none focus:outline-none min-h-[160px] px-4 py-3",
+          "prose prose-sm max-w-none focus:outline-none min-h-[160px] px-4 py-3 prose-img:rounded-md prose-img:mx-auto prose-img:max-w-full prose-img:h-auto",
       },
     },
   });

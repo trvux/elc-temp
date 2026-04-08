@@ -1,5 +1,7 @@
 "use client";
 
+import Link from "next/link";
+
 import * as React from "react";
 import {
   DropdownMenu,
@@ -98,7 +100,7 @@ export function OrderButton({ contacts }: OrderButtonProps) {
     const href = getContactHref(contact.type, contact.value);
 
     return (
-      <a
+      <Link
         key={contact.id}
         href={href}
         target="_blank"
@@ -117,7 +119,7 @@ export function OrderButton({ contacts }: OrderButtonProps) {
             {contact.value}
           </span>
         </div>
-      </a>
+      </Link>
     );
   });
 
@@ -127,7 +129,7 @@ export function OrderButton({ contacts }: OrderButtonProps) {
         <DrawerTrigger asChild>{TriggerButton}</DrawerTrigger>
         <DrawerContent className="px-container pb-12">
           <DrawerHeader className="px-0 pt-8 pb-4">
-            <DrawerTitle className="text-left text-[14px] font-bold capitalize tracking-tight text-foreground">
+            <DrawerTitle className="text-left text-sm font-bold capitalize tracking-tight text-foreground">
               Liên hệ đặt hàng
             </DrawerTitle>
             <DrawerDescription className="text-left text-[11px]">
@@ -144,7 +146,7 @@ export function OrderButton({ contacts }: OrderButtonProps) {
     <DropdownMenu>
       <DropdownMenuTrigger asChild>{TriggerButton}</DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="p-2">
-        <DropdownMenuLabel className="px-3 py-2 text-sm capitalize tracking-tight text-foreground">
+        <DropdownMenuLabel className="px-3 py-2 text-sm font-bold capitalize tracking-tight text-foreground">
           Liên hệ đặt hàng
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
@@ -154,7 +156,7 @@ export function OrderButton({ contacts }: OrderButtonProps) {
 
           return (
             <DropdownMenuItem key={contact.id} asChild className="p-0">
-              <a
+              <Link
                 href={href}
                 target="_blank"
                 rel="noopener noreferrer"
@@ -172,7 +174,7 @@ export function OrderButton({ contacts }: OrderButtonProps) {
                     {contact.value}
                   </span>
                 </div>
-              </a>
+              </Link>
             </DropdownMenuItem>
           );
         })}
