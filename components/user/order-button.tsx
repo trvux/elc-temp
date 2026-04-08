@@ -95,9 +95,49 @@ export function OrderButton({ contacts }: OrderButtonProps) {
     </Button>
   );
 
-  const ContactList = contacts.map((contact) => {
+  const renderContactItem = (contact: Contact, isDropdown = false) => {
     const Icon = getContactIcon(contact.type);
     const href = getContactHref(contact.type, contact.value);
+    const isProtocol = contact.type === "phone" || contact.type === "email";
+
+    const content = (
+      <>
+        <Icon
+          size={isDropdown ? 18 : 22}
+          className={`text-foreground/${
+            isDropdown ? "60" : "70"
+          } group-hover:text-primary transition-colors shrink-0`}
+        />
+        <div className="flex flex-col gap-0.5 min-w-0">
+          <span
+            className={`${
+              isDropdown ? "text-[11px]" : "text-[13px]"
+            } font-bold uppercase tracking-wider truncate text-foreground/90`}
+          >
+            {contact.label || contact.type}
+          </span>
+          <span
+            className={`${
+              isDropdown ? "text-[10px]" : "text-[12px]"
+            } text-muted-foreground truncate`}
+          >
+            {contact.value}
+          </span>
+        </div>
+      </>
+    );
+
+    const className = isDropdown
+      ? "flex items-center gap-5 cursor-pointer px-4 py-3.5 w-full group"
+      : "flex items-center gap-6 cursor-pointer px-4 py-4 w-full hover:bg-muted/50 rounded-lg transition-colors group";
+
+    if (isProtocol) {
+      return (
+        <a key={contact.id} href={href} className={className}>
+          {content}
+        </a>
+      );
+    }
 
     return (
       <Link
@@ -105,23 +145,12 @@ export function OrderButton({ contacts }: OrderButtonProps) {
         href={href}
         target="_blank"
         rel="noopener noreferrer"
-        className="flex items-center gap-6 cursor-pointer px-4 py-4 w-full hover:bg-muted/50 rounded-lg transition-colors group"
+        className={className}
       >
-        <Icon
-          size={22}
-          className="text-foreground/70 group-hover:text-primary transition-colors shrink-0"
-        />
-        <div className="flex flex-col gap-0.5 min-w-0">
-          <span className="text-[13px] font-bold uppercase tracking-wider truncate text-foreground/90">
-            {contact.label || contact.type}
-          </span>
-          <span className="text-[12px] text-muted-foreground truncate">
-            {contact.value}
-          </span>
-        </div>
+        {content}
       </Link>
     );
-  });
+  };
 
   if (isMobile) {
     return (
@@ -136,7 +165,9 @@ export function OrderButton({ contacts }: OrderButtonProps) {
               Vui lòng chọn kênh liên hệ để được hỗ trợ tốt nhất.
             </DrawerDescription>
           </DrawerHeader>
-          <div className="flex flex-col gap-1 -mx-2">{ContactList}</div>
+          <div className="flex flex-col gap-1 -mx-2">
+            {contacts.map((contact) => renderContactItem(contact))}
+          </div>
         </DrawerContent>
       </Drawer>
     );
@@ -150,34 +181,11 @@ export function OrderButton({ contacts }: OrderButtonProps) {
           Liên hệ đặt hàng
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
-        {contacts.map((contact) => {
-          const Icon = getContactIcon(contact.type);
-          const href = getContactHref(contact.type, contact.value);
-
-          return (
-            <DropdownMenuItem key={contact.id} asChild className="p-0">
-              <Link
-                href={href}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-5 cursor-pointer px-4 py-3.5 w-full group"
-              >
-                <Icon
-                  size={18}
-                  className="text-foreground/60 group-hover:text-primary transition-colors shrink-0"
-                />
-                <div className="flex flex-col gap-0.5 min-w-0">
-                  <span className="text-[11px] font-bold uppercase tracking-wider truncate text-foreground/90">
-                    {contact.label || contact.type}
-                  </span>
-                  <span className="text-[10px] text-muted-foreground truncate">
-                    {contact.value}
-                  </span>
-                </div>
-              </Link>
-            </DropdownMenuItem>
-          );
-        })}
+        {contacts.map((contact) => (
+          <DropdownMenuItem key={contact.id} asChild className="p-0">
+            {renderContactItem(contact, true)}
+          </DropdownMenuItem>
+        ))}
       </DropdownMenuContent>
     </DropdownMenu>
   );
