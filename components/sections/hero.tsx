@@ -71,20 +71,29 @@ export function HeroSection({
               className="mb-10 h-auto gap-2.5 rounded-full border-border bg-background px-2.5 py-1 backdrop-blur-xl font-normal"
             >
               <div className="flex -space-x-2">
-                {["samsung.com", "sony.com", "lg.com", "panasonic.com"].map(
-                  (domain, i) => (
-                    <div
-                      key={i}
-                      className="relative flex h-5 w-5 items-center justify-center overflow-hidden rounded-full border border-border bg-card shadow-sm transition-all duration-500 ease-in-out hover:scale-125 hover:z-30 hover:mx-1 cursor-default"
-                    >
-                      <img
-                        src={`https://www.google.com/s2/favicons?domain=${domain}&sz=32`}
-                        alt={domain}
-                        className="h-[55%] w-[55%] object-contain"
-                      />
-                    </div>
-                  ),
-                )}
+                {[
+                  "samsung.com",
+                  "lg.com",
+                  "panasonic.com",
+                  "daikin.com.vn",
+                  "carrier.com",
+                  "gree.com.vn",
+                  "menred.com",
+                  "midea.com",
+                  "mitsubishi-electric.vn",
+                  "toshiba-lifestyle.com",
+                ].map((domain, i) => (
+                  <div
+                    key={i}
+                    className="relative flex h-6 w-6 items-center justify-center overflow-hidden rounded-full border border-border bg-card shadow-sm transition-all duration-500 ease-in-out hover:scale-125 hover:z-30 hover:mx-1 cursor-default"
+                  >
+                    <img
+                      src={`https://www.google.com/s2/favicons?domain=${domain}&sz=32`}
+                      alt={domain}
+                      className="h-[55%] w-[55%] object-contain"
+                    />
+                  </div>
+                ))}
               </div>
               <div className="flex items-center border-l border-border/50 pl-2 pr-1 text-xs font-base  capitalize">
                 <span>Partners</span>
