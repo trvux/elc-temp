@@ -93,7 +93,7 @@ export function FeaturesSection({ products }: FeaturesSectionProps) {
                   <Link
                     key={product.id}
                     href={productUrl}
-                    className="group relative flex flex-col gap-5 p-6 border border-border -ml-[1px] -mt-[1px] bg-background transition-all duration-500 hover:z-20"
+                    className="group relative flex flex-col gap-5 px-2 py-4 sm:p-6 border border-border -ml-[1px] -mt-[1px] bg-background transition-all duration-500 hover:z-20"
                   >
                     <div className="w-full overflow-hidden bg-muted/5 relative">
                       <AspectRatio ratio={4 / 3}>
@@ -114,10 +114,10 @@ export function FeaturesSection({ products }: FeaturesSectionProps) {
                     </div>
 
                     <div className="flex flex-col flex-1">
-                      <div className="min-h-[3rem] flex flex-col items-start gap-2 mb-3">
+                      <div className="min-h-[3.5rem] flex flex-col items-start gap-2 mb-3">
                         <Badge
                           variant="secondary"
-                          className="text-[9px] px-2 py-0.5 uppercase tracking-widest font-medium whitespace-nowrap shrink-0 w-fit h-auto rounded-sm"
+                          className="text-[8px] sm:text-[9px] px-2 py-0.5 uppercase tracking-wider sm:tracking-widest font-medium whitespace-nowrap shrink-0 w-fit h-auto rounded-sm"
                         >
                           {product.categories?.parent?.name
                             ? `${product.categories.parent.name} / ${product.categories.name}`
