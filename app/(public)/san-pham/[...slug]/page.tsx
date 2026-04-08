@@ -55,23 +55,27 @@ export default async function ProductDetail({
   const leafCategorySlug = categoryPath;
   const parentCategorySlug = categorySlugs.length > 1 ? categorySlugs[0] : null;
 
-  const [
-    { data: rawProduct },
-    { data: categoriesData },
-    { data: contacts }
-  ] = await Promise.all([
-    supabase
-      .from("products")
-      .select("*, categories!inner(name, slug)")
-      .eq("slug", leafSlug)
-      .eq("categories.slug", categoryPath)
-      .single(),
-    supabase
-      .from("categories")
-      .select("name, slug")
-      .in("slug", [leafCategorySlug, parentCategorySlug].filter(Boolean) as string[]),
-    supabase.from("contacts").select("*").order("order_index")
-  ]) as [{ data: ProductData | null }, { data: { name: string; slug: string }[] | null }, { data: any[] | null }];
+  const [{ data: rawProduct }, { data: categoriesData }, { data: contacts }] =
+    (await Promise.all([
+      supabase
+        .from("products")
+        .select("*, categories!inner(name, slug)")
+        .eq("slug", leafSlug)
+        .eq("categories.slug", categoryPath)
+        .single(),
+      supabase
+        .from("categories")
+        .select("name, slug")
+        .in(
+          "slug",
+          [leafCategorySlug, parentCategorySlug].filter(Boolean) as string[],
+        ),
+      supabase.from("contacts").select("*").order("order_index"),
+    ])) as [
+      { data: ProductData | null },
+      { data: { name: string; slug: string }[] | null },
+      { data: any[] | null },
+    ];
 
   if (!rawProduct) {
     notFound();
@@ -79,13 +83,13 @@ export default async function ProductDetail({
 
   const product = rawProduct;
   const leafCat = categoriesData?.find((c) => c.slug === leafCategorySlug);
-  const parentCat = parentCategorySlug 
+  const parentCat = parentCategorySlug
     ? categoriesData?.find((c) => c.slug === parentCategorySlug)
     : null;
 
-  const categoryDisplay = parentCat 
-    ? `${parentCat.name} / ${leafCat?.name || product.categories?.name}` 
-    : (leafCat?.name || product.categories?.name);
+  const categoryDisplay = parentCat
+    ? `${parentCat.name} / ${leafCat?.name || product.categories?.name}`
+    : leafCat?.name || product.categories?.name;
 
   // Handle specifications normalization
   const normalizedSpecs: SpecItem[] = Array.isArray(product.specs)
@@ -151,7 +155,7 @@ export default async function ProductDetail({
                   </h1>
                   <div className="flex flex-col pt-1">
                     <span className="text-[10px] text-muted-foreground font-bold capitalize tracking-[0.1em]">
-                      SKU:
+                      SKU
                     </span>
                     <span className="text-[14px] text-foreground/80 font-bold capitalize tracking-[0.05em]">
                       {product.sku || "0000/000"}
@@ -200,7 +204,7 @@ export default async function ProductDetail({
               {/* Technical Specifications */}
               {normalizedSpecs.length > 0 && (
                 <div className="pt-8 space-y-5">
-                  <h4 className="text-[10px] font-bold text-foreground capitalize tracking-[0.15em]">
+                  <h4 className="text-md font-bold text-foreground capitalize tracking-tight">
                     Thông số kỹ thuật
                   </h4>
                   <div className="space-y-4">
@@ -217,12 +221,12 @@ export default async function ProductDetail({
                           className="border-b border-border/40 pb-3 last:border-0"
                         >
                           <div className="grid grid-cols-2 gap-4">
-                            <span className="text-[11px] text-muted-foreground font-medium py-1">
+                            <span className="text-sm text-muted-foreground font-medium py-1">
                               {spec.label}
                             </span>
                             <div className="flex flex-col gap-1.5 py-1">
                               {spec.value && (
-                                <span className="text-[11px] font-bold text-foreground">
+                                <span className="text-sm font-bold text-foreground">
                                   {spec.value}
                                 </span>
                               )}
@@ -233,16 +237,16 @@ export default async function ProductDetail({
                                     .map((item, i) => (
                                       <div
                                         key={i}
-                                        className="text-[11px] font-bold text-foreground leading-tight"
+                                        className="text-sm font-bold text-foreground leading-tight"
                                       >
                                         {item.label && (
-                                          <span className="text-[9px] text-muted-foreground font-medium uppercase tracking-wider mr-1.5">
+                                          <span className="text-sm text-muted-foreground font-medium uppercase tracking-wider mr-1.5">
                                             {item.label}:
                                           </span>
                                         )}
                                         {item.value}
                                         {item.unit && (
-                                          <span className="text-[9px] text-muted-foreground font-medium uppercase tracking-wider ml-1">
+                                          <span className="text-sm text-muted-foreground font-medium uppercase tracking-wider ml-1">
                                             {item.unit}
                                           </span>
                                         )}
@@ -260,7 +264,7 @@ export default async function ProductDetail({
 
               {/* Description (Product Overview) */}
               <div className="pt-8 space-y-5 border-t border-zinc-50 mt-10">
-                <h4 className="text-[10px] font-bold text-foreground capitalize tracking-[0.1em]">
+                <h4 className="text-md font-bold text-foreground capitalize tracking-tight">
                   Tổng quan sản phẩm
                 </h4>
                 <div
