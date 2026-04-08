@@ -77,8 +77,14 @@ export default async function ProductsHub() {
                 <div className="mt-auto pt-4 space-y-2">
                   {product.discount_percent > 0 ? (
                     <>
+                      <span className="font-bold text-foreground tracking-tight text-xl md:text-2xl block">
+                        {new Intl.NumberFormat("vi-VN", {
+                          style: "currency",
+                          currency: "VND",
+                        }).format(product.sale_price)}
+                      </span>
                       <div className="flex items-center gap-3">
-                        <span className="text-muted-foreground line-through text-base md:text-lg font-bold">
+                        <span className="text-muted-foreground line-through text-sm md:text-md font-bold">
                           {new Intl.NumberFormat("vi-VN", {
                             style: "currency",
                             currency: "VND",
@@ -93,20 +99,18 @@ export default async function ProductsHub() {
                           <Percent className="w-4 h-4" strokeWidth={2} />
                         </div>
                       </div>
-                      <span className="font-bold text-foreground tracking-tight text-base md:text-lg block">
+                    </>
+                  ) : (
+                    <>
+                      <span className="font-bold text-foreground tracking-tight text-xl md:text-2xl block">
                         {new Intl.NumberFormat("vi-VN", {
                           style: "currency",
                           currency: "VND",
-                        }).format(product.sale_price)}
+                        }).format(product.original_price)}
                       </span>
+                      {/* Placeholder to match the height of discount line */}
+                      <div className="invisible h-5 md:h-6" aria-hidden="true" />
                     </>
-                  ) : (
-                    <span className="font-bold text-foreground tracking-tight text-base md:text-lg block">
-                      {new Intl.NumberFormat("vi-VN", {
-                        style: "currency",
-                        currency: "VND",
-                      }).format(product.original_price)}
-                    </span>
                   )}
                 </div>
               </div>

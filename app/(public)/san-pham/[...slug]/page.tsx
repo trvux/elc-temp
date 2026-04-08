@@ -164,6 +164,12 @@ export default async function ProductDetail({
                 </div>
 
                 <div className="space-y-1.5 flex flex-col pt-2">
+                  <p className="text-4xl font-bold text-foreground tracking-tight leading-none">
+                    {new Intl.NumberFormat("vi-VN", {
+                      style: "currency",
+                      currency: "VND",
+                    }).format(finalPrice)}
+                  </p>
                   {product.discount_percent > 0 && (
                     <div className="flex items-center gap-4">
                       <span className="text-muted-foreground line-through text-base-fluid font-bold">
@@ -181,12 +187,6 @@ export default async function ProductDetail({
                       </div>
                     </div>
                   )}
-                  <p className="text-4xl font-bold text-foreground tracking-tight leading-none">
-                    {new Intl.NumberFormat("vi-VN", {
-                      style: "currency",
-                      currency: "VND",
-                    }).format(finalPrice)}
-                  </p>
                 </div>
               </div>
 

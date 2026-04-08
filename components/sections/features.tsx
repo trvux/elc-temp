@@ -140,6 +140,12 @@ export function FeaturesSection({ products }: FeaturesSectionProps) {
                       <div className="mt-auto space-y-1.5 border-t border-border/40 pt-4">
                         {hasDiscount ? (
                           <>
+                            <span className=" font-bold text-foreground tracking-tight text-xl sm:text-2xl block">
+                              {new Intl.NumberFormat("vi-VN", {
+                                style: "currency",
+                                currency: "VND",
+                              }).format(product.sale_price || 0)}
+                            </span>
                             <div className="flex items-center gap-2">
                               <span className="text-muted-foreground line-through text-[11px] font-semibold">
                                 {new Intl.NumberFormat("vi-VN", {
@@ -157,20 +163,21 @@ export function FeaturesSection({ products }: FeaturesSectionProps) {
                                 />
                               </div>
                             </div>
-                            <span className=" font-bold text-foreground tracking-tight text-xl sm:text-2xl block">
+                          </>
+                        ) : (
+                          <>
+                            <span className="font-bold text-foreground tracking-tight text-xl sm:text-2xl block">
                               {new Intl.NumberFormat("vi-VN", {
                                 style: "currency",
                                 currency: "VND",
-                              }).format(product.sale_price || 0)}
+                              }).format(product.original_price)}
                             </span>
+                            {/* Placeholder to match the height of discount line */}
+                            <div
+                              className="invisible h-4 sm:h-5"
+                              aria-hidden="true"
+                            />
                           </>
-                        ) : (
-                          <span className="font-bold text-foreground tracking-tight text-base sm:text-lg block">
-                            {new Intl.NumberFormat("vi-VN", {
-                              style: "currency",
-                              currency: "VND",
-                            }).format(product.original_price)}
-                          </span>
                         )}
                       </div>
                     </div>
