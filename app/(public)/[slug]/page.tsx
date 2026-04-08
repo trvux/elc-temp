@@ -60,7 +60,7 @@ export default async function StaticPage({ params }: PageProps) {
       <div className="max-w-[750px] mx-auto">
         {/* Simplified Header - Match Medium 1:1 minimalist style */}
         <header className="mb-12 border-b border-border pb-4 flex items-center justify-between">
-          <div className="text-fluid-xs font-bold capitalize tracking-widest text-foreground opacity-90 truncate">
+          <div className="text-md md:text-lg font-bold capitalize tracking-widest text-foreground opacity-90 truncate">
             {page.title}
           </div>
           <div className="scale-90 origin-right shrink-0">

@@ -42,7 +42,7 @@ export default async function BranchDetail({ params }: PageProps) {
       <div className="max-w-[800px] mx-auto">
         {/* TOC Header */}
         <header className="mb-6 flex flex-col md:flex-row md:items-center justify-between gap-6">
-          <div className="text-fluid-xs font-bold capitalize tracking-widest text-foreground opacity-90 truncate">
+          <div className="text-md md:text-lg font-bold capitalize tracking-widest text-foreground opacity-90 truncate">
             Không Gian Kiến Trúc
           </div>
           <div className="scale-90 origin-left md:origin-right shrink-0">
@@ -54,7 +54,7 @@ export default async function BranchDetail({ params }: PageProps) {
         <article className="animate-in fade-in duration-1000 ease-out">
           {/* Massive Title */}
           <div className="mb-16">
-            <h1 className="text-fluid-h1 font-black tracking-tighter text-foreground leading-[0.85] lowercase first-letter:capitalize">
+            <h1 className="text-2xl md:text-4xl font-black tracking-tighter text-foreground leading-[0.85] lowercase first-letter:capitalize">
               {branch.name}
             </h1>
           </div>
@@ -148,8 +148,8 @@ export default async function BranchDetail({ params }: PageProps) {
               <div className="mt-16">
                 {/* Meaningful Context Label */}
                 <div className="mb-10 text-center">
-                  <h2 className="text-fluid-h1 font-black tracking-tighter text-foreground">
-                    Bản đồ vệ tinh
+                  <h2 className="text-2xl md:text-4xl font-black tracking-tighter text-foreground">
+                    Maps
                   </h2>
                 </div>
 
@@ -175,9 +175,9 @@ export default async function BranchDetail({ params }: PageProps) {
 
         <Separator className="mt-20 mb-10" />
 
-        <footer className="flex items-center justify-between text-fluid-xs text-muted-foreground font-medium italic">
+        <footer className="flex items-center justify-between text-sm text-muted-foreground font-medium">
           <span>&copy; {new Date().getFullYear()} ELC Global Network</span>
-          <ScrollToTop className="hover:text-primary transition-colors not-italic font-bold capitalize tracking-widest">
+          <ScrollToTop className="hover:text-foreground transition-colors">
             Trở lên đầu trang
           </ScrollToTop>
         </footer>

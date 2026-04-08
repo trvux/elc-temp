@@ -29,7 +29,7 @@ export default async function BranchesHub() {
     <main className="w-full pt-30 pb-48 px-container min-h-screen bg-background font-sans tracking-tight">
       <div className="max-w-[750px] mx-auto">
         <header className="mb-6 flex flex-col md:flex-row md:items-center justify-between gap-6">
-          <div className="text-xs md:text-sm font-bold capitalize tracking-widest text-foreground opacity-90 truncate">
+          <div className="text-md md:text-lg font-bold capitalize tracking-widest text-foreground opacity-90 truncate">
             {currentTitle}
           </div>
           <div className="scale-90 origin-left md:origin-right shrink-0">
