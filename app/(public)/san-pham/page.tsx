@@ -67,7 +67,7 @@ export default async function ProductsHub() {
 
                 <div className="flex flex-col mt-1">
                   <span className="text-muted-foreground/60 font-bold tracking-[0.05em] text-[10px] capitalize">
-                    SKU:
+                    SKU
                   </span>
                   <span className="text-foreground/80 font-bold tracking-[0.05em] text-[12px] capitalize">
                     {product.sku || "0000/000"}

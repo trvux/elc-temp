@@ -28,9 +28,36 @@ export default async function ProductDetail({
 
   const supabase = await createClient();
 
-  // Fetch product data with category and contacts
+  // Define interfaces for better typing
+  interface CategoryData {
+    name: string;
+    slug: string;
+    parent?: {
+      name: string;
+      slug: string;
+    } | null;
+  }
+
+  interface ProductData {
+    id: string;
+    name: string;
+    sku?: string;
+    original_price: number;
+    sale_price?: number;
+    images?: string[];
+    specs?: SpecItem[] | Record<string, string>;
+    discount_percent: number;
+    description?: string;
+    categories?: CategoryData;
+  }
+
+  const categorySlugs = categoryPath.split("/");
+  const leafCategorySlug = categoryPath;
+  const parentCategorySlug = categorySlugs.length > 1 ? categorySlugs[0] : null;
+
   const [
-    { data: product },
+    { data: rawProduct },
+    { data: categoriesData },
     { data: contacts }
   ] = await Promise.all([
     supabase
@@ -39,20 +66,36 @@ export default async function ProductDetail({
       .eq("slug", leafSlug)
       .eq("categories.slug", categoryPath)
       .single(),
+    supabase
+      .from("categories")
+      .select("name, slug")
+      .in("slug", [leafCategorySlug, parentCategorySlug].filter(Boolean) as string[]),
     supabase.from("contacts").select("*").order("order_index")
-  ]);
+  ]) as [{ data: ProductData | null }, { data: { name: string; slug: string }[] | null }, { data: any[] | null }];
 
-  if (!product) {
+  if (!rawProduct) {
     notFound();
   }
+
+  const product = rawProduct;
+  const leafCat = categoriesData?.find((c) => c.slug === leafCategorySlug);
+  const parentCat = parentCategorySlug 
+    ? categoriesData?.find((c) => c.slug === parentCategorySlug)
+    : null;
+
+  const categoryDisplay = parentCat 
+    ? `${parentCat.name} / ${leafCat?.name || product.categories?.name}` 
+    : (leafCat?.name || product.categories?.name);
 
   // Handle specifications normalization
   const normalizedSpecs: SpecItem[] = Array.isArray(product.specs)
     ? product.specs
-    : Object.entries(product.specs || {}).map(([label, value]) => ({
-        label,
-        value: String(value),
-      }));
+    : Object.entries((product.specs as Record<string, string>) || {}).map(
+        ([label, value]) => ({
+          label,
+          value: String(value),
+        }),
+      );
 
   const finalPrice = product.sale_price || product.original_price;
 
@@ -138,7 +181,7 @@ export default async function ProductDetail({
                     {new Intl.NumberFormat("vi-VN", {
                       style: "currency",
                       currency: "VND",
-                    }).format(product.sale_price || product.original_price)}
+                    }).format(finalPrice)}
                   </p>
                 </div>
               </div>
@@ -148,7 +191,7 @@ export default async function ProductDetail({
               {/* Action & Category info */}
               <div className="space-y-6">
                 <div className="text-[10px] text-muted-foreground font-bold capitalize tracking-[0.2em] leading-none">
-                  {product.categories?.name}
+                  {categoryDisplay}
                 </div>
 
                 <OrderButton contacts={contacts || []} />
