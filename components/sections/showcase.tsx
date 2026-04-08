@@ -11,7 +11,11 @@ interface Project {
   title: string;
   description: string;
   images: string[];
-  categories?: { name: string; slug: string };
+  categories?: {
+    name: string;
+    slug: string;
+    parent?: { name: string; slug: string };
+  };
 }
 
 interface ShowcaseSectionProps {
@@ -82,12 +86,7 @@ export function ShowcaseSection({ projects }: ShowcaseSectionProps) {
               </div>
 
               <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-light tracking-tighter mb-8 leading-[1.05] text-foreground">
-                <span className="block italic text-muted-foreground/80">
-                  {mainProject.title.split(" ")[0]}
-                </span>
-                <span className="block">
-                  {mainProject.title.split(" ").slice(1).join(" ")}
-                </span>
+                {mainProject.title}
               </h2>
 
               <p className="text-sm md:text-base text-muted-foreground mb-12 leading-relaxed font-light line-clamp-4 max-w-md">
@@ -100,7 +99,9 @@ export function ShowcaseSection({ projects }: ShowcaseSectionProps) {
                     Danh mục
                   </span>
                   <span className="text-sm font-medium text-foreground">
-                    {mainProject.categories?.name || "Kiến trúc"}
+                    {mainProject.categories?.parent?.name
+                      ? `${mainProject.categories.parent.name} / ${mainProject.categories.name}`
+                      : mainProject.categories?.name || "Kiến trúc"}
                   </span>
                 </div>
                 <div className="flex flex-col gap-2">

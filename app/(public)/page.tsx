@@ -17,7 +17,7 @@ export default async function Home() {
     supabase.from("site_settings").select("*"),
     supabase
       .from("projects")
-      .select("*, categories(name, slug)")
+      .select("*, categories(name, slug, parent:parent_id(name, slug))")
       .eq("is_published", true)
       .order("order_index", { ascending: true })
       .limit(5),
