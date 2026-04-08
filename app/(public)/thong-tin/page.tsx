@@ -3,6 +3,7 @@ import React from "react";
 import { createClient } from "@/lib/supabase/server";
 import { InfoTOC } from "@/components/user/info-toc";
 import { Separator } from "@/components/ui/separator";
+import { ScrollToTop } from "@/components/user/scroll-to-top";
 
 export default async function InformationHub() {
   const supabase = await createClient();
@@ -117,9 +118,9 @@ export default async function InformationHub() {
 
         <footer className="flex items-center justify-between text-[12px] text-muted-foreground font-medium">
           <span>&copy; {new Date().getFullYear()} ELC Information Hub</span>
-          <Link href="#" className="hover:text-foreground transition-colors">
+          <ScrollToTop className="hover:text-foreground transition-colors">
             Trở lên đầu trang
-          </Link>
+          </ScrollToTop>
         </footer>
       </div>
     </main>

@@ -3,6 +3,7 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { BranchTOC } from "@/components/user/branch-toc";
 import { Separator } from "@/components/ui/separator";
+import { ScrollToTop } from "@/components/user/scroll-to-top";
 
 export default async function BranchesHub() {
   const supabase = await createClient();
@@ -118,9 +119,9 @@ export default async function BranchesHub() {
 
         <footer className="flex items-center justify-between text-xs text-muted-foreground font-medium italic">
           <span>&copy; {new Date().getFullYear()} ELC Architecture</span>
-          <Link href="#" className="hover:text-foreground transition-colors">
+          <ScrollToTop className="hover:text-foreground transition-colors not-italic">
             Trở lên đầu trang
-          </Link>
+          </ScrollToTop>
         </footer>
       </div>
     </main>

@@ -6,6 +6,7 @@ import { MapPin, Phone, Mail, Navigation2, ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { PhoneConfirmation } from "@/components/user/phone-confirmation";
 import { Separator } from "@/components/ui/separator";
+import { ScrollToTop } from "@/components/user/scroll-to-top";
 
 interface PageProps {
   params: Promise<{
@@ -71,7 +72,7 @@ export default async function BranchDetail({ params }: PageProps) {
                   />
                 </div>
               </div>
-              <h3 className=" font-bold mb-4 tracking-tight">
+              <h3 className="text-fluid-h2 font-bold mb-4 tracking-tight">
                 Tọa độ chính thức
               </h3>
               <p className="text-fluid-base text-primary-foreground/60 font-medium leading-[1.6]">
@@ -176,12 +177,9 @@ export default async function BranchDetail({ params }: PageProps) {
 
         <footer className="flex items-center justify-between text-fluid-xs text-muted-foreground font-medium italic">
           <span>&copy; {new Date().getFullYear()} ELC Global Network</span>
-          <a
-            href="#"
-            className="hover:text-primary transition-colors not-italic font-bold capitalize tracking-widest"
-          >
+          <ScrollToTop className="hover:text-primary transition-colors not-italic font-bold capitalize tracking-widest">
             Trở lên đầu trang
-          </a>
+          </ScrollToTop>
         </footer>
       </div>
     </main>
