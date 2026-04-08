@@ -17,6 +17,13 @@ jobs:
           script: |
             cd /var/www/elc-tem
             git pull origin main
-            npm install
-            npm run build
+            
+            # Đảm bảo VPS đã có pnpm
+            if ! command -v pnpm &> /dev/null; then
+              echo "pnpm not found, installing..."
+              npm install -g pnpm
+            fi
+            
+            pnpm install --frozen-lockfile
+            pnpm build
             pm2 restart elc-tem
