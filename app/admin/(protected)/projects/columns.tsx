@@ -40,6 +40,7 @@ export const getColumns = ({
               alt={title}
               fill
               className="rounded object-cover"
+              sizes="40px"
             />
           </AspectRatio>
         </div>

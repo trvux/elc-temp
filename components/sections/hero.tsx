@@ -46,6 +46,7 @@ export function HeroSection({
               fill
               className="object-cover"
               priority
+              sizes="100vw"
             />
           </div>
           {/* Subtle noise texture */}
