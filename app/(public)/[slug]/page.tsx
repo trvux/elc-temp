@@ -3,6 +3,7 @@ import { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { InfoTOC } from "@/components/user/info-toc";
+import { ScrollToTop } from "@/components/user/scroll-to-top";
 
 interface PageProps {
   params: Promise<{
@@ -91,8 +92,11 @@ export default async function StaticPage({ params }: PageProps) {
           />
         </article>
 
-        <footer className="mt-40 pt-10 border-t border-border/10 text-center text-xs text-muted-foreground opacity-50">
-          &copy; {new Date().getFullYear()} ELC Information Center
+        <footer className="flex items-center justify-between text-sm text-muted-foreground font-medium">
+          <span>&copy; {new Date().getFullYear()} ELC Information Center</span>
+          <ScrollToTop className="hover:text-foreground transition-colors">
+            Trở lên đầu trang
+          </ScrollToTop>
         </footer>
       </div>
     </main>
