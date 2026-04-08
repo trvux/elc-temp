@@ -220,7 +220,7 @@ export default async function ProductDetail({
                           key={idx}
                           className="border-b border-border/40 pb-3 last:border-0"
                         >
-                          <div className="grid grid-cols-2 gap-4">
+                          <div className="grid grid-cols-[1.1fr_1.9fr] gap-4">
                             <span className="text-sm text-muted-foreground font-medium py-1">
                               {spec.label}
                             </span>
@@ -240,13 +240,13 @@ export default async function ProductDetail({
                                         className="text-sm font-bold text-foreground leading-tight"
                                       >
                                         {item.label && (
-                                          <span className="text-sm text-muted-foreground font-medium uppercase tracking-wider mr-1.5">
+                                          <span className="text-sm text-muted-foreground font-medium capitalize tracking-normal mr-1.5">
                                             {item.label}:
                                           </span>
                                         )}
                                         {item.value}
                                         {item.unit && (
-                                          <span className="text-sm text-muted-foreground font-medium uppercase tracking-wider ml-1">
+                                          <span className="text-sm text-muted-foreground font-medium uppercase tracking-normal ml-1">
                                             {item.unit}
                                           </span>
                                         )}
