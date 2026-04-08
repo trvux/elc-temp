@@ -1,4 +1,5 @@
 import React from "react";
+import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { BranchTOC } from "@/components/user/branch-toc";
 import { Separator } from "@/components/ui/separator";
@@ -117,12 +118,9 @@ export default async function BranchesHub() {
 
         <footer className="flex items-center justify-between text-xs text-muted-foreground font-medium italic">
           <span>&copy; {new Date().getFullYear()} ELC Architecture</span>
-          <a
-            href="#"
-            className="hover:text-primary transition-colors not-italic font-bold capitalize tracking-widest"
-          >
+          <Link href="#" className="hover:text-foreground transition-colors">
             Trở lên đầu trang
-          </a>
+          </Link>
         </footer>
       </div>
     </main>
