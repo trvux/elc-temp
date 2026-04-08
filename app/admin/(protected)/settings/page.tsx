@@ -53,6 +53,31 @@ const SETTINGS_CONFIG = [
     ],
   },
   {
+    section: "Trang chủ (CTA Section)",
+    description: "Cấu hình nội dung cho khối kêu gọi hành động ở cuối trang.",
+    fields: [
+      {
+        key: "cta_title",
+        label: "Tiêu đề CTA",
+        placeholder: "Nâng tầm chuẩn mực không gian.",
+        type: "textarea",
+      },
+      {
+        key: "cta_description",
+        label: "Mô tả CTA",
+        placeholder:
+          "Đội ngũ chuyên gia của ELC sẵn sàng đồng hành tư vấn giải pháp...",
+        type: "textarea",
+      },
+      {
+        key: "cta_primary_btn_text",
+        label: "Nội dung nút liên hệ",
+        placeholder: "Liên hệ ngay",
+        type: "input",
+      },
+    ],
+  },
+  {
     section: "Thông tin công ty",
     description:
       "Thông tin cơ bản dùng cho các thẻ SEO, chân trang (Footer) và trang liên diện.",

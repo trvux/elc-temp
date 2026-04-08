@@ -12,6 +12,7 @@ export default async function Home() {
     { data: settingsData },
     { data: projects },
     { data: featuredProducts },
+    { data: contacts },
   ] = await Promise.all([
     supabase.from("site_settings").select("*"),
     supabase
@@ -27,6 +28,7 @@ export default async function Home() {
       .eq("is_featured", true)
       .order("order_index", { ascending: true })
       .limit(6),
+    supabase.from("contacts").select("*").order("order_index", { ascending: true }),
   ]);
 
   // Convert settings array to a more usable object
@@ -78,7 +80,7 @@ export default async function Home() {
           borderTopRightRadius: "clamp(1.5rem, 4vw, 6rem)",
         }}
       >
-        <CTASection settings={settings} />
+        <CTASection settings={settings} contacts={contacts || []} />
       </div>
     </main>
   );
