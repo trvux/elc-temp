@@ -4,6 +4,18 @@ import Image from "next/image";
 import { Percent } from "lucide-react";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
 
+interface SpecSubItem {
+  label: string;
+  value: string;
+  unit?: string;
+}
+
+interface SpecItem {
+  label: string;
+  value?: string;
+  items?: SpecSubItem[];
+}
+
 export default async function ProductDetail({
   params,
 }: {
@@ -26,6 +38,14 @@ export default async function ProductDetail({
   if (!product) {
     notFound();
   }
+
+  // Handle specifications normalization
+  const normalizedSpecs: SpecItem[] = Array.isArray(product.specs)
+    ? product.specs
+    : Object.entries(product.specs || {}).map(([label, value]) => ({
+        label,
+        value: String(value),
+      }));
 
   const finalPrice = product.sale_price || product.original_price;
 
@@ -130,36 +150,62 @@ export default async function ProductDetail({
               </div>
 
               {/* Technical Specifications */}
-              {product.specs && Array.isArray(product.specs) && product.specs.length > 0 && (
+              {normalizedSpecs.length > 0 && (
                 <div className="pt-8 space-y-5">
-                  <h4 className="text-[10px] font-bold text-foreground capitalize tracking-[0.1em]">
+                  <h4 className="text-[10px] font-bold text-foreground capitalize tracking-[0.15em]">
                     Thông số kỹ thuật
                   </h4>
                   <div className="space-y-4">
-                    {product.specs.map((spec: any, idx: number) => (
-                      <div key={idx} className="border-b border-border/50 pb-3">
-                        <div className="flex justify-between items-start mb-1">
-                          <span className="text-[10px] text-muted-foreground font-medium tracking-[0.05em] uppercase">
-                            {spec.label}
-                          </span>
-                          {spec.value && (
-                            <span className="text-[10px] font-bold text-foreground">
-                              {spec.value}
+                    {normalizedSpecs
+                      .filter(
+                        (spec) =>
+                          spec.label &&
+                          (spec.value ||
+                            (spec.items && spec.items.some((i) => i.value))),
+                      )
+                      .map((spec, idx) => (
+                        <div
+                          key={idx}
+                          className="border-b border-border/40 pb-3 last:border-0"
+                        >
+                          <div className="grid grid-cols-2 gap-4">
+                            <span className="text-[11px] text-muted-foreground font-medium py-1">
+                              {spec.label}
                             </span>
-                          )}
-                        </div>
-                        {spec.items && (
-                          <div className="space-y-1 mt-2 bg-muted/30 p-2 rounded">
-                            {spec.items.map((item: any, i: number) => (
-                              <div key={i} className="flex justify-between text-[9px]">
-                                <span className="text-muted-foreground">{item.label}</span>
-                                <span className="font-bold text-foreground">{item.value}</span>
-                              </div>
-                            ))}
+                            <div className="flex flex-col gap-1.5 py-1">
+                              {spec.value && (
+                                <span className="text-[11px] font-bold text-foreground">
+                                  {spec.value}
+                                </span>
+                              )}
+                              {spec.items && spec.items.length > 0 && (
+                                <div className="space-y-1.5">
+                                  {spec.items
+                                    .filter((item) => item.value)
+                                    .map((item, i) => (
+                                      <div
+                                        key={i}
+                                        className="text-[11px] font-bold text-foreground leading-tight"
+                                      >
+                                        {item.label && (
+                                          <span className="text-[9px] text-muted-foreground font-medium uppercase tracking-wider mr-1.5">
+                                            {item.label}:
+                                          </span>
+                                        )}
+                                        {item.value}
+                                        {item.unit && (
+                                          <span className="text-[9px] text-muted-foreground font-medium uppercase tracking-wider ml-1">
+                                            {item.unit}
+                                          </span>
+                                        )}
+                                      </div>
+                                    ))}
+                                </div>
+                              )}
+                            </div>
                           </div>
-                        )}
-                      </div>
-                    ))}
+                        </div>
+                      ))}
                   </div>
                 </div>
               )}

@@ -35,7 +35,7 @@ import Image from "next/image";
 type SpecItem = {
   label: string;
   value?: string;
-  items?: { label: string; value: string }[];
+  items?: { label: string; value: string; unit?: string }[];
 };
 
 type Category = {
@@ -90,17 +90,17 @@ export default function ProductsPage() {
     {
       label: "Công suất làm lạnh",
       items: [
-        { label: "HP", value: "" },
-        { label: "kW", value: "" },
-        { label: "BTU", value: "" },
+        { label: "", value: "", unit: "HP" },
+        { label: "", value: "", unit: "kW" },
+        { label: "", value: "", unit: "BTU" },
       ],
     },
     {
       label: "Công suất sưởi",
       items: [
-        { label: "HP", value: "" },
-        { label: "kW", value: "" },
-        { label: "BTU", value: "" },
+        { label: "", value: "", unit: "HP" },
+        { label: "", value: "", unit: "kW" },
+        { label: "", value: "", unit: "BTU" },
       ],
     },
     { label: "Điện năng tiêu thụ", value: "" },
@@ -329,7 +329,7 @@ export default function ProductsPage() {
   function updateSubSpec(
     specIndex: number,
     itemIndex: number,
-    field: "label" | "value",
+    field: "label" | "value" | "unit",
     val: string,
   ) {
     const updated = [...specs];
@@ -837,43 +837,46 @@ export default function ProductsPage() {
                             </Button>
                           </div>
                           <div className="grid grid-cols-1 gap-3">
-                            {spec.items.map((item, itemIdx) => (
-                              <div key={itemIdx} className="flex gap-3 items-center group">
-                                <div className="w-32">
+                            {spec.items.map((item, j) => (
+                              <div key={j} className="flex gap-3 items-center">
+                                <div className="flex-1 space-y-1">
+                                  <label className="text-[10px] font-bold text-muted-foreground/60 uppercase tracking-tighter pl-1">Nhãn con (VD: Lạnh)</label>
                                   <Input
-                                    placeholder="Đơn vị"
+                                    placeholder="Nhãn con"
                                     value={item.label}
-                                    className="h-9 text-xs"
+                                    className="h-8 text-xs"
                                     onChange={(e) =>
-                                      updateSubSpec(
-                                        i,
-                                        itemIdx,
-                                        "label",
-                                        e.target.value,
-                                      )
+                                      updateSubSpec(i, j, "label", e.target.value)
                                     }
                                   />
                                 </div>
-                                <div className="flex-1">
+                                <div className="flex-[1.5] space-y-1">
+                                  <label className="text-[10px] font-bold text-muted-foreground/60 uppercase tracking-tighter pl-1">Giá trị</label>
                                   <Input
                                     placeholder="Giá trị"
                                     value={item.value}
-                                    className="h-9 text-xs"
+                                    className="h-8 text-xs font-bold"
                                     onChange={(e) =>
-                                      updateSubSpec(
-                                        i,
-                                        itemIdx,
-                                        "value",
-                                        e.target.value,
-                                      )
+                                      updateSubSpec(i, j, "value", e.target.value)
+                                    }
+                                  />
+                                </div>
+                                <div className="w-16 space-y-1">
+                                  <label className="text-[10px] font-bold text-muted-foreground/60 uppercase tracking-tighter pl-1">Đơn vị</label>
+                                  <Input
+                                    placeholder="W, HP..."
+                                    value={item.unit || ""}
+                                    className="h-8 text-xs font-mono uppercase"
+                                    onChange={(e) =>
+                                      updateSubSpec(i, j, "unit", e.target.value)
                                     }
                                   />
                                 </div>
                                 <Button
                                   size="icon"
                                   variant="ghost"
-                                  className="h-8 w-8 text-muted-foreground/40 hover:text-destructive opacity-0 group-hover:opacity-100 transition-opacity"
-                                  onClick={() => removeSubSpec(i, itemIdx)}
+                                  className="h-8 w-8 mt-4 text-muted-foreground hover:text-destructive"
+                                  onClick={() => removeSubSpec(i, j)}
                                 >
                                   <X size={14} />
                                 </Button>
