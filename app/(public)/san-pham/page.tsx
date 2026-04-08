@@ -32,7 +32,7 @@ export default async function ProductsHub() {
 
         {/* Zara Editorial Grid - Much more spacious */}
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-8 md:gap-x-12 xl:gap-x-16 gap-y-24 md:gap-y-32 lg:gap-y-40">
-          {products.map((product) => (
+          {products.map((product, index) => (
             <Link
               key={product.id}
               href={`/san-pham/${product.categories?.slug ? product.categories.slug + "/" : ""}${product.slug}`}
@@ -47,6 +47,7 @@ export default async function ProductsHub() {
                       fill
                       className="object-contain p-4 transition-transform duration-1000 group-hover:scale-105"
                       sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 25vw"
+                      priority={index === 0}
                     />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center text-muted-foreground/30 text-[10px] font-bold capitalize tracking-[0.3em]">

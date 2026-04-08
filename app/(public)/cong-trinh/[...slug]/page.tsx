@@ -116,10 +116,7 @@ export default async function ProjectDetail({
           {images.length > 1 && (
             <div className="mt-20 space-y-12">
               {images.slice(1).map((img: string, i: number) => (
-                <div
-                  key={i}
-                  className="w-full bg-muted/20"
-                >
+                <div key={i} className="w-full bg-muted/20">
                   <AspectRatio ratio={3 / 2}>
                     <Image
                       src={img}
@@ -127,6 +124,7 @@ export default async function ProjectDetail({
                       fill
                       className="object-contain"
                       sizes="(max-width: 800px) 100vw, 800px"
+                      priority
                     />
                   </AspectRatio>
                 </div>
