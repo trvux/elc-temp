@@ -6,12 +6,18 @@ import { ButtonGroup } from "@/components/ui/button-group";
 import {
   Pencil,
   Trash2,
-  Phone,
-  Mail,
-  MessageCircle,
-  Globe,
-  Link,
 } from "lucide-react";
+import { 
+  FacebookIcon, 
+  ZaloIcon, 
+  MessengerIcon, 
+  TiktokIcon, 
+  YoutubeIcon,
+  PhoneIcon,
+  EmailIcon,
+  WebsiteIcon,
+  LinkIcon,
+} from "@/components/social-icons";
 
 export type ContactRow = {
   id: string;
@@ -22,18 +28,25 @@ export type ContactRow = {
 };
 
 const CONTACT_TYPES = [
-  { value: "phone", label: "Điện thoại", icon: Phone },
-  { value: "email", label: "Email", icon: Mail },
-  { value: "facebook", label: "Facebook", icon: Globe },
-  { value: "zalo", label: "Zalo", icon: MessageCircle },
-  { value: "website", label: "Website", icon: Link },
+  { value: "phone", label: "Điện thoại", icon: PhoneIcon },
+  { value: "email", label: "Email", icon: EmailIcon },
+  { value: "facebook", label: "Facebook", icon: FacebookIcon },
+  { value: "messenger", label: "Messenger", icon: MessengerIcon },
+  { value: "zalo", label: "Zalo", icon: ZaloIcon },
+  { value: "tiktok", label: "Tiktok", icon: TiktokIcon },
+  { value: "youtube", label: "Youtube", icon: YoutubeIcon },
+  { value: "website", label: "Website", icon: WebsiteIcon },
 ];
 
 function getIcon(type: string) {
   const found = CONTACT_TYPES.find((t) => t.value === type);
-  const Icon = found ? found.icon : Globe;
+  if (!found) return <WebsiteIcon size={14} className="text-muted-foreground mr-2 shrink-0" />;
+  
+  const Icon = found.icon;
   return <Icon size={14} className="text-muted-foreground mr-2 shrink-0" />;
 }
+
+
 
 interface ColumnProps {
   onEdit: (contact: ContactRow) => void;

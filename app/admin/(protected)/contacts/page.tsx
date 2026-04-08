@@ -26,12 +26,18 @@ import {
   Pencil,
   Trash2,
   Plus,
-  Phone,
-  Mail,
-  MessageCircle,
-  Globe,
-  Link,
 } from "lucide-react";
+import { 
+  FacebookIcon, 
+  ZaloIcon, 
+  MessengerIcon, 
+  TiktokIcon, 
+  YoutubeIcon,
+  PhoneIcon,
+  EmailIcon,
+  WebsiteIcon,
+  LinkIcon,
+} from "@/components/social-icons";
 
 import { toast } from "sonner";
 import { capitalize } from "@/lib/utils";
@@ -45,13 +51,17 @@ type Contact = {
 };
 
 const CONTACT_TYPES = [
-  { value: "phone", label: "Điện thoại", icon: Phone },
-  { value: "email", label: "Email", icon: Mail },
-  { value: "facebook", label: "Facebook", icon: Globe },
-  { value: "messenger", label: "Messenger", icon: MessageCircle },
-  { value: "zalo", label: "Zalo", icon: MessageCircle },
-  { value: "website", label: "Website", icon: Link },
+  { value: "phone", label: "Điện thoại", icon: PhoneIcon },
+  { value: "email", label: "Email", icon: EmailIcon },
+  { value: "facebook", label: "Facebook", icon: FacebookIcon },
+  { value: "messenger", label: "Messenger", icon: MessengerIcon },
+  { value: "zalo", label: "Zalo", icon: ZaloIcon },
+  { value: "tiktok", label: "Tiktok", icon: TiktokIcon },
+  { value: "youtube", label: "Youtube", icon: YoutubeIcon },
+  { value: "website", label: "Website", icon: WebsiteIcon },
 ];
+
+
 
 export default function ContactsPage() {
   const [contacts, setContacts] = useState<Contact[]>([]);
