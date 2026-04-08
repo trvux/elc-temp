@@ -114,7 +114,7 @@ export function FeaturesSection({ products }: FeaturesSectionProps) {
                     </div>
 
                     <div className="flex flex-col flex-1">
-                      <div className="min-h-[2.5rem] flex flex-col items-start gap-2 mb-3">
+                      <div className="min-h-[3rem] flex flex-col items-start gap-2 mb-3">
                         <Badge
                           variant="secondary"
                           className="text-[9px] px-2 py-0.5 uppercase tracking-widest font-medium whitespace-nowrap shrink-0 w-fit h-auto rounded-sm"
@@ -137,10 +137,10 @@ export function FeaturesSection({ products }: FeaturesSectionProps) {
                         </span>
                       </div>
 
-                      <div className="mt-auto space-y-1.5 border-t border-border/40 pt-4">
+                      <div className="mt-auto border-t border-border/40 pt-4 flex flex-col gap-1.5 h-16">
                         {hasDiscount ? (
                           <>
-                            <span className=" font-bold text-foreground tracking-tight text-xl sm:text-2xl block">
+                            <span className=" font-bold text-foreground tracking-tight text-xl sm:text-2xl block leading-none">
                               {new Intl.NumberFormat("vi-VN", {
                                 style: "currency",
                                 currency: "VND",
@@ -165,19 +165,12 @@ export function FeaturesSection({ products }: FeaturesSectionProps) {
                             </div>
                           </>
                         ) : (
-                          <>
-                            <span className="font-bold text-foreground tracking-tight text-xl sm:text-2xl block">
-                              {new Intl.NumberFormat("vi-VN", {
-                                style: "currency",
-                                currency: "VND",
-                              }).format(product.original_price)}
-                            </span>
-                            {/* Placeholder to match the height of discount line */}
-                            <div
-                              className="invisible h-4 sm:h-5"
-                              aria-hidden="true"
-                            />
-                          </>
+                          <span className="font-bold text-foreground tracking-tight text-xl sm:text-2xl block leading-none">
+                            {new Intl.NumberFormat("vi-VN", {
+                              style: "currency",
+                              currency: "VND",
+                            }).format(product.original_price)}
+                          </span>
                         )}
                       </div>
                     </div>

@@ -59,7 +59,7 @@ export default async function ProductsHub() {
               {/* Info with fixed layout to ensure alignment */}
               <div className="mt-6 flex flex-col flex-1 px-0.5">
                 {/* Fixed height for name to ensure alignment */}
-                <div className="min-h-[2.8rem]">
+                <div className="min-h-[3.5rem]">
                   <h3 className="text-base md:text-lg font-bold text-foreground leading-tight tracking-tight capitalize line-clamp-2">
                     {product.name}
                   </h3>
@@ -74,10 +74,10 @@ export default async function ProductsHub() {
                   </span>
                 </div>
 
-                <div className="mt-auto pt-4 space-y-2">
+                <div className="mt-auto pt-4 flex flex-col gap-2 h-16 md:h-20">
                   {product.discount_percent > 0 ? (
                     <>
-                      <span className="font-bold text-foreground tracking-tight text-xl md:text-2xl block">
+                      <span className="font-bold text-foreground tracking-tight text-xl md:text-2xl block leading-none">
                         {new Intl.NumberFormat("vi-VN", {
                           style: "currency",
                           currency: "VND",
@@ -90,7 +90,6 @@ export default async function ProductsHub() {
                             currency: "VND",
                           }).format(product.original_price)}
                         </span>
-                        {/* Discount Badge - Squared and Transparent */}
                         {/* Discount Badge */}
                         <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md border border-border bg-transparent flex-shrink-0 flex-grow-0 h-fit">
                           <span className="text-[11px] font-bold text-foreground tracking-tight">
@@ -101,16 +100,12 @@ export default async function ProductsHub() {
                       </div>
                     </>
                   ) : (
-                    <>
-                      <span className="font-bold text-foreground tracking-tight text-xl md:text-2xl block">
-                        {new Intl.NumberFormat("vi-VN", {
-                          style: "currency",
-                          currency: "VND",
-                        }).format(product.original_price)}
-                      </span>
-                      {/* Placeholder to match the height of discount line */}
-                      <div className="invisible h-5 md:h-6" aria-hidden="true" />
-                    </>
+                    <span className="font-bold text-foreground tracking-tight text-xl md:text-2xl block leading-none">
+                      {new Intl.NumberFormat("vi-VN", {
+                        style: "currency",
+                        currency: "VND",
+                      }).format(product.original_price)}
+                    </span>
                   )}
                 </div>
               </div>
