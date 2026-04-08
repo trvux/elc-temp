@@ -40,15 +40,20 @@ export function Footer({ branches, projects, pages, settings }: FooterProps) {
               Projects
             </h4>
             <nav className="flex flex-col gap-3 text-xs">
-              {projects?.slice(0, 8).map((item) => (
-                <Link
-                  key={item.id}
-                  href="/cong-trinh"
-                  className="hover:text-primary-foreground transition-colors"
-                >
-                  {item.title}
-                </Link>
-              ))}
+              {projects?.slice(0, 8).map((item) => {
+                const projectUrl = item.categories?.slug
+                  ? `/cong-trinh/${item.categories.slug}/${item.slug}`
+                  : `/cong-trinh/${item.slug}`;
+                return (
+                  <Link
+                    key={item.id}
+                    href={projectUrl}
+                    className="hover:text-primary-foreground transition-colors"
+                  >
+                    {item.title}
+                  </Link>
+                );
+              })}
             </nav>
           </div>
 

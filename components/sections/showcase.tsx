@@ -11,7 +11,7 @@ interface Project {
   title: string;
   description: string;
   images: string[];
-  categories?: { name: string };
+  categories?: { name: string; slug: string };
 }
 
 interface ShowcaseSectionProps {
@@ -25,6 +25,10 @@ export function ShowcaseSection({ projects }: ShowcaseSectionProps) {
 
   if (!mainProject) return null;
 
+  const mainProjectUrl = mainProject.categories?.slug
+    ? `/cong-trinh/${mainProject.categories.slug}/${mainProject.slug}`
+    : `/cong-trinh/${mainProject.slug}`;
+
   return (
     <section className="relative w-full flex-1 flex flex-col justify-center pt-section pb-20 sm:pb-28 lg:pb-44 overflow-hidden">
       <div className="pt-24 px-container max-w-7xl mx-auto w-full">
@@ -33,10 +37,7 @@ export function ShowcaseSection({ projects }: ShowcaseSectionProps) {
           <div className="w-full lg:w-1/2 order-1 relative flex justify-center lg:justify-end pr-0 lg:pr-12">
             <div className="w-full max-w-md relative">
               <div className="absolute -inset-4 bg-muted rounded-[2rem] -z-10" />
-              <Link
-                href={`/cong-trinh/${mainProject.slug}`}
-                className="block w-full"
-              >
+              <Link href={mainProjectUrl} className="block w-full">
                 <div className="relative aspect-[4/5] rounded-[1.5rem] overflow-hidden group cursor-pointer animate-in fade-in slide-in-from-bottom-8 duration-[1.5s]">
                   {mainProject.images?.[0] && (
                     <Image
@@ -117,23 +118,28 @@ export function ShowcaseSection({ projects }: ShowcaseSectionProps) {
                 <div className="opacity-80 hover:opacity-100 transition-opacity">
                   <Separator className="mb-6" />
                   <div className="flex flex-col gap-1">
-                    {otherProjects.slice(0, 2).map((p, idx) => (
-                      <Link
-                        key={p.id}
-                        href={`/cong-trinh/${p.slug}`}
-                        className="group flex items-center justify-between py-3 hover:pl-4 transition-all duration-300"
-                      >
-                        <div className="flex items-center gap-5">
-                          <span className="text-[10px] font-medium text-muted-foreground">
-                            0{idx + 2}
-                          </span>
-                          <span className="text-sm md:text-base font-light text-foreground group-hover:italic transition-all capitalize tracking-wide">
-                            {p.title}
-                          </span>
-                        </div>
-                        <ArrowUpRight className="h-4 w-4 text-muted-foreground group-hover:text-foreground opacity-0 group-hover:opacity-100 transition-all -translate-x-2 group-hover:translate-x-0" />
-                      </Link>
-                    ))}
+                    {otherProjects.slice(0, 2).map((p, idx) => {
+                      const projectUrl = p.categories?.slug
+                        ? `/cong-trinh/${p.categories.slug}/${p.slug}`
+                        : `/cong-trinh/${p.slug}`;
+                      return (
+                        <Link
+                          key={p.id}
+                          href={projectUrl}
+                          className="group flex items-center justify-between py-3 hover:pl-4 transition-all duration-300"
+                        >
+                          <div className="flex items-center gap-5">
+                            <span className="text-[10px] font-medium text-muted-foreground">
+                              0{idx + 2}
+                            </span>
+                            <span className="text-sm md:text-base font-light text-foreground group-hover:italic transition-all capitalize tracking-wide">
+                              {p.title}
+                            </span>
+                          </div>
+                          <ArrowUpRight className="h-4 w-4 text-muted-foreground group-hover:text-foreground opacity-0 group-hover:opacity-100 transition-all -translate-x-2 group-hover:translate-x-0" />
+                        </Link>
+                      );
+                    })}
                   </div>
                 </div>
               )}

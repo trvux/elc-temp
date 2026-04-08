@@ -16,13 +16,13 @@ export default async function Home() {
     supabase.from("site_settings").select("*"),
     supabase
       .from("projects")
-      .select("*, categories(name)")
+      .select("*, categories(name, slug)")
       .eq("is_published", true)
       .order("order_index", { ascending: true })
       .limit(5),
     supabase
       .from("products")
-      .select("*, categories(name)")
+      .select("*, categories(name, slug)")
       .eq("is_published", true)
       .eq("is_featured", true)
       .order("order_index", { ascending: true })

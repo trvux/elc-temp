@@ -29,7 +29,7 @@ export default async function PublicLayout({
       .order("order_index"),
     supabase
       .from("projects")
-      .select("title, id")
+      .select("title, id, slug, categories(slug)")
       .eq("is_published", true)
       .limit(6),
     supabase
