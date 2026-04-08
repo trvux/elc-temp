@@ -32,6 +32,12 @@ import { toast } from "sonner";
 import { capitalize } from "@/lib/utils";
 import Image from "next/image";
 
+type SpecItem = {
+  label: string;
+  value?: string;
+  items?: { label: string; value: string }[];
+};
+
 type Category = {
   id: string;
   name: string;
@@ -49,7 +55,7 @@ type Product = {
   original_price: number;
   discount_percent: number;
   sale_price: number | null;
-  specs: Record<string, string>;
+  specs: any; // Flexible for migration, but will be treated as SpecItem[] in code
   is_featured: boolean;
   is_published: boolean;
   order_index: number;
@@ -77,6 +83,30 @@ export default function ProductsPage() {
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
+  // Mẫu khung thông số mặc định cho máy lạnh
+  const AC_TEMPLATE: SpecItem[] = [
+    { label: "Loại máy", value: "" },
+    { label: "Công nghệ Inverter", value: "" },
+    {
+      label: "Công suất làm lạnh",
+      items: [
+        { label: "HP", value: "" },
+        { label: "kW", value: "" },
+        { label: "BTU", value: "" },
+      ],
+    },
+    {
+      label: "Công suất sưởi",
+      items: [
+        { label: "HP", value: "" },
+        { label: "kW", value: "" },
+        { label: "BTU", value: "" },
+      ],
+    },
+    { label: "Điện năng tiêu thụ", value: "" },
+    { label: "Phạm vi làm lạnh hiệu quả", value: "" },
+  ];
+
   // Filter states
   const [filterCategoryId, setFilterCategoryId] = useState<string>("all");
   const [filterIsFeatured, setFilterIsFeatured] = useState<string>("all");
@@ -92,7 +122,7 @@ export default function ProductsPage() {
   const [originalPrice, setOriginalPrice] = useState(0);
   const [discountPercent, setDiscountPercent] = useState(0);
   const [salePriceOverride, setSalePriceOverride] = useState<string>("");
-  const [specs, setSpecs] = useState<{ key: string; value: string }[]>([]);
+  const [specs, setSpecs] = useState<SpecItem[]>([]);
   const [isFeatured, setIsFeatured] = useState(false);
   const [isPublished, setIsPublished] = useState(true);
   const [orderIndex, setOrderIndex] = useState(0);
@@ -200,7 +230,7 @@ export default function ProductsPage() {
     setOriginalPrice(0);
     setDiscountPercent(0);
     setSalePriceOverride("");
-    setSpecs([]);
+    setSpecs(AC_TEMPLATE); // Nạp khung mặc định
     setIsFeatured(false);
     setIsPublished(true);
     setOrderIndex(0);
@@ -218,9 +248,17 @@ export default function ProductsPage() {
     setOriginalPrice(p.original_price || 0);
     setDiscountPercent(p.discount_percent || 0);
     setSalePriceOverride(p.sale_price ? String(p.sale_price) : "");
-    setSpecs(
-      Object.entries(p.specs || {}).map(([key, value]) => ({ key, value })),
-    );
+    // Handle both old object format and new array format
+    if (Array.isArray(p.specs)) {
+      setSpecs(p.specs);
+    } else {
+      setSpecs(
+        Object.entries(p.specs || {}).map(([label, value]) => ({
+          label,
+          value: String(value),
+        })),
+      );
+    }
     setIsFeatured(p.is_featured);
     setIsPublished(p.is_published);
     setOrderIndex(p.order_index);
@@ -264,17 +302,54 @@ export default function ProductsPage() {
   }
 
   function addSpec() {
-    setSpecs([...specs, { key: "", value: "" }]);
+    setSpecs([...specs, { label: "", value: "" }]);
   }
 
-  function updateSpec(i: number, field: "key" | "value", val: string) {
+  function updateSpec(i: number, field: keyof SpecItem, val: any) {
     const updated = [...specs];
-    updated[i][field] = val;
+    updated[i] = { ...updated[i], [field]: val };
     setSpecs(updated);
   }
 
   function removeSpec(i: number) {
     setSpecs(specs.filter((_, idx) => idx !== i));
+  }
+
+  function addSubSpec(specIndex: number) {
+    const updated = [...specs];
+    const currentItems = updated[specIndex].items || [];
+    updated[specIndex] = {
+      ...updated[specIndex],
+      items: [...currentItems, { label: "", value: "" }],
+      value: undefined, // Clear single value if adding sub-items
+    };
+    setSpecs(updated);
+  }
+
+  function updateSubSpec(
+    specIndex: number,
+    itemIndex: number,
+    field: "label" | "value",
+    val: string,
+  ) {
+    const updated = [...specs];
+    const items = [...(updated[specIndex].items || [])];
+    items[itemIndex] = { ...items[itemIndex], [field]: val };
+    updated[specIndex] = { ...updated[specIndex], items };
+    setSpecs(updated);
+  }
+
+  function removeSubSpec(specIndex: number, itemIndex: number) {
+    const updated = [...specs];
+    const items = (updated[specIndex].items || []).filter(
+      (_, i) => i !== itemIndex,
+    );
+    if (items.length === 0) {
+      delete updated[specIndex].items;
+    } else {
+      updated[specIndex] = { ...updated[specIndex], items };
+    }
+    setSpecs(updated);
   }
 
   async function handleSave() {
@@ -288,14 +363,6 @@ export default function ProductsPage() {
       return;
     }
 
-    const specsObj = specs.reduce(
-      (acc, { key, value }) => {
-        if (key.trim()) acc[key.trim()] = value;
-        return acc;
-      },
-      {} as Record<string, string>,
-    );
-
     const payload = {
       name,
       slug,
@@ -308,7 +375,7 @@ export default function ProductsPage() {
       sale_price: salePriceOverride
         ? Number(salePriceOverride)
         : computedSalePrice,
-      specs: specsObj,
+      specs: specs.filter((s) => s.label.trim()), // Save as array of objects
       is_featured: isFeatured,
       is_published: isPublished,
       order_index: orderIndex,
@@ -703,29 +770,118 @@ export default function ProductsPage() {
                   </p>
                 </div>
               ) : (
-                <div className="space-y-3">
+                <div className="space-y-4">
                   {specs.map((spec, i) => (
-                    <div key={i} className="flex gap-2 items-center group">
-                      <Input
-                        placeholder="Tên (VD: Công suất)"
-                        value={spec.key}
-                        className="flex-1"
-                        onChange={(e) => updateSpec(i, "key", e.target.value)}
-                      />
-                      <Input
-                        placeholder="Giá trị (VD: 1.5HP)"
-                        value={spec.value}
-                        className="flex-1"
-                        onChange={(e) => updateSpec(i, "value", e.target.value)}
-                      />
-                      <Button
-                        size="icon"
-                        variant="ghost"
-                        className="text-muted-foreground hover:text-destructive shrink-0"
-                        onClick={() => removeSpec(i)}
-                      >
-                        <X size={16} />
-                      </Button>
+                    <div
+                      key={i}
+                      className="p-6 border rounded-xl bg-card text-card-foreground shadow-sm space-y-4 transition-all"
+                    >
+                      <div className="flex flex-col md:flex-row gap-4 items-start md:items-end">
+                        <div className="flex-1 w-full space-y-1.5">
+                          <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider px-1">Tên thông số</label>
+                          <Input
+                            placeholder="VD: Công suất sưởi"
+                            value={spec.label}
+                            className="font-medium"
+                            onChange={(e) => updateSpec(i, "label", e.target.value)}
+                          />
+                        </div>
+                        
+                        {!spec.items && (
+                          <div className="flex-[1.5] w-full space-y-1.5">
+                            <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider px-1">Giá trị</label>
+                            <Input
+                              placeholder="Nhập giá trị hoặc chọn nhóm đơn vị"
+                              value={spec.value || ""}
+                              onChange={(e) =>
+                                updateSpec(i, "value", e.target.value)
+                              }
+                            />
+                          </div>
+                        )}
+
+                        <div className="flex items-center gap-2 pt-1">
+                          {!spec.items && (
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => addSubSpec(i)}
+                              className="text-[10px] h-9 px-3 font-semibold uppercase tracking-tight"
+                              disabled={!!spec.value && spec.value.trim() !== ""}
+                            >
+                              <Plus size={14} className="mr-1.5" /> Nhóm đơn vị
+                            </Button>
+                          )}
+                          <Button
+                            size="icon"
+                            variant="ghost"
+                            className="h-9 w-9 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+                            onClick={() => removeSpec(i)}
+                          >
+                            <X size={16} />
+                          </Button>
+                        </div>
+                      </div>
+
+                      {spec.items && (
+                        <div className="pl-6 space-y-4 border-l-2 border-muted ml-2 py-2">
+                          <div className="flex items-center justify-between">
+                             <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest px-1">Đơn vị đo lường (HP, kW, BTU/h...)</p>
+                             <Button 
+                              variant="ghost" 
+                              size="sm" 
+                              onClick={() => addSubSpec(i)}
+                              className="text-[10px] h-7 text-primary hover:text-primary/80 font-bold uppercase"
+                            >
+                              + Thêm đơn vị
+                            </Button>
+                          </div>
+                          <div className="grid grid-cols-1 gap-3">
+                            {spec.items.map((item, itemIdx) => (
+                              <div key={itemIdx} className="flex gap-3 items-center group">
+                                <div className="w-32">
+                                  <Input
+                                    placeholder="Đơn vị"
+                                    value={item.label}
+                                    className="h-9 text-xs"
+                                    onChange={(e) =>
+                                      updateSubSpec(
+                                        i,
+                                        itemIdx,
+                                        "label",
+                                        e.target.value,
+                                      )
+                                    }
+                                  />
+                                </div>
+                                <div className="flex-1">
+                                  <Input
+                                    placeholder="Giá trị"
+                                    value={item.value}
+                                    className="h-9 text-xs"
+                                    onChange={(e) =>
+                                      updateSubSpec(
+                                        i,
+                                        itemIdx,
+                                        "value",
+                                        e.target.value,
+                                      )
+                                    }
+                                  />
+                                </div>
+                                <Button
+                                  size="icon"
+                                  variant="ghost"
+                                  className="h-8 w-8 text-muted-foreground/40 hover:text-destructive opacity-0 group-hover:opacity-100 transition-opacity"
+                                  onClick={() => removeSubSpec(i, itemIdx)}
+                                >
+                                  <X size={14} />
+                                </Button>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
                     </div>
                   ))}
                 </div>

@@ -35,14 +35,14 @@ export default async function ProductDetail({
         <div className="flex flex-col lg:flex-row gap-12 lg:gap-24 xl:gap-32">
           {/* LEFT: Product Images Area - Slimmer & Centered Look */}
           <div className="lg:w-[55%] space-y-8">
-            <div className="w-full bg-muted/30 overflow-hidden">
-              <AspectRatio ratio={3 / 4}>
+            <div className="w-full  overflow-hidden">
+              <AspectRatio ratio={4 / 3}>
                 {product.images?.[0] && (
                   <Image
                     src={product.images[0]}
                     alt={product.name}
                     fill
-                    className="object-cover"
+                    className="object-contain p-8"
                     priority
                     sizes="(max-width: 1024px) 100vw, 50vw"
                   />
@@ -54,13 +54,13 @@ export default async function ProductDetail({
             {product.images && product.images.length > 1 && (
               <div className="grid grid-cols-2 gap-4">
                 {product.images.slice(1).map((img: string, i: number) => (
-                  <div key={i} className="bg-muted/30">
-                    <AspectRatio ratio={3 / 4}>
+                  <div key={i}>
+                    <AspectRatio ratio={4 / 3}>
                       <Image
                         src={img}
                         alt={`${product.name} ${i}`}
                         fill
-                        className="object-cover"
+                        className="object-contain p-4"
                         sizes="(max-width: 1024px) 50vw, 25vw"
                       />
                     </AspectRatio>
@@ -130,23 +130,34 @@ export default async function ProductDetail({
               </div>
 
               {/* Technical Specifications */}
-              {product.specs && Object.keys(product.specs).length > 0 && (
+              {product.specs && Array.isArray(product.specs) && product.specs.length > 0 && (
                 <div className="pt-8 space-y-5">
                   <h4 className="text-[10px] font-bold text-foreground capitalize tracking-[0.1em]">
                     Thông số kỹ thuật
                   </h4>
-                  <div className="space-y-3">
-                    {Object.entries(product.specs).map(([key, value]) => (
-                      <div
-                        key={key}
-                        className="flex justify-between border-b border-border/50 pb-2"
-                      >
-                        <span className="text-[10px] text-muted-foreground font-medium tracking-[0.05em]">
-                          {key}
-                        </span>
-                        <span className="text-[10px] font-bold text-foreground">
-                          {value as string}
-                        </span>
+                  <div className="space-y-4">
+                    {product.specs.map((spec: any, idx: number) => (
+                      <div key={idx} className="border-b border-border/50 pb-3">
+                        <div className="flex justify-between items-start mb-1">
+                          <span className="text-[10px] text-muted-foreground font-medium tracking-[0.05em] uppercase">
+                            {spec.label}
+                          </span>
+                          {spec.value && (
+                            <span className="text-[10px] font-bold text-foreground">
+                              {spec.value}
+                            </span>
+                          )}
+                        </div>
+                        {spec.items && (
+                          <div className="space-y-1 mt-2 bg-muted/30 p-2 rounded">
+                            {spec.items.map((item: any, i: number) => (
+                              <div key={i} className="flex justify-between text-[9px]">
+                                <span className="text-muted-foreground">{item.label}</span>
+                                <span className="font-bold text-foreground">{item.value}</span>
+                              </div>
+                            ))}
+                          </div>
+                        )}
                       </div>
                     ))}
                   </div>

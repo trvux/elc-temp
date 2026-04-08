@@ -38,14 +38,14 @@ export default async function ProductsHub() {
               href={`/san-pham/${product.categories?.slug ? product.categories.slug + "/" : ""}${product.slug}`}
               className="group flex flex-col"
             >
-              <div className="w-full overflow-hidden bg-muted/20">
-                <AspectRatio ratio={2 / 3}>
+              <div className="w-full overflow-hidden bg-muted/5">
+                <AspectRatio ratio={4 / 3}>
                   {product.images?.[0] ? (
                     <Image
                       src={product.images[0]}
                       alt={product.name}
                       fill
-                      className="object-cover transition-transform duration-1000 group-hover:scale-105"
+                      className="object-contain p-4 transition-transform duration-1000 group-hover:scale-105"
                       sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 25vw"
                     />
                   ) : (
