@@ -181,7 +181,7 @@ export default async function ProductDetail({
                       </div>
                     </div>
                   )}
-                  <p className="text-base-fluid font-bold text-foreground tracking-tight leading-none">
+                  <p className="text-4xl font-bold text-foreground tracking-tight leading-none">
                     {new Intl.NumberFormat("vi-VN", {
                       style: "currency",
                       currency: "VND",
@@ -194,7 +194,7 @@ export default async function ProductDetail({
 
               {/* Action & Category info */}
               <div className="space-y-6">
-                <div className="text-[10px] text-muted-foreground font-bold capitalize tracking-[0.2em] leading-none">
+                <div className="text-sm text-muted-foreground font-bold capitalize tracking-tight leading-none">
                   {categoryDisplay}
                 </div>
 
@@ -226,7 +226,7 @@ export default async function ProductDetail({
                             </span>
                             <div className="flex flex-col gap-1.5 py-1">
                               {spec.value && (
-                                <span className="text-sm font-bold text-foreground">
+                                <span className="text-sm font-medium text-muted-foreground">
                                   {spec.value}
                                 </span>
                               )}
@@ -237,7 +237,7 @@ export default async function ProductDetail({
                                     .map((item, i) => (
                                       <div
                                         key={i}
-                                        className="text-sm font-bold text-foreground leading-tight"
+                                        className="text-sm font-medium text-muted-foreground leading-tight"
                                       >
                                         {item.label && (
                                           <span className="text-sm text-muted-foreground font-medium capitalize tracking-normal mr-1.5">
