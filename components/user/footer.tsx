@@ -104,7 +104,7 @@ export function Footer({
           <div className="space-y-4">
             <h3 className="text-sm font-semibold text-primary-foreground">
               Chi nhánh
-            </h4>
+            </h3>
             <nav className="flex flex-col gap-3">
               {branches && branches.length > 0 ? (
                 branches.map((item) => (
@@ -127,7 +127,7 @@ export function Footer({
           <div className="space-y-4">
             <h3 className="text-sm font-semibold text-primary-foreground">
               Thông tin
-            </h4>
+            </h3>
             <nav className="flex flex-col gap-3">
               {pages && pages.length > 0 ? (
                 pages.slice(0, 8).map((item) => (
@@ -150,7 +150,7 @@ export function Footer({
           <div className="space-y-4">
             <h3 className="text-sm font-semibold text-primary-foreground">
               Liên hệ
-            </h4>
+            </h3>
             <nav className="flex flex-col gap-3">
               <PhoneConfirmation phone={phone.replace(/\s/g, "")}>
                 <button className="text-sm text-primary-foreground/60 hover:text-primary-foreground transition-colors text-left">
