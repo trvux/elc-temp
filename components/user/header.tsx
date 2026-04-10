@@ -162,7 +162,7 @@ export function Header() {
                     href="/cong-trinh"
                     onClick={() => setIsMenuOpen(false)}
                     className={cn(
-                      "text-base transition-colors bg-primary text-foreground-primary underline-offset-4",
+                      "text-base transition-colors lg:bg-primary lg:text-foreground-primary underline-offset-4",
                       pathname === "/cong-trinh"
                         ? "font-bold text-black"
                         : "font-semibold text-black/80",
