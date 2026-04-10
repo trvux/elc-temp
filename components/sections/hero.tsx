@@ -9,6 +9,7 @@ interface HeroSectionProps {
   subtitle?: string;
   ctaText?: string;
   ctaUrl?: string;
+  image?: string;
 }
 
 export function HeroSection({
@@ -16,6 +17,7 @@ export function HeroSection({
   subtitle,
   ctaText,
   ctaUrl,
+  image,
 }: HeroSectionProps) {
   const displayTitle = title || "Giải pháp Không khí thuần khiết.";
   const displaySubtitle =
@@ -23,6 +25,8 @@ export function HeroSection({
     "Xóa bỏ ranh giới giữa bên trong và thiên nhiên. Hệ thống điều khí thông minh từ ELC tự động tối ưu từng nhịp thở cho ngôi nhà của bạn.";
   const displayCtaText = ctaText || "Bắt đầu ngay";
   const displayCtaUrl = ctaUrl || "/cong-trinh";
+  const displayImage =
+    image || "/img-herosection.jpg";
 
   return (
     <section className="pt-36 max-w-screen-2xl lg:mx-auto ">
@@ -53,10 +57,11 @@ export function HeroSection({
         {/* Cột phải */}
         <div className="relative aspect-square w-full">
           <Image
-            src="https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?w=800&q=80"
+            src={displayImage}
             alt="ELC không gian sống"
             fill
             priority
+            fetchPriority="high"
             className="object-cover rounded-2xl"
             sizes="(max-width: 1280px) 100vw, 800px"
           />

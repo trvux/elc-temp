@@ -6,6 +6,8 @@ import { ShowcaseSection } from "@/components/sections/showcase";
 import { CTASection } from "@/components/sections/cta";
 import { Separator } from "@/components/ui/separator";
 
+export const revalidate = 3600;
+
 export default async function Home() {
   const supabase = await createClient();
 
@@ -51,6 +53,7 @@ export default async function Home() {
         subtitle={settings.hero_subtitle}
         ctaText={settings.hero_cta_text}
         ctaUrl={settings.hero_cta_url}
+        image={settings.hero_image}
       />
       <Separator />
 

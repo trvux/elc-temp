@@ -54,6 +54,10 @@ export default function RootLayout({
         newsreader.variable,
       )}
     >
+      <head>
+        <link rel="preconnect" href="https://gdzihzsjfczuggwpykjk.supabase.co" />
+        <link rel="preconnect" href="https://images.unsplash.com" />
+      </head>
       <body
         suppressHydrationWarning
         className={cn(

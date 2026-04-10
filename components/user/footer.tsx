@@ -1,17 +1,4 @@
-"use client";
-
 import Link from "next/link";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {
-  faGlobe,
-  faLocationDot,
-  faBuilding,
-  faZ,
-} from "@fortawesome/free-solid-svg-icons";
-import {
-  faFacebook,
-  faFacebookMessenger,
-} from "@fortawesome/free-brands-svg-icons";
 import { PhoneConfirmation } from "./phone-confirmation";
 
 interface FooterProps {
@@ -56,7 +43,6 @@ export function Footer({
   ) => {
     if (!url || url === "#") return "#";
     if (url.startsWith("http")) return url;
-    // If user only entered a username/slug
     return platform === "facebook"
       ? `https://www.facebook.com/${url}`
       : `https://m.me/${url}`;
@@ -218,38 +204,49 @@ export function Footer({
           <p className="text-sm text-primary-foreground">
             © {currentYear} {settings?.company_name || "ELC"}
           </p>
-          <div className="flex items-center gap-4 text-primary-foreground/60">
+          <div className="flex items-center gap-5 text-primary-foreground/60">
             <Link
               href={facebookUrl}
               target="_blank"
               rel="noopener noreferrer"
               className="hover:text-primary-foreground transition-colors"
+              title="Facebook"
             >
-              <FontAwesomeIcon icon={faFacebook} className="h-4 w-4" />
+              <svg className="h-5 w-5 fill-current" viewBox="0 0 24 24">
+                <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
+              </svg>
             </Link>
             <Link
               href={messengerUrl}
               target="_blank"
               rel="noopener noreferrer"
               className="hover:text-primary-foreground transition-colors"
+              title="Messenger"
             >
-              <FontAwesomeIcon icon={faFacebookMessenger} className="h-4 w-4" />
+              <svg className="h-5 w-5 fill-current" viewBox="0 0 24 24">
+                <path d="M12 0C5.37 0 0 4.97 0 11.11c0 3.5 1.74 6.62 4.47 8.58.23.17.37.44.37.73v2.39c0 .64.69 1.05 1.25.73l2.67-1.55c.21-.12.45-.18.69-.18.82.11 1.66.18 2.55.18 6.63 0 12-4.97 12-11.11C24 4.97 18.63 0 12 0zm1.25 14.94l-3.21-3.41-6.27 3.41 6.9-7.34 3.21 3.41 6.27-3.41-6.9 7.34z" />
+              </svg>
             </Link>
             <Link
               href={`https://zalo.me/${phone.replace(/\s/g, "")}`}
               target="_blank"
               rel="noopener noreferrer"
               className="hover:text-primary-foreground transition-colors"
+              title="Zalo"
             >
-              <FontAwesomeIcon icon={faZ} className="h-4 w-4" />
+              <span className="font-bold text-lg leading-none">Z</span>
             </Link>
             <Link
               href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`}
               target="_blank"
               rel="noopener noreferrer"
               className="hover:text-primary-foreground transition-colors"
+              title="Địa chỉ"
             >
-              <FontAwesomeIcon icon={faLocationDot} className="h-4 w-4" />
+              <svg className="h-5 w-5 fill-none stroke-current stroke-2" viewBox="0 0 24 24">
+                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+                <circle cx="12" cy="10" r="3" />
+              </svg>
             </Link>
           </div>
         </div>

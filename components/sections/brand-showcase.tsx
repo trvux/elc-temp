@@ -1,8 +1,4 @@
-"use client";
-
 import { cn } from "@/lib/utils";
-
-import { motion } from "framer-motion";
 
 const brands = [
   { name: "Carrier", domain: "carrier.com" },
@@ -27,24 +23,8 @@ export function BrandShowcase() {
           </h2>
         </div>
 
-        <div className="relative w-full max-w-screen-xl mx-auto overflow-hidden">
-          <motion.div
-            className="flex gap-10 lg:gap-20"
-            animate={{
-              x: [0, "-50%"],
-            }}
-            transition={{
-              x: {
-                repeat: Infinity,
-                repeatType: "loop",
-                duration: 40,
-                ease: "linear",
-              },
-            }}
-            whileHover={{
-              animationPlayState: "paused",
-            }}
-          >
+        <div className="relative w-full max-w-screen-xl mx-auto overflow-hidden pause-marquee">
+          <div className="flex gap-10 lg:gap-20 animate-marquee w-fit">
             {/* Render 2 lần để tạo vòng lặp vô tận mượt mà */}
             {[...brands, ...brands].map((brand, i) => (
               <span
@@ -54,7 +34,7 @@ export function BrandShowcase() {
                 {brand.name}
               </span>
             ))}
-          </motion.div>
+          </div>
 
           {/* Hiệu ứng mờ ở 2 đầu */}
           <div className="absolute inset-y-0 left-0 w-32 bg-linear-to-r from-cream to-transparent z-10 pointer-events-none" />
