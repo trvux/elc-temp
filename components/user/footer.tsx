@@ -74,9 +74,9 @@ export function Footer({
         {/* Grid */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-y-10 gap-x-8">
           <div className="space-y-4">
-            <h4 className="text-sm font-semibold text-primary-foreground">
+            <h3 className="text-sm font-semibold text-primary-foreground">
               Công trình
-            </h4>
+            </h3>
             <nav className="flex flex-col gap-3">
               {projects && projects.length > 0 ? (
                 projects.slice(0, 8).map((item) => {
@@ -102,7 +102,7 @@ export function Footer({
           </div>
 
           <div className="space-y-4">
-            <h4 className="text-sm font-semibold text-primary-foreground">
+            <h3 className="text-sm font-semibold text-primary-foreground">
               Chi nhánh
             </h4>
             <nav className="flex flex-col gap-3">
@@ -125,7 +125,7 @@ export function Footer({
           </div>
 
           <div className="space-y-4">
-            <h4 className="text-sm font-semibold text-primary-foreground">
+            <h3 className="text-sm font-semibold text-primary-foreground">
               Thông tin
             </h4>
             <nav className="flex flex-col gap-3">
@@ -148,7 +148,7 @@ export function Footer({
           </div>
 
           <div className="space-y-4">
-            <h4 className="text-sm font-semibold text-primary-foreground">
+            <h3 className="text-sm font-semibold text-primary-foreground">
               Liên hệ
             </h4>
             <nav className="flex flex-col gap-3">

@@ -106,6 +106,7 @@ export function Header() {
                   <Button
                     variant="ghost"
                     size="icon"
+                    aria-label={isMenuOpen ? "Đóng menu" : "Mở menu"}
                     className="p-1 rounded-lg text-black relative w-10 h-10 overflow-hidden"
                   >
                     <div className="relative w-6 h-6 flex items-center justify-center">
