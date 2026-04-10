@@ -47,7 +47,8 @@
   --radius-2xl: calc(var(--radius) * 1.8);
   --radius-3xl: calc(var(--radius) * 2.2);
   --radius-4xl: calc(var(--radius) * 2.6);
-  --font-heading: var(--font-sans);
+  --color-cream: var(--site-cream);
+  --color-beige: var(--site-beige);
 }
 
 :root {
@@ -83,6 +84,8 @@
   --sidebar-ring: oklch(0.708 0 0);
   --background: oklch(1 0 0);
   --foreground: oklch(0.145 0 0);
+  --site-cream: oklch(0.95 0.01 90);
+  --site-beige: #e8e6d9;
 }
 
 .dark {
@@ -128,15 +131,5 @@
   }
   html {
     @apply antialiased font-sans;
-  }
-}
-
-@layer utilities {
-  .px-container {
-    @apply px-6 sm:px-10 lg:px-16 xl:px-20;
-  }
-
-  .layout-container {
-    @apply mx-auto w-full max-w-7xl px-6 sm:px-10 lg:px-16 xl:px-20;
   }
 }

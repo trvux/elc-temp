@@ -3,160 +3,179 @@
 import * as React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Menu, ArrowRight } from "lucide-react";
+import { Menu, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import {
-  Sheet,
-  SheetContent,
-  SheetTrigger,
-  SheetTitle,
-  SheetDescription,
-} from "@/components/ui/sheet";
+  NavigationMenu,
+  NavigationMenuItem,
+  NavigationMenuLink,
+  NavigationMenuList,
+  navigationMenuTriggerStyle,
+} from "@/components/ui/navigation-menu";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
+
+interface NavLink {
+  name: string;
+  href: string;
+}
+
+const navLinks: NavLink[] = [
+  { name: "Trang chủ", href: "/" },
+  { name: "Công trình", href: "/cong-trinh" },
+  { name: "Sản phẩm", href: "/san-pham" },
+  { name: "Chi nhánh", href: "/chi-nhanh" },
+  { name: "Thông tin", href: "/thong-tin" },
+];
 
 export function Header() {
-  const [isScrolled, setIsScrolled] = React.useState(false);
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
   const pathname = usePathname();
 
-  React.useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 20);
-    };
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
-
-  const navLinks = [
-    { name: "Trang chủ", href: "/" },
-    { name: "Công trình", href: "/cong-trinh" },
-    { name: "Sản phẩm", href: "/san-pham" },
-    { name: "Chi nhánh", href: "/chi-nhanh" },
-    { name: "Thông tin", href: "/thong-tin" },
-  ];
-
   return (
-    <>
-      <header
-        className={cn(
-          "fixed top-0 left-0 right-0 z-40 transition-all duration-500 ease-in-out px-4",
-          isScrolled ? "py-2" : "py-4",
-        )}
-      >
-        <div
-          className={cn(
-            "mx-auto max-w-7xl flex items-center justify-between rounded-xl px-container py-1 transition-all duration-500 ease-in-out",
-            isScrolled && !isMenuOpen
-              ? "border border-border/50 bg-background/80 shadow-2xl backdrop-blur-xl scale-95"
-              : "bg-transparent border-transparent shadow-none scale-100",
-          )}
-        >
-          {/* Left: Logo */}
-          <div className="flex-1 flex justify-start pr-4 lg:pr-8">
-            <Link
-              href="/"
-              className="flex items-center gap-2 transition-transform hover:scale-105 active:scale-95 group"
-            >
-              <div className="p-1.5 rounded-lg transition-transform group-hover:rotate-6">
-                <span className="text-2xl font-black italic tracking-tighter text-primary capitalize">
+    <div className="w-full fixed top-0 left-0 right-0 z-50">
+      {/* Main Header Container */}
+      <header className="px-4 py-4 sm:px-6 lg:px-12">
+        <div className="max-w-7xl mx-auto">
+          <Collapsible
+            open={isMenuOpen}
+            onOpenChange={setIsMenuOpen}
+            className={cn(
+              "relative flex flex-col bg-cream/80 backdrop-blur-xl rounded-2xl border border-border transition-all duration-500 shadow-md",
+              isMenuOpen && "rounded-2xl",
+            )}
+          >
+            {/* Top Bar */}
+            <div className="flex items-center justify-between px-6 py-3">
+              {/* Logo */}
+              <Link href="/" className="flex items-center gap-2 group shrink-0">
+                <span className="text-2xl font-bold tracking-tight text-black">
                   ELC
                 </span>
-              </div>
-            </Link>
-          </div>
-
-          {/* Center: Navigation */}
-          <nav className="hidden items-center md:flex px-2 lg:px-6">
-            {navLinks.map((link) => {
-              const isActive =
-                link.href === "/"
-                  ? pathname === "/"
-                  : pathname.startsWith(link.href);
-              return (
-                <Link
-                  key={link.name}
-                  href={link.href}
-                  className={cn(
-                    "group relative px-3 lg:px-6 py-2 text-sm font-medium transition-all whitespace-nowrap  capitalize opacity-90 hover:opacity-100",
-                    isActive
-                      ? "text-foreground font-semibold"
-                      : "text-muted-foreground hover:text-foreground",
-                  )}
-                >
-                  {link.name}
-                  <span
-                    className={cn(
-                      "absolute bottom-1.5 left-2 right-2 lg:left-4 lg:right-4 h-0.5 bg-primary/80 transition-transform duration-300",
-                      isActive
-                        ? "scale-x-0"
-                        : "scale-x-0 group-hover:scale-x-100",
-                    )}
-                  />
-                </Link>
-              );
-            })}
-          </nav>
-
-          {/* Right: CTA Button */}
-          <div className="flex-1 flex items-center justify-end gap-3 pl-4 lg:pl-8">
-            <Button
-              asChild
-              variant="default"
-              size="icon"
-              className="hidden md:inline-flex rounded-full font-bold hover:scale-105 transition-all shadow-xl shadow-primary/10 h-10 w-10"
-            >
-              <Link href="/cong-trinh">
-                <ArrowRight size={20} className="w-5 h-5" />
               </Link>
-            </Button>
 
-            <Sheet open={isMenuOpen} onOpenChange={setIsMenuOpen}>
-              <SheetTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-10 w-10 md:hidden"
-                >
-                  <Menu size={20} className="w-5 h-5" />
-                </Button>
-              </SheetTrigger>
-              <SheetContent
-                side="top"
-                className="h-[100dvh] pt-2 border-none bg-background/80 backdrop-blur-3xl rounded-b-[3rem]"
-                showCloseButton={false}
-              >
-                <SheetTitle className="sr-only">Menu</SheetTitle>
-                <SheetDescription className="sr-only">
-                  Mobile navigation menu for ELC.
-                </SheetDescription>
-                <nav className="flex flex-col items-center justify-center gap-8 py-10">
+              {/* Desktop Navigation */}
+              <NavigationMenu className="hidden lg:flex px-8">
+                <NavigationMenuList className="gap-2">
                   {navLinks.map((link) => {
                     const isActive =
                       link.href === "/"
                         ? pathname === "/"
                         : pathname.startsWith(link.href);
                     return (
-                      <Link
-                        key={link.name}
-                        href={link.href}
-                        onClick={() => setIsMenuOpen(false)}
-                        className={cn(
-                          "tracking-tighter transition-all active:scale-95",
-                          isActive
-                            ? "text-xl font-bold text-primary"
-                            : "text-xl  font-semibold text-foreground/80 hover:text-primary",
-                        )}
-                      >
-                        {link.name}
-                      </Link>
+                      <NavigationMenuItem key={link.name}>
+                        <NavigationMenuLink
+                          asChild
+                          className={cn(
+                            navigationMenuTriggerStyle(),
+                            "bg-transparent hover:bg-transparent focus:bg-transparent data-[active]:bg-transparent text-sm transition-colors h-9 px-4 hover:text-black hover:underline underline-offset-4",
+                            isActive
+                              ? "font-semibold text-black"
+                              : "font-medium text-black/80",
+                          )}
+                        >
+                          <Link href={link.href}>{link.name}</Link>
+                        </NavigationMenuLink>
+                      </NavigationMenuItem>
                     );
                   })}
-                </nav>
-              </SheetContent>
-            </Sheet>
-          </div>
+                </NavigationMenuList>
+              </NavigationMenu>
+
+              {/* Desktop Actions */}
+              <div className="hidden lg:flex items-center gap-3">
+                <div className="h-6 w-px bg-border mr-2 opacity-50" />
+                <Button
+                  asChild
+                  className={cn(
+                    "rounded-xl border-border px-5 h-10 text-sm font-semibold",
+                    pathname === "/cong-trinh" && "border-2 border-black",
+                  )}
+                >
+                  <Link href="/cong-trinh">Khám phá</Link>
+                </Button>
+              </div>
+
+              {/* Mobile Toggle */}
+              <div className="flex lg:hidden items-center">
+                <CollapsibleTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="p-1 rounded-lg text-black relative w-10 h-10 overflow-hidden"
+                  >
+                    <div className="relative w-6 h-6 flex items-center justify-center">
+                      <Menu
+                        className={cn(
+                          "absolute transition-all duration-500 ease-in-out",
+                          isMenuOpen
+                            ? "opacity-0 rotate-90 scale-50"
+                            : "opacity-100 rotate-0 scale-100",
+                        )}
+                        size={20}
+                      />
+                      <X
+                        className={cn(
+                          "absolute transition-all duration-500 ease-in-out",
+                          isMenuOpen
+                            ? "opacity-100 rotate-0 scale-100"
+                            : "opacity-0 -rotate-90 scale-50",
+                        )}
+                        size={20}
+                      />
+                    </div>
+                  </Button>
+                </CollapsibleTrigger>
+              </div>
+            </div>
+
+            {/* Mobile Menu Content */}
+            <CollapsibleContent className="CollapsibleContent overflow-hidden transition-all duration-500 ease-in-out">
+              <div className="flex flex-col px-6 py-2 border-t border-border">
+                {navLinks.map((link) => {
+                  const isActive =
+                    link.href === "/"
+                      ? pathname === "/"
+                      : pathname.startsWith(link.href);
+                  return (
+                    <Link
+                      key={link.name}
+                      href={link.href}
+                      onClick={() => setIsMenuOpen(false)}
+                      className={cn(
+                        "flex items-center justify-between py-4 text-base transition-colors border-b border-border/50 last:border-b-0 hover:bg-transparent hover:underline underline-offset-4",
+                        isActive
+                          ? "font-bold text-black"
+                          : "font-semibold text-black/80",
+                      )}
+                    >
+                      {link.name}
+                    </Link>
+                  );
+                })}
+                <div className="py-4 last:border-b-0">
+                  <Link
+                    href="/cong-trinh"
+                    onClick={() => setIsMenuOpen(false)}
+                    className={cn(
+                      "text-base transition-colors bg-primary text-foreground-primary underline-offset-4",
+                      pathname === "/cong-trinh"
+                        ? "font-bold text-black"
+                        : "font-semibold text-black/80",
+                    )}
+                  >
+                    Xem công trình
+                  </Link>
+                </div>
+              </div>
+            </CollapsibleContent>
+          </Collapsible>
         </div>
       </header>
-    </>
+    </div>
   );
 }

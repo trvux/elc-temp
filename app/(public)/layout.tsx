@@ -21,6 +21,7 @@ export default async function PublicLayout({
     { data: projects },
     { data: pages },
     { data: settingsData },
+    { data: contacts },
   ] = await Promise.all([
     supabase
       .from("branches")
@@ -31,13 +32,14 @@ export default async function PublicLayout({
       .from("projects")
       .select("title, id, slug, categories(slug)")
       .eq("is_published", true)
-      .limit(6),
+      .limit(10),
     supabase
       .from("pages")
       .select("title, slug")
       .eq("is_published", true)
-      .limit(6),
+      .limit(20),
     supabase.from("site_settings").select("*"),
+    supabase.from("contacts").select("*").order("order_index"),
   ]);
 
   const settings: Record<string, string> = {};
@@ -46,7 +48,7 @@ export default async function PublicLayout({
   });
 
   return (
-    <>
+    <div className="flex flex-col min-h-screen bg-cream">
       <Header />
       <main className="flex-1">{children}</main>
       <Footer
@@ -54,7 +56,8 @@ export default async function PublicLayout({
         projects={projects || []}
         pages={pages || []}
         settings={settings}
+        contacts={contacts || []}
       />
-    </>
+    </div>
   );
 }

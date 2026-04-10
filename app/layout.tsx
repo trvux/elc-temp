@@ -9,7 +9,7 @@ const inter = Inter({
   subsets: ["latin"],
   weight: ["400", "500", "600", "700", "800"],
   variable: "--font-inter",
-  display: "swap",
+  display: "optional",
 });
 
 const crimsonPro = Crimson_Pro({
@@ -17,19 +17,25 @@ const crimsonPro = Crimson_Pro({
   weight: ["400", "500", "600", "700", "800", "900"],
   style: ["normal", "italic"],
   variable: "--font-crimson-pro",
-  display: "swap",
+  display: "optional",
 });
 
 const newsreader = Newsreader({
   subsets: ["latin"],
   style: ["normal", "italic"],
   variable: "--font-newsreader",
-  display: "swap",
+  display: "optional",
 });
 
 export const metadata: Metadata = {
   title: "Điện máy ELC",
   description: "Điện máy ELC",
+  openGraph: {
+    type: "website",
+    siteName: "Điện máy ELC",
+    title: "Điện máy ELC",
+    description: "Điện máy ELC - Giải pháp Không khí thuần khiết",
+  },
 };
 
 export default function RootLayout({

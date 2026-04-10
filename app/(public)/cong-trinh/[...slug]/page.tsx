@@ -48,45 +48,45 @@ export default async function ProjectDetail({
   const images = project.images || [];
 
   return (
-    <main className="w-full pt-30 pb-40 px-container min-h-screen bg-background font-sans tracking-tight">
-      <div className="max-w-[800px] mx-auto">
-        {/* Header: Project Title + Badge on left, TOC on right */}
-        <header className="mb-10 md:mb-14 border-b border-border pb-5 flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
-          <div className="flex flex-col items-start gap-3">
-            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md border border-border text-muted-foreground text-sm md:text-sm font-medium bg-transparent">
-              <svg
-                width="14"
-                height="14"
-                viewBox="0 0 24 24"
-                fill="currentColor"
-                xmlns="http://www.w3.org/2000/svg"
-                className="text-yellow-500"
-              >
-                <path d="M12 2C12 2 12 9 19 12C12 15 12 22 12 22C12 22 12 15 5 12C12 9 12 2 12 2Z" />
-              </svg>
-              {/* Display Category Hierarchy */}
-              {project.categories?.parent?.name
-                ? `${project.categories.parent.name} / ${project.categories.name}`
-                : project.categories?.name || "Dự án"}
-            </span>
-            <h1 className="text-fluid-h1 font-bold tracking-tight text-foreground leading-tight">
+    <main className="w-full pt-28 pb-24 px-4 md:px-6 min-h-screen">
+      <div className="max-w-4xl mx-auto">
+        {/* Header */}
+        <header className="mb-10 border-b border-border pb-5 flex flex-col gap-4">
+          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md border border-border text-muted-foreground text-xs font-medium w-fit">
+            <svg
+              width="12"
+              height="12"
+              viewBox="0 0 24 24"
+              fill="currentColor"
+              xmlns="http://www.w3.org/2000/svg"
+              className="text-yellow-500"
+            >
+              <path d="M12 2C12 2 12 9 19 12C12 15 12 22 12 22C12 22 12 15 5 12C12 9 12 2 12 2Z" />
+            </svg>
+            {project.categories?.parent?.name
+              ? `${project.categories.parent.name} / ${project.categories.name}`
+              : project.categories?.name || "Dự án"}
+          </span>
+
+          <div className="grid grid-cols-2 items-center gap-4">
+            <h1 className="text-xl md:text-2xl font-bold tracking-tight text-foreground leading-tight">
               {project.title}
             </h1>
-          </div>
-          <div className="shrink-0 flex items-center md:pb-1">
-            <InfoTOC
-              pages={allProjects}
-              currentSlug={`${project.categories?.slug ? project.categories.slug + "/" : ""}${project.slug}`}
-              basePath="/cong-trinh"
-            />
+            <div className="flex justify-end">
+              <InfoTOC
+                pages={allProjects}
+                currentSlug={`${project.categories?.slug ? project.categories.slug + "/" : ""}${project.slug}`}
+                basePath="/cong-trinh"
+              />
+            </div>
           </div>
         </header>
 
-        {/* Main Article Section */}
-        <article className="animate-in fade-in duration-1000 ease-out">
-          {/* Hero Image */}
+        {/* Article */}
+        <article>
+          {/* Hero image */}
           {images[0] && (
-            <div className="w-full mb-16 overflow-hidden bg-muted/20">
+            <div className="w-full mb-12 overflow-hidden rounded-sm">
               <AspectRatio ratio={16 / 9}>
                 <Image
                   src={images[0]}
@@ -94,37 +94,39 @@ export default async function ProjectDetail({
                   fill
                   className="object-cover"
                   priority
-                  sizes="(max-width: 800px) 100vw, 800px"
+                  sizes="(max-width: 672px) 100vw, 672px"
                 />
               </AspectRatio>
             </div>
           )}
 
-          {/* Rich Text Editor Content */}
+          {/* Rich text content */}
           <div
-            className="prose prose-zinc prose-lg md:prose-xl max-w-none 
-                font-serif 
-                prose-p:leading-[1.7] prose-p:my-10 prose-p:text-fluid-base prose-p:text-foreground/90
-                prose-headings:font-sans prose-headings:font-bold prose-headings:tracking-tight prose-headings:text-foreground
-                prose-headings:mt-16 prose-headings:mb-6
-                prose-a:text-primary prose-a:underline prose-a:underline-offset-4
-                prose-img:rounded-none prose-img:w-full prose-img:h-auto prose-img:block prose-img:mx-auto prose-img:my-12"
+            className="prose-lg prose-zinc max-w-none
+              font-serif
+              prose-p:leading-relaxed prose-p:my-6 prose-p:text-foreground/90
+              prose-headings:font-sans prose-headings:font-bold prose-headings:tracking-tight prose-headings:text-foreground prose-headings:mt-12 prose-headings:mb-4
+              prose-h1:text-4xl prose-h2:text-3xl prose-h3:text-2xl
+              prose-a:text-primary prose-a:underline prose-a:underline-offset-4
+              prose-blockquote:border-l-2 prose-blockquote:border-border prose-blockquote:pl-4 prose-blockquote:italic prose-blockquote:text-muted-foreground
+              prose-img:rounded-sm prose-img:w-full prose-img:h-auto prose-img:my-10
+              prose-ul:my-6 prose-ol:my-6
+              prose-li:my-1"
             dangerouslySetInnerHTML={{ __html: project.description || "" }}
           />
 
-          {/* Additional Images (if any) */}
+          {/* Additional images */}
           {images.length > 1 && (
-            <div className="mt-20 space-y-12">
+            <div className="mt-16 flex flex-col gap-10">
               {images.slice(1).map((img: string, i: number) => (
-                <div key={i} className="w-full bg-muted/20">
+                <div key={i} className="w-full overflow-hidden rounded-sm">
                   <AspectRatio ratio={3 / 2}>
                     <Image
                       src={img}
                       alt={`${project.title} - ảnh ${i + 1}`}
                       fill
                       className="object-contain"
-                      sizes="(max-width: 800px) 100vw, 800px"
-                      priority
+                      sizes="(max-width: 672px) 100vw, 672px"
                     />
                   </AspectRatio>
                 </div>
@@ -133,12 +135,13 @@ export default async function ProjectDetail({
           )}
         </article>
 
-        {/* Minimal Footer */}
-        <footer className="mt-40 pt-10 border-t border-border flex items-center justify-between text-fluid-xs text-muted-foreground font-medium italic">
-          <span>&copy; {new Date().getFullYear()} ELC Architecture</span>
+        {/* Footer */}
+        <footer className="mt-24 pt-8 border-t border-border flex items-center justify-between text-xs text-muted-foreground">
+          <span>© {new Date().getFullYear()} ELC</span>
+
           <a
             href="#"
-            className="hover:text-primary transition-colors not-italic font-bold capitalize tracking-widest"
+            className="hover:text-foreground transition-colors font-medium uppercase tracking-widest"
           >
             Trở lên đầu trang
           </a>

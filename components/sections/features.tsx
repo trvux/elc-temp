@@ -1,10 +1,17 @@
+"use client";
 import React from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowRight, Percent } from "lucide-react";
-import { Card } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import { Card, CardContent } from "@/components/ui/card";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
+import { Separator } from "@/components/ui/separator";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel";
 
 interface Product {
   id: string;
@@ -28,179 +35,210 @@ interface FeaturesSectionProps {
 }
 
 export function FeaturesSection({ products }: FeaturesSectionProps) {
-  // If no products, show the default features (could happen if DB is empty)
+  const isShowingProducts = products && products.length > 0;
+
   const defaultFeatures = [
     {
-      title: "Tư vấn & Thiết kế",
+      title: "Tư vấn Giải pháp Smarthome",
       description:
-        "Giải pháp chuyên biệt dành cho kiến trúc cao cấp và biệt thự nghỉ dưỡng.",
+        "Thiết kế hệ thống nhà thông minh chuyên biệt, tối ưu hoá trải nghiệm sống hiện đại.",
     },
     {
-      title: "Cung ứng thiết bị",
+      title: "Thiết bị Điện tử Cao cấp",
       description:
-        "Hợp tác chiến lược cùng Samsung, Sony, Panasonic, LG - đảm bảo chính hãng 100%.",
+        "Cung cấp các dòng TV, Loa và thiết bị gia dụng chính hãng từ Samsung, Sony, Panasonic.",
     },
     {
-      title: "Thi công hoàn thiện",
+      title: "Thi công & Lắp đặt Tận tâm",
       description:
-        "Đội ngũ chuyên gia kỹ thuật đảm bảo tính thẩm mỹ tuyệt đối và hiệu suất tối ưu.",
+        "Đội ngũ kỹ thuật viên giàu kinh nghiệm, đảm bảo quy trình lắp đặt chuẩn xác, an toàn.",
     },
     {
-      title: "Thi công hoàn thiện",
+      title: "Bảo hành & Hỗ trợ Kỹ thuật",
       description:
-        "Đội ngũ chuyên gia kỹ thuật đảm bảo tính thẩm mỹ tuyệt đối và hiệu suất tối ưu.",
+        "Dịch vụ hậu mãi chu đáo, hỗ trợ xử lý sự cố nhanh chóng trong vòng 24h.",
     },
   ];
 
-  return (
-    <section className="flex-1 flex flex-col justify-center w-full relative">
-      <div className="pt-24 max-w-7xl px-container pt-section pb-20 sm:pb-28 lg:pb-44 mx-auto w-full">
-        {/* Header */}
-        <div className="relative z-10 mb-6 flex flex-col md:flex-row md:items-end justify-between gap-6">
-          <div className="max-w-2xl">
-            <div className="inline-flex items-center gap-4 mb-8">
-              <Badge
-                variant="outline"
-                className="text-[10px] capitalize tracking-[0.25em] font-medium px-3 py-1 h-auto rounded-full border-border/50"
-              >
-                02 ━ Bộ sưu tập
-              </Badge>
-            </div>
-            <h2 className="text-3xl sm:text-4xl md:text-5xl font-light tracking-tighter mb-4 leading-tight text-foreground">
-              Giải Pháp Thông Minh <br />
-              <span className="text-muted-foreground/80 italic">
-                Độc quyền bởi ELC.
-              </span>
-            </h2>
-          </div>
-          <p className="text-sm md:text-base text-muted-foreground max-w-sm leading-relaxed font-light mb-4 md:mb-0">
-            Chúng tôi tinh tuyển những thiết kế và công nghệ hàng đầu toàn cầu
-            để kiến tạo không gian hoàn mỹ.
-          </p>
-        </div>
+  const title = isShowingProducts ? "Sản phẩm nổi bật" : "Dịch vụ & Giải pháp";
 
-        {/* Grid */}
-        <div className="relative z-10 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 mb-4">
-          {products.length > 0
-            ? products.map((product) => {
-                const productUrl = product.categories?.slug
-                  ? `/san-pham/${product.categories.slug}/${product.slug}`
-                  : `/san-pham/${product.slug}`;
+  const formatPrice = (price: number) =>
+    new Intl.NumberFormat("vi-VN", {
+      style: "currency",
+      currency: "VND",
+    }).format(price);
 
-                const hasDiscount = (product.discount_percent ?? 0) > 0;
+  const ProductCard = ({ product }: { product: Product }) => {
+    const productUrl = product.categories?.slug
+      ? `/san-pham/${product.categories.slug}/${product.slug}`
+      : `/san-pham/${product.slug}`;
+    const hasDiscount = (product.discount_percent ?? 0) > 0;
 
-                return (
-                  <Link
-                    key={product.id}
-                    href={productUrl}
-                    className="group relative flex flex-col gap-5 px-2 py-4 sm:p-6 border border-border -ml-[1px] -mt-[1px] bg-background transition-all duration-500 hover:z-20"
-                  >
-                    <div className="w-full overflow-hidden bg-muted/5 relative">
-                      <AspectRatio ratio={4 / 3}>
-                        {product.images?.[0] ? (
-                          <Image
-                            src={product.images[0]}
-                            alt={product.name}
-                            fill
-                            className="object-contain p-4 transition-transform duration-1000 group-hover:scale-105"
-                            sizes="(max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
-                          />
-                        ) : (
-                          <div className="w-full h-full flex items-center justify-center text-muted-foreground/30 text-[10px] font-bold capitalize tracking-[0.3em]">
-                            Ảnh SP
-                          </div>
-                        )}
-                      </AspectRatio>
-                    </div>
-
-                    <div className="flex flex-col flex-1">
-                      <div className="min-h-[3.5rem] flex flex-col items-start gap-2 mb-3">
-                        <Badge
-                          variant="secondary"
-                          className="text-[8px] sm:text-[9px] px-2 py-0.5 uppercase tracking-wider sm:tracking-widest font-medium whitespace-nowrap shrink-0 w-fit h-auto rounded-sm"
-                        >
-                          {product.categories?.parent?.name
-                            ? `${product.categories.parent.name} / ${product.categories.name}`
-                            : product.categories?.name || "Sản phẩm"}
-                        </Badge>
-                        <h3 className="text-sm md:text-base font-bold text-foreground leading-snug tracking-tight capitalize line-clamp-2 transition-all group-hover:italic">
-                          {product.name}
-                        </h3>
-                      </div>
-
-                      <div className="flex flex-col mb-4">
-                        <span className="text-muted-foreground/60 font-bold tracking-[0.08em] text-[9px] uppercase">
-                          SKU
-                        </span>
-                        <span className="text-foreground/80 font-semibold tracking-[0.05em] text-xs uppercase">
-                          {product.sku || "0000/000"}
-                        </span>
-                      </div>
-
-                      <div className="mt-auto border-t border-border/40 pt-4 flex flex-col gap-1.5 h-16">
-                        {hasDiscount ? (
-                          <>
-                            <span className=" font-bold text-foreground tracking-tight text-xl sm:text-2xl block leading-none">
-                              {new Intl.NumberFormat("vi-VN", {
-                                style: "currency",
-                                currency: "VND",
-                              }).format(product.sale_price || 0)}
-                            </span>
-                            <div className="flex items-center gap-2">
-                              <span className="text-muted-foreground line-through text-[11px] font-semibold">
-                                {new Intl.NumberFormat("vi-VN", {
-                                  style: "currency",
-                                  currency: "VND",
-                                }).format(product.original_price)}
-                              </span>
-                              <div className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-full border border-border/80 bg-background flex-shrink-0 flex-grow-0 h-fit">
-                                <span className="text-[9px] font-bold text-foreground tracking-tighter">
-                                  -{product.discount_percent}
-                                </span>
-                                <Percent
-                                  className="w-2.5 h-2.5"
-                                  strokeWidth={2.5}
-                                />
-                              </div>
-                            </div>
-                          </>
-                        ) : (
-                          <span className="font-bold text-foreground tracking-tight text-xl sm:text-2xl block leading-none">
-                            {new Intl.NumberFormat("vi-VN", {
-                              style: "currency",
-                              currency: "VND",
-                            }).format(product.original_price)}
-                          </span>
-                        )}
-                      </div>
-                    </div>
-
-                    <div className="absolute top-4 right-4 bg-background/90 backdrop-blur text-foreground p-2.5 rounded-full opacity-0 translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-500 shadow-sm border border-border/50 z-20">
-                      <ArrowRight className="h-3 w-3 stroke-[1.5px]" />
-                    </div>
-                  </Link>
-                );
-              })
-            : defaultFeatures.map((feature, i) => (
-                /* 2. Phần fallback cũng sửa tương tự cho đồng bộ */
-                <div
-                  key={i}
-                  className="p-6 group relative flex flex-col items-start border border-border -ml-[1px] -mt-[1px] hover:bg-foreground transition-all duration-300 ease-in-out cursor-pointer hover:z-20"
-                >
-                  <span className="text-[10px] text-muted-foreground mb-4 tracking-widest uppercase group-hover:text-background/70 transition-colors">
-                    0{i + 1}
-                  </span>
-
-                  <h3 className="mb-3 text-sm md:text-base font-medium tracking-tight uppercase text-foreground group-hover:text-background transition-colors">
-                    {feature.title}
-                  </h3>
-
-                  <p className="text-muted-foreground leading-relaxed font-light text-xs md:text-sm group-hover:text-background/80 transition-colors">
-                    {feature.description}
-                  </p>
+    return (
+      <Card className="group overflow-hidden hover:shadow-md transition-all duration-300 h-full flex flex-col">
+        {/* Mobile: ảnh đầu tiên, không carousel */}
+        <div className="block md:hidden">
+          <Link href={productUrl}>
+            <AspectRatio ratio={16 / 9}>
+              {product.images?.[0] ? (
+                <Image
+                  src={product.images[0]}
+                  alt={product.name}
+                  fill
+                  className="object-contain p-3"
+                  sizes="90vw"
+                />
+              ) : (
+                <div className="w-full h-full bg-muted flex items-center justify-center text-muted-foreground text-xs">
+                  No image
                 </div>
-              ))}
+              )}
+            </AspectRatio>
+          </Link>
         </div>
+
+        {/* Desktop: carousel ảnh */}
+        <div className="hidden md:block relative group/carousel">
+          <Carousel className="w-full">
+            <CarouselContent>
+              {product.images?.length > 0 ? (
+                product.images.map((img, idx) => (
+                  <CarouselItem key={idx}>
+                    <Link href={productUrl}>
+                      <AspectRatio ratio={16 / 9}>
+                        <Image
+                          src={img}
+                          alt={`${product.name} - ${idx + 1}`}
+                          fill
+                          className="object-contain p-3"
+                          sizes="(max-width: 1024px) 33vw, 25vw"
+                        />
+                      </AspectRatio>
+                    </Link>
+                  </CarouselItem>
+                ))
+              ) : (
+                <CarouselItem>
+                  <AspectRatio ratio={16 / 9}>
+                    <div className="w-full h-full bg-muted flex items-center justify-center text-muted-foreground text-xs">
+                      No image
+                    </div>
+                  </AspectRatio>
+                </CarouselItem>
+              )}
+            </CarouselContent>
+            {product.images?.length > 1 && (
+              <>
+                <CarouselPrevious className="left-2 h-7 w-7 opacity-0 group-hover/carousel:enabled:opacity-100 disabled:invisible transition-opacity bg-background shadow-sm border-border" />
+                <CarouselNext className="right-2 h-7 w-7 opacity-0 group-hover/carousel:enabled:opacity-100 disabled:invisible transition-opacity bg-background shadow-sm border-border" />
+              </>
+            )}
+          </Carousel>
+        </div>
+
+        {/* Content */}
+        <Link href={productUrl} className="flex-1">
+          <CardContent className="p-3 md:p-4 flex flex-col gap-1.5 h-full">
+            {product.sku && (
+              <span className="text-xs text-muted-foreground uppercase tracking-widest font-medium">
+                {product.sku}
+              </span>
+            )}
+            <h3 className="text-sm font-bold leading-snug line-clamp-2 group-hover:underline underline-offset-4 flex-1">
+              {product.name}
+            </h3>
+            <div className="mt-2 flex flex-col gap-1">
+              <span className="text-base md:text-lg font-bold tracking-tight">
+                {formatPrice(product.sale_price || product.original_price)}
+              </span>
+              {hasDiscount && (
+                <div className="flex items-center gap-2">
+                  <span className="text-md text-muted-foreground line-through">
+                    {formatPrice(product.original_price)}
+                  </span>
+                  <span className="text-xs font-bold bg-foreground text-background px-1.5 py-0.5 rounded-sm">
+                    -{product.discount_percent}%
+                  </span>
+                </div>
+              )}
+            </div>
+          </CardContent>
+        </Link>
+      </Card>
+    );
+  };
+
+  const DefaultCard = ({
+    feature,
+    index,
+  }: {
+    feature: (typeof defaultFeatures)[0];
+    index: number;
+  }) => (
+    <Card className="group p-5 flex flex-col hover:shadow-md transition-all duration-300 h-full">
+      <span className="text-4xl font-newsreader opacity-60 mb-5">
+        {String(index + 1).padStart(2, "0")}
+      </span>
+      <Separator className="mb-5" />
+      <h3 className="text-sm font-medium mb-2 group-hover:underline underline-offset-4">
+        {feature.title}
+      </h3>
+      <p className="text-xs text-muted-foreground leading-relaxed line-clamp-4 flex-1">
+        {feature.description}
+      </p>
+    </Card>
+  );
+
+  return (
+    <section>
+      <div className="max-w-7xl mx-auto px-4 md:px-6">
+        <h2 className="text-3xl md:text-4xl lg:text-5xl font-newsreader tracking-tight mb-10 md:mb-14">
+          {title}
+        </h2>
+
+        {/* PRODUCT */}
+        {isShowingProducts && (
+          <>
+            {/* Mobile: Carousel */}
+            <div className="block md:hidden">
+              <Carousel opts={{ align: "center", dragFree: false }}>
+                <CarouselContent>
+                  {products.map((product) => (
+                    <CarouselItem key={product.id} className="basis-full">
+                      <ProductCard product={product} />
+                    </CarouselItem>
+                  ))}
+                </CarouselContent>
+              </Carousel>
+            </div>
+
+            {/* Tablet 3 cột, Desktop 4 cột */}
+            <div className="hidden md:grid md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
+              {products.map((product) => (
+                <ProductCard key={product.id} product={product} />
+              ))}
+            </div>
+          </>
+        )}
+
+        {/* DEFAULT */}
+        {!isShowingProducts && (
+          <>
+            {/* Mobile: 1 cột, không carousel */}
+            <div className="grid grid-cols-1 md:hidden gap-4">
+              {defaultFeatures.map((feature, i) => (
+                <DefaultCard key={i} feature={feature} index={i} />
+              ))}
+            </div>
+
+            {/* Tablet 2 cột, Desktop 4 cột */}
+            <div className="hidden md:grid md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+              {defaultFeatures.map((feature, i) => (
+                <DefaultCard key={i} feature={feature} index={i} />
+              ))}
+            </div>
+          </>
+        )}
       </div>
     </section>
   );

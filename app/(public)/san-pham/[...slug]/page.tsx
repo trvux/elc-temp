@@ -4,6 +4,18 @@ import Image from "next/image";
 import { Percent } from "lucide-react";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
 import { OrderButton } from "@/components/user/order-button";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+
+import { ProductDescription } from "@/components/user/product-description";
 
 interface SpecSubItem {
   label: string;
@@ -28,14 +40,10 @@ export default async function ProductDetail({
 
   const supabase = await createClient();
 
-  // Define interfaces for better typing
   interface CategoryData {
     name: string;
     slug: string;
-    parent?: {
-      name: string;
-      slug: string;
-    } | null;
+    parent?: { name: string; slug: string } | null;
   }
 
   interface ProductData {
@@ -77,9 +85,7 @@ export default async function ProductDetail({
       { data: any[] | null },
     ];
 
-  if (!rawProduct) {
-    notFound();
-  }
+  if (!rawProduct) notFound();
 
   const product = rawProduct;
   const leafCat = categoriesData?.find((c) => c.slug === leafCategorySlug);
@@ -91,201 +97,136 @@ export default async function ProductDetail({
     ? `${parentCat.name} / ${leafCat?.name || product.categories?.name}`
     : leafCat?.name || product.categories?.name;
 
-  // Handle specifications normalization
   const normalizedSpecs: SpecItem[] = Array.isArray(product.specs)
     ? product.specs
     : Object.entries((product.specs as Record<string, string>) || {}).map(
-        ([label, value]) => ({
-          label,
-          value: String(value),
-        }),
+        ([label, value]) => ({ label, value: String(value) }),
       );
 
   const finalPrice = product.sale_price || product.original_price;
+  const images = product.images || [];
+
+  // Group specs by section headers (specs with no value but have items, or ALL-CAPS labels)
+  const isSectionHeader = (spec: SpecItem) =>
+    spec.label === spec.label.toUpperCase() &&
+    spec.label.length > 3 &&
+    !spec.value &&
+    !spec.items;
 
   return (
-    <main className="w-full bg-background pt-30 pb-40 font-sans">
-      <div className="mx-auto w-full px-container max-w-[1400px]">
-        <div className="flex flex-col lg:flex-row gap-12 lg:gap-24 xl:gap-32">
-          {/* LEFT: Product Images Area - Slimmer & Centered Look */}
-          <div className="lg:w-[55%] space-y-8">
-            <div className="w-full  overflow-hidden">
-              <AspectRatio ratio={4 / 3}>
-                {product.images?.[0] && (
-                  <Image
-                    src={product.images[0]}
-                    alt={product.name}
-                    fill
-                    className="object-contain p-8"
-                    priority
-                    sizes="(max-width: 1024px) 100vw, 50vw"
-                  />
+    <main className="w-full pt-24 pb-24 px-4 md:px-6">
+      <div className="mx-auto w-full max-w-7xl">
+        {/* TOP: Carousel + Product Info */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-start">
+          {/* Carousel */}
+          <div className="space-y-4">
+            <div className="w-full bg-white border border-border/50 rounded-2xl overflow-hidden shadow-sm">
+              <Carousel className="w-full">
+                <CarouselContent>
+                  {images.length > 0 ? (
+                    images.map((img: string, i: number) => (
+                      <CarouselItem key={i}>
+                        <AspectRatio ratio={4 / 3}>
+                          <Image
+                            src={img}
+                            alt={`${product.name} - ${i + 1}`}
+                            fill
+                            className="object-contain p-6 md:p-10"
+                            priority={i === 0}
+                            sizes="(max-width: 1024px) 100vw, 50vw"
+                          />
+                        </AspectRatio>
+                      </CarouselItem>
+                    ))
+                  ) : (
+                    <CarouselItem>
+                      <AspectRatio ratio={4 / 3}>
+                        <div className="w-full h-full flex items-center justify-center text-muted-foreground text-xs uppercase tracking-widest">
+                          Chưa có ảnh
+                        </div>
+                      </AspectRatio>
+                    </CarouselItem>
+                  )}
+                </CarouselContent>
+                {images.length > 1 && (
+                  <>
+                    <CarouselPrevious className="left-4 opacity-50 hover:opacity-100 transition-opacity" />
+                    <CarouselNext className="right-4 opacity-50 hover:opacity-100 transition-opacity" />
+                  </>
                 )}
-              </AspectRatio>
+              </Carousel>
             </div>
-
-            {/* Grid for other images */}
-            {product.images && product.images.length > 1 && (
-              <div className="grid grid-cols-2 gap-4">
-                {product.images.slice(1).map((img: string, i: number) => (
-                  <div key={i}>
-                    <AspectRatio ratio={4 / 3}>
-                      <Image
-                        src={img}
-                        alt={`${product.name} ${i}`}
-                        fill
-                        className="object-contain p-4"
-                        sizes="(max-width: 1024px) 50vw, 25vw"
-                      />
-                    </AspectRatio>
-                  </div>
-                ))}
-              </div>
-            )}
           </div>
 
-          {/* RIGHT: Product Information (Sticky & Slim) */}
-          <div className="lg:w-[320px] xl:w-[380px] shrink-0 h-fit lg:sticky lg:top-36">
-            <div className="space-y-6">
-              {/* Name, SKU & Price Header */}
-              <div className="space-y-4">
-                <div className="space-y-1">
-                  <h1 className="text-subtitle font-bold text-foreground leading-tight tracking-tight capitalize">
-                    {product.name}
-                  </h1>
-                  <div className="flex flex-col pt-1">
-                    <span className="text-[10px] text-muted-foreground font-bold capitalize tracking-[0.1em]">
-                      SKU
-                    </span>
-                    <span className="text-[14px] text-foreground/80 font-bold capitalize tracking-[0.05em]">
-                      {product.sku || "0000/000"}
-                    </span>
-                  </div>
-                </div>
-
-                <div className="space-y-1.5 flex flex-col pt-2">
-                  <p className="text-4xl font-bold text-foreground tracking-tight leading-none">
-                    {new Intl.NumberFormat("vi-VN", {
-                      style: "currency",
-                      currency: "VND",
-                    }).format(finalPrice)}
+          {/* Product Info */}
+          <div className="lg:sticky lg:top-24 h-fit">
+            <div className="space-y-8">
+              {/* Name */}
+              <div className="space-y-2">
+                <h1 className="text-3xl md:text-4xl font-bold text-foreground leading-tight tracking-tight">
+                  {product.name}
+                </h1>
+                {product.sku && (
+                  <p className="text-xs text-muted-foreground font-semibold uppercase tracking-[0.2em]">
+                    SKU:{" "}
+                    <span className="text-foreground/80">{product.sku}</span>
                   </p>
-                  {product.discount_percent > 0 && (
-                    <div className="flex items-center gap-4">
-                      <span className="text-muted-foreground line-through text-base-fluid font-bold">
-                        {new Intl.NumberFormat("vi-VN", {
-                          style: "currency",
-                          currency: "VND",
-                        }).format(product.original_price)}
-                      </span>
-                      {/* Discount Badge - Squared and Transparent */}
-                      <div className="inline-flex items-center gap-2 px-3 py-1 rounded-md border border-border bg-transparent">
-                        <span className="text-[13px] font-bold text-foreground">
-                          -{product.discount_percent}
-                        </span>
-                        <Percent className="w-4 h-4" strokeWidth={2} />
-                      </div>
-                    </div>
-                  )}
-                </div>
+                )}
               </div>
 
-              <div className="h-px w-full bg-border mt-2" />
+              {/* Price */}
+              <div className="space-y-2">
+                <p className="text-3xl md:text-4xl font-bold text-foreground tracking-tight">
+                  {new Intl.NumberFormat("vi-VN", {
+                    style: "currency",
+                    currency: "VND",
+                  }).format(finalPrice)}
+                </p>
+                {product.discount_percent > 0 && (
+                  <div className="flex items-center gap-3">
+                    <span className="text-muted-foreground line-through text-base">
+                      {new Intl.NumberFormat("vi-VN", {
+                        style: "currency",
+                        currency: "VND",
+                      }).format(product.original_price)}
+                    </span>
+                    <Badge
+                      variant="outline"
+                      className="gap-0.5 text-xs font-bold px-2 py-0.5 border-primary/20 bg-primary/5 text-primary"
+                    >
+                      -{product.discount_percent}
+                      <Percent className="w-3 h-3" strokeWidth={3} />
+                    </Badge>
+                  </div>
+                )}
+              </div>
 
-              {/* Action & Category info */}
-              <div className="space-y-6">
-                <div className="text-sm text-muted-foreground font-bold capitalize tracking-tight leading-none">
-                  {categoryDisplay}
-                </div>
+              <Separator className="opacity-50" />
 
+              {/* Category + CTA */}
+              <div className="space-y-4">
+                {categoryDisplay && (
+                  <div className="flex items-center gap-2">
+                    <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/60">
+                      Danh mục:
+                    </span>
+                    <p className="text-xs font-bold text-foreground/80 uppercase tracking-wider">
+                      {categoryDisplay}
+                    </p>
+                  </div>
+                )}
                 <OrderButton contacts={contacts || []} />
               </div>
 
-              {/* Technical Specifications */}
-              {normalizedSpecs.length > 0 && (
-                <div className="pt-8 space-y-5">
-                  <h4 className="text-md font-bold text-foreground capitalize tracking-tight">
-                    Thông số kỹ thuật
-                  </h4>
-                  <div className="space-y-4">
-                    {normalizedSpecs
-                      .filter(
-                        (spec) =>
-                          spec.label &&
-                          (spec.value ||
-                            (spec.items && spec.items.some((i) => i.value))),
-                      )
-                      .map((spec, idx) => (
-                        <div
-                          key={idx}
-                          className="border-b border-border/40 pb-3 last:border-0"
-                        >
-                          <div className="grid grid-cols-[1.1fr_1.9fr] gap-4">
-                            <span className="text-sm text-muted-foreground font-medium py-1">
-                              {spec.label}
-                            </span>
-                            <div className="flex flex-col gap-1.5 py-1">
-                              {spec.value && (
-                                <span className="text-sm font-medium text-muted-foreground">
-                                  {spec.value}
-                                </span>
-                              )}
-                              {spec.items && spec.items.length > 0 && (
-                                <div className="space-y-1.5">
-                                  {spec.items
-                                    .filter((item) => item.value)
-                                    .map((item, i) => (
-                                      <div
-                                        key={i}
-                                        className="text-sm font-medium text-muted-foreground leading-tight"
-                                      >
-                                        {item.label && (
-                                          <span className="text-sm text-muted-foreground font-medium capitalize tracking-normal mr-1.5">
-                                            {item.label}:
-                                          </span>
-                                        )}
-                                        {item.value}
-                                        {item.unit && (
-                                          <span className="text-sm text-muted-foreground font-medium uppercase tracking-normal ml-1">
-                                            {item.unit}
-                                          </span>
-                                        )}
-                                      </div>
-                                    ))}
-                                </div>
-                              )}
-                            </div>
-                          </div>
-                        </div>
-                      ))}
-                  </div>
-                </div>
-              )}
-
-              {/* Description (Product Overview) */}
-              <div className="pt-8 space-y-5 border-t border-zinc-50 mt-10">
-                <h4 className="text-md font-bold text-foreground capitalize tracking-tight">
-                  Tổng quan sản phẩm
-                </h4>
-                <div
-                  className="prose prose-zinc max-w-none 
-                    text-base-fluid leading-[1.65] text-muted-foreground font-medium tracking-wide
-                    prose-p:mb-4 prose-img:w-full prose-img:h-auto prose-img:rounded-sm"
-                  dangerouslySetInnerHTML={{
-                    __html: product.description || "",
-                  }}
-                />
-              </div>
-
-              {/* Service Links */}
-              <div className="pt-12 space-y-3">
+              {/* Service links */}
+              <div className="pt-2 flex flex-wrap gap-x-6 gap-y-3">
                 {[
                   "Kiểm tra tình trạng hàng",
                   "Chính sách vận chuyển & Lắp đặt",
                 ].map((item) => (
                   <button
                     key={item}
-                    className="block text-[10px] font-bold capitalize tracking-[0.15em] text-foreground hover:opacity-50 underline underline-offset-4"
+                    className="text-[10px] font-bold text-muted-foreground hover:text-foreground underline underline-offset-4 uppercase tracking-[0.15em] transition-colors"
                   >
                     {item}
                   </button>
@@ -293,6 +234,107 @@ export default async function ProductDetail({
               </div>
             </div>
           </div>
+        </div>
+
+        {/* BOTTOM: Tabs */}
+        <div className="mt-20">
+          <Tabs defaultValue="specs" className="w-full">
+            <TabsList className="mx-auto w-fit">
+              {normalizedSpecs.length > 0 && (
+                <TabsTrigger value="specs">
+                  Thông số kỹ thuật
+                </TabsTrigger>
+              )}
+              {product.description && (
+                <TabsTrigger value="description">
+                  Mô tả sản phẩm
+                </TabsTrigger>
+              )}
+            </TabsList>
+
+            {normalizedSpecs.length > 0 && (
+              <TabsContent
+                value="specs"
+                className="pt-10 focus-visible:outline-none"
+              >
+                <div className="max-w-4xl mx-auto">
+                  <div className="rounded-xl border border-border/50 overflow-hidden divide-y divide-border/40 bg-white/50">
+                    {normalizedSpecs
+                      .filter(
+                        (spec) =>
+                          spec.label &&
+                          (spec.value ||
+                            (spec.items && spec.items.some((i) => i.value)) ||
+                            isSectionHeader(spec)),
+                      )
+                      .map((spec, idx) => {
+                        if (isSectionHeader(spec)) {
+                          return (
+                            <div key={idx} className="bg-muted/40 px-4 py-3">
+                              <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-foreground/60">
+                                {spec.label}
+                              </span>
+                            </div>
+                          );
+                        }
+
+                        return (
+                          <div
+                            key={idx}
+                            className="grid grid-cols-[1fr_1.5fr] bg-transparent hover:bg-muted/20 transition-colors"
+                          >
+                            <div className="px-4 py-3.5 border-r border-border/40">
+                              <span className="text-xs font-medium text-muted-foreground leading-snug">
+                                {spec.label}
+                              </span>
+                            </div>
+                            <div className="px-4 py-3.5 flex flex-col gap-1">
+                              {spec.value && (
+                                <span className="text-xs font-semibold text-foreground">
+                                  {spec.value}
+                                </span>
+                              )}
+                              {spec.items &&
+                                spec.items
+                                  .filter((i) => i.value)
+                                  .map((item, i) => (
+                                    <span
+                                      key={i}
+                                      className="text-xs font-semibold text-foreground leading-snug"
+                                    >
+                                      {item.label && (
+                                        <span className="text-muted-foreground/70 font-medium mr-1.5">
+                                          {item.label}:
+                                        </span>
+                                      )}
+                                      {item.value}
+                                      {item.unit && (
+                                        <span className="text-muted-foreground/60 ml-1.5 uppercase text-[9px] tracking-wider">
+                                          {item.unit}
+                                        </span>
+                                      )}
+                                    </span>
+                                  ))}
+                            </div>
+                          </div>
+                        );
+                      })}
+                  </div>
+                </div>
+              </TabsContent>
+            )}
+
+            {product.description && (
+              <TabsContent
+                value="description"
+                className="pt-10 focus-visible:outline-none"
+              >
+                <div className="max-w-4xl mx-auto prose prose-slate prose-sm md:prose-base dark:prose-invert">
+                  <ProductDescription content={product.description} />
+                </div>
+              </TabsContent>
+            )}
+          </Tabs>
         </div>
       </div>
     </main>

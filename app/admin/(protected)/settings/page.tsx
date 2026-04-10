@@ -139,6 +139,30 @@ const SETTINGS_CONFIG = [
       },
     ],
   },
+  {
+    section: "Mạng xã hội",
+    description: "Cấu hình các đường dẫn mạng xã hội hiển thị ở chân trang.",
+    fields: [
+      {
+        key: "facebook_url",
+        label: "Facebook URL",
+        placeholder: "https://facebook.com/yourpage",
+        type: "input",
+      },
+      {
+        key: "messenger_url",
+        label: "Messenger URL",
+        placeholder: "https://m.me/yourpage",
+        type: "input",
+      },
+      {
+        key: "youtube_url",
+        label: "YouTube URL",
+        placeholder: "https://youtube.com/@yourchannel",
+        type: "input",
+      },
+    ],
+  },
 ];
 
 export default function SettingsPage() {

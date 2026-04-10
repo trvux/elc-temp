@@ -17,102 +17,89 @@ export default async function ProductsHub() {
   const products = allProducts || [];
 
   return (
-    <main className="w-full bg-background pt-24 pb-48 font-sans">
-      {/* Centered Container with Fluid Padding */}
-      <div className="mx-auto w-full px-container max-w-[1400px]">
-        {/* Clean Header - Centered */}
-        <header className="py-20 flex flex-col items-center text-center space-y-4">
-          <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight text-foreground">
-            Giải Pháp Thông Minh
+    <main className="w-full pt-24 pb-24">
+      <div className="mx-auto w-full px-4 md:px-6 max-w-7xl">
+        {/* Header */}
+        <header className="py-16 flex flex-col items-center text-center gap-3">
+          <h1 className="font-newsreader text-4xl md:text-5xl lg:text-6xl italic leading-tight">
+            Giải pháp thông minh
           </h1>
-          <p className="text-xs md:text-sm text-muted-foreground tracking-widest capitalize font-medium">
-            {products.length} Giải pháp chuyên nghiệp
+          <p className="text-xs text-muted-foreground tracking-widest uppercase font-medium">
+            {products.length} giải pháp chuyên nghiệp
           </p>
         </header>
 
-        {/* Zara Editorial Grid - Much more spacious */}
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-8 md:gap-x-12 xl:gap-x-16 gap-y-24 md:gap-y-32 lg:gap-y-40">
+        {/* Grid */}
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-6 gap-y-12 md:gap-y-16">
           {products.map((product, index) => (
             <Link
               key={product.id}
               href={`/san-pham/${product.categories?.slug ? product.categories.slug + "/" : ""}${product.slug}`}
               className="group flex flex-col"
             >
-              <div className="w-full overflow-hidden bg-muted/5">
+              {/* Ảnh */}
+              <div className="w-full overflow-hidden bg-background rounded-lg">
                 <AspectRatio ratio={4 / 3}>
                   {product.images?.[0] ? (
                     <Image
                       src={product.images[0]}
                       alt={product.name}
                       fill
-                      className="object-contain p-4 transition-transform duration-1000 group-hover:scale-105"
-                      sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 25vw"
+                      className="object-contain p-3 transition-transform duration-700 group-hover:scale-105"
+                      sizes="(max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
                       priority={index === 0}
                     />
                   ) : (
-                    <div className="w-full h-full flex items-center justify-center text-muted-foreground/30 text-[10px] font-bold capitalize tracking-[0.3em]">
-                      Ảnh SP
+                    <div className="w-full h-full flex items-center justify-center text-muted-foreground/30 text-xs tracking-widest uppercase">
+                      Chưa có ảnh
                     </div>
                   )}
                 </AspectRatio>
               </div>
 
-              {/* Info with fixed layout to ensure alignment */}
-              <div className="mt-6 flex flex-col flex-1 px-0.5">
-                {/* Fixed height for name to ensure alignment */}
-                <div className="min-h-[3.5rem]">
-                  <h3 className="text-base md:text-lg font-bold text-foreground leading-tight tracking-tight capitalize line-clamp-2">
-                    {product.name}
-                  </h3>
-                </div>
-
-                <div className="flex flex-col mt-1">
-                  <span className="text-muted-foreground/60 font-bold tracking-[0.05em] text-[10px] capitalize">
-                    SKU
+              {/* Info */}
+              <div className="mt-4 flex flex-col gap-1.5">
+                <h3 className="text-sm font-bold text-foreground leading-snug line-clamp-2 group-hover:underline underline-offset-4">
+                  {product.name}
+                </h3>
+                {product.sku && (
+                  <span className="text-xs text-muted-foreground uppercase tracking-wider">
+                    {product.sku}
                   </span>
-                  <span className="text-foreground/80 font-bold tracking-[0.05em] text-[12px] capitalize">
-                    {product.sku || "0000/000"}
+                )}
+                <div className="mt-1 flex flex-col gap-0.5">
+                  <span className="text-base md:text-lg font-bold tracking-tight">
+                    {new Intl.NumberFormat("vi-VN", {
+                      style: "currency",
+                      currency: "VND",
+                    }).format(product.sale_price || product.original_price)}
                   </span>
-                </div>
-
-                <div className="mt-auto pt-4 flex flex-col gap-2 h-16 md:h-20">
-                  {product.discount_percent > 0 ? (
-                    <>
-                      <span className="font-bold text-foreground tracking-tight text-xl md:text-2xl block leading-none">
+                  {product.discount_percent > 0 && (
+                    <div className="flex items-center gap-2">
+                      <span className="text-md text-muted-foreground line-through">
                         {new Intl.NumberFormat("vi-VN", {
                           style: "currency",
                           currency: "VND",
-                        }).format(product.sale_price)}
+                        }).format(product.original_price)}
                       </span>
-                      <div className="flex items-center gap-3">
-                        <span className="text-muted-foreground line-through text-sm md:text-md font-bold">
-                          {new Intl.NumberFormat("vi-VN", {
-                            style: "currency",
-                            currency: "VND",
-                          }).format(product.original_price)}
-                        </span>
-                        {/* Discount Badge */}
-                        <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md border border-border bg-transparent flex-shrink-0 flex-grow-0 h-fit">
-                          <span className="text-[11px] font-bold text-foreground tracking-tight">
-                            -{product.discount_percent}
-                          </span>
-                          <Percent className="w-4 h-4" strokeWidth={2} />
-                        </div>
-                      </div>
-                    </>
-                  ) : (
-                    <span className="font-bold text-foreground tracking-tight text-xl md:text-2xl block leading-none">
-                      {new Intl.NumberFormat("vi-VN", {
-                        style: "currency",
-                        currency: "VND",
-                      }).format(product.original_price)}
-                    </span>
+                      <span className="text-xs font-bold bg-foreground text-background px-1.5 py-0.5 rounded-sm">
+                        -{product.discount_percent}%
+                      </span>
+                    </div>
                   )}
                 </div>
               </div>
             </Link>
           ))}
         </div>
+
+        {!products.length && (
+          <div className="py-24 text-center">
+            <p className="text-muted-foreground/60 italic text-sm">
+              Hiện chưa có sản phẩm nào.
+            </p>
+          </div>
+        )}
       </div>
     </main>
   );
