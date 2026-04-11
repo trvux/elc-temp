@@ -89,7 +89,7 @@ export function OrderButton({ contacts }: OrderButtonProps) {
   const TriggerButton = (
     <Button
       variant="ghost"
-      className="w-full border border-foreground text-sm font-bold capitalize tracking-tight rounded-none hover:bg-foreground hover:text-background transition-all duration-300 outline-none"
+      className="w-full border border-foreground text-lg py-5 font-bold capitalize tracking-tight rounded-none hover:bg-foreground hover:text-background transition-all duration-300 outline-none"
     >
       Đặt hàng
     </Button>
@@ -155,17 +155,21 @@ export function OrderButton({ contacts }: OrderButtonProps) {
   if (isMobile) {
     return (
       <Drawer>
-        <DrawerTrigger asChild>{TriggerButton}</DrawerTrigger>
-        <DrawerContent className="px-container pb-12">
+        <DrawerTrigger asChild>
+          <Button asChild size="lg" className="w-full sm:w-auto px-10 h-12">
+            {TriggerButton}
+          </Button>
+        </DrawerTrigger>
+        <DrawerContent className="px-4 pb-12 bg-cream">
           <DrawerHeader className="px-0 pt-8 pb-4">
-            <DrawerTitle className="text-left text-sm font-bold capitalize tracking-tight text-foreground">
-              Liên hệ đặt hàng
+            <DrawerTitle className="text-left text-sm font-bold text-primary">
+              Kênh liên hệ hỗ trợ
             </DrawerTitle>
-            <DrawerDescription className="text-left text-[11px]">
-              Vui lòng chọn kênh liên hệ để được hỗ trợ tốt nhất.
+            <DrawerDescription className="text-left text-xs">
+              Vui lòng chọn kênh liên hệ để chúng tôi hỗ trợ bạn tốt nhất.
             </DrawerDescription>
           </DrawerHeader>
-          <div className="flex flex-col gap-1 -mx-2">
+          <div className="flex flex-col gap-1">
             {contacts.map((contact) => renderContactItem(contact))}
           </div>
         </DrawerContent>
@@ -175,10 +179,18 @@ export function OrderButton({ contacts }: OrderButtonProps) {
 
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger asChild>{TriggerButton}</DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="p-2">
-        <DropdownMenuLabel className="px-3 py-2 text-sm font-bold capitalize tracking-tight text-foreground">
-          Liên hệ đặt hàng
+      <DropdownMenuTrigger asChild>
+        <Button asChild size="lg" className="h-12">
+          {TriggerButton}
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent
+        align="center"
+        side="bottom"
+        className="w-[var(--radix-dropdown-menu-trigger-width)] p-2 bg-cream"
+      >
+        <DropdownMenuLabel className="text-sm font-bold text-primary">
+          Kênh liên hệ hỗ trợ
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
         {contacts.map((contact) => (

@@ -100,18 +100,14 @@ export function CTASection({ settings, contacts }: CTASectionProps) {
     const content = (
       <>
         <Icon
-          size={isDropdown ? 18 : 22}
+          size={20}
           className="text-muted-foreground group-hover:text-primary transition-colors shrink-0"
         />
         <div className="flex flex-col gap-0.5 min-w-0 text-left">
-          <span
-            className={`${isDropdown ? "text-xs" : "text-sm"} font-medium truncate`}
-          >
+          <span className="text-sm font-medium truncate">
             {contact.label || contact.type}
           </span>
-          <span
-            className={`${isDropdown ? "text-[10px]" : "text-xs"} text-muted-foreground truncate`}
-          >
+          <span className="text-xs text-muted-foreground truncate">
             {contact.value}
           </span>
         </div>
@@ -161,13 +157,13 @@ export function CTASection({ settings, contacts }: CTASectionProps) {
           {isMobile ? (
             <Drawer>
               <DrawerTrigger asChild>
-                <Button size="lg" className="w-full sm:w-auto px-22 h-12">
+                <Button size="lg" className="w-full sm:w-auto px-10 h-12">
                   {primaryBtnText}
                 </Button>
               </DrawerTrigger>
-              <DrawerContent className="px-4 pb-12">
+              <DrawerContent className="px-4 pb-12 bg-cream">
                 <DrawerHeader className="px-0 pt-8 pb-4">
-                  <DrawerTitle className="text-left text-sm font-semibold">
+                  <DrawerTitle className="text-left text-sm font-bold text-primary">
                     Kênh liên hệ hỗ trợ
                   </DrawerTitle>
                   <DrawerDescription className="text-left text-xs">
@@ -189,9 +185,9 @@ export function CTASection({ settings, contacts }: CTASectionProps) {
               <DropdownMenuContent
                 align="center"
                 side="bottom"
-                className="w-64 p-2"
+                className="w-64 p-2 bg-cream"
               >
-                <DropdownMenuLabel className="text-xs font-bold tracking-wide px-3 py-2">
+                <DropdownMenuLabel className="text-sm font-bold text-primary">
                   Kênh liên hệ hỗ trợ
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
