@@ -138,7 +138,7 @@ export function ProductSearch({ categories }: ProductSearchProps) {
       {/* Row 1: Category + Search */}
       <div className="flex flex-col sm:flex-row gap-3">
         <Select value={currentCategory} onValueChange={handleCategoryChange}>
-          <SelectTrigger className="data-[size=default]:h-10 w-full sm:w-52">
+          <SelectTrigger className=" w-full sm:w-52">
             <SelectValue placeholder="Tất cả danh mục" />
           </SelectTrigger>
           <SelectContent className="bg-cream">
@@ -169,37 +169,40 @@ export function ProductSearch({ categories }: ProductSearchProps) {
           </SelectContent>
         </Select>
 
-        <InputGroup className="flex-1 h-10">
+        <InputGroup className="flex-1">
           <InputGroupAddon align="inline-start">
             <InputGroupText>
               <Search />
             </InputGroupText>
           </InputGroupAddon>
           <InputGroupInput
+            className="h-full text-sm"
             placeholder="Tìm tên, SKU, thông số (9000 BTU, inverter...)"
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
           />
-          {inputValue && (
-            <InputGroupAddon align="inline-end">
-              <InputGroupButton size="icon-sm" onClick={clearSearch}>
-                <X />
-              </InputGroupButton>
-            </InputGroupAddon>
-          )}
+          <InputGroupAddon align="inline-end">
+            <InputGroupButton
+              size="icon-sm"
+              onClick={clearSearch}
+              className={inputValue ? "" : "opacity-0 pointer-events-none"}
+            >
+              <X />
+            </InputGroupButton>
+          </InputGroupAddon>
         </InputGroup>
       </div>
 
       {/* Row 2: Price slider */}
       <div className="flex flex-col gap-2">
         <div className="flex items-center justify-between">
-          <span className="text-xs font-medium text-foreground capitalize tracking-widest">
+          <span className="text-sm font-medium text-foreground capitalize tracking-tight">
             Khoảng giá
           </span>
           {priceLabel ? (
-            <span className="text-xs font-semibold">{priceLabel}</span>
+            <span className="text-sm font-semibold">{priceLabel}</span>
           ) : (
-            <span className="text-xs text-muted-foreground">
+            <span className="text-sm text-muted-foreground">
               Tất cả mức giá
             </span>
           )}
