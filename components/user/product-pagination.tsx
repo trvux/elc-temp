@@ -11,13 +11,29 @@ import {
 interface ProductPaginationProps {
   currentPage: number;
   totalPages: number;
+  searchQuery?: string;
+  categorySlug?: string;
+  minPrice?: number;
+  maxPrice?: number;
 }
 
 export function ProductPagination({
   currentPage,
   totalPages,
+  searchQuery,
+  categorySlug,
+  minPrice,
+  maxPrice,
 }: ProductPaginationProps) {
-  const getPageUrl = (page: number): string => `?page=${page}`;
+  const getPageUrl = (page: number): string => {
+    const params = new URLSearchParams();
+    if (searchQuery) params.set("q", searchQuery);
+    if (categorySlug) params.set("category", categorySlug);
+    if (minPrice !== undefined) params.set("minPrice", String(minPrice));
+    if (maxPrice !== undefined) params.set("maxPrice", String(maxPrice));
+    params.set("page", String(page));
+    return `?${params.toString()}`;
+  };
 
   const renderPageLinks = (): (import("react").JSX.Element | null)[] => {
     const pages: number[] = [];
