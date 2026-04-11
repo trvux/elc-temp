@@ -176,7 +176,7 @@ export function ProductSearch({ categories }: ProductSearchProps) {
             </InputGroupText>
           </InputGroupAddon>
           <InputGroupInput
-            className="h-full text-sm"
+            className="h-full text-base sm:text-sm"
             placeholder="Tìm tên, SKU, thông số (9000 BTU, inverter...)"
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
