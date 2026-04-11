@@ -57,10 +57,10 @@ export default async function StaticPage({ params }: PageProps) {
   }
 
   return (
-    <main className="w-full pt-30 pb-40 px-container min-h-screen bg-background font-sans tracking-tight">
-      <div className="max-w-[750px] mx-auto">
+    <main className="w-full pt-28 pb-24 px-4 md:px-6 min-h-screen font-sans tracking-tight">
+      <div className="max-w-4xl mx-auto">
         {/* Simplified Header - Match Medium 1:1 minimalist style */}
-        <header className="mb-12 border-b border-border pb-4 flex items-center justify-between">
+        <header className="mb-10 border-b border-border pb-4 flex items-center justify-between">
           <div className="text-md md:text-lg font-bold capitalize tracking-widest text-foreground opacity-90 truncate">
             {page.title}
           </div>
@@ -92,7 +92,7 @@ export default async function StaticPage({ params }: PageProps) {
           />
         </article>
 
-        <footer className="flex items-center justify-between text-sm text-muted-foreground font-medium">
+        <footer className="mt-24 pt-8 border-t border-border flex items-center justify-between text-sm text-muted-foreground font-medium">
           <span>&copy; {new Date().getFullYear()} ELC Information Center</span>
           <ScrollToTop className="hover:text-foreground transition-colors">
             Trở lên đầu trang

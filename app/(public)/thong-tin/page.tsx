@@ -26,9 +26,9 @@ export default async function InformationHub() {
   const currentTitle = "Thông tin về ELC";
 
   return (
-    <main className="w-full pt-30 pb-48 px-4 min-h-screen bg-background font-sans tracking-tight">
-      <div className="max-w-[750px] mx-auto">
-        <header className="mb-6 flex flex-col md:flex-row md:items-center justify-between gap-6">
+    <main className="w-full pt-28 pb-24 px-4 md:px-6 min-h-screen font-sans tracking-tight">
+      <div className="max-w-4xl mx-auto">
+        <header className="mb-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div className="text-md md:text-lg font-bold capitalize tracking-widest text-foreground opacity-90 truncate">
             {currentTitle}
           </div>
@@ -114,9 +114,7 @@ export default async function InformationHub() {
           </div>
         </article>
 
-        <Separator className="mt-40 mb-10 bg-border/30" />
-
-        <footer className="flex items-center justify-between text-sm text-muted-foreground font-medium">
+        <footer className="mt-24 pt-8 border-t border-border flex items-center justify-between text-sm text-muted-foreground font-medium">
           <span>&copy; {new Date().getFullYear()} ELC Information Hub</span>
           <ScrollToTop className="hover:text-foreground transition-colors">
             Trở lên đầu trang

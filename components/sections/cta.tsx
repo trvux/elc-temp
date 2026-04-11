@@ -161,7 +161,7 @@ export function CTASection({ settings, contacts }: CTASectionProps) {
           {isMobile ? (
             <Drawer>
               <DrawerTrigger asChild>
-                <Button size="lg" className="w-full sm:w-auto px-10 h-12">
+                <Button size="lg" className="w-full sm:w-auto px-22 h-12">
                   {primaryBtnText}
                 </Button>
               </DrawerTrigger>
@@ -182,7 +182,7 @@ export function CTASection({ settings, contacts }: CTASectionProps) {
           ) : (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button size="lg" className="px-10 h-12">
+                <Button size="lg" className="px-22 h-12">
                   {primaryBtnText}
                 </Button>
               </DropdownMenuTrigger>

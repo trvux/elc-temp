@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import Image from "next/image";
 import { InfoTOC } from "@/components/user/info-toc";
 import { Badge } from "@/components/ui/badge";
+import { ScrollToTop } from "@/components/user/scroll-to-top";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
 
 export default async function ProjectDetail({
@@ -139,12 +140,9 @@ export default async function ProjectDetail({
         <footer className="mt-24 pt-8 border-t border-border flex items-center justify-between text-xs text-muted-foreground">
           <span>© {new Date().getFullYear()} ELC</span>
 
-          <a
-            href="#"
-            className="hover:text-foreground transition-colors font-medium uppercase tracking-widest"
-          >
+          <ScrollToTop className="hover:text-foreground transition-colors">
             Trở lên đầu trang
-          </a>
+          </ScrollToTop>
         </footer>
       </div>
     </main>
