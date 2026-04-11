@@ -3,18 +3,32 @@ import Image from "next/image";
 import Link from "next/link";
 import { Percent } from "lucide-react";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
+import { ProductPagination } from "@/components/user/product-pagination";
 
-export default async function ProductsHub() {
+type SearchParams = Promise<{ [key: string]: string | string[] | undefined }>;
+
+export default async function ProductsHub({
+  searchParams,
+}: {
+  searchParams: SearchParams;
+}) {
+  const params = await searchParams;
+  const currentPage = Number(params.page) || 1;
+  const pageSize = 12;
+
   const supabase = await createClient();
 
-  // Fetch all published products
-  const { data: allProducts } = await supabase
+  // Fetch products with range for pagination
+  const { data: allProducts, count } = await supabase
     .from("products")
-    .select("*, categories(name, slug)")
+    .select("*, categories(name, slug)", { count: "exact" })
     .eq("is_published", true)
-    .order("order_index");
+    .order("order_index")
+    .range((currentPage - 1) * pageSize, currentPage * pageSize - 1);
 
   const products = allProducts || [];
+  const totalCount = count || 0;
+  const totalPages = Math.ceil(totalCount / pageSize);
 
   return (
     <main className="w-full pt-24 pb-24">
@@ -25,7 +39,7 @@ export default async function ProductsHub() {
             Giải pháp thông minh
           </h1>
           <p className="text-xs text-muted-foreground tracking-widest uppercase font-medium">
-            {products.length} giải pháp chuyên nghiệp
+            {totalCount} giải pháp chuyên nghiệp
           </p>
         </header>
 
@@ -92,6 +106,15 @@ export default async function ProductsHub() {
             </Link>
           ))}
         </div>
+
+        {totalPages > 1 && (
+          <div className="mt-16">
+            <ProductPagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+            />
+          </div>
+        )}
 
         {!products.length && (
           <div className="py-24 text-center">

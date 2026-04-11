@@ -45,7 +45,7 @@ export function Header() {
             open={isMenuOpen}
             onOpenChange={setIsMenuOpen}
             className={cn(
-              "relative flex flex-col bg-cream/80 backdrop-blur-xl rounded-2xl border border-border transition-all duration-500 shadow-md",
+              "relative flex flex-col bg-cream/90 backdrop-blur-xl rounded-2xl border border-border transition-all duration-500 shadow-md",
               isMenuOpen && "rounded-2xl",
             )}
           >
