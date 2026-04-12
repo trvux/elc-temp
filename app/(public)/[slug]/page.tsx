@@ -11,6 +11,15 @@ interface PageProps {
   }>;
 }
 
+export async function generateStaticParams() {
+  const supabase = await createClient();
+  const { data: pages } = await supabase
+    .from("pages")
+    .select("slug")
+    .eq("is_published", true);
+  return (pages ?? []).map((p) => ({ slug: p.slug }));
+}
+
 export async function generateMetadata({
   params,
 }: PageProps): Promise<Metadata> {
@@ -78,7 +87,7 @@ export default async function StaticPage({ params }: PageProps) {
           </div>
         </header>
 
-        <article className="animate-in fade-in duration-1000 ease-out">
+        <article>
           {/* Subheading/Lead paragraph */}
           {page.meta_description && (
             <header className="mb-10">
@@ -97,7 +106,18 @@ export default async function StaticPage({ params }: PageProps) {
                 prose-headings:mt-16 prose-headings:mb-6
                 prose-a:text-primary prose-a:underline prose-a:underline-offset-4
                 prose-img:rounded-none prose-img:w-full prose-img:block prose-img:mx-auto prose-img:my-12 prose-img:cursor-zoom-in"
-            dangerouslySetInnerHTML={{ __html: page.content || "" }}
+            dangerouslySetInnerHTML={{
+                __html: (page.content || "").replace(
+                  /<img(\s[^>]*?)?>/gi,
+                  (_match: string, attrs: string = "") => {
+                    const a = attrs
+                      .replace(/\bloading="[^"]*"/gi, "")
+                      .replace(/\bwidth="[^"]*"/gi, "")
+                      .replace(/\bheight="[^"]*"/gi, "");
+                    return `<img${a} loading="lazy" width="760" height="507">`;
+                  }
+                ),
+              }}
           />
         </article>
 

@@ -43,7 +43,7 @@ export default async function InformationHub() {
         </header>
         <Separator className="mb-12 bg-border/30" />
 
-        <article className="animate-in fade-in duration-1000 ease-out">
+        <article>
           <div
             className="prose prose-zinc prose-lg md:prose-xl max-w-none 
                font-serif 
