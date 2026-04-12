@@ -194,7 +194,7 @@ export function ProductSearch({ categories }: ProductSearchProps) {
       </div>
 
       {/* Row 2: Price slider */}
-      <div className="flex flex-col gap-2">
+      <div className="flex flex-col gap-2 mx-5">
         <div className="flex items-center justify-between">
           <span className="text-sm font-medium text-foreground capitalize tracking-tight">
             Khoảng giá

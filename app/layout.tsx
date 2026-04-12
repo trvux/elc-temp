@@ -31,7 +31,7 @@ export const metadata: Metadata = {
   title: "Điện máy ELC",
   description: "Điện máy ELC",
   icons: {
-    icon: "/favicon.ico?v=4",
+    icon: "/favicon.ico",
   },
   openGraph: {
     type: "website",
@@ -58,7 +58,10 @@ export default function RootLayout({
       )}
     >
       <head>
-        <link rel="preconnect" href="https://gdzihzsjfczuggwpykjk.supabase.co" />
+        <link
+          rel="preconnect"
+          href="https://gdzihzsjfczuggwpykjk.supabase.co"
+        />
         <link rel="preconnect" href="https://images.unsplash.com" />
       </head>
       <body
