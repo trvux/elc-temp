@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { Separator } from "@/components/ui/separator";
 import Image from "next/image";
+import { getOptimizedImage } from "@/lib/image";
 import { useIsMobile } from "@/hooks/use-mobile";
 import {
   DropdownMenu,
@@ -250,7 +251,7 @@ export function HeroSection({
         {/* Cột phải */}
         <div className="relative aspect-square w-full">
           <Image
-            src={displayImage}
+            src={getOptimizedImage(displayImage)}
             alt="ELC không gian sống"
             fill
             priority

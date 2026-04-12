@@ -4,6 +4,7 @@ import Image from "next/image";
 import { Percent } from "lucide-react";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
 import { OrderButton } from "@/components/user/order-button";
+import { getOptimizedImage } from "@/lib/image";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import {
@@ -128,7 +129,7 @@ export default async function ProductDetail({
                       <CarouselItem key={i}>
                         <AspectRatio ratio={4 / 3}>
                           <Image
-                            src={img}
+                            src={getOptimizedImage(img, 1000)}
                             alt={`${product.name} - ${i + 1}`}
                             fill
                             className="object-contain p-6 md:p-10"

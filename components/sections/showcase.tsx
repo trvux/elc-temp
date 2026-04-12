@@ -3,6 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
+import { getOptimizedImage } from "@/lib/image";
 
 interface Project {
   id: string;
@@ -65,7 +66,7 @@ export function ShowcaseSection({ projects }: ShowcaseSectionProps) {
               <div className="relative aspect-video lg:aspect-[3/4] overflow-hidden rounded-2xl group">
                 {mainProject.images?.[0] && (
                   <Image
-                    src={mainProject.images[0]}
+                    src={getOptimizedImage(mainProject.images[0])}
                     alt={mainProject.title}
                     fill
                     className="object-cover transition-transform duration-700 group-hover:scale-105"

@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Card, CardContent } from "@/components/ui/card";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
 import { Separator } from "@/components/ui/separator";
+import { getOptimizedImage } from "@/lib/image";
 import {
   Carousel,
   CarouselContent,
@@ -82,7 +83,7 @@ export function FeaturesSection({ products }: FeaturesSectionProps) {
             <AspectRatio ratio={16 / 9}>
               {product.images?.[0] ? (
                 <Image
-                  src={product.images[0]}
+                  src={getOptimizedImage(product.images[0], 800)}
                   alt={product.name}
                   fill
                   className="object-contain p-3"
@@ -107,7 +108,7 @@ export function FeaturesSection({ products }: FeaturesSectionProps) {
                     <Link href={productUrl}>
                       <AspectRatio ratio={16 / 9}>
                         <Image
-                          src={img}
+                          src={getOptimizedImage(img, 800)}
                           alt={`${product.name} - ${idx + 1}`}
                           fill
                           className="object-contain p-3"

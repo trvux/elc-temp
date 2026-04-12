@@ -2,6 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import Image from "next/image";
 import Link from "next/link";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
+import { getOptimizedImage } from "@/lib/image";
 
 interface Project {
   id: string;
@@ -60,7 +61,7 @@ export default async function ProjectsPage() {
               <AspectRatio ratio={16 / 9}>
                 {featured.images?.[0] ? (
                   <Image
-                    src={featured.images[0]}
+                    src={getOptimizedImage(featured.images[0])}
                     alt={featured.title}
                     fill
                     className="object-cover transition-transform duration-700 group-hover:scale-105"
@@ -106,7 +107,7 @@ export default async function ProjectsPage() {
                     <AspectRatio ratio={16 / 9}>
                       {project.images?.[0] ? (
                         <Image
-                          src={project.images[0]}
+                          src={getOptimizedImage(project.images[0], 800)}
                           alt={project.title}
                           fill
                           className="object-cover transition-transform duration-700 group-hover:scale-105"
@@ -125,7 +126,7 @@ export default async function ProjectsPage() {
                     <AspectRatio ratio={4 / 5}>
                       {project.images?.[0] ? (
                         <Image
-                          src={project.images[0]}
+                          src={getOptimizedImage(project.images[0], 800)}
                           alt={project.title}
                           fill
                           className="object-cover transition-transform duration-700 group-hover:scale-105"

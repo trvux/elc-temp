@@ -6,6 +6,7 @@ import Fuse from "fuse.js";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
 import { ProductPagination } from "@/components/user/product-pagination";
 import { ProductSearch } from "@/components/user/product-search";
+import { getOptimizedImage } from "@/lib/image";
 
 type SearchParams = Promise<{ [key: string]: string | string[] | undefined }>;
 
@@ -309,7 +310,7 @@ export default async function ProductsHub({
                   <AspectRatio ratio={4 / 3}>
                     {product.images?.[0] ? (
                       <Image
-                        src={product.images[0]}
+                        src={getOptimizedImage(product.images[0], 600)}
                         alt={product.name}
                         fill
                         className="object-contain p-3 transition-transform duration-700 group-hover:scale-105"
