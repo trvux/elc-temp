@@ -190,7 +190,7 @@ export function HeroSection({
           <div className="col-span-2 flex justify-center items-center border-r border-foreground/5 h-full ">
             <ContactIcon
               size={18}
-              className="text-primary transition-colors shadow-lg"
+              className="text-primary transition-colors drop-shadow-sm"
             />
           </div>
 
