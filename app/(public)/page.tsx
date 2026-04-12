@@ -54,6 +54,7 @@ export default async function Home() {
         ctaText={settings.hero_cta_text}
         ctaUrl={settings.hero_cta_url}
         image={settings.hero_image}
+        contacts={contacts || []}
       />
       <Separator />
 

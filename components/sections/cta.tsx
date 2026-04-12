@@ -2,7 +2,6 @@
 
 import React from "react";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import {
   DropdownMenu,
@@ -178,7 +177,7 @@ export function CTASection({ settings, contacts }: CTASectionProps) {
           ) : (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button size="lg" className="px-22 h-12">
+                <Button size="lg" className="px-20 h-12">
                   {primaryBtnText}
                 </Button>
               </DropdownMenuTrigger>

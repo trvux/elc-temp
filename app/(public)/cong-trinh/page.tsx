@@ -46,7 +46,7 @@ export default async function ProjectsPage() {
         {/* Header */}
         <header className="py-16 flex flex-col items-center text-center gap-3">
           <h1 className="font-newsreader text-4xl md:text-5xl lg:text-6xl italic leading-tight">
-            Công trình tiêu biểu
+            Công trình dự án
           </h1>
           <p className="text-xs text-muted-foreground tracking-widest uppercase font-medium">
             {allProjects.length} dự án đã hoàn thiện
