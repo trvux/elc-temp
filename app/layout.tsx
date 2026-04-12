@@ -30,6 +30,9 @@ const newsreader = Newsreader({
 export const metadata: Metadata = {
   title: "Điện máy ELC",
   description: "Điện máy ELC",
+  icons: {
+    icon: "/favicon.ico",
+  },
   openGraph: {
     type: "website",
     siteName: "Điện máy ELC",
