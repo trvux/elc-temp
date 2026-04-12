@@ -38,27 +38,28 @@ export default async function BranchDetail({ params }: PageProps) {
   }
 
   return (
-    <main className="w-full pt-28 pb-24 px-4 md:px-6 min-h-screen font-sans tracking-tight">
+    <main className="w-full pt-32 md:38 pb-24 px-4 md:px-6 min-h-screen font-sans tracking-tight">
       <div className="max-w-4xl mx-auto">
         {/* TOC Header */}
-        <header className="mb-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
-          <div className="text-md md:text-lg font-bold capitalize tracking-widest text-foreground opacity-90 truncate">
-            Không Gian Kiến Trúc
-          </div>
-          <div className="scale-90 origin-left md:origin-right shrink-0">
-            <BranchTOC branches={allBranches} currentSlug={slug} />
-          </div>
-        </header>
-        <Separator className="mb-16" />
+        <header className="mb-8 flex flex-col gap-8">
+          <div className="flex flex-col md:flex-row md:items-baseline justify-between gap-8 md:gap-8">
+            {/* TOC - First on mobile, Right on Desktop */}
+            <div className="order-1 md:order-2 w-full md:w-auto">
+              <BranchTOC
+                branches={allBranches}
+                currentSlug={slug}
+                className="w-full md:w-56"
+              />
+            </div>
 
-        <article className="animate-in fade-in duration-1000 ease-out">
-          {/* Massive Title */}
-          <div className="mb-16">
-            <h1 className="text-2xl md:text-4xl font-black tracking-tighter text-foreground leading-[0.85] lowercase first-letter:capitalize">
+            {/* Title - Second on mobile, Left on Desktop */}
+            <h1 className="order-2 md:order-1 text-2xl md:text-4xl lg:text-5xl font-black tracking-tighter text-foreground leading-none lowercase first-letter:capitalize shrink-0">
               {branch.name}
             </h1>
           </div>
+        </header>
 
+        <article className="animate-in fade-in duration-1000 ease-out">
           {/* Branch Details Grid (Premium Black & White blocks) */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 md:gap-8 my-20">
             {/* Dark Card - Location */}

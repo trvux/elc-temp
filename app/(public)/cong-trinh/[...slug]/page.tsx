@@ -5,6 +5,7 @@ import { InfoTOC } from "@/components/user/info-toc";
 import { Badge } from "@/components/ui/badge";
 import { ScrollToTop } from "@/components/user/scroll-to-top";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
+import { Sparkle } from "lucide-react";
 
 export default async function ProjectDetail({
   params,
@@ -52,33 +53,33 @@ export default async function ProjectDetail({
     <main className="w-full pt-28 pb-24 px-4 md:px-6 min-h-screen">
       <div className="max-w-4xl mx-auto">
         {/* Header */}
-        <header className="mb-10 border-b border-border pb-5 flex flex-col gap-4">
-          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md border border-border text-muted-foreground text-xs font-medium w-fit">
-            <svg
-              width="12"
-              height="12"
-              viewBox="0 0 24 24"
-              fill="currentColor"
-              xmlns="http://www.w3.org/2000/svg"
-              className="text-yellow-500"
-            >
-              <path d="M12 2C12 2 12 9 19 12C12 15 12 22 12 22C12 22 12 15 5 12C12 9 12 2 12 2Z" />
-            </svg>
-            {project.categories?.parent?.name
-              ? `${project.categories.parent.name} / ${project.categories.name}`
-              : project.categories?.name || "Dự án"}
-          </span>
+        <header className="mb-10 border-b border-border pb-8 flex flex-col gap-4">
+          {/* Row 1: TOC */}
+          <div className="w-full flex justify-start md:justify-start">
+            <InfoTOC
+              pages={allProjects}
+              currentSlug={`${project.categories?.slug ? project.categories.slug + "/" : ""}${project.slug}`}
+              basePath="/cong-trinh"
+              className="w-full md:w-fit min-w-52"
+            />
+          </div>
 
-          <div className="grid grid-cols-2 items-center gap-4">
-            <h1 className="text-xl md:text-2xl font-bold tracking-tight text-foreground leading-tight">
+          {/* Row 2: Title and Category */}
+          <div className="flex flex-col md:flex-row md:items-baseline justify-between gap-4 md:gap-8">
+            <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold tracking-tight text-foreground leading-tight flex-1">
               {project.title}
             </h1>
-            <div className="flex justify-end">
-              <InfoTOC
-                pages={allProjects}
-                currentSlug={`${project.categories?.slug ? project.categories.slug + "/" : ""}${project.slug}`}
-                basePath="/cong-trinh"
-              />
+
+            <div className="shrink-0">
+              <Badge
+                variant="outline"
+                className="py-2 gap-1.5 text-muted-foreground text-xs font-medium border-border/50"
+              >
+                <Sparkle className="w-3 h-3 fill-yellow-500 text-yellow-500" />
+                {project.categories?.parent?.name
+                  ? `${project.categories.parent.name} / ${project.categories.name}`
+                  : project.categories?.name || "Dự án"}
+              </Badge>
             </div>
           </div>
         </header>

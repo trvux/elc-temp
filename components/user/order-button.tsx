@@ -91,7 +91,7 @@ export function OrderButton({ contacts }: OrderButtonProps) {
       variant="ghost"
       className="w-full border border-foreground text-lg py-5 font-bold capitalize tracking-tight rounded-none hover:bg-foreground hover:text-background transition-all duration-300 outline-none"
     >
-      Đặt hàng
+      Tư vấn kỹ thuật
     </Button>
   );
 
@@ -111,14 +111,14 @@ export function OrderButton({ contacts }: OrderButtonProps) {
         <div className="flex flex-col gap-0.5 min-w-0">
           <span
             className={`${
-              isDropdown ? "text-[11px]" : "text-[13px]"
+              isDropdown ? "text-xs" : "text-sm"
             } font-bold uppercase tracking-wider truncate text-foreground/90`}
           >
             {contact.label || contact.type}
           </span>
           <span
             className={`${
-              isDropdown ? "text-[10px]" : "text-[12px]"
+              isDropdown ? "text-xs" : "text-xs"
             } text-muted-foreground truncate`}
           >
             {contact.value}

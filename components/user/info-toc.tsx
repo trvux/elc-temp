@@ -29,9 +29,15 @@ interface InfoTOCProps {
   pages: Page[];
   currentSlug?: string;
   basePath?: string;
+  className?: string; // Add this
 }
 
-export function InfoTOC({ pages, currentSlug, basePath = "" }: InfoTOCProps) {
+export function InfoTOC({
+  pages,
+  currentSlug,
+  basePath = "",
+  className, // Add this
+}: InfoTOCProps) {
   const [open, setOpen] = React.useState(false);
   const router = useRouter();
 
@@ -48,14 +54,17 @@ export function InfoTOC({ pages, currentSlug, basePath = "" }: InfoTOCProps) {
           variant="outline"
           role="combobox"
           aria-expanded={open}
-          className="w-[200px] justify-between text-muted-foreground hover:text-foreground border-border"
+          className={cn(
+            "w-52 justify-between text-muted-foreground hover:text-foreground border-border",
+            className
+          )}
         >
           {/* Sentence case instead of all caps as requested */}
-          <span className="font-medium text-[14px]">Tìm kiếm thông tin</span>
+          <span className="font-medium text-sm">Tìm kiếm thông tin</span>
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-[200px] p-0 shadow-lg border-border">
+      <PopoverContent className="w-52 p-0 shadow-lg border-border">
         <Command>
           <CommandInput placeholder="Tìm kiếm trang..." />
           <CommandList>

@@ -57,15 +57,24 @@ export default async function StaticPage({ params }: PageProps) {
   }
 
   return (
-    <main className="w-full pt-28 pb-24 px-4 md:px-6 min-h-screen font-sans tracking-tight">
+    <main className="w-full pt-32 md:38 pb-24 px-4 md:px-6 min-h-screen font-sans tracking-tight">
       <div className="max-w-4xl mx-auto">
-        {/* Simplified Header - Match Medium 1:1 minimalist style */}
-        <header className="mb-10 border-b border-border pb-4 flex items-center justify-between">
-          <div className="text-md md:text-lg font-bold capitalize tracking-widest text-foreground opacity-90 truncate">
-            {page.title}
-          </div>
-          <div className="scale-90 origin-right shrink-0">
-            <InfoTOC pages={allPages} currentSlug={slug} />
+        {/* Header - Reorganized for consistency */}
+        <header className="mb-8 flex flex-col gap-8">
+          <div className="flex flex-col md:flex-row md:items-baseline justify-between gap-8 md:gap-8">
+            {/* TOC - First on mobile, Right on Desktop */}
+            <div className="order-1 md:order-2 w-full md:w-auto">
+              <InfoTOC
+                pages={allPages}
+                currentSlug={slug}
+                className="w-full md:w-56"
+              />
+            </div>
+
+            {/* Title - Second on mobile, Left on Desktop */}
+            <h1 className="order-2 md:order-1 text-2xl md:text-4xl lg:text-5xl font-black tracking-tighter text-foreground leading-none lowercase first-letter:capitalize shrink-0">
+              {page.title}
+            </h1>
           </div>
         </header>
 

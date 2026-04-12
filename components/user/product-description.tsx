@@ -23,7 +23,7 @@ export function ProductDescription({ content }: ProductDescriptionProps) {
           prose-img:w-full prose-img:h-auto prose-img:rounded-lg prose-img:my-4
           prose-ul:text-muted-foreground prose-li:my-1
           overflow-hidden transition-[max-height] duration-500 ease-in-out
-          ${isOpen ? "max-h-[9999px]" : "max-h-[600px]"}`}
+          ${isOpen ? "max-h-none" : "max-h-96"}`}
         dangerouslySetInnerHTML={{ __html: content }}
       />
 
