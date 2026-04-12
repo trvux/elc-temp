@@ -53,7 +53,7 @@ export function TiptapEditor({
   const editor = useEditor({
     immediatelyRender: false,
     extensions: [
-      StarterKit,
+      StarterKit.configure({ link: false }),
       Typography,
       ImageExtension.configure({
         inline: true,
