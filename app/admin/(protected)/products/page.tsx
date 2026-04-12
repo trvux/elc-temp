@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useMemo } from "react";
 import { createClient } from "@/lib/supabase/client";
+import { convertToWebP } from "@/lib/image";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -283,11 +284,11 @@ export default function ProductsPage() {
 
     const uploaded: string[] = [];
     for (const file of Array.from(files)) {
-      const ext = file.name.split(".").pop();
-      const fileName = `products/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
+      const webpFile = await convertToWebP(file);
+      const fileName = `products/${Date.now()}-${Math.random().toString(36).slice(2)}.webp`;
       const { error } = await supabase.storage
         .from("images")
-        .upload(fileName, file);
+        .upload(fileName, webpFile, { contentType: "image/webp" });
       if (error) {
         toast.error(`Lỗi upload: ${file.name}`);
         continue;

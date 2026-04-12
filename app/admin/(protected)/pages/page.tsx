@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useMemo } from "react";
 import { createClient } from "@/lib/supabase/client";
+import { convertToWebP } from "@/lib/image";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -305,11 +306,11 @@ export default function PagesPage() {
                   onChange={setContent}
                   placeholder="Viết nội dung trang..."
                   uploadImage={async (file) => {
-                    const ext = file.name.split(".").pop();
-                    const fileName = `pages/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
+                    const webpFile = await convertToWebP(file);
+                    const fileName = `pages/${Date.now()}-${Math.random().toString(36).slice(2)}.webp`;
                     const { error } = await supabase.storage
                       .from("images")
-                      .upload(fileName, file);
+                      .upload(fileName, webpFile, { contentType: "image/webp" });
                     if (error) throw error;
                     const { data } = supabase.storage
                       .from("images")
