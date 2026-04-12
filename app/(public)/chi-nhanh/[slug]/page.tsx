@@ -1,6 +1,7 @@
 import React from "react";
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { createStaticClient } from "@/lib/supabase/static";
 import { BranchTOC } from "@/components/user/branch-toc";
 import { MapPin, Phone, Mail, Navigation2, ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -9,7 +10,7 @@ import { Separator } from "@/components/ui/separator";
 import { ScrollToTop } from "@/components/user/scroll-to-top";
 
 export async function generateStaticParams() {
-  const supabase = await createClient();
+  const supabase = createStaticClient();
   const { data: branches } = await supabase
     .from("branches")
     .select("slug")

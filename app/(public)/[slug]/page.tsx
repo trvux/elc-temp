@@ -2,6 +2,7 @@ import React from "react";
 import { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { createStaticClient } from "@/lib/supabase/static";
 import { InfoTOC } from "@/components/user/info-toc";
 import { ScrollToTop } from "@/components/user/scroll-to-top";
 
@@ -12,7 +13,7 @@ interface PageProps {
 }
 
 export async function generateStaticParams() {
-  const supabase = await createClient();
+  const supabase = createStaticClient();
   const { data: pages } = await supabase
     .from("pages")
     .select("slug")
