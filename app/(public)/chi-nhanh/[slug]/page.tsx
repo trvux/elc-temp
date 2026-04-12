@@ -8,6 +8,15 @@ import { PhoneConfirmation } from "@/components/user/phone-confirmation";
 import { Separator } from "@/components/ui/separator";
 import { ScrollToTop } from "@/components/user/scroll-to-top";
 
+export async function generateStaticParams() {
+  const supabase = await createClient();
+  const { data: branches } = await supabase
+    .from("branches")
+    .select("slug")
+    .eq("is_published", true);
+  return (branches ?? []).map((b) => ({ slug: b.slug }));
+}
+
 interface PageProps {
   params: Promise<{
     slug: string;
@@ -128,15 +137,26 @@ export default async function BranchDetail({ params }: PageProps) {
               <Separator className="mt-32 mb-20" />
               <div className="mb-32">
                 <div
-                  className="prose prose-zinc prose-lg max-w-none 
-                      font-sans 
+                  className="prose prose-zinc prose-lg max-w-none
+                      font-sans
                       prose-p:leading-[1.8] prose-p:text-fluid-base prose-p:text-muted-foreground/80 prose-p:font-medium
-                      prose-headings:font-sans prose-headings:font-black prose-headings:tracking-tighter prose-headings:text-foreground 
+                      prose-headings:font-sans prose-headings:font-black prose-headings:tracking-tighter prose-headings:text-foreground
                       prose-headings:text-3xl md:prose-headings:text-5xl
                       prose-headings:mt-16 prose-headings:mb-8
                       prose-a:text-primary prose-a:underline prose-a:underline-offset-4
                       prose-strong:text-foreground"
-                  dangerouslySetInnerHTML={{ __html: branch.description }}
+                  dangerouslySetInnerHTML={{
+                    __html: branch.description.replace(
+                      /<img(\s[^>]*?)?>/gi,
+                      (_match: string, attrs: string = "") => {
+                        const a = attrs
+                          .replace(/\bloading="[^"]*"/gi, "")
+                          .replace(/\bwidth="[^"]*"/gi, "")
+                          .replace(/\bheight="[^"]*"/gi, "");
+                        return `<img${a} loading="lazy" width="760" height="507">`;
+                      }
+                    ),
+                  }}
                 />
               </div>
             </>

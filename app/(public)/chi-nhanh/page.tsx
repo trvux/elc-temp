@@ -46,7 +46,7 @@ export default async function BranchesHub() {
         </header>
         <Separator className="mb-12" />
 
-        <article className="animate-in fade-in duration-1000 ease-out">
+        <article>
           <div
             className="prose prose-zinc prose-lg md:prose-xl max-w-none 
                 font-serif 
