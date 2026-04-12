@@ -31,7 +31,7 @@ export const metadata: Metadata = {
   title: "Điện máy ELC",
   description: "Điện máy ELC",
   icons: {
-    icon: "/favicon.ico",
+    icon: "/favicon.ico?v=4",
   },
   openGraph: {
     type: "website",
