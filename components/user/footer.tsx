@@ -152,17 +152,6 @@ export function Footer({
               Liên hệ
             </h3>
             <nav className="flex flex-col gap-3">
-              <PhoneConfirmation phone={phone.replace(/\s/g, "")}>
-                <button className="text-sm text-primary-foreground/60 hover:text-primary-foreground transition-colors text-left">
-                  {phone}
-                </button>
-              </PhoneConfirmation>
-              <Link
-                href={`mailto:${email}`}
-                className="text-sm text-primary-foreground/60 hover:text-primary-foreground transition-colors truncate"
-              >
-                {email}
-              </Link>
               <Link
                 href={`https://zalo.me/${phone.replace(/\s/g, "")}`}
                 target="_blank"
@@ -187,13 +176,25 @@ export function Footer({
               >
                 Facebook
               </Link>
+              <PhoneConfirmation phone={phone.replace(/\s/g, "")}>
+                <button className="text-sm text-primary-foreground/60 hover:text-primary-foreground transition-colors text-left">
+                  Phone: {phone}
+                </button>
+              </PhoneConfirmation>
+              <Link
+                href={`mailto:${email}`}
+                className="text-sm text-primary-foreground/60 hover:text-primary-foreground transition-colors truncate"
+              >
+                Mail: {email}
+              </Link>
+
               <Link
                 href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-sm text-primary-foreground/60 hover:text-primary-foreground transition-colors leading-relaxed"
               >
-                {address}
+                Địa chỉ: {address}
               </Link>
             </nav>
           </div>
@@ -243,7 +244,10 @@ export function Footer({
               className="hover:text-primary-foreground transition-colors"
               title="Địa chỉ"
             >
-              <svg className="h-5 w-5 fill-none stroke-current stroke-2" viewBox="0 0 24 24">
+              <svg
+                className="h-5 w-5 fill-none stroke-current stroke-2"
+                viewBox="0 0 24 24"
+              >
                 <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
                 <circle cx="12" cy="10" r="3" />
               </svg>
