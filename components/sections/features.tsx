@@ -6,6 +6,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
 import { Separator } from "@/components/ui/separator";
 import { getOptimizedImage } from "@/lib/image";
+import { AnimateIn, StaggerContainer, StaggerItem } from "@/components/ui/animate-in";
 import {
   Carousel,
   CarouselContent,
@@ -193,14 +194,16 @@ export function FeaturesSection({ products }: FeaturesSectionProps) {
   return (
     <section>
       <div className="max-w-7xl mx-auto px-4 md:px-6">
-        <h2 className="text-3xl md:text-4xl lg:text-5xl font-newsreader tracking-tight mb-10 md:mb-14">
-          {title}
-        </h2>
+        <AnimateIn>
+          <h2 className="text-3xl md:text-4xl lg:text-5xl font-newsreader tracking-tight mb-10 md:mb-14">
+            {title}
+          </h2>
+        </AnimateIn>
 
         {/* PRODUCT */}
         {isShowingProducts && (
           <>
-            {/* Mobile: Carousel */}
+            {/* Mobile: Carousel — không animate, carousel tự handle */}
             <div className="block md:hidden">
               <Carousel opts={{ align: "center", dragFree: false }}>
                 <CarouselContent>
@@ -214,18 +217,20 @@ export function FeaturesSection({ products }: FeaturesSectionProps) {
             </div>
 
             {/* Tablet 3 cột, Desktop 4 cột */}
-            <div className="hidden md:grid md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
+            <StaggerContainer className="hidden md:grid md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
               {products.map((product) => (
-                <ProductCard key={product.id} product={product} />
+                <StaggerItem key={product.id}>
+                  <ProductCard product={product} />
+                </StaggerItem>
               ))}
-            </div>
+            </StaggerContainer>
           </>
         )}
 
         {/* DEFAULT */}
         {!isShowingProducts && (
           <>
-            {/* Mobile: 1 cột, không carousel */}
+            {/* Mobile: 1 cột */}
             <div className="grid grid-cols-1 md:hidden gap-4">
               {defaultFeatures.map((feature, i) => (
                 <DefaultCard key={i} feature={feature} index={i} />
@@ -233,11 +238,13 @@ export function FeaturesSection({ products }: FeaturesSectionProps) {
             </div>
 
             {/* Tablet 2 cột, Desktop 4 cột */}
-            <div className="hidden md:grid md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+            <StaggerContainer className="hidden md:grid md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
               {defaultFeatures.map((feature, i) => (
-                <DefaultCard key={i} feature={feature} index={i} />
+                <StaggerItem key={i}>
+                  <DefaultCard feature={feature} index={i} />
+                </StaggerItem>
               ))}
-            </div>
+            </StaggerContainer>
           </>
         )}
       </div>

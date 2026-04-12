@@ -4,6 +4,7 @@ import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import { getOptimizedImage } from "@/lib/image";
+import { AnimateIn, StaggerContainer, StaggerItem } from "@/components/ui/animate-in";
 
 interface Project {
   id: string;
@@ -37,7 +38,7 @@ export function ShowcaseSection({ projects }: ShowcaseSectionProps) {
       <div className="max-w-7xl mx-auto px-4 md:px-6">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
           {/* Cột content — mobile: trên, desktop: phải */}
-          <div className="order-1 lg:order-2 flex flex-col gap-6">
+          <AnimateIn className="order-1 lg:order-2 flex flex-col gap-6">
             {/* Danh mục */}
             <div className="flex items-center gap-2 text-sm">
               <span className="text-muted-foreground">Danh mục</span>
@@ -58,10 +59,10 @@ export function ShowcaseSection({ projects }: ShowcaseSectionProps) {
                 {mainProject.description?.replace(/<[^>]*>?/gm, "")}
               </p>
             </div>
-          </div>
+          </AnimateIn>
 
           {/* Cột img — mobile: dưới, desktop: trái */}
-          <div className="order-2 lg:order-1">
+          <AnimateIn className="order-2 lg:order-1" delay={0.15} variant="fadeIn">
             <Link href={mainProjectUrl}>
               <div className="relative aspect-video lg:aspect-[3/4] overflow-hidden rounded-2xl group">
                 {mainProject.images?.[0] && (
@@ -81,40 +82,41 @@ export function ShowcaseSection({ projects }: ShowcaseSectionProps) {
                 </div>
               </div>
             </Link>
-          </div>
+          </AnimateIn>
         </div>
 
         {/* Bài gợi ý — dưới cùng */}
         {otherProjects && otherProjects.length > 0 && (
           <div className="mt-12">
             <Separator className="mb-6" />
-            <div className="flex flex-col gap-4">
+            <StaggerContainer className="flex flex-col gap-4">
               {otherProjects.slice(0, 2).map((p, idx) => {
                 const projectUrl = p.categories?.slug
                   ? `/cong-trinh/${p.categories.slug}/${p.slug}`
                   : `/cong-trinh/${p.slug}`;
                 return (
-                  <Link
-                    key={p.id}
-                    href={projectUrl}
-                    className="flex items-center justify-between py-3 border-b border-border/50 hover:border-border transition-colors group"
-                  >
-                    <div className="flex items-center gap-4">
-                      <span className="text-sm text-muted-foreground font-mono">
-                        0{idx + 2}
-                      </span>
-                      <span className="text-sm md:text-base font-medium group-hover:text-foreground transition-colors">
-                        {p.title}
-                      </span>
-                    </div>
-                    <ArrowUpRight
-                      size={16}
-                      className="text-muted-foreground group-hover:text-foreground transition-colors"
-                    />
-                  </Link>
+                  <StaggerItem key={p.id}>
+                    <Link
+                      href={projectUrl}
+                      className="flex items-center justify-between py-3 border-b border-border/50 hover:border-border transition-colors group"
+                    >
+                      <div className="flex items-center gap-4">
+                        <span className="text-sm text-muted-foreground font-mono">
+                          0{idx + 2}
+                        </span>
+                        <span className="text-sm md:text-base font-medium group-hover:text-foreground transition-colors">
+                          {p.title}
+                        </span>
+                      </div>
+                      <ArrowUpRight
+                        size={16}
+                        className="text-muted-foreground group-hover:text-foreground transition-colors"
+                      />
+                    </Link>
+                  </StaggerItem>
                 );
               })}
-            </div>
+            </StaggerContainer>
           </div>
         )}
       </div>

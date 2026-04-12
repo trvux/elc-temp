@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, type ComponentType } from "react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import {
@@ -84,7 +84,7 @@ export function HeroContactButton({ contacts }: { contacts: Contact[] }) {
     );
   }
 
-  const ContactIcon = getContactIcon(currentContact.type) as React.ComponentType<{
+  const ContactIcon = getContactIcon(currentContact.type) as ComponentType<{
     size?: number;
     className?: string;
   }>;

@@ -30,6 +30,7 @@ import {
 } from "@/components/social-icons";
 import { useIsMobile } from "@/hooks/use-mobile";
 import Link from "next/link";
+import { AnimateIn } from "@/components/ui/animate-in";
 
 interface Contact {
   id: string;
@@ -141,7 +142,7 @@ export function CTASection({ settings, contacts }: CTASectionProps) {
   return (
     <section className="">
       <div className="max-w-7xl mx-auto px-4 md:px-6">
-        <div className="flex flex-col items-center text-center max-w-2xl mx-auto gap-8">
+        <AnimateIn className="flex flex-col items-center text-center max-w-2xl mx-auto gap-8">
           {/* Title */}
           <h2 className="font-newsreader text-4xl md:text-5xl lg:text-6xl leading-tight italic">
             {title}
@@ -213,7 +214,7 @@ export function CTASection({ settings, contacts }: CTASectionProps) {
               {email}
             </a>
           </div>
-        </div>
+        </AnimateIn>
       </div>
     </section>
   );

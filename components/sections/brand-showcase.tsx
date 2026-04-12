@@ -1,4 +1,5 @@
 import { cn } from "@/lib/utils";
+import { AnimateIn } from "@/components/ui/animate-in";
 
 const brands = [
   { name: "Carrier", domain: "carrier.com" },
@@ -17,11 +18,11 @@ export function BrandShowcase() {
   return (
     <section className="max-w-screen-2xl lg:mx-auto overflow-hidden">
       <div className="max-w-screen-2xl mx-auto px-6">
-        <div className="flex flex-col items-center text-center mb-8 lg:mb-16 max-w-screen-xl mx-auto">
+        <AnimateIn className="flex flex-col items-center text-center mb-8 lg:mb-16 max-w-screen-xl mx-auto">
           <h2 className="font-newsreader text-3xl md:text-4xl lg:text-5xl text-foreground/80 leading-tight tracking-tighter">
             Hơn 10,000+ dự án cao cấp <br /> tin dùng giải pháp từ ELC
           </h2>
-        </div>
+        </AnimateIn>
 
         <div className="relative w-full max-w-screen-xl mx-auto overflow-hidden pause-marquee">
           <div className="flex gap-10 lg:gap-20 animate-marquee w-fit">
