@@ -92,7 +92,7 @@ export default async function BranchDetail({ params }: PageProps) {
 
             {/* Light Card - Contact */}
             <div className="aspect-square bg-muted/30 p-8 md:p-10 flex flex-col justify-between border border-border/40">
-              <div className="text-[10px] font-bold capitalize tracking-[0.3em] text-muted-foreground/40">
+              <div className="text-sm font-bold capitalize tracking-[0.3em] text-muted-foreground/40">
                 Kết nối trực tiếp
               </div>
               <div className="flex flex-col gap-10">
