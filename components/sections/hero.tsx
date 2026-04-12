@@ -175,7 +175,7 @@ export function HeroSection({
       asChild
       variant="outline"
       size="lg"
-      className="w-full h-12 text-base font-semibold group flex items-center overflow-hidden relative border-foreground/20 hover:border-foreground/40 bg-transparent transition-all duration-300 md:col-span-3"
+      className="w-full h-12 text-base font-semibold group flex items-center overflow-hidden relative border-foreground/20 hover:border-foreground/40 bg-transparent transition-all duration-300 md:col-span-3 lg:col-span-4 xl:col-span-4"
     >
       <a
         href={getContactHref(currentContact.type, currentContact.value)}
@@ -211,7 +211,7 @@ export function HeroSection({
     <Button
       variant="outline"
       size="lg"
-      className="w-full h-12 text-base font-semibold md:col-span-3"
+      className="w-full h-12 text-base font-semibold md:col-span-3 lg:col-span-4 xl:col-span-4"
     >
       Liên hệ hỗ trợ
     </Button>
@@ -219,7 +219,7 @@ export function HeroSection({
 
   return (
     <section className="pt-36 max-w-screen-2xl lg:mx-auto ">
-      <div className="grid grid-cols-1 xl:grid-cols-2 gap-12 items-center justify-between">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center justify-between">
         {/* Cột trái */}
         <div className="flex flex-col gap-8">
           <h1 className="font-newsreader text-4xl sm:text-6xl lg:text-7xl leading-tight tracking-tighter">
@@ -238,7 +238,7 @@ export function HeroSection({
             <Button
               asChild
               size="lg"
-              className="w-full h-12 text-base font-semibold md:col-span-7"
+              className="w-full h-12 text-base font-semibold md:col-span-7 lg:col-span-6 xl:col-span-6"
             >
               <Link href={displayCtaUrl}>{displayCtaText}</Link>
             </Button>
