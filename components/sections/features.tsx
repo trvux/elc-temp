@@ -1,12 +1,13 @@
 "use client";
-import React from "react";
-import Image from "next/image";
-import Link from "next/link";
-import { Card, CardContent } from "@/components/ui/card";
+
+import {
+  AnimateIn,
+  StaggerContainer,
+  StaggerItem,
+} from "@/components/ui/animate-in";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
-import { Separator } from "@/components/ui/separator";
-import { getOptimizedImage } from "@/lib/image";
-import { AnimateIn, StaggerContainer, StaggerItem } from "@/components/ui/animate-in";
+import { Badge } from "@/components/ui/badge";
+import { Card } from "@/components/ui/card";
 import {
   Carousel,
   CarouselContent,
@@ -14,6 +15,17 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel";
+import { Separator } from "@/components/ui/separator";
+import {
+  TypographyH1,
+  TypographyLarge,
+  TypographyMuted,
+  TypographyP,
+} from "@/components/ui/typography"; // Điều chỉnh path cho đúng file mày lưu
+import { getOptimizedImage } from "@/lib/image";
+import { cn } from "@/lib/utils";
+import Image from "next/image";
+import Link from "next/link";
 
 interface Product {
   id: string;
@@ -38,31 +50,16 @@ interface FeaturesSectionProps {
 
 export function FeaturesSection({ products }: FeaturesSectionProps) {
   const isShowingProducts = products && products.length > 0;
-
-  const defaultFeatures = [
-    {
-      title: "Tư vấn Giải pháp Smarthome",
-      description:
-        "Thiết kế hệ thống nhà thông minh chuyên biệt, tối ưu hoá trải nghiệm sống hiện đại.",
-    },
-    {
-      title: "Thiết bị Điện tử Cao cấp",
-      description:
-        "Cung cấp các dòng TV, Loa và thiết bị gia dụng chính hãng từ Samsung, Sony, Panasonic.",
-    },
-    {
-      title: "Thi công & Lắp đặt Tận tâm",
-      description:
-        "Đội ngũ kỹ thuật viên giàu kinh nghiệm, đảm bảo quy trình lắp đặt chuẩn xác, an toàn.",
-    },
-    {
-      title: "Bảo hành & Hỗ trợ Kỹ thuật",
-      description:
-        "Dịch vụ hậu mãi chu đáo, hỗ trợ xử lý sự cố nhanh chóng trong vòng 24h.",
-    },
-  ];
-
   const title = isShowingProducts ? "Sản phẩm nổi bật" : "Dịch vụ & Giải pháp";
+
+  // --- DESIGN SYSTEM CONSTANTS ---
+  const SectionWrapper = "max-w-7xl mx-auto px-4 md:px-6 py-12 lg:py-20";
+  const ProductGrid = cn(
+    "grid gap-4 md:gap-6 grid-cols-1 md:grid-cols-3 lg:grid-cols-4",
+  );
+  const ServiceGrid = cn(
+    "grid gap-4 md:gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-4",
+  );
 
   const formatPrice = (price: number) =>
     new Intl.NumberFormat("vi-VN", {
@@ -70,184 +67,148 @@ export function FeaturesSection({ products }: FeaturesSectionProps) {
       currency: "VND",
     }).format(price);
 
+  const defaultFeatures = [
+    {
+      title: "Tư vấn Giải pháp Smarthome",
+      description: "Thiết kế hệ thống nhà thông minh chuyên biệt.",
+    },
+    {
+      title: "Thiết bị Điện tử Cao cấp",
+      description: "Cung cấp các dòng TV, Loa và thiết bị gia dụng.",
+    },
+    {
+      title: "Thi công & Lắp đặt Tận tâm",
+      description: "Đảm bảo quy trình lắp đặt chuẩn xác, an toàn.",
+    },
+    {
+      title: "Bảo hành & Hỗ trợ Kỹ thuật",
+      description: "Hỗ trợ xử lý sự cố nhanh chóng trong vòng 24h.",
+    },
+  ];
+
+  // --- SUB-COMPONENTS ---
   const ProductCard = ({ product }: { product: Product }) => {
-    const productUrl = product.categories?.slug
-      ? `/san-pham/${product.categories.slug}/${product.slug}`
-      : `/san-pham/${product.slug}`;
-    const hasDiscount = (product.discount_percent ?? 0) > 0;
+    const productUrl = `/san-pham/${product.categories?.slug || ""}/${product.slug}`;
 
     return (
-      <Card className="group overflow-hidden hover:shadow-md transition-all duration-300 h-full flex flex-col">
-        {/* Mobile: ảnh đầu tiên, không carousel */}
-        <div className="block md:hidden">
-          <Link href={productUrl}>
-            <AspectRatio ratio={16 / 9}>
-              {product.images?.[0] ? (
-                <Image
-                  src={getOptimizedImage(product.images[0], 800)}
-                  alt={product.name}
-                  fill
-                  className="object-contain p-3"
-                  sizes="90vw"
-                />
-              ) : (
-                <div className="w-full h-full bg-muted flex items-center justify-center text-muted-foreground text-xs">
-                  No image
-                </div>
-              )}
-            </AspectRatio>
-          </Link>
-        </div>
-
-        {/* Desktop: carousel ảnh */}
-        <div className="hidden md:block relative group/carousel">
+      <Card className="group h-full flex flex-col border-none shadow-none hover:shadow-md transition-all">
+        {/* 1. Phần hình ảnh: Dùng Carousel cho tất cả, chỉ ẩn nút trên Mobile */}
+        <div className="relative group/carousel">
           <Carousel className="w-full">
             <CarouselContent>
-              {product.images?.length > 0 ? (
-                product.images.map((img, idx) => (
-                  <CarouselItem key={idx}>
-                    <Link href={productUrl}>
-                      <AspectRatio ratio={16 / 9}>
-                        <Image
-                          src={getOptimizedImage(img, 800)}
-                          alt={`${product.name} - ${idx + 1}`}
-                          fill
-                          className="object-contain p-3"
-                          sizes="(max-width: 1024px) 33vw, 25vw"
-                        />
-                      </AspectRatio>
-                    </Link>
-                  </CarouselItem>
-                ))
-              ) : (
-                <CarouselItem>
-                  <AspectRatio ratio={16 / 9}>
-                    <div className="w-full h-full bg-muted flex items-center justify-center text-muted-foreground text-xs">
-                      No image
-                    </div>
-                  </AspectRatio>
+              {product.images.map((img, idx) => (
+                <CarouselItem key={idx}>
+                  <Link href={productUrl}>
+                    <AspectRatio ratio={16 / 9}>
+                      <Image
+                        src={getOptimizedImage(img)}
+                        fill
+                        className="object-contain p-2"
+                        alt={product.name}
+                      />
+                    </AspectRatio>
+                  </Link>
                 </CarouselItem>
-              )}
+              ))}
             </CarouselContent>
-            {product.images?.length > 1 && (
-              <>
-                <CarouselPrevious className="left-2 h-7 w-7 opacity-0 group-hover/carousel:enabled:opacity-100 disabled:invisible transition-opacity bg-background shadow-sm border-border" />
-                <CarouselNext className="right-2 h-7 w-7 opacity-0 group-hover/carousel:enabled:opacity-100 disabled:invisible transition-opacity bg-background shadow-sm border-border" />
-              </>
-            )}
+            {/* Chỉ hiện nút điều hướng trên Desktop */}
+            <div className="hidden md:block">
+              <CarouselPrevious
+                className={cn(
+                  "left-2 transition-all duration-300",
+                  "opacity-0 invisible group-hover/carousel:opacity-100 group-hover/carousel:visible",
+                )}
+              />
+              <CarouselNext
+                className={cn(
+                  "right-2 transition-all duration-300",
+                  "opacity-0 invisible group-hover/carousel:opacity-100 group-hover/carousel:visible",
+                )}
+              />
+            </div>
           </Carousel>
         </div>
 
-        {/* Content */}
-        <Link href={productUrl} className="flex-1">
-          <CardContent className="p-3 md:p-4 flex flex-col gap-1.5 h-full">
-            {product.sku && (
-              <span className="text-xs text-muted-foreground uppercase tracking-widest font-medium">
-                {product.sku}
-              </span>
+        {/* 2. Phần nội dung: Dùng Typography của mày cho sạch */}
+        <Link href={productUrl} className="p-4 flex flex-col gap-2">
+          <TypographyMuted>{product.sku}</TypographyMuted>
+
+          <TypographyLarge>{product.name}</TypographyLarge>
+
+          <div className="flex flex-col gap-1">
+            <TypographyLarge>
+              {formatPrice(product.sale_price || product.original_price)}
+            </TypographyLarge>
+
+            {(product.discount_percent ?? 0) > 0 && (
+              <div className="flex items-center gap-2">
+                <TypographyMuted className="line-through text-xs">
+                  {formatPrice(product.original_price)}
+                </TypographyMuted>
+                <Badge>-{product.discount_percent}%</Badge>
+              </div>
             )}
-            <h3 className="text-sm font-bold leading-snug line-clamp-2 group-hover:underline underline-offset-4 flex-1">
-              {product.name}
-            </h3>
-            <div className="mt-2 flex flex-col gap-1">
-              <span className="text-base md:text-lg font-bold tracking-tight">
-                {formatPrice(product.sale_price || product.original_price)}
-              </span>
-              {hasDiscount && (
-                <div className="flex items-center gap-2">
-                  <span className="text-md text-muted-foreground line-through">
-                    {formatPrice(product.original_price)}
-                  </span>
-                  <span className="text-xs font-bold bg-foreground text-background px-1.5 py-0.5 rounded-sm">
-                    -{product.discount_percent}%
-                  </span>
-                </div>
-              )}
-            </div>
-          </CardContent>
+          </div>
         </Link>
       </Card>
     );
   };
 
-  const DefaultCard = ({
-    feature,
-    index,
-  }: {
-    feature: (typeof defaultFeatures)[0];
-    index: number;
-  }) => (
-    <Card className="group p-5 flex flex-col hover:shadow-md transition-all duration-300 h-full">
-      <span className="text-4xl font-newsreader opacity-60 mb-5">
+  const DefaultCard = ({ feature, index }: { feature: any; index: number }) => (
+    <Card className="group p-6 flex flex-col hover:shadow-md transition-all duration-300 h-full border-border/50">
+      <TypographyH1 className="font-newsreader opacity-30 mb-6">
         {String(index + 1).padStart(2, "0")}
-      </span>
-      <Separator className="mb-5" />
-      <h3 className="text-sm font-medium mb-2 group-hover:underline underline-offset-4">
+      </TypographyH1>
+      <Separator className="mb-6 opacity-50" />
+      <TypographyLarge className="mb-3 group-hover:underline underline-offset-4 uppercase">
         {feature.title}
-      </h3>
-      <p className="text-xs text-muted-foreground leading-relaxed line-clamp-4 flex-1">
+      </TypographyLarge>
+      <TypographyP className="line-clamp-4 flex-1">
         {feature.description}
-      </p>
+      </TypographyP>
     </Card>
   );
 
+  // 1. Tạo biến chứa danh sách đã được bọc StaggerItem
+  const renderProducts = products.map((p) => (
+    <StaggerItem key={p.id}>
+      <ProductCard product={p} />
+    </StaggerItem>
+  ));
+
   return (
-    <section>
-      <div className="max-w-7xl mx-auto px-4 md:px-6">
-        <AnimateIn>
-          <h2 className="text-3xl md:text-4xl lg:text-5xl font-newsreader tracking-tight mb-10 md:mb-14">
-            {title}
-          </h2>
-        </AnimateIn>
+    <section className={SectionWrapper}>
+      <AnimateIn>
+        <TypographyH1 className="mb-10 md:mb-14">{title}</TypographyH1>
+      </AnimateIn>
 
-        {/* PRODUCT */}
-        {isShowingProducts && (
-          <>
-            {/* Mobile: Carousel — không animate, carousel tự handle */}
-            <div className="block md:hidden">
-              <Carousel opts={{ align: "center", dragFree: false }}>
-                <CarouselContent>
-                  {products.map((product) => (
-                    <CarouselItem key={product.id} className="basis-full">
-                      <ProductCard product={product} />
-                    </CarouselItem>
-                  ))}
-                </CarouselContent>
-              </Carousel>
-            </div>
-
-            {/* Tablet 3 cột, Desktop 4 cột */}
-            <StaggerContainer className="hidden md:grid md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
-              {products.map((product) => (
-                <StaggerItem key={product.id}>
-                  <ProductCard product={product} />
-                </StaggerItem>
+      {isShowingProducts ? (
+        <>
+          {/* Mobile: Chỉ cần CarouselContent bọc renderProducts là xong */}
+          <Carousel className="md:hidden" opts={{ align: "center" }}>
+            <CarouselContent className="-ml-4">
+              {products.map((p) => (
+                <CarouselItem key={p.id} className="pl-4 basis-[85%]">
+                  <ProductCard product={p} />
+                </CarouselItem>
               ))}
-            </StaggerContainer>
-          </>
-        )}
+            </CarouselContent>
+          </Carousel>
 
-        {/* DEFAULT */}
-        {!isShowingProducts && (
-          <>
-            {/* Mobile: 1 cột */}
-            <div className="grid grid-cols-1 md:hidden gap-4">
-              {defaultFeatures.map((feature, i) => (
-                <DefaultCard key={i} feature={feature} index={i} />
-              ))}
-            </div>
-
-            {/* Tablet 2 cột, Desktop 4 cột */}
-            <StaggerContainer className="hidden md:grid md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
-              {defaultFeatures.map((feature, i) => (
-                <StaggerItem key={i}>
-                  <DefaultCard feature={feature} index={i} />
-                </StaggerItem>
-              ))}
-            </StaggerContainer>
-          </>
-        )}
-      </div>
+          {/* Desktop: Grid dùng renderProducts */}
+          <StaggerContainer className={cn(ProductGrid, "hidden md:grid")}>
+            {renderProducts}
+          </StaggerContainer>
+        </>
+      ) : (
+        <StaggerContainer className={ServiceGrid}>
+          {defaultFeatures.map((f, i) => (
+            <StaggerItem key={i}>
+              <DefaultCard feature={f} index={i} />
+            </StaggerItem>
+          ))}
+        </StaggerContainer>
+      )}
     </section>
   );
 }
