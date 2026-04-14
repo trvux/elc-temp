@@ -1,22 +1,25 @@
-import React from "react";
+import { AnimateIn } from "@/components/ui/animate-in";
+import {
+  TypographyH1,
+  TypographyLarge,
+  TypographyMuted,
+  TypographyP,
+  TypographySmall,
+} from "@/components/ui/typography";
+import { getOptimizedImage } from "@/lib/image";
+import { cn } from "@/lib/utils";
+import { JoinedCategory } from "@/types/database";
+import { ArrowUpRight } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowUpRight } from "lucide-react";
-import { Separator } from "@/components/ui/separator";
-import { getOptimizedImage } from "@/lib/image";
-import { AnimateIn, StaggerContainer, StaggerItem } from "@/components/ui/animate-in";
 
 interface Project {
   id: string;
   slug: string;
   title: string;
-  description: string;
-  images: string[];
-  categories?: {
-    name: string;
-    slug: string;
-    parent?: { name: string; slug: string };
-  };
+  description?: string | null;
+  images?: string[] | null;
+  categories?: JoinedCategory | JoinedCategory[];
 }
 
 interface ShowcaseSectionProps {
@@ -29,95 +32,105 @@ export function ShowcaseSection({ projects }: ShowcaseSectionProps) {
 
   if (!mainProject) return null;
 
-  const mainProjectUrl = mainProject.categories?.slug
-    ? `/cong-trinh/${mainProject.categories.slug}/${mainProject.slug}`
+  const catData = Array.isArray(mainProject.categories)
+    ? mainProject.categories[0]
+    : mainProject.categories;
+
+  const mainProjectUrl = catData?.slug
+    ? `/cong-trinh/${catData.slug}/${mainProject.slug}`
     : `/cong-trinh/${mainProject.slug}`;
 
+  // Khoảng cách được kiểm soát tập trung tại đây bằng gap
+  const LayoutGrid = cn(
+    "grid grid-cols-1 md:grid-cols-12 gap-y-10 md:gap-x-12 lg:gap-x-16 items-start",
+  );
+
+  // Ảnh: Chỉ giữ logic vị trí và kích thước cột
+  const SectionImage = cn(
+    "md:col-span-5 md:row-span-6 md:row-start-1",
+    "order-4 md:order-0",
+  );
+
+  const ImageWrapper = cn(
+    "relative overflow-hidden rounded-sm shadow-xl shadow-black/5",
+    "w-full aspect-4/5",
+  );
+
+  // Nội dung: Sạch sẽ, không dính margin lẻ
+  const SectionCategory = "md:col-span-7 md:col-start-6 order-1";
+  const SectionTitle = "md:col-span-7 md:col-start-6 order-2";
+  const SectionDescription = "md:col-span-7 md:col-start-6 order-3";
+  const SectionRelated = cn(
+    "md:col-span-12 lg:col-span-7 lg:col-start-6 order-6",
+  );
   return (
-    <section className="">
-      <div className="max-w-7xl mx-auto px-4 md:px-6">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
-          {/* Cột content — mobile: trên, desktop: phải */}
-          <AnimateIn className="order-1 lg:order-2 flex flex-col gap-6">
-            {/* Danh mục */}
-            <div className="flex items-center gap-2 text-sm">
-              <span className="text-muted-foreground">Danh mục</span>
-              <span className="font-medium">
-                {mainProject.categories?.parent?.name
-                  ? `${mainProject.categories.parent.name} / ${mainProject.categories.name}`
-                  : mainProject.categories?.name || "Kiến trúc"}
-              </span>
-            </div>
-            {/* Title */}
-            <h2 className="font-newsreader text-3xl md:text-4xl lg:text-5xl leading-tight italic">
-              {mainProject.title}
-            </h2>
+    <section className="container mx-auto max-w-7xl">
+      <div className={LayoutGrid}>
+        {/* 1. Danh mục */}
+        <div className={SectionCategory}>
+          <TypographyMuted>
+            {catData?.parent?.name
+              ? `${catData.parent.name} / ${catData.name}`
+              : catData?.name || "Kiến trúc"}
+          </TypographyMuted>
+        </div>
 
-            {/* Description — blur phần cuối */}
-            <div className="relative">
-              <p className="text-sm md:text-base text-muted-foreground leading-relaxed line-clamp-4 lg:line-clamp-20">
-                {mainProject.description?.replace(/<[^>]*>?/gm, "")}
-              </p>
-            </div>
-          </AnimateIn>
+        {/* 2. Title */}
+        <div className={SectionTitle}>
+          <TypographyH1>{mainProject.title}</TypographyH1>
+        </div>
 
-          {/* Cột img — mobile: dưới, desktop: trái */}
-          <AnimateIn className="order-2 lg:order-1" delay={0.15} variant="fadeIn">
-            <Link href={mainProjectUrl}>
-              <div className="relative aspect-video lg:aspect-[3/4] overflow-hidden rounded-2xl group">
+        {/* 3. Bài viết */}
+        <div className={SectionDescription}>
+          <TypographyP>
+            {(mainProject.description || "")
+              .replace(/<[^>]*>?/gm, "")
+              .slice(0, 300)}
+            ...
+          </TypographyP>
+        </div>
+
+        {/* 4. Ảnh */}
+        <div className={SectionImage}>
+          <AnimateIn variant="fadeIn">
+            <Link href={mainProjectUrl} className="block group">
+              <div className={ImageWrapper}>
                 {mainProject.images?.[0] && (
                   <Image
                     src={getOptimizedImage(mainProject.images[0])}
                     alt={mainProject.title}
                     fill
-                    priority
-                    className="object-cover transition-transform duration-700 group-hover:scale-105"
-                    sizes="(max-width: 1024px) 100vw, 50vw"
+                    className="object-cover transition-transform duration-1000 group-hover:scale-105"
+                    sizes="(max-width: 768px) 100vw, 40vw"
                   />
                 )}
-                {/* Hover overlay */}
-                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all duration-300 flex items-center justify-center">
-                  <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-white rounded-full p-3">
-                    <ArrowUpRight size={20} />
-                  </div>
-                </div>
               </div>
             </Link>
           </AnimateIn>
         </div>
 
-        {/* Bài gợi ý — dưới cùng */}
-        {otherProjects && otherProjects.length > 0 && (
-          <div className="mt-12">
-            <Separator className="mb-6" />
-            <StaggerContainer className="flex flex-col gap-4">
-              {otherProjects.slice(0, 2).map((p, idx) => {
-                const projectUrl = p.categories?.slug
-                  ? `/cong-trinh/${p.categories.slug}/${p.slug}`
-                  : `/cong-trinh/${p.slug}`;
-                return (
-                  <StaggerItem key={p.id}>
-                    <Link
-                      href={projectUrl}
-                      className="flex items-center justify-between py-3 border-b border-border/50 hover:border-border transition-colors group"
-                    >
-                      <div className="flex items-center gap-4">
-                        <span className="text-sm text-muted-foreground font-mono">
-                          0{idx + 2}
-                        </span>
-                        <span className="text-sm md:text-base font-medium group-hover:text-foreground transition-colors">
-                          {p.title}
-                        </span>
-                      </div>
-                      <ArrowUpRight
-                        size={16}
-                        className="text-muted-foreground group-hover:text-foreground transition-colors"
-                      />
-                    </Link>
-                  </StaggerItem>
-                );
-              })}
-            </StaggerContainer>
+        {/* 6. Dự án liên quan */}
+        {otherProjects?.length > 0 && (
+          <div className={SectionRelated}>
+            <div className="flex flex-col gap-6">
+              {/* Dùng gap bên trong cụm related */}
+              <TypographySmall>Dự án liên quan</TypographySmall>
+              <div className="flex flex-col">
+                {otherProjects.slice(0, 2).map((p, idx) => (
+                  <Link
+                    key={p.id}
+                    href={`/cong-trinh/${p.slug}`}
+                    className="group flex justify-between items-center py-5 border-b border-foreground/30 transition-all"
+                  >
+                    <div className="flex items-center gap-4">
+                      <span>0{idx + 2}</span>
+                      <TypographyLarge>{p.title}</TypographyLarge>
+                    </div>
+                    <ArrowUpRight size={16} className=" transition-all" />
+                  </Link>
+                ))}
+              </div>
+            </div>
           </div>
         )}
       </div>
