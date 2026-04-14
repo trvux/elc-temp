@@ -1,36 +1,41 @@
 "use client";
 
-import React from "react";
+import {
+  EmailIcon,
+  FacebookIcon,
+  LinkIcon,
+  MessengerIcon,
+  PhoneIcon,
+  WebsiteIcon,
+  ZaloIcon,
+} from "@/components/social-icons";
+import { AnimateIn } from "@/components/ui/animate-in";
 import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
+import {
+  Drawer,
+  DrawerContent,
+  DrawerHeader,
+  DrawerTrigger,
+} from "@/components/ui/drawer";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuTrigger,
   DropdownMenuLabel,
   DropdownMenuSeparator,
+  DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Separator } from "@/components/ui/separator";
 import {
-  Drawer,
-  DrawerContent,
-  DrawerDescription,
-  DrawerHeader,
-  DrawerTitle,
-  DrawerTrigger,
-} from "@/components/ui/drawer";
-import {
-  FacebookIcon,
-  ZaloIcon,
-  MessengerIcon,
-  PhoneIcon,
-  EmailIcon,
-  WebsiteIcon,
-  LinkIcon,
-} from "@/components/social-icons";
+  TypographyH2,
+  TypographyLarge,
+  TypographyMuted,
+  TypographyP,
+  TypographySmall,
+} from "@/components/ui/typography";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { cn } from "@/lib/utils";
 import Link from "next/link";
-import { AnimateIn } from "@/components/ui/animate-in";
 
 interface Contact {
   id: string;
@@ -45,6 +50,32 @@ interface CTASectionProps {
   contacts: Contact[];
 }
 
+// --- LOGIC HELPER (Tách ra ngoài cho sạch) ---
+const getContactIcon = (type: string) => {
+  const icons: Record<string, any> = {
+    phone: PhoneIcon,
+    email: EmailIcon,
+    facebook: FacebookIcon,
+    messenger: MessengerIcon,
+    zalo: ZaloIcon,
+    website: WebsiteIcon,
+  };
+  return icons[type] || LinkIcon;
+};
+
+const getContactHref = (type: string, value: string) => {
+  const clean = value.replace(/\s/g, "");
+  if (value.startsWith("http")) return value;
+  const hrefs: Record<string, string> = {
+    phone: `tel:${clean}`,
+    email: `mailto:${value}`,
+    zalo: `https://zalo.me/${clean}`,
+    messenger: `https://m.me/${value}`,
+    facebook: `https://facebook.com/${value}`,
+  };
+  return hrefs[type] || value;
+};
+
 export function CTASection({ settings, contacts }: CTASectionProps) {
   const isMobile = useIsMobile();
   const email = settings?.company_email || "contact@elc.com";
@@ -52,170 +83,109 @@ export function CTASection({ settings, contacts }: CTASectionProps) {
   const description =
     settings?.cta_description ||
     "Đội ngũ chuyên gia của ELC sẵn sàng đồng hành tư vấn giải pháp không khí tối ưu nhất, phù hợp đặc tính từng không gian kiến trúc.";
-  const primaryBtnText = settings?.cta_primary_btn_text || "Liên hệ ngay";
 
-  const getContactIcon = (type: string) => {
-    switch (type) {
-      case "phone":
-        return PhoneIcon;
-      case "email":
-        return EmailIcon;
-      case "facebook":
-        return FacebookIcon;
-      case "messenger":
-        return MessengerIcon;
-      case "zalo":
-        return ZaloIcon;
-      case "website":
-        return WebsiteIcon;
-      default:
-        return LinkIcon;
-    }
-  };
-
-  const getContactHref = (type: string, value: string) => {
-    const cleanValue = value.replace(/\s/g, "");
-    if (value.startsWith("http")) return value;
-    switch (type) {
-      case "phone":
-        return `tel:${cleanValue}`;
-      case "email":
-        return `mailto:${value}`;
-      case "zalo":
-        return `https://zalo.me/${cleanValue}`;
-      case "messenger":
-        return `https://m.me/${value}`;
-      case "facebook":
-        return `https://facebook.com/${value}`;
-      default:
-        return value;
-    }
-  };
-
-  const renderContactItem = (contact: Contact, isDropdown = false) => {
+  // Render Item chung để không phải viết lại logic Link/Anchor
+  const ContactLink = ({ contact }: { contact: Contact }) => {
     const Icon = getContactIcon(contact.type);
     const href = getContactHref(contact.type, contact.value);
-    const isProtocol = contact.type === "phone" || contact.type === "email";
-
-    const content = (
-      <>
-        <Icon
-          size={20}
-          className="text-muted-foreground group-hover:text-primary transition-colors shrink-0"
-        />
-        <div className="flex flex-col gap-0.5 min-w-0 text-left">
-          <span className="text-sm font-medium truncate">
-            {contact.label || contact.type}
-          </span>
-          <span className="text-xs text-muted-foreground truncate">
-            {contact.value}
-          </span>
-        </div>
-      </>
-    );
-
-    const className = isDropdown
-      ? "flex items-center gap-3 cursor-pointer px-3 py-2.5 w-full group"
-      : "flex items-center gap-4 cursor-pointer px-3 py-3.5 w-full hover:bg-muted/50 rounded-lg transition-colors group";
-
-    if (isProtocol) {
-      return (
-        <a key={contact.id} href={href} className={className}>
-          {content}
-        </a>
-      );
-    }
+    const isExternal = !["phone", "email"].includes(contact.type);
 
     return (
       <Link
-        key={contact.id}
         href={href}
-        target="_blank"
-        rel="noopener noreferrer"
-        className={className}
+        target={isExternal ? "_blank" : undefined}
+        className={cn(
+          "flex items-center gap-4 p-3 rounded-lg hover:bg-muted/50 transition-colors group w-full",
+        )}
       >
-        {content}
+        <Icon
+          size={20}
+          className="shrink-0 text-muted-foreground group-hover:text-primary transition-colors"
+        />
+        <div className="flex flex-col text-left min-w-0">
+          <TypographySmall>{contact.label || contact.type}</TypographySmall>
+          <TypographyMuted>{contact.value}</TypographyMuted>
+        </div>
       </Link>
     );
   };
 
+  const SectionWrapper = "max-w-7xl mx-auto";
+  const ContentWrapper =
+    "flex flex-col items-center text-center max-w-3xl mx-auto gap-10";
+
+  // Class cho Contact Items
+  const ContactItemBase = cn(
+    "flex items-center gap-4 group transition-colors w-full",
+    "px-3 py-3", // Padding chung cho cả dropdown và drawer
+  );
+
+  const IconWrapper =
+    "text-muted-foreground group-hover:text-primary transition-colors shrink-0";
   return (
-    <section className="">
-      <div className="max-w-7xl mx-auto px-4 md:px-6">
-        <AnimateIn className="flex flex-col items-center text-center max-w-2xl mx-auto gap-8">
-          {/* Title */}
-          <h2 className="font-newsreader text-4xl md:text-5xl lg:text-6xl leading-tight italic">
-            {title}
-          </h2>
+    <section className={SectionWrapper}>
+      <AnimateIn className="flex flex-col items-center text-center max-w-3xl mx-auto gap-10">
+        <TypographyH2>{title}</TypographyH2>
 
-          {/* Description */}
-          <p className="text-sm md:text-base text-muted-foreground leading-relaxed">
-            {description}
-          </p>
+        <TypographyP>{description}</TypographyP>
 
-          {/* Button */}
+        {/* TRIGGER BUTTON */}
+        <div className="w-full sm:w-auto">
           {isMobile ? (
             <Drawer>
               <DrawerTrigger asChild>
-                <Button size="lg" className="w-full sm:w-auto px-10 h-12">
-                  {primaryBtnText}
+                <Button size="lg" className="w-full">
+                  {settings?.cta_primary_btn_text || "Liên hệ ngay"}
                 </Button>
               </DrawerTrigger>
-              <DrawerContent className="px-4 pb-12 bg-cream">
-                <DrawerHeader className="px-0 pt-8 pb-4">
-                  <DrawerTitle className="text-left text-sm font-bold text-primary">
-                    Kênh liên hệ hỗ trợ
-                  </DrawerTitle>
-                  <DrawerDescription className="text-left text-xs">
-                    Vui lòng chọn kênh liên hệ để chúng tôi hỗ trợ bạn tốt nhất.
-                  </DrawerDescription>
+              <DrawerContent>
+                <DrawerHeader>
+                  <TypographyLarge>Kênh liên hệ hỗ trợ</TypographyLarge>
+                  <TypographyMuted>
+                    Vui lòng chọn kênh để chúng tôi hỗ trợ tốt nhất.
+                  </TypographyMuted>
                 </DrawerHeader>
                 <div className="flex flex-col gap-1">
-                  {contacts.map((contact) => renderContactItem(contact))}
+                  {contacts.map((c) => (
+                    <ContactLink key={c.id} contact={c} />
+                  ))}
                 </div>
               </DrawerContent>
             </Drawer>
           ) : (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button size="lg" className="px-20 h-12">
-                  {primaryBtnText}
+                <Button size="lg">
+                  {settings?.cta_primary_btn_text || "Liên hệ ngay"}
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent
                 align="center"
-                side="bottom"
-                className="w-64 p-2 bg-cream"
+                className="w-fit p-2 bg-cream shadow-2xl border-none"
               >
-                <DropdownMenuLabel className="text-sm font-bold text-primary">
-                  Kênh liên hệ hỗ trợ
-                </DropdownMenuLabel>
+                <DropdownMenuLabel>Kênh hỗ trợ</DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                {contacts.map((contact) => (
-                  <DropdownMenuItem key={contact.id} asChild className="p-0">
-                    {renderContactItem(contact, true)}
+                {contacts.map((c) => (
+                  <DropdownMenuItem key={c.id} asChild>
+                    <ContactLink contact={c} />
                   </DropdownMenuItem>
                 ))}
               </DropdownMenuContent>
             </DropdownMenu>
           )}
+        </div>
 
-          <Separator className="max-w-xs opacity-20" />
+        <Separator />
 
-          {/* Email */}
-          <div className="flex flex-col items-center gap-2">
-            <p className="text-xs text-muted-foreground font-medium tracking-wider uppercase">
-              Hoặc kết nối qua email
-            </p>
-            <a
-              href={`mailto:${email}`}
-              className="text-base md:text-lg font-medium hover:text-primary transition-colors underline-offset-4 hover:underline"
-            >
-              {email}
-            </a>
-          </div>
-        </AnimateIn>
-      </div>
+        {/* FOOTER EMAIL */}
+        <div className="flex flex-col items-center gap-3">
+          <TypographyMuted>Hoặc kết nối qua email</TypographyMuted>
+          <Link href={`mailto:${email}`} className="group relative">
+            <TypographyLarge>{email}</TypographyLarge>
+            <div className="absolute -bottom-1 left-0 w-full h-px bg-primary/20 group-hover:bg-primary transition-colors" />
+          </Link>
+        </div>
+      </AnimateIn>
     </section>
   );
 }
