@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/button";
+import { Separator } from "@/components/ui/separator";
 import { TypographyH1, TypographyLead } from "@/components/ui/typography";
 import { getOptimizedImage } from "@/lib/image";
 import { cn } from "@/lib/utils";
@@ -57,7 +58,7 @@ export function HeroSection({
       {/* Cụm Content: Khoảng cách giữa các phần tử ở đây do cha quản lý */}
       <div>
         <TypographyH1>{displayTitle}</TypographyH1>
-
+        <Separator />
         <TypographyLead>{displaySubtitle}</TypographyLead>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 pt-2 w-full">
