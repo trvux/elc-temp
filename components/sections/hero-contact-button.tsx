@@ -1,17 +1,8 @@
 "use client";
 
-import { useState, useEffect, type ComponentType } from "react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import {
-  FacebookIcon,
-  ZaloIcon,
-  MessengerIcon,
-  PhoneIcon,
-  EmailIcon,
-  WebsiteIcon,
-  LinkIcon,
-} from "@/components/social-icons";
+import { useEffect, useState } from "react";
 
 interface Contact {
   id: string;
@@ -19,25 +10,6 @@ interface Contact {
   label: string;
   value: string;
   order_index: number;
-}
-
-function getContactIcon(type: string) {
-  switch (type) {
-    case "phone":
-      return PhoneIcon;
-    case "email":
-      return EmailIcon;
-    case "facebook":
-      return FacebookIcon;
-    case "messenger":
-      return MessengerIcon;
-    case "zalo":
-      return ZaloIcon;
-    case "website":
-      return WebsiteIcon;
-    default:
-      return LinkIcon;
-  }
 }
 
 function getContactHref(type: string, value: string) {
@@ -74,53 +46,31 @@ export function HeroContactButton({ contacts }: { contacts: Contact[] }) {
 
   if (!currentContact) {
     return (
-      <Button
-        variant="outline"
-        size="lg"
-        className="w-full h-12 text-base font-semibold md:col-span-3 lg:col-span-4 xl:col-span-4"
-      >
+      <Button variant="outline" size="lg">
         Liên hệ hỗ trợ
       </Button>
     );
   }
 
-  const ContactIcon = getContactIcon(currentContact.type) as ComponentType<{
-    size?: number;
-    className?: string;
-  }>;
   const href = getContactHref(currentContact.type, currentContact.value);
-  const isProtocol =
-    currentContact.type === "phone" || currentContact.type === "email";
 
   return (
-    <Button
-      asChild
-      variant="outline"
-      size="lg"
-      className="w-full h-12 text-base font-semibold group flex items-center overflow-hidden relative border-foreground/20 hover:border-foreground/40 bg-transparent transition-all duration-300 md:col-span-3 lg:col-span-4 xl:col-span-4"
+    <Link
+      href={href}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="h-full w-full"
     >
-      <a
-        href={href}
-        target={isProtocol ? undefined : "_blank"}
-        rel="noopener noreferrer"
-      >
-        <div className="grid grid-cols-10 items-center animate-in fade-in slide-in-from-bottom-2 duration-500 w-full h-full">
-          <div className="col-span-2 flex justify-center items-center border-r border-foreground/5 h-full">
-            <ContactIcon
-              size={18}
-              className="text-primary transition-colors drop-shadow-sm"
-            />
-          </div>
-          <div className="col-span-8 flex flex-col items-center md:items-start md:pl-4 leading-tight">
-            <span className="text-xs font-bold text-primary/60 normal-case mb-0.5 scale-90 origin-center md:origin-left text-center md:text-left">
-              {currentContact.label || currentContact.type}
-            </span>
-            <span className="text-sm font-bold truncate w-full text-foreground tracking-tight text-center md:text-left">
-              {currentContact.value}
-            </span>
-          </div>
-        </div>
-      </a>
-    </Button>
+      {/* Bên trái: Label */}
+      <div className="flex flex-row items-center justify-start w-full h-full gap-2">
+        <span className="text-muted-foreground text-xs font-bold shrink-0 w-2/8">
+          {currentContact.label}
+        </span>
+        <span className="border-r border-border h-full"></span>
+        <span className="truncate text-base font-semibold text-center flex-1">
+          {currentContact.value}
+        </span>
+      </div>
+    </Link>
   );
 }

@@ -1,9 +1,8 @@
-import Link from "next/link";
-import React from "react";
-import { createClient } from "@/lib/supabase/server";
-import { InfoTOC } from "@/components/user/info-toc";
 import { Separator } from "@/components/ui/separator";
+import { InfoTOC } from "@/components/user/info-toc";
 import { ScrollToTop } from "@/components/user/scroll-to-top";
+import { createClient } from "@/lib/supabase/server";
+import { cn } from "@/lib/utils";
 
 export default async function InformationHub() {
   const supabase = await createClient();
@@ -24,6 +23,21 @@ export default async function InformationHub() {
   }
 
   const currentTitle = "Thông tin về ELC";
+
+  // const HeroSectionLayout = cn(
+  //   //mobile
+  //   "grid p-4 min-h-screen gap-4 max-w-7xl mx-auto",
+  //   //tablet
+  //   "md:grid grid-rows-4 grid-flow-col",
+  //   //desktop
+  //   "lg:grid grid-rows-6 grid-flow-col",
+  // );
+
+  const HeroSectionLayout = cn(
+    "grid p-4 gap-4 max-w-7xl mx-auto",
+    // Tablet: Hàng 2 (chứa Separator) chỉ lấy diện tích tối thiểu
+    "md:grid grid-flow-col grid-rows-[1fr_min-content_1fr_1fr]",
+  );
 
   return (
     <main className="w-full pt-32 md:38 pb-24 px-4 md:px-6 min-h-screen font-sans tracking-tight">

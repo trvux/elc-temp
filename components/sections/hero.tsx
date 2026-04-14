@@ -1,8 +1,9 @@
 import { Button } from "@/components/ui/button";
-import Link from "next/link";
-import { Separator } from "@/components/ui/separator";
-import Image from "next/image";
+import { TypographyH1, TypographyLead } from "@/components/ui/typography";
 import { getOptimizedImage } from "@/lib/image";
+import { cn } from "@/lib/utils";
+import Image from "next/image";
+import Link from "next/link";
 import { HeroContactButton } from "./hero-contact-button";
 
 interface Contact {
@@ -38,49 +39,48 @@ export function HeroSection({
   const displayCtaUrl = ctaUrl || "/cong-trinh";
   const displayImage = image || "/img-herosection.jpg";
 
+  const HeroSectionLayout = cn(
+    // 1. Khung Grid tổng (Responsive Column)
+    "grid grid-cols-1 gap-12 p-4 max-w-7xl mx-auto items-center min-h-[60vh]",
+    "md:grid-cols-2 md:gap-16", // Tăng gap ngang trên desktop cho sang
+
+    // 2. Định nghĩa Spacing cho cụm TEXT (Cột 1)
+    // Dùng class [&>*]: để ép khoảng cách cho tất cả con trực tiếp bên trong
+    "[&>div:first-child]:flex [&>div:first-child]:flex-col",
+    "[&>div:first-child]:gap-6 md:[&>div:first-child]:gap-8", // Spacing giữa h1, separator, lead
+
+    // 3. Media (Cột 2)
+    "[&>div:last-child]:relative [&>div:last-child]:w-full [&>div:last-child]:aspect-square md:[&>div:last-child]:aspect-auto md:[&>div:last-child]:h-full [&>div:last-child]:rounded-3xl [&>div:last-child]:overflow-hidden",
+  );
   return (
-    <section className="pt-36 max-w-screen-2xl lg:mx-auto ">
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center justify-between">
-        {/* Cột trái */}
-        <div className="flex flex-col gap-8">
-          <h1 className="font-newsreader text-4xl sm:text-6xl lg:text-7xl leading-tight tracking-tighter">
-            {displayTitle}
-          </h1>
+    <section className={HeroSectionLayout}>
+      {/* Cụm Content: Khoảng cách giữa các phần tử ở đây do cha quản lý */}
+      <div>
+        <TypographyH1>{displayTitle}</TypographyH1>
 
-          <Separator />
+        <TypographyLead>{displaySubtitle}</TypographyLead>
 
-          <p className="text-base xl:text-lg text-foreground leading-relaxed">
-            {displaySubtitle}
-          </p>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 pt-2 w-full">
+          <Button asChild size="lg" className="w-full lg:w-auto ">
+            <Link href={displayCtaUrl}>{displayCtaText}</Link>
+          </Button>
 
-          {/* Button Layout Group */}
-          <div className="grid grid-cols-1 md:grid-cols-10 gap-4">
-            {/* Button Chính */}
-            <Button
-              asChild
-              size="lg"
-              className="w-full h-12 text-base font-semibold md:col-span-7 lg:col-span-6 xl:col-span-6"
-            >
-              <Link href={displayCtaUrl}>{displayCtaText}</Link>
-            </Button>
-
-            {/* Button Phụ (Direct Link + Cycling) */}
+          <Button size="lg" variant="outline">
             <HeroContactButton contacts={contacts} />
-          </div>
+          </Button>
         </div>
+      </div>
 
-        {/* Cột phải */}
-        <div className="relative aspect-square w-full">
-          <Image
-            src={getOptimizedImage(displayImage)}
-            alt="ELC không gian sống"
-            fill
-            priority
-            fetchPriority="high"
-            className="object-cover rounded-2xl"
-            sizes="(max-width: 1280px) 100vw, 800px"
-          />
-        </div>
+      {/* Cụm Media */}
+      <div className="shadow-2xl">
+        <Image
+          src={getOptimizedImage(displayImage)}
+          alt="ELC Space"
+          fill
+          priority
+          className="object-cover"
+          sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 640px"
+        />
       </div>
     </section>
   );

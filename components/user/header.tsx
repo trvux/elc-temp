@@ -1,11 +1,11 @@
 "use client";
 
-import * as React from "react";
-import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { Menu, X } from "lucide-react";
-import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
 import {
   NavigationMenu,
   NavigationMenuItem,
@@ -13,11 +13,11 @@ import {
   NavigationMenuList,
   navigationMenuTriggerStyle,
 } from "@/components/ui/navigation-menu";
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "@/components/ui/collapsible";
+import { cn } from "@/lib/utils";
+import { Menu, X } from "lucide-react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import * as React from "react";
 
 interface NavLink {
   name: string;
@@ -37,7 +37,7 @@ export function Header() {
   const pathname = usePathname();
 
   return (
-    <div className="w-full fixed top-0 left-0 right-0 z-50">
+    <div className="w-full sticky top-0 left-0 right-0 z-50 mb-4">
       {/* Main Header Container */}
       <header className="px-4 py-4 sm:px-6 lg:px-12">
         <div className="max-w-7xl mx-auto">

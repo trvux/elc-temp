@@ -1,7 +1,7 @@
-import type { Metadata } from "next";
-import { Header } from "@/components/user/header";
 import { Footer } from "@/components/user/footer";
+import { Header } from "@/components/user/header";
 import { createClient } from "@/lib/supabase/server";
+import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "Điện máy ELC",
@@ -48,9 +48,9 @@ export default async function PublicLayout({
   });
 
   return (
-    <div className="flex flex-col min-h-screen bg-cream">
+    <div className="grid grid-cols-1 gap-4 bg-cream">
       <Header />
-      <main className="flex-1">{children}</main>
+      <main className="">{children}</main>
       <Footer
         branches={branches || []}
         projects={projects || []}

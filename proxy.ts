@@ -27,25 +27,38 @@ export async function proxy(request: NextRequest) {
     },
   );
 
+  // This will refresh the session if it's expired
   const {
-    data: { session },
-  } = await supabase.auth.getSession();
+    data: { user },
+  } = await supabase.auth.getUser();
 
   const isLoginPage = request.nextUrl.pathname === "/admin/login";
+  const isAdminPath = request.nextUrl.pathname.startsWith("/admin");
 
-  // Chưa login + không phải trang login → redirect về login
-  if (!session && !isLoginPage) {
-    return NextResponse.redirect(new URL("/admin/login", request.url));
-  }
+  if (isAdminPath) {
+    // Chưa login + không phải trang login → redirect về login
+    if (!user && !isLoginPage) {
+      return NextResponse.redirect(new URL("/admin/login", request.url));
+    }
 
-  // Đã login + đang ở trang login → redirect về dashboard
-  if (session && isLoginPage) {
-    return NextResponse.redirect(new URL("/admin", request.url));
+    // Đã login + đang ở trang login → redirect về dashboard
+    if (user && isLoginPage) {
+      return NextResponse.redirect(new URL("/admin", request.url));
+    }
   }
 
   return supabaseResponse;
 }
 
 export const config = {
-  matcher: ["/admin/:path*"],
+  matcher: [
+    /*
+     * Match all request paths except for the ones starting with:
+     * - _next/static (static files)
+     * - _next/image (image optimization files)
+     * - favicon.ico (favicon file)
+     * Feel free to modify this pattern to include more paths.
+     */
+    "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
+  ],
 };
