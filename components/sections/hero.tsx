@@ -81,6 +81,7 @@ export function HeroSection({
           priority
           className="object-cover"
           sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 640px"
+          loading="eager"
         />
       </div>
     </section>
