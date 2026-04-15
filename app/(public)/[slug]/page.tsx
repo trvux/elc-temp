@@ -1,61 +1,63 @@
-import React from "react";
-import { Metadata } from "next";
-import { notFound } from "next/navigation";
-import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { TypographyH1, TypographySmall } from "@/components/ui/typography";
+import { ScrollToTop } from "@/components/user/scroll-to-top";
 import { createClient } from "@/lib/supabase/server";
 import { createStaticClient } from "@/lib/supabase/static";
-import { ScrollToTop } from "@/components/user/scroll-to-top";
 import { cn } from "@/lib/utils";
 import { ArrowLeft } from "lucide-react";
-import {
-  TypographyH1,
-  TypographyH2,
-  TypographyLead,
-  TypographyMuted,
-  TypographySmall,
-} from "@/components/ui/typography";
+import { Metadata } from "next";
+import Link from "next/link";
+import { notFound } from "next/navigation";
 
 // Design System / Style Constants
 const STYLES = {
-  main: cn(
-    "w-full pt-32 md:pt-48 pb-24 px-4 md:px-6 min-h-screen font-sans tracking-tight"
-  ),
-  container: cn("max-w-3xl mx-auto"),
-  header: cn("mb-20"),
-  title: cn(
-    "text-4xl md:text-6xl lg:text-7xl font-black tracking-tighter text-foreground leading-[1.05] lowercase first-letter:capitalize mb-8 border-none"
-  ),
-  meta: cn(
-    "flex items-center gap-4 font-black uppercase tracking-[0.3em] text-muted-foreground/30 mb-12"
-  ),
-  lead: cn(
-    "text-xl md:text-2xl leading-[1.6] text-muted-foreground/80 font-medium italic border-l-4 border-primary/20 pl-8 my-16 font-serif"
-  ),
+  main: cn("w-full min-h-screen py-10 px-4 md:py-20"),
+  container: cn("max-w-3xl mx-auto flex flex-col gap-6"),
+
+  title: cn("w-full max-w-none! text-wrap!"),
   prose: cn(
-    "prose prose-zinc prose-lg md:prose-xl dark:prose-invert max-w-none",
-    "font-serif",
-    "prose-p:leading-[1.8] prose-p:my-12 prose-p:text-lg md:prose-p:text-xl prose-p:text-foreground/90",
-    "prose-headings:font-sans prose-headings:font-black prose-headings:tracking-tighter prose-headings:text-foreground",
-    "prose-headings:mt-24 prose-headings:mb-10 prose-headings:leading-[1.1]",
-    "prose-a:text-primary prose-a:underline prose-a:underline-offset-8 decoration-primary/20 hover:decoration-primary transition-all",
-    "prose-img:rounded-none prose-img:w-full prose-img:block prose-img:mx-auto prose-img:my-20 prose-img:shadow-2xl prose-img:shadow-foreground/5",
-    "prose-blockquote:border-l-4 prose-blockquote:border-primary/20 prose-blockquote:pl-8 prose-blockquote:italic prose-blockquote:text-muted-foreground",
-    "prose-ul:list-disc prose-ul:pl-8 prose-ol:list-decimal prose-ol:pl-8"
+    // 1. Reset & Base (Loại bỏ khoảng cách mặc định của thư viện prose)
+    "prose prose-neutral max-w-none dark:prose-invert",
+    "prose-p:my-2 prose-headings:my-2 prose-headings:mt-6 prose-blockquote:my-6 prose-ul:my-2 prose-ol:my-2 prose-li:my-2",
+    "prose-img:my-2 prose-table:my-2",
+
+    // 2. Typography H1 (Dựa trên TypographyH1)
+    "prose-h1:scroll-m-20 prose-h1:text-4xl prose-h1:font-extrabold prose-h1:tracking-tight prose-h1:text-balance",
+
+    // 3. Typography H2 (Dựa trên TypographyH2)
+    "prose-h2:scroll-m-20 prose-h2:text-3xl prose-h2:font-semibold prose-h2:tracking-tight prose-h2:border-b-0",
+
+    // 4. Typography H3 & H4
+    "prose-h3:scroll-m-20 prose-h3:text-2xl prose-h3:font-semibold prose-h3:tracking-tight",
+    "prose-h4:scroll-m-20 prose-h4:text-xl prose-h4:font-semibold prose-h4:tracking-tight",
+
+    // 5. Paragraph & Lead (Dựa trên TypographyP)
+    "prose-p:leading-7 prose-p:text-foreground/90",
+
+    // 6. Blockquote (Dựa trên TypographyBlockquote)
+    "prose-blockquote:border-l-2 prose-blockquote:pl-6 prose-blockquote:italic prose-blockquote:text-muted-foreground",
+    "prose-blockquote:border-foreground/20",
+
+    // 7. Table (Dựa trên TypographyTable & TableCell)
+    "prose-th:border prose-th:px-4 prose-th:py-2 prose-th:text-left prose-th:font-bold",
+    "prose-td:border prose-td:px-4 prose-td:py-2 prose-td:text-left",
+
+    // 8. Lists (Dựa trên TypographyList)
+    "prose-ul:list-disc prose-ol:list-decimal",
+    "prose-li:leading-7",
+    "prose-li:marker:text-foreground/80",
+
+    // 9. Inline Code (Dựa trên TypographyInlineCode)
+    "prose-code:relative prose-code:rounded prose-code:bg-muted prose-code:px-[0.3rem] prose-code:py-[0.2rem] prose-code:font-mono prose-code:text-sm prose-code:font-semibold prose-code:before:content-[''] prose-code:after:content-['']",
+
+    // 10. Custom (Giữ lại vẻ cao cấp cho link)
+    "prose-a:text-primary prose-a:underline prose-a:underline-offset-4 hover:text-primary/80 transition-colors",
   ),
-  footerNav: cn("mt-40 pt-16 border-t border-border flex flex-col gap-12"),
-  backLink: cn(
-    "group flex flex-col gap-4 no-underline max-w-max py-4 px-6 -mx-6 rounded-2xl transition-all duration-300 hover:bg-foreground/[0.03]"
-  ),
-  backLabel: cn(
-    "flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.4em] text-muted-foreground/40 group-hover:text-primary transition-colors"
-  ),
-  backTitle: cn(
-    "text-2xl font-bold tracking-tight text-foreground/80 group-hover:text-foreground transition-all border-none"
-  ),
-  footer: cn(
-    "mt-24 pt-12 border-t border-border/40 flex flex-col md:flex-row items-center justify-between gap-8 text-muted-foreground/40"
-  ),
-  scrollToTop: cn("hover:text-foreground transition-colors cursor-pointer"),
+  footerNav: "mt-10",
+  backLink: "group inline-flex items-center",
+  backLabel: "flex items-center gap-2",
+  footer:
+    "mt-10 border-t border-border pt-8 flex flex-col md:flex-row justify-between items-center gap-10 text-muted-foreground",
 };
 
 interface PageProps {
@@ -90,7 +92,8 @@ export async function generateMetadata({
 
   return {
     title: page.meta_title || page.title,
-    description: page.meta_description || "Thông tin chính thức từ ELC Holdings",
+    description:
+      page.meta_description || "Thông tin chính thức từ ELC Holdings",
   };
 }
 
@@ -113,30 +116,18 @@ export default async function StaticPage({ params }: PageProps) {
   return (
     <main className={STYLES.main}>
       <div className={STYLES.container}>
-        <header className={STYLES.header}>
-          <div className={STYLES.meta}>
-            <TypographySmall className="font-black">
-              Tài liệu chính thức
-            </TypographySmall>
-            <span className="w-1 h-1 bg-border rounded-full" />
-            <TypographySmall className="font-black">
-              {new Date(page.created_at).toLocaleDateString("vi-VN", {
-                day: "numeric",
-                month: "long",
-                year: "numeric",
-              })}
-            </TypographySmall>
-          </div>
+        <header>
+          <TypographySmall className="text-muted-foreground mb-3 block">
+            {new Date(page.created_at).toLocaleDateString("vi-VN", {
+              day: "numeric",
+              month: "long",
+              year: "numeric",
+            })}
+          </TypographySmall>
           <TypographyH1 className={STYLES.title}>{page.title}</TypographyH1>
         </header>
 
         <article>
-          {page.meta_description && (
-            <TypographyLead className={STYLES.lead}>
-              {page.meta_description}
-            </TypographyLead>
-          )}
-
           <div
             className={STYLES.prose}
             dangerouslySetInnerHTML={{
@@ -148,7 +139,7 @@ export default async function StaticPage({ params }: PageProps) {
                     .replace(/\bwidth="[^"]*"/gi, "")
                     .replace(/\bheight="[^"]*"/gi, "");
                   return `<img${a} loading="lazy" width="1200" height="800">`;
-                }
+                },
               ),
             }}
           />
@@ -156,24 +147,26 @@ export default async function StaticPage({ params }: PageProps) {
 
         <nav className={STYLES.footerNav}>
           <Link href="/thong-tin" className={STYLES.backLink}>
-            <div className={STYLES.backLabel}>
-              <ArrowLeft className="w-3 h-3 transition-transform group-hover:-translate-x-1" />
-              <span>Quay lại danh mục</span>
-            </div>
-            <TypographyH2 className={STYLES.backTitle}>
-              Thông tin về ELC
-            </TypographyH2>
+            <Button>
+              <div className={STYLES.backLabel}>
+                <ArrowLeft className="w-3 h-3 transition-transform group-hover:-translate-x-1" />
+                <span>Quay lại danh mục</span>
+              </div>
+            </Button>
           </Link>
         </nav>
 
         <footer className={STYLES.footer}>
-          <TypographySmall className="font-bold tracking-widest uppercase">
-            &copy; {new Date().getFullYear()} ELC Holdings. Đã đăng ký bản quyền.
+          <TypographySmall className="font-medium">
+            &copy; {new Date().getFullYear()} ELC Holdings. Đã đăng ký bản
+            quyền.
           </TypographySmall>
-          <ScrollToTop className={STYLES.scrollToTop}>
-            <TypographySmall className="font-bold tracking-widest uppercase">
-              Trở lên đầu trang
-            </TypographySmall>
+          <ScrollToTop>
+            <button className="flex items-center gap-2 group hover:text-foreground transition-colors">
+              <TypographySmall className="font-medium cursor-pointer">
+                Trở lên đầu trang
+              </TypographySmall>
+            </button>
           </ScrollToTop>
         </footer>
       </div>
