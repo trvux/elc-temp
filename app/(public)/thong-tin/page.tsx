@@ -1,6 +1,6 @@
 import {
   TypographyH1,
-  TypographyH3,
+  TypographyH4,
   TypographyLead,
   TypographyP,
   TypographySmall,
@@ -12,7 +12,7 @@ import { ArrowUpRight } from "lucide-react";
 import Link from "next/link";
 
 const STYLES = {
-  main: cn("w-full min-h-screen pt-24 pb-48 px-4 md:px-8"),
+  main: cn("w-full min-h-screen py-12 px-4 md:px-8"),
   container: cn("max-w-5xl mx-auto flex flex-col gap-24"),
   header: cn(
     "flex flex-col gap-6 max-w-2xl w-full mx-auto items-center text-center",
@@ -90,9 +90,9 @@ export default async function InformationHub() {
               </div> */}
 
               <div className={STYLES.articleHeader}>
-                <TypographyH3 className={STYLES.articleTitle}>
+                <TypographyH4 className={STYLES.articleTitle}>
                   {page.title}
-                </TypographyH3>
+                </TypographyH4>
                 <ArrowUpRight className={STYLES.articleIcon} />
               </div>
 
