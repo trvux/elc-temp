@@ -2,7 +2,6 @@ import React from "react";
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { createStaticClient } from "@/lib/supabase/static";
-import { BranchTOC } from "@/components/user/branch-toc";
 import { MapPin, Phone, Mail, Navigation2, ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { PhoneConfirmation } from "@/components/user/phone-confirmation";
@@ -28,13 +27,6 @@ export default async function BranchDetail({ params }: PageProps) {
   const { slug } = await params;
   const supabase = await createClient();
 
-  // Fetch all published branches for the TOC
-  const { data: allBranches } = await supabase
-    .from("branches")
-    .select("id, name, slug")
-    .eq("is_published", true)
-    .order("order_index", { ascending: true });
-
   // Fetch current branch data
   const { data: branch } = await supabase
     .from("branches")
@@ -43,7 +35,7 @@ export default async function BranchDetail({ params }: PageProps) {
     .eq("is_published", true)
     .maybeSingle();
 
-  if (!branch || !allBranches) {
+  if (!branch) {
     notFound();
   }
 
@@ -51,22 +43,10 @@ export default async function BranchDetail({ params }: PageProps) {
     <main className="w-full pt-32 md:38 pb-24 px-4 md:px-6 min-h-screen font-sans tracking-tight">
       <div className="max-w-4xl mx-auto">
         {/* TOC Header */}
-        <header className="mb-8 flex flex-col gap-8">
-          <div className="flex flex-col md:flex-row md:items-baseline justify-between gap-8 md:gap-8">
-            {/* TOC - First on mobile, Right on Desktop */}
-            <div className="order-1 md:order-2 w-full md:w-auto">
-              <BranchTOC
-                branches={allBranches}
-                currentSlug={slug}
-                className="w-full md:w-56"
-              />
-            </div>
-
-            {/* Title - Second on mobile, Left on Desktop */}
-            <h1 className="order-2 md:order-1 text-2xl md:text-4xl lg:text-5xl font-black tracking-tighter text-foreground leading-none lowercase first-letter:capitalize shrink-0">
-              {branch.name}
-            </h1>
-          </div>
+        <header className="mb-12">
+          <h1 className="text-4xl md:text-5xl lg:text-6xl font-black tracking-tighter text-foreground leading-tight">
+            {branch.name}
+          </h1>
         </header>
 
         <article className="animate-in fade-in duration-1000 ease-out">

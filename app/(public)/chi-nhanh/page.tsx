@@ -1,132 +1,106 @@
-import React from "react";
-import Link from "next/link";
-import { createClient } from "@/lib/supabase/server";
-import { BranchTOC } from "@/components/user/branch-toc";
-import { Separator } from "@/components/ui/separator";
+import {
+  TypographyH1,
+  TypographyH3,
+  TypographyLead,
+  TypographyP,
+  TypographySmall,
+} from "@/components/ui/typography";
 import { ScrollToTop } from "@/components/user/scroll-to-top";
+import { createClient } from "@/lib/supabase/server";
+import { cn } from "@/lib/utils";
+import { ArrowUpRight } from "lucide-react";
+import Link from "next/link";
+
+const STYLES = {
+  main: cn("w-full min-h-screen pt-24 pb-48 px-4 md:px-8"),
+  container: cn("max-w-5xl mx-auto flex flex-col gap-24"),
+  header: cn(
+    "flex flex-col gap-6 max-w-2xl w-full mx-auto items-center text-center",
+  ),
+  title: cn(),
+  description: cn(),
+  list: cn("grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-16"),
+  article: cn(
+    "group flex flex-col gap-6 no-underline transition-all duration-300",
+  ),
+  articleHeader: cn("flex justify-between items-start gap-4"),
+  articleMeta: cn(""),
+  articleTitle: cn("text-primary/70 group-hover:text-primary"),
+  articleIcon: cn(
+    "w-6 h-6 shrink-0 mt-2 text-muted-foreground/40 group-hover:text-primary group-hover:translate-x-1 group-hover:-translate-y-1 transition-all",
+  ),
+  articleDescription: cn(),
+  articleFooter: cn(""),
+  readMore: cn(""),
+  footer: cn(
+    "border-t pt-12 flex flex-col md:flex-row justify-between items-center gap-8 text-muted-foreground",
+  ),
+  scrollToTop: cn(),
+};
 
 export default async function BranchesHub() {
   const supabase = await createClient();
 
-  // Fetch all published branches for the TOC
+  // Fetch all published branches
   const { data: allBranches } = await supabase
     .from("branches")
-    .select("id, name, slug")
+    .select("id, name, slug, address")
     .eq("is_published", true)
     .order("order_index", { ascending: true });
 
   if (!allBranches) {
     return (
-      <main className="w-full pt-30 pb-48 px-container max-w-3xl mx-auto text-center font-sans font-medium">
-        <p className="text-muted-foreground/40">Đang tải chi nhánh...</p>
+      <main className={STYLES.main}>
+        <div className={STYLES.container}>
+          <TypographyP className="animate-pulse">
+            Đang tải dữ liệu...
+          </TypographyP>
+        </div>
       </main>
     );
   }
 
-  const currentTitle = "Cơ sở hạ tầng";
-
   return (
-    <main className="w-full pt-32 md:38 pb-24 px-4 md:px-6 min-h-screen font-sans tracking-tight">
-      <div className="max-w-4xl mx-auto">
-        <header className="mb-8 flex flex-col gap-8">
-          <div className="flex flex-col md:flex-row md:items-baseline justify-between gap-8 md:gap-8">
-            {/* TOC - First on mobile, Right on Desktop */}
-            <div className="order-1 md:order-2 w-full md:w-auto">
-              <BranchTOC
-                branches={allBranches || []}
-                className="w-full md:w-56"
-              />
-            </div>
-
-            {/* Title - Second on mobile, Left on Desktop */}
-            <div className="order-2 md:order-1 text-2xl md:text-4xl font-bold capitalize tracking-tight text-foreground opacity-90 truncate">
-              {currentTitle}
-            </div>
-          </div>
+    <main className={STYLES.main}>
+      <div className={STYLES.container}>
+        <header className={STYLES.header}>
+          <TypographyH1 className={STYLES.title}>Cơ sở hạ tầng</TypographyH1>
+          <TypographyLead className={STYLES.description}>
+            Hệ thống không gian trưng bày và trạm dịch vụ của ELC được mở rộng
+            trên toàn quốc với triết lý kiến tạo giá trị đồng nhất.
+          </TypographyLead>
         </header>
-        <Separator className="mb-12" />
 
-        <article>
-          <div
-            className="prose prose-zinc prose-lg md:prose-xl max-w-none 
-                font-serif 
-                prose-p:leading-[1.7] prose-p:my-10 prose-p:text-base prose-p:text-foreground/90 
-                prose-headings:font-sans prose-headings:font-bold prose-headings:tracking-tight prose-headings:text-foreground 
-                prose-headings:mt-16 prose-headings:mb-6
-                prose-a:text-primary prose-a:underline prose-a:underline-offset-4
-                prose-img:rounded-none prose-img:w-full prose-img:block prose-img:mx-auto prose-img:my-12"
-          >
-            <p>
-              Hệ thống không gian trưng bày và trạm dịch vụ của ELC được mở rộng
-              trên toàn quốc với triết lý kiến tạo giá trị đồng nhất. Chúng tôi
-              mang đến quy chuẩn dịch vụ cao cấp, đảm bảo sự tinh tế và chính
-              xác trong từng điểm chạm với khách hàng.
-            </p>
-
-            <h2>Định vị không gian</h2>
-            <p>
-              Mỗi văn phòng đại diện là một hệ sinh thái hoàn chỉnh—quy tụ đội
-              ngũ kỹ sư chuyên môn sâu, hạ tầng vận hành hiện đại và danh mục
-              linh kiện chính hãng. Vui lòng sử dụng hệ thống điều hướng bên
-              trên để xác định bản đồ di chuyển đến không gian gần nhất.
-            </p>
-
-            <h2>Trải nghiệm đặc quyền</h2>
-
-            {/* Premium UI Cards - Escaping prose formatting */}
-            <div className="not-prose my-12">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 md:gap-8">
-                {/* Dark Card */}
-                <div className="aspect-square bg-primary text-primary-foreground p-8 md:p-10 flex flex-col justify-end">
-                  <div className="mb-auto">
-                    <div className="w-8 h-8 rounded-full border border-primary-foreground/20 flex items-center justify-center">
-                      <span className="w-2 h-2 bg-primary-foreground rounded-full"></span>
-                    </div>
-                  </div>
-                  <h3 className="text-2xl md:text-3xl font-bold mb-4 tracking-tight">
-                    Tư vấn chuyên sâu
-                  </h3>
-                  <p className="text-xs md:text-sm text-primary-foreground/60 font-medium leading-[1.6]">
-                    Nhận bản khái toán chi phí chuyên nghiệp và hoạch định những
-                    giải pháp điều hòa không khí tối ưu nhất từ hệ thống chuyên
-                    gia.
-                  </p>
-                </div>
-
-                {/* Light Card */}
-                <div className="aspect-square bg-muted/30 p-8 md:p-10 flex flex-col justify-between">
-                  <div className="text-[10px] font-bold capitalize tracking-[0.3em] text-muted-foreground/40">
-                    Thời gian hoạt động
-                  </div>
-                  <div>
-                    <div className="text-5xl md:text-6xl font-black tracking-tighter text-foreground mb-1">
-                      08:00
-                    </div>
-                    <div className="text-5xl md:text-6xl font-black tracking-tighter text-muted-foreground/20 mb-6">
-                      17:30
-                    </div>
-                    <div className="h-px w-full bg-border mb-4"></div>
-                    <p className="text-[11px] font-bold text-foreground capitalize tracking-widest">
-                      Thứ Hai &mdash; Thứ Bảy
-                    </p>
-                  </div>
-                </div>
+        <div className={STYLES.list}>
+          {allBranches.map((branch) => (
+            <Link
+              key={branch.id}
+              href={`/chi-nhanh/${branch.slug}`}
+              className={STYLES.article}
+            >
+              <div className={STYLES.articleHeader}>
+                <TypographyH3 className={STYLES.articleTitle}>
+                  {branch.name}
+                </TypographyH3>
+                <ArrowUpRight className={STYLES.articleIcon} />
               </div>
-            </div>
 
-            <p>
-              Trân trọng kính mời quý đối tác và khách hàng ghé thăm trực tiếp
-              các trung tâm dịch vụ. Tại đây, quý vị sẽ được vận hành thiết bị
-              thực tế để có trải nghiệm trực quan nhất trước khi quyết định
-              phương án đầu tư.
-            </p>
-          </div>
-        </article>
+              {/* {branch.address && (
+                <TypographyP className={STYLES.articleDescription}>
+                  {branch.address}
+                </TypographyP>
+              )} */}
+            </Link>
+          ))}
+        </div>
 
-        <footer className="mt-24 pt-8 border-t border-border flex items-center justify-between text-xs text-muted-foreground font-medium italic">
-          <span>&copy; {new Date().getFullYear()} ELC Architecture</span>
-          <ScrollToTop className="hover:text-foreground transition-colors not-italic">
-            Trở lên đầu trang
+        <footer className={STYLES.footer}>
+          <TypographySmall>
+            &copy; {new Date().getFullYear()} ELC Holdings. Đã đăng ký bản
+            quyền.
+          </TypographySmall>
+          <ScrollToTop className={STYLES.scrollToTop}>
+            <TypographySmall>Quay lại đầu trang</TypographySmall>
           </ScrollToTop>
         </footer>
       </div>
