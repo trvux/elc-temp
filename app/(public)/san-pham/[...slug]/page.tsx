@@ -1,12 +1,5 @@
-import { createClient } from "@/lib/supabase/server";
-import { notFound } from "next/navigation";
-import Image from "next/image";
-import { Percent } from "lucide-react";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
-import { OrderButton } from "@/components/user/order-button";
-import { getOptimizedImage } from "@/lib/image";
 import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
 import {
   Carousel,
   CarouselContent,
@@ -14,7 +7,14 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel";
+import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { OrderButton } from "@/components/user/order-button";
+import { getOptimizedImage } from "@/lib/image";
+import { createClient } from "@/lib/supabase/server";
+import { Percent } from "lucide-react";
+import Image from "next/image";
+import { notFound } from "next/navigation";
 
 import { ProductDescription } from "@/components/user/product-description";
 
@@ -242,14 +242,10 @@ export default async function ProductDetail({
           <Tabs defaultValue="specs" className="w-full">
             <TabsList className="mx-auto w-fit">
               {normalizedSpecs.length > 0 && (
-                <TabsTrigger value="specs">
-                  Thông số kỹ thuật
-                </TabsTrigger>
+                <TabsTrigger value="specs">Thông số kỹ thuật</TabsTrigger>
               )}
               {product.description && (
-                <TabsTrigger value="description">
-                  Mô tả sản phẩm
-                </TabsTrigger>
+                <TabsTrigger value="description">Mô tả sản phẩm</TabsTrigger>
               )}
             </TabsList>
 
