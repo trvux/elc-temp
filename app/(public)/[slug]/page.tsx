@@ -13,7 +13,6 @@ import { notFound } from "next/navigation";
 const STYLES = {
   main: cn("w-full min-h-screen py-10 px-4 md:py-20"),
   container: cn("max-w-3xl mx-auto flex flex-col gap-6"),
-
   title: cn("w-full max-w-none! text-wrap!"),
   prose: cn(
     // 1. Reset & Base (Loại bỏ khoảng cách mặc định của thư viện prose)
