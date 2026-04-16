@@ -1,19 +1,19 @@
+import { Toaster } from "@/components/ui/sonner";
+import { TooltipProvider } from "@/components/ui/tooltip";
+import { cn } from "@/lib/utils";
 import type { Metadata } from "next";
 import { Inter, Newsreader } from "next/font/google";
 import "./globals.css";
-import { cn } from "@/lib/utils";
-import { TooltipProvider } from "@/components/ui/tooltip";
-import { Toaster } from "@/components/ui/sonner";
 
 const inter = Inter({
-  subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
+  subsets: ["latin", "vietnamese"],
+  style: ["normal", "italic"],
   variable: "--font-inter",
   display: "optional",
 });
 
 const newsreader = Newsreader({
-  subsets: ["latin"],
+  subsets: ["latin", "vietnamese"],
   style: ["normal", "italic"],
   variable: "--font-newsreader",
   display: "optional",
@@ -42,11 +42,7 @@ export default function RootLayout({
     <html
       lang="vi"
       suppressHydrationWarning
-      className={cn(
-        "h-full antialiased",
-        inter.variable,
-        newsreader.variable,
-      )}
+      className={cn("h-full antialiased", inter.variable, newsreader.variable)}
     >
       <head>
         <link
@@ -57,10 +53,7 @@ export default function RootLayout({
       </head>
       <body
         suppressHydrationWarning
-        className={cn(
-          "min-h-full flex flex-col text-foreground",
-          inter.className,
-        )}
+        className={cn("min-h-full flex flex-col text-foreground")}
       >
         <TooltipProvider>
           {children}

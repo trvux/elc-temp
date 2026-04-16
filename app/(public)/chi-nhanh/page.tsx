@@ -35,7 +35,9 @@ const STYLES = {
   footer: cn(
     "border-t pt-12 flex flex-col md:flex-row justify-between items-center gap-8 text-muted-foreground",
   ),
-  scrollToTop: cn(),
+  scrollToTop: cn(
+    "flex items-center gap-2 cursor-pointer hover:text-foreground transition-colors",
+  ),
 };
 
 export default async function BranchesHub() {
