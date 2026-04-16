@@ -97,7 +97,7 @@ export function ShowcaseSection({ projects }: ShowcaseSectionProps) {
               <div className={ImageWrapper}>
                 {mainProject.images?.[0] && (
                   <Image
-                    src={getOptimizedImage(mainProject.images[0], 1200)}
+                    src={getOptimizedImage(mainProject.images[0], 1200, 75, "cover")}
                     alt={mainProject.title}
                     fill
                     className="object-cover transition-transform duration-1000 group-hover:scale-105"

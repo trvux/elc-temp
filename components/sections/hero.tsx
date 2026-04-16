@@ -75,7 +75,7 @@ export function HeroSection({
       {/* Cụm Media */}
       <div className="shadow-2xl">
         <Image
-          src={getOptimizedImage(displayImage, 1200)}
+          src={getOptimizedImage(displayImage, 1200, 75, "cover")}
           alt="ELC Space"
           fill
           priority

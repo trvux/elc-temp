@@ -51,13 +51,19 @@ export async function convertToWebP(file: File, quality = 0.85): Promise<File> {
  * Optimizes a Supabase storage URL using their transformation service.
  * Changes /object/public/ to /render/image/public/ and adds query params.
  */
-export function getOptimizedImage(url: string, width = 1200, quality = 75): string {
+export function getOptimizedImage(
+  url: string,
+  width = 1200,
+  quality = 75,
+  resize: "cover" | "contain" = "contain",
+): string {
   if (!url) return "";
   if (url.includes("supabase.co/storage/v1/object/public/")) {
     const baseUrl = url.replace("/object/public/", "/render/image/public/");
     const params = new URLSearchParams();
     if (width) params.set("width", width.toString());
     if (quality) params.set("quality", quality.toString());
+    if (resize) params.set("resize", resize);
     return `${baseUrl}${params.toString() ? `?${params.toString()}` : ""}`;
   }
   return url;

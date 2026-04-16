@@ -27,7 +27,7 @@ const STYLES = {
   productCard: cn("group flex flex-col"),
   imageWrapper: cn("w-full overflow-hidden bg-background rounded-lg"),
   image: cn(
-    "object-contain p-2 transition-transform duration-700 group-hover:scale-105",
+    "object-contain p-4 transition-transform duration-700 group-hover:scale-105",
   ),
   noImage: cn(
     "w-full h-full flex items-center justify-center text-muted-foreground/30 text-xs tracking-widest",
