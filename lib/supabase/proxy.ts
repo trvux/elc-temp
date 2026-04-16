@@ -33,8 +33,9 @@ export async function updateSession(request: NextRequest) {
     },
   );
 
-  // This will refresh the session if it's expired
-  await supabase.auth.getUser();
+  // According to latest docs, we use getClaims() to revalidate and protect
+  const { data } = await supabase.auth.getClaims();
+  const user = data ? data.claims : null;
 
-  return response;
+  return { response, user };
 }
