@@ -75,10 +75,11 @@ export function HeroSection({
       {/* Cụm Media */}
       <div className="shadow-2xl">
         <Image
-          src={getOptimizedImage(displayImage)}
+          src={getOptimizedImage(displayImage, 1200)}
           alt="ELC Space"
           fill
           priority
+          fetchPriority="high"
           className="object-cover"
           sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 640px"
           loading="eager"

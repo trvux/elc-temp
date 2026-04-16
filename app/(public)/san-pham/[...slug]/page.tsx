@@ -10,7 +10,6 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { TypographyH1, TypographySmall } from "@/components/ui/typography";
 import { ScrollToTop } from "@/components/user/scroll-to-top";
-import { getOptimizedImage } from "@/lib/image";
 import { createClient } from "@/lib/supabase/server";
 import { cn } from "@/lib/utils";
 import Image from "next/image";
@@ -42,7 +41,7 @@ const STYLES = {
   carouselWrapper: cn(
     "w-full bg-white border border-border/50 rounded-2xl overflow-hidden shadow-sm",
   ),
-  carouselImage: cn("object-contain p-6 md:p-10"),
+  carouselImage: cn("object-contain p-4"),
   noImage: cn(
     "w-full h-full flex items-center justify-center text-muted-foreground text-xs tracking-widest",
   ),
@@ -191,14 +190,14 @@ export default async function ProductDetail({
                   {images.length > 0 ? (
                     images.map((img: string, i: number) => (
                       <CarouselItem key={i}>
-                        <AspectRatio ratio={4 / 3}>
+                        <AspectRatio ratio={16 / 9}>
                           <Image
-                            src={getOptimizedImage(img, 1000)}
+                            src={img}
                             alt={`${product.name} - ${i + 1}`}
                             fill
                             className={STYLES.carouselImage}
                             priority={i === 0}
-                            sizes="(max-width: 1024px) 100vw, 50vw"
+                            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 800px"
                           />
                         </AspectRatio>
                       </CarouselItem>

@@ -6,7 +6,6 @@ import { Badge } from "@/components/ui/badge";
 import { ScrollToTop } from "@/components/user/scroll-to-top";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
 import { Sparkle } from "lucide-react";
-import { getOptimizedImage } from "@/lib/image";
 
 export default async function ProjectDetail({
   params,
@@ -92,7 +91,7 @@ export default async function ProjectDetail({
             <div className="w-full mb-12 overflow-hidden rounded-sm">
               <AspectRatio ratio={16 / 9}>
                 <Image
-                  src={getOptimizedImage(images[0])}
+                  src={images[0]}
                   alt={project.title}
                   fill
                   className="object-cover"
@@ -125,7 +124,7 @@ export default async function ProjectDetail({
                 <div key={i} className="w-full overflow-hidden rounded-sm">
                   <AspectRatio ratio={3 / 2}>
                     <Image
-                      src={getOptimizedImage(img)}
+                      src={img}
                       alt={`${project.title} - ảnh ${i + 1}`}
                       fill
                       className="object-contain"

@@ -931,7 +931,7 @@ export default function ProductsPage() {
                           src={url}
                           alt=""
                           fill
-                          className="object-cover transition-transform group-hover:scale-105"
+                          className="object-contain p-2"
                           sizes="(max-width: 768px) 50vw, 200px"
                         />
                         <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">

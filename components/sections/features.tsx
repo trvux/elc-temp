@@ -101,18 +101,19 @@ export function FeaturesSection({ products }: FeaturesSectionProps) {
                   <Link href={productUrl}>
                     <AspectRatio ratio={16 / 9}>
                       <Image
-                        src={getOptimizedImage(img)}
+                        src={getOptimizedImage(img, 600)}
                         fill
                         className="object-contain p-2"
                         alt={product.name}
                         sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                        loading="eager"
                       />
                     </AspectRatio>
                   </Link>
                 </CarouselItem>
               ))}
             </CarouselContent>
-            {/* Chỉ hiện nút điều hướng trên Desktop */}
+            {/* Navigation buttons for desktop */}
             <div className="hidden md:block">
               <CarouselPrevious
                 className={cn(
@@ -130,7 +131,7 @@ export function FeaturesSection({ products }: FeaturesSectionProps) {
           </Carousel>
         </div>
 
-        {/* 2. Phần nội dung: Dùng Typography của mày cho sạch */}
+        {/* 2. Content */}
         <Link href={productUrl} className="p-4 flex flex-col gap-2">
           <TypographyMuted>{product.sku}</TypographyMuted>
 

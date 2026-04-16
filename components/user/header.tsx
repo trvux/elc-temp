@@ -140,6 +140,7 @@ export function Header() {
                   variant="ghost"
                   size="icon"
                   className="hover:bg-transparent data-[state=open]:bg-transparent"
+                  aria-label={isMenuOpen ? "Đóng menu" : "Mở menu"}
                 >
                   <div className={iconBoxClass}>
                     <Menu

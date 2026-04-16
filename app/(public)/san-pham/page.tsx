@@ -4,7 +4,6 @@ import { TypographyH1, TypographySmall } from "@/components/ui/typography";
 import { ProductPagination } from "@/components/user/product-pagination";
 import { ProductSearch } from "@/components/user/product-search";
 import { ScrollToTop } from "@/components/user/scroll-to-top";
-import { getOptimizedImage } from "@/lib/image";
 import { createClient } from "@/lib/supabase/server";
 import { cn } from "@/lib/utils";
 import Fuse from "fuse.js";
@@ -352,7 +351,7 @@ export default async function ProductsHub({
                   <AspectRatio ratio={16 / 9}>
                     {product.images?.[0] ? (
                       <Image
-                        src={getOptimizedImage(product.images[0])}
+                        src={product.images[0]}
                         alt={product.name}
                         fill
                         className={STYLES.image}

@@ -186,6 +186,7 @@ export function ProductSearch({ categories }: ProductSearchProps) {
               size="icon-sm"
               onClick={clearSearch}
               className={inputValue ? "" : "opacity-0 pointer-events-none"}
+              aria-label="Xóa tìm kiếm"
             >
               <X />
             </InputGroupButton>
