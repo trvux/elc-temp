@@ -50,13 +50,13 @@ export function Header() {
 
   // --- CONSTANT CLASSES ---
   const wrapperClass = cn(
-    "sticky top-0 z-50 w-full transition-all duration-300 p-2",
+    "sticky top-0 z-50 w-full transition-all duration-300",
     isScrolled || isMenuOpen ? "bg-cream backdrop-blur-md" : "bg-transparent",
     // isScrolled && !isMenuOpen,
   );
 
-  const containerClass = "w-full max-w-[1440px] mx-auto relative";
-  const topBarClass = "flex h-16 items-center justify-between px-6";
+  const containerClass = "w-full max-w-7xl mx-auto relative";
+  const topBarClass = "flex h-20 items-center justify-between px-6";
   const logoClass = "flex items-center font-bold text-xl tracking-tighter";
 
   const desktopNavClass = "hidden lg:flex";
@@ -71,9 +71,9 @@ export function Header() {
     "data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:slide-out-to-top-2 data-[state=open]:slide-in-from-top-2 duration-300",
   );
 
-  const mobileNavWrapperClass = "flex flex-col px-6 py-6";
+  const mobileNavWrapperClass = "flex flex-col px-6 pb-6 pt-2";
   const overlayClass =
-    "fixed inset-0 top-16 bg-black/10 backdrop-blur-[2px] lg:hidden transition-all duration-500";
+    "fixed inset-0 top-20 bg-black/10 backdrop-blur-[2px] lg:hidden transition-all duration-500";
 
   // Reusable Link Style
   const getLinkClass = (href: string, isMobile = false) =>
