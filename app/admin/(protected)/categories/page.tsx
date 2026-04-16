@@ -265,9 +265,7 @@ export default function CategoriesPage() {
                     const val = (e.target as HTMLInputElement).value;
                     const capitalized = capitalize(val);
                     setName(capitalized);
-                    if (!editing) {
-                      setInternalSlug(generateSlug(capitalized));
-                    }
+                    setInternalSlug(generateSlug(capitalized));
                   }}
                 />
               </FieldContent>
@@ -312,7 +310,7 @@ export default function CategoriesPage() {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="product">Sản phẩm</SelectItem>
-                    <SelectItem value="project">Công trình</SelectItem>
+                    <SelectItem value="project">Dự án</SelectItem>
                   </SelectContent>
                 </Select>
               </FieldContent>

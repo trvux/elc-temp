@@ -28,7 +28,7 @@ interface NavLink {
 
 const navLinks: NavLink[] = [
   { name: "Trang chủ", href: "/" },
-  { name: "Công trình", href: "/cong-trinh" },
+  { name: "Dự án", href: "/du-an" },
   { name: "Sản phẩm", href: "/san-pham" },
   { name: "Chi nhánh", href: "/chi-nhanh" },
   { name: "Thông tin", href: "/thong-tin" },
@@ -50,9 +50,9 @@ export function Header() {
 
   // --- CONSTANT CLASSES ---
   const wrapperClass = cn(
-    "sticky top-0 z-50 w-full transition-all duration-300",
+    "sticky top-0 z-50 w-full transition-all duration-300 p-2",
     isScrolled || isMenuOpen ? "bg-cream backdrop-blur-md" : "bg-transparent",
-    isScrolled && !isMenuOpen && "border-b border-border",
+    // isScrolled && !isMenuOpen,
   );
 
   const containerClass = "w-full max-w-[1440px] mx-auto relative";
@@ -115,7 +115,7 @@ export function Header() {
                         "focus:bg-transparent focus:text-accent-foreground",
                         "data-active:bg-transparent data-[state=open]:bg-transparent",
                         // Giữ lại logic của mày
-                        "bg-transparent hover:bg-transparent hover:underline hover:underline-offset-4 hover:decoration-2",
+                        "bg-transparent text-md hover:bg-transparent hover:underline hover:underline-offset-4 hover:decoration-2",
                         checkActive(link.href) && "text-primary font-semibold",
                       )}
                     >
@@ -129,7 +129,7 @@ export function Header() {
             {/* Desktop Actions */}
             <div className={desktopActionClass}>
               <Button asChild variant="default">
-                <Link href="/cong-trinh">Khám phá</Link>
+                <Link href="/du-an">Khám phá</Link>
               </Button>
             </div>
 
@@ -173,7 +173,7 @@ export function Header() {
                     href={link.href}
                     onClick={() => setIsMenuOpen(false)}
                     className={cn(
-                      "py-3 text-lg transition-colors", // Dùng py-3 để tạo khoảng trống quanh link
+                      "py-3 text-lg font-bold transition-colors", // Dùng py-3 để tạo khoảng trống quanh link
                       checkActive(link.href)
                         ? "text-primary font-bold"
                         : "text-muted-foreground",
@@ -185,11 +185,11 @@ export function Header() {
                   {index < navLinks.length - 1 && <Separator />}
                 </React.Fragment>
               ))}
-              <Button asChild className="w-full">
-                <Link href="/cong-trinh" onClick={() => setIsMenuOpen(false)}>
-                  Xem công trình
+              {/* <Button asChild className="w-full">
+                <Link href="/du-an" onClick={() => setIsMenuOpen(false)}>
+                  Xem dự án
                 </Link>
-              </Button>
+              </Button> */}
             </nav>
           </CollapsibleContent>
         </Collapsible>

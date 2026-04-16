@@ -76,7 +76,7 @@ export const getColumns = ({
           variant={type === "product" ? "default" : "secondary"}
           className={level > 0 ? "opacity-60" : ""}
         >
-          {type === "product" ? "Sản phẩm" : "Công trình"}
+          {type === "product" ? "Sản phẩm" : "Dự án"}
         </Badge>
       );
     },

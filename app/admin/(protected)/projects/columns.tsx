@@ -53,7 +53,7 @@ export const getColumns = ({
   },
   {
     accessorKey: "title",
-    header: "Tên công trình",
+    header: "Tên dự án",
     cell: ({ row }) => (
       <span className="text-sm font-semibold tracking-tight">
         {row.original.title}

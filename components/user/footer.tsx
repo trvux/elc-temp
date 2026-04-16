@@ -75,14 +75,14 @@ export function Footer({
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-y-10 gap-x-8">
           <div className="space-y-4">
             <h3 className="text-sm font-semibold text-primary-foreground">
-              Công trình
+              Dự án
             </h3>
             <nav className="flex flex-col gap-3">
               {projects && projects.length > 0 ? (
                 projects.slice(0, 8).map((item) => {
                   const projectUrl = item.categories?.slug
-                    ? `/cong-trinh/${item.categories.slug}/${item.slug}`
-                    : `/cong-trinh/${item.slug}`;
+                    ? `/du-an/${item.categories.slug}/${item.slug}`
+                    : `/du-an/${item.slug}`;
                   return (
                     <Link
                       key={item.id}

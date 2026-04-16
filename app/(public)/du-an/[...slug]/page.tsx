@@ -60,7 +60,7 @@ export default async function ProjectDetail({
             <InfoTOC
               pages={allProjects}
               currentSlug={`${project.categories?.slug ? project.categories.slug + "/" : ""}${project.slug}`}
-              basePath="/cong-trinh"
+              basePath="/du-an"
               className="w-full md:w-fit min-w-52"
             />
           </div>

@@ -208,7 +208,7 @@ export default function ProjectsPage() {
 
   async function handleSave() {
     if (!title.trim()) {
-      toast.error("Nhập tên công trình");
+      toast.error("Nhập tên dự án");
       return;
     }
 
@@ -231,14 +231,14 @@ export default function ProjectsPage() {
         toast.error("Lỗi cập nhật");
         return;
       }
-      toast.success("Đã cập nhật công trình");
+      toast.success("Đã cập nhật dự án");
     } else {
       const { error } = await supabase.from("projects").insert(payload);
       if (error) {
         toast.error("Lỗi tạo mới");
         return;
       }
-      toast.success("Đã tạo công trình");
+      toast.success("Đã tạo dự án");
     }
 
     setOpen(false);
@@ -279,13 +279,13 @@ export default function ProjectsPage() {
     <div>
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 mb-8">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">Công trình</h1>
+          <h1 className="text-2xl font-bold tracking-tight">Dự án</h1>
           <p className="text-sm text-muted-foreground">
-            Quản lý danh sách các công trình, dự án đã thực hiện.
+            Quản lý danh sách các dự án đã thực hiện.
           </p>
         </div>
         <Button onClick={openCreate} className="h-9">
-          <Plus size={16} className="mr-2" /> Thêm công trình
+          <Plus size={16} className="mr-2" /> Thêm dự án
         </Button>
       </div>
 
@@ -349,8 +349,8 @@ export default function ProjectsPage() {
         open={open}
         onOpenChange={setOpen}
         size="3xl"
-        title={editing ? "Sửa công trình" : "Thêm công trình"}
-        description="Quản lý chi tiết công trình, hình ảnh và SEO để thu hút khách hàng."
+        title={editing ? "Sửa dự án" : "Thêm dự án"}
+        description="Quản lý chi tiết dự án, hình ảnh và SEO để thu hút khách hàng."
       >
         <div className="space-y-8">
           <FieldGroup>
@@ -362,7 +362,7 @@ export default function ProjectsPage() {
                 <div className="md:col-span-12">
                   <Field>
                     <FieldLabel className="mb-2 font-medium">
-                      Tên công trình *
+                      Tên dự án *
                     </FieldLabel>
                     <FieldContent>
                       <Input
@@ -448,7 +448,7 @@ export default function ProjectsPage() {
                       Xem trước URL
                     </div>
                     <p className="text-xs font-mono text-muted-foreground truncate">
-                      /cong-trinh/
+                      /du-an/
                       <span className="text-primary font-medium">
                         {(() => {
                           const cat = categories.find(
@@ -458,7 +458,7 @@ export default function ProjectsPage() {
                         })()}
                       </span>
                       <span className="text-primary font-bold">
-                        {slug || "slug-cong-trinh"}
+                        {slug || "slug-du-an"}
                       </span>
                     </p>
                   </div>
@@ -468,13 +468,13 @@ export default function ProjectsPage() {
 
             <Field>
               <FieldLabel className="mb-2 font-medium">
-                Mô tả công trình
+                Mô tả dự án
               </FieldLabel>
               <FieldContent>
                 <TiptapEditor
                   value={description}
                   onChange={setDescription}
-                  placeholder="Mô tả công trình..."
+                  placeholder="Mô tả dự án..."
                   uploadImage={async (file) => {
                     const ext = file.name.split(".").pop();
                     const fileName = `projects/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
@@ -493,7 +493,7 @@ export default function ProjectsPage() {
 
             <Field>
               <FieldLabel className="mb-2 font-medium">
-                Hình ảnh công trình
+                Hình ảnh dự án
               </FieldLabel>
               <FieldContent>
                 <label className="flex flex-col items-center justify-center gap-2 border-2 border-dashed rounded-xl p-8 cursor-pointer hover:bg-muted/50 transition-colors border-muted-foreground/20">

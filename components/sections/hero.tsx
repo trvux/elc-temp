@@ -37,7 +37,7 @@ export function HeroSection({
     subtitle ||
     "Xóa bỏ ranh giới giữa bên trong và thiên nhiên. Hệ thống điều khí thông minh từ ELC tự động tối ưu từng nhịp thở cho ngôi nhà của bạn.";
   const displayCtaText = ctaText || "Bắt đầu ngay";
-  const displayCtaUrl = ctaUrl || "/cong-trinh";
+  const displayCtaUrl = ctaUrl || "/du-an";
   const displayImage = image || "/img-herosection.jpg";
 
   const HeroSectionLayout = cn(

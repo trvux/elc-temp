@@ -41,13 +41,13 @@ const SETTINGS_CONFIG = [
       {
         key: "hero_cta_text",
         label: "Nội dung nút CTA",
-        placeholder: "VD: Xem công trình",
+        placeholder: "VD: Xem dự án",
         type: "input",
       },
       {
         key: "hero_cta_url",
         label: "Đường dẫn nút CTA",
-        placeholder: "VD: /cong-trinh",
+        placeholder: "VD: /du-an",
         type: "input",
       },
     ],

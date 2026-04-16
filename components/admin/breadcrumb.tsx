@@ -13,7 +13,7 @@ import {
 const routeLabels: Record<string, string> = {
   "/admin": "Dashboard",
   "/admin/categories": "Danh mục",
-  "/admin/projects": "Công trình",
+  "/admin/projects": "Dự án",
   "/admin/products": "Sản phẩm",
   "/admin/about": "Giới thiệu",
   "/admin/contacts": "Liên hệ",

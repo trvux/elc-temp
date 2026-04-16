@@ -37,8 +37,8 @@ export function ShowcaseSection({ projects }: ShowcaseSectionProps) {
     : mainProject.categories;
 
   const mainProjectUrl = catData?.slug
-    ? `/cong-trinh/${catData.slug}/${mainProject.slug}`
-    : `/cong-trinh/${mainProject.slug}`;
+    ? `/du-an/${catData.slug}/${mainProject.slug}`
+    : `/du-an/${mainProject.slug}`;
 
   // Khoảng cách được kiểm soát tập trung tại đây bằng gap
   const LayoutGrid = cn(
@@ -116,19 +116,27 @@ export function ShowcaseSection({ projects }: ShowcaseSectionProps) {
               {/* Dùng gap bên trong cụm related */}
               <TypographySmall>Dự án liên quan</TypographySmall>
               <div className="flex flex-col">
-                {otherProjects.slice(0, 2).map((p, idx) => (
-                  <Link
-                    key={p.id}
-                    href={`/cong-trinh/${p.slug}`}
-                    className="group flex justify-between items-center py-5 border-b border-foreground/30 transition-all"
-                  >
-                    <div className="flex items-center gap-4">
-                      <span>0{idx + 2}</span>
-                      <TypographyLarge>{p.title}</TypographyLarge>
-                    </div>
-                    <ArrowUpRight size={16} className=" transition-all" />
-                  </Link>
-                ))}
+                {otherProjects.slice(0, 2).map((p, idx) => {
+                  const pCat = Array.isArray(p.categories)
+                    ? p.categories[0]
+                    : p.categories;
+                  const pUrl = pCat?.slug
+                    ? `/du-an/${pCat.slug}/${p.slug}`
+                    : `/du-an/${p.slug}`;
+                  return (
+                    <Link
+                      key={p.id}
+                      href={pUrl}
+                      className="group flex justify-between items-center py-5 border-b border-foreground/30 transition-all"
+                    >
+                      <div className="flex items-center gap-4">
+                        <span>0{idx + 2}</span>
+                        <TypographyLarge>{p.title}</TypographyLarge>
+                      </div>
+                      <ArrowUpRight size={16} className=" transition-all" />
+                    </Link>
+                  );
+                })}
               </div>
             </div>
           </div>

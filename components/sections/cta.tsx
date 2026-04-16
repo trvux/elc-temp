@@ -27,7 +27,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Separator } from "@/components/ui/separator";
 import {
-  TypographyH2,
+  TypographyH1,
   TypographyLarge,
   TypographyMuted,
   TypographyP,
@@ -125,9 +125,10 @@ export function CTASection({ settings, contacts }: CTASectionProps) {
   return (
     <section className={SectionWrapper}>
       <AnimateIn className="flex flex-col items-center text-center max-w-3xl mx-auto gap-10">
-        <TypographyH2>{title}</TypographyH2>
-
-        <TypographyP>{description}</TypographyP>
+        <div>
+          <TypographyH1>{title}</TypographyH1>
+          <TypographyP>{description}</TypographyP>
+        </div>
 
         {/* TRIGGER BUTTON */}
         <div className="w-full sm:w-auto">

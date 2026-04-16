@@ -41,7 +41,7 @@ import {
 const navItems = [
   { href: "/admin", label: "Tổng quan", icon: LayoutDashboard },
   { href: "/admin/categories", label: "Danh mục", icon: Tag },
-  { href: "/admin/projects", label: "Công trình", icon: FolderKanban },
+  { href: "/admin/projects", label: "Dự án", icon: FolderKanban },
   { href: "/admin/products", label: "Sản phẩm", icon: Package },
   { href: "/admin/pages", label: "Trang tĩnh", icon: FileText },
   { href: "/admin/contacts", label: "Liên hệ", icon: Phone },

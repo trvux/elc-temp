@@ -33,8 +33,8 @@ export default async function ProjectsPage() {
 
   const getUrl = (project: Project) =>
     project.categories?.slug
-      ? `/cong-trinh/${project.categories.slug}/${project.slug}`
-      : `/cong-trinh/${project.slug}`;
+      ? `/du-an/${project.categories.slug}/${project.slug}`
+      : `/du-an/${project.slug}`;
 
   const getCat = (project: Project) =>
     project.categories?.parent?.name
@@ -47,7 +47,7 @@ export default async function ProjectsPage() {
         {/* Header */}
         <header className="py-16 flex flex-col items-center text-center gap-3">
           <h1 className="font-newsreader text-4xl md:text-5xl lg:text-6xl italic leading-tight">
-            Công trình dự án
+            Dự án hoàn thiện
           </h1>
           <p className="text-xs text-muted-foreground tracking-widest uppercase font-medium">
             {allProjects.length} dự án đã hoàn thiện
@@ -160,7 +160,7 @@ export default async function ProjectsPage() {
         {!allProjects.length && (
           <div className="py-24 text-center">
             <p className="text-muted-foreground/60 italic text-sm">
-              Hiện chưa có công trình nào.
+              Hiện chưa có dự án nào.
             </p>
           </div>
         )}
