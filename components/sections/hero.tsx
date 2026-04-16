@@ -43,7 +43,7 @@ export function HeroSection({
   const HeroSectionLayout = cn(
     // 1. Khung Grid tổng (Responsive Column)
     "grid grid-cols-1 gap-12 p-4 max-w-7xl mx-auto items-center min-h-[60vh]",
-    "md:grid-cols-2 md:gap-16", // Tăng gap ngang trên desktop cho sang
+    "md:grid-cols-2 md:gap-16 ", // Tăng gap ngang trên desktop cho sang
 
     // 2. Định nghĩa Spacing cho cụm TEXT (Cột 1)
     // Dùng class [&>*]: để ép khoảng cách cho tất cả con trực tiếp bên trong
