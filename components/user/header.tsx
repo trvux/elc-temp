@@ -28,11 +28,11 @@ interface NavLink {
 
 const navLinks: NavLink[] = [
   { name: "Trang chủ", href: "/" },
-  { name: "Dịch vụ", href: "/dich-vu" },
   { name: "Dự án", href: "/du-an" },
   { name: "Sản phẩm", href: "/san-pham" },
-  { name: "Tin tức", href: "/tin-tuc" },
+  { name: "Dịch vụ", href: "/dich-vu" },
   { name: "Chi nhánh", href: "/chi-nhanh" },
+  { name: "Tin tức", href: "/tin-tuc" },
   { name: "Thông tin", href: "/thong-tin" },
 ];
 
@@ -59,7 +59,7 @@ export function Header() {
 
   const containerClass = "w-full max-w-7xl mx-auto relative";
   const topBarClass = "flex h-20 items-center justify-between px-6";
-  const logoClass = "flex items-center font-bold text-xl tracking-tighter";
+  const logoClass = "flex items-center font-semibold text-xl tracking-tighter";
 
   const desktopNavClass = "hidden lg:flex";
   const desktopActionClass = "hidden lg:flex items-center gap-4";
