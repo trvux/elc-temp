@@ -58,8 +58,14 @@ export function getOptimizedImage(
   resize: "cover" | "contain" = "contain",
 ): string {
   if (!url) return "";
-  if (url.includes("supabase.co/storage/v1/object/public/")) {
-    const baseUrl = url.replace("/object/public/", "/render/image/public/");
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  if (url.includes("supabase.co/storage/v1/object/public/") && supabaseUrl) {
+    // Lấy domain từ biến môi trường (ví dụ: xxxx.supabase.co)
+    const supabaseHostname = new URL(supabaseUrl).hostname;
+    
+    // Thay thế domain supabase bằng domain media của riêng mình để Cloudflare cache được
+    const proxyUrl = url.replace(supabaseHostname, "media.dienmayelc.com.vn");
+    const baseUrl = proxyUrl.replace("/object/public/", "/render/image/public/");
     const params = new URLSearchParams();
     if (width) params.set("width", width.toString());
     if (quality) params.set("quality", quality.toString());
