@@ -30,6 +30,7 @@ const navLinks: NavLink[] = [
   { name: "Trang chủ", href: "/" },
   { name: "Dự án", href: "/du-an" },
   { name: "Sản phẩm", href: "/san-pham" },
+  { name: "Tin tức", href: "/tin-tuc" },
   { name: "Chi nhánh", href: "/chi-nhanh" },
   { name: "Thông tin", href: "/thong-tin" },
 ];
