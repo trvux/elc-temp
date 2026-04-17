@@ -1,8 +1,8 @@
+import { AspectRatio } from "@/components/ui/aspect-ratio";
+import { generateBreadcrumbSchema, SEO_CONFIG } from "@/lib/seo";
 import { createClient } from "@/lib/supabase/server";
 import Image from "next/image";
 import Link from "next/link";
-import { AspectRatio } from "@/components/ui/aspect-ratio";
-import { generateBreadcrumbSchema, SEO_CONFIG } from "@/lib/seo";
 
 interface Project {
   id: string;
@@ -27,19 +27,126 @@ export default async function ProjectsPage() {
     .eq("is_published", true)
     .order("order_index", { ascending: true });
 
-  const allProjects = projects || [];
+  const allProjects = (projects as unknown as Project[]) || [];
   const featured = allProjects[0];
   const rest = allProjects.slice(1);
 
-  const getUrl = (project: Project) =>
-    project.categories?.slug
-      ? `/du-an/${project.categories.slug}/${project.slug}`
-      : `/du-an/${project.slug}`;
+  const getUrl = (p: Project) =>
+    p.categories?.slug
+      ? `/du-an/${p.categories.slug}/${p.slug}`
+      : `/du-an/${p.slug}`;
 
-  const getCat = (project: Project) =>
-    project.categories?.parent?.name
-      ? `${project.categories.parent.name} / ${project.categories.name}`
-      : project.categories?.name || "Khác";
+  const getCat = (p: Project) =>
+    p.categories?.parent?.name
+      ? `${p.categories.parent.name} / ${p.categories.name}`
+      : p.categories?.name || "Khác";
+
+  // --- STYLES ---
+  const styles = {
+    main: "w-full px-4 py-12 md:px-8",
+    container: "mx-auto w-full px-4 md:px-6 max-w-7xl flex flex-col gap-20",
+    header: "flex flex-col items-center text-center gap-3",
+    title: "text-4xl md:text-6xl lg:text-7xl leading-tight",
+    badge:
+      "text-[10px] text-muted-foreground tracking-[0.3em] uppercase font-bold",
+    featured: "group block mb-16 md:mb-24",
+    featImg: "overflow-hidden rounded-lg shadow-2xl",
+    featTitle: "text-2xl md:text-4xl leading-tight",
+    grid: "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-12",
+    card: "group flex flex-col gap-4",
+    cardTitle:
+      "text-base md:text-lg font-medium leading-tight group-hover:underline underline-offset-8",
+    cardCat: "text-xs text-muted-foreground/60 tracking-wider",
+    viewMore:
+      "text-[10px] text-primary uppercase tracking-[0.2em] font-bold opacity-0 group-hover:opacity-100 transition-all duration-500",
+    mobileAspect: "md:hidden overflow-hidden rounded-lg",
+    desktopAspect: "hidden md:block overflow-hidden rounded-lg",
+    empty:
+      "w-full h-full bg-muted/50 flex items-center justify-center text-[10px] tracking-widest uppercase text-muted-foreground/40",
+  };
+
+  const ProjectCard = ({
+    project,
+    isFeatured = false,
+  }: {
+    project: Project;
+    isFeatured?: boolean;
+  }) => {
+    const url = getUrl(project);
+    const cat = getCat(project);
+
+    if (isFeatured) {
+      return (
+        <Link href={url} className={styles.featured}>
+          <div className={styles.featImg}>
+            <AspectRatio ratio={16 / 9}>
+              {project.images?.[0] ? (
+                <Image
+                  src={project.images[0]}
+                  alt={project.title}
+                  fill
+                  className="object-cover transition-transform duration-1000 group-hover:scale-105"
+                  sizes="100vw"
+                  priority
+                />
+              ) : (
+                <div className={styles.empty}>Chưa có ảnh</div>
+              )}
+            </AspectRatio>
+          </div>
+          <div className="mt-8 flex flex-col md:flex-row md:items-end md:justify-between gap-6">
+            <div className="space-y-2">
+              <h2 className={styles.featTitle}>{project.title}</h2>
+              <p className={styles.cardCat}>{cat}</p>
+            </div>
+            <span className={styles.viewMore}>Khám phá dự án —</span>
+          </div>
+        </Link>
+      );
+    }
+
+    return (
+      <Link href={url} className={styles.card}>
+        {/* Mobile: 16/9 */}
+        <div className={styles.mobileAspect}>
+          <AspectRatio ratio={16 / 9}>
+            {project.images?.[0] ? (
+              <Image
+                src={project.images[0]}
+                alt={project.title}
+                fill
+                className="object-cover transition-transform duration-1000 group-hover:scale-105"
+                sizes="100vw"
+              />
+            ) : (
+              <div className={styles.empty}>Chưa có ảnh</div>
+            )}
+          </AspectRatio>
+        </div>
+        {/* Desktop: 4/5 */}
+        <div className={styles.desktopAspect}>
+          <AspectRatio ratio={4 / 5}>
+            {project.images?.[0] ? (
+              <Image
+                src={project.images[0]}
+                alt={project.title}
+                fill
+                className="object-cover transition-transform duration-1000 group-hover:scale-105"
+                sizes="(max-width: 1024px) 50vw, 33vw"
+              />
+            ) : (
+              <div className={styles.empty}>Chưa có ảnh</div>
+            )}
+          </AspectRatio>
+        </div>
+        <div className="flex flex-col gap-2">
+          <h3 className={styles.cardTitle}>{project.title}</h3>
+          <p className={styles.cardCat}>{cat}</p>
+          <span className={styles.viewMore}>Xem chi tiết</span>
+        </div>
+      </Link>
+    );
+  };
 
   const breadcrumbs = generateBreadcrumbSchema([
     { name: "Trang chủ", item: "/" },
@@ -49,17 +156,17 @@ export default async function ProjectsPage() {
   const itemListSchema = {
     "@context": "https://schema.org",
     "@type": "ItemList",
-    "itemListElement": allProjects.map((p, i) => ({
+    itemListElement: allProjects.map((p, i) => ({
       "@type": "ListItem",
-      "position": i + 1,
-      "url": `${SEO_CONFIG.baseUrl}${getUrl(p)}`,
-      "name": p.title,
-      "image": p.images?.[0] || "",
-    }))
+      position: i + 1,
+      url: `${SEO_CONFIG.baseUrl}${getUrl(p)}`,
+      name: p.title,
+      image: p.images?.[0] || "",
+    })),
   };
 
   return (
-    <main className="w-full pt-24 pb-24">
+    <main className={styles.main}>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbs) }}
@@ -68,124 +175,29 @@ export default async function ProjectsPage() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(itemListSchema) }}
       />
-      <div className="mx-auto w-full px-4 md:px-6 max-w-7xl">
-        {/* Header */}
-        <header className="py-16 flex flex-col items-center text-center gap-3">
-          <h1 className="font-newsreader text-4xl md:text-5xl lg:text-6xl italic leading-tight">
-            Dự án hoàn thiện
-          </h1>
-          <p className="text-xs text-muted-foreground tracking-widest uppercase font-medium">
-            {allProjects.length} dự án đã hoàn thiện
+
+      <div className={styles.container}>
+        <header className={styles.header}>
+          <h1 className={styles.title}>Dự án hoàn thiện</h1>
+          <p className={styles.badge}>
+            {allProjects.length} công trình tiêu biểu
           </p>
         </header>
 
-        {/* Featured */}
-        {featured && (
-          <Link href={getUrl(featured)} className="group block mb-12 md:mb-16">
-            <div className="overflow-hidden rounded-sm">
-              <AspectRatio ratio={16 / 9}>
-                {featured.images?.[0] ? (
-                  <Image
-                    src={featured.images[0]}
-                    alt={featured.title}
-                    fill
-                    className="object-cover transition-transform duration-700 group-hover:scale-105"
-                    sizes="100vw"
-                    priority
-                  />
-                ) : (
-                  <div className="w-full h-full bg-muted flex items-center justify-center text-muted-foreground text-xs tracking-widest uppercase">
-                    Chưa có ảnh
-                  </div>
-                )}
-              </AspectRatio>
-            </div>
-            <div className="mt-6 flex flex-col md:flex-row md:items-center md:justify-between gap-2">
-              <div className="flex flex-col gap-1">
-                <h2 className="font-newsreader text-2xl md:text-3xl italic leading-tight">
-                  {featured.title}
-                </h2>
-                <span className="text-sm text-muted-foreground">
-                  {getCat(featured)}
-                </span>
-              </div>
-              <span className="text-xs text-muted-foreground uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                Xem chi tiết →
-              </span>
-            </div>
-          </Link>
-        )}
+        {featured && <ProjectCard project={featured} isFeatured />}
 
-        {/* Rest */}
         {rest.length > 0 && (
-          <>
-            <div className="border-t border-border mb-12" />
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {rest.map((project) => (
-                <Link
-                  key={project.id}
-                  href={getUrl(project)}
-                  className="group flex flex-col"
-                >
-                  {/* Mobile: 16/9 */}
-                  <div className="block md:hidden overflow-hidden rounded-sm">
-                    <AspectRatio ratio={16 / 9}>
-                      {project.images?.[0] ? (
-                        <Image
-                          src={project.images[0]}
-                          alt={project.title}
-                          fill
-                          className="object-cover transition-transform duration-700 group-hover:scale-105"
-                          sizes="100vw"
-                        />
-                      ) : (
-                        <div className="w-full h-full bg-muted flex items-center justify-center text-muted-foreground text-xs">
-                          Chưa có ảnh
-                        </div>
-                      )}
-                    </AspectRatio>
-                  </div>
-
-                  {/* Desktop: 4/5 */}
-                  <div className="hidden md:block overflow-hidden rounded-sm">
-                    <AspectRatio ratio={4 / 5}>
-                      {project.images?.[0] ? (
-                        <Image
-                          src={project.images[0]}
-                          alt={project.title}
-                          fill
-                          className="object-cover transition-transform duration-700 group-hover:scale-105"
-                          sizes="(max-width: 1024px) 50vw, 33vw"
-                        />
-                      ) : (
-                        <div className="w-full h-full bg-muted flex items-center justify-center text-muted-foreground text-xs">
-                          Chưa có ảnh
-                        </div>
-                      )}
-                    </AspectRatio>
-                  </div>
-
-                  <div className="mt-3 flex flex-col gap-1">
-                    <h3 className="text-sm md:text-base font-medium leading-tight group-hover:underline underline-offset-4">
-                      {project.title}
-                    </h3>
-                    <span className="text-xs text-muted-foreground">
-                      {getCat(project)}
-                    </span>
-                    <span className="text-xs text-muted-foreground uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                      Xem chi tiết
-                    </span>
-                  </div>
-                </Link>
-              ))}
-            </div>
-          </>
+          <div className={styles.grid}>
+            {rest.map((project) => (
+              <ProjectCard key={project.id} project={project} />
+            ))}
+          </div>
         )}
 
         {!allProjects.length && (
-          <div className="py-24 text-center">
-            <p className="text-muted-foreground/60 italic text-sm">
-              Hiện chưa có dự án nào.
+          <div className="py-32 text-center">
+            <p className="text-muted-foreground/40 italic text-sm font-newsreader">
+              Hiện chưa có dự án nào được cập nhật.
             </p>
           </div>
         )}

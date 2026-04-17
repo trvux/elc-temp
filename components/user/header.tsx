@@ -50,149 +50,149 @@ export function Header() {
   const checkActive = (href: string) =>
     href === "/" ? pathname === "/" : pathname.startsWith(href);
 
-  // --- CONSTANT CLASSES ---
-  const wrapperClass = cn(
-    "sticky top-0 z-50 w-full transition-all duration-300",
-    isScrolled || isMenuOpen ? "bg-cream backdrop-blur-md" : "bg-transparent",
-    // isScrolled && !isMenuOpen,
-  );
+  // --- STYLES ---
+  const COMMON = {
+    transition: "transition-all duration-300",
+    navActive: "text-primary font-semibold",
+    navInactive: "text-muted-foreground",
+  };
 
-  const containerClass = "w-full max-w-7xl mx-auto relative";
-  const topBarClass = "flex h-20 items-center justify-between px-6";
-  const logoClass = "flex items-center font-semibold text-xl tracking-tighter";
+  const styles = {
+    wrapper: cn(
+      "sticky top-0 z-50 w-full",
+      COMMON.transition,
+      isScrolled || isMenuOpen ? "bg-cream backdrop-blur-md" : "bg-transparent",
+    ),
+    container: "w-full max-w-7xl mx-auto relative",
+    topBar: "flex h-20 items-center justify-between px-6",
+    logo: "flex items-center font-semibold text-xl tracking-tighter",
+    desktopNav: "hidden lg:flex",
+    desktopAction: "hidden lg:flex items-center gap-4",
+    mobileToggle: "flex lg:hidden items-center",
+    iconBox: "relative flex h-5 w-5 items-center justify-center",
+    icon: cn("absolute", COMMON.transition),
+    mobileMenu: cn(
+      "absolute inset-x-0 top-full -mt-px bg-cream lg:hidden border-b border-border rounded-2xl shadow-xl",
+      "data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:slide-out-to-top-2 data-[state=open]:slide-in-from-top-2",
+      "duration-300",
+    ),
+    mobileNavWrapper: "flex flex-col px-6 pb-6 pt-2",
+    overlay:
+      "fixed inset-0 top-20 bg-black/10 backdrop-blur-sm lg:hidden transition-all duration-500",
+    linkBase: (href: string) =>
+      cn(
+        COMMON.transition,
+        checkActive(href) ? COMMON.navActive : COMMON.navInactive,
+      ),
+  };
 
-  const desktopNavClass = "hidden lg:flex";
-  const desktopActionClass = "hidden lg:flex items-center gap-4";
+  const NavItem = ({
+    link,
+    isMobile = false,
+  }: {
+    link: NavLink;
+    isMobile?: boolean;
+  }) => {
+    const isActive = checkActive(link.href);
 
-  const mobileToggleClass = "flex lg:hidden items-center";
-  const iconBoxClass = "relative flex h-5 w-5 items-center justify-center";
+    if (isMobile) {
+      return (
+        <Link
+          href={link.href}
+          onClick={() => setIsMenuOpen(false)}
+          className={cn(
+            "py-3 text-lg transition-all duration-300",
+            isActive ? COMMON.navActive : COMMON.navInactive,
+          )}
+        >
+          {link.name}
+        </Link>
+      );
+    }
 
-  // Sửa lỗi lệch màu: dính chặt vào header bằng top-[calc(100%-1px)]
-  const mobileMenuContentClass = cn(
-    "absolute top-[calc(100%-1px)] left-0 w-full bg-cream lg:hidden border-b border-border rounded-2xl shadow-xl",
-    "data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:slide-out-to-top-2 data-[state=open]:slide-in-from-top-2 duration-300",
-  );
-
-  const mobileNavWrapperClass = "flex flex-col px-6 pb-6 pt-2";
-  const overlayClass =
-    "fixed inset-0 top-20 bg-black/10 backdrop-blur-[2px] lg:hidden transition-all duration-500";
-
-  // Reusable Link Style
-  const getLinkClass = (href: string, isMobile = false) =>
-    cn(
-      "transition-all duration-300",
-      isMobile
-        ? "text-xl font-medium tracking-tight"
-        : "bg-transparent hover:bg-transparent",
-      checkActive(href)
-        ? "text-primary font-semibold"
-        : "text-muted-foreground",
+    return (
+      <NavigationMenuItem>
+        <NavigationMenuLink
+          asChild
+          className={cn(
+            navigationMenuTriggerStyle(),
+            "bg-transparent! text-base hover:underline hover:underline-offset-4 hover:decoration-2",
+            isActive ? COMMON.navActive : COMMON.navInactive,
+            COMMON.transition,
+          )}
+        >
+          <Link href={link.href}>{link.name}</Link>
+        </NavigationMenuLink>
+      </NavigationMenuItem>
     );
+  };
+
+  const IconState = ({ isOpen }: { isOpen: boolean }) => (
+    <div className={styles.iconBox}>
+      <Menu
+        className={cn(
+          styles.icon,
+          isOpen ? "scale-0 opacity-0" : "scale-100 opacity-100",
+        )}
+      />
+      <X
+        className={cn(
+          styles.icon,
+          isOpen ? "scale-100 opacity-100" : "scale-0 opacity-0",
+        )}
+      />
+    </div>
+  );
 
   return (
-    <div className={wrapperClass}>
-      {/* Backdrop Overlay khi mở Menu */}
+    <div className={styles.wrapper}>
       {isMenuOpen && (
-        <div className={overlayClass} onClick={() => setIsMenuOpen(false)} />
+        <div className={styles.overlay} onClick={() => setIsMenuOpen(false)} />
       )}
 
-      <header className={containerClass}>
+      <header className={styles.container}>
         <Collapsible open={isMenuOpen} onOpenChange={setIsMenuOpen}>
-          <div className={topBarClass}>
-            {/* Logo */}
-            <Link href="/" className={logoClass}>
+          <div className={styles.topBar}>
+            <Link href="/" className={styles.logo}>
               ELC
             </Link>
 
-            {/* Desktop Navigation */}
-            <NavigationMenu className={desktopNavClass}>
+            <NavigationMenu className={styles.desktopNav}>
               <NavigationMenuList className="flex items-center gap-1">
                 {navLinks.map((link) => (
-                  <NavigationMenuItem key={link.name}>
-                    <NavigationMenuLink
-                      asChild
-                      className={cn(
-                        navigationMenuTriggerStyle(),
-                        // Triệt tiêu focus background mặc định của Shadcn
-                        "focus:bg-transparent focus:text-accent-foreground",
-                        "data-active:bg-transparent data-[state=open]:bg-transparent",
-                        // Giữ lại logic của mày
-                        "bg-transparent text-md hover:bg-transparent hover:underline hover:underline-offset-4 hover:decoration-2",
-                        checkActive(link.href) && "text-primary font-semibold",
-                      )}
-                    >
-                      <Link href={link.href}>{link.name}</Link>
-                    </NavigationMenuLink>
-                  </NavigationMenuItem>
+                  <NavItem key={link.name} link={link} />
                 ))}
               </NavigationMenuList>
             </NavigationMenu>
 
-            {/* Desktop Actions */}
-            <div className={desktopActionClass}>
+            <div className={styles.desktopAction}>
               <Button asChild variant="default">
                 <Link href="/du-an">Khám phá</Link>
               </Button>
             </div>
 
-            {/* Mobile Toggle */}
-            <div className={mobileToggleClass}>
+            <div className={styles.mobileToggle}>
               <CollapsibleTrigger asChild>
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="hover:bg-transparent data-[state=open]:bg-transparent"
+                  className="bg-transparent!"
                   aria-label={isMenuOpen ? "Đóng menu" : "Mở menu"}
                 >
-                  <div className={iconBoxClass}>
-                    <Menu
-                      className={cn(
-                        "absolute transition-all duration-300",
-                        isMenuOpen
-                          ? "scale-0 opacity-0"
-                          : "scale-100 opacity-100",
-                      )}
-                    />
-                    <X
-                      className={cn(
-                        " absolute transition-all duration-300",
-                        isMenuOpen
-                          ? " scale-100 opacity-100"
-                          : " scale-0 opacity-0",
-                      )}
-                    />
-                  </div>
+                  <IconState isOpen={isMenuOpen} />
                 </Button>
               </CollapsibleTrigger>
             </div>
           </div>
 
-          {/* Mobile Menu Content */}
-          <CollapsibleContent className={mobileMenuContentClass}>
-            <nav className={mobileNavWrapperClass}>
+          <CollapsibleContent className={styles.mobileMenu}>
+            <nav className={styles.mobileNavWrapper}>
               {navLinks.map((link, index) => (
                 <React.Fragment key={link.name}>
-                  <Link
-                    href={link.href}
-                    onClick={() => setIsMenuOpen(false)}
-                    className={cn(
-                      "py-3 text-lg font-bold transition-colors", // Dùng py-3 để tạo khoảng trống quanh link
-                      checkActive(link.href)
-                        ? "text-primary font-bold"
-                        : "text-muted-foreground",
-                    )}
-                  >
-                    {link.name}
-                  </Link>
-                  {/* Thêm separator giữa các link, trừ link cuối cùng */}
+                  <NavItem link={link} isMobile />
                   {index < navLinks.length - 1 && <Separator />}
                 </React.Fragment>
               ))}
-              {/* <Button asChild className="w-full">
-                <Link href="/du-an" onClick={() => setIsMenuOpen(false)}>
-                  Xem dự án
-                </Link>
-              </Button> */}
             </nav>
           </CollapsibleContent>
         </Collapsible>

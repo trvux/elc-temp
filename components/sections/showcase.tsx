@@ -32,75 +32,60 @@ export function ShowcaseSection({ projects }: ShowcaseSectionProps) {
 
   if (!mainProject) return null;
 
-  const catData = Array.isArray(mainProject.categories)
-    ? mainProject.categories[0]
-    : mainProject.categories;
+  const getProjectUrl = (p: Project) => {
+    const cat = Array.isArray(p.categories) ? p.categories[0] : p.categories;
+    return cat?.slug ? `/du-an/${cat.slug}/${p.slug}` : `/du-an/${p.slug}`;
+  };
 
-  const mainProjectUrl = catData?.slug
-    ? `/du-an/${catData.slug}/${mainProject.slug}`
-    : `/du-an/${mainProject.slug}`;
+  const getMainCategoryLabel = (p: Project) => {
+    const cat = Array.isArray(p.categories) ? p.categories[0] : p.categories;
+    return cat?.parent?.name ? `${cat.parent.name} / ${cat.name}` : cat?.name || "Kiến trúc";
+  };
 
-  // Khoảng cách được kiểm soát tập trung tại đây bằng gap
-  const LayoutGrid = cn(
-    "grid grid-cols-1 md:grid-cols-12 gap-y-10 md:gap-x-12 lg:gap-x-16 items-start",
-  );
+  const styles = {
+    section: "container mx-auto max-w-7xl py-20",
+    grid: "grid grid-cols-1 md:grid-cols-12 gap-y-10 md:gap-x-12 lg:gap-x-16 items-start",
+    contentCol: "md:col-span-7 md:col-start-6",
+    imageCol: "md:col-span-5 md:row-span-6 md:row-start-1 order-4 md:order-0",
+    imageWrapper: "relative overflow-hidden rounded-sm shadow-xl shadow-black/5 w-full aspect-[4/5]",
+    image: "object-cover transition-transform duration-1000 group-hover:scale-105",
+    relatedCol: "md:col-span-12 lg:col-span-7 lg:col-start-6 order-6",
+    relatedTrack: "flex flex-col gap-6",
+    relatedItem: "group flex justify-between items-center py-5 border-b border-foreground/30 transition-all",
+    arrowIcon: "transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5",
+  };
 
-  // Ảnh: Chỉ giữ logic vị trí và kích thước cột
-  const SectionImage = cn(
-    "md:col-span-5 md:row-span-6 md:row-start-1",
-    "order-4 md:order-0",
-  );
-
-  const ImageWrapper = cn(
-    "relative overflow-hidden rounded-sm shadow-xl shadow-black/5",
-    "w-full aspect-4/5",
-  );
-
-  // Nội dung: Sạch sẽ, không dính margin lẻ
-  const SectionCategory = "md:col-span-7 md:col-start-6 order-1";
-  const SectionTitle = "md:col-span-7 md:col-start-6 order-2";
-  const SectionDescription = "md:col-span-7 md:col-start-6 order-3";
-  const SectionRelated = cn(
-    "md:col-span-12 lg:col-span-7 lg:col-start-6 order-6",
-  );
   return (
-    <section className="container mx-auto max-w-7xl">
-      <div className={LayoutGrid}>
-        {/* 1. Danh mục */}
-        <div className={SectionCategory}>
-          <TypographyMuted>
-            {catData?.parent?.name
-              ? `${catData.parent.name} / ${catData.name}`
-              : catData?.name || "Kiến trúc"}
-          </TypographyMuted>
+    <section className={styles.section}>
+      <div className={styles.grid}>
+        {/* Row 1: Category */}
+        <div className={cn(styles.contentCol, "order-1")}>
+          <TypographyMuted>{getMainCategoryLabel(mainProject)}</TypographyMuted>
         </div>
 
-        {/* 2. Title */}
-        <div className={SectionTitle}>
+        {/* Row 2: Title */}
+        <div className={cn(styles.contentCol, "order-2")}>
           <TypographyH1>{mainProject.title}</TypographyH1>
         </div>
 
-        {/* 3. Bài viết */}
-        <div className={SectionDescription}>
+        {/* Row 3: Description */}
+        <div className={cn(styles.contentCol, "order-3")}>
           <TypographyP>
-            {(mainProject.description || "")
-              .replace(/<[^>]*>?/gm, "")
-              .slice(0, 300)}
-            ...
+            {(mainProject.description || "").replace(/<[^>]*>?/gm, "").slice(0, 300)}...
           </TypographyP>
         </div>
 
-        {/* 4. Ảnh */}
-        <div className={SectionImage}>
+        {/* Column 1 (Large Image): Spans multiple rows */}
+        <div className={styles.imageCol}>
           <AnimateIn variant="fadeIn">
-            <Link href={mainProjectUrl} className="block group">
-              <div className={ImageWrapper}>
+            <Link href={getProjectUrl(mainProject)} className="block group">
+              <div className={styles.imageWrapper}>
                 {mainProject.images?.[0] && (
                   <Image
                     src={getOptimizedImage(mainProject.images[0], 1200, 75, "cover")}
                     alt={mainProject.title}
                     fill
-                    className="object-cover transition-transform duration-1000 group-hover:scale-105"
+                    className={styles.image}
                     sizes="(max-width: 768px) 100vw, 40vw"
                     priority
                     fetchPriority="high"
@@ -111,34 +96,25 @@ export function ShowcaseSection({ projects }: ShowcaseSectionProps) {
           </AnimateIn>
         </div>
 
-        {/* 6. Dự án liên quan */}
+        {/* Row 4: Related Projects */}
         {otherProjects?.length > 0 && (
-          <div className={SectionRelated}>
-            <div className="flex flex-col gap-6">
-              {/* Dùng gap bên trong cụm related */}
+          <div className={styles.relatedCol}>
+            <div className={styles.relatedTrack}>
               <TypographySmall>Dự án liên quan</TypographySmall>
               <div className="flex flex-col">
-                {otherProjects.slice(0, 2).map((p, idx) => {
-                  const pCat = Array.isArray(p.categories)
-                    ? p.categories[0]
-                    : p.categories;
-                  const pUrl = pCat?.slug
-                    ? `/du-an/${pCat.slug}/${p.slug}`
-                    : `/du-an/${p.slug}`;
-                  return (
-                    <Link
-                      key={p.id}
-                      href={pUrl}
-                      className="group flex justify-between items-center py-5 border-b border-foreground/30 transition-all"
-                    >
-                      <div className="flex items-center gap-4">
-                        <span>0{idx + 2}</span>
-                        <TypographyLarge>{p.title}</TypographyLarge>
-                      </div>
-                      <ArrowUpRight size={16} className=" transition-all" />
-                    </Link>
-                  );
-                })}
+                {otherProjects.slice(0, 2).map((p, idx) => (
+                  <Link
+                    key={p.id}
+                    href={getProjectUrl(p)}
+                    className={styles.relatedItem}
+                  >
+                    <div className="flex items-center gap-4">
+                      <span>0{idx + 2}</span>
+                      <TypographyLarge>{p.title}</TypographyLarge>
+                    </div>
+                    <ArrowUpRight size={16} className={styles.arrowIcon} />
+                  </Link>
+                ))}
               </div>
             </div>
           </div>

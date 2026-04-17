@@ -1,6 +1,5 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
@@ -35,7 +34,7 @@ export function HeroContactButton({ contacts }: { contacts: Contact[] }) {
   const [currentContactIndex, setCurrentContactIndex] = useState(0);
 
   useEffect(() => {
-    if (contacts.length <= 1) return;
+    if (!contacts || contacts.length <= 1) return;
     const timer = setInterval(() => {
       setCurrentContactIndex((prev) => (prev + 1) % contacts.length);
     }, 5000);
@@ -44,12 +43,17 @@ export function HeroContactButton({ contacts }: { contacts: Contact[] }) {
 
   const currentContact = contacts[currentContactIndex];
 
+  // --- STYLES ---
+  const styles = {
+    wrapper: "flex items-center gap-3 w-full h-full text-left min-w-0",
+    label:
+      " font-bold text-muted-foreground/60 shrink-0 border-r border-border/50 pr-3",
+    value: "text-sm font-semibold truncate flex-1",
+    fallback: "text-sm font-medium",
+  };
+
   if (!currentContact) {
-    return (
-      <Button variant="outline" size="lg">
-        Liên hệ hỗ trợ
-      </Button>
-    );
+    return <span className={styles.fallback}>Liên hệ hỗ trợ</span>;
   }
 
   const href = getContactHref(currentContact.type, currentContact.value);
@@ -59,17 +63,14 @@ export function HeroContactButton({ contacts }: { contacts: Contact[] }) {
       href={href}
       target="_blank"
       rel="noopener noreferrer"
-      className="h-full w-full"
+      className="flex h-full w-full items-center"
+      key={currentContact.id} // Re-mount for subtle browser transition
     >
-      {/* Bên trái: Label */}
-      <div className="flex flex-row items-center justify-start w-full h-full gap-2">
-        <span className="text-muted-foreground text-xs font-bold shrink-0 w-2/8">
-          {currentContact.label}
+      <div className={styles.wrapper}>
+        <span className={styles.label}>
+          {currentContact.label || currentContact.type}
         </span>
-        {/* <span className="border-r border-border h-full"></span> */}
-        <span className="truncate text-base font-semibold text-center flex-1">
-          {currentContact.value}
-        </span>
+        <span className={styles.value}>{currentContact.value}</span>
       </div>
     </Link>
   );

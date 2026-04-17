@@ -49,17 +49,20 @@ interface FeaturesSectionProps {
 }
 
 export function FeaturesSection({ products }: FeaturesSectionProps) {
-  const isShowingProducts = products && products.length > 0;
+  const isShowingProducts = !!(products && products.length > 0);
   const title = isShowingProducts ? "Sản phẩm nổi bật" : "Dịch vụ & Giải pháp";
 
-  // --- DESIGN SYSTEM CONSTANTS ---
-  const SectionWrapper = "max-w-7xl mx-auto px-4 md:px-6 py-12 lg:py-20";
-  const ProductGrid = cn(
-    "grid gap-4 md:gap-6 grid-cols-1 md:grid-cols-3 lg:grid-cols-4",
-  );
-  const ServiceGrid = cn(
-    "grid gap-4 md:gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-4",
-  );
+  // --- STYLES ---
+  const styles = {
+    section: "max-w-7xl mx-auto px-4 md:px-6 py-12 lg:py-20",
+    title: "mb-10 md:mb-14",
+    productGrid: "grid gap-4 md:gap-6 grid-cols-1 md:grid-cols-3 lg:grid-cols-4 hidden md:grid",
+    serviceGrid: "grid gap-4 md:gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-4",
+    productCard: "group h-full flex flex-col border-none shadow-none hover:shadow-md transition-all duration-300",
+    navBtn: "opacity-0 invisible group-hover/carousel:opacity-100 group-hover/carousel:visible transition-all duration-300",
+    defaultCard: "group p-6 flex flex-col hover:shadow-md transition-all duration-300 h-full border-border/50",
+    priceOld: "line-through text-xs text-muted-foreground",
+  };
 
   const formatPrice = (price: number) =>
     new Intl.NumberFormat("vi-VN", {
@@ -86,13 +89,11 @@ export function FeaturesSection({ products }: FeaturesSectionProps) {
     },
   ];
 
-  // --- SUB-COMPONENTS ---
   const ProductCard = ({ product }: { product: Product }) => {
     const productUrl = `/san-pham/${product.categories?.slug || ""}/${product.slug}`;
 
     return (
-      <Card className="group h-full flex flex-col border-none shadow-none hover:shadow-md transition-all">
-        {/* 1. Phần hình ảnh: Dùng Carousel cho tất cả, chỉ ẩn nút trên Mobile */}
+      <Card className={styles.productCard}>
         <div className="relative group/carousel">
           <Carousel className="w-full">
             <CarouselContent>
@@ -113,41 +114,28 @@ export function FeaturesSection({ products }: FeaturesSectionProps) {
                 </CarouselItem>
               ))}
             </CarouselContent>
-            {/* Navigation buttons for desktop */}
             <div className="hidden md:block">
-              <CarouselPrevious
-                className={cn(
-                  "left-2 transition-all duration-300",
-                  "opacity-0 invisible group-hover/carousel:opacity-100 group-hover/carousel:visible",
-                )}
-              />
-              <CarouselNext
-                className={cn(
-                  "right-2 transition-all duration-300",
-                  "opacity-0 invisible group-hover/carousel:opacity-100 group-hover/carousel:visible",
-                )}
-              />
+              <CarouselPrevious className={cn("left-2", styles.navBtn)} />
+              <CarouselNext className={cn("right-2", styles.navBtn)} />
             </div>
           </Carousel>
         </div>
 
-        {/* 2. Content */}
         <Link href={productUrl} className="p-4 flex flex-col gap-2">
           <TypographyMuted>{product.sku}</TypographyMuted>
+          <TypographyLarge className="line-clamp-2 min-h-14">{product.name}</TypographyLarge>
 
-          <TypographyLarge>{product.name}</TypographyLarge>
-
-          <div className="flex flex-col gap-1">
+          <div className="flex flex-col gap-1 mt-auto">
             <TypographyLarge>
               {formatPrice(product.sale_price || product.original_price)}
             </TypographyLarge>
 
             {(product.discount_percent ?? 0) > 0 && (
               <div className="flex items-center gap-2">
-                <TypographyMuted className="line-through text-xs">
+                <span className={styles.priceOld}>
                   {formatPrice(product.original_price)}
-                </TypographyMuted>
-                <Badge>-{product.discount_percent}%</Badge>
+                </span>
+                <Badge variant="secondary" className="rounded-full">-{product.discount_percent}%</Badge>
               </div>
             )}
           </div>
@@ -157,36 +145,28 @@ export function FeaturesSection({ products }: FeaturesSectionProps) {
   };
 
   const DefaultCard = ({ feature, index }: { feature: any; index: number }) => (
-    <Card className="group p-6 flex flex-col hover:shadow-md transition-all duration-300 h-full border-border/50">
+    <Card className={styles.defaultCard}>
       <TypographyH1 className="font-newsreader opacity-30 mb-6">
         {String(index + 1).padStart(2, "0")}
       </TypographyH1>
       <Separator className="mb-6 opacity-50" />
-      <TypographyLarge className="mb-3 group-hover:underline underline-offset-4 uppercase">
+      <TypographyLarge className="mb-3 group-hover:text-primary transition-colors uppercase tracking-wider">
         {feature.title}
       </TypographyLarge>
-      <TypographyP className="line-clamp-4 flex-1">
+      <TypographyP className="line-clamp-4 flex-1 text-muted-foreground">
         {feature.description}
       </TypographyP>
     </Card>
   );
 
-  // 1. Tạo biến chứa danh sách đã được bọc StaggerItem
-  const renderProducts = products.map((p) => (
-    <StaggerItem key={p.id}>
-      <ProductCard product={p} />
-    </StaggerItem>
-  ));
-
   return (
-    <section className={SectionWrapper}>
+    <section className={styles.section}>
       <AnimateIn>
-        <TypographyH1 className="mb-10 md:mb-14">{title}</TypographyH1>
+        <TypographyH1 className={styles.title}>{title}</TypographyH1>
       </AnimateIn>
 
       {isShowingProducts ? (
         <>
-          {/* Mobile: Chỉ cần CarouselContent bọc renderProducts là xong */}
           <Carousel className="md:hidden" opts={{ align: "center" }}>
             <CarouselContent className="-ml-4">
               {products.map((p) => (
@@ -197,13 +177,16 @@ export function FeaturesSection({ products }: FeaturesSectionProps) {
             </CarouselContent>
           </Carousel>
 
-          {/* Desktop: Grid dùng renderProducts */}
-          <StaggerContainer className={cn(ProductGrid, "hidden md:grid")}>
-            {renderProducts}
+          <StaggerContainer className={styles.productGrid}>
+            {products.map((p) => (
+              <StaggerItem key={p.id}>
+                <ProductCard product={p} />
+              </StaggerItem>
+            ))}
           </StaggerContainer>
         </>
       ) : (
-        <StaggerContainer className={ServiceGrid}>
+        <StaggerContainer className={styles.serviceGrid}>
           {defaultFeatures.map((f, i) => (
             <StaggerItem key={i}>
               <DefaultCard feature={f} index={i} />

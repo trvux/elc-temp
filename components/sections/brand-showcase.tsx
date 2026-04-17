@@ -16,34 +16,40 @@ const brands = [
 ];
 
 export function BrandShowcase() {
-  const BlurText = cn(
-    "absolute inset-y-0 w-32 bg-linear-to-r from-cream to-transparent z-10 pointer-events-none",
-  );
+  const styles = {
+    section: "py-20",
+    container: "grid grid-cols-1 gap-16 md:gap-20",
+    header: "flex flex-col items-center text-center",
+    marqueeArea: "relative w-full max-w-screen-xl mx-auto overflow-hidden pause-marquee",
+    marqueeTrack: "flex gap-12 lg:gap-24 animate-marquee w-fit",
+    brand: "flex items-center justify-center text-foreground/40 hover:text-foreground/80 transition-colors duration-500 cursor-grab whitespace-nowrap",
+    gradient: "absolute inset-y-0 w-24 md:w-40 z-10 pointer-events-none",
+    gradientLeft: "left-0 bg-linear-to-r from-cream to-transparent",
+    gradientRight: "right-0 bg-linear-to-l from-cream to-transparent",
+  };
 
   return (
-    <section className="">
-      <div className="grid grid-cols-1 gap-20">
-        <AnimateIn className="flex flex-col items-center text-center">
-          <TypographyH2 className="">
+    <section className={styles.section}>
+      <div className={styles.container}>
+        <AnimateIn className={styles.header}>
+          <TypographyH2>
             Hơn 10,000+ dự án cao cấp <br /> tin dùng giải pháp từ ELC
           </TypographyH2>
         </AnimateIn>
 
-        <div className="relative w-full max-w-screen-xl mx-auto overflow-hidden pause-marquee">
-          <div className="flex gap-10 lg:gap-20 animate-marquee w-fit">
-            {/* Render 2 lần để tạo vòng lặp vô tận mượt mà */}
+        <div className={styles.marqueeArea}>
+          <div className={styles.marqueeTrack}>
+            {/* Render 2 times for seamless loop */}
             {[...brands, ...brands].map((brand, i) => (
-              <TypographyH3
-                key={`${brand.name}-${i}`}
-                className="flex items-center justify-center text-foreground/40 hover:text-foreground/80 transition-colors duration-500 cursor-grab "
-              >
+              <TypographyH3 key={`${brand.name}-${i}`} className={styles.brand}>
                 {brand.name}
               </TypographyH3>
             ))}
           </div>
-          {/* Hiệu ứng mờ ở 2 đầu */}
-          <div className={cn(BlurText, "left-0 bg-linear-to-r")} />
-          <div className={cn(BlurText, "right-0 bg-linear-to-l")} />
+
+          {/* Edge Fading Effects */}
+          <div className={cn(styles.gradient, styles.gradientLeft)} />
+          <div className={cn(styles.gradient, styles.gradientRight)} />
         </div>
       </div>
     </section>
