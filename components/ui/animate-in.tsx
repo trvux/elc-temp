@@ -4,11 +4,11 @@ import { LazyMotion, domAnimation, m, type Variants } from "framer-motion";
 import type { ReactNode } from "react";
 
 const fadeUp: Variants = {
-  hidden: { opacity: 0, y: 28 },
+  hidden: { opacity: 0, y: 60 },
   visible: {
     opacity: 1,
     y: 0,
-    transition: { duration: 0.65, ease: [0.25, 0.46, 0.45, 0.94] },
+    transition: { duration: 0.9, ease: [0.16, 1, 0.3, 1] },
   },
 };
 
@@ -16,13 +16,13 @@ const fadeIn: Variants = {
   hidden: { opacity: 0 },
   visible: {
     opacity: 1,
-    transition: { duration: 0.55, ease: "easeOut" },
+    transition: { duration: 0.8, ease: "easeOut" },
   },
 };
 
 const stagger: Variants = {
   hidden: {},
-  visible: { transition: { staggerChildren: 0.1, delayChildren: 0.05 } },
+  visible: { transition: { staggerChildren: 0.15, delayChildren: 0.05 } },
 };
 
 interface AnimateInProps {
@@ -60,7 +60,7 @@ export function AnimateIn({
         className={className}
         initial="hidden"
         whileInView="visible"
-        viewport={{ once: true, margin: "-60px" }}
+        viewport={{ once: true, margin: "0px 0px -30% 0px" }} // Chỉ tính margin ở đáy (bottom)
         variants={variants}
       >
         {children}
@@ -82,7 +82,7 @@ export function StaggerContainer({
         className={className}
         initial="hidden"
         whileInView="visible"
-        viewport={{ once: true, margin: "-60px" }}
+        viewport={{ once: true, margin: "0px 0px -30% 0px" }}
         variants={stagger}
       >
         {children}

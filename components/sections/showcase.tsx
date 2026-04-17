@@ -59,21 +59,21 @@ export function ShowcaseSection({ projects }: ShowcaseSectionProps) {
     <section className={styles.section}>
       <div className={styles.grid}>
         {/* Row 1: Category */}
-        <div className={cn(styles.contentCol, "order-1")}>
+        <AnimateIn className={cn(styles.contentCol, "order-1")}>
           <TypographyMuted>{getMainCategoryLabel(mainProject)}</TypographyMuted>
-        </div>
+        </AnimateIn>
 
         {/* Row 2: Title */}
-        <div className={cn(styles.contentCol, "order-2")}>
+        <AnimateIn delay={0.1} className={cn(styles.contentCol, "order-2")}>
           <TypographyH1>{mainProject.title}</TypographyH1>
-        </div>
+        </AnimateIn>
 
         {/* Row 3: Description */}
-        <div className={cn(styles.contentCol, "order-3")}>
+        <AnimateIn delay={0.2} className={cn(styles.contentCol, "order-3")}>
           <TypographyP>
             {(mainProject.description || "").replace(/<[^>]*>?/gm, "").slice(0, 300)}...
           </TypographyP>
-        </div>
+        </AnimateIn>
 
         {/* Column 1 (Large Image): Spans multiple rows */}
         <div className={styles.imageCol}>
@@ -98,7 +98,7 @@ export function ShowcaseSection({ projects }: ShowcaseSectionProps) {
 
         {/* Row 4: Related Projects */}
         {otherProjects?.length > 0 && (
-          <div className={styles.relatedCol}>
+          <AnimateIn delay={0.3} className={styles.relatedCol}>
             <div className={styles.relatedTrack}>
               <TypographySmall>Dự án liên quan</TypographySmall>
               <div className="flex flex-col">
@@ -117,7 +117,7 @@ export function ShowcaseSection({ projects }: ShowcaseSectionProps) {
                 ))}
               </div>
             </div>
-          </div>
+          </AnimateIn>
         )}
       </div>
     </section>

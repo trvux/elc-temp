@@ -5,6 +5,7 @@ import { getOptimizedImage } from "@/lib/image";
 import Image from "next/image";
 import Link from "next/link";
 import { HeroContactButton } from "./hero-contact-button";
+import { AnimateIn } from "@/components/ui/animate-in";
 
 interface Contact {
   id: string;
@@ -33,18 +34,20 @@ export function HeroSection({
 }: HeroSectionProps) {
   // --- STYLES ---
   const styles = {
-    section: "grid grid-cols-1 md:grid-cols-2 gap-12 md:gap-16 p-4 max-w-7xl mx-auto items-center min-h-[60vh]",
+    section:
+      "grid grid-cols-1 md:grid-cols-2 gap-12 md:gap-16 p-4 max-w-7xl mx-auto items-center min-h-[60vh]",
     content: "flex flex-col gap-6 md:gap-8",
     actions: "grid grid-cols-1 lg:grid-cols-2 gap-4 pt-2 w-full",
-    btn: "w-full lg:w-auto",
-    media: "relative w-full aspect-square md:aspect-auto md:h-[500px] lg:h-[600px] rounded-3xl overflow-hidden shadow-2xl",
+    btn: "w-full lg:w-auto border-primary/40",
+    media:
+      "relative w-full aspect-square md:aspect-auto md:h-[500px] lg:h-[600px] rounded-3xl overflow-hidden shadow-2xl",
     image: "object-cover",
   };
 
   return (
     <section className={styles.section}>
       {/* Cụm Content */}
-      <div className={styles.content}>
+      <AnimateIn className={styles.content}>
         <TypographyH1>{title}</TypographyH1>
         <Separator />
         <TypographyLead>{subtitle}</TypographyLead>
@@ -54,13 +57,13 @@ export function HeroSection({
             <Link href={ctaUrl}>{ctaText}</Link>
           </Button>
 
-          <Button size="lg" variant="outline" className={styles.btn}>
+          <Button size="lg" variant="ghost" className={styles.btn}>
             <HeroContactButton contacts={contacts} />
           </Button>
         </div>
-      </div>
+      </AnimateIn>
 
-      {/* Cụm Media */}
+      {/* Cụm Media - KHÔNG bọc AnimateIn để bảo vệ LCP */}
       <div className={styles.media}>
         <Image
           src={getOptimizedImage(image, 1200, 75, "cover")}

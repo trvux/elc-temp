@@ -37,20 +37,22 @@ export function BrandShowcase() {
           </TypographyH2>
         </AnimateIn>
 
-        <div className={styles.marqueeArea}>
-          <div className={styles.marqueeTrack}>
-            {/* Render 2 times for seamless loop */}
-            {[...brands, ...brands].map((brand, i) => (
-              <TypographyH3 key={`${brand.name}-${i}`} className={styles.brand}>
-                {brand.name}
-              </TypographyH3>
-            ))}
-          </div>
+        <AnimateIn delay={0.2}>
+          <div className={styles.marqueeArea}>
+            <div className={styles.marqueeTrack}>
+              {/* Render 2 times for seamless loop */}
+              {[...brands, ...brands].map((brand, i) => (
+                <TypographyH3 key={`${brand.name}-${i}`} className={styles.brand}>
+                  {brand.name}
+                </TypographyH3>
+              ))}
+            </div>
 
-          {/* Edge Fading Effects */}
-          <div className={cn(styles.gradient, styles.gradientLeft)} />
-          <div className={cn(styles.gradient, styles.gradientRight)} />
-        </div>
+            {/* Edge Fading Effects */}
+            <div className={cn(styles.gradient, styles.gradientLeft)} />
+            <div className={cn(styles.gradient, styles.gradientRight)} />
+          </div>
+        </AnimateIn>
       </div>
     </section>
   );

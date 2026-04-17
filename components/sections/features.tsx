@@ -167,15 +167,17 @@ export function FeaturesSection({ products }: FeaturesSectionProps) {
 
       {isShowingProducts ? (
         <>
-          <Carousel className="md:hidden" opts={{ align: "center" }}>
-            <CarouselContent className="-ml-4">
-              {products.map((p) => (
-                <CarouselItem key={p.id} className="pl-4 basis-[85%]">
-                  <ProductCard product={p} />
-                </CarouselItem>
-              ))}
-            </CarouselContent>
-          </Carousel>
+          <AnimateIn delay={0.2}>
+            <Carousel className="md:hidden" opts={{ align: "center" }}>
+              <CarouselContent className="-ml-4">
+                {products.map((p) => (
+                  <CarouselItem key={p.id} className="pl-4 basis-[85%]">
+                    <ProductCard product={p} />
+                  </CarouselItem>
+                ))}
+              </CarouselContent>
+            </Carousel>
+          </AnimateIn>
 
           <StaggerContainer className={styles.productGrid}>
             {products.map((p) => (

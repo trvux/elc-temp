@@ -1,4 +1,11 @@
 import { AspectRatio } from "@/components/ui/aspect-ratio";
+import {
+  TypographyH1,
+  TypographyH2,
+  TypographyH3,
+  TypographyMuted,
+  TypographySmall,
+} from "@/components/ui/typography";
 import { generateBreadcrumbSchema, SEO_CONFIG } from "@/lib/seo";
 import { createClient } from "@/lib/supabase/server";
 import Image from "next/image";
@@ -41,24 +48,18 @@ export default async function ProjectsPage() {
       ? `${p.categories.parent.name} / ${p.categories.name}`
       : p.categories?.name || "Khác";
 
-  // --- STYLES ---
+  // --- STYLES (Only Layout & Interactions) ---
   const styles = {
     main: "w-full px-4 py-12 md:px-8",
     container: "mx-auto w-full px-4 md:px-6 max-w-7xl flex flex-col gap-20",
     header: "flex flex-col items-center text-center gap-3",
-    title: "text-4xl md:text-6xl lg:text-7xl leading-tight",
-    badge:
-      "text-[10px] text-muted-foreground tracking-[0.3em] uppercase font-bold",
     featured: "group block mb-16 md:mb-24",
     featImg: "overflow-hidden rounded-lg shadow-2xl",
-    featTitle: "text-2xl md:text-4xl leading-tight",
     grid: "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-12",
     card: "group flex flex-col gap-4",
-    cardTitle:
-      "text-base md:text-lg font-medium leading-tight group-hover:underline underline-offset-8",
-    cardCat: "text-xs text-muted-foreground/60 tracking-wider",
+    cardTitle: "group-hover:underline underline-offset-8",
     viewMore:
-      "text-[10px] text-primary uppercase tracking-[0.2em] font-bold opacity-0 group-hover:opacity-100 transition-all duration-500",
+      "text-primary opacity-0 group-hover:opacity-100 transition-all duration-500",
     mobileAspect: "md:hidden overflow-hidden rounded-lg",
     desktopAspect: "hidden md:block overflow-hidden rounded-lg",
     empty:
@@ -86,7 +87,7 @@ export default async function ProjectsPage() {
                   alt={project.title}
                   fill
                   className="object-cover transition-transform duration-1000 group-hover:scale-105"
-                  sizes="100vw"
+                  sizes="(max-width: 1280px) 100vw, 1280px"
                   priority
                 />
               ) : (
@@ -96,10 +97,12 @@ export default async function ProjectsPage() {
           </div>
           <div className="mt-8 flex flex-col md:flex-row md:items-end md:justify-between gap-6">
             <div className="space-y-2">
-              <h2 className={styles.featTitle}>{project.title}</h2>
-              <p className={styles.cardCat}>{cat}</p>
+              <TypographyH2>{project.title}</TypographyH2>
+              <TypographyMuted>{cat}</TypographyMuted>
             </div>
-            <span className={styles.viewMore}>Khám phá dự án —</span>
+            <TypographySmall className={styles.viewMore}>
+              Khám phá dự án —
+            </TypographySmall>
           </div>
         </Link>
       );
@@ -116,7 +119,7 @@ export default async function ProjectsPage() {
                 alt={project.title}
                 fill
                 className="object-cover transition-transform duration-1000 group-hover:scale-105"
-                sizes="100vw"
+                sizes="(max-width: 768px) 100vw, 1px"
               />
             ) : (
               <div className={styles.empty}>Chưa có ảnh</div>
@@ -132,7 +135,7 @@ export default async function ProjectsPage() {
                 alt={project.title}
                 fill
                 className="object-cover transition-transform duration-1000 group-hover:scale-105"
-                sizes="(max-width: 1024px) 50vw, 33vw"
+                sizes="(max-width: 1024px) 50vw, 400px"
               />
             ) : (
               <div className={styles.empty}>Chưa có ảnh</div>
@@ -140,9 +143,13 @@ export default async function ProjectsPage() {
           </AspectRatio>
         </div>
         <div className="flex flex-col gap-2">
-          <h3 className={styles.cardTitle}>{project.title}</h3>
-          <p className={styles.cardCat}>{cat}</p>
-          <span className={styles.viewMore}>Xem chi tiết</span>
+          <TypographyH3 className={styles.cardTitle}>
+            {project.title}
+          </TypographyH3>
+          <TypographyMuted>{cat}</TypographyMuted>
+          <TypographySmall className={styles.viewMore}>
+            Xem chi tiết
+          </TypographySmall>
         </div>
       </Link>
     );
@@ -178,10 +185,10 @@ export default async function ProjectsPage() {
 
       <div className={styles.container}>
         <header className={styles.header}>
-          <h1 className={styles.title}>Dự án hoàn thiện</h1>
-          <p className={styles.badge}>
+          <TypographyH1>Dự án hoàn thiện</TypographyH1>
+          <TypographyMuted>
             {allProjects.length} công trình tiêu biểu
-          </p>
+          </TypographyMuted>
         </header>
 
         {featured && <ProjectCard project={featured} isFeatured />}
@@ -196,9 +203,9 @@ export default async function ProjectsPage() {
 
         {!allProjects.length && (
           <div className="py-32 text-center">
-            <p className="text-muted-foreground/40 italic text-sm font-newsreader">
+            <TypographyMuted className="italic font-newsreader opacity-40">
               Hiện chưa có dự án nào được cập nhật.
-            </p>
+            </TypographyMuted>
           </div>
         )}
       </div>
