@@ -40,17 +40,17 @@ const STYLES = {
   ),
 };
 
-export default async function NewsHub() {
+export default async function ServicesHub() {
   const supabase = await createClient();
 
-  // Fetch all published news
-  const { data: allNews } = await supabase
-    .from("news")
+  // Fetch all published services
+  const { data: allServices } = await supabase
+    .from("services")
     .select("id, title, slug, image, meta_description, created_at")
     .eq("is_published", true)
     .order("order_index", { ascending: true });
 
-  if (!allNews) {
+  if (!allServices) {
     return (
       <main className={STYLES.main}>
         <div className={STYLES.container}>
@@ -66,24 +66,24 @@ export default async function NewsHub() {
     <main className={STYLES.main}>
       <div className={STYLES.container}>
         <header className={STYLES.header}>
-          <TypographyH1 className={STYLES.title}>Tin tức</TypographyH1>
+          <TypographyH1 className={STYLES.title}>Dịch vụ</TypographyH1>
           <TypographyLead className={STYLES.description}>
-            Cập nhật những giải pháp kỹ thuật mới nhất và các tin tức chuyên sâu từ đội ngũ kỹ sư ELC.
+            Giải pháp chuyên nghiệp dành cho hệ thống lạnh công nghiệp, điều hòa trung tâm và bảo trì hệ thống cơ điện.
           </TypographyLead>
         </header>
 
         <div className={STYLES.list}>
-          {allNews.map((news) => (
+          {allServices.map((service) => (
             <Link
-              key={news.id}
-              href={`/tin-tuc/${news.slug}`}
+              key={service.id}
+              href={`/dich-vu/${service.slug}`}
               className={STYLES.article}
             >
-              {news.image && (
+              {service.image && (
                 <div className={STYLES.imageWrapper}>
                   <Image
-                    src={news.image}
-                    alt={news.title}
+                    src={service.image}
+                    alt={service.title}
                     fill
                     className={STYLES.image}
                     sizes="(max-width: 768px) 100vw, 500px"
@@ -94,19 +94,19 @@ export default async function NewsHub() {
               <div className="flex flex-col gap-3">
                 <div className={STYLES.articleHeader}>
                   <TypographyH4 className={STYLES.articleTitle}>
-                    {news.title}
+                    {service.title}
                   </TypographyH4>
                   <ArrowUpRight className={STYLES.articleIcon} />
                 </div>
 
-                {news.meta_description && (
+                {service.meta_description && (
                   <TypographyP className={STYLES.articleDescription}>
-                    {news.meta_description}
+                    {service.meta_description}
                   </TypographyP>
                 )}
                 
                 <TypographySmall className="text-muted-foreground/40 font-medium">
-                  {new Date(news.created_at).toLocaleDateString("vi-VN", {
+                  Cập nhật: {new Date(service.created_at).toLocaleDateString("vi-VN", {
                     day: "numeric",
                     month: "long",
                     year: "numeric",

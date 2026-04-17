@@ -28,6 +28,7 @@ interface NavLink {
 
 const navLinks: NavLink[] = [
   { name: "Trang chủ", href: "/" },
+  { name: "Dịch vụ", href: "/dich-vu" },
   { name: "Dự án", href: "/du-an" },
   { name: "Sản phẩm", href: "/san-pham" },
   { name: "Tin tức", href: "/tin-tuc" },

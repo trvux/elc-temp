@@ -7,7 +7,7 @@ import { ButtonGroup } from "@/components/ui/button-group";
 import { Pencil, Trash2, ExternalLink } from "lucide-react";
 import Image from "next/image";
 
-export type ServiceRow = {
+export type NewsRow = {
   id: string;
   title: string;
   slug: string;
@@ -18,14 +18,14 @@ export type ServiceRow = {
 };
 
 interface ColumnProps {
-  onEdit: (service: ServiceRow) => void;
+  onEdit: (news: NewsRow) => void;
   onDelete: (id: string) => void;
 }
 
 export const getColumns = ({
   onEdit,
   onDelete,
-}: ColumnProps): ColumnDef<ServiceRow>[] => [
+}: ColumnProps): ColumnDef<NewsRow>[] => [
   {
     accessorKey: "image",
     header: "Ảnh",
@@ -65,12 +65,12 @@ export const getColumns = ({
     header: "URL",
     cell: ({ row }) => (
       <a
-        href={`/dich-vu/${row.original.slug}`}
+        href={`/tin-tuc/${row.original.slug}`}
         target="_blank"
         rel="noopener noreferrer"
         className="text-xs text-primary font-medium hover:underline flex items-center gap-1 transition-colors"
       >
-        /dich-vu/{row.original.slug}
+        /tin-tuc/{row.original.slug}
         <ExternalLink size={12} className="shrink-0" />
       </a>
     ),
@@ -97,14 +97,14 @@ export const getColumns = ({
     id: "actions",
     header: "Thao tác",
     cell: ({ row }) => {
-      const service = row.original;
+      const news = row.original;
       return (
         <ButtonGroup>
           <Button
             size="icon"
             variant="outline"
             className="h-8 w-8"
-            onClick={() => onEdit(service)}
+            onClick={() => onEdit(news)}
           >
             <Pencil size={14} />
           </Button>
@@ -112,7 +112,7 @@ export const getColumns = ({
             size="icon"
             variant="outline"
             className="h-8 w-8 text-destructive hover:text-destructive hover:bg-destructive/10"
-            onClick={() => onDelete(service.id)}
+            onClick={() => onDelete(news.id)}
           >
             <Trash2 size={14} />
           </Button>

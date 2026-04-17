@@ -64,11 +64,11 @@ interface PageProps {
 
 export async function generateStaticParams() {
   const supabase = createStaticClient();
-  const { data: newsList } = await supabase
-    .from("news")
+  const { data: services } = await supabase
+    .from("services")
     .select("slug")
     .eq("is_published", true);
-  return (newsList ?? []).map((n) => ({ slug: n.slug }));
+  return (services ?? []).map((s) => ({ slug: s.slug }));
 }
 
 export async function generateMetadata({
@@ -77,35 +77,35 @@ export async function generateMetadata({
   const { slug } = await params;
   const supabase = await createClient();
 
-  const { data: newsItem } = await supabase
-    .from("news")
+  const { data: service } = await supabase
+    .from("services")
     .select("title, meta_title, meta_description")
     .eq("slug", slug)
     .eq("is_published", true)
     .maybeSingle();
 
-  if (!newsItem) return { title: "Không tìm thấy nội dung" };
+  if (!service) return { title: "Không tìm thấy nội dung" };
 
   return {
-    title: newsItem.meta_title || newsItem.title,
+    title: service.meta_title || service.title,
     description:
-      newsItem.meta_description || "Tin tức chính thức từ ELC Holdings",
+      service.meta_description || "Dịch vụ chuyên nghiệp từ ELC Holdings",
   };
 }
 
-export default async function NewsDetailPage({ params }: PageProps) {
+export default async function ServiceDetailPage({ params }: PageProps) {
   const { slug } = await params;
   const supabase = await createClient();
 
-  // Fetch current news detail
-  const { data: newsItem } = await supabase
-    .from("news")
+  // Fetch current service detail
+  const { data: service } = await supabase
+    .from("services")
     .select("*")
     .eq("slug", slug)
     .eq("is_published", true)
     .maybeSingle();
 
-  if (!newsItem) {
+  if (!service) {
     notFound();
   }
 
@@ -114,20 +114,20 @@ export default async function NewsDetailPage({ params }: PageProps) {
       <div className={STYLES.container}>
         <header>
           <TypographySmall className="text-muted-foreground mb-3 block">
-            {new Date(newsItem.created_at).toLocaleDateString("vi-VN", {
+            {new Date(service.created_at).toLocaleDateString("vi-VN", {
               day: "numeric",
               month: "long",
               year: "numeric",
             })}
           </TypographySmall>
-          <TypographyH1 className={STYLES.title}>{newsItem.title}</TypographyH1>
+          <TypographyH1 className={STYLES.title}>{service.title}</TypographyH1>
         </header>
 
         <article>
           <div
             className={STYLES.prose}
             dangerouslySetInnerHTML={{
-              __html: (newsItem.content || "").replace(
+              __html: (service.content || "").replace(
                 /<img(\s[^>]*?)?>/gi,
                 (_match: string, attrs: string = "") => {
                   const a = attrs
@@ -135,7 +135,7 @@ export default async function NewsDetailPage({ params }: PageProps) {
                     .replace(/\bwidth="[^"]*"/gi, "")
                     .replace(/\bheight="[^"]*"/gi, "")
                     .replace(/\balt="[^"]*"/gi, ""); // Xóa alt cũ nếu có
-                  return `<img${a} loading="lazy" width="1200" height="800" alt="${newsItem.title}">`;
+                  return `<img${a} loading="lazy" width="1200" height="800" alt="${service.title}">`;
                 },
               ),
             }}
@@ -143,11 +143,11 @@ export default async function NewsDetailPage({ params }: PageProps) {
         </article>
 
         <nav className={STYLES.footerNav}>
-          <Link href="/tin-tuc" className={STYLES.backLink}>
+          <Link href="/dich-vu" className={STYLES.backLink}>
             <Button>
               <div className={STYLES.backLabel}>
                 <ArrowLeft className="w-3 h-3 transition-transform group-hover:-translate-x-1" />
-                <span>Xem các bài viết khác</span>
+                <span>Xem dịch vụ khác</span>
               </div>
             </Button>
           </Link>

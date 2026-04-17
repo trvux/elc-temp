@@ -16,7 +16,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { DataTable } from "@/components/ui/data-table";
-import { getColumns, type ServiceRow } from "./columns";
+import { getColumns, type NewsRow } from "./columns";
 import { AdminDialog } from "@/components/admin/admin-dialog";
 import { DeleteDialog } from "@/components/admin/delete-dialog";
 import {
@@ -36,7 +36,7 @@ import { toast } from "sonner";
 import { TiptapEditor } from "@/components/ui/tiptap-editor";
 import Image from "next/image";
 
-type Service = {
+type News = {
   id: string;
   title: string;
   slug: string;
@@ -60,11 +60,11 @@ function generateSlug(text: string): string {
     .replace(/\s+/g, "-");
 }
 
-export default function ServicesPage() {
-  const [services, setServices] = useState<Service[]>([]);
+export default function NewsPage() {
+  const [newsList, setNewsList] = useState<News[]>([]);
   const [loading, setLoading] = useState(true);
   const [open, setOpen] = useState(false);
-  const [editing, setEditing] = useState<Service | null>(null);
+  const [editing, setEditing] = useState<News | null>(null);
   const [seoOpen, setSeoOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
@@ -83,35 +83,35 @@ export default function ServicesPage() {
 
   const supabase = createClient();
 
-  async function fetchServices() {
+  async function fetchNews() {
     const { data } = await supabase
-      .from("services")
+      .from("news")
       .select("*")
       .order("order_index", { ascending: true });
-    setServices(data || []);
+    setNewsList(data || []);
     setLoading(false);
   }
 
   useEffect(() => {
-    fetchServices();
+    fetchNews();
   }, []);
 
-  const filteredServices = useMemo(() => {
-    return services.filter((s) => {
+  const filteredNews = useMemo(() => {
+    return newsList.filter((n) => {
       const matchPublished =
         filterPublished === "all" ||
-        (filterPublished === "true" ? s.is_published : !s.is_published);
+        (filterPublished === "true" ? n.is_published : !n.is_published);
       return matchPublished;
     });
-  }, [services, filterPublished]);
+  }, [newsList, filterPublished]);
 
   const columns = useMemo(
     () =>
       getColumns({
-        onEdit: (s) => openEdit(s as unknown as Service),
+        onEdit: (n) => openEdit(n as unknown as News),
         onDelete: openDelete,
       }),
-    [services],
+    [newsList],
   );
 
   function openCreate() {
@@ -128,17 +128,17 @@ export default function ServicesPage() {
     setOpen(true);
   }
 
-  function openEdit(s: Service) {
-    setEditing(s);
-    setTitle(s.title);
-    setSlug(s.slug);
-    setContent(s.content || "");
-    setImage(s.image);
-    setIsPublished(s.is_published);
-    setOrderIndex(s.order_index);
-    setMetaTitle(s.meta_title || "");
-    setMetaDescription(s.meta_description || "");
-    setSeoOpen(!!(s.meta_title || s.meta_description));
+  function openEdit(n: News) {
+    setEditing(n);
+    setTitle(n.title);
+    setSlug(n.slug);
+    setContent(n.content || "");
+    setImage(n.image);
+    setIsPublished(n.is_published);
+    setOrderIndex(n.order_index);
+    setMetaTitle(n.meta_title || "");
+    setMetaDescription(n.meta_description || "");
+    setSeoOpen(!!(n.meta_title || n.meta_description));
     setOpen(true);
   }
 
@@ -149,7 +149,7 @@ export default function ServicesPage() {
 
     try {
       const webpFile = await convertToWebP(file);
-      const fileName = `services/${Date.now()}-${Math.random().toString(36).slice(2)}.webp`;
+      const fileName = `news/${Date.now()}-${Math.random().toString(36).slice(2)}.webp`;
       const { error } = await supabase.storage
         .from("images")
         .upload(fileName, webpFile, { contentType: "image/webp" });
@@ -169,7 +169,7 @@ export default function ServicesPage() {
 
   async function handleSave() {
     if (!title.trim()) {
-      toast.error("Nhập tiêu đề dịch vụ");
+      toast.error("Nhập tiêu đề tin tức");
       return;
     }
     if (!slug.trim()) {
@@ -191,7 +191,7 @@ export default function ServicesPage() {
 
     if (editing) {
       const { error } = await supabase
-        .from("services")
+        .from("news")
         .update(payload)
         .eq("id", editing.id);
       if (error) {
@@ -200,22 +200,22 @@ export default function ServicesPage() {
         );
         return;
       }
-      toast.success("Đã cập nhật dịch vụ");
+      toast.success("Đã cập nhật tin tức");
     } else {
-      const { error } = await supabase.from("services").insert(payload);
+      const { error } = await supabase.from("news").insert(payload);
       if (error) {
         toast.error(
           error.message.includes("unique")
             ? "Slug đã tồn tại"
-            : "Lỗi tạo dịch vụ",
+            : "Lỗi tạo tin tức",
         );
         return;
       }
-      toast.success("Đã tạo dịch vụ");
+      toast.success("Đã tạo tin tức");
     }
 
     setOpen(false);
-    fetchServices();
+    fetchNews();
   }
 
   function openDelete(id: string) {
@@ -226,7 +226,7 @@ export default function ServicesPage() {
   async function handleDelete() {
     if (!deletingId) return;
     const { error } = await supabase
-      .from("services")
+      .from("news")
       .delete()
       .eq("id", deletingId);
     if (error) {
@@ -235,20 +235,20 @@ export default function ServicesPage() {
     }
     toast.success("Đã xóa");
     setDeleteOpen(false);
-    fetchServices();
+    fetchNews();
   }
 
   return (
     <div>
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 mb-8">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">Dịch vụ</h1>
+          <h1 className="text-2xl font-bold tracking-tight">Tin tức</h1>
           <p className="text-sm text-muted-foreground">
-            Quản lý các bài viết dịch vụ hiển thị tại /dich-vu/[slug]
+            Quản lý các bài viết tin tức hiển thị tại /tin-tuc/[slug]
           </p>
         </div>
         <Button onClick={openCreate}>
-          <Plus size={18} className="mr-2" /> Tạo dịch vụ mới
+          <Plus size={18} className="mr-2" /> Tạo tin tức mới
         </Button>
       </div>
 
@@ -278,7 +278,7 @@ export default function ServicesPage() {
 
       <DataTable
         columns={columns}
-        data={filteredServices}
+        data={filteredNews}
         searchKey="title"
         searchPlaceholder="Tìm kiếm tiêu đề, slug..."
       />
@@ -287,19 +287,19 @@ export default function ServicesPage() {
         open={open}
         onOpenChange={setOpen}
         size="3xl"
-        title={editing ? `Sửa: ${editing.title}` : "Tạo dịch vụ mới"}
-        description="Quản lý nội dung dịch vụ và cấu hình SEO để tối ưu hóa hiển thị."
+        title={editing ? `Sửa: ${editing.title}` : "Tạo tin tức mới"}
+        description="Quản lý nội dung tin tức và cấu hình SEO để tối ưu hóa hiển thị."
       >
         <div className="space-y-8">
           <FieldGroup>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <Field>
                 <FieldLabel className="mb-2 font-medium">
-                  Tiêu đề dịch vụ *
+                  Tiêu đề tin tức *
                 </FieldLabel>
                 <FieldContent>
                   <Input
-                    placeholder="VD: Sửa chữa kho lạnh công nghiệp"
+                    placeholder="VD: Khai trương chi nhánh mới"
                     value={title}
                     onChange={(e) => {
                       const val = e.target.value;
@@ -319,14 +319,14 @@ export default function ServicesPage() {
                 </FieldLabel>
                 <FieldContent>
                   <Input
-                    placeholder="sua-chua-kho-lanh-cong-nghiep"
+                    placeholder="khai-truong-chi-nhanh-moi"
                     value={slug}
                     onChange={(e) => setSlug(e.target.value)}
                   />
                   <FieldDescription>
                     Đường dẫn:{" "}
                     <span className="font-medium text-primary">
-                      /dich-vu/{slug || "slug"}
+                      /tin-tuc/{slug || "slug"}
                     </span>
                   </FieldDescription>
                 </FieldContent>
@@ -364,16 +364,16 @@ export default function ServicesPage() {
 
             <Field>
               <FieldLabel className="mb-2 font-medium">
-                Nội dung dịch vụ
+                Nội dung tin tức
               </FieldLabel>
               <FieldContent>
                 <TiptapEditor
                   value={content}
                   onChange={setContent}
-                  placeholder="Viết nội dung dịch vụ..."
+                  placeholder="Viết nội dung tin tức..."
                   uploadImage={async (file) => {
                     const webpFile = await convertToWebP(file);
-                    const fileName = `services/${Date.now()}-${Math.random().toString(36).slice(2)}.webp`;
+                    const fileName = `news/${Date.now()}-${Math.random().toString(36).slice(2)}.webp`;
                     const { error } = await supabase.storage
                       .from("images")
                       .upload(fileName, webpFile, { contentType: "image/webp" });
@@ -505,7 +505,7 @@ export default function ServicesPage() {
                   Hủy
                 </Button>
                 <Button onClick={handleSave}>
-                  {editing ? "Cập nhật dịch vụ" : "Tạo dịch vụ ngay"}
+                  {editing ? "Cập nhật tin tức" : "Tạo tin tức ngay"}
                 </Button>
               </div>
             </div>

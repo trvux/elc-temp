@@ -44,6 +44,7 @@ const navItems = [
   { href: "/admin/projects", label: "Dự án", icon: FolderKanban },
   { href: "/admin/products", label: "Sản phẩm", icon: Package },
   { href: "/admin/services", label: "Dịch vụ", icon: FileText },
+  { href: "/admin/news", label: "Tin tức", icon: FileText },
   { href: "/admin/pages", label: "Trang tĩnh", icon: FileText },
   { href: "/admin/contacts", label: "Liên hệ", icon: Phone },
   { href: "/admin/branches", label: "Chi nhánh", icon: MapPin },
