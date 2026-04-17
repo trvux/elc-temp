@@ -66,7 +66,7 @@ export function HeroContactButton({ contacts }: { contacts: Contact[] }) {
         <span className="text-muted-foreground text-xs font-bold shrink-0 w-2/8">
           {currentContact.label}
         </span>
-        <span className="border-r border-border h-full"></span>
+        {/* <span className="border-r border-border h-full"></span> */}
         <span className="truncate text-base font-semibold text-center flex-1">
           {currentContact.value}
         </span>
