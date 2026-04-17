@@ -5,6 +5,7 @@ import { FeaturesSection } from "@/components/sections/features";
 import { ShowcaseSection } from "@/components/sections/showcase";
 import { CTASection } from "@/components/sections/cta";
 import { Separator } from "@/components/ui/separator";
+import { generateSchema } from "@/lib/seo";
 
 export const revalidate = 3600;
 
@@ -44,8 +45,17 @@ export default async function Home() {
     settings[item.key] = item.value;
   });
 
+  const schema = generateSchema("WebSite", {});
+
   return (
     <main className="px-4 md:px-6 lg:px-8 space-y-16 md:space-y-24">
+      {/* JSON-LD for Website */}
+      {schema && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
+        />
+      )}
       {/* 1. HERO SECTION */}
 
       <HeroSection

@@ -6,6 +6,8 @@ import { Badge } from "@/components/ui/badge";
 import { ScrollToTop } from "@/components/user/scroll-to-top";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
 import { Sparkle } from "lucide-react";
+import { Metadata } from "next";
+import { SEO_CONFIG, extractMetaDescription, generateSchema, generateBreadcrumbSchema } from "@/lib/seo";
 
 export default async function ProjectDetail({
   params,
@@ -49,8 +51,36 @@ export default async function ProjectDetail({
 
   const images = project.images || [];
 
+  const schema = generateSchema("Project", {
+    title: project.title,
+    description: extractMetaDescription(project.description || "", 200),
+    images: project.images,
+  });
+
+  const breadcrumbs = generateBreadcrumbSchema([
+    { name: "Trang chủ", item: "/" },
+    { name: "Dự án", item: "/du-an" },
+    ...slug.map((s, i) => ({
+      name: i === slug.length - 1 ? project.title : "Danh mục",
+      item: `/du-an/${slug.slice(0, i + 1).join("/")}`,
+    })),
+  ]);
+
   return (
     <main className="w-full pt-28 pb-24 px-4 md:px-6 min-h-screen">
+      {/* JSON-LD for Projects */}
+      {schema && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
+        />
+      )}
+      {breadcrumbs && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbs) }}
+        />
+      )}
       <div className="max-w-4xl mx-auto">
         {/* Header */}
         <header className="mb-10 border-b border-border pb-8 flex flex-col gap-4">

@@ -14,6 +14,8 @@ import { createClient } from "@/lib/supabase/server";
 import { cn } from "@/lib/utils";
 import Image from "next/image";
 import { notFound } from "next/navigation";
+import { Metadata } from "next";
+import { SEO_CONFIG, extractMetaDescription, generateSchema, generateBreadcrumbSchema } from "@/lib/seo";
 
 import { OrderButton } from "@/components/user/order-button";
 import { ProductDescription } from "@/components/user/product-description";
@@ -92,6 +94,53 @@ const STYLES = {
     "flex items-center gap-2 cursor-pointer hover:text-foreground transition-colors",
   ),
 };
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string[] }>;
+}): Promise<Metadata> {
+  const { slug } = await params;
+  const leafSlug = slug[slug.length - 1];
+  const categoryPath = slug.slice(0, -1).join("/");
+
+  const supabase = await createClient();
+  const { data: product } = await supabase
+    .from("products")
+    .select("*, categories!inner(name, slug)")
+    .eq("slug", leafSlug)
+    .eq("categories.slug", categoryPath)
+    .single();
+
+  if (!product) return { title: SEO_CONFIG.defaultTitle };
+
+  // SEO Logic: Prefer Meta fields, then Auto-gen
+  const title =
+    // @ts-ignore
+    product.meta_title ||
+    `${product.name} - ${product.sku} | ${SEO_CONFIG.siteName}`;
+  const description =
+    // @ts-ignore
+    product.meta_description || 
+    extractMetaDescription(product.description || "", 160);
+
+  const url = `${SEO_CONFIG.baseUrl}/san-pham/${slug.join("/")}`;
+
+  return {
+    title,
+    description,
+    alternates: {
+      canonical: url,
+    },
+    openGraph: {
+      title,
+      description,
+      url,
+      type: "website",
+      images: product.images?.[0] ? [{ url: product.images[0] }] : [],
+    },
+  };
+}
 
 export default async function ProductDetail({
   params,
@@ -177,8 +226,39 @@ export default async function ProductDetail({
     !spec.value &&
     !spec.items;
 
+  const schema = generateSchema("Product", {
+    name: product.name,
+    description: extractMetaDescription(product.description || "", 200),
+    images: product.images,
+    sku: product.sku,
+    price: finalPrice,
+    url: `${SEO_CONFIG.baseUrl}/san-pham/${slug.join("/")}`,
+  });
+
+  const breadcrumbs = generateBreadcrumbSchema([
+    { name: "Trang chủ", item: "/" },
+    { name: "Sản phẩm", item: "/san-pham" },
+    ...slug.map((s, i) => ({
+      name: i === slug.length - 1 ? product.name : "Danh mục", // We could fetch category names for more accuracy
+      item: `/san-pham/${slug.slice(0, i + 1).join("/")}`,
+    })),
+  ]);
+
   return (
     <main className={STYLES.main}>
+      {/* JSON-LD for Google Search & Images */}
+      {schema && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
+        />
+      )}
+      {breadcrumbs && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbs) }}
+        />
+      )}
       <div className={STYLES.container}>
         {/* TOP: Carousel + Product Info */}
         <div className={STYLES.topSection}>

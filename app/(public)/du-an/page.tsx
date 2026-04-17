@@ -2,6 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import Image from "next/image";
 import Link from "next/link";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
+import { generateBreadcrumbSchema, SEO_CONFIG } from "@/lib/seo";
 
 interface Project {
   id: string;
@@ -40,8 +41,33 @@ export default async function ProjectsPage() {
       ? `${project.categories.parent.name} / ${project.categories.name}`
       : project.categories?.name || "Khác";
 
+  const breadcrumbs = generateBreadcrumbSchema([
+    { name: "Trang chủ", item: "/" },
+    { name: "Dự án", item: "/du-an" },
+  ]);
+
+  const itemListSchema = {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    "itemListElement": allProjects.map((p, i) => ({
+      "@type": "ListItem",
+      "position": i + 1,
+      "url": `${SEO_CONFIG.baseUrl}${getUrl(p)}`,
+      "name": p.title,
+      "image": p.images?.[0] || "",
+    }))
+  };
+
   return (
     <main className="w-full pt-24 pb-24">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbs) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(itemListSchema) }}
+      />
       <div className="mx-auto w-full px-4 md:px-6 max-w-7xl">
         {/* Header */}
         <header className="py-16 flex flex-col items-center text-center gap-3">

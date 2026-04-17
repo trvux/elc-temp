@@ -8,13 +8,18 @@ import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { TiptapEditor } from "@/components/ui/tiptap-editor";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
 import { DataTable } from "@/components/ui/data-table";
 import { getColumns, type BranchRow } from "./columns";
 import { AdminDialog } from "@/components/admin/admin-dialog";
 import { DeleteDialog } from "@/components/admin/delete-dialog";
-import { Pencil, Trash2, Plus } from "lucide-react";
+import { Pencil, Trash2, Plus, ChevronDown } from "lucide-react";
 import { toast } from "sonner";
-import { capitalize } from "@/lib/utils";
+import { capitalize, cn } from "@/lib/utils";
 import {
   Field,
   FieldContent,
@@ -35,6 +40,8 @@ type Branch = {
   description: string;
   is_published: boolean;
   order_index: number;
+  meta_title: string | null;
+  meta_description: string | null;
 };
 
 function generateSlug(text: string): string {
@@ -66,6 +73,9 @@ export default function BranchesPage() {
   const [description, setDescription] = useState("");
   const [isPublished, setIsPublished] = useState(true);
   const [orderIndex, setOrderIndex] = useState(0);
+  const [metaTitle, setMetaTitle] = useState("");
+  const [metaDescription, setMetaDescription] = useState("");
+  const [seoOpen, setSeoOpen] = useState(false);
 
   const supabase = createClient();
 
@@ -109,6 +119,9 @@ export default function BranchesPage() {
     setDescription("");
     setIsPublished(true);
     setOrderIndex(0);
+    setMetaTitle("");
+    setMetaDescription("");
+    setSeoOpen(false);
     setOpen(true);
   }
 
@@ -124,6 +137,9 @@ export default function BranchesPage() {
     setDescription(b.description || "");
     setIsPublished(b.is_published);
     setOrderIndex(b.order_index);
+    setMetaTitle(b.meta_title || "");
+    setMetaDescription(b.meta_description || "");
+    setSeoOpen(!!(b.meta_title || b.meta_description));
     setOpen(true);
   }
 
@@ -148,6 +164,8 @@ export default function BranchesPage() {
       description,
       is_published: isPublished,
       order_index: orderIndex,
+      meta_title: metaTitle.trim() || null,
+      meta_description: metaDescription.trim() || null,
     };
 
     if (editing) {
@@ -336,6 +354,90 @@ export default function BranchesPage() {
                 </FieldContent>
               </Field>
             </div>
+
+            <Collapsible
+              open={seoOpen}
+              onOpenChange={setSeoOpen}
+              className="border rounded-xl overflow-hidden bg-muted/20"
+            >
+              <CollapsibleTrigger className="flex items-center gap-2 text-sm font-semibold p-4 hover:bg-muted/30 transition-all w-full">
+                <ChevronDown
+                  size={16}
+                  className={cn(
+                    "transition-transform duration-200",
+                    seoOpen ? "rotate-180" : "",
+                  )}
+                />
+                Tối ưu hóa tìm kiếm (SEO Meta)
+                {(metaTitle || metaDescription) && (
+                  <Badge
+                    variant="outline"
+                    className="ml-auto bg-primary/10 text-primary border-primary/20 font-bold capitalize text-[10px] tracking-widest px-2 py-0.5"
+                  >
+                    Đã cấu hình
+                  </Badge>
+                )}
+              </CollapsibleTrigger>
+              <CollapsibleContent className="p-6 pt-0 space-y-6">
+                <Field>
+                  <FieldLabel className="mb-2 font-semibold text-xs text-muted-foreground/60 capitalize tracking-widest">
+                    SEO Title
+                  </FieldLabel>
+                  <FieldContent>
+                    <Input
+                      placeholder={name || "Tiêu đề hiển thị trên Google"}
+                      value={metaTitle}
+                      onChange={(e) => setMetaTitle(e.target.value)}
+                      maxLength={60}
+                    />
+                    <div className="flex justify-between mt-1 text-[10px] capitalize font-bold tracking-wider">
+                      <span className="text-muted-foreground/60">
+                        Độ dài tiêu đề tối ưu (dưới 60)
+                      </span>
+                      <span
+                        className={
+                          metaTitle.length > 60
+                            ? "text-destructive"
+                            : "text-primary"
+                        }
+                      >
+                        {metaTitle.length}/60
+                      </span>
+                    </div>
+                  </FieldContent>
+                </Field>
+
+                <Field>
+                  <FieldLabel className="mb-2 font-semibold text-xs text-muted-foreground/60 capitalize tracking-widest">
+                    SEO Description
+                  </FieldLabel>
+                  <FieldContent>
+                    <textarea
+                      className="flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                      placeholder="Mô tả ngắn hiển thị trên kết quả tìm kiếm..."
+                      value={metaDescription}
+                      onChange={(e) => setMetaDescription(e.target.value)}
+                      rows={3}
+                      maxLength={160}
+                    />
+                    <div className="flex justify-between mt-1 text-[10px] capitalize font-bold tracking-wider">
+                      <span className="text-muted-foreground/60">
+                        Mô tả ngắn gọn (dưới 160)
+                      </span>
+                      <span
+                        className={
+                          metaDescription.length > 160
+                            ? "text-destructive"
+                            : "text-primary"
+                        }
+                      >
+                        {metaDescription.length}/160
+                      </span>
+                    </div>
+                  </FieldContent>
+                </Field>
+              </CollapsibleContent>
+            </Collapsible>
 
             <div className="flex items-center justify-between border-t pt-6 pb-4">
               <div className="flex items-center gap-8">

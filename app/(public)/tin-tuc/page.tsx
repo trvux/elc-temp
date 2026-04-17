@@ -11,6 +11,7 @@ import { cn } from "@/lib/utils";
 import { ArrowUpRight } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { generateBreadcrumbSchema, SEO_CONFIG } from "@/lib/seo";
 
 const STYLES = {
   main: cn("w-full min-h-screen py-12 px-4 md:px-8"),
@@ -62,8 +63,33 @@ export default async function NewsHub() {
     );
   }
 
+  const breadcrumbs = generateBreadcrumbSchema([
+    { name: "Trang chủ", item: "/" },
+    { name: "Tin tức", item: "/tin-tuc" },
+  ]);
+
+  const itemListSchema = {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    "itemListElement": allNews.map((n, i) => ({
+      "@type": "ListItem",
+      "position": i + 1,
+      "url": `${SEO_CONFIG.baseUrl}/tin-tuc/${n.slug}`,
+      "name": n.title,
+      "image": n.image || "",
+    }))
+  };
+
   return (
     <main className={STYLES.main}>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbs) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(itemListSchema) }}
+      />
       <div className={STYLES.container}>
         <header className={STYLES.header}>
           <TypographyH1 className={STYLES.title}>Tin tức</TypographyH1>

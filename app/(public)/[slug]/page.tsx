@@ -8,6 +8,7 @@ import { ArrowLeft } from "lucide-react";
 import { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { SEO_CONFIG, extractMetaDescription, generateSchema, generateBreadcrumbSchema } from "@/lib/seo";
 
 // Design System / Style Constants
 const STYLES = {
@@ -125,7 +126,7 @@ export async function generateMetadata({
 
   const { data: page } = await supabase
     .from("pages")
-    .select("title, meta_title, meta_description")
+    .select("title, content, meta_title, meta_description, created_at")
     .eq("slug", slug)
     .eq("is_published", true)
     .maybeSingle();
@@ -133,9 +134,19 @@ export async function generateMetadata({
   if (!page) return { title: "Không tìm thấy nội dung" };
 
   return {
-    title: page.meta_title || page.title,
+    title: page.meta_title || `${page.title} | ${SEO_CONFIG.siteName}`,
     description:
-      page.meta_description || "Thông tin chính thức từ ELC Holdings",
+      page.meta_description || 
+      extractMetaDescription(page.content || "", 160),
+    alternates: {
+      canonical: `${SEO_CONFIG.baseUrl}/${slug}`,
+    },
+    openGraph: {
+      title: page.meta_title || page.title,
+      description: page.meta_description || extractMetaDescription(page.content || "", 160),
+      url: `${SEO_CONFIG.baseUrl}/${slug}`,
+      type: "website",
+    },
   };
 }
 
@@ -155,8 +166,33 @@ export default async function StaticPage({ params }: PageProps) {
     notFound();
   }
 
+  const schema = generateSchema("Article", { // Using Article schema for info pages
+    title: page.title,
+    datePublished: page.created_at,
+    dateModified: page.created_at,
+  });
+
+  const breadcrumbs = generateBreadcrumbSchema([
+    { name: "Trang chủ", item: "/" },
+    { name: "Thông tin", item: "/thong-tin" },
+    { name: page.title, item: `/${slug}` },
+  ]);
+
   return (
     <main className={STYLES.main}>
+      {/* JSON-LD for Page */}
+      {schema && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
+        />
+      )}
+      {breadcrumbs && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbs) }}
+        />
+      )}
       <div className={STYLES.container}>
         <header>
           <TypographySmall className="text-muted-foreground mb-3 block">

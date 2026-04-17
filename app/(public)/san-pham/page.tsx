@@ -11,6 +11,7 @@ import { Percent } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { Suspense } from "react";
+import { generateBreadcrumbSchema, generateSchema, SEO_CONFIG } from "@/lib/seo";
 
 type SearchParams = Promise<{ [key: string]: string | string[] | undefined }>;
 
@@ -315,8 +316,41 @@ export default async function ProductsHub({
   const isSearchActive =
     !!q || !!categorySlug || minPrice !== null || maxPrice !== null;
 
+  // Breadcrumbs
+  const breadcrumbItems = [{ name: "Trang chủ", item: "/" }];
+  breadcrumbItems.push({ name: "Sản phẩm", item: "/san-pham" });
+  if (categorySlug) {
+    const matched = allCategories.find((c) => c.slug === categorySlug);
+    if (matched) {
+      breadcrumbItems.push({ name: matched.name, item: `/san-pham?category=${categorySlug}` });
+    }
+  }
+  const breadcrumbs = generateBreadcrumbSchema(breadcrumbItems);
+
+  // ItemList Schema (for Google to index products)
+  const itemListSchema = {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    "itemListElement": products.map((p, i) => ({
+      "@type": "ListItem",
+      "position": i + 1,
+      "url": `${SEO_CONFIG.baseUrl}/san-pham/${p.categories?.slug ? p.categories.slug + "/" : ""}${p.slug}`,
+      "name": p.name,
+      "image": p.images?.[0] || "",
+    }))
+  };
+
   return (
     <main className={STYLES.main}>
+      {/* JSON-LD Schemas */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbs) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(itemListSchema) }}
+      />
       <div className={STYLES.container}>
         {/* Header */}
         <header className={STYLES.header}>

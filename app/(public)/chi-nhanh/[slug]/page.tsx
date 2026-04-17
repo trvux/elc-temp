@@ -17,6 +17,8 @@ import { createClient } from "@/lib/supabase/server";
 import { createStaticClient } from "@/lib/supabase/static";
 import { cn } from "@/lib/utils";
 import { notFound } from "next/navigation";
+import { Metadata } from "next";
+import { SEO_CONFIG, extractMetaDescription, generateSchema, generateBreadcrumbSchema } from "@/lib/seo";
 
 // Helper to control Google Maps zoom level
 const getZoomedUrl = (url: string, zoomLevel = "13.1") => {
@@ -138,13 +140,53 @@ export async function generateStaticParams() {
   return (branches ?? []).map((b) => ({ slug: b.slug }));
 }
 
-interface PageProps {
-  params: Promise<{
-    slug: string;
-  }>;
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}): Promise<Metadata> {
+  const { slug } = await params;
+  const supabase = await createClient();
+
+  const { data: branch } = await supabase
+    .from("branches")
+    .select("*")
+    .eq("slug", slug)
+    .maybeSingle();
+
+  if (!branch) return { title: SEO_CONFIG.defaultTitle };
+
+  const title =
+    // @ts-ignore
+    branch.meta_title ||
+    `Điện máy ELC - ${branch.name} | ${branch.address}`;
+  const description =
+    // @ts-ignore
+    branch.meta_description || 
+    extractMetaDescription(branch.description || "", 160);
+
+  const url = `${SEO_CONFIG.baseUrl}/chi-nhanh/${slug}`;
+
+  return {
+    title,
+    description,
+    alternates: {
+      canonical: url,
+    },
+    openGraph: {
+      title,
+      description,
+      url,
+      type: "website",
+    },
+  };
 }
 
-export default async function BranchDetail({ params }: PageProps) {
+export default async function BranchDetail({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}) {
   const { slug } = await params;
   const supabase = await createClient();
 
@@ -212,8 +254,35 @@ export default async function BranchDetail({ params }: PageProps) {
     },
   ].filter((item) => item.isVisible);
 
+  const schema = generateSchema("LocalBusiness", {
+    name: branch.name,
+    address: branch.address,
+    phone: branch.phone,
+    url: `${SEO_CONFIG.baseUrl}/chi-nhanh/${slug}`,
+    image: SEO_CONFIG.baseUrl + "/logo.png", // Fallback to logo
+  });
+
+  const breadcrumbs = generateBreadcrumbSchema([
+    { name: "Trang chủ", item: "/" },
+    { name: "Chi nhánh", item: "/chi-nhanh" },
+    { name: branch.name, item: `/chi-nhanh/${slug}` },
+  ]);
+
   return (
     <main className={STYLES.main}>
+      {/* JSON-LD for Branch */}
+      {schema && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
+        />
+      )}
+      {breadcrumbs && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbs) }}
+        />
+      )}
       <div className={STYLES.container}>
         <header>
           <TypographyH1 className={STYLES.title}>{branch.name}</TypographyH1>

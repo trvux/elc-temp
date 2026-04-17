@@ -10,6 +10,16 @@ import { createClient } from "@/lib/supabase/server";
 import { cn } from "@/lib/utils";
 import { ArrowUpRight } from "lucide-react";
 import Link from "next/link";
+import { Metadata } from "next";
+import { generateBreadcrumbSchema, SEO_CONFIG } from "@/lib/seo";
+
+export const metadata: Metadata = {
+  title: "Thông tin về ELC - Chính sách & Giá trị cốt lõi",
+  description: "Kho lưu trữ minh bạch về các giá trị cốt lõi, cam kết bảo hành và triết lý kiến tạo của Điện máy ELC.",
+  alternates: {
+    canonical: "/thong-tin",
+  },
+};
 
 const STYLES = {
   main: cn("w-full min-h-screen py-12 px-4 md:px-8"),
@@ -62,8 +72,32 @@ export default async function InformationHub() {
     );
   }
 
+  const breadcrumbs = generateBreadcrumbSchema([
+    { name: "Trang chủ", item: "/" },
+    { name: "Thông tin", item: "/thong-tin" },
+  ]);
+
+  const itemListSchema = {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    "itemListElement": allPages.map((p, i) => ({
+      "@type": "ListItem",
+      "position": i + 1,
+      "url": `${SEO_CONFIG.baseUrl}/${p.slug}`,
+      "name": p.title,
+    }))
+  };
+
   return (
     <main className={STYLES.main}>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbs) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(itemListSchema) }}
+      />
       <div className={STYLES.container}>
         <header className={STYLES.header}>
           <TypographyH1 className={STYLES.title}>Thông tin về ELC</TypographyH1>

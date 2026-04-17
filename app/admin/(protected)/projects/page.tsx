@@ -1,23 +1,22 @@
 "use client";
 
-import { useEffect, useState, useMemo } from "react";
-import { createClient } from "@/lib/supabase/client";
-import { convertToWebP } from "@/lib/image";
+import { AdminDialog } from "@/components/admin/admin-dialog";
+import { DeleteDialog } from "@/components/admin/delete-dialog";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
+import { DataTable } from "@/components/ui/data-table";
 import {
   Field,
   FieldContent,
-  FieldDescription,
   FieldGroup,
   FieldLabel,
 } from "@/components/ui/field";
-import { TiptapEditor } from "@/components/ui/tiptap-editor";
-import { Switch } from "@/components/ui/switch";
-import { DataTable } from "@/components/ui/data-table";
-import { getColumns, type ProjectRow } from "./columns";
-import { AdminDialog } from "@/components/admin/admin-dialog";
-import { DeleteDialog } from "@/components/admin/delete-dialog";
+import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
@@ -28,10 +27,16 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Plus, X, Upload } from "lucide-react";
-import { toast } from "sonner";
-import { capitalize } from "@/lib/utils";
+import { Switch } from "@/components/ui/switch";
+import { TiptapEditor } from "@/components/ui/tiptap-editor";
+import { convertToWebP } from "@/lib/image";
+import { createClient } from "@/lib/supabase/client";
+import { capitalize, cn } from "@/lib/utils";
+import { ChevronDown, Plus, Upload, X } from "lucide-react";
 import Image from "next/image";
+import { useEffect, useMemo, useState } from "react";
+import { toast } from "sonner";
+import { getColumns } from "./columns";
 
 type Category = {
   id: string;
@@ -72,6 +77,9 @@ export default function ProjectsPage() {
   const [images, setImages] = useState<string[]>([]);
   const [isPublished, setIsPublished] = useState(true);
   const [orderIndex, setOrderIndex] = useState(0);
+  const [metaTitle, setMetaTitle] = useState("");
+  const [metaDescription, setMetaDescription] = useState("");
+  const [seoOpen, setSeoOpen] = useState(false);
 
   const supabase = createClient();
 
@@ -166,6 +174,9 @@ export default function ProjectsPage() {
     setImages([]);
     setIsPublished(true);
     setOrderIndex(0);
+    setMetaTitle("");
+    setMetaDescription("");
+    setSeoOpen(false);
     setOpen(true);
   }
 
@@ -178,6 +189,12 @@ export default function ProjectsPage() {
     setImages(p.images || []);
     setIsPublished(p.is_published);
     setOrderIndex(p.order_index);
+    // @ts-ignore
+    setMetaTitle(p.meta_title || "");
+    // @ts-ignore
+    setMetaDescription(p.meta_description || "");
+    // @ts-ignore
+    setSeoOpen(!!(p.meta_title || p.meta_description));
     setOpen(true);
   }
 
@@ -220,6 +237,8 @@ export default function ProjectsPage() {
       images,
       is_published: isPublished,
       order_index: orderIndex,
+      meta_title: metaTitle.trim() || null,
+      meta_description: metaDescription.trim() || null,
     };
 
     if (editing) {
@@ -467,9 +486,7 @@ export default function ProjectsPage() {
             </div>
 
             <Field>
-              <FieldLabel className="mb-2 font-medium">
-                Mô tả dự án
-              </FieldLabel>
+              <FieldLabel className="mb-2 font-medium">Mô tả dự án</FieldLabel>
               <FieldContent>
                 <TiptapEditor
                   value={description}
@@ -552,6 +569,90 @@ export default function ProjectsPage() {
                 )}
               </FieldContent>
             </Field>
+
+            <Collapsible
+              open={seoOpen}
+              onOpenChange={setSeoOpen}
+              className="border rounded-xl overflow-hidden bg-muted/20"
+            >
+              <CollapsibleTrigger className="flex items-center gap-2 text-sm font-semibold p-4 hover:bg-muted/30 transition-all w-full">
+                <ChevronDown
+                  size={16}
+                  className={cn(
+                    "transition-transform duration-200",
+                    seoOpen ? "rotate-180" : "",
+                  )}
+                />
+                Tối ưu hóa tìm kiếm (SEO Meta)
+                {(metaTitle || metaDescription) && (
+                  <Badge
+                    variant="outline"
+                    className="ml-auto bg-primary/10 text-primary border-primary/20 font-bold capitalize text-[10px] tracking-widest px-2 py-0.5"
+                  >
+                    Đã cấu hình
+                  </Badge>
+                )}
+              </CollapsibleTrigger>
+              <CollapsibleContent className="p-6 pt-0 space-y-6">
+                <Field>
+                  <FieldLabel className="mb-2 font-semibold text-xs text-muted-foreground/60 capitalize tracking-widest">
+                    SEO Title
+                  </FieldLabel>
+                  <FieldContent>
+                    <Input
+                      placeholder={title || "Tiêu đề hiển thị trên Google"}
+                      value={metaTitle}
+                      onChange={(e) => setMetaTitle(e.target.value)}
+                      maxLength={60}
+                    />
+                    <div className="flex justify-between mt-1 text-[10px] capitalize font-bold tracking-wider">
+                      <span className="text-muted-foreground/60">
+                        Độ dài tiêu đề tối ưu (dưới 60)
+                      </span>
+                      <span
+                        className={
+                          metaTitle.length > 60
+                            ? "text-destructive"
+                            : "text-primary"
+                        }
+                      >
+                        {metaTitle.length}/60
+                      </span>
+                    </div>
+                  </FieldContent>
+                </Field>
+
+                <Field>
+                  <FieldLabel className="mb-2 font-semibold text-xs text-muted-foreground/60 capitalize tracking-widest">
+                    SEO Description
+                  </FieldLabel>
+                  <FieldContent>
+                    <textarea
+                      className="flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                      placeholder="Mô tả ngắn hiển thị trên kết quả tìm kiếm..."
+                      value={metaDescription}
+                      onChange={(e) => setMetaDescription(e.target.value)}
+                      rows={3}
+                      maxLength={160}
+                    />
+                    <div className="flex justify-between mt-1 text-[10px] capitalize font-bold tracking-wider">
+                      <span className="text-muted-foreground/60">
+                        Mô tả ngắn gọn (dưới 160)
+                      </span>
+                      <span
+                        className={
+                          metaDescription.length > 160
+                            ? "text-destructive"
+                            : "text-primary"
+                        }
+                      >
+                        {metaDescription.length}/160
+                      </span>
+                    </div>
+                  </FieldContent>
+                </Field>
+              </CollapsibleContent>
+            </Collapsible>
 
             <div className="flex items-center justify-between border-t pt-8 pb-4">
               <div className="flex items-center gap-8">

@@ -8,6 +8,7 @@ import { ArrowLeft } from "lucide-react";
 import { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { SEO_CONFIG, extractMetaDescription, generateSchema, generateBreadcrumbSchema } from "@/lib/seo";
 
 // Design System / Style Constants
 const STYLES = {
@@ -79,7 +80,7 @@ export async function generateMetadata({
 
   const { data: newsItem } = await supabase
     .from("news")
-    .select("title, meta_title, meta_description")
+    .select("title, content, image, meta_title, meta_description, created_at, updated_at")
     .eq("slug", slug)
     .eq("is_published", true)
     .maybeSingle();
@@ -89,7 +90,18 @@ export async function generateMetadata({
   return {
     title: newsItem.meta_title || newsItem.title,
     description:
-      newsItem.meta_description || "Tin tức chính thức từ ELC Holdings",
+      newsItem.meta_description || 
+      extractMetaDescription(newsItem.content || "", 160),
+    alternates: {
+      canonical: `${SEO_CONFIG.baseUrl}/tin-tuc/${slug}`,
+    },
+    openGraph: {
+      title: newsItem.meta_title || newsItem.title,
+      description: newsItem.meta_description || extractMetaDescription(newsItem.content || "", 160),
+      url: `${SEO_CONFIG.baseUrl}/tin-tuc/${slug}`,
+      type: "article",
+      images: newsItem.image ? [{ url: newsItem.image }] : [],
+    },
   };
 }
 
@@ -109,8 +121,34 @@ export default async function NewsDetailPage({ params }: PageProps) {
     notFound();
   }
 
+  const schema = generateSchema("Article", {
+    title: newsItem.title,
+    image: newsItem.image,
+    datePublished: newsItem.created_at,
+    dateModified: newsItem.updated_at || newsItem.created_at,
+  });
+
+  const breadcrumbs = generateBreadcrumbSchema([
+    { name: "Trang chủ", item: "/" },
+    { name: "Tin tức", item: "/tin-tuc" },
+    { name: newsItem.title, item: `/tin-tuc/${slug}` },
+  ]);
+
   return (
     <main className={STYLES.main}>
+      {/* JSON-LD for News */}
+      {schema && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
+        />
+      )}
+      {breadcrumbs && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbs) }}
+        />
+      )}
       <div className={STYLES.container}>
         <header>
           <TypographySmall className="text-muted-foreground mb-3 block">

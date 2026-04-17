@@ -10,6 +10,7 @@ import { createClient } from "@/lib/supabase/server";
 import { cn } from "@/lib/utils";
 import { ArrowUpRight } from "lucide-react";
 import Link from "next/link";
+import { generateBreadcrumbSchema, SEO_CONFIG } from "@/lib/seo";
 
 const STYLES = {
   main: cn("w-full min-h-screen py-12 px-4 md:px-8"),
@@ -62,8 +63,32 @@ export default async function BranchesHub() {
     );
   }
 
+  const breadcrumbs = generateBreadcrumbSchema([
+    { name: "Trang chủ", item: "/" },
+    { name: "Chi nhánh", item: "/chi-nhanh" },
+  ]);
+
+  const itemListSchema = {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    "itemListElement": allBranches.map((b, i) => ({
+      "@type": "ListItem",
+      "position": i + 1,
+      "url": `${SEO_CONFIG.baseUrl}/chi-nhanh/${b.slug}`,
+      "name": b.name,
+    }))
+  };
+
   return (
     <main className={STYLES.main}>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbs) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(itemListSchema) }}
+      />
       <div className={STYLES.container}>
         <header className={STYLES.header}>
           <TypographyH1 className={STYLES.title}>Cơ sở hạ tầng</TypographyH1>

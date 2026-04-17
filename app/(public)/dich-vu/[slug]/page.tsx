@@ -8,6 +8,7 @@ import { ArrowLeft } from "lucide-react";
 import { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { SEO_CONFIG, extractMetaDescription, generateSchema, generateBreadcrumbSchema } from "@/lib/seo";
 
 // Design System / Style Constants
 const STYLES = {
@@ -79,7 +80,7 @@ export async function generateMetadata({
 
   const { data: service } = await supabase
     .from("services")
-    .select("title, meta_title, meta_description")
+    .select("title, content, meta_title, meta_description, created_at, image")
     .eq("slug", slug)
     .eq("is_published", true)
     .maybeSingle();
@@ -87,9 +88,19 @@ export async function generateMetadata({
   if (!service) return { title: "Không tìm thấy nội dung" };
 
   return {
-    title: service.meta_title || service.title,
+    title: service.meta_title || `Dịch vụ ${service.title} | ${SEO_CONFIG.siteName}`,
     description:
-      service.meta_description || "Dịch vụ chuyên nghiệp từ ELC Holdings",
+      service.meta_description || 
+      extractMetaDescription(service.content || "", 160),
+    alternates: {
+      canonical: `${SEO_CONFIG.baseUrl}/dich-vu/${slug}`,
+    },
+    openGraph: {
+      title: service.meta_title || service.title,
+      description: service.meta_description || extractMetaDescription(service.content || "", 160),
+      url: `${SEO_CONFIG.baseUrl}/dich-vu/${slug}`,
+      type: "website",
+    },
   };
 }
 
@@ -109,8 +120,34 @@ export default async function ServiceDetailPage({ params }: PageProps) {
     notFound();
   }
 
+  const schema = generateSchema("Article", { // Using Article schema for service details as they are content-based
+    title: service.title,
+    image: service.image,
+    datePublished: service.created_at,
+    dateModified: service.created_at,
+  });
+
+  const breadcrumbs = generateBreadcrumbSchema([
+    { name: "Trang chủ", item: "/" },
+    { name: "Dịch vụ", item: "/dich-vu" },
+    { name: service.title, item: `/dich-vu/${slug}` },
+  ]);
+
   return (
     <main className={STYLES.main}>
+      {/* JSON-LD for Service */}
+      {schema && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
+        />
+      )}
+      {breadcrumbs && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbs) }}
+        />
+      )}
       <div className={STYLES.container}>
         <header>
           <TypographySmall className="text-muted-foreground mb-3 block">
