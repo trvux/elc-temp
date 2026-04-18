@@ -11,8 +11,6 @@ import { notFound } from "next/navigation";
 import { SEO_CONFIG, extractMetaDescription, generateSchema, generateBreadcrumbSchema } from "@/lib/seo";
 
 // Design System / Style Constants
-export const dynamic = "force-dynamic";
-
 const STYLES = {
   main: cn("w-full min-h-screen py-10 px-4 md:py-20"),
   container: cn("max-w-3xl mx-auto flex flex-col gap-6"),
@@ -109,24 +107,17 @@ export async function generateMetadata({
 
 export default async function NewsDetailPage({ params }: PageProps) {
   const { slug } = await params;
-  
-  try {
-    const supabase = createStaticClient();
+  const supabase = createStaticClient();
 
-    // Fetch current news detail
-    const { data: newsItem, error } = await supabase
-      .from("news")
-      .select("*")
-      .eq("slug", slug)
-      .eq("is_published", true)
-      .maybeSingle();
+  // Fetch current news detail
+  const { data: newsItem, error } = await supabase
+    .from("news")
+    .select("*")
+    .eq("slug", slug)
+    .eq("is_published", true)
+    .maybeSingle();
 
-    if (error) {
-      console.error("Database Error:", error);
-      throw new Error(`DB_ERROR: ${error.message}`);
-    }
-
-    if (!newsItem) {
+    if (error || !newsItem) {
       notFound();
     }
 
@@ -226,23 +217,4 @@ export default async function NewsDetailPage({ params }: PageProps) {
       </div>
     </main>
   );
- } catch (error: any) {
-  console.error("Critical Page Error:", error);
-  // If it's notFound(), re-throw it so Next.js handles the 404
-  if (error.digest === "NEXT_NOT_FOUND" || error.message === "NEXT_NOT_FOUND") {
-    throw error;
-  }
-
-  return (
-    <div className="p-20 text-center">
-      <h1 className="text-xl font-bold text-destructive mb-4">Lỗi hệ thống (500)</h1>
-      <p className="text-muted-foreground mb-4">Đã xảy ra lỗi khi xử lý bài viết này trên Production.</p>
-      <div className="text-left bg-muted p-4 rounded-lg inline-block max-w-2xl font-mono text-xs overflow-auto">
-        <p>Error: {error.message || "Unknown error"}</p>
-        <p>Slug: {slug}</p>
-        <p>Time: {new Date().toISOString()}</p>
-      </div>
-    </div>
-  );
- }
 }
