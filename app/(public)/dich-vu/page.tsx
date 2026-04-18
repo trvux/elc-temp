@@ -12,6 +12,21 @@ import { ArrowUpRight } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { generateBreadcrumbSchema, SEO_CONFIG } from "@/lib/seo";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: `Dịch vụ Kỹ thuật Điện lạnh | ${SEO_CONFIG.siteName}`,
+  description: "Dịch vụ lắp đặt, sửa chữa, bảo trì máy lạnh công nghiệp, hệ thống VRV/VRF và các giải pháp lọc không khí chuyên nghiệp từ ELC.",
+  alternates: {
+    canonical: `${SEO_CONFIG.baseUrl}/dich-vu`,
+  },
+  openGraph: {
+    title: `Dịch vụ Kỹ thuật Điện lạnh | ${SEO_CONFIG.siteName}`,
+    description: "Giải pháp kỹ thuật và bảo trì điện lạnh chuyên nghiệp cho doanh nghiệp và gia đình.",
+    url: `${SEO_CONFIG.baseUrl}/dich-vu`,
+    type: "website",
+  },
+};
 
 const STYLES = {
   main: cn("w-full min-h-screen py-12 px-4 md:px-8"),

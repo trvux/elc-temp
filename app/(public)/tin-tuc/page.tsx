@@ -12,6 +12,21 @@ import { ArrowUpRight } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { generateBreadcrumbSchema, SEO_CONFIG } from "@/lib/seo";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: `Tin tức & Giải pháp Kỹ thuật | ${SEO_CONFIG.siteName}`,
+  description: "Cập nhật những giải pháp kỹ thuật mới nhất, hướng dẫn lắp đặt và các tin tức chuyên sâu về ngành điện máy lạnh từ đội ngũ kỹ sư ELC.",
+  alternates: {
+    canonical: `${SEO_CONFIG.baseUrl}/tin-tuc`,
+  },
+  openGraph: {
+    title: `Tin tức & Giải pháp Kỹ thuật | ${SEO_CONFIG.siteName}`,
+    description: "Cập nhật những giải pháp kỹ thuật mới nhất và các tin tức chuyên sâu từ ELC.",
+    url: `${SEO_CONFIG.baseUrl}/tin-tuc`,
+    type: "website",
+  },
+};
 
 const STYLES = {
   main: cn("w-full min-h-screen py-12 px-4 md:px-8"),

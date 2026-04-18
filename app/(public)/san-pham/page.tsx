@@ -12,6 +12,21 @@ import Image from "next/image";
 import Link from "next/link";
 import { Suspense } from "react";
 import { generateBreadcrumbSchema, generateSchema, SEO_CONFIG } from "@/lib/seo";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: `Danh mục Sản phẩm | ${SEO_CONFIG.siteName}`,
+  description: "Cung cấp đa dạng các dòng máy lạnh, hệ thống lọc không khí và thiết bị điện lạnh chính hãng từ Daikin, Mitsubishi, Panasonic, LG...",
+  alternates: {
+    canonical: `${SEO_CONFIG.baseUrl}/san-pham`,
+  },
+  openGraph: {
+    title: `Danh mục Sản phẩm | ${SEO_CONFIG.siteName}`,
+    description: "Giải pháp không khí thuần khiết với các dòng sản phẩm điện lạnh chính hãng tại ELC.",
+    url: `${SEO_CONFIG.baseUrl}/san-pham`,
+    type: "website",
+  },
+};
 
 type SearchParams = Promise<{ [key: string]: string | string[] | undefined }>;
 

@@ -5,11 +5,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = "https://dienmayelc.com.vn";
   const supabase = createStaticClient();
 
-  // 1. Static Pages (Home)
+  // 1. Static Pages
   const staticRoutes = [
     {
       url: baseUrl,
-      lastModified: new URLSearchParams().get(""), // Force fresh
+      lastModified: new Date(),
       changeFrequency: "daily",
       priority: 1,
     },
@@ -25,73 +25,115 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     },
     {
       url: `${baseUrl}/du-an`,
-      changeFrequency: "weekly",
+      changeFrequency: "daily",
       priority: 0.7,
     },
     {
       url: `${baseUrl}/dich-vu`,
-      changeFrequency: "weekly",
+      changeFrequency: "daily",
       priority: 0.7,
     },
     {
       url: `${baseUrl}/chi-nhanh`,
-      changeFrequency: "monthly",
+      changeFrequency: "daily",
       priority: 0.5,
     },
   ];
 
-  // 2. Fetch all dynamic routes
+  // 2. Fetch data with error handling
   const [
-    { data: products },
-    { data: news },
-    { data: projects },
-    { data: services },
-    { data: branches },
-    { data: pages },
+    { data: products, error: pError },
+    { data: news, error: nError },
+    { data: projects, error: prError },
+    { data: services, error: sError },
+    { data: branches, error: bError },
+    { data: pages, error: pgError },
   ] = await Promise.all([
-    supabase.from("products").select("slug, updated_at, categories!inner(slug)").eq("is_published", true),
-    supabase.from("news").select("slug, updated_at").eq("is_published", true),
-    supabase.from("projects").select("slug, updated_at, categories!inner(slug)").eq("is_published", true),
-    supabase.from("services").select("slug, updated_at").eq("is_published", true),
-    supabase.from("branches").select("slug").eq("is_published", true),
-    supabase.from("pages").select("slug, updated_at").eq("is_published", true),
+    supabase
+      .from("products")
+      .select("slug, created_at, updated_at, categories!inner(slug)")
+      .eq("is_published", true),
+    supabase
+      .from("news")
+      .select("slug, created_at, updated_at")
+      .eq("is_published", true),
+    supabase
+      .from("projects")
+      .select("slug, created_at, updated_at, categories!inner(slug)")
+      .eq("is_published", true),
+    supabase
+      .from("services")
+      .select("slug, created_at, updated_at")
+      .eq("is_published", true),
+    supabase
+      .from("branches")
+      .select("slug, created_at, updated_at")
+      .eq("is_published", true),
+    supabase
+      .from("pages")
+      .select("slug, created_at, updated_at")
+      .eq("is_published", true),
   ]);
+
+  if (pError) console.error("Sitemap Products Error:", pError);
+  if (nError) console.error("Sitemap News Error:", nError);
+  if (prError) console.error("Sitemap Projects Error:", prError);
+  if (sError) console.error("Sitemap Services Error:", sError);
+  if (bError) console.error("Sitemap Branches Error:", bError);
+  if (pgError) console.error("Sitemap Pages Error:", pgError);
 
   const productUrls = (products || []).map((p: any) => ({
     url: `${baseUrl}/san-pham/${p.categories.slug}/${p.slug}`,
-    lastModified: p.updated_at,
+    lastModified: p.updated_at || p.created_at,
+    changeFrequency: "daily",
     priority: 0.8,
   }));
 
-  const newsUrls = (news || []).map((n) => ({
+  const newsUrls = (news || []).map((n: any) => ({
     url: `${baseUrl}/tin-tuc/${n.slug}`,
-    lastModified: n.updated_at,
+    lastModified: n.updated_at || n.created_at,
+    changeFrequency: "daily",
     priority: 0.7,
   }));
 
   const projectUrls = (projects || []).map((p: any) => ({
     url: `${baseUrl}/du-an/${p.categories.slug}/${p.slug}`,
-    lastModified: p.updated_at,
+    lastModified: p.updated_at || p.created_at,
+    changeFrequency: "daily",
     priority: 0.7,
   }));
 
-  const serviceUrls = (services || []).map((s) => ({
+  const serviceUrls = (services || []).map((s: any) => ({
     url: `${baseUrl}/dich-vu/${s.slug}`,
-    lastModified: s.updated_at,
+    lastModified: s.updated_at || s.created_at,
+    changeFrequency: "daily",
     priority: 0.7,
   }));
 
-  const branchUrls = (branches || []).map((b) => ({
+  const branchUrls = (branches || []).map((b: any) => ({
     url: `${baseUrl}/chi-nhanh/${b.slug}`,
+    lastModified: b.updated_at || b.created_at,
+    changeFrequency: "daily",
     priority: 0.6,
   }));
 
-  const pageUrls = (pages || []).map((p) => ({
+  const pageUrls = (pages || []).map((p: any) => ({
     url: `${baseUrl}/${p.slug}`,
-    lastModified: p.updated_at,
+    lastModified: p.updated_at || p.created_at,
+    changeFrequency: "daily",
     priority: 0.5,
   }));
 
-  // @ts-ignore
-  return [...staticRoutes, ...productUrls, ...newsUrls, ...projectUrls, ...serviceUrls, ...branchUrls, ...pageUrls];
+  return [
+    ...staticRoutes,
+    ...productUrls,
+    ...newsUrls,
+    ...projectUrls,
+    ...serviceUrls,
+    ...branchUrls,
+    ...pageUrls,
+  ] as MetadataRoute.Sitemap;
 }
+
+
+

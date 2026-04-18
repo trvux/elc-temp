@@ -11,11 +11,24 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { TypographyH1, TypographySmall } from "@/components/ui/typography";
 import { ScrollToTop } from "@/components/user/scroll-to-top";
 import { createClient } from "@/lib/supabase/server";
+import { createStaticClient } from "@/lib/supabase/static";
 import { cn } from "@/lib/utils";
 import Image from "next/image";
 import { notFound } from "next/navigation";
 import { Metadata } from "next";
 import { SEO_CONFIG, extractMetaDescription, generateSchema, generateBreadcrumbSchema } from "@/lib/seo";
+
+export async function generateStaticParams() {
+  const supabase = createStaticClient();
+  const { data: products } = await supabase
+    .from("products")
+    .select("slug, categories!inner(slug)")
+    .eq("is_published", true);
+  
+  return (products ?? []).map((p: any) => ({
+    slug: [...p.categories.slug.split("/"), p.slug]
+  }));
+}
 
 import { OrderButton } from "@/components/user/order-button";
 import { ProductDescription } from "@/components/user/product-description";

@@ -7,6 +7,21 @@ import {
   TypographySmall,
 } from "@/components/ui/typography";
 import { generateBreadcrumbSchema, SEO_CONFIG } from "@/lib/seo";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: `Dự án tiêu biểu | ${SEO_CONFIG.siteName}`,
+  description: "Khám phá các dự án điều hòa không khí, giải pháp làm sạch không khí và hệ thống cơ điện lạnh tiêu biểu đã được ELC triển khai thành công.",
+  alternates: {
+    canonical: `${SEO_CONFIG.baseUrl}/du-an`,
+  },
+  openGraph: {
+    title: `Dự án tiêu biểu | ${SEO_CONFIG.siteName}`,
+    description: "Tổng hợp các dự án cơ điện lạnh và giải pháp không khí chất lượng cao từ ELC.",
+    url: `${SEO_CONFIG.baseUrl}/du-an`,
+    type: "website",
+  },
+};
 import { createClient } from "@/lib/supabase/server";
 import Image from "next/image";
 import Link from "next/link";

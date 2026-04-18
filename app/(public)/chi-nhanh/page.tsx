@@ -11,6 +11,21 @@ import { cn } from "@/lib/utils";
 import { ArrowUpRight } from "lucide-react";
 import Link from "next/link";
 import { generateBreadcrumbSchema, SEO_CONFIG } from "@/lib/seo";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: `Hệ thống Chi nhánh | ${SEO_CONFIG.siteName}`,
+  description: "Danh sách hệ thống chi nhánh, trạm dịch vụ và văn phòng đại diện của Điện máy ELC trên toàn quốc.",
+  alternates: {
+    canonical: `${SEO_CONFIG.baseUrl}/chi-nhanh`,
+  },
+  openGraph: {
+    title: `Hệ thống Chi nhánh | ${SEO_CONFIG.siteName}`,
+    description: "Tìm kiếm chi nhánh Điện máy ELC gần nhất để nhận giải pháp không khí chuyên nghiệp.",
+    url: `${SEO_CONFIG.baseUrl}/chi-nhanh`,
+    type: "website",
+  },
+};
 
 const STYLES = {
   main: cn("w-full min-h-screen py-12 px-4 md:px-8"),

@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { createStaticClient } from "@/lib/supabase/static";
 import { notFound } from "next/navigation";
 import Image from "next/image";
 import { InfoTOC } from "@/components/user/info-toc";
@@ -8,6 +9,57 @@ import { AspectRatio } from "@/components/ui/aspect-ratio";
 import { Sparkle } from "lucide-react";
 import { Metadata } from "next";
 import { SEO_CONFIG, extractMetaDescription, generateSchema, generateBreadcrumbSchema } from "@/lib/seo";
+
+export async function generateStaticParams() {
+  const supabase = createStaticClient();
+  const { data: projects } = await supabase
+    .from("projects")
+    .select("slug, categories!inner(slug)")
+    .eq("is_published", true);
+  
+  return (projects ?? []).map((p: any) => ({
+    slug: [...p.categories.slug.split("/"), p.slug]
+  }));
+}
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string[] }>;
+}): Promise<Metadata> {
+  const { slug } = await params;
+  const leafSlug = slug[slug.length - 1];
+  const categoryPath = slug.slice(0, -1).join("/");
+
+  const supabase = await createClient();
+  const { data: project } = await supabase
+    .from("projects")
+    .select("*, categories!inner(slug)")
+    .eq("slug", leafSlug)
+    .eq("categories.slug", categoryPath)
+    .single();
+
+  if (!project) return { title: SEO_CONFIG.defaultTitle };
+
+  const title = project.meta_title || `${project.title} | Dự án ${SEO_CONFIG.siteName}`;
+  const description = project.meta_description || extractMetaDescription(project.description || "", 160);
+  const url = `${SEO_CONFIG.baseUrl}/du-an/${slug.join("/")}`;
+
+  return {
+    title,
+    description,
+    alternates: {
+      canonical: url,
+    },
+    openGraph: {
+      title,
+      description,
+      url,
+      type: "website",
+      images: project.images?.[0] ? [{ url: project.images[0] }] : [],
+    },
+  };
+}
 
 export default async function ProjectDetail({
   params,
