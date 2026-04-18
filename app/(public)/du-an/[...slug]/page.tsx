@@ -31,13 +31,13 @@ export async function generateMetadata({
   const leafSlug = slug[slug.length - 1];
   const categoryPath = slug.slice(0, -1).join("/");
 
-  const supabase = await createClient();
+  const supabase = createStaticClient();
   const { data: project } = await supabase
     .from("projects")
     .select("*, categories!inner(slug)")
     .eq("slug", leafSlug)
     .eq("categories.slug", categoryPath)
-    .single();
+    .maybeSingle();
 
   if (!project) return { title: SEO_CONFIG.defaultTitle };
 
@@ -66,14 +66,13 @@ export default async function ProjectDetail({
 }: {
   params: Promise<{ slug: string[] }>;
 }) {
+  const staticSupabase = createStaticClient();
   const { slug } = await params;
   const leafSlug = slug[slug.length - 1];
   const categoryPath = slug.slice(0, -1).join("/");
 
-  const supabase = await createClient();
-
   // Fetch project data with category hierarchy
-  const { data: project } = await supabase
+  const { data: project } = await staticSupabase
     .from("projects")
     .select("*, categories!inner(name, slug, parent:parent_id(name))")
     .eq("slug", leafSlug)
@@ -85,7 +84,7 @@ export default async function ProjectDetail({
   }
 
   // Fetch all projects for the TOC with their full hierarchical paths
-  const { data: allProjectsData } = await supabase
+  const { data: allProjectsData } = await staticSupabase
     .from("projects")
     .select("id, title, slug, categories(slug)")
     .eq("is_published", true)
@@ -184,7 +183,7 @@ export default async function ProjectDetail({
             </div>
           )}
 
-          {/* Rich text content */}
+          {/* Rich text content with image optimization */}
           <div
             className="prose-lg prose-zinc max-w-none
               font-serif
@@ -196,7 +195,20 @@ export default async function ProjectDetail({
               prose-img:rounded-sm prose-img:w-full prose-img:h-auto prose-img:my-10
               prose-ul:my-6 prose-ol:my-6
               prose-li:my-1"
-            dangerouslySetInnerHTML={{ __html: project.description || "" }}
+            dangerouslySetInnerHTML={{
+              __html: (project.description || "").replace(
+                /<img(\s[^>]*?)?>/gi,
+                (_match: string, attrs: string = "") => {
+                  const safeAttrs = typeof attrs === "string" ? attrs : "";
+                  const a = safeAttrs
+                    .replace(/\bloading="[^"]*"/gi, "")
+                    .replace(/\bwidth="[^"]*"/gi, "")
+                    .replace(/\bheight="[^"]*"/gi, "")
+                    .replace(/\balt="[^"]*"/gi, "");
+                  return `<img${a} loading="lazy" width="1200" height="800" alt="${project.title || ""}">`;
+                },
+              ),
+            }}
           />
 
           {/* Additional images */}

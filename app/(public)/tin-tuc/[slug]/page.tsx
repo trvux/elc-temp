@@ -11,6 +11,8 @@ import { notFound } from "next/navigation";
 import { SEO_CONFIG, extractMetaDescription, generateSchema, generateBreadcrumbSchema } from "@/lib/seo";
 
 // Design System / Style Constants
+export const dynamic = "force-dynamic";
+
 const STYLES = {
   main: cn("w-full min-h-screen py-10 px-4 md:py-20"),
   container: cn("max-w-3xl mx-auto flex flex-col gap-6"),
@@ -76,7 +78,7 @@ export async function generateMetadata({
   params,
 }: PageProps): Promise<Metadata> {
   const { slug } = await params;
-  const supabase = await createClient();
+  const supabase = createStaticClient();
 
   const { data: newsItem } = await supabase
     .from("news")
@@ -107,32 +109,53 @@ export async function generateMetadata({
 
 export default async function NewsDetailPage({ params }: PageProps) {
   const { slug } = await params;
-  const supabase = await createClient();
+  
+  try {
+    const supabase = createStaticClient();
 
-  // Fetch current news detail
-  const { data: newsItem } = await supabase
-    .from("news")
-    .select("*")
-    .eq("slug", slug)
-    .eq("is_published", true)
-    .maybeSingle();
+    // Fetch current news detail
+    const { data: newsItem, error } = await supabase
+      .from("news")
+      .select("*")
+      .eq("slug", slug)
+      .eq("is_published", true)
+      .maybeSingle();
 
-  if (!newsItem) {
-    notFound();
-  }
+    if (error) {
+      console.error("Database Error:", error);
+      throw new Error(`DB_ERROR: ${error.message}`);
+    }
 
-  const schema = generateSchema("Article", {
-    title: newsItem.title,
-    image: newsItem.image,
-    datePublished: newsItem.created_at,
-    dateModified: newsItem.updated_at || newsItem.created_at,
-  });
+    if (!newsItem) {
+      notFound();
+    }
 
-  const breadcrumbs = generateBreadcrumbSchema([
-    { name: "Trang chủ", item: "/" },
-    { name: "Tin tức", item: "/tin-tuc" },
-    { name: newsItem.title, item: `/tin-tuc/${slug}` },
-  ]);
+    const schema = generateSchema("Article", {
+      title: newsItem.title || "",
+      image: newsItem.image || "",
+      datePublished: newsItem.created_at || "",
+      dateModified: newsItem.updated_at || newsItem.created_at || "",
+    });
+
+    const breadcrumbs = generateBreadcrumbSchema([
+      { name: "Trang chủ", item: "/" },
+      { name: "Tin tức", item: "/tin-tuc" },
+      { name: newsItem.title || "Bài viết", item: `/tin-tuc/${slug}` },
+    ]);
+
+    // Safe date formatting
+    let formattedDate = "";
+    try {
+      if (newsItem.created_at) {
+        formattedDate = new Date(newsItem.created_at).toLocaleDateString("vi-VN", {
+          day: "numeric",
+          month: "long",
+          year: "numeric",
+        });
+      }
+    } catch (e) {
+      console.error("Date formatting error:", e);
+    }
 
   return (
     <main className={STYLES.main}>
@@ -151,13 +174,11 @@ export default async function NewsDetailPage({ params }: PageProps) {
       )}
       <div className={STYLES.container}>
         <header>
-          <TypographySmall className="text-muted-foreground mb-3 block">
-            {new Date(newsItem.created_at).toLocaleDateString("vi-VN", {
-              day: "numeric",
-              month: "long",
-              year: "numeric",
-            })}
-          </TypographySmall>
+          {formattedDate && (
+            <TypographySmall className="text-muted-foreground mb-3 block">
+              {formattedDate}
+            </TypographySmall>
+          )}
           <TypographyH1 className={STYLES.title}>{newsItem.title}</TypographyH1>
         </header>
 
@@ -168,12 +189,14 @@ export default async function NewsDetailPage({ params }: PageProps) {
               __html: (newsItem.content || "").replace(
                 /<img(\s[^>]*?)?>/gi,
                 (_match: string, attrs: string = "") => {
-                  const a = attrs
+                  // Ensure attrs is treated as a string even if regex match group is undefined
+                  const safeAttrs = typeof attrs === "string" ? attrs : "";
+                  const a = safeAttrs
                     .replace(/\bloading="[^"]*"/gi, "")
                     .replace(/\bwidth="[^"]*"/gi, "")
                     .replace(/\bheight="[^"]*"/gi, "")
-                    .replace(/\balt="[^"]*"/gi, ""); // Xóa alt cũ nếu có
-                  return `<img${a} loading="lazy" width="1200" height="800" alt="${newsItem.title}">`;
+                    .replace(/\balt="[^"]*"/gi, "");
+                  return `<img${a} loading="lazy" width="1200" height="800" alt="${newsItem.title || ""}">`;
                 },
               ),
             }}
@@ -203,4 +226,23 @@ export default async function NewsDetailPage({ params }: PageProps) {
       </div>
     </main>
   );
+ } catch (error: any) {
+  console.error("Critical Page Error:", error);
+  // If it's notFound(), re-throw it so Next.js handles the 404
+  if (error.digest === "NEXT_NOT_FOUND" || error.message === "NEXT_NOT_FOUND") {
+    throw error;
+  }
+
+  return (
+    <div className="p-20 text-center">
+      <h1 className="text-xl font-bold text-destructive mb-4">Lỗi hệ thống (500)</h1>
+      <p className="text-muted-foreground mb-4">Đã xảy ra lỗi khi xử lý bài viết này trên Production.</p>
+      <div className="text-left bg-muted p-4 rounded-lg inline-block max-w-2xl font-mono text-xs overflow-auto">
+        <p>Error: {error.message || "Unknown error"}</p>
+        <p>Slug: {slug}</p>
+        <p>Time: {new Date().toISOString()}</p>
+      </div>
+    </div>
+  );
+ }
 }

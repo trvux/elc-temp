@@ -11,6 +11,8 @@ import { notFound } from "next/navigation";
 import { SEO_CONFIG, extractMetaDescription, generateSchema, generateBreadcrumbSchema } from "@/lib/seo";
 
 // Design System / Style Constants
+export const dynamic = "force-dynamic";
+
 const STYLES = {
   main: cn("w-full min-h-screen py-10 px-4 md:py-20"),
   container: cn("max-w-3xl mx-auto flex flex-col gap-6"),
@@ -76,7 +78,7 @@ export async function generateMetadata({
   params,
 }: PageProps): Promise<Metadata> {
   const { slug } = await params;
-  const supabase = await createClient();
+  const supabase = createStaticClient();
 
   const { data: service } = await supabase
     .from("services")
@@ -106,100 +108,140 @@ export async function generateMetadata({
 
 export default async function ServiceDetailPage({ params }: PageProps) {
   const { slug } = await params;
-  const supabase = await createClient();
+  
+  try {
+    const supabase = createStaticClient();
 
-  // Fetch current service detail
-  const { data: service } = await supabase
-    .from("services")
-    .select("*")
-    .eq("slug", slug)
-    .eq("is_published", true)
-    .maybeSingle();
+    // Fetch current service detail
+    const { data: service, error } = await supabase
+      .from("services")
+      .select("*")
+      .eq("slug", slug)
+      .eq("is_published", true)
+      .maybeSingle();
 
-  if (!service) {
-    notFound();
-  }
+    if (error) {
+      console.error("Database Error:", error);
+      throw new Error(`DB_ERROR: ${error.message}`);
+    }
 
-  const schema = generateSchema("Article", { // Using Article schema for service details as they are content-based
-    title: service.title,
-    image: service.image,
-    datePublished: service.created_at,
-    dateModified: service.created_at,
-  });
+    if (!service) {
+      notFound();
+    }
 
-  const breadcrumbs = generateBreadcrumbSchema([
-    { name: "Trang chủ", item: "/" },
-    { name: "Dịch vụ", item: "/dich-vu" },
-    { name: service.title, item: `/dich-vu/${slug}` },
-  ]);
+    const schema = generateSchema("Article", { // Using Article schema for service details as they are content-based
+      title: service.title || "",
+      image: service.image || "",
+      datePublished: service.created_at || "",
+      dateModified: service.created_at || "",
+    });
 
-  return (
-    <main className={STYLES.main}>
-      {/* JSON-LD for Service */}
-      {schema && (
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
-        />
-      )}
-      {breadcrumbs && (
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbs) }}
-        />
-      )}
-      <div className={STYLES.container}>
-        <header>
-          <TypographySmall className="text-muted-foreground mb-3 block">
-            {new Date(service.created_at).toLocaleDateString("vi-VN", {
-              day: "numeric",
-              month: "long",
-              year: "numeric",
-            })}
-          </TypographySmall>
-          <TypographyH1 className={STYLES.title}>{service.title}</TypographyH1>
-        </header>
+    const breadcrumbs = generateBreadcrumbSchema([
+      { name: "Trang chủ", item: "/" },
+      { name: "Dịch vụ", item: "/dich-vu" },
+      { name: service.title || "Dịch vụ", item: `/dich-vu/${slug}` },
+    ]);
 
-        <article>
-          <div
-            className={STYLES.prose}
-            dangerouslySetInnerHTML={{
-              __html: (service.content || "").replace(
-                /<img(\s[^>]*?)?>/gi,
-                (_match: string, attrs: string = "") => {
-                  const a = attrs
-                    .replace(/\bloading="[^"]*"/gi, "")
-                    .replace(/\bwidth="[^"]*"/gi, "")
-                    .replace(/\bheight="[^"]*"/gi, "")
-                    .replace(/\balt="[^"]*"/gi, ""); // Xóa alt cũ nếu có
-                  return `<img${a} loading="lazy" width="1200" height="800" alt="${service.title}">`;
-                },
-              ),
-            }}
+    // Safe date formatting
+    let formattedDate = "";
+    try {
+      if (service.created_at) {
+        formattedDate = new Date(service.created_at).toLocaleDateString("vi-VN", {
+          day: "numeric",
+          month: "long",
+          year: "numeric",
+        });
+      }
+    } catch (e) {
+      console.error("Date formatting error:", e);
+    }
+
+    return (
+      <main className={STYLES.main}>
+        {/* JSON-LD for Service */}
+        {schema && (
+          <script
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
           />
-        </article>
+        )}
+        {breadcrumbs && (
+          <script
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbs) }}
+          />
+        )}
+        <div className={STYLES.container}>
+          <header>
+            {formattedDate && (
+              <TypographySmall className="text-muted-foreground mb-3 block">
+                {formattedDate}
+              </TypographySmall>
+            )}
+            <TypographyH1 className={STYLES.title}>{service.title}</TypographyH1>
+          </header>
 
-        <nav className={STYLES.footerNav}>
-          <Link href="/dich-vu" className={STYLES.backLink}>
-            <Button>
-              <div className={STYLES.backLabel}>
-                <ArrowLeft className="w-3 h-3 transition-transform group-hover:-translate-x-1" />
-                <span>Xem dịch vụ khác</span>
-              </div>
-            </Button>
-          </Link>
-        </nav>
+          <article>
+            <div
+              className={STYLES.prose}
+              dangerouslySetInnerHTML={{
+                __html: (service.content || "").replace(
+                  /<img(\s[^>]*?)?>/gi,
+                  (_match: string, attrs: string = "") => {
+                    // Ensure attrs is treated as a string even if regex match group is undefined
+                    const safeAttrs = typeof attrs === "string" ? attrs : "";
+                    const a = safeAttrs
+                      .replace(/\bloading="[^"]*"/gi, "")
+                      .replace(/\bwidth="[^"]*"/gi, "")
+                      .replace(/\bheight="[^"]*"/gi, "")
+                      .replace(/\balt="[^"]*"/gi, "");
+                    return `<img${a} loading="lazy" width="1200" height="800" alt="${service.title || ""}">`;
+                  },
+                ),
+              }}
+            />
+          </article>
 
-        <footer className={STYLES.footer}>
-          <TypographySmall>
-            &copy; {new Date().getFullYear()} ELC Holdings. Đã đăng ký bản
-            quyền.
-          </TypographySmall>
-          <ScrollToTop className="flex items-center gap-2 cursor-pointer hover:text-foreground transition-colors">
-            <TypographySmall>Quay lại đầu trang</TypographySmall>
-          </ScrollToTop>
-        </footer>
+          <nav className={STYLES.footerNav}>
+            <Link href="/dich-vu" className={STYLES.backLink}>
+              <Button>
+                <div className={STYLES.backLabel}>
+                  <ArrowLeft className="w-3 h-3 transition-transform group-hover:-translate-x-1" />
+                  <span>Xem dịch vụ khác</span>
+                </div>
+              </Button>
+            </Link>
+          </nav>
+
+          <footer className={STYLES.footer}>
+            <TypographySmall>
+              &copy; {new Date().getFullYear()} ELC Holdings. Đã đăng ký bản
+              quyền.
+            </TypographySmall>
+            <ScrollToTop className="flex items-center gap-2 cursor-pointer hover:text-foreground transition-colors">
+              <TypographySmall>Quay lại đầu trang</TypographySmall>
+            </ScrollToTop>
+          </footer>
+        </div>
+      </main>
+    );
+  } catch (error: any) {
+    console.error("Critical Page Error:", error);
+    // If it's notFound(), re-throw it so Next.js handles the 404
+    if (error.digest === "NEXT_NOT_FOUND" || error.message === "NEXT_NOT_FOUND") {
+      throw error;
+    }
+
+    return (
+      <div className="p-20 text-center">
+        <h1 className="text-xl font-bold text-destructive mb-4">Lỗi hệ thống (500)</h1>
+        <p className="text-muted-foreground mb-4">Đã xảy ra lỗi khi xử lý dịch vụ này trên Production.</p>
+        <div className="text-left bg-muted p-4 rounded-lg inline-block max-w-2xl font-mono text-xs overflow-auto">
+          <p>Error: {error.message || "Unknown error"}</p>
+          <p>Slug: {slug}</p>
+          <p>Time: {new Date().toISOString()}</p>
+        </div>
       </div>
-    </main>
-  );
+    );
+  }
 }

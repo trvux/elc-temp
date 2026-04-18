@@ -6,16 +6,17 @@ import {
   TypographySmall,
 } from "@/components/ui/typography";
 import { ScrollToTop } from "@/components/user/scroll-to-top";
+import { generateBreadcrumbSchema, SEO_CONFIG } from "@/lib/seo";
 import { createClient } from "@/lib/supabase/server";
 import { cn } from "@/lib/utils";
 import { ArrowUpRight } from "lucide-react";
-import Link from "next/link";
 import { Metadata } from "next";
-import { generateBreadcrumbSchema, SEO_CONFIG } from "@/lib/seo";
+import Link from "next/link";
 
 export const metadata: Metadata = {
   title: "Thông tin về ELC - Chính sách & Giá trị cốt lõi",
-  description: "Kho lưu trữ minh bạch về các giá trị cốt lõi, cam kết bảo hành và triết lý kiến tạo của Điện máy ELC.",
+  description:
+    "Kho lưu trữ minh bạch về các giá trị cốt lõi, cam kết bảo hành và triết lý kiến tạo của Điện máy ELC.",
   alternates: {
     canonical: "/thong-tin",
   },
@@ -80,12 +81,12 @@ export default async function InformationHub() {
   const itemListSchema = {
     "@context": "https://schema.org",
     "@type": "ItemList",
-    "itemListElement": allPages.map((p, i) => ({
+    itemListElement: allPages.map((p, i) => ({
       "@type": "ListItem",
-      "position": i + 1,
-      "url": `${SEO_CONFIG.baseUrl}/${p.slug}`,
-      "name": p.title,
-    }))
+      position: i + 1,
+      url: `${SEO_CONFIG.baseUrl}/${p.slug}`,
+      name: p.title,
+    })),
   };
 
   return (
