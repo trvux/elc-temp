@@ -1,6 +1,8 @@
 import { createStaticClient } from "@/lib/supabase/static";
 import { MetadataRoute } from "next";
 
+export const revalidate = 3600; // Cập nhật sitemap mỗi 1 giờ
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = "https://dienmayelc.com.vn";
   const supabase = createStaticClient();
