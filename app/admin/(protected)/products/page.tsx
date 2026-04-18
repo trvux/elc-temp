@@ -381,6 +381,11 @@ export default function ProductsPage() {
       return;
     }
 
+    if (!categoryId) {
+      toast.error("Vui lòng chọn danh mục sản phẩm");
+      return;
+    }
+
     const payload = {
       name,
       slug: slug.trim(),
@@ -390,7 +395,7 @@ export default function ProductsPage() {
       images,
       original_price: originalPrice,
       discount_percent: discountPercent,
-      sale_price_override: salePriceOverride ? Number(salePriceOverride) : null,
+      sale_price: salePriceOverride ? Number(salePriceOverride) : null,
       specs: specs.filter((s) => s.label.trim()), // Save as array of objects
       is_featured: isFeatured,
       is_published: isPublished,
@@ -405,14 +410,16 @@ export default function ProductsPage() {
         .update(payload)
         .eq("id", editing.id);
       if (error) {
-        toast.error("Lỗi cập nhật");
+        console.error("Update error:", error);
+        toast.error(`Lỗi cập nhật: ${error.message}`);
         return;
       }
       toast.success("Đã cập nhật sản phẩm");
     } else {
       const { error } = await supabase.from("products").insert(payload);
       if (error) {
-        toast.error("Lỗi tạo mới");
+        console.error("Create error:", error);
+        toast.error(`Lỗi tạo mới: ${error.message}`);
         return;
       }
       toast.success("Đã tạo sản phẩm");
