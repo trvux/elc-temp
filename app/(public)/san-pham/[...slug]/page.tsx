@@ -15,6 +15,7 @@ import {
   extractMetaDescription,
   generateBreadcrumbSchema,
   generateSchema,
+  generateProductSmartDescription,
 } from "@/lib/seo";
 import { createClient } from "@/lib/supabase/server";
 import { createStaticClient } from "@/lib/supabase/static";
@@ -68,7 +69,7 @@ const STYLES = {
   // infoArea: cn("lg:sticky lg:top-24 flex flex-col gap-4"),
   infoArea: cn(" flex flex-col gap-4 h-full justify-center"),
   productName: cn(
-    "w-full max-w-none text-2xl md:text-3xl lg:text-4xl font-extrabold tracking-tight break-words leading-[1.15]"
+    "w-full max-w-none text-2xl md:text-3xl lg:text-4xl font-extrabold tracking-tight wrap-break-word leading-[1.15]",
   ),
   subInfo: cn("flex flex-col gap-3"),
   priceArea: cn("space-y-2"),
@@ -127,25 +128,29 @@ export async function generateMetadata({
   const supabase = await createClient();
   const { data: product } = await supabase
     .from("products")
-    .select("*, categories!inner(name, slug)")
+    .select("*, categories!inner(name, slug), brands(name)")
     .eq("slug", leafSlug)
     .eq("categories.slug", categoryPath)
     .single();
 
   if (!product) return { title: SEO_CONFIG.defaultTitle };
 
-  // SEO Logic: Prefer Meta fields, then Short Description, then Auto-gen from long desc
   const title =
     // @ts-ignore
     product.meta_title ||
-    `${product.name} - ${product.sku} | ${SEO_CONFIG.siteName}`;
+    `${product.brands?.name ? product.brands.name + " " : ""}${product.name} - ${product.sku} | ${SEO_CONFIG.siteName}`;
+  
+  // Dùng hàm Smart Description cho Meta SEO
+  // SEO Hierarchy: meta_description -> short_description -> Auto-generate from specs
   const description =
     // @ts-ignore
     product.meta_description ||
-    product.short_description ||
-    extractMetaDescription(product.description || "", 160);
+    (product.short_description && product.short_description.length > 20
+      ? product.short_description
+      : generateProductSmartDescription(product));
 
   const url = `${SEO_CONFIG.baseUrl}/san-pham/${slug.join("/")}`;
+  const images = product.images?.[0] || "/og-image.png";
 
   return {
     title,
@@ -251,14 +256,15 @@ export default async function ProductDetail({
 
   const schema = generateSchema("Product", {
     name: product.name,
-    description:
-      product.short_description ||
-      extractMetaDescription(product.description || "", 200),
+    metaDescription: generateProductSmartDescription(product),
+    description: extractMetaDescription(product.description || "", 200),
     images: product.images,
     sku: product.sku,
     brand: product.brands?.name,
     price: finalPrice,
+    originalPrice: product.original_price,
     url: `${SEO_CONFIG.baseUrl}/san-pham/${slug.join("/")}`,
+    specs: normalizedSpecs, // Đưa toàn bộ specs vào để tạo snippet xịn trên Google
   });
 
   const breadcrumbs = generateBreadcrumbSchema([
@@ -299,7 +305,7 @@ export default async function ProductDetail({
                         <AspectRatio ratio={16 / 9}>
                           <Image
                             src={img}
-                            alt={`${product.name} - ${i + 1}`}
+                            alt={`${product.name} ${product.sku ? `(${product.sku})` : ""} - ${product.brands?.name || "ELC"} - Điện máy ELC - Ảnh ${i + 1}`}
                             fill
                             className={STYLES.carouselImage}
                             priority={i === 0}
@@ -331,7 +337,10 @@ export default async function ProductDetail({
             {/* Brand & Category */}
             <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
               {product.brands?.name && (
-                <Badge variant="secondary" className="shrink-0 uppercase font-bold text-[10px] tracking-wider">
+                <Badge
+                  variant="secondary"
+                  className="shrink-0 uppercase font-bold text-[10px] tracking-wider"
+                >
                   {product.brands.name}
                 </Badge>
               )}

@@ -32,7 +32,8 @@ import { TiptapEditor } from "@/components/ui/tiptap-editor";
 import { convertToWebP } from "@/lib/image";
 import { createClient } from "@/lib/supabase/client";
 import { capitalize, cn, formatPrice } from "@/lib/utils";
-import { ChevronDown, Plus, Upload, X } from "lucide-react";
+import { ChevronDown, Plus, Upload, Wand2, X } from "lucide-react";
+import { generateProductSmartDescription } from "@/lib/seo";
 import Image from "next/image";
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
@@ -411,12 +412,12 @@ export default function ProductsPage() {
       original_price: originalPrice,
       discount_percent: discountPercent,
       sale_price: salePriceOverride ? Number(salePriceOverride) : null,
-      specs: specs.filter((s) => s.label.trim()), // Save as array of objects
+      specs: specs.filter((s: any) => s.label.trim()),
       is_featured: isFeatured,
       is_published: isPublished,
       order_index: orderIndex,
       meta_title: metaTitle.trim() || null,
-      meta_description: metaDescription.trim() || null,
+      meta_description: shortDescription.trim() || null, // Đồng bộ để SEO luôn xịn
     };
 
     if (editing) {
@@ -442,6 +443,20 @@ export default function ProductsPage() {
 
     setOpen(false);
     fetchData();
+  }
+
+  function handleAutoSEO() {
+    const brandName = brands.find((b) => b.id === brandId)?.name || "";
+    const mockProduct = {
+      name,
+      sku,
+      specs,
+      brands: { name: brandName },
+      short_description: "", // Force regenerate
+    };
+    const suggested = generateProductSmartDescription(mockProduct);
+    setShortDescription(suggested);
+    toast.success("Đã tạo mô tả SEO tự động từ thông số kỹ thuật!");
   }
 
   function openDelete(id: string) {
@@ -610,20 +625,7 @@ export default function ProductsPage() {
                   </Field>
                 </div>
 
-                <div className="md:col-span-12">
-                  <Field>
-                    <FieldLabel className="mb-2 font-medium">
-                      Mô tả ngắn (Hiển thị ở danh sách & SEO)
-                    </FieldLabel>
-                    <FieldContent>
-                      <Input
-                        placeholder="VD: Máy lạnh Daikin 1.5HP tiết kiệm điện, bảo hành 5 năm..."
-                        value={shortDescription}
-                        onChange={(e) => setShortDescription(e.target.value)}
-                      />
-                    </FieldContent>
-                  </Field>
-                </div>
+
 
                 <div className="md:col-span-6">
                   <Field>
@@ -1000,6 +1002,52 @@ export default function ProductsPage() {
               )}
             </div>
 
+            {/* Mô tả ngắn & SEO - Di chuyển xuống đây để có data từ Specs */}
+            <div className="bg-primary/5 p-6 rounded-2xl border border-primary/20 transition-all hover:border-primary/40">
+              <Field>
+                <div className="flex items-center justify-between mb-4">
+                  <div className="space-y-0.5">
+                    <h3 className="font-bold text-fluid-sm tracking-tight text-primary">
+                      Mô tả ngắn & SEO Meta
+                    </h3>
+                    <p className="text-[10px] text-muted-foreground">
+                      Tóm tắt sản phẩm để hiển thị trên Google và các danh sách.
+                    </p>
+                  </div>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    className="h-9 px-4 text-[11px] uppercase font-bold tracking-widest text-primary border-primary/20 hover:bg-primary/10 transition-all shadow-sm"
+                    onClick={handleAutoSEO}
+                  >
+                    <Wand2 size={14} className="mr-2" />
+                    ⚡ Gợi ý SEO thông minh
+                  </Button>
+                </div>
+                <FieldContent>
+                  <textarea
+                    className="flex min-h-[80px] w-full rounded-xl border border-input bg-background/50 px-4 py-3 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:border-primary transition-all"
+                    placeholder="VD: Máy lạnh Daikin 1.5HP tiết kiệm điện, bảo hành 5 năm..."
+                    value={shortDescription}
+                    rows={3}
+                    onChange={(e) => setShortDescription(e.target.value)}
+                  />
+                  <div className="flex justify-between mt-2 px-1">
+                    <p className="text-[10px] text-muted-foreground italic font-medium">
+                      💡 Mẹo: Nhấp vào nút "Gợi ý SEO" ở trên để AI tự động soạn thảo dựa trên thông số kỹ thuật mày vừa nhập.
+                    </p>
+                    <p className={cn(
+                      "text-[10px] font-mono font-bold px-2 py-0.5 rounded",
+                      shortDescription.length > 165 ? "bg-destructive/10 text-destructive" : "bg-primary/10 text-primary"
+                    )}>
+                      {shortDescription.length} / 160 ký tự
+                    </p>
+                  </div>
+                </FieldContent>
+              </Field>
+            </div>
+
             {/* Hình ảnh */}
             <Field>
               <FieldLabel className="mb-2 font-medium">
@@ -1121,7 +1169,7 @@ export default function ProductsPage() {
                   )}
                 />
                 Tối ưu hóa tìm kiếm (SEO Meta)
-                {(metaTitle || metaDescription) && (
+                {metaTitle && (
                   <Badge
                     variant="outline"
                     className="ml-auto bg-primary/10 text-primary border-primary/20 font-bold capitalize text-[10px] tracking-widest px-2 py-0.5"
@@ -1132,65 +1180,34 @@ export default function ProductsPage() {
               </CollapsibleTrigger>
               <CollapsibleContent className="p-6 pt-0 space-y-6">
                 <Field>
-                  <FieldLabel className="mb-2 font-semibold text-xs text-muted-foreground/60 capitalize tracking-widest">
-                    SEO Title
-                  </FieldLabel>
+                  <div className="flex items-center justify-between mb-2">
+                    <FieldLabel className="text-muted-foreground font-normal">
+                      SEO Title (Để trống nếu muốn dùng tên máy)
+                    </FieldLabel>
+                  </div>
                   <FieldContent>
                     <Input
-                      placeholder={name || "Tiêu đề hiển thị trên Google"}
+                      placeholder="Tiêu đề tối ưu SEO"
                       value={metaTitle}
                       onChange={(e) => setMetaTitle(e.target.value)}
-                      maxLength={60}
                     />
-                    <div className="flex justify-between mt-1 text-[10px] capitalize font-bold tracking-wider">
-                      <span className="text-muted-foreground/60">
-                        Độ dài tiêu đề tối ưu (dưới 60)
-                      </span>
-                      <span
-                        className={
-                          metaTitle.length > 60
-                            ? "text-destructive"
-                            : "text-primary"
-                        }
-                      >
+                    <div className="flex justify-between mt-1.5">
+                      <p className="text-[10px] text-muted-foreground">
+                        Độ Dài Tiêu Đề Tối Ưu (Dưới 60)
+                      </p>
+                      <p className={cn(
+                        "text-[10px] font-mono",
+                        metaTitle.length > 60 ? "text-destructive font-bold" : "text-muted-foreground"
+                      )}>
                         {metaTitle.length}/60
-                      </span>
-                    </div>
-                  </FieldContent>
-                </Field>
-
-                <Field>
-                  <FieldLabel className="mb-2 font-semibold text-xs text-muted-foreground/60 capitalize tracking-widest">
-                    SEO Description
-                  </FieldLabel>
-                  <FieldContent>
-                    <textarea
-                      className="flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                      placeholder="Mô tả ngắn hiển thị trên kết quả tìm kiếm..."
-                      value={metaDescription}
-                      onChange={(e) => setMetaDescription(e.target.value)}
-                      rows={3}
-                      maxLength={160}
-                    />
-                    <div className="flex justify-between mt-1 text-[10px] capitalize font-bold tracking-wider">
-                      <span className="text-muted-foreground/60">
-                        Mô tả ngắn gọn (dưới 160)
-                      </span>
-                      <span
-                        className={
-                          metaDescription.length > 160
-                            ? "text-destructive"
-                            : "text-primary"
-                        }
-                      >
-                        {metaDescription.length}/160
-                      </span>
+                      </p>
                     </div>
                   </FieldContent>
                 </Field>
               </CollapsibleContent>
             </Collapsible>
 
+            {/* Footer Actions */}
             <div className="flex items-center justify-between border-t pt-8 pb-4">
               <div className="flex gap-3 ml-auto">
                 <Button variant="outline" onClick={() => setOpen(false)}>
@@ -1213,3 +1230,4 @@ export default function ProductsPage() {
     </div>
   );
 }
+

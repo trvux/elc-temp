@@ -35,39 +35,157 @@ export const SEO_CONFIG = {
 /**
  * Generate Breadcrumb Schema - Helps Google show "ELC > Máy lạnh > Treo tường"
  */
-export function generateBreadcrumbSchema(items: { name: string; item: string }[]) {
+export function generateBreadcrumbSchema(
+  items: { name: string; item: string }[]
+) {
   return {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
-    "itemListElement": items.map((item, index) => ({
+    itemListElement: items.map((item, index) => ({
       "@type": "ListItem",
-      "position": index + 1,
-      "name": item.name,
-      "item": item.item.startsWith('http') ? item.item : `${SEO_CONFIG.baseUrl}${item.item}`
-    }))
+      position: index + 1,
+      name: item.name,
+      item: item.item.startsWith("http")
+        ? item.item
+        : `${SEO_CONFIG.baseUrl}${item.item}`,
+    })),
   };
+}
+
+/**
+ * Generate a smart, human-readable description based on product specs.
+ * Follows the "Translated Specs" logic: Benefits + Technical Validation.
+ */
+export function generateProductSmartDescription(product: any): string {
+  // Priority 1: Manual override from DB
+  if (product.short_description && product.short_description.length > 30) {
+    return product.short_description;
+  }
+
+  const specs = product.specs || [];
+  const getSpec = (labels: string[]) => {
+    const s = specs.find((item: any) =>
+      labels.some((l) => item.label?.toLowerCase().includes(l.toLowerCase()))
+    );
+    if (!s) return null;
+    if (s.value) return s.value.toString().replace(/\t/g, "").trim();
+    if (s.items && s.items.length > 0) {
+      return s.items
+        .map((i: any) => i.value)
+        .join(", ")
+        .replace(/\t/g, "")
+        .trim();
+    }
+    return null;
+  };
+
+  const xuatXu = getSpec(["Xuất xứ", "Origin"]);
+  const gas = getSpec(["Gas", "Môi chất"]);
+  const dienTich = getSpec(["phòng", "Diện tích", "Area"]);
+  const cspf = getSpec(["CSPF", "Hiệu suất"]);
+
+  const name = product.name || "";
+  const sku = product.sku || "";
+  const nameLower = name.toLowerCase();
+
+  // Tạo "Seed" dựa trên SKU hoặc Tên để chọn câu văn ngẫu nhiên nhưng cố định cho máy đó
+  const seed = (sku + name).length % 3;
+  
+  const genericBenefits = [
+    "Giải pháp điều hòa không khí bền bỉ, tối ưu hóa điện năng và vận hành êm ái.",
+    "Trải nghiệm không gian mát lạnh tức thì, tiết kiệm điện năng vượt trội cho gia đình.",
+    "Đảm bảo luồng gió dễ chịu, vận hành cực êm và độ bền cao chuẩn chính hãng."
+  ];
+
+  const inverterBenefits = [
+    `Công nghệ Inverter ${nameLower.includes("daikin") ? "Daikin " : ""}tiết kiệm điện vượt trội, hoạt động bền bỉ và cực kỳ êm ái.`,
+    "Điều hòa Inverter thế hệ mới, làm lạnh nhanh, tối ưu hóa chi phí điện năng hàng tháng.",
+    "Vận hành êm ái với công nghệ biến tần Inverter, mang lại giấc ngủ ngon và sâu hơn."
+  ];
+
+  let benefit = genericBenefits[seed];
+
+  if (nameLower.includes("lọc") || nameLower.includes("cấp khí")) {
+    benefit = "Hệ thống lọc bụi mịn PM2.5, khử nồm và cấp khí tươi sạch khuẩn chuẩn Châu Âu.";
+  } else if (nameLower.includes("inverter")) {
+    benefit = inverterBenefits[seed];
+  } else if (nameLower.includes("âm trần") || nameLower.includes("giấu trần")) {
+    benefit = "Thiết kế sang trọng, tối ưu không gian, phân bổ luồng gió mát lạnh đều khắp căn phòng.";
+  }
+
+  const rawParts = [
+    `${name} ${sku ? `(${sku})` : ""}.`,
+    dienTich ? `Phù hợp diện tích ${dienTich}.` : "",
+    benefit,
+    gas ? `Sử dụng mô chất ${gas} hiện đại.` : "",
+    cspf ? `Chỉ số tiết kiệm điện CSPF ${cspf}.` : "",
+    xuatXu ? `Hàng nhập khẩu ${xuatXu} uy tín.` : "",
+    "Giá tốt nhất tại ELC.",
+  ];
+
+  // Logic cộng dồn câu thông minh
+  let result = "";
+  for (const part of rawParts) {
+    if (!part) continue;
+    // Nếu cộng thêm câu này mà vẫn dưới 165 ký tự thì cộng
+    if ((result + " " + part).trim().length <= 165) {
+      result = (result + " " + part).trim();
+    } else {
+      // Nếu hết chỗ thì dừng lại, không cộng thêm để tránh bị cụt
+      break;
+    }
+  }
+
+  return result;
 }
 
 /**
  * Generate Structured Data (JSON-LD) - Optimized for Search Results
  */
-export function generateSchema(type: "Product" | "Article" | "Project" | "LocalBusiness" | "WebSite" | "Organization", data: any) {
+export function generateSchema(
+  type:
+    | "Product"
+    | "Article"
+    | "Project"
+    | "LocalBusiness"
+    | "WebSite"
+    | "Organization",
+  data: any
+) {
   const base = { "@context": "https://schema.org" };
 
   switch (type) {
     case "Product":
+      // Map all specs to additionalProperty for expert-level SEO
+      const additionalProperties = (data.specs || [])
+        .map((spec: any) => {
+          let value = spec.value;
+          if (spec.items && Array.isArray(spec.items)) {
+            value = spec.items
+              .map((i: any) => (i.label ? `${i.label}: ${i.value}` : i.value))
+              .join(", ");
+          }
+          return {
+            "@type": "PropertyValue",
+            name: spec.label?.replace(/\t/g, "").trim(),
+            value: value?.toString().replace(/\t/g, "").trim(),
+          };
+        })
+        .filter((p: any) => p.name && p.value);
+
       return {
         ...base,
         "@type": "Product",
         name: data.name,
-        image: data.images || [],
-        description: data.description,
-        sku: data.sku,
-        mpn: data.sku,
+        image: Array.isArray(data.images) ? data.images : [data.images],
+        description: data.metaDescription || data.description || data.name,
+        sku: data.sku || "ELC-" + (data.id?.substring(0, 8) || "PROD"),
+        mpn: data.sku || "ELC-" + (data.id?.substring(0, 8) || "PROD"),
         brand: {
           "@type": "Brand",
-          name: data.brand || SEO_CONFIG.siteName
+          name: data.brand || SEO_CONFIG.siteName,
         },
+        // Thêm trường review/rating ảo nếu mày muốn, nhưng tốt nhất để Google tự quét
         offers: {
           "@type": "Offer",
           url: data.url,
@@ -75,14 +193,25 @@ export function generateSchema(type: "Product" | "Article" | "Project" | "LocalB
           price: data.price || 0,
           priceValidUntil: "2026-12-31",
           itemCondition: "https://schema.org/NewCondition",
+          // MẶC ĐỊNH CÒN HÀNG THEO YÊU CẦU CỦA USER
           availability: "https://schema.org/InStock",
           seller: {
             "@type": "Organization",
-            name: SEO_CONFIG.siteName
-          }
-        }
+            name: SEO_CONFIG.siteName,
+          },
+          // THÊM: Khai báo giá gốc để Google hiện gạch ngang giá giảm
+          ...(data.originalPrice > data.price && {
+            priceSpecification: {
+              "@type": "PriceSpecification",
+              price: data.originalPrice,
+              priceCurrency: "VND",
+              valueAddedTaxIncluded: true
+            }
+          }),
+        },
+        additionalProperty: additionalProperties,
       };
-      
+
     case "Article":
       return {
         ...base,
@@ -94,16 +223,16 @@ export function generateSchema(type: "Product" | "Article" | "Project" | "LocalB
         author: {
           "@type": "Organization",
           name: SEO_CONFIG.siteName,
-          url: SEO_CONFIG.baseUrl
+          url: SEO_CONFIG.baseUrl,
         },
         publisher: {
           "@type": "Organization",
           name: SEO_CONFIG.siteName,
           logo: {
             "@type": "ImageObject",
-            url: SEO_CONFIG.organization.logo
-          }
-        }
+            url: SEO_CONFIG.organization.logo,
+          },
+        },
       };
 
     case "Project":
@@ -115,8 +244,8 @@ export function generateSchema(type: "Product" | "Article" | "Project" | "LocalB
         image: data.images || [],
         publisher: {
           "@type": "Organization",
-          name: SEO_CONFIG.siteName
-        }
+          name: SEO_CONFIG.siteName,
+        },
       };
 
     case "LocalBusiness":
@@ -132,25 +261,25 @@ export function generateSchema(type: "Product" | "Article" | "Project" | "LocalB
           "@type": "PostalAddress",
           streetAddress: data.address,
           addressLocality: data.city || "Việt Nam",
-          addressCountry: "VN"
+          addressCountry: "VN",
         },
         priceRange: "$$",
-        geo: data.geo
+        geo: data.geo,
       };
 
     case "Organization":
-        return {
-          ...base,
-          "@type": "Organization",
-          name: SEO_CONFIG.organization.name,
-          url: SEO_CONFIG.baseUrl,
-          logo: SEO_CONFIG.organization.logo,
-          contactPoint: {
-            "@type": "ContactPoint",
-            telephone: SEO_CONFIG.organization.phone,
-            contactType: "customer service"
-          }
-        };
+      return {
+        ...base,
+        "@type": "Organization",
+        name: SEO_CONFIG.organization.name,
+        url: SEO_CONFIG.baseUrl,
+        logo: SEO_CONFIG.organization.logo,
+        contactPoint: {
+          "@type": "ContactPoint",
+          telephone: SEO_CONFIG.organization.phone,
+          contactType: "customer service",
+        },
+      };
 
     case "WebSite":
       return {
@@ -161,11 +290,12 @@ export function generateSchema(type: "Product" | "Article" | "Project" | "LocalB
         potentialAction: {
           "@type": "SearchAction",
           target: `${SEO_CONFIG.baseUrl}/search?q={search_term_string}`,
-          "query-input": "required name=search_term_string"
-        }
+          "query-input": "required name=search_term_string",
+        },
       };
 
     default:
       return null;
   }
 }
+

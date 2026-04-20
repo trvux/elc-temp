@@ -14,21 +14,42 @@ import Image from "next/image";
 import Link from "next/link";
 import { Suspense } from "react";
 
-export const metadata: Metadata = {
-  title: `Danh mục Sản phẩm | ${SEO_CONFIG.siteName}`,
-  description:
-    "Cung cấp đa dạng các dòng máy lạnh, hệ thống lọc không khí và thiết bị điện lạnh chính hãng từ Daikin, Mitsubishi, Panasonic, LG...",
-  alternates: {
-    canonical: `${SEO_CONFIG.baseUrl}/san-pham`,
-  },
-  openGraph: {
-    title: `Danh mục Sản phẩm | ${SEO_CONFIG.siteName}`,
-    description:
-      "Giải pháp không khí thuần khiết với các dòng sản phẩm điện lạnh chính hãng tại ELC.",
-    url: `${SEO_CONFIG.baseUrl}/san-pham`,
-    type: "website",
-  },
-};
+export async function generateMetadata({
+  searchParams,
+}: {
+  searchParams: SearchParams;
+}): Promise<Metadata> {
+  const params = await searchParams;
+  const q = typeof params.q === "string" ? params.q.trim() : "";
+  const categorySlug = typeof params.category === "string" ? params.category : "";
+
+  let title = `Danh mục Sản phẩm | ${SEO_CONFIG.siteName}`;
+  let description = "Cung cấp đa dạng các dòng máy lạnh, hệ thống lọc không khí và thiết bị điện lạnh chính hãng từ Daikin, Mitsubishi, Panasonic, LG...";
+
+  if (q) {
+    title = `Kết quả tìm kiếm "${q}" | ${SEO_CONFIG.siteName}`;
+    description = `Tìm thấy các sản phẩm phù hợp với từ khóa "${q}" tại ELC. Cam kết hàng chính hãng, giá tốt nhất thị trường.`;
+  } else if (categorySlug) {
+    // Viết hoa chữ cái đầu cho đẹp
+    const catName = categorySlug.charAt(0).toUpperCase() + categorySlug.slice(1).replace(/-/g, " ");
+    title = `Danh mục ${catName} chính hãng, giá tốt | ${SEO_CONFIG.siteName}`;
+    description = `Tổng hợp các dòng ${catName} thế mới nhất, Inverter tiết kiệm điện, bảo hành dài hạn tại ELC Holdings.`;
+  }
+
+  return {
+    title,
+    description,
+    alternates: {
+      canonical: `${SEO_CONFIG.baseUrl}/san-pham${categorySlug ? `?category=${categorySlug}` : ""}`,
+    },
+    openGraph: {
+      title,
+      description,
+      url: `${SEO_CONFIG.baseUrl}/san-pham`,
+      type: "website",
+    },
+  };
+}
 
 type SearchParams = Promise<{ [key: string]: string | string[] | undefined }>;
 
@@ -375,7 +396,11 @@ export default async function ProductsHub({
         {/* Header */}
         <header className={STYLES.header}>
           <TypographyH1 className={STYLES.title}>
-            Giải pháp thông minh
+            {q 
+              ? `Kết quả cho "${q}"` 
+              : categorySlug 
+                ? (allCategories.find(c => c.slug === categorySlug)?.name || "Sản phẩm")
+                : "Giải pháp thông minh"}
           </TypographyH1>
           <p className={STYLES.badge}>
             {isSearchActive

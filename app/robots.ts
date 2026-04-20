@@ -13,10 +13,6 @@ export default function robots(): MetadataRoute.Robots {
           "/static/",
         ],
       },
-      {
-        userAgent: "GPTBot",
-        disallow: ["/"],
-      },
     ],
     sitemap: "https://dienmayelc.com.vn/sitemap.xml",
   };
