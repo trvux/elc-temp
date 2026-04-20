@@ -10,13 +10,18 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { TypographyH1, TypographySmall } from "@/components/ui/typography";
 import { ScrollToTop } from "@/components/user/scroll-to-top";
+import {
+  SEO_CONFIG,
+  extractMetaDescription,
+  generateBreadcrumbSchema,
+  generateSchema,
+} from "@/lib/seo";
 import { createClient } from "@/lib/supabase/server";
 import { createStaticClient } from "@/lib/supabase/static";
 import { cn, formatPrice } from "@/lib/utils";
+import { Metadata } from "next";
 import Image from "next/image";
 import { notFound } from "next/navigation";
-import { Metadata } from "next";
-import { SEO_CONFIG, extractMetaDescription, generateSchema, generateBreadcrumbSchema } from "@/lib/seo";
 
 export async function generateStaticParams() {
   const supabase = createStaticClient();
@@ -24,9 +29,9 @@ export async function generateStaticParams() {
     .from("products")
     .select("slug, categories!inner(slug)")
     .eq("is_published", true);
-  
+
   return (products ?? []).map((p: any) => ({
-    slug: [...p.categories.slug.split("/"), p.slug]
+    slug: [...p.categories.slug.split("/"), p.slug],
   }));
 }
 
@@ -134,7 +139,7 @@ export async function generateMetadata({
     `${product.name} - ${product.sku} | ${SEO_CONFIG.siteName}`;
   const description =
     // @ts-ignore
-    product.meta_description || 
+    product.meta_description ||
     product.short_description ||
     extractMetaDescription(product.description || "", 160);
 
@@ -244,7 +249,9 @@ export default async function ProductDetail({
 
   const schema = generateSchema("Product", {
     name: product.name,
-    description: product.short_description || extractMetaDescription(product.description || "", 200),
+    description:
+      product.short_description ||
+      extractMetaDescription(product.description || "", 200),
     images: product.images,
     sku: product.sku,
     brand: product.brands?.name,
@@ -321,16 +328,15 @@ export default async function ProductDetail({
           <div className={STYLES.infoArea}>
             {/* Brand & Category */}
             <div className="flex flex-wrap items-center gap-2">
-               {product.brands?.name && (
-                <Badge variant="outline" className="bg-primary/5 text-primary border-primary/20 font-bold tracking-widest px-3 py-1 text-[10px] uppercase">
-                  {product.brands.name}
-                </Badge>
-              )}
-              {leafCat?.name && (
-                <span className="text-[10px] font-bold text-muted-foreground/60 uppercase tracking-widest">
-                  {leafCat.name}
-                </span>
-              )}
+              {product.brands?.name && <Badge>{product.brands.name}</Badge>}
+              <div className="flex items-center gap-1">
+                {parentCat?.name && (
+                  <TypographySmall>{parentCat.name}</TypographySmall>
+                )}
+                {leafCat?.name && (
+                  <TypographySmall>{leafCat.name}</TypographySmall>
+                )}
+              </div>
             </div>
 
             {/* Name */}
@@ -340,21 +346,16 @@ export default async function ProductDetail({
               </TypographyH1>
             </div>
 
-            {/* Short Description */}
-            {product.short_description && (
-              <p className="text-sm text-muted-foreground leading-relaxed italic border-l-2 border-primary/20 pl-4 py-1">
-                {product.short_description}
-              </p>
-            )}
-
             <div className={STYLES.subInfo}>
-              {product.sku && <span className="text-xs text-muted-foreground/80 font-mono">Mã sản phẩm (SKU): {product.sku}</span>}
+              {product.sku && (
+                <TypographySmall>
+                  Mã sản phẩm (SKU): {product.sku}
+                </TypographySmall>
+              )}
             </div>
             {/* Price */}
             <div className={STYLES.priceArea}>
-              <p className={STYLES.price}>
-                {formatPrice(finalPrice)}
-              </p>
+              <p className={STYLES.price}>{formatPrice(finalPrice)}</p>
               {product.discount_percent > 0 && (
                 <div className={STYLES.originalPriceWrapper}>
                   <span className={STYLES.originalPrice}>
