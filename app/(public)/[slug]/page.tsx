@@ -73,7 +73,7 @@ const STYLES = {
 
     // 3. Paragraph - Linh hồn của sự "thoáng"
     // Sử dụng leading-relaxed (1.625) để dòng chữ không bị dính vào nhau
-    "prose-p:text-base md:prose-p:text-lg prose-p:leading-relaxed prose-p:text-foreground/90 prose-p:mb-8 last:prose-p:mb-0",
+    "prose-p:text-base md:prose-p:text-lg prose-p:leading-relaxed prose-p:text-foreground/90 prose-p:text-justify prose-p:mb-8 last:prose-p:mb-0",
 
     // 4. Blockquote - Nhấn mạnh nhưng vẫn phải dễ đọc
     "prose-blockquote:border-l-4 prose-blockquote:pl-8 prose-blockquote:italic prose-blockquote:text-muted-foreground",
@@ -81,7 +81,7 @@ const STYLES = {
 
     // 5. Lists - Tăng khoảng cách li để không bị thành một cục chữ
     "prose-ul:list-disc prose-ol:list-decimal prose-ul:mb-8 prose-ol:mb-8 prose-ul:pl-6",
-    "prose-li:leading-relaxed prose-li:mb-3",
+    "prose-li:leading-relaxed prose-li:text-justify prose-li:mb-3",
     "prose-li:marker:text-primary/60",
 
     // 6. Media & Tables

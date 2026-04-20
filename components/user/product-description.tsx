@@ -20,7 +20,7 @@ const STYLES = {
     "prose-h4:text-xl prose-h4:font-semibold prose-h4:leading-normal prose-h4:mt-8 prose-h4:mb-2",
 
     // 3. Paragraph
-    "prose-p:text-base md:prose-p:text-lg prose-p:leading-relaxed prose-p:text-foreground/90 prose-p:mb-8 last:prose-p:mb-0",
+    "prose-p:text-base md:prose-p:text-lg prose-p:leading-relaxed prose-p:text-foreground/90 prose-p:text-justify prose-p:mb-8 last:prose-p:mb-0",
 
     // 4. Blockquote
     "prose-blockquote:border-l-4 prose-blockquote:pl-8 prose-blockquote:italic prose-blockquote:text-muted-foreground",
@@ -28,7 +28,7 @@ const STYLES = {
 
     // 5. Lists
     "prose-ul:list-disc prose-ol:list-decimal prose-ul:mb-8 prose-ol:mb-8 prose-ul:pl-6",
-    "prose-li:leading-relaxed prose-li:mb-3",
+    "prose-li:leading-relaxed prose-li:text-justify prose-li:mb-3",
     "prose-li:marker:text-primary/60",
 
     // // 6. Media & Tables
