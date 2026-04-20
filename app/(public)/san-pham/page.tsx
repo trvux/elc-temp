@@ -4,25 +4,27 @@ import { TypographyH1, TypographySmall } from "@/components/ui/typography";
 import { ProductPagination } from "@/components/user/product-pagination";
 import { ProductSearch } from "@/components/user/product-search";
 import { ScrollToTop } from "@/components/user/scroll-to-top";
+import { generateBreadcrumbSchema, SEO_CONFIG } from "@/lib/seo";
 import { createClient } from "@/lib/supabase/server";
-import { cn } from "@/lib/utils";
+import { cn, formatPrice } from "@/lib/utils";
 import Fuse from "fuse.js";
 import { Percent } from "lucide-react";
+import { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { Suspense } from "react";
-import { generateBreadcrumbSchema, generateSchema, SEO_CONFIG } from "@/lib/seo";
-import { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: `Danh mục Sản phẩm | ${SEO_CONFIG.siteName}`,
-  description: "Cung cấp đa dạng các dòng máy lạnh, hệ thống lọc không khí và thiết bị điện lạnh chính hãng từ Daikin, Mitsubishi, Panasonic, LG...",
+  description:
+    "Cung cấp đa dạng các dòng máy lạnh, hệ thống lọc không khí và thiết bị điện lạnh chính hãng từ Daikin, Mitsubishi, Panasonic, LG...",
   alternates: {
     canonical: `${SEO_CONFIG.baseUrl}/san-pham`,
   },
   openGraph: {
     title: `Danh mục Sản phẩm | ${SEO_CONFIG.siteName}`,
-    description: "Giải pháp không khí thuần khiết với các dòng sản phẩm điện lạnh chính hãng tại ELC.",
+    description:
+      "Giải pháp không khí thuần khiết với các dòng sản phẩm điện lạnh chính hãng tại ELC.",
     url: `${SEO_CONFIG.baseUrl}/san-pham`,
     type: "website",
   },
@@ -337,7 +339,10 @@ export default async function ProductsHub({
   if (categorySlug) {
     const matched = allCategories.find((c) => c.slug === categorySlug);
     if (matched) {
-      breadcrumbItems.push({ name: matched.name, item: `/san-pham?category=${categorySlug}` });
+      breadcrumbItems.push({
+        name: matched.name,
+        item: `/san-pham?category=${categorySlug}`,
+      });
     }
   }
   const breadcrumbs = generateBreadcrumbSchema(breadcrumbItems);
@@ -346,13 +351,13 @@ export default async function ProductsHub({
   const itemListSchema = {
     "@context": "https://schema.org",
     "@type": "ItemList",
-    "itemListElement": products.map((p, i) => ({
+    itemListElement: products.map((p, i) => ({
       "@type": "ListItem",
-      "position": i + 1,
-      "url": `${SEO_CONFIG.baseUrl}/san-pham/${p.categories?.slug ? p.categories.slug + "/" : ""}${p.slug}`,
-      "name": p.name,
-      "image": p.images?.[0] || "",
-    }))
+      position: i + 1,
+      url: `${SEO_CONFIG.baseUrl}/san-pham/${p.categories?.slug ? p.categories.slug + "/" : ""}${p.slug}`,
+      name: p.name,
+      image: p.images?.[0] || "",
+    })),
   };
 
   return (
@@ -433,18 +438,12 @@ export default async function ProductsHub({
                   )}
                   <div className={STYLES.priceWrapper}>
                     <span className={STYLES.salePrice}>
-                      {new Intl.NumberFormat("vi-VN", {
-                        style: "currency",
-                        currency: "VND",
-                      }).format(product.sale_price || product.original_price)}
+                      {formatPrice(product.sale_price || product.original_price)}
                     </span>
                     {product.discount_percent > 0 && (
                       <div className={STYLES.originalPriceWrapper}>
                         <span className={STYLES.originalPrice}>
-                          {new Intl.NumberFormat("vi-VN", {
-                            style: "currency",
-                            currency: "VND",
-                          }).format(product.original_price)}
+                          {formatPrice(product.original_price)}
                         </span>
                         <Badge className={STYLES.discountBadge}>
                           -{product.discount_percent}

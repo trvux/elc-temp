@@ -23,7 +23,7 @@ import {
   TypographyP,
 } from "@/components/ui/typography"; // Điều chỉnh path cho đúng file mày lưu
 import { getOptimizedImage } from "@/lib/image";
-import { cn } from "@/lib/utils";
+import { cn, formatPrice } from "@/lib/utils";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -64,11 +64,6 @@ export function FeaturesSection({ products }: FeaturesSectionProps) {
     priceOld: "line-through text-xs text-muted-foreground",
   };
 
-  const formatPrice = (price: number) =>
-    new Intl.NumberFormat("vi-VN", {
-      style: "currency",
-      currency: "VND",
-    }).format(price);
 
   const defaultFeatures = [
     {

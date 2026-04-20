@@ -31,7 +31,7 @@ import { Switch } from "@/components/ui/switch";
 import { TiptapEditor } from "@/components/ui/tiptap-editor";
 import { convertToWebP } from "@/lib/image";
 import { createClient } from "@/lib/supabase/client";
-import { capitalize, cn } from "@/lib/utils";
+import { capitalize, cn, formatPrice } from "@/lib/utils";
 import { ChevronDown, Plus, Upload, X } from "lucide-react";
 import Image from "next/image";
 import { useEffect, useMemo, useState } from "react";
@@ -72,12 +72,6 @@ function calcSalePrice(original: number, discountPercent: number): number {
   return Math.round(original * (1 - discountPercent / 100));
 }
 
-function formatVND(amount: number): string {
-  return new Intl.NumberFormat("vi-VN", {
-    style: "currency",
-    currency: "VND",
-  }).format(amount);
-}
 
 export default function ProductsPage() {
   const [products, setProducts] = useState<Product[]>([]);
@@ -751,7 +745,7 @@ export default function ProductsPage() {
                   <FieldContent>
                     <Input
                       type="number"
-                      placeholder={`Tự tính: ${formatVND(computedSalePrice)}`}
+                      placeholder={`Tự tính: ${formatPrice(computedSalePrice)}`}
                       value={salePriceOverride}
                       onChange={(e) => setSalePriceOverride(e.target.value)}
                     />
@@ -765,12 +759,12 @@ export default function ProductsPage() {
                     Giá bán cuối cùng
                   </p>
                   <p className=" font-bold text-primary leading-none">
-                    {formatVND(computedSalePrice)}
+                    {formatPrice(computedSalePrice)}
                   </p>
                 </div>
                 {discountPercent > 0 && (
                   <div className="bg-red-50 dark:bg-red-950/20 px-3 py-2 rounded text-sm text-red-600 dark:text-red-400 font-medium">
-                    Tiết kiệm {formatVND(originalPrice - computedSalePrice)} (-
+                    Tiết kiệm {formatPrice(originalPrice - computedSalePrice)} (-
                     {discountPercent}%)
                   </div>
                 )}

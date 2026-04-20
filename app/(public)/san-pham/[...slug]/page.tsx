@@ -12,7 +12,7 @@ import { TypographyH1, TypographySmall } from "@/components/ui/typography";
 import { ScrollToTop } from "@/components/user/scroll-to-top";
 import { createClient } from "@/lib/supabase/server";
 import { createStaticClient } from "@/lib/supabase/static";
-import { cn } from "@/lib/utils";
+import { cn, formatPrice } from "@/lib/utils";
 import Image from "next/image";
 import { notFound } from "next/navigation";
 import { Metadata } from "next";
@@ -328,18 +328,12 @@ export default async function ProductDetail({
             {/* Price */}
             <div className={STYLES.priceArea}>
               <p className={STYLES.price}>
-                {new Intl.NumberFormat("vi-VN", {
-                  style: "currency",
-                  currency: "VND",
-                }).format(finalPrice)}
+                {formatPrice(finalPrice)}
               </p>
               {product.discount_percent > 0 && (
                 <div className={STYLES.originalPriceWrapper}>
                   <span className={STYLES.originalPrice}>
-                    {new Intl.NumberFormat("vi-VN", {
-                      style: "currency",
-                      currency: "VND",
-                    }).format(product.original_price)}
+                    {formatPrice(product.original_price)}
                   </span>
                   <Badge className={STYLES.discountBadge}>
                     -{product.discount_percent}

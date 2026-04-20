@@ -7,6 +7,7 @@ import { ButtonGroup } from "@/components/ui/button-group";
 import { Pencil, Trash2 } from "lucide-react";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
 import Image from "next/image";
+import { formatPrice } from "@/lib/utils";
 
 export type ProductRow = {
   id: string;
@@ -22,12 +23,6 @@ export type ProductRow = {
   categories?: { name: string };
 };
 
-function formatVND(amount: number): string {
-  return new Intl.NumberFormat("vi-VN", {
-    style: "currency",
-    currency: "VND",
-  }).format(amount);
-}
 
 interface ColumnProps {
   onEdit: (product: ProductRow) => void;
@@ -95,7 +90,7 @@ export const getColumns = ({
     header: "Giá gốc",
     cell: ({ row }) => (
       <span className="text-xs text-muted-foreground line-through decoration-muted-foreground/30">
-        {formatVND(row.original.original_price)}
+        {formatPrice(row.original.original_price)}
       </span>
     ),
   },
@@ -107,7 +102,7 @@ export const getColumns = ({
       return (
         <div className="flex flex-col gap-0.5">
           <span className="text-sm font-bold text-primary tracking-tight">
-            {formatVND(p.sale_price || p.original_price)}
+            {formatPrice(p.sale_price || p.original_price)}
           </span>
           {p.discount_percent > 0 && (
             <span className="text-[10px] text-destructive font-bold capitalize tracking-wider">
