@@ -1027,7 +1027,7 @@ export default function ProductsPage() {
                 </div>
                 <FieldContent>
                   <textarea
-                    className="flex min-h-[80px] w-full rounded-xl border border-input bg-background/50 px-4 py-3 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:border-primary transition-all"
+                    className="flex min-h-20 w-full rounded-xl border border-input bg-background/50 px-4 py-3 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:border-primary transition-all"
                     placeholder="VD: Máy lạnh Daikin 1.5HP tiết kiệm điện, bảo hành 5 năm..."
                     value={shortDescription}
                     rows={3}

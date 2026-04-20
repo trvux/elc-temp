@@ -8,14 +8,18 @@ import {
   CarouselPrevious,
 } from "@/components/ui/carousel";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { TypographyH1, TypographySmall } from "@/components/ui/typography";
+import {
+  TypographyH1,
+  TypographyH3,
+  TypographySmall,
+} from "@/components/ui/typography";
 import { ScrollToTop } from "@/components/user/scroll-to-top";
 import {
   SEO_CONFIG,
   extractMetaDescription,
   generateBreadcrumbSchema,
-  generateSchema,
   generateProductSmartDescription,
+  generateSchema,
 } from "@/lib/seo";
 import { createClient } from "@/lib/supabase/server";
 import { createStaticClient } from "@/lib/supabase/static";
@@ -139,7 +143,7 @@ export async function generateMetadata({
     // @ts-ignore
     product.meta_title ||
     `${product.brands?.name ? product.brands.name + " " : ""}${product.name} - ${product.sku} | ${SEO_CONFIG.siteName}`;
-  
+
   // Dùng hàm Smart Description cho Meta SEO
   // SEO Hierarchy: meta_description -> short_description -> Auto-generate from specs
   const description =
@@ -337,12 +341,7 @@ export default async function ProductDetail({
             {/* Brand & Category */}
             <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
               {product.brands?.name && (
-                <Badge
-                  variant="secondary"
-                  className="shrink-0 uppercase font-bold text-[10px] tracking-wider"
-                >
-                  {product.brands.name}
-                </Badge>
+                <Badge variant="secondary">{product.brands.name}</Badge>
               )}
               <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-muted-foreground/70">
                 {parentCat?.name && (
@@ -422,9 +421,9 @@ export default async function ProductDetail({
                         if (isSectionHeader(spec)) {
                           return (
                             <div key={idx} className={STYLES.specHeader}>
-                              <span className={STYLES.specHeaderLabel}>
+                              <TypographyH3 className={STYLES.specHeaderLabel}>
                                 {spec.label}
-                              </span>
+                              </TypographyH3>
                             </div>
                           );
                         }

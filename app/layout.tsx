@@ -3,6 +3,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 import type { Metadata } from "next";
 import { Inter, Newsreader } from "next/font/google";
+import { generateOrganizationSchema } from "@/lib/seo";
 import "./globals.css";
 
 const inter = Inter({
@@ -25,8 +26,15 @@ export const metadata: Metadata = {
     default: "Điện máy ELC - Giải pháp Không khí thuần khiết",
     template: "%s | Điện máy ELC",
   },
-  description: "Điện máy ELC chuyên cung cấp máy lạnh, giải pháp không khí và dịch vụ kỹ thuật điện máy chuyên nghiệp. Uy tín - Tận tâm - Chất lượng.",
-  keywords: ["điện máy elc", "máy lạnh", "điều hòa", "sửa chữa điện lạnh", "lắp đặt máy lạnh"],
+  description:
+    "Điện máy ELC chuyên cung cấp máy lạnh, giải pháp không khí và dịch vụ kỹ thuật điện máy chuyên nghiệp. Uy tín - Tận tâm - Chất lượng.",
+  keywords: [
+    "điện máy elc",
+    "máy lạnh",
+    "điều hòa",
+    "sửa chữa điện lạnh",
+    "lắp đặt máy lạnh",
+  ],
   authors: [{ name: "Điện máy ELC" }],
   creator: "Điện máy ELC",
   publisher: "Điện máy ELC",
@@ -48,7 +56,8 @@ export const metadata: Metadata = {
     url: "https://dienmayelc.com.vn",
     siteName: "Điện máy ELC",
     title: "Điện máy ELC - Giải pháp Không khí thuần khiết",
-    description: "Giải pháp điều hòa không khí chuyên nghiệp cho gia đình và doanh nghiệp.",
+    description:
+      "Giải pháp điều hòa không khí chuyên nghiệp cho gia đình và doanh nghiệp.",
     images: [
       {
         url: "/og-image.png",
@@ -88,6 +97,10 @@ export default function RootLayout({
           href="https://gdzihzsjfczuggwpykjk.supabase.co"
         />
         <link rel="preconnect" href="https://images.unsplash.com" />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(generateOrganizationSchema()) }}
+        />
       </head>
       <body
         suppressHydrationWarning

@@ -1,6 +1,10 @@
 import { AspectRatio } from "@/components/ui/aspect-ratio";
 import { Badge } from "@/components/ui/badge";
-import { TypographyH1, TypographySmall } from "@/components/ui/typography";
+import {
+  TypographyH1,
+  TypographyH2,
+  TypographySmall,
+} from "@/components/ui/typography";
 import { ProductPagination } from "@/components/user/product-pagination";
 import { ProductSearch } from "@/components/user/product-search";
 import { ScrollToTop } from "@/components/user/scroll-to-top";
@@ -21,19 +25,23 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const params = await searchParams;
   const q = typeof params.q === "string" ? params.q.trim() : "";
-  const categorySlug = typeof params.category === "string" ? params.category : "";
+  const categorySlug =
+    typeof params.category === "string" ? params.category : "";
 
   let title = `Danh mục Sản phẩm | ${SEO_CONFIG.siteName}`;
-  let description = "Cung cấp đa dạng các dòng máy lạnh, hệ thống lọc không khí và thiết bị điện lạnh chính hãng từ Daikin, Mitsubishi, Panasonic, LG...";
+  let description =
+    "Cung cấp đa dạng các dòng máy lạnh, hệ thống lọc không khí và thiết bị điện lạnh chính hãng từ Daikin, Mitsubishi, Panasonic, LG...";
 
   if (q) {
     title = `Kết quả tìm kiếm "${q}" | ${SEO_CONFIG.siteName}`;
     description = `Tìm thấy các sản phẩm phù hợp với từ khóa "${q}" tại ELC. Cam kết hàng chính hãng, giá tốt nhất thị trường.`;
   } else if (categorySlug) {
     // Viết hoa chữ cái đầu cho đẹp
-    const catName = categorySlug.charAt(0).toUpperCase() + categorySlug.slice(1).replace(/-/g, " ");
+    const catName =
+      categorySlug.charAt(0).toUpperCase() +
+      categorySlug.slice(1).replace(/-/g, " ");
     title = `Danh mục ${catName} chính hãng, giá tốt | ${SEO_CONFIG.siteName}`;
-    description = `Tổng hợp các dòng ${catName} thế mới nhất, Inverter tiết kiệm điện, bảo hành dài hạn tại ELC Holdings.`;
+    description = `Tổng hợp các dòng ${catName} thế mới nhất, Inverter tiết kiệm điện, bảo hành dài hạn tại ELC.`;
   }
 
   return {
@@ -396,10 +404,11 @@ export default async function ProductsHub({
         {/* Header */}
         <header className={STYLES.header}>
           <TypographyH1 className={STYLES.title}>
-            {q 
-              ? `Kết quả cho "${q}"` 
-              : categorySlug 
-                ? (allCategories.find(c => c.slug === categorySlug)?.name || "Sản phẩm")
+            {q
+              ? `Kết quả cho "${q}"`
+              : categorySlug
+                ? allCategories.find((c) => c.slug === categorySlug)?.name ||
+                  "Sản phẩm"
                 : "Giải pháp thông minh"}
           </TypographyH1>
           <p className={STYLES.badge}>
@@ -447,12 +456,12 @@ export default async function ProductsHub({
 
                 {/* Info */}
                 <div className={STYLES.infoWrapper}>
-                  <h3 className={STYLES.productName}>
+                  <TypographyH2 className={STYLES.productName}>
                     <HighlightedText
                       text={product.name}
                       queryTokens={queryTokens}
                     />
-                  </h3>
+                  </TypographyH2>
                   {product.sku && (
                     <span className={STYLES.sku}>
                       <HighlightedText
@@ -463,7 +472,9 @@ export default async function ProductsHub({
                   )}
                   <div className={STYLES.priceWrapper}>
                     <span className={STYLES.salePrice}>
-                      {formatPrice(product.sale_price || product.original_price)}
+                      {formatPrice(
+                        product.sale_price || product.original_price,
+                      )}
                     </span>
                     {product.discount_percent > 0 && (
                       <div className={STYLES.originalPriceWrapper}>

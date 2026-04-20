@@ -32,6 +32,34 @@ export const SEO_CONFIG = {
   }
 };
 
+export function generateOrganizationSchema() {
+  return {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    name: SEO_CONFIG.organization.name,
+    url: SEO_CONFIG.baseUrl,
+    logo: SEO_CONFIG.organization.logo,
+    contactPoint: {
+      "@type": "ContactPoint",
+      telephone: SEO_CONFIG.organization.phone,
+      contactType: "customer service",
+      areaServed: "VN",
+      availableLanguage: "Vietnamese"
+    },
+    address: {
+      "@type": "PostalAddress",
+      streetAddress: "577/15/8 Đường Vườn Lài, Khu phố 2, Phường An Phú Đông",
+      addressLocality: "Quận 12",
+      addressRegion: "TP.HCM",
+      addressCountry: "VN"
+    },
+    sameAs: [
+      // Thêm link Facebook/Fanpage của mày vào đây nếu có
+      "https://www.facebook.com/dienmayelc" 
+    ]
+  };
+}
+
 /**
  * Generate Breadcrumb Schema - Helps Google show "ELC > Máy lạnh > Treo tường"
  */
