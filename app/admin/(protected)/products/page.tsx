@@ -50,22 +50,32 @@ type Category = {
   parent_id: string | null;
   slug: string;
 };
+
+type Brand = {
+  id: string;
+  name: string;
+  slug: string;
+};
+
 type Product = {
   id: string;
   slug: string;
   name: string;
   sku: string;
   description: string;
+  short_description: string;
   images: string[];
   category_id: string;
+  brand_id: string | null;
   original_price: number;
   discount_percent: number;
   sale_price: number | null;
-  specs: any; // Flexible for migration, but will be treated as SpecItem[] in code
+  specs: any;
   is_featured: boolean;
   is_published: boolean;
   order_index: number;
   categories?: { name: string };
+  brands?: { name: string };
 };
 
 function calcSalePrice(original: number, discountPercent: number): number {
@@ -76,6 +86,7 @@ function calcSalePrice(original: number, discountPercent: number): number {
 export default function ProductsPage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
+  const [brands, setBrands] = useState<Brand[]>([]);
   const [loading, setLoading] = useState(true);
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<Product | null>(null);
@@ -118,6 +129,7 @@ export default function ProductsPage() {
   const [sku, setSku] = useState("");
   const [description, setDescription] = useState("");
   const [categoryId, setCategoryId] = useState("");
+  const [brandId, setBrandId] = useState<string>("none");
   const [images, setImages] = useState<string[]>([]);
   const [originalPrice, setOriginalPrice] = useState(0);
   const [discountPercent, setDiscountPercent] = useState(0);
@@ -126,6 +138,7 @@ export default function ProductsPage() {
   const [isFeatured, setIsFeatured] = useState(false);
   const [isPublished, setIsPublished] = useState(true);
   const [orderIndex, setOrderIndex] = useState(0);
+  const [shortDescription, setShortDescription] = useState("");
   const [metaTitle, setMetaTitle] = useState("");
   const [metaDescription, setMetaDescription] = useState("");
   const [seoOpen, setSeoOpen] = useState(false);
@@ -138,12 +151,13 @@ export default function ProductsPage() {
     : calcSalePrice(originalPrice, discountPercent);
 
   async function fetchData() {
-    const [{ data: prod }, { data: cats }] = await Promise.all([
+    const [{ data: prod }, { data: cats }, { data: brds }] = await Promise.all([
       supabase
         .from("products")
-        .select("*, categories(name, parent_id)")
+        .select("*, categories(name, parent_id), brands(name)")
         .order("order_index"),
       supabase.from("categories").select("*").eq("type", "product"),
+      supabase.from("brands").select("*").order("name"),
     ]);
 
     // Enrich products with full category path for table display
@@ -167,6 +181,7 @@ export default function ProductsPage() {
 
     setProducts(enrichedProd || []);
     setCategories(cats || []);
+    setBrands(brds || []);
     setLoading(false);
   }
 
@@ -229,6 +244,7 @@ export default function ProductsPage() {
     setSku("");
     setDescription("");
     setCategoryId("");
+    setBrandId("none");
     setImages([]);
     setOriginalPrice(0);
     setDiscountPercent(0);
@@ -237,6 +253,7 @@ export default function ProductsPage() {
     setIsFeatured(false);
     setIsPublished(true);
     setOrderIndex(0);
+    setShortDescription("");
     setMetaTitle("");
     setMetaDescription("");
     setSeoOpen(false);
@@ -250,6 +267,7 @@ export default function ProductsPage() {
     setSku(p.sku || "");
     setDescription(p.description || "");
     setCategoryId(p.category_id || "");
+    setBrandId(p.brand_id || "none");
     setImages(p.images || []);
     setOriginalPrice(p.original_price || 0);
     setDiscountPercent(p.discount_percent || 0);
@@ -268,6 +286,7 @@ export default function ProductsPage() {
     setIsFeatured(p.is_featured);
     setIsPublished(p.is_published);
     setOrderIndex(p.order_index);
+    setShortDescription(p.short_description || "");
     // @ts-ignore
     setMetaTitle(p.meta_title || "");
     // @ts-ignore
@@ -385,7 +404,9 @@ export default function ProductsPage() {
       slug: slug.trim(),
       sku,
       description,
+      short_description: shortDescription,
       category_id: categoryId,
+      brand_id: brandId === "none" ? null : brandId,
       images,
       original_price: originalPrice,
       discount_percent: discountPercent,
@@ -589,7 +610,22 @@ export default function ProductsPage() {
                   </Field>
                 </div>
 
-                <div className="md:col-span-5">
+                <div className="md:col-span-12">
+                  <Field>
+                    <FieldLabel className="mb-2 font-medium">
+                      Mô tả ngắn (Hiển thị ở danh sách & SEO)
+                    </FieldLabel>
+                    <FieldContent>
+                      <Input
+                        placeholder="VD: Máy lạnh Daikin 1.5HP tiết kiệm điện, bảo hành 5 năm..."
+                        value={shortDescription}
+                        onChange={(e) => setShortDescription(e.target.value)}
+                      />
+                    </FieldContent>
+                  </Field>
+                </div>
+
+                <div className="md:col-span-6">
                   <Field>
                     <FieldLabel className="mb-2 font-medium">
                       Danh mục
@@ -636,7 +672,30 @@ export default function ProductsPage() {
                   </Field>
                 </div>
 
-                <div className="md:col-span-7">
+                <div className="md:col-span-6">
+                  <Field>
+                    <FieldLabel className="mb-2 font-medium text-primary">
+                      Thương hiệu
+                    </FieldLabel>
+                    <FieldContent>
+                      <Select value={brandId} onValueChange={setBrandId}>
+                        <SelectTrigger className="border-primary/20">
+                          <SelectValue placeholder="Chọn thương hiệu" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="none">Không có thương hiệu</SelectItem>
+                          {brands.map((b) => (
+                            <SelectItem key={b.id} value={b.id}>
+                              {b.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </FieldContent>
+                  </Field>
+                </div>
+
+                <div className="md:col-span-12">
                   <Field>
                     <FieldLabel className="mb-2 font-medium">
                       Slug (Đường dẫn tinh gọn)

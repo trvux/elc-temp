@@ -36,11 +36,13 @@ import {
   ShieldCheck,
   ChevronsUpDown,
   FileText,
+  Award,
 } from "lucide-react";
 
 const navItems = [
   { href: "/admin", label: "Tổng quan", icon: LayoutDashboard },
   { href: "/admin/categories", label: "Danh mục", icon: Tag },
+  { href: "/admin/brands", label: "Thương hiệu", icon: Award },
   { href: "/admin/projects", label: "Dự án", icon: FolderKanban },
   { href: "/admin/products", label: "Sản phẩm", icon: Package },
   { href: "/admin/services", label: "Dịch vụ", icon: FileText },

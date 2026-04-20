@@ -21,6 +21,7 @@ export type ProductRow = {
   is_published: boolean;
   order_index: number;
   categories?: { name: string };
+  brands?: { name: string };
 };
 
 
@@ -65,6 +66,15 @@ export const getColumns = ({
       <span className="text-sm font-semibold tracking-tight">
         {row.original.name}
       </span>
+    ),
+  },
+  {
+    accessorKey: "brands.name",
+    header: "Thương hiệu",
+    cell: ({ row }) => (
+      <Badge variant="outline" className="text-[10px] font-bold capitalize tracking-wider bg-primary/5 text-primary border-primary/20">
+        {row.original.brands?.name || "Khác"}
+      </Badge>
     ),
   },
   {

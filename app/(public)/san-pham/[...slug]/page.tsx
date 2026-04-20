@@ -127,7 +127,7 @@ export async function generateMetadata({
 
   if (!product) return { title: SEO_CONFIG.defaultTitle };
 
-  // SEO Logic: Prefer Meta fields, then Auto-gen
+  // SEO Logic: Prefer Meta fields, then Short Description, then Auto-gen from long desc
   const title =
     // @ts-ignore
     product.meta_title ||
@@ -135,6 +135,7 @@ export async function generateMetadata({
   const description =
     // @ts-ignore
     product.meta_description || 
+    product.short_description ||
     extractMetaDescription(product.description || "", 160);
 
   const url = `${SEO_CONFIG.baseUrl}/san-pham/${slug.join("/")}`;
@@ -182,7 +183,9 @@ export default async function ProductDetail({
     specs?: SpecItem[] | Record<string, string>;
     discount_percent: number;
     description?: string;
+    short_description?: string;
     categories?: CategoryData;
+    brands?: { name: string };
   }
 
   const categorySlugs = categoryPath.split("/");
@@ -193,7 +196,7 @@ export default async function ProductDetail({
     (await Promise.all([
       supabase
         .from("products")
-        .select("*, categories!inner(name, slug)")
+        .select("*, categories!inner(name, slug), brands(name)")
         .eq("slug", leafSlug)
         .eq("categories.slug", categoryPath)
         .single(),
@@ -241,9 +244,10 @@ export default async function ProductDetail({
 
   const schema = generateSchema("Product", {
     name: product.name,
-    description: extractMetaDescription(product.description || "", 200),
+    description: product.short_description || extractMetaDescription(product.description || "", 200),
     images: product.images,
     sku: product.sku,
+    brand: product.brands?.name,
     price: finalPrice,
     url: `${SEO_CONFIG.baseUrl}/san-pham/${slug.join("/")}`,
   });
@@ -315,15 +319,36 @@ export default async function ProductDetail({
 
           {/* Product Info */}
           <div className={STYLES.infoArea}>
+            {/* Brand & Category */}
+            <div className="flex flex-wrap items-center gap-2">
+               {product.brands?.name && (
+                <Badge variant="outline" className="bg-primary/5 text-primary border-primary/20 font-bold tracking-widest px-3 py-1 text-[10px] uppercase">
+                  {product.brands.name}
+                </Badge>
+              )}
+              {leafCat?.name && (
+                <span className="text-[10px] font-bold text-muted-foreground/60 uppercase tracking-widest">
+                  {leafCat.name}
+                </span>
+              )}
+            </div>
+
             {/* Name */}
             <div>
               <TypographyH1 className={STYLES.productName}>
                 {product.name}
               </TypographyH1>
             </div>
+
+            {/* Short Description */}
+            {product.short_description && (
+              <p className="text-sm text-muted-foreground leading-relaxed italic border-l-2 border-primary/20 pl-4 py-1">
+                {product.short_description}
+              </p>
+            )}
+
             <div className={STYLES.subInfo}>
-              {categoryDisplay && <span>Danh mục: {categoryDisplay}</span>}
-              {product.sku && <span>Sku: {product.sku}</span>}
+              {product.sku && <span className="text-xs text-muted-foreground/80 font-mono">Mã sản phẩm (SKU): {product.sku}</span>}
             </div>
             {/* Price */}
             <div className={STYLES.priceArea}>
