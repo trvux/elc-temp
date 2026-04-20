@@ -67,8 +67,10 @@ const STYLES = {
   ),
   // infoArea: cn("lg:sticky lg:top-24 flex flex-col gap-4"),
   infoArea: cn(" flex flex-col gap-4 h-full justify-center"),
-  productName: cn("w-full max-w-none text-wrap"),
-  subInfo: cn("flex flex-col gap-4"),
+  productName: cn(
+    "w-full max-w-none text-2xl md:text-3xl lg:text-4xl font-extrabold tracking-tight break-words leading-[1.15]"
+  ),
+  subInfo: cn("flex flex-col gap-3"),
   priceArea: cn("space-y-2"),
   price: cn("text-3xl md:text-4xl font-bold text-foreground tracking-tight"),
   originalPriceWrapper: cn("flex items-center gap-2"),
@@ -327,14 +329,25 @@ export default async function ProductDetail({
           {/* Product Info */}
           <div className={STYLES.infoArea}>
             {/* Brand & Category */}
-            <div className="flex flex-wrap items-center gap-2">
-              {product.brands?.name && <Badge>{product.brands.name}</Badge>}
-              <div className="flex items-center gap-1">
+            <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
+              {product.brands?.name && (
+                <Badge variant="secondary" className="shrink-0 uppercase font-bold text-[10px] tracking-wider">
+                  {product.brands.name}
+                </Badge>
+              )}
+              <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-muted-foreground/70">
                 {parentCat?.name && (
-                  <TypographySmall>{parentCat.name}</TypographySmall>
+                  <TypographySmall className="whitespace-nowrap">
+                    {parentCat.name}
+                  </TypographySmall>
+                )}
+                {parentCat?.name && leafCat?.name && (
+                  <span className="text-muted-foreground/20">/</span>
                 )}
                 {leafCat?.name && (
-                  <TypographySmall>{leafCat.name}</TypographySmall>
+                  <TypographySmall className="font-semibold text-foreground whitespace-normal">
+                    {leafCat.name}
+                  </TypographySmall>
                 )}
               </div>
             </div>
