@@ -30,10 +30,10 @@ import {
 import { Switch } from "@/components/ui/switch";
 import { TiptapEditor } from "@/components/ui/tiptap-editor";
 import { convertToWebP } from "@/lib/image";
+import { generateProductSmartDescription } from "@/lib/seo";
 import { createClient } from "@/lib/supabase/client";
 import { capitalize, cn, formatPrice } from "@/lib/utils";
 import { ChevronDown, Plus, Upload, Wand2, X } from "lucide-react";
-import { generateProductSmartDescription } from "@/lib/seo";
 import Image from "next/image";
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
@@ -82,7 +82,6 @@ type Product = {
 function calcSalePrice(original: number, discountPercent: number): number {
   return Math.round(original * (1 - discountPercent / 100));
 }
-
 
 export default function ProductsPage() {
   const [products, setProducts] = useState<Product[]>([]);
@@ -625,8 +624,6 @@ export default function ProductsPage() {
                   </Field>
                 </div>
 
-
-
                 <div className="md:col-span-6">
                   <Field>
                     <FieldLabel className="mb-2 font-medium">
@@ -685,7 +682,9 @@ export default function ProductsPage() {
                           <SelectValue placeholder="Chọn thương hiệu" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="none">Không có thương hiệu</SelectItem>
+                          <SelectItem value="none">
+                            Không có thương hiệu
+                          </SelectItem>
                           {brands.map((b) => (
                             <SelectItem key={b.id} value={b.id}>
                               {b.name}
@@ -825,7 +824,8 @@ export default function ProductsPage() {
                 </div>
                 {discountPercent > 0 && (
                   <div className="bg-red-50 dark:bg-red-950/20 px-3 py-2 rounded text-sm text-red-600 dark:text-red-400 font-medium">
-                    Tiết kiệm {formatPrice(originalPrice - computedSalePrice)} (-
+                    Tiết kiệm {formatPrice(originalPrice - computedSalePrice)}{" "}
+                    (-
                     {discountPercent}%)
                   </div>
                 )}
@@ -1022,7 +1022,7 @@ export default function ProductsPage() {
                     onClick={handleAutoSEO}
                   >
                     <Wand2 size={14} className="mr-2" />
-                    ⚡ Gợi ý SEO thông minh
+                    Gợi ý SEO thông minh
                   </Button>
                 </div>
                 <FieldContent>
@@ -1035,12 +1035,17 @@ export default function ProductsPage() {
                   />
                   <div className="flex justify-between mt-2 px-1">
                     <p className="text-[10px] text-muted-foreground italic font-medium">
-                      💡 Mẹo: Nhấp vào nút "Gợi ý SEO" ở trên để AI tự động soạn thảo dựa trên thông số kỹ thuật mày vừa nhập.
+                      💡 Mẹo: Nhấp vào nút "Gợi ý SEO" ở trên để AI tự động soạn
+                      thảo dựa trên thông số kỹ thuật vừa nhập.
                     </p>
-                    <p className={cn(
-                      "text-[10px] font-mono font-bold px-2 py-0.5 rounded",
-                      shortDescription.length > 165 ? "bg-destructive/10 text-destructive" : "bg-primary/10 text-primary"
-                    )}>
+                    <p
+                      className={cn(
+                        "text-[10px] font-mono font-bold px-2 py-0.5 rounded",
+                        shortDescription.length > 165
+                          ? "bg-destructive/10 text-destructive"
+                          : "bg-primary/10 text-primary",
+                      )}
+                    >
                       {shortDescription.length} / 160 ký tự
                     </p>
                   </div>
@@ -1195,10 +1200,14 @@ export default function ProductsPage() {
                       <p className="text-[10px] text-muted-foreground">
                         Độ Dài Tiêu Đề Tối Ưu (Dưới 60)
                       </p>
-                      <p className={cn(
-                        "text-[10px] font-mono",
-                        metaTitle.length > 60 ? "text-destructive font-bold" : "text-muted-foreground"
-                      )}>
+                      <p
+                        className={cn(
+                          "text-[10px] font-mono",
+                          metaTitle.length > 60
+                            ? "text-destructive font-bold"
+                            : "text-muted-foreground",
+                        )}
+                      >
                         {metaTitle.length}/60
                       </p>
                     </div>
@@ -1230,4 +1239,3 @@ export default function ProductsPage() {
     </div>
   );
 }
-
