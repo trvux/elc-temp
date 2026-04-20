@@ -4,6 +4,8 @@ import { cn } from "@/lib/utils";
 import type { Metadata } from "next";
 import { Inter, Newsreader } from "next/font/google";
 import { generateOrganizationSchema } from "@/lib/seo";
+import GoogleAnalytics from "@/components/user/google-analytics";
+import { Suspense } from "react";
 import "./globals.css";
 
 const inter = Inter({
@@ -85,6 +87,8 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const GA_ID = process.env.NEXT_PUBLIC_GA_ID;
+
   return (
     <html
       lang="vi"
@@ -106,6 +110,9 @@ export default function RootLayout({
         suppressHydrationWarning
         className={cn("min-h-full flex flex-col text-foreground")}
       >
+        <Suspense fallback={null}>
+          {GA_ID && <GoogleAnalytics ga_id={GA_ID} />}
+        </Suspense>
         <TooltipProvider>
           {children}
           <Toaster position="top-center" richColors />

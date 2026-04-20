@@ -42,6 +42,7 @@ export async function generateStaticParams() {
 
 import { OrderButton } from "@/components/user/order-button";
 import { ProductDescription } from "@/components/user/product-description";
+import RelatedProducts from "@/components/user/related-products";
 import { Percent } from "lucide-react";
 
 interface SpecSubItem {
@@ -480,6 +481,15 @@ export default async function ProductDetail({
             )}
           </Tabs>
         </div>
+
+        {/* RELATED: Smart products logic */}
+        <RelatedProducts 
+          // @ts-ignore
+          categoryId={product.category_id}
+          currentProductId={product.id}
+          // @ts-ignore
+          brandId={product.brand_id}
+        />
 
         <footer className={STYLES.footer}>
           <TypographySmall>
