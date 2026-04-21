@@ -1,11 +1,11 @@
-import { createClient } from "@/lib/supabase/server";
-import { HeroSection } from "@/components/sections/hero";
 import { BrandShowcase } from "@/components/sections/brand-showcase";
-import { FeaturesSection } from "@/components/sections/features";
-import { ShowcaseSection } from "@/components/sections/showcase";
 import { CTASection } from "@/components/sections/cta";
+import { FeaturesSection } from "@/components/sections/features";
+import { HeroSection } from "@/components/sections/hero";
+import { ShowcaseSection } from "@/components/sections/showcase";
 import { Separator } from "@/components/ui/separator";
 import { generateSchema } from "@/lib/seo";
+import { createClient } from "@/lib/supabase/server";
 
 export const revalidate = 3600;
 
@@ -32,7 +32,7 @@ export default async function Home() {
       .eq("is_published", true)
       .eq("is_featured", true)
       .order("order_index", { ascending: true })
-      .limit(6),
+      .limit(12),
     supabase
       .from("contacts")
       .select("*")
@@ -58,7 +58,9 @@ export default async function Home() {
       )}
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(generateSchema("Organization", {})) }}
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(generateSchema("Organization", {})),
+        }}
       />
       {/* 1. HERO SECTION */}
 
