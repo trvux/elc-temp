@@ -5,6 +5,7 @@ import { Table } from "@tiptap/extension-table";
 import { TableRow } from "@tiptap/extension-table-row";
 import { TableHeader } from "@tiptap/extension-table-header";
 import { TableCell } from "@tiptap/extension-table-cell";
+import Link from "@tiptap/extension-link";
 import { cn } from "@/lib/utils";
 
 export const getTiptapExtensions = () => [
@@ -13,11 +14,11 @@ export const getTiptapExtensions = () => [
       levels: [1, 2],
     },
     horizontalRule: false,
-    link: {
-      openOnClick: false,
-      HTMLAttributes: {
-        class: "text-primary underline underline-offset-4 cursor-pointer",
-      },
+  }),
+  Link.configure({
+    openOnClick: false,
+    HTMLAttributes: {
+      class: "text-primary underline underline-offset-4 cursor-pointer",
     },
   }),
   Image.extend({
@@ -65,7 +66,7 @@ export const getTiptapExtensions = () => [
     },
   }),
   Table.configure({
-    resizable: true,
+    resizable: typeof window !== "undefined",
     HTMLAttributes: {
       class: "border-collapse table-fixed w-full my-8",
     },

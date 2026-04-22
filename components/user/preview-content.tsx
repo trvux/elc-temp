@@ -21,8 +21,12 @@ export const PreviewContent = ({ content, className }: PreviewContentProps) => {
     // If it's an object, convert it to HTML using shared extensions.
     if (typeof content === "string") {
       html = content;
-    } else {
+    } else if (content && typeof content === "object" && content.type === "doc") {
       html = generateHTML(content, getTiptapExtensions());
+    } else {
+      // If it's an object but not a valid Tiptap doc, return empty or handle safely
+      console.warn("Invalid content format received by PreviewContent");
+      return null;
     }
   } catch (error) {
     console.error("Failed to render content:", error);

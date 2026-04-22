@@ -21,6 +21,7 @@ export function extractMetaDescription(content: any, maxLength: number = 160): s
   } else if (typeof content === "object") {
     // Handle Tiptap JSON Object - Recursively extract text
     const extractText = (node: any): string => {
+      if (!node) return "";
       if (node.type === "text") return node.text || "";
       if (node.content && Array.isArray(node.content)) {
         return node.content.map(extractText).join(" ");
@@ -200,8 +201,12 @@ export function generateSchema(
 
   switch (type) {
     case "Product":
-      // Map all specs to additionalProperty for expert-level SEO
-      const additionalProperties = (data.specs || [])
+      // Map specs to additionalProperty, handling both Array and legacy Object formats
+      const rawSpecs = Array.isArray(data.specs) 
+        ? data.specs 
+        : Object.entries(data.specs || {}).map(([label, value]) => ({ label, value }));
+
+      const additionalProperties = rawSpecs
         .map((spec: any) => {
           let value = spec.value;
           if (spec.items && Array.isArray(spec.items)) {

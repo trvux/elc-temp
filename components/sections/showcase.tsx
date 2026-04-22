@@ -9,6 +9,7 @@ import {
 import { getOptimizedImage } from "@/lib/image";
 import { cn } from "@/lib/utils";
 import { JoinedCategory } from "@/types/database";
+import { extractMetaDescription } from "@/lib/seo";
 import { ArrowUpRight } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -71,7 +72,7 @@ export function ShowcaseSection({ projects }: ShowcaseSectionProps) {
         {/* Row 3: Description */}
         <AnimateIn delay={0.2} className={cn(styles.contentCol, "order-3")}>
           <TypographyP>
-            {(mainProject.description || "").replace(/<[^>]*>?/gm, "").slice(0, 300)}...
+            {extractMetaDescription(mainProject.description, 300)}
           </TypographyP>
         </AnimateIn>
 
