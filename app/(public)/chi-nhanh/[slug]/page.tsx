@@ -271,7 +271,7 @@ export default async function BranchDetail({
         </section>
 
         <article>
-          <PreviewContent content={branch.description} />
+          <PreviewContent content={branch.description} hideFirstHeading={true} />
         </article>
 
         <footer className={STYLES.footer}>

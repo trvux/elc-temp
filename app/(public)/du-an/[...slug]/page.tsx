@@ -185,7 +185,7 @@ export default async function ProjectDetail({
           )}
 
           {/* Rich text content with image optimization */}
-          <PreviewContent content={project.description} />
+          <PreviewContent content={project.description} hideFirstHeading={true} />
 
           {/* Additional images */}
           {images.length > 1 && (

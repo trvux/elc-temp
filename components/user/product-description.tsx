@@ -33,6 +33,7 @@ export function ProductDescription({ content }: ProductDescriptionProps) {
       <article>
         <PreviewContent 
           content={content} 
+          hideFirstHeading={true}
           className={cn(
             STYLES.collapsible,
             isOpen ? "max-h-none" : "max-h-96"

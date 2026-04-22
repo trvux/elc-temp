@@ -141,7 +141,7 @@ export default async function ServiceDetailPage({ params }: PageProps) {
         </header>
 
         <article>
-          <PreviewContent content={service.content} />
+          <PreviewContent content={service.content} hideFirstHeading={true} />
         </article>
 
         <nav className={STYLES.footerNav}>

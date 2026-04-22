@@ -140,7 +140,7 @@ export default async function NewsDetailPage({ params }: PageProps) {
         </header>
 
         <article>
-          <PreviewContent content={newsItem.content} />
+          <PreviewContent content={newsItem.content} hideFirstHeading={true} />
         </article>
 
         <nav className={STYLES.footerNav}>

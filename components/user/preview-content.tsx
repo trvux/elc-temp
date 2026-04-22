@@ -5,26 +5,44 @@ import { cn } from "@/lib/utils";
 interface PreviewContentProps {
   content: any;
   className?: string;
+  hideFirstHeading?: boolean;
 }
 
 /**
  * PreviewContent component renders Tiptap JSON content into styled HTML.
  * It uses the shared design system and Tailwind's Typography (prose) plugin.
  */
-export const PreviewContent = ({ content, className }: PreviewContentProps) => {
+export const PreviewContent = ({ 
+  content, 
+  className,
+  hideFirstHeading = false 
+}: PreviewContentProps) => {
   if (!content) return null;
 
   let html = "";
 
   try {
-    // If the content is already HTML (legacy), use it directly.
-    // If it's an object, convert it to HTML using shared extensions.
     if (typeof content === "string") {
       html = content;
     } else if (content && typeof content === "object" && content.type === "doc") {
-      html = generateHTML(content, getTiptapExtensions());
+      let contentToRender = content;
+
+      // Logic: If hideFirstHeading is true, remove the first H1 node
+      if (hideFirstHeading && Array.isArray(content.content)) {
+        const firstH1Index = content.content.findIndex(
+          (node: any) => node.type === "heading" && node.attrs?.level === 1
+        );
+        
+        if (firstH1Index !== -1) {
+          contentToRender = {
+            ...content,
+            content: content.content.filter((_: any, index: number) => index !== firstH1Index)
+          };
+        }
+      }
+
+      html = generateHTML(contentToRender, getTiptapExtensions());
     } else {
-      // If it's an object but not a valid Tiptap doc, return empty or handle safely
       console.warn("Invalid content format received by PreviewContent");
       return null;
     }
@@ -39,7 +57,7 @@ export const PreviewContent = ({ content, className }: PreviewContentProps) => {
         "prose prose-lg dark:prose-invert max-w-none",
         "prose-headings:font-newsreader prose-headings:font-medium",
         "prose-img:rounded-sm",
-        "tiptap", // For global styles in globals.css (tables, etc.)
+        "tiptap",
         className,
       )}
       dangerouslySetInnerHTML={{ __html: html }}

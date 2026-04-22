@@ -126,7 +126,7 @@ export default async function StaticPage({ params }: PageProps) {
         </header>
 
         <article>
-          <PreviewContent content={page.content} />
+          <PreviewContent content={page.content} hideFirstHeading={true} />
         </article>
 
         <nav className={STYLES.footerNav}>
