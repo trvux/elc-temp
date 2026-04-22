@@ -34,6 +34,7 @@ import {
 import { Pencil, Trash2, Plus, ChevronDown, Upload, X } from "lucide-react";
 import { toast } from "sonner";
 import { TiptapEditor } from "@/components/ui/tiptap-editor";
+import { extractTitleFromHtml, generateSlug } from "@/lib/utils";
 import Image from "next/image";
 
 type Service = {
@@ -49,16 +50,6 @@ type Service = {
   created_at: string;
 };
 
-function generateSlug(text: string): string {
-  return text
-    .toLowerCase()
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .replace(/đ/g, "d")
-    .replace(/[^a-z0-9\s-]/g, "")
-    .trim()
-    .replace(/\s+/g, "-");
-}
 
 export default function ServicesPage() {
   const [services, setServices] = useState<Service[]>([]);
@@ -132,7 +123,16 @@ export default function ServicesPage() {
     setEditing(s);
     setTitle(s.title);
     setSlug(s.slug);
-    setContent(s.content || "");
+    
+    // Migration: If content doesn't have an H1, prepend the existing title
+    // Only applies to legacy HTML string content
+    const contentBody = s.content || "";
+    if (typeof contentBody === "string" && !contentBody.includes("<h1") && s.title) {
+      setContent(`<h1>${s.title}</h1>${contentBody}`);
+    } else {
+      setContent(contentBody);
+    }
+
     setImage(s.image);
     setIsPublished(s.is_published);
     setOrderIndex(s.order_index);
@@ -286,34 +286,16 @@ export default function ServicesPage() {
       <AdminDialog
         open={open}
         onOpenChange={setOpen}
-        size="3xl"
+        size="full"
         title={editing ? `Sửa: ${editing.title}` : "Tạo dịch vụ mới"}
         description="Quản lý nội dung dịch vụ và cấu hình SEO để tối ưu hóa hiển thị."
       >
         <div className="space-y-8">
           <FieldGroup>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <Field>
-                <FieldLabel className="mb-2 font-medium">
-                  Tiêu đề dịch vụ *
-                </FieldLabel>
-                <FieldContent>
-                  <Input
-                    placeholder="VD: Sửa chữa kho lạnh công nghiệp"
-                    value={title}
-                    onChange={(e) => {
-                      const val = e.target.value;
-                      setTitle(val);
-                      setSlug(generateSlug(val));
-                    }}
-                  />
-                  <FieldDescription>
-                    Tiêu đề chính hiển thị trên bài viết.
-                  </FieldDescription>
-                </FieldContent>
-              </Field>
+              {/* Tiêu đề dịch vụ field removed as it's now handled by the editor H1 */}
 
-              <Field>
+              <Field className="md:col-span-2">
                 <FieldLabel className="mb-2 font-medium">
                   Slug (URL) *
                 </FieldLabel>
@@ -369,7 +351,12 @@ export default function ServicesPage() {
               <FieldContent>
                 <TiptapEditor
                   value={content}
-                  onChange={setContent}
+                  onChange={(val) => {
+                    setContent(val);
+                    const extractedTitle = extractTitleFromHtml(val);
+                    setTitle(extractedTitle);
+                    setSlug(generateSlug(extractedTitle));
+                  }}
                   placeholder="Viết nội dung dịch vụ..."
                   uploadImage={async (file) => {
                     const webpFile = await convertToWebP(file);

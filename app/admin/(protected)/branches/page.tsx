@@ -19,7 +19,7 @@ import { AdminDialog } from "@/components/admin/admin-dialog";
 import { DeleteDialog } from "@/components/admin/delete-dialog";
 import { Pencil, Trash2, Plus, ChevronDown } from "lucide-react";
 import { toast } from "sonner";
-import { capitalize, cn } from "@/lib/utils";
+import { capitalize, cn, extractTitleFromHtml, generateSlug } from "@/lib/utils";
 import {
   Field,
   FieldContent,
@@ -44,16 +44,6 @@ type Branch = {
   meta_description: string | null;
 };
 
-function generateSlug(text: string): string {
-  return text
-    .toLowerCase()
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .replace(/đ/g, "d")
-    .replace(/[^a-z0-9\s-]/g, "")
-    .trim()
-    .replace(/\s+/g, "-");
-}
 
 export default function BranchesPage() {
   const [branches, setBranches] = useState<Branch[]>([]);
@@ -134,7 +124,16 @@ export default function BranchesPage() {
     setEmail(b.email || "");
     setMapsUrl(b.maps_url || "");
     setMapsEmbed(b.maps_embed || "");
-    setDescription(b.description || "");
+    
+    // Migration: If content doesn't have an H1, prepend the existing name
+    // Only applies to legacy HTML string content
+    const contentBody = b.description || "";
+    if (typeof contentBody === "string" && !contentBody.includes("<h1") && b.name) {
+      setDescription(`<h1>${b.name}</h1>${contentBody}`);
+    } else {
+      setDescription(contentBody);
+    }
+
     setIsPublished(b.is_published);
     setOrderIndex(b.order_index);
     setMetaTitle(b.meta_title || "");
@@ -235,26 +234,15 @@ export default function BranchesPage() {
       <AdminDialog
         open={open}
         onOpenChange={setOpen}
-        size="2xl"
+        size="full"
         title={editing ? "Sửa chi nhánh" : "Thêm chi nhánh"}
         description="Điền thông tin chi nhánh để hiển thị trên website và tối ưu local SEO."
       >
         <div className="space-y-8">
           <FieldGroup>
             <div className="grid grid-cols-2 gap-6">
-              <Field>
-                <FieldLabel className="mb-2 font-medium">
-                  Tên chi nhánh *
-                </FieldLabel>
-                <FieldContent>
-                  <Input
-                    placeholder="VD: Văn phòng bán hàng - Quận 1"
-                    value={name}
-                    onChange={(e) => handleNameChange(e.target.value)}
-                  />
-                </FieldContent>
-              </Field>
-              <Field>
+              {/* Tên chi nhánh field removed as it's now handled by the editor H1 */}
+              <Field className="col-span-2">
                 <FieldLabel className="mb-2 font-medium">
                   Đường dẫn (URL) *
                 </FieldLabel>
@@ -278,8 +266,13 @@ export default function BranchesPage() {
               <FieldContent>
                 <TiptapEditor
                   value={description}
-                  onChange={setDescription}
-                  placeholder="Mô tả dịch vụ, vị trí của chi nhánh..."
+                  onChange={(val) => {
+                    setDescription(val);
+                    const extractedTitle = extractTitleFromHtml(val);
+                    setName(extractedTitle);
+                    setSlug(generateSlug(extractedTitle));
+                  }}
+                  placeholder="Viết nội dung chi nhánh..."
                 />
               </FieldContent>
             </Field>

@@ -13,7 +13,7 @@ import {
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Button } from "@/components/ui/button"
 
-export type AdminDialogSize = "xs" | "sm" | "md" | "lg" | "xl" | "2xl" | "3xl" | "4xl" | "5xl" | "full"
+export type AdminDialogSize = "xs" | "sm" | "md" | "lg" | "xl" | "2xl" | "3xl" | "4xl" | "5xl" | "full" | "screen"
 
 const sizeClasses: Record<AdminDialogSize, string> = {
   xs: "sm:max-w-xs",
@@ -25,7 +25,8 @@ const sizeClasses: Record<AdminDialogSize, string> = {
   "3xl": "sm:max-w-3xl",
   "4xl": "sm:max-w-4xl",
   "5xl": "sm:max-w-5xl",
-  full: "sm:max-w-[95vw]",
+  full: "sm:max-w-[calc(100vw-2rem)]",
+  screen: "sm:max-w-none w-screen border-none",
 }
 
 interface AdminDialogProps {
@@ -53,14 +54,20 @@ export function AdminDialog({
   loading = false,
   formId,
 }: AdminDialogProps) {
+  const isFullScreen = size === "full" || size === "screen";
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
         className={cn(
-          "flex flex-col gap-0 p-0 overflow-hidden max-h-[90vh]",
+          "flex flex-col gap-0 p-0 overflow-hidden",
+          size === "screen" ? "h-screen max-h-screen rounded-none" : 
+          size === "full" ? "h-[calc(100vh-2rem)] max-h-[calc(100vh-2rem)]" : 
+          "max-h-[90vh]",
           sizeClasses[size]
         )}
         aria-describedby={description ? undefined : "dialog-description"}
+        showCloseButton={showCloseButton}
       >
         <div className="flex flex-col p-6 pb-2 shrink-0">
           <DialogHeader className="pr-10">
@@ -73,11 +80,11 @@ export function AdminDialog({
           </DialogHeader>
         </div>
 
-        <div className="flex-1 overflow-y-auto min-h-0 custom-scrollbar">
+        <ScrollArea className="flex-1 min-h-0">
           <div className="p-6 pt-2">
             {children}
           </div>
-        </div>
+        </ScrollArea>
 
         {(footer || formId) && (
           <DialogFooter className="p-6 border-t bg-muted/30 shrink-0">

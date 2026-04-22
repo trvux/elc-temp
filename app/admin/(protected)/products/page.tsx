@@ -566,7 +566,7 @@ export default function ProductsPage() {
       <AdminDialog
         open={open}
         onOpenChange={setOpen}
-        size="4xl"
+        size="full"
         title={editing ? "Sửa sản phẩm" : "Thêm sản phẩm"}
         description="Cập nhật thông tin chi tiết, giá bán và thông số kỹ thuật cho sản phẩm."
       >

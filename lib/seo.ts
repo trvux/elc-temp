@@ -3,16 +3,32 @@
  */
 
 /**
- * Clean HTML content and extract a plain text summary for meta descriptions.
+ * Clean content and extract a plain text summary for meta descriptions.
+ * Supports both HTML strings and Tiptap JSON objects.
  */
-export function extractMetaDescription(html: string, maxLength: number = 160): string {
-  if (!html) return "";
+export function extractMetaDescription(content: any, maxLength: number = 160): string {
+  if (!content) return "";
   
-  const cleanHtml = html.replace(/<(script|style)[^>]*>[\s\S]*?<\/\1>/gi, "");
-  const plainText = cleanHtml
-    .replace(/<[^>]+>/g, " ")
-    .replace(/\s+/g, " ")
-    .trim();
+  let plainText = "";
+
+  if (typeof content === "string") {
+    // Handle HTML String
+    const cleanHtml = content.replace(/<(script|style)[^>]*>[\s\S]*?<\/\1>/gi, "");
+    plainText = cleanHtml
+      .replace(/<[^>]+>/g, " ")
+      .replace(/\s+/g, " ")
+      .trim();
+  } else if (typeof content === "object") {
+    // Handle Tiptap JSON Object - Recursively extract text
+    const extractText = (node: any): string => {
+      if (node.type === "text") return node.text || "";
+      if (node.content && Array.isArray(node.content)) {
+        return node.content.map(extractText).join(" ");
+      }
+      return "";
+    };
+    plainText = extractText(content).replace(/\s+/g, " ").trim();
+  }
     
   if (plainText.length <= maxLength) return plainText;
   return plainText.substring(0, maxLength).trim() + "...";

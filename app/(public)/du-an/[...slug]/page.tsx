@@ -9,6 +9,7 @@ import { AspectRatio } from "@/components/ui/aspect-ratio";
 import { Sparkle } from "lucide-react";
 import { Metadata } from "next";
 import { SEO_CONFIG, extractMetaDescription, generateSchema, generateBreadcrumbSchema } from "@/lib/seo";
+import { PreviewContent } from "@/components/user/preview-content";
 
 export async function generateStaticParams() {
   const supabase = createStaticClient();
@@ -184,32 +185,7 @@ export default async function ProjectDetail({
           )}
 
           {/* Rich text content with image optimization */}
-          <div
-            className="prose-lg prose-zinc max-w-none
-              font-serif
-              prose-p:leading-relaxed prose-p:my-6 prose-p:text-foreground/90
-              prose-headings:font-sans prose-headings:font-bold prose-headings:tracking-tight prose-headings:text-foreground prose-headings:mt-12 prose-headings:mb-4
-              prose-h1:text-4xl prose-h2:text-3xl prose-h3:text-2xl
-              prose-a:text-primary prose-a:underline prose-a:underline-offset-4
-              prose-blockquote:border-l-2 prose-blockquote:border-border prose-blockquote:pl-4 prose-blockquote:italic prose-blockquote:text-muted-foreground
-              prose-img:rounded-sm prose-img:w-full prose-img:h-auto prose-img:my-10
-              prose-ul:my-6 prose-ol:my-6
-              prose-li:my-1"
-            dangerouslySetInnerHTML={{
-              __html: (project.description || "").replace(
-                /<img(\s[^>]*?)?>/gi,
-                (_match: string, attrs: string = "") => {
-                  const safeAttrs = typeof attrs === "string" ? attrs : "";
-                  const a = safeAttrs
-                    .replace(/\bloading="[^"]*"/gi, "")
-                    .replace(/\bwidth="[^"]*"/gi, "")
-                    .replace(/\bheight="[^"]*"/gi, "")
-                    .replace(/\balt="[^"]*"/gi, "");
-                  return `<img${a} loading="lazy" width="1200" height="800" alt="${project.title || ""}">`;
-                },
-              ),
-            }}
-          />
+          <PreviewContent content={project.description} />
 
           {/* Additional images */}
           {images.length > 1 && (

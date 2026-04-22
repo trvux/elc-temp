@@ -34,6 +34,7 @@ import {
 import { Pencil, Trash2, Plus, ChevronDown } from "lucide-react";
 import { toast } from "sonner";
 import { TiptapEditor } from "@/components/ui/tiptap-editor";
+import { extractTitleFromHtml, generateSlug } from "@/lib/utils";
 
 type Page = {
   id: string;
@@ -46,16 +47,6 @@ type Page = {
   created_at: string;
 };
 
-function generateSlug(text: string): string {
-  return text
-    .toLowerCase()
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .replace(/đ/g, "d")
-    .replace(/[^a-z0-9\s-]/g, "")
-    .trim()
-    .replace(/\s+/g, "-");
-}
 
 export default function PagesPage() {
   const [pages, setPages] = useState<Page[]>([]);
@@ -124,7 +115,16 @@ export default function PagesPage() {
     setEditing(p);
     setTitle(p.title);
     setSlug(p.slug);
-    setContent(p.content || "");
+    
+    // Migration: If content doesn't have an H1, prepend the existing title
+    // Only applies to legacy HTML string content
+    const contentBody = p.content || "";
+    if (typeof contentBody === "string" && !contentBody.includes("<h1") && p.title) {
+      setContent(`<h1>${p.title}</h1>${contentBody}`);
+    } else {
+      setContent(contentBody);
+    }
+
     setIsPublished(p.is_published);
     setMetaTitle(p.meta_title || "");
     setMetaDescription(p.meta_description || "");
@@ -249,34 +249,16 @@ export default function PagesPage() {
       <AdminDialog
         open={open}
         onOpenChange={setOpen}
-        size="3xl"
+        size="full"
         title={editing ? `Sửa: ${editing.title}` : "Tạo trang mới"}
         description="Quản lý nội dung trang tĩnh và cấu hình SEO để tối ưu hóa hiển thị."
       >
         <div className="space-y-8">
           <FieldGroup>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <Field>
-                <FieldLabel className="mb-2 font-medium">
-                  Tiêu đề trang *
-                </FieldLabel>
-                <FieldContent>
-                  <Input
-                    placeholder="VD: Về chúng tôi"
-                    value={title}
-                    onChange={(e) => {
-                      const val = e.target.value;
-                      setTitle(val);
-                      if (!editing) setSlug(generateSlug(val));
-                    }}
-                  />
-                  <FieldDescription>
-                    Tiêu đề chính hiển thị trên bài viết.
-                  </FieldDescription>
-                </FieldContent>
-              </Field>
+              {/* Tiêu đề trang field removed as it's now handled by the editor H1 */}
 
-              <Field>
+              <Field className="md:col-span-2">
                 <FieldLabel className="mb-2 font-medium">
                   Slug (URL) *
                 </FieldLabel>
@@ -303,7 +285,12 @@ export default function PagesPage() {
               <FieldContent>
                 <TiptapEditor
                   value={content}
-                  onChange={setContent}
+                  onChange={(val) => {
+                    setContent(val);
+                    const extractedTitle = extractTitleFromHtml(val);
+                    setTitle(extractedTitle);
+                    setSlug(generateSlug(extractedTitle));
+                  }}
                   placeholder="Viết nội dung trang..."
                   uploadImage={async (file) => {
                     const webpFile = await convertToWebP(file);

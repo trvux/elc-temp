@@ -31,7 +31,7 @@ import { Switch } from "@/components/ui/switch";
 import { TiptapEditor } from "@/components/ui/tiptap-editor";
 import { convertToWebP } from "@/lib/image";
 import { createClient } from "@/lib/supabase/client";
-import { capitalize, cn } from "@/lib/utils";
+import { capitalize, cn, extractTitleFromHtml, generateSlug } from "@/lib/utils";
 import { ChevronDown, Plus, Upload, X } from "lucide-react";
 import Image from "next/image";
 import { useEffect, useMemo, useState } from "react";
@@ -184,7 +184,16 @@ export default function ProjectsPage() {
     setEditing(p);
     setTitle(p.title);
     setSlug(p.slug || "");
-    setDescription(p.description || "");
+    
+    // Migration: If content doesn't have an H1, prepend the existing title
+    // Only applies to legacy HTML string content
+    const content = p.description || "";
+    if (typeof content === "string" && !content.includes("<h1") && p.title) {
+      setDescription(`<h1>${p.title}</h1>${content}`);
+    } else {
+      setDescription(content);
+    }
+
     setCategoryId(p.category_id || "");
     setImages(p.images || []);
     setIsPublished(p.is_published);
@@ -283,16 +292,6 @@ export default function ProjectsPage() {
     setDeleteOpen(false);
     fetchData();
   }
-  function generateSlug(text: string): string {
-    return text
-      .toLowerCase()
-      .normalize("NFD")
-      .replace(/[\u0300-\u036f]/g, "")
-      .replace(/đ/g, "d")
-      .replace(/[^a-z0-9\s-]/g, "")
-      .trim()
-      .replace(/\s+/g, "-");
-  }
 
   return (
     <div>
@@ -367,7 +366,7 @@ export default function ProjectsPage() {
       <AdminDialog
         open={open}
         onOpenChange={setOpen}
-        size="3xl"
+        size="full"
         title={editing ? "Sửa dự án" : "Thêm dự án"}
         description="Quản lý chi tiết dự án, hình ảnh và SEO để thu hút khách hàng."
       >
@@ -378,25 +377,7 @@ export default function ProjectsPage() {
                 Thông tin chung
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
-                <div className="md:col-span-12">
-                  <Field>
-                    <FieldLabel className="mb-2 font-medium">
-                      Tên dự án *
-                    </FieldLabel>
-                    <FieldContent>
-                      <Input
-                        placeholder="VD: Lắp máy lạnh nhà anh Tuấn Q.1"
-                        value={title}
-                        onChange={(e) => {
-                          const val = e.target.value;
-                          const capitalized = capitalize(val);
-                          setTitle(capitalized);
-                          setSlug(generateSlug(capitalized));
-                        }}
-                      />
-                    </FieldContent>
-                  </Field>
-                </div>
+                {/* Tên dự án field removed as it's now handled by the editor H1 */}
 
                 <div className="md:col-span-12 lg:col-span-5">
                   <Field>
@@ -490,8 +471,13 @@ export default function ProjectsPage() {
               <FieldContent>
                 <TiptapEditor
                   value={description}
-                  onChange={setDescription}
-                  placeholder="Mô tả dự án..."
+                  onChange={(val) => {
+                    setDescription(val);
+                    const extractedTitle = extractTitleFromHtml(val);
+                    setTitle(extractedTitle);
+                    setSlug(generateSlug(extractedTitle));
+                  }}
+                  placeholder="Viết nội dung dự án..."
                   uploadImage={async (file) => {
                     const ext = file.name.split(".").pop();
                     const fileName = `projects/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
