@@ -19,7 +19,7 @@ export async function generateStaticParams() {
     .eq("is_published", true);
   
   return (projects ?? []).map((p: any) => ({
-    slug: [...p.categories.slug.split("/"), p.slug]
+    slug: [p.categories.slug, p.slug]
   }));
 }
 
@@ -30,14 +30,15 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { slug } = await params;
   const leafSlug = slug[slug.length - 1];
-  const categoryPath = slug.slice(0, -1).join("/");
+  const categoryPathSegments = slug.slice(0, -1);
+  const combinedCategorySlug = categoryPathSegments.join("-");
 
   const supabase = createStaticClient();
   const { data: project } = await supabase
     .from("projects")
     .select("*, categories!inner(slug)")
     .eq("slug", leafSlug)
-    .eq("categories.slug", categoryPath)
+    .eq("categories.slug", combinedCategorySlug)
     .maybeSingle();
 
   if (!project) return { title: SEO_CONFIG.defaultTitle };
@@ -70,14 +71,15 @@ export default async function ProjectDetail({
   const staticSupabase = createStaticClient();
   const { slug } = await params;
   const leafSlug = slug[slug.length - 1];
-  const categoryPath = slug.slice(0, -1).join("/");
+  const categoryPathSegments = slug.slice(0, -1);
+  const combinedCategorySlug = categoryPathSegments.join("-");
 
   // Fetch project data with category hierarchy
   const { data: project } = await staticSupabase
     .from("projects")
     .select("*, categories!inner(name, slug, parent:parent_id(name))")
     .eq("slug", leafSlug)
-    .eq("categories.slug", categoryPath)
+    .eq("categories.slug", combinedCategorySlug)
     .single();
 
   if (!project) {
@@ -91,15 +93,15 @@ export default async function ProjectDetail({
     .eq("is_published", true)
     .order("order_index", { ascending: true });
 
-  const allProjects = (allProjectsData || []).map((p) => {
-    const cat = Array.isArray(p.categories) ? p.categories[0] : p.categories;
-    const catSlug = (cat as { slug: string })?.slug;
-    return {
-      id: p.id,
-      title: p.title,
-      slug: catSlug ? `${catSlug}/${p.slug}` : p.slug,
-    };
-  });
+    const allProjects = (allProjectsData || []).map((p) => {
+      const cat = Array.isArray(p.categories) ? p.categories[0] : p.categories;
+      const catSlug = (cat as { slug: string })?.slug;
+      return {
+        id: p.id,
+        title: p.title,
+        slug: catSlug ? `${catSlug}/${p.slug}` : p.slug,
+      };
+    });
 
   const images = project.images || [];
 
@@ -140,7 +142,7 @@ export default async function ProjectDetail({
           <div className="w-full flex justify-start md:justify-start">
             <InfoTOC
               pages={allProjects}
-              currentSlug={`${project.categories?.slug ? project.categories.slug + "/" : ""}${project.slug}`}
+              currentSlug={`${project.categories?.slug ? project.categories.slug : "detail"}/${project.slug}`}
               basePath="/du-an"
               className="w-full md:w-fit min-w-52"
             />
