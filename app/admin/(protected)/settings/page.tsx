@@ -156,6 +156,12 @@ const SETTINGS_CONFIG = [
         type: "input",
       },
       {
+        key: "zalo_url",
+        label: "Zalo URL (hoặc Số điện thoại)",
+        placeholder: "0789978898",
+        type: "input",
+      },
+      {
         key: "youtube_url",
         label: "YouTube URL",
         placeholder: "https://youtube.com/@yourchannel",

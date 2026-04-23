@@ -46,7 +46,9 @@ export const SEO_CONFIG = {
     logo: "https://dienmayelc.com.vn/logo.png",
     phone: "0789978898",
     address: "06 Dương Quảng Hàm, phường An Nhơn, Thành phố Hồ Chí Minh",
-    facebook: "https://www.facebook.com/dienmayelc"
+    facebook: "https://www.facebook.com/dienmayelc",
+    messenger: "https://m.me/ELCdienmay",
+    zalo: "https://zalo.me/0789978898"
   }
 };
 
@@ -75,7 +77,11 @@ export function generateOrganizationSchema(dynamicData?: {
     })
     .filter(Boolean);
 
-  const sameAs = socialLinks.length > 0 ? socialLinks : [SEO_CONFIG.organization.facebook];
+  const sameAs = socialLinks.length > 0 ? socialLinks : [
+    SEO_CONFIG.organization.facebook,
+    SEO_CONFIG.organization.messenger,
+    SEO_CONFIG.organization.zalo
+  ];
 
   return {
     "@context": "https://schema.org",
