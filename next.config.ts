@@ -51,18 +51,23 @@ const nextConfig: NextConfig = {
 
       // 5. Cứu các link 2 tầng cũ (đơn giản hóa để tránh lỗi 5xx)
       {
-        source: "/cung-cap-thi-cong-may-lanh-dan-dung-va-cong-nghiep-gia-re/:slug",
+        source: "/cung-cap-thi-cong-may-lanh-dan-dung-va-cong-nghiep-gia-re/:slug*",
         destination: "/tin-tuc/:slug",
         permanent: true,
       },
       // Thêm quy tắc chung cho các danh mục cũ khác nếu có
       {
-        source: "/he-thong-dieu-hoa-khong-khi/:slug",
+        source: "/he-thong-dieu-hoa-khong-khi/:slug*",
         destination: "/tin-tuc/:slug",
         permanent: true,
       },
       {
-        source: "/he-thong-cap-khi-tuoi/:slug",
+        source: "/thiet-ke-cung-cap-thi-cong-lap-dat/:slug*",
+        destination: "/tin-tuc/:slug",
+        permanent: true,
+      },
+      {
+        source: "/he-thong-cap-khi-tuoi/:slug*",
         destination: "/tin-tuc/:slug",
         permanent: true,
       },

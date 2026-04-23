@@ -85,26 +85,34 @@ export default async function NewsDetailPage({ params }: PageProps) {
 
     if (error || !newsItem) {
       redirect("/tin-tuc");
+      return null;
     }
 
+    // Đảm bảo newsItem tồn tại 100% trước khi chạy tiếp
+    const title = newsItem?.title || "Tin tức";
+    const content = newsItem?.content || "";
+    const image = newsItem?.image || "";
+    const createdAt = newsItem?.created_at || "";
+    const updatedAt = newsItem?.updated_at || createdAt;
+
     const schema = generateSchema("Article", {
-      title: newsItem.title || "",
-      image: newsItem.image || "",
-      datePublished: newsItem.created_at || "",
-      dateModified: newsItem.updated_at || newsItem.created_at || "",
+      title,
+      image,
+      datePublished: createdAt,
+      dateModified: updatedAt,
     });
 
     const breadcrumbs = generateBreadcrumbSchema([
       { name: "Trang chủ", item: "/" },
       { name: "Tin tức", item: "/tin-tuc" },
-      { name: newsItem.title || "Bài viết", item: `/tin-tuc/${slug}` },
+      { name: title, item: `/tin-tuc/${slug}` },
     ]);
 
     // Safe date formatting
     let formattedDate = "";
     try {
-      if (newsItem.created_at) {
-        formattedDate = new Date(newsItem.created_at).toLocaleDateString("vi-VN", {
+      if (createdAt) {
+        formattedDate = new Date(createdAt).toLocaleDateString("vi-VN", {
           day: "numeric",
           month: "long",
           year: "numeric",
@@ -136,11 +144,11 @@ export default async function NewsDetailPage({ params }: PageProps) {
               {formattedDate}
             </TypographySmall>
           )}
-          <TypographyH1 className={STYLES.title}>{newsItem.title}</TypographyH1>
+          <TypographyH1 className={STYLES.title}>{title}</TypographyH1>
         </header>
 
         <article>
-          <PreviewContent content={newsItem.content} hideFirstHeading={true} />
+          <PreviewContent content={content} hideFirstHeading={true} />
         </article>
 
         <nav className={STYLES.footerNav}>
