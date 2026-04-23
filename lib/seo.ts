@@ -39,41 +39,69 @@ export const SEO_CONFIG = {
   siteName: "Điện máy ELC",
   titleSeparator: " | ",
   defaultTitle: "Điện máy ELC - Giải pháp Không khí thuần khiết",
-  defaultDescription: "Chuyên cung cấp máy lạnh, máy lọc không khí và giải pháp cơ điện lạnh chuyên nghiệp. Đại lý chính hãng Daikin, Mitsubishi, Panasonic...",
+  defaultDescription: "Tiên phong cung cấp giải pháp HVAC tổng thế, tích hợp công nghệ điều tiết khí thông minh và lọc khí tươi chuyên sâu cho không gian sống hiện đại.",
   baseUrl: "https://dienmayelc.com.vn",
   organization: {
-    name: "CÔNG TY TNHH KỸ THUẬT ELC",
+    name: "Công ty cổ phần giải pháp công nghệ TMDV ELC",
     logo: "https://dienmayelc.com.vn/logo.png",
-    phone: "0347 182 186",
-    address: "Việt Nam"
+    phone: "0789978898",
+    address: "06 Dương Quảng Hàm, phường An Nhơn, Thành phố Hồ Chí Minh"
   }
 };
 
-export function generateOrganizationSchema() {
+export function generateOrganizationSchema(dynamicData?: {
+  settings?: Record<string, string>;
+  contacts?: any[];
+}) {
+  const { settings, contacts } = dynamicData || {};
+
+  // Tự động gom tất cả mạng xã hội từ contacts vào sameAs
+  const socialLinks = (contacts || [])
+    .map((c) => {
+      const type = c.type?.toLowerCase();
+      const val = c.value;
+      if (!val) return null;
+
+      if (type === "facebook")
+        return val.startsWith("http") ? val : `https://www.facebook.com/${val}`;
+      if (type === "zalo") return `https://zalo.me/${val}`;
+      if (type === "messenger") return `https://m.me/${val}`;
+      if (type === "youtube")
+        return val.startsWith("http") ? val : `https://www.youtube.com/${val}`;
+      if (type === "instagram")
+        return val.startsWith("http") ? val : `https://www.instagram.com/${val}`;
+      return null;
+    })
+    .filter(Boolean);
+
+  const sameAs = socialLinks.length > 0 ? socialLinks : [SEO_CONFIG.organization.facebook];
+
   return {
     "@context": "https://schema.org",
     "@type": "Organization",
-    name: SEO_CONFIG.organization.name,
+    name: settings?.company_name || SEO_CONFIG.organization.name,
     url: SEO_CONFIG.baseUrl,
-    logo: SEO_CONFIG.organization.logo,
+    logo: settings?.company_logo || SEO_CONFIG.organization.logo,
     contactPoint: {
       "@type": "ContactPoint",
-      telephone: SEO_CONFIG.organization.phone,
+      telephone: settings?.company_phone || SEO_CONFIG.organization.phone,
       contactType: "customer service",
       areaServed: "VN",
-      availableLanguage: "Vietnamese"
+      availableLanguage: "Vietnamese",
     },
     address: {
       "@type": "PostalAddress",
-      streetAddress: "577/15/8 Đường Vườn Lài, Khu phố 2, Phường An Phú Đông",
-      addressLocality: "Quận 12",
+      streetAddress: settings?.company_address
+        ? settings.company_address.split(",")[0].trim()
+        : "06 Dương Quảng Hàm",
+      addressLocality:
+        settings?.company_address && settings.company_address.split(",")[1]
+          ? settings.company_address.split(",")[1].trim()
+          : "Phường An Nhơn",
       addressRegion: "TP.HCM",
-      addressCountry: "VN"
+      addressCountry: "VN",
     },
-    sameAs: [
-      // Thêm link Facebook/Fanpage của mày vào đây nếu có
-      "https://www.facebook.com/dienmayelc" 
-    ]
+    sameAs: sameAs,
   };
 }
 
@@ -195,7 +223,11 @@ export function generateSchema(
     | "LocalBusiness"
     | "WebSite"
     | "Organization",
-  data: any
+  data: any,
+  dynamicData?: {
+    settings?: Record<string, string>;
+    contacts?: any[];
+  }
 ) {
   const base = { "@context": "https://schema.org" };
 
@@ -317,18 +349,7 @@ export function generateSchema(
       };
 
     case "Organization":
-      return {
-        ...base,
-        "@type": "Organization",
-        name: SEO_CONFIG.organization.name,
-        url: SEO_CONFIG.baseUrl,
-        logo: SEO_CONFIG.organization.logo,
-        contactPoint: {
-          "@type": "ContactPoint",
-          telephone: SEO_CONFIG.organization.phone,
-          contactType: "customer service",
-        },
-      };
+      return generateOrganizationSchema(dynamicData);
 
     case "WebSite":
       return {

@@ -1,6 +1,7 @@
 import { Footer } from "@/components/user/footer";
 import { Header } from "@/components/user/header";
 import { createClient } from "@/lib/supabase/server";
+import { generateSchema } from "@/lib/seo";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -47,8 +48,29 @@ export default async function PublicLayout({
     settings[item.key] = item.value;
   });
 
+  // Prepare schemas for SEO
+  const webSiteSchema = generateSchema(
+    "WebSite",
+    {},
+    { settings, contacts: contacts || [] }
+  );
+  const orgSchema = generateSchema(
+    "Organization",
+    {},
+    { settings, contacts: contacts || [] }
+  );
+
   return (
     <div className="grid grid-cols-1 gap-4 bg-cream">
+      {/* Global SEO Schemas */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(webSiteSchema) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(orgSchema) }}
+      />
       <Header />
       <main className="">{children}</main>
       <Footer

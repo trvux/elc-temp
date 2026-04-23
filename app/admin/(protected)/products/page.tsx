@@ -302,10 +302,46 @@ export default function ProductsPage() {
       .normalize("NFD")
       .replace(/[\u0300-\u036f]/g, "")
       .replace(/đ/g, "d")
-      .replace(/[^a-z0-9\s-]/g, "")
+      .replace(/[^a-z0-9\s.-]/g, "") // Tha cho dấu chấm (.)
       .trim()
-      .replace(/\s+/g, "-");
+      .replace(/\s+/g, "-")
+      .replace(/-+/g, "-"); // Triệt tiêu nhiều dấu gạch ngang liên tiếp
   }
+
+  // Hàm tạo slug thông minh
+  const updateAutoSlug = (
+    currentName: string,
+    currentSku: string,
+    currentCatId: string,
+    currentBrandId: string,
+  ) => {
+    let namePart = currentName.toLowerCase();
+    const cat = categories.find((c) => c.id === currentCatId);
+
+    if (cat) {
+      const catName = cat.name.toLowerCase();
+      const parentCat = categories.find((c) => c.id === cat.parent_id);
+      const parentName = parentCat?.name.toLowerCase();
+
+      // 1. Nếu tên bắt đầu bằng tên danh mục cha (ví dụ: "Máy lạnh...") -> Xóa nó đi
+      if (parentName && namePart.startsWith(parentName)) {
+        namePart = namePart.replace(parentName, "").trim();
+      }
+      // 2. Nếu tên vẫn bắt đầu bằng tên danh mục con (ví dụ: "Treo tường...") -> Xóa tiếp
+      if (catName && namePart.startsWith(catName)) {
+        namePart = namePart.replace(catName, "").trim();
+      }
+
+      // Nếu sau khi xóa mà tên bị trống (do tên sp trùng khít tên cat) thì lấy lại tên gốc
+      if (!namePart) namePart = currentName;
+    }
+
+    // 3. Kết hợp với Brand (nếu có) và SKU
+    const brand = brands.find((b) => b.id === currentBrandId)?.name || "";
+    const finalPart = `${brand} ${namePart} ${currentSku}`.trim();
+
+    setSlug(generateSlug(finalPart));
+  };
 
   async function handleUpload(e: React.ChangeEvent<HTMLInputElement>) {
     const files = e.target.files;
@@ -591,11 +627,7 @@ export default function ProductsPage() {
                           const val = e.target.value;
                           const capitalized = capitalize(val);
                           setName(capitalized);
-                          setSlug(
-                            generateSlug(
-                              `${capitalized}${sku ? "-" + sku : ""}`,
-                            ),
-                          );
+                          updateAutoSlug(capitalized, sku, categoryId, brandId);
                         }}
                       />
                     </FieldContent>
@@ -614,10 +646,7 @@ export default function ProductsPage() {
                         onChange={(e) => {
                           const val = e.target.value.toUpperCase();
                           setSku(val);
-                          // Slug sẽ bao gồm cả SKU để đảm bảo duy nhất dù trùng tên
-                          setSlug(
-                            generateSlug(`${name}${val ? "-" + val : ""}`),
-                          );
+                          updateAutoSlug(name, val, categoryId, brandId);
                         }}
                       />
                     </FieldContent>
@@ -630,7 +659,13 @@ export default function ProductsPage() {
                       Danh mục
                     </FieldLabel>
                     <FieldContent>
-                      <Select value={categoryId} onValueChange={setCategoryId}>
+                      <Select
+                        value={categoryId}
+                        onValueChange={(val) => {
+                          setCategoryId(val);
+                          updateAutoSlug(name, sku, val, brandId);
+                        }}
+                      >
                         <SelectTrigger>
                           <SelectValue placeholder="Chọn danh mục" />
                         </SelectTrigger>
@@ -677,7 +712,13 @@ export default function ProductsPage() {
                       Thương hiệu
                     </FieldLabel>
                     <FieldContent>
-                      <Select value={brandId} onValueChange={setBrandId}>
+                      <Select
+                        value={brandId}
+                        onValueChange={(val) => {
+                          setBrandId(val);
+                          updateAutoSlug(name, sku, categoryId, val);
+                        }}
+                      >
                         <SelectTrigger className="border-primary/20">
                           <SelectValue placeholder="Chọn thương hiệu" />
                         </SelectTrigger>

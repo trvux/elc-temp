@@ -3,7 +3,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 import type { Metadata } from "next";
 import { Inter, Newsreader } from "next/font/google";
-import { generateOrganizationSchema } from "@/lib/seo";
+import { SEO_CONFIG, generateSchema } from "@/lib/seo";
 import GoogleAnalytics from "@/components/user/google-analytics";
 import { Suspense } from "react";
 import "./globals.css";
@@ -101,10 +101,6 @@ export default function RootLayout({
           href="https://gdzihzsjfczuggwpykjk.supabase.co"
         />
         <link rel="preconnect" href="https://images.unsplash.com" />
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(generateOrganizationSchema()) }}
-        />
       </head>
       <body
         suppressHydrationWarning

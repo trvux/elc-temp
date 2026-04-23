@@ -45,23 +45,11 @@ export default async function Home() {
     settings[item.key] = item.value;
   });
 
-  const schema = generateSchema("WebSite", {});
+  // Metadata and other page-specific logic...
 
   return (
     <main className="px-4 md:px-6 lg:px-8 space-y-16 md:space-y-24">
       {/* JSON-LD Schemas */}
-      {schema && (
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
-        />
-      )}
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{
-          __html: JSON.stringify(generateSchema("Organization", {})),
-        }}
-      />
       {/* 1. HERO SECTION */}
 
       <HeroSection
