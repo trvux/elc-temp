@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils";
 import { ArrowLeft } from "lucide-react";
 import { Metadata } from "next";
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { SEO_CONFIG, extractMetaDescription, generateSchema, generateBreadcrumbSchema } from "@/lib/seo";
 import { PreviewContent } from "@/components/user/preview-content";
 
@@ -83,7 +83,8 @@ export default async function StaticPage({ params }: PageProps) {
     .maybeSingle();
 
   if (!page) {
-    notFound();
+    // Nếu không tìm thấy trang thông tin, tự động redirect sang Tin tức (cứu link WordPress cũ)
+    redirect(`/tin-tuc/${slug}`);
   }
 
   const schema = generateSchema("Article", { // Using Article schema for info pages

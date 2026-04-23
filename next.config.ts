@@ -49,15 +49,7 @@ const nextConfig: NextConfig = {
 
       // 4. WordPress Search & Special paths
 
-      // 5. Legacy Posts/Services without prefix (ONLY for single segment paths)
-      // Example: /bai-viet-cu -> /tin-tuc/bai-viet-cu
-      // This rule is now stricter to avoid hijacking /san-pham/cat/prod
-      {
-        source:
-          "/:slug((?!du-an|san-pham|tin-tuc|dich-vu|chi-nhanh|thong-tin|admin|api|_next|static|favicon.ico|logo.png|og-image.png|apple-touch-icon.png|robots.txt)[^/]+)",
-        destination: "/tin-tuc/:slug",
-        permanent: false,
-      },
+      // 5. Legacy Posts/Services (Disabled to prevent conflict with [slug] routes)
     ];
   },
 };
