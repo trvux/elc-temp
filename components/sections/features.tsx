@@ -85,7 +85,7 @@ export function FeaturesSection({ products }: FeaturesSectionProps) {
   ];
 
   const ProductCard = ({ product }: { product: Product }) => {
-    const productUrl = `/san-pham/${product.categories?.slug || ""}/${product.slug}`;
+    const productUrl = `/san-pham/${product.categories?.slug || "detail"}/${product.slug}`;
 
     return (
       <Card className={styles.productCard}>

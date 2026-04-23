@@ -65,7 +65,7 @@ export default async function RelatedProducts({
       <div className={STYLES.grid}>
         {products.map((product: any) => {
           const finalPrice = product.sale_price || product.original_price;
-          const slug = `/san-pham/${product.categories.slug}/${product.slug}`;
+          const slug = `/san-pham/${product.categories?.slug ? product.categories.slug : "detail"}/${product.slug}`;
 
           return (
             <Link key={product.id} href={slug} className={STYLES.productCard}>
