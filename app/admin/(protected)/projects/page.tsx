@@ -475,7 +475,18 @@ export default function ProjectsPage() {
                     setDescription(val);
                     const extractedTitle = extractTitleFromHtml(val);
                     setTitle(extractedTitle);
-                    setSlug(generateSlug(extractedTitle));
+                    
+                    // Auto-slug logic: Remove category name prefix if exists
+                    let namePart = extractedTitle.toLowerCase();
+                    const cat = categories.find((c) => c.id === categoryId);
+                    if (cat) {
+                      const catName = cat.name.toLowerCase();
+                      if (catName && namePart.startsWith(catName)) {
+                        namePart = namePart.replace(catName, "").trim();
+                      }
+                    }
+                    
+                    setSlug(generateSlug(namePart));
                   }}
                   placeholder="Viết nội dung dự án..."
                   uploadImage={async (file) => {
