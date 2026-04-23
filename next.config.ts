@@ -32,27 +32,19 @@ const nextConfig: NextConfig = {
       // 2. Old Category & Blog Structure
       { source: "/category/:path*", destination: "/:path*", permanent: true },
       { source: "/blog/:slug", destination: "/tin-tuc/:slug", permanent: true },
-      {
-        source: "/he-thong-dieu-hoa-khong-khi/:path*",
-        destination: "/san-pham",
-        permanent: true,
-      },
       { source: "/danh-muc/:path*", destination: "/san-pham", permanent: true },
 
       // 3. Migrate Deep Category Paths to Flat Hyphenated Paths (SEO Boost)
-      // Example: /san-pham/may-lanh/treo-tuong/abc -> /san-pham/may-lanh-treo-tuong/abc
       {
         source: "/san-pham/:parent/:category/:slug",
         destination: "/san-pham/:parent-:category/:slug",
         permanent: true,
       },
 
-      // 4. WordPress Search & Special paths
-
-      // 5. Cứu các link 2 tầng cũ (ép về trang danh sách cho an toàn tuyệt đối)
+      // 4. Keyword-based Classification (Rescue legacy paths)
+      // Dịch vụ
       {
-        source:
-          "/cung-cap-thi-cong-may-lanh-dan-dung-va-cong-nghiep-gia-re/:path*",
+        source: "/cung-cap-thi-cong-may-lanh-dan-dung-va-cong-nghiep-gia-re/:path*",
         destination: "/dich-vu",
         permanent: true,
       },
@@ -61,6 +53,18 @@ const nextConfig: NextConfig = {
         destination: "/dich-vu",
         permanent: true,
       },
+      {
+        source: "/dich-vu-bao-tri-bao-duong/:path*",
+        destination: "/dich-vu",
+        permanent: true,
+      },
+      {
+        source: "/he-thong-thong-gio-nha-xuong/:path*",
+        destination: "/dich-vu",
+        permanent: true,
+      },
+      
+      // Sản phẩm
       {
         source: "/he-thong-dieu-hoa-khong-khi/:path*",
         destination: "/san-pham",
@@ -72,17 +76,24 @@ const nextConfig: NextConfig = {
         permanent: true,
       },
       {
-        source: "/tin-tuc/:category/:path*",
-        destination: "/tin-tuc",
+        source: "/may-lanh-am-tran-noi-ong-gio/:path*",
+        destination: "/san-pham",
         permanent: true,
       },
-      // 6. Cứu các link sản phẩm 2 tầng cũ (ví dụ: /san-pham/ten-san-pham)
       {
         source: "/san-pham/:slug",
         destination: "/san-pham",
         permanent: true,
       },
-      // 7. Dọn dẹp nốt đống link phân trang cũ
+
+      // Tin tức
+      {
+        source: "/tin-tuc/:category/:path*",
+        destination: "/tin-tuc",
+        permanent: true,
+      },
+
+      // 5. Final Pagination Cleanup
       {
         source: "/:path*/page/:num",
         destination: "/:path*",
