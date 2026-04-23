@@ -45,7 +45,8 @@ export const SEO_CONFIG = {
     name: "Công ty cổ phần giải pháp công nghệ TMDV ELC",
     logo: "https://dienmayelc.com.vn/logo.png",
     phone: "0789978898",
-    address: "06 Dương Quảng Hàm, phường An Nhơn, Thành phố Hồ Chí Minh"
+    address: "06 Dương Quảng Hàm, phường An Nhơn, Thành phố Hồ Chí Minh",
+    facebook: "https://www.facebook.com/dienmayelc"
   }
 };
 
