@@ -84,7 +84,6 @@ export default async function NewsDetailPage({ params }: PageProps) {
     .maybeSingle();
 
     if (error || !newsItem) {
-      // Thay vì notFound(), ta redirect về trang danh sách để cứu link cũ
       redirect("/tin-tuc");
     }
 
