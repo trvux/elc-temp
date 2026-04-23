@@ -50,10 +50,21 @@ const nextConfig: NextConfig = {
       // 4. WordPress Search & Special paths
 
       // 5. Cứu các link 2 tầng cũ của WordPress (ví dụ: /danh-muc-cu/bai-viet)
-      // Loại trừ các tiền tố của hệ thống mới để không bị nhảy nhầm
       {
         source: "/:category((?!san-pham|du-an|chi-nhanh|dich-vu|admin|tin-tuc|api|_next|static).*)/:slug",
         destination: "/tin-tuc/:slug",
+        permanent: true,
+      },
+      // 6. Cứu các link sản phẩm 2 tầng cũ (ví dụ: /san-pham/ten-san-pham)
+      {
+        source: "/san-pham/:slug",
+        destination: "/san-pham",
+        permanent: true,
+      },
+      // 7. Dọn dẹp nốt đống link phân trang cũ
+      {
+        source: "/:path*/page/:num",
+        destination: "/:path*",
         permanent: true,
       },
     ];
