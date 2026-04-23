@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils";
 import { ArrowLeft } from "lucide-react";
 import { Metadata } from "next";
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { SEO_CONFIG, extractMetaDescription, generateSchema, generateBreadcrumbSchema } from "@/lib/seo";
 import { PreviewContent } from "@/components/user/preview-content";
 
@@ -85,7 +85,6 @@ export default async function NewsDetailPage({ params }: PageProps) {
 
     if (error || !newsItem) {
       // Thay vì notFound(), ta redirect về trang danh sách để cứu link cũ
-      const { redirect } = await import("next/navigation");
       redirect("/tin-tuc");
     }
 

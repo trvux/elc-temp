@@ -49,9 +49,25 @@ const nextConfig: NextConfig = {
 
       // 4. WordPress Search & Special paths
 
-      // 5. Cứu các link 2 tầng cũ của WordPress (ví dụ: /danh-muc-cu/bai-viet)
+      // 5. Cứu các link 2 tầng cũ (đơn giản hóa để tránh lỗi 5xx)
       {
-        source: "/:category((?!san-pham|du-an|chi-nhanh|dich-vu|admin|tin-tuc|api|_next|static).*)/:slug",
+        source: "/cung-cap-thi-cong-may-lanh-dan-dung-va-cong-nghiep-gia-re/:slug",
+        destination: "/tin-tuc/:slug",
+        permanent: true,
+      },
+      // Thêm quy tắc chung cho các danh mục cũ khác nếu có
+      {
+        source: "/he-thong-dieu-hoa-khong-khi/:slug",
+        destination: "/tin-tuc/:slug",
+        permanent: true,
+      },
+      {
+        source: "/he-thong-cap-khi-tuoi/:slug",
+        destination: "/tin-tuc/:slug",
+        permanent: true,
+      },
+      {
+        source: "/tin-tuc/:category/:slug",
         destination: "/tin-tuc/:slug",
         permanent: true,
       },
