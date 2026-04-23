@@ -44,7 +44,8 @@ const nextConfig: NextConfig = {
       // 4. Keyword-based Classification (Rescue legacy paths)
       // Dịch vụ
       {
-        source: "/cung-cap-thi-cong-may-lanh-dan-dung-va-cong-nghiep-gia-re/:path*",
+        source:
+          "/cung-cap-thi-cong-may-lanh-dan-dung-va-cong-nghiep-gia-re/:path*",
         destination: "/dich-vu",
         permanent: true,
       },
@@ -60,10 +61,10 @@ const nextConfig: NextConfig = {
       },
       {
         source: "/he-thong-thong-gio-nha-xuong/:path*",
-        destination: "/dich-vu",
+        destination: "/san-pham",
         permanent: true,
       },
-      
+
       // Sản phẩm
       {
         source: "/he-thong-dieu-hoa-khong-khi/:path*",
