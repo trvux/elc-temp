@@ -266,7 +266,7 @@ export default function PagesPage() {
                   <Input
                     placeholder="ve-chung-toi"
                     value={slug}
-                    onChange={(e) => setSlug(e.target.value)}
+                    onChange={(e) => setSlug(e.target.value.replace(/-+/g, "-").replace(/^-+|-+$/g, ""))}
                   />
                   <FieldDescription>
                     Đường dẫn:{" "}

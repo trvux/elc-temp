@@ -303,7 +303,7 @@ export default function NewsPage() {
                   <Input
                     placeholder="khai-truong-chi-nhanh-moi"
                     value={slug}
-                    onChange={(e) => setSlug(e.target.value)}
+                    onChange={(e) => setSlug(e.target.value.replace(/-+/g, "-").replace(/^-+|-+$/g, ""))}
                   />
                   <FieldDescription>
                     Đường dẫn:{" "}

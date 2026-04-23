@@ -747,7 +747,7 @@ export default function ProductsPage() {
                         className="font-mono text-sm"
                         placeholder="may-lanh-daikin-1-5hp"
                         value={slug}
-                        onChange={(e) => setSlug(e.target.value)}
+                        onChange={(e) => setSlug(e.target.value.replace(/-+/g, "-").replace(/^-+|-+$/g, ""))}
                       />
                     </FieldContent>
                   </Field>

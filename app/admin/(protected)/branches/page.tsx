@@ -250,7 +250,7 @@ export default function BranchesPage() {
                   <Input
                     placeholder="van-phong-quan-1"
                     value={slug}
-                    onChange={(e) => setSlug(e.target.value)}
+                    onChange={(e) => setSlug(e.target.value.replace(/-+/g, "-").replace(/^-+|-+$/g, ""))}
                   />
                   <FieldDescription className="text-xs italic">
                     URL: /chi-nhanh/{slug || "slug"}

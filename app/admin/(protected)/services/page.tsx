@@ -303,7 +303,7 @@ export default function ServicesPage() {
                   <Input
                     placeholder="sua-chua-kho-lanh-cong-nghiep"
                     value={slug}
-                    onChange={(e) => setSlug(e.target.value)}
+                    onChange={(e) => setSlug(e.target.value.replace(/-+/g, "-").replace(/^-+|-+$/g, ""))}
                   />
                   <FieldDescription>
                     Đường dẫn:{" "}
