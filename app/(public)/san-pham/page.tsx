@@ -383,7 +383,7 @@ export default async function ProductsHub({
     itemListElement: products.map((p, i) => ({
       "@type": "ListItem",
       position: i + 1,
-      url: `${SEO_CONFIG.baseUrl}/san-pham/${p.categories?.slug ? p.categories.slug + "/" : ""}${p.slug}`,
+      url: `${SEO_CONFIG.baseUrl}/san-pham/${p.categories?.slug ? p.categories.slug : "detail"}/${p.slug}`,
       name: p.name,
       image: p.images?.[0] || "",
     })),
@@ -431,7 +431,7 @@ export default async function ProductsHub({
             {products.map((product, index) => (
               <Link
                 key={product.id}
-                href={`/san-pham/${product.categories?.slug ? product.categories.slug + "/" : ""}${product.slug}`}
+                href={`/san-pham/${product.categories?.slug ? product.categories.slug : "detail"}/${product.slug}`}
                 className={STYLES.productCard}
               >
                 {/* Ảnh */}

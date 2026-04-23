@@ -222,7 +222,7 @@ export default async function ProductDetail({
         .select("name, slug")
         .in(
           "slug",
-          [leafCategorySlug, parentCategorySlug].filter(Boolean) as string[],
+          [combinedCategorySlug, parentCategorySlug].filter(Boolean) as string[],
         ),
       supabase.from("contacts").select("*").order("order_index"),
     ])) as [
@@ -234,7 +234,7 @@ export default async function ProductDetail({
   if (!rawProduct) notFound();
 
   const product = rawProduct;
-  const leafCat = categoriesData?.find((c) => c.slug === leafCategorySlug);
+  const leafCat = categoriesData?.find((c) => c.slug === combinedCategorySlug);
   const parentCat = parentCategorySlug
     ? categoriesData?.find((c) => c.slug === parentCategorySlug)
     : null;
