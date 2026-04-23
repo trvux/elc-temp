@@ -14,71 +14,92 @@ export default async function PublicLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const supabase = await createClient();
-
-  // Parallel fetch for footer data
-  const [
-    { data: branches },
-    { data: projects },
-    { data: pages },
-    { data: settingsData },
-    { data: contacts },
-  ] = await Promise.all([
-    supabase
-      .from("branches")
-      .select("name, slug, is_published")
-      .eq("is_published", true)
-      .order("order_index"),
-    supabase
-      .from("projects")
-      .select("title, id, slug, categories(slug)")
-      .eq("is_published", true)
-      .limit(10),
-    supabase
-      .from("pages")
-      .select("title, slug")
-      .eq("is_published", true)
-      .limit(20),
-    supabase.from("site_settings").select("*"),
-    supabase.from("contacts").select("*").order("order_index"),
-  ]);
-
+  let branches: any[] = [];
+  let projects: any[] = [];
+  let pages: any[] = [];
+  let contacts: any[] = [];
   const settings: Record<string, string> = {};
-  settingsData?.forEach((item) => {
-    settings[item.key] = item.value;
-  });
+  let webSiteSchema: any = null;
+  let orgSchema: any = null;
 
-  // Prepare schemas for SEO
-  const webSiteSchema = generateSchema(
-    "WebSite",
-    {},
-    { settings, contacts: contacts || [] }
-  );
-  const orgSchema = generateSchema(
-    "Organization",
-    {},
-    { settings, contacts: contacts || [] }
-  );
+  try {
+    const supabase = await createClient();
+
+    // Parallel fetch for footer data
+    const [
+      { data: bData },
+      { data: pData },
+      { data: pgData },
+      { data: settingsData },
+      { data: cData },
+    ] = await Promise.all([
+      supabase
+        .from("branches")
+        .select("name, slug, is_published")
+        .eq("is_published", true)
+        .order("order_index"),
+      supabase
+        .from("projects")
+        .select("title, id, slug, categories(slug)")
+        .eq("is_published", true)
+        .limit(10),
+      supabase
+        .from("pages")
+        .select("title, slug")
+        .eq("is_published", true)
+        .limit(20),
+      supabase.from("site_settings").select("*"),
+      supabase.from("contacts").select("*").order("order_index"),
+    ]);
+
+    branches = bData || [];
+    projects = pData || [];
+    pages = pgData || [];
+    contacts = cData || [];
+    
+    settingsData?.forEach((item) => {
+      settings[item.key] = item.value;
+    });
+
+    // Prepare schemas for SEO
+    webSiteSchema = generateSchema(
+      "WebSite",
+      {},
+      { settings, contacts: contacts || [] }
+    );
+    orgSchema = generateSchema(
+      "Organization",
+      {},
+      { settings, contacts: contacts || [] }
+    );
+  } catch (error) {
+    console.error("Critical: PublicLayout failed to fetch data:", error);
+    // Vẫn tiếp tục render với mảng rỗng thay vì crash trang
+  }
 
   return (
     <div className="grid grid-cols-1 gap-4 bg-cream">
       {/* Global SEO Schemas */}
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(webSiteSchema) }}
-      />
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(orgSchema) }}
-      />
+      {webSiteSchema && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(webSiteSchema) }}
+        />
+      )}
+      {orgSchema && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(orgSchema) }}
+        />
+      )}
       <Header />
       <main className="">{children}</main>
       <Footer
-        branches={branches || []}
-        projects={projects || []}
-        pages={pages || []}
+        branches={branches}
+        projects={projects}
+        pages={pages}
         settings={settings}
-        contacts={contacts || []}
+        contacts={contacts}
       />
     </div>
   );

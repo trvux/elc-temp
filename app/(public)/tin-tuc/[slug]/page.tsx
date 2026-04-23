@@ -1,7 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { TypographyH1, TypographySmall } from "@/components/ui/typography";
 import { ScrollToTop } from "@/components/user/scroll-to-top";
-import { createClient } from "@/lib/supabase/server";
 import { createStaticClient } from "@/lib/supabase/static";
 import { cn } from "@/lib/utils";
 import { ArrowLeft } from "lucide-react";
@@ -72,16 +71,17 @@ export async function generateMetadata({
 }
 
 export default async function NewsDetailPage({ params }: PageProps) {
-  const { slug } = await params;
-  const supabase = createStaticClient();
+  try {
+    const { slug } = await params;
+    const supabase = createStaticClient();
 
-  // Fetch current news detail
-  const { data: newsItem, error } = await supabase
-    .from("news")
-    .select("*")
-    .eq("slug", slug)
-    .eq("is_published", true)
-    .maybeSingle();
+    // Fetch current news detail
+    const { data: newsItem, error } = await supabase
+      .from("news")
+      .select("*")
+      .eq("slug", slug)
+      .eq("is_published", true)
+      .maybeSingle();
 
     if (error || !newsItem) {
       redirect("/tin-tuc");
@@ -119,59 +119,64 @@ export default async function NewsDetailPage({ params }: PageProps) {
         });
       }
     } catch (e) {
-      console.error("Date formatting error:", e);
+      // Bỏ qua lỗi format ngày
     }
 
-  return (
-    <main className={STYLES.main}>
-      {/* JSON-LD for News */}
-      {schema && (
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
-        />
-      )}
-      {breadcrumbs && (
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbs) }}
-        />
-      )}
-      <div className={STYLES.container}>
-        <header>
-          {formattedDate && (
-            <TypographySmall className="text-muted-foreground mb-3 block">
-              {formattedDate}
+    return (
+      <main className={STYLES.main}>
+        {/* JSON-LD for News */}
+        {schema && (
+          <script
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
+          />
+        )}
+        {breadcrumbs && (
+          <script
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbs) }}
+          />
+        )}
+        <div className={STYLES.container}>
+          <header>
+            {formattedDate && (
+              <TypographySmall className="text-muted-foreground mb-3 block">
+                {formattedDate}
+              </TypographySmall>
+            )}
+            <TypographyH1 className={STYLES.title}>{title}</TypographyH1>
+          </header>
+
+          <article>
+            <PreviewContent content={content} hideFirstHeading={true} />
+          </article>
+
+          <nav className={STYLES.footerNav}>
+            <Link href="/tin-tuc" className={STYLES.backLink}>
+              <Button>
+                <div className={STYLES.backLabel}>
+                  <ArrowLeft className="w-3 h-3 transition-transform group-hover:-translate-x-1" />
+                  <span>Xem các bài viết khác</span>
+                </div>
+              </Button>
+            </Link>
+          </nav>
+
+          <footer className={STYLES.footer}>
+            <TypographySmall>
+              &copy; {new Date().getFullYear()} ELC Holdings. Đã đăng ký bản
+              quyền.
             </TypographySmall>
-          )}
-          <TypographyH1 className={STYLES.title}>{title}</TypographyH1>
-        </header>
-
-        <article>
-          <PreviewContent content={content} hideFirstHeading={true} />
-        </article>
-
-        <nav className={STYLES.footerNav}>
-          <Link href="/tin-tuc" className={STYLES.backLink}>
-            <Button>
-              <div className={STYLES.backLabel}>
-                <ArrowLeft className="w-3 h-3 transition-transform group-hover:-translate-x-1" />
-                <span>Xem các bài viết khác</span>
-              </div>
-            </Button>
-          </Link>
-        </nav>
-
-        <footer className={STYLES.footer}>
-          <TypographySmall>
-            &copy; {new Date().getFullYear()} ELC Holdings. Đã đăng ký bản
-            quyền.
-          </TypographySmall>
-          <ScrollToTop className="flex items-center gap-2 cursor-pointer hover:text-foreground transition-colors">
-            <TypographySmall>Quay lại đầu trang</TypographySmall>
-          </ScrollToTop>
-        </footer>
-      </div>
-    </main>
-  );
+            <ScrollToTop className="flex items-center gap-2 cursor-pointer hover:text-foreground transition-colors">
+              <TypographySmall>Quay lại đầu trang</TypographySmall>
+            </ScrollToTop>
+          </footer>
+        </div>
+      </main>
+    );
+  } catch (e: any) {
+    if (e?.digest?.includes("NEXT_REDIRECT")) throw e;
+    redirect("/tin-tuc");
+    return null;
+  }
 }

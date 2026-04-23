@@ -2,7 +2,7 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   output: "standalone",
-  allowedDevOrigins: ['192.168.1.239'],
+  allowedDevOrigins: ["192.168.1.239"],
   images: {
     remotePatterns: [
       {
@@ -49,31 +49,31 @@ const nextConfig: NextConfig = {
 
       // 4. WordPress Search & Special paths
 
-      // 5. Cứu các link 2 tầng cũ (đơn giản hóa để tránh lỗi 5xx)
+      // 5. Cứu các link 2 tầng cũ (ép về trang danh sách cho an toàn tuyệt đối)
       {
-        source: "/cung-cap-thi-cong-may-lanh-dan-dung-va-cong-nghiep-gia-re/:slug*",
-        destination: "/tin-tuc/:slug",
-        permanent: true,
-      },
-      // Thêm quy tắc chung cho các danh mục cũ khác nếu có
-      {
-        source: "/he-thong-dieu-hoa-khong-khi/:slug*",
-        destination: "/tin-tuc/:slug",
+        source:
+          "/cung-cap-thi-cong-may-lanh-dan-dung-va-cong-nghiep-gia-re/:path*",
+        destination: "/dich-vu",
         permanent: true,
       },
       {
-        source: "/thiet-ke-cung-cap-thi-cong-lap-dat/:slug*",
-        destination: "/tin-tuc/:slug",
+        source: "/thiet-ke-cung-cap-thi-cong-lap-dat/:path*",
+        destination: "/dich-vu",
         permanent: true,
       },
       {
-        source: "/he-thong-cap-khi-tuoi/:slug*",
-        destination: "/tin-tuc/:slug",
+        source: "/he-thong-dieu-hoa-khong-khi/:path*",
+        destination: "/san-pham",
         permanent: true,
       },
       {
-        source: "/tin-tuc/:category/:slug",
-        destination: "/tin-tuc/:slug",
+        source: "/he-thong-cap-khi-tuoi/:path*",
+        destination: "/san-pham",
+        permanent: true,
+      },
+      {
+        source: "/tin-tuc/:category/:path*",
+        destination: "/tin-tuc",
         permanent: true,
       },
       // 6. Cứu các link sản phẩm 2 tầng cũ (ví dụ: /san-pham/ten-san-pham)
