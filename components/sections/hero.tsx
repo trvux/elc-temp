@@ -29,9 +29,14 @@ export function HeroSection({
   subtitle = "Xóa bỏ ranh giới giữa bên trong và thiên nhiên. Hệ thống điều khí thông minh từ ELC tự động tối ưu từng nhịp thở cho ngôi nhà của bạn.",
   ctaText = "Bắt đầu ngay",
   ctaUrl = "/du-an",
-  image = "/img-herosection.jpg",
+  image,
   contacts = [],
 }: HeroSectionProps) {
+  // Đảm bảo luôn có ảnh mặc định và luôn là đường dẫn tuyệt đối (có dấu / ở đầu)
+  let heroImage = image || "/img-herosection.jpg";
+  if (heroImage && !heroImage.startsWith("/") && !heroImage.startsWith("http")) {
+    heroImage = "/" + heroImage;
+  }
   // --- STYLES ---
   const styles = {
     section:
@@ -66,7 +71,7 @@ export function HeroSection({
       {/* Cụm Media - KHÔNG bọc AnimateIn để bảo vệ LCP */}
       <div className={styles.media}>
         <Image
-          src={getOptimizedImage(image, 1200, 75, "cover")}
+          src={getOptimizedImage(heroImage, 1200, 75, "cover")}
           alt="ELC Space"
           fill
           priority
