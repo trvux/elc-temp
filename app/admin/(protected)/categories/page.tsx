@@ -103,8 +103,8 @@ export default function CategoriesPage() {
     if (parentId === "none") return internalSlug;
     const parent = categories.find((c) => c.id === parentId);
     if (!parent) return internalSlug;
-    // Parent slug is already the base (level 1)
-    return `${parent.slug}/${internalSlug}`;
+    // Sử dụng dấu gạch ngang (-) để tạo slug kép SEO tốt hơn
+    return `${parent.slug}-${internalSlug}`;
   }, [parentId, internalSlug, categories]);
 
   // Only parents of same type shown as parent options
@@ -125,7 +125,7 @@ export default function CategoriesPage() {
     setEditing(cat);
     setName(cat.name);
     // If it's a child, only show the last part of the slug in the input
-    const slugParts = cat.slug?.split("/") || [""];
+    const slugParts = cat.slug?.split("-") || [""];
     setInternalSlug(slugParts[slugParts.length - 1]);
     setType(cat.type);
     setParentId(cat.parent_id ?? "none");
@@ -165,8 +165,8 @@ export default function CategoriesPage() {
         if (typeChanged || slugChanged) {
           const children = categories.filter((c) => c.parent_id === editing.id);
           for (const child of children) {
-            const childInternalSlug = child.slug.split("/").pop() || "";
-            const newChildSlug = `${fullSlug}/${childInternalSlug}`;
+            const childInternalSlug = child.slug.split("-").pop() || "";
+            const newChildSlug = `${fullSlug}-${childInternalSlug}`;
             await supabase
               .from("categories")
               .update({

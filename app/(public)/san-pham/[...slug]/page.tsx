@@ -128,14 +128,15 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { slug } = await params;
   const leafSlug = slug[slug.length - 1];
-  const categoryPath = slug.slice(0, -1).join("/");
+  const categoryPathSegments = slug.slice(0, -1);
+  const combinedCategorySlug = categoryPathSegments.join("-");
 
   const supabase = await createClient();
   const { data: product } = await supabase
     .from("products")
     .select("*, categories!inner(name, slug), brands(name)")
     .eq("slug", leafSlug)
-    .eq("categories.slug", categoryPath)
+    .eq("categories.slug", combinedCategorySlug)
     .single();
 
   if (!product) return { title: SEO_CONFIG.defaultTitle };
@@ -180,7 +181,8 @@ export default async function ProductDetail({
 }) {
   const { slug } = await params;
   const leafSlug = slug[slug.length - 1];
-  const categoryPath = slug.slice(0, -1).join("/");
+  const categoryPathSegments = slug.slice(0, -1);
+  const combinedCategorySlug = categoryPathSegments.join("-");
 
   const supabase = await createClient();
 
@@ -205,9 +207,7 @@ export default async function ProductDetail({
     brands?: { name: string };
   }
 
-  const categorySlugs = categoryPath.split("/");
-  const leafCategorySlug = categoryPath;
-  const parentCategorySlug = categorySlugs.length > 1 ? categorySlugs[0] : null;
+  const parentCategorySlug = categoryPathSegments.length > 1 ? categoryPathSegments[0] : null;
 
   const [{ data: rawProduct }, { data: categoriesData }, { data: contacts }] =
     (await Promise.all([
@@ -215,7 +215,7 @@ export default async function ProductDetail({
         .from("products")
         .select("*, categories!inner(name, slug), brands(name)")
         .eq("slug", leafSlug)
-        .eq("categories.slug", categoryPath)
+        .eq("categories.slug", combinedCategorySlug)
         .single(),
       supabase
         .from("categories")
