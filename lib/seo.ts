@@ -58,7 +58,7 @@ export function generateOrganizationSchema(dynamicData?: {
 }) {
   const { settings, contacts } = dynamicData || {};
 
-  // Tự động gom tất cả mạng xã hội từ contacts vào sameAs
+  // Gom từ contacts
   const socialLinks = (contacts || [])
     .map((c) => {
       const type = c.type?.toLowerCase();
@@ -67,17 +67,27 @@ export function generateOrganizationSchema(dynamicData?: {
 
       if (type === "facebook")
         return val.startsWith("http") ? val : `https://www.facebook.com/${val}`;
-      if (type === "zalo") return `https://zalo.me/${val}`;
-      if (type === "messenger") return `https://m.me/${val}`;
+      if (type === "zalo") return val.startsWith("http") ? val : `https://zalo.me/${val}`;
+      if (type === "messenger") return val.startsWith("http") ? val : `https://m.me/${val}`;
       if (type === "youtube")
         return val.startsWith("http") ? val : `https://www.youtube.com/${val}`;
       if (type === "instagram")
         return val.startsWith("http") ? val : `https://www.instagram.com/${val}`;
       return null;
-    })
-    .filter(Boolean);
+    });
 
-  const sameAs = socialLinks.length > 0 ? socialLinks : [
+  // Gom thêm từ settings (nếu contacts chưa có)
+  const settingsLinks = [
+    settings?.facebook_url,
+    settings?.messenger_url,
+    settings?.zalo_url,
+    settings?.youtube_url,
+    settings?.instagram_url
+  ].filter(Boolean);
+
+  const combinedLinks = Array.from(new Set([...socialLinks, ...settingsLinks])).filter(Boolean) as string[];
+
+  const sameAs = combinedLinks.length > 0 ? combinedLinks : [
     SEO_CONFIG.organization.facebook,
     SEO_CONFIG.organization.messenger,
     SEO_CONFIG.organization.zalo
