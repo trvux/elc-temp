@@ -63,11 +63,23 @@ export function generateOrganizationSchema(dynamicData?: {
   const socialLinks = (contacts || [])
     .map((c) => {
       const type = c.type?.toLowerCase();
-      const val = c.value;
+      let val = c.value?.trim();
       if (!val) return null;
-      if (["facebook", "zalo", "messenger", "youtube", "instagram"].includes(type)) {
-        return val.startsWith("http") ? val : val;
-      }
+      
+      // Nếu user đã nhập full link (có http) thì lấy luôn
+      if (val.startsWith("http")) return val;
+      
+      // Nếu chỉ nhập ID/Username/Số điện thoại thì tự bồi thêm domain
+      if (type === "facebook") return `https://www.facebook.com/${val}`;
+      if (type === "zalo") return `https://zalo.me/${val}`;
+      if (type === "messenger") return `https://m.me/${val}`;
+      if (type === "youtube") return `https://www.youtube.com/${val}`;
+      if (type === "instagram") return `https://www.instagram.com/${val}`;
+      if (type === "tiktok") return `https://www.tiktok.com/@${val.replace("@", "")}`;
+      
+      // Với website thì bồi thêm https nếu thiếu
+      if (type === "website") return val.startsWith("http") ? val : `https://${val}`;
+      
       return null;
     })
     .filter(Boolean);
