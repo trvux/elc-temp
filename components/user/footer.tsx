@@ -134,7 +134,7 @@ export function Footer({
               pages.slice(0, 8).map((p) => (
                 <Link
                   key={p.slug}
-                  href={`/thong-tin?slug=${p.slug}`}
+                  href={`/${p.slug}`}
                   className={styles.link}
                 >
                   {p.title}
