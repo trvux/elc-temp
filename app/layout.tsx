@@ -25,8 +25,8 @@ const newsreader = Newsreader({
 export const metadata: Metadata = {
   metadataBase: new URL("https://dienmayelc.com.vn"),
   title: {
-    default: "Điện máy ELC - Giải pháp Không khí thuần khiết",
-    template: "%s | Điện máy ELC",
+    default: SEO_CONFIG.defaultTitle,
+    template: `%s | ${SEO_CONFIG.siteName}`,
   },
   description:
     "Điện máy ELC chuyên cung cấp máy lạnh, giải pháp không khí và dịch vụ kỹ thuật điện máy chuyên nghiệp. Uy tín - Tận tâm - Chất lượng.",

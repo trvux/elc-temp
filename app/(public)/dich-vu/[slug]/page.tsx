@@ -56,7 +56,7 @@ export async function generateMetadata({
   if (!service) return { title: "Không tìm thấy nội dung" };
 
   return {
-    title: service.meta_title || `Dịch vụ ${service.title} | ${SEO_CONFIG.siteName}`,
+    title: service.meta_title || `Dịch vụ ${service.title}`,
     description:
       service.meta_description || 
       extractMetaDescription(service.content || "", 160),

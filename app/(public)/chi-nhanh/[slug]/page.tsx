@@ -117,8 +117,7 @@ export async function generateMetadata({
 
   const title =
     // @ts-ignore
-    branch.meta_title ||
-    `Điện máy ELC - ${branch.name} | ${branch.address}`;
+    branch.meta_title || `${branch.name} - ${branch.address}`;
   const description =
     // @ts-ignore
     branch.meta_description || 

@@ -28,19 +28,19 @@ export async function generateMetadata({
   const categorySlug =
     typeof params.category === "string" ? params.category : "";
 
-  let title = `Danh mục Sản phẩm | ${SEO_CONFIG.siteName}`;
+  let title = "Danh mục Sản phẩm";
   let description =
     "Cung cấp đa dạng các dòng máy lạnh, hệ thống lọc không khí và thiết bị điện lạnh chính hãng từ Daikin, Mitsubishi, Panasonic, LG...";
 
   if (q) {
-    title = `Kết quả tìm kiếm "${q}" | ${SEO_CONFIG.siteName}`;
+    title = `Kết quả tìm kiếm "${q}"`;
     description = `Tìm thấy các sản phẩm phù hợp với từ khóa "${q}" tại ELC. Cam kết hàng chính hãng, giá tốt nhất thị trường.`;
   } else if (categorySlug) {
     // Viết hoa chữ cái đầu cho đẹp
     const catName =
       categorySlug.charAt(0).toUpperCase() +
       categorySlug.slice(1).replace(/-/g, " ");
-    title = `Danh mục ${catName} chính hãng, giá tốt | ${SEO_CONFIG.siteName}`;
+    title = `Danh mục ${catName} chính hãng, giá tốt`;
     description = `Tổng hợp các dòng ${catName} thế mới nhất, Inverter tiết kiệm điện, bảo hành dài hạn tại ELC.`;
   }
 

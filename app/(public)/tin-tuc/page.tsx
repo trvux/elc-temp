@@ -15,13 +15,13 @@ import { generateBreadcrumbSchema, SEO_CONFIG } from "@/lib/seo";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: `Tin tức & Giải pháp Kỹ thuật | ${SEO_CONFIG.siteName}`,
+  title: "Tin tức & Giải pháp Kỹ thuật",
   description: "Cập nhật những giải pháp kỹ thuật mới nhất, hướng dẫn lắp đặt và các tin tức chuyên sâu về ngành điện máy lạnh từ đội ngũ kỹ sư ELC.",
   alternates: {
     canonical: `${SEO_CONFIG.baseUrl}/tin-tuc`,
   },
   openGraph: {
-    title: `Tin tức & Giải pháp Kỹ thuật | ${SEO_CONFIG.siteName}`,
+    title: "Tin tức & Giải pháp Kỹ thuật",
     description: "Cập nhật những giải pháp kỹ thuật mới nhất và các tin tức chuyên sâu từ ELC.",
     url: `${SEO_CONFIG.baseUrl}/tin-tuc`,
     type: "website",

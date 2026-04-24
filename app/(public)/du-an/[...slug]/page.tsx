@@ -43,7 +43,7 @@ export async function generateMetadata({
 
   if (!project) return { title: SEO_CONFIG.defaultTitle };
 
-  const title = project.meta_title || `${project.title} | Dự án ${SEO_CONFIG.siteName}`;
+  const title = project.meta_title || project.title;
   const description = project.meta_description || extractMetaDescription(project.description || "", 160);
   const url = `${SEO_CONFIG.baseUrl}/du-an/${slug.join("/")}`;
 

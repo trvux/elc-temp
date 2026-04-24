@@ -9,10 +9,6 @@ interface PublicLayoutProps {
 }
 
 export const metadata: Metadata = {
-  title: {
-    template: `%s | ${SEO_CONFIG.siteName}`,
-    default: SEO_CONFIG.siteName,
-  },
   description: SEO_CONFIG.defaultDescription,
 };
 

@@ -144,7 +144,7 @@ export async function generateMetadata({
   const title =
     // @ts-ignore
     product.meta_title ||
-    `${product.brands?.name ? product.brands.name + " " : ""}${product.name} - ${product.sku} | ${SEO_CONFIG.siteName}`;
+    `${product.brands?.name ? product.brands.name + " " : ""}${product.name} - ${product.sku}`;
 
   // Dùng hàm Smart Description cho Meta SEO
   // SEO Hierarchy: meta_description -> short_description -> Auto-generate from specs
