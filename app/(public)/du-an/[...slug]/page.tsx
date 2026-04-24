@@ -68,40 +68,44 @@ export default async function ProjectDetail({
 }: {
   params: Promise<{ slug: string[] }>;
 }) {
-  const staticSupabase = createStaticClient();
   const { slug } = await params;
   const leafSlug = slug[slug.length - 1];
   const categoryPathSegments = slug.slice(0, -1);
   const combinedCategorySlug = categoryPathSegments.join("-");
+  const staticSupabase = createStaticClient();
 
-  // Fetch project data with category hierarchy
-  const { data: project } = await staticSupabase
-    .from("projects")
-    .select("*, categories!inner(name, slug, parent:parent_id(name))")
-    .eq("slug", leafSlug)
-    .eq("categories.slug", combinedCategorySlug)
-    .single();
+  // Fetch the project and all project categories to build the hierarchy
+  const [{ data: project }, { data: allCategories }, { data: allProjectsData }] = await Promise.all([
+    staticSupabase
+      .from("projects")
+      .select("*, categories!inner(id, name, slug, parent_id)")
+      .eq("slug", leafSlug)
+      .eq("categories.slug", combinedCategorySlug)
+      .single(),
+    staticSupabase
+      .from("categories")
+      .select("id, name, slug, parent_id")
+      .eq("type", "project"),
+    staticSupabase
+      .from("projects")
+      .select("id, title, slug, categories(slug)")
+      .eq("is_published", true)
+      .order("order_index", { ascending: true }),
+  ]);
 
   if (!project) {
     notFound();
   }
 
-  // Fetch all projects for the TOC with their full hierarchical paths
-  const { data: allProjectsData } = await staticSupabase
-    .from("projects")
-    .select("id, title, slug, categories(slug)")
-    .eq("is_published", true)
-    .order("order_index", { ascending: true });
-
-    const allProjects = (allProjectsData || []).map((p) => {
-      const cat = Array.isArray(p.categories) ? p.categories[0] : p.categories;
-      const catSlug = (cat as { slug: string })?.slug;
-      return {
-        id: p.id,
-        title: p.title,
-        slug: catSlug ? `${catSlug}/${p.slug}` : p.slug,
-      };
-    });
+  const allProjects = (allProjectsData || []).map((p) => {
+    const cat = Array.isArray(p.categories) ? p.categories[0] : p.categories;
+    const catSlug = (cat as { slug: string })?.slug;
+    return {
+      id: p.id,
+      title: p.title,
+      slug: catSlug ? `${catSlug}/${p.slug}` : p.slug,
+    };
+  });
 
   const images = project.images || [];
 
@@ -111,14 +115,40 @@ export default async function ProjectDetail({
     images: project.images,
   });
 
-  const breadcrumbs = generateBreadcrumbSchema([
+  // Build breadcrumbs by traversing the category tree from the DB
+  const breadcrumbItems = [
     { name: "Trang chủ", item: "/" },
     { name: "Dự án", item: "/du-an" },
-    ...slug.map((s, i) => ({
-      name: i === slug.length - 1 ? project.title : "Danh mục",
-      item: `/du-an/${slug.slice(0, i + 1).join("/")}`,
-    })),
-  ]);
+  ];
+
+  if (allCategories && project.categories) {
+    const trail: { name: string; slug: string }[] = [];
+    let currentCat: any = project.categories;
+
+    while (currentCat) {
+      trail.unshift({ name: currentCat.name, slug: currentCat.slug });
+      if (currentCat.parent_id) {
+        currentCat = allCategories.find(c => c.id === currentCat.parent_id);
+      } else {
+        currentCat = null;
+      }
+    }
+
+    trail.forEach(cat => {
+      breadcrumbItems.push({
+        name: cat.name,
+        item: `/du-an?category=${cat.slug}`,
+      });
+    });
+  }
+
+  // Add the project itself
+  breadcrumbItems.push({
+    name: project.title,
+    item: `/du-an/${slug.join("/")}`,
+  });
+
+  const breadcrumbs = generateBreadcrumbSchema(breadcrumbItems);
 
   return (
     <main className="w-full pt-28 pb-24 px-4 md:px-6 min-h-screen">

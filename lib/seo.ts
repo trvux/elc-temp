@@ -144,6 +144,7 @@ export function generateOrganizationSchema(dynamicData?: {
 
 /**
  * Generate Breadcrumb Schema - Helps Google show "ELC > Máy lạnh > Treo tường"
+ * Strictly follows Google's recommendation for itemListElement.
  */
 export function generateBreadcrumbSchema(
   items: { name: string; item: string }[]
@@ -151,14 +152,18 @@ export function generateBreadcrumbSchema(
   return {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
-    itemListElement: items.map((item, index) => ({
-      "@type": "ListItem",
-      position: index + 1,
-      name: item.name,
-      item: item.item.startsWith("http")
+    "itemListElement": items.map((item, index) => {
+      const url = item.item.startsWith("http")
         ? item.item
-        : `${SEO_CONFIG.baseUrl}${item.item}`,
-    })),
+        : `${SEO_CONFIG.baseUrl}${item.item === "/" ? "" : item.item}`;
+      
+      return {
+        "@type": "ListItem",
+        "position": index + 1,
+        "name": item.name,
+        "item": url // Google accepts string URL or object with @id. String is cleaner.
+      };
+    }),
   };
 }
 

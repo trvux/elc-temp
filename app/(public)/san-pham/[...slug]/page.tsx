@@ -187,8 +187,10 @@ export default async function ProductDetail({
   const supabase = await createClient();
 
   interface CategoryData {
+    id: string;
     name: string;
     slug: string;
+    parent_id?: string | null;
     parent?: { name: string; slug: string } | null;
   }
 
@@ -207,41 +209,34 @@ export default async function ProductDetail({
     brands?: { name: string };
   }
 
-  const parentCategorySlug = categoryPathSegments.length > 1 ? categoryPathSegments[0] : null;
-
-  const [{ data: rawProduct }, { data: categoriesData }, { data: contacts }] =
+  // Fetch the leaf category and all other categories to build the hierarchy
+  const [{ data: rawProduct }, { data: allCategories }, { data: contacts }] =
     (await Promise.all([
       supabase
         .from("products")
-        .select("*, categories!inner(name, slug), brands(name)")
+        .select("*, categories!inner(id, name, slug, parent_id), brands(name)")
         .eq("slug", leafSlug)
         .eq("categories.slug", combinedCategorySlug)
         .single(),
       supabase
         .from("categories")
-        .select("name, slug")
-        .in(
-          "slug",
-          [combinedCategorySlug, parentCategorySlug].filter(Boolean) as string[],
-        ),
+        .select("id, name, slug, parent_id")
+        .eq("type", "product"),
       supabase.from("contacts").select("*").order("order_index"),
     ])) as [
       { data: ProductData | null },
-      { data: { name: string; slug: string }[] | null },
+      { data: { id: string; name: string; slug: string; parent_id: string | null }[] | null },
       { data: any[] | null },
     ];
 
   if (!rawProduct) notFound();
 
   const product = rawProduct;
-  const leafCat = categoriesData?.find((c) => c.slug === combinedCategorySlug);
-  const parentCat = parentCategorySlug
-    ? categoriesData?.find((c) => c.slug === parentCategorySlug)
-    : null;
 
-  const categoryDisplay = parentCat
-    ? `${parentCat.name} / ${leafCat?.name || product.categories?.name}`
-    : leafCat?.name || product.categories?.name;
+  const leafCat = product.categories;
+  const parentCat = leafCat?.parent_id 
+    ? allCategories?.find(c => c.id === leafCat.parent_id)
+    : null;
 
   const normalizedSpecs: SpecItem[] = Array.isArray(product.specs)
     ? product.specs
@@ -271,15 +266,41 @@ export default async function ProductDetail({
     url: `${SEO_CONFIG.baseUrl}/san-pham/${slug.join("/")}`,
     specs: normalizedSpecs, // Đưa toàn bộ specs vào để tạo snippet xịn trên Google
   });
-
-  const breadcrumbs = generateBreadcrumbSchema([
+  
+  // Build breadcrumbs by traversing the category tree from the DB
+  const breadcrumbItems = [
     { name: "Trang chủ", item: "/" },
     { name: "Sản phẩm", item: "/san-pham" },
-    ...slug.map((s, i) => ({
-      name: i === slug.length - 1 ? product.name : "Danh mục", // We could fetch category names for more accuracy
-      item: `/san-pham/${slug.slice(0, i + 1).join("/")}`,
-    })),
-  ]);
+  ];
+
+  if (allCategories && product.categories) {
+    const trail: { name: string; slug: string }[] = [];
+    let currentCat: any = product.categories;
+
+    while (currentCat) {
+      trail.unshift({ name: currentCat.name, slug: currentCat.slug });
+      if (currentCat.parent_id) {
+        currentCat = allCategories.find(c => c.id === currentCat.parent_id);
+      } else {
+        currentCat = null;
+      }
+    }
+
+    trail.forEach(cat => {
+      breadcrumbItems.push({
+        name: cat.name,
+        item: `/san-pham?category=${cat.slug}`,
+      });
+    });
+  }
+
+  // Add the product itself
+  breadcrumbItems.push({
+    name: product.name,
+    item: `/san-pham/${slug.join("/")}`,
+  });
+
+  const breadcrumbs = generateBreadcrumbSchema(breadcrumbItems);
 
   return (
     <main className={STYLES.main}>
