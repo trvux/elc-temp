@@ -29,8 +29,8 @@ export default async function PublicLayout({ children }: PublicLayoutProps) {
   ] = await Promise.all([
     supabase.from("settings").select("*").maybeSingle(),
     supabase.from("contacts").select("*"),
-    supabase.from("branches").select("id, name, address, phone"),
-    supabase.from("projects").select("id, title, slug").eq("is_published", true).limit(5),
+    supabase.from("branches").select("id, slug, name, address, phone"),
+    supabase.from("projects").select("id, title, slug, categories(slug)").eq("is_published", true).limit(5),
     supabase.from("pages").select("id, title, slug").eq("is_published", true)
   ]);
 
