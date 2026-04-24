@@ -1,5 +1,6 @@
 import { createStaticClient } from "@/lib/supabase/static";
 import { MetadataRoute } from "next";
+import redirectMap from "../redirect-map.json";
 
 export const revalidate = 3600; // Cập nhật sitemap mỗi 1 giờ
 
@@ -126,14 +127,28 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.5,
   }));
 
+  // 3. Filter out URLs that are in the redirect map (Rescue SEO)
+  // Sitemap should only contain 200 OK pages.
+  const isRedirected = (path: string) => {
+    const cleanPath = path.startsWith("/") ? path.slice(1) : path;
+    return !!(redirectMap as Record<string, string>)[cleanPath];
+  };
+
+  const filteredProductUrls = productUrls.filter(p => !isRedirected(p.url.replace(baseUrl, "")));
+  const filteredNewsUrls = newsUrls.filter(n => !isRedirected(n.url.replace(baseUrl, "")));
+  const filteredProjectUrls = projectUrls.filter(p => !isRedirected(p.url.replace(baseUrl, "")));
+  const filteredServiceUrls = serviceUrls.filter(s => !isRedirected(s.url.replace(baseUrl, "")));
+  const filteredBranchUrls = branchUrls.filter(b => !isRedirected(b.url.replace(baseUrl, "")));
+  const filteredPageUrls = pageUrls.filter(p => !isRedirected(p.url.replace(baseUrl, "")));
+
   return [
     ...staticRoutes,
-    ...productUrls,
-    ...newsUrls,
-    ...projectUrls,
-    ...serviceUrls,
-    ...branchUrls,
-    ...pageUrls,
+    ...filteredProductUrls,
+    ...filteredNewsUrls,
+    ...filteredProjectUrls,
+    ...filteredServiceUrls,
+    ...filteredBranchUrls,
+    ...filteredPageUrls,
   ] as MetadataRoute.Sitemap;
 }
 
