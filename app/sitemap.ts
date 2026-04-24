@@ -2,7 +2,8 @@ import { createStaticClient } from "@/lib/supabase/static";
 import { MetadataRoute } from "next";
 import redirectMap from "../redirect-map.json";
 
-export const revalidate = 3600; // Cập nhật sitemap mỗi 1 giờ
+// Bỏ cache để cập nhật dữ liệu mới nhất ngay lập tức
+// export const revalidate = 3600;
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = "https://dienmayelc.com.vn";
@@ -90,50 +91,58 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   if (bError) console.error("Sitemap Branches Error:", bError);
   if (pgError) console.error("Sitemap Pages Error:", pgError);
 
+  // Helper function to clean and normalize URLs
+  const normalizeUrl = (url: string) => {
+    return url
+      .replace(/\/+/g, "/") // Thay // thành /
+      .replace(/-+/g, "-")  // Thay -- hoặc --- thành -
+      .replace(/\s+/g, "")  // Xóa bỏ hoàn toàn khoảng trắng
+      .replace("https:/", "https://"); // Trả lại dấu // cho protocol
+  };
+
   const productUrls = (products || []).map((p: any) => ({
-    url: `${baseUrl}/san-pham/${p.categories.slug}/${p.slug}`,
+    url: normalizeUrl(`${baseUrl}/san-pham/${p.categories.slug}/${p.slug}`),
     lastModified: p.updated_at || p.created_at,
     changeFrequency: "daily",
     priority: 0.8,
   }));
 
   const newsUrls = (news || []).map((n: any) => ({
-    url: `${baseUrl}/tin-tuc/${n.slug}`,
+    url: normalizeUrl(`${baseUrl}/tin-tuc/${n.slug}`),
     lastModified: n.updated_at || n.created_at,
     changeFrequency: "daily",
     priority: 0.7,
   }));
 
   const projectUrls = (projects || []).map((p: any) => ({
-    url: `${baseUrl}/du-an/${p.categories.slug}/${p.slug}`,
+    url: normalizeUrl(`${baseUrl}/du-an/${p.categories.slug}/${p.slug}`),
     lastModified: p.updated_at || p.created_at,
     changeFrequency: "daily",
     priority: 0.7,
   }));
 
   const serviceUrls = (services || []).map((s: any) => ({
-    url: `${baseUrl}/dich-vu/${s.slug}`,
+    url: normalizeUrl(`${baseUrl}/dich-vu/${s.slug}`),
     lastModified: s.updated_at || s.created_at,
     changeFrequency: "daily",
     priority: 0.7,
   }));
 
   const branchUrls = (branches || []).map((b: any) => ({
-    url: `${baseUrl}/chi-nhanh/${b.slug}`,
+    url: normalizeUrl(`${baseUrl}/chi-nhanh/${b.slug}`),
     lastModified: b.updated_at || b.created_at,
     changeFrequency: "daily",
     priority: 0.6,
   }));
 
   const pageUrls = (pages || []).map((p: any) => ({
-    url: `${baseUrl}/${p.slug}`,
+    url: normalizeUrl(`${baseUrl}/${p.slug}`),
     lastModified: p.updated_at || p.created_at,
     changeFrequency: "daily",
     priority: 0.5,
   }));
 
   // 3. Filter out URLs that are in the redirect map (Rescue SEO)
-  // Sitemap should only contain 200 OK pages.
   const isRedirected = (path: string) => {
     const cleanPath = path.startsWith("/") ? path.slice(1) : path;
     return !!(redirectMap as Record<string, string>)[cleanPath];
