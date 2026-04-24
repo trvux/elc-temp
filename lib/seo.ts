@@ -106,12 +106,68 @@ export function generateOrganizationSchema(dynamicData?: {
   const mainAddress = mainBranch?.address || settings?.company_address || SEO_CONFIG.organization.address;
   const mainPhone = mainBranch?.phone || settings?.company_phone || SEO_CONFIG.organization.phone;
 
+  // 4. Merchant Policies (New for Merchant Listings)
+  const merchantPolicies = {
+    hasMerchantReturnPolicy: {
+      "@type": "MerchantReturnPolicy",
+      applicableCountry: "VN",
+      returnPolicyCategory: "https://schema.org/MerchantReturnFiniteReturnWindow",
+      merchantReturnDays: 7,
+      returnMethod: "https://schema.org/ReturnByMail",
+      returnFees: "https://schema.org/FreeReturn",
+    },
+    shippingDetails: {
+      "@type": "OfferShippingDetails",
+      shippingRate: {
+        "@type": "MonetaryAmount",
+        value: "0",
+        currency: "VND",
+      },
+      shippingDestination: {
+        "@type": "DefinedRegion",
+        addressCountry: "VN",
+      },
+      deliveryTime: {
+        "@type": "ShippingDeliveryTime",
+        handlingTime: {
+          "@type": "QuantitativeValue",
+          minValue: "0",
+          maxValue: "1",
+          unitCode: "DAY",
+        },
+        transitTime: {
+          "@type": "QuantitativeValue",
+          minValue: "1",
+          maxValue: "3",
+          unitCode: "DAY",
+        },
+      },
+    },
+  };
+
+  const extractGeo = (url: string) => {
+    if (!url) return null;
+    const match = url.match(/@(-?\d+\.\d+),(-?\d+\.\d+)/);
+    if (match) {
+      return {
+        latitude: match[1],
+        longitude: match[2],
+      };
+    }
+    return null;
+  };
+
   return {
     "@context": "https://schema.org",
-    "@type": "Organization",
+    "@type": ["Organization", "LocalBusiness"],
+    "@id": `${SEO_CONFIG.baseUrl}/#organization`,
     name: settings?.company_name || SEO_CONFIG.organization.name,
     url: SEO_CONFIG.baseUrl,
     logo: settings?.company_logo || SEO_CONFIG.organization.logo,
+    image: settings?.company_logo || SEO_CONFIG.organization.logo,
+    telephone: mainPhone,
+    priceRange: "$$",
+    ...merchantPolicies,
     contactPoint: {
       "@type": "ContactPoint",
       telephone: mainPhone,
@@ -127,17 +183,31 @@ export function generateOrganizationSchema(dynamicData?: {
       addressCountry: "VN",
     },
     sameAs: sameAs,
-    // Add all branches as locations
+    // Add all branches as locations with LocalBusiness type
     ...(branches && branches.length > 0 && {
-      "location": branches.map(b => ({
-        "@type": "Place",
-        "name": b.name,
-        "address": {
-          "@type": "PostalAddress",
-          "streetAddress": b.address
-        },
-        "telephone": b.phone
-      }))
+      "location": branches.map(b => {
+        const geo = b.latitude && b.longitude 
+          ? { latitude: b.latitude, longitude: b.longitude }
+          : extractGeo(b.maps_url);
+
+        return {
+          "@type": "LocalBusiness",
+          "name": `${SEO_CONFIG.siteName} - ${b.name}`,
+          "address": {
+            "@type": "PostalAddress",
+            "streetAddress": b.address
+          },
+          "telephone": b.phone,
+          "url": `${SEO_CONFIG.baseUrl}/chi-nhanh/${b.slug}`,
+          ...(geo && {
+            "geo": {
+              "@type": "GeoCoordinates",
+              "latitude": geo.latitude,
+              "longitude": geo.longitude
+            }
+          })
+        };
+      })
     })
   };
 }
