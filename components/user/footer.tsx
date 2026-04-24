@@ -91,6 +91,7 @@ export function Footer({
               width={80} 
               height={80} 
               className="h-12 w-auto brightness-0 invert"
+              style={{ width: "auto" }}
             />
           </Link>
           {settings?.company_short_desc && (
