@@ -8,13 +8,13 @@ export async function proxy(request: NextRequest) {
 
   // 1. Xử lý Redirect hoặc Gone (SEO Rescue)
   let path = pathname.startsWith("/") ? pathname.slice(1) : pathname;
-  // Bỏ dấu / cuối cùng nếu có để so khớp map chính xác
-  if (path.endsWith("/")) path = path.slice(0, -1);
+  const fullPath = search ? path + search : path;
   
-  const destination = (redirectMap as Record<string, string>)[path];
+  const destination = (redirectMap as Record<string, string>)[fullPath] || (redirectMap as Record<string, string>)[path];
 
   if (destination) {
     if (destination === "GONE") {
+      // Rewrite về trang /gone để hiện giao diện đẹp, nhưng trả về status 410 cho SEO
       const url = request.nextUrl.clone();
       url.pathname = "/gone";
       return NextResponse.rewrite(url, { 
@@ -23,10 +23,10 @@ export async function proxy(request: NextRequest) {
       });
     }
     
-    // Redirect 301 nhưng PHẢI GIỮ LẠI SEARCH PARAMS (gclid, utm, etc.)
+    // Redirect 301
     const url = request.nextUrl.clone();
     url.pathname = destination;
-    // url.search giữ nguyên từ request gốc
+    url.search = ""; 
     return NextResponse.redirect(url, { status: 301 });
   }
 
