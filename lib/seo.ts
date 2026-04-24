@@ -37,13 +37,13 @@ export function extractMetaDescription(content: any, maxLength: number = 160): s
 
 export const SEO_CONFIG = {
   siteName: "Điện máy ELC",
-  titleSeparator: " | ",
+  titleSeparator: " \\ ",
   defaultTitle: "Điện máy ELC - Giải pháp Không khí thuần khiết",
   defaultDescription: "Tiên phong cung cấp giải pháp HVAC tổng thế, tích hợp công nghệ điều tiết khí thông minh và lọc khí tươi chuyên sâu cho không gian sống hiện đại.",
   baseUrl: "https://dienmayelc.com.vn",
   organization: {
     name: "Công ty cổ phần giải pháp công nghệ TMDV ELC",
-    logo: "https://dienmayelc.com.vn/logo.png",
+    logo: "https://dienmayelc.com.vn/logo/logo.svg",
     phone: "0789978898",
     address: "06 Dương Quảng Hàm, phường An Nhơn, Thành phố Hồ Chí Minh",
     facebook: "https://www.facebook.com/dienmayelc",

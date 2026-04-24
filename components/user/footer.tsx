@@ -1,5 +1,6 @@
 import { cn } from "@/lib/utils";
 import Link from "next/link";
+import Image from "next/image";
 import { PhoneConfirmation } from "./phone-confirmation";
 
 interface FooterProps {
@@ -84,7 +85,13 @@ export function Footer({
             href="/"
             className="inline-block hover:opacity-80 transition-opacity"
           >
-            <span className={styles.logo}>ELC</span>
+            <Image 
+              src="/logo/logo.svg" 
+              alt="Điện máy ELC" 
+              width={80} 
+              height={80} 
+              className="h-12 w-auto brightness-0 invert"
+            />
           </Link>
           {settings?.company_short_desc && (
             <p className={styles.logoDesc}>{settings.company_short_desc}</p>

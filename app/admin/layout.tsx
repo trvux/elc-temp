@@ -2,7 +2,7 @@ import { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: {
-    template: "%s | ELC Admin",
+    template: "%s \\ ELC Admin",
     default: "ELC Admin",
   },
   description: "Hệ thống quản trị nội dung ELC",

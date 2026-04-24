@@ -26,7 +26,7 @@ export const metadata: Metadata = {
   metadataBase: new URL("https://dienmayelc.com.vn"),
   title: {
     default: SEO_CONFIG.defaultTitle,
-    template: `%s | ${SEO_CONFIG.siteName}`,
+    template: `%s \\ ${SEO_CONFIG.siteName}`,
   },
   description:
     "Điện máy ELC chuyên cung cấp máy lạnh, giải pháp không khí và dịch vụ kỹ thuật điện máy chuyên nghiệp. Uy tín - Tận tâm - Chất lượng.",
@@ -46,8 +46,8 @@ export const metadata: Metadata = {
     telephone: true,
   },
   icons: {
-    icon: "/favicon.ico",
-    apple: "/apple-touch-icon.png",
+    icon: "/logo/favico.svg",
+    apple: "/logo/favico.svg",
   },
   alternates: {
     canonical: "/",
@@ -62,7 +62,7 @@ export const metadata: Metadata = {
       "Giải pháp điều hòa không khí chuyên nghiệp cho gia đình và doanh nghiệp.",
     images: [
       {
-        url: "/og-image.png",
+        url: "/logo/logo.svg",
         width: 1200,
         height: 630,
         alt: "Điện máy ELC",

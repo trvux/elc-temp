@@ -3,6 +3,7 @@
 import { cn } from "@/lib/utils";
 import { Menu, X } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import * as React from "react";
 
@@ -154,7 +155,14 @@ export function Header() {
         <Collapsible open={isMenuOpen} onOpenChange={setIsMenuOpen}>
           <div className={styles.topBar}>
             <Link href="/" className={styles.logo}>
-              ELC
+              <Image 
+                src="/logo/logo.svg" 
+                alt="Điện máy ELC" 
+                width={120} 
+                height={40} 
+                className="h-10 w-auto"
+                priority
+              />
             </Link>
 
             <NavigationMenu className={styles.desktopNav}>
