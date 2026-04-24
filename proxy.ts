@@ -8,26 +8,41 @@ export async function proxy(request: NextRequest) {
 
   // 1. Xử lý Redirect hoặc Gone (SEO Rescue)
   let path = pathname.startsWith("/") ? pathname.slice(1) : pathname;
+  // Chuẩn hóa: xóa dấu / ở cuối nếu có để khớp với Map
+  if (path.endsWith("/") && path.length > 1) {
+    path = path.slice(0, -1);
+  }
   const fullPath = search ? path + search : path;
   
   const destination = (redirectMap as Record<string, string>)[fullPath] || (redirectMap as Record<string, string>)[path];
 
-  if (destination) {
-    if (destination === "GONE") {
-      // Rewrite về trang /gone để hiện giao diện đẹp, nhưng trả về status 410 cho SEO
-      const url = request.nextUrl.clone();
-      url.pathname = "/gone";
-      return NextResponse.rewrite(url, { 
-        status: 410,
-        headers: { "x-robots-tag": "noindex, follow" } 
-      });
-    }
-    
-    // Redirect 301
+  // 1.1 Khai tử tự động các pattern WordPress rác
+  const wpPatterns = [
+    'wp-admin', 'wp-includes', 'wp-content', 'wp-json', 
+    'xmlrpc.php', '.php', 
+    '/?p=', '/category/', '/tag/', '/author/', '/comments/', '/feed/',
+    '/product-category/', '/product-tag/', '/danh-muc/', '/san-pham-cu/'
+  ];
+  
+  const isWpLegacy = wpPatterns.some(p => 
+    pathname.includes(p) || 
+    search.includes(p) || 
+    pathname.startsWith('/wp-') ||
+    pathname.startsWith('/category/') ||
+    pathname.startsWith('/tag/')
+  );
+
+  // Nếu nằm trong Map hoặc dính Pattern WP cũ -> Trả về 410
+  if (destination === "GONE" || isWpLegacy) {
     const url = request.nextUrl.clone();
-    url.pathname = destination;
-    url.search = ""; 
-    return NextResponse.redirect(url, { status: 301 });
+    url.pathname = "/gone";
+    return NextResponse.rewrite(url, { 
+      status: 410,
+      headers: { 
+        "x-robots-tag": "noindex, nofollow, noarchive",
+        "cache-control": "public, max-age=31536000, immutable" 
+      } 
+    });
   }
 
   // 2. Logic Admin & Session
