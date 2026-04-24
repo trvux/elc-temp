@@ -301,7 +301,8 @@ export function generateSchema(
         ...base,
         "@type": "Product",
         name: data.name,
-        image: Array.isArray(data.images) ? data.images : [data.images],
+        // Google ưu tiên ảnh đầu tiên nếu là mảng, hoặc có thể gửi ảnh đầu tiên làm ảnh chính
+        image: Array.isArray(data.images) && data.images.length > 0 ? data.images : [data.images || "/og-image.png"],
         description: data.metaDescription || data.description || data.name,
         sku: data.sku || `ELC-${data.id?.toString().substring(0, 8) || "PROD"}`,
         mpn: data.sku || `ELC-${data.id?.toString().substring(0, 8) || "PROD"}`,

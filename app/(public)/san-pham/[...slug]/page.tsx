@@ -335,6 +335,8 @@ export default async function ProductDetail({
                             fill
                             className={STYLES.carouselImage}
                             priority={i === 0}
+                            // @ts-ignore - fetchPriority is supported in newer Next.js/React
+                            fetchPriority={i === 0 ? "high" : "auto"}
                             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 800px"
                           />
                         </AspectRatio>
