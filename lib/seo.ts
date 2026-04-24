@@ -53,36 +53,32 @@ export const SEO_CONFIG = {
 };
 
 export function generateOrganizationSchema(dynamicData?: {
-  settings?: Record<string, string>;
+  settings?: any;
   contacts?: any[];
+  branches?: any[];
 }) {
-  const { settings, contacts } = dynamicData || {};
+  const { settings, contacts, branches } = dynamicData || {};
 
-  // Gom từ contacts
+  // 1. Social Links from Contacts table
   const socialLinks = (contacts || [])
     .map((c) => {
       const type = c.type?.toLowerCase();
       const val = c.value;
       if (!val) return null;
-
-      if (type === "facebook")
-        return val.startsWith("http") ? val : `https://www.facebook.com/${val}`;
-      if (type === "zalo") return val.startsWith("http") ? val : `https://zalo.me/${val}`;
-      if (type === "messenger") return val.startsWith("http") ? val : `https://m.me/${val}`;
-      if (type === "youtube")
-        return val.startsWith("http") ? val : `https://www.youtube.com/${val}`;
-      if (type === "instagram")
-        return val.startsWith("http") ? val : `https://www.instagram.com/${val}`;
+      if (["facebook", "zalo", "messenger", "youtube", "instagram"].includes(type)) {
+        return val.startsWith("http") ? val : val;
+      }
       return null;
-    });
+    })
+    .filter(Boolean);
 
-  // Gom thêm từ settings (nếu contacts chưa có)
+  // 2. Social Links from Settings table
   const settingsLinks = [
     settings?.facebook_url,
     settings?.messenger_url,
     settings?.zalo_url,
     settings?.youtube_url,
-    settings?.instagram_url
+    settings?.instagram_url,
   ].filter(Boolean);
 
   const combinedLinks = Array.from(new Set([...socialLinks, ...settingsLinks])).filter(Boolean) as string[];
@@ -93,6 +89,11 @@ export function generateOrganizationSchema(dynamicData?: {
     SEO_CONFIG.organization.zalo
   ];
 
+  // 3. Address Logic: Use first branch if available, else settings, else config
+  const mainBranch = branches && branches.length > 0 ? branches[0] : null;
+  const mainAddress = mainBranch?.address || settings?.company_address || SEO_CONFIG.organization.address;
+  const mainPhone = mainBranch?.phone || settings?.company_phone || SEO_CONFIG.organization.phone;
+
   return {
     "@context": "https://schema.org",
     "@type": "Organization",
@@ -101,24 +102,31 @@ export function generateOrganizationSchema(dynamicData?: {
     logo: settings?.company_logo || SEO_CONFIG.organization.logo,
     contactPoint: {
       "@type": "ContactPoint",
-      telephone: settings?.company_phone || SEO_CONFIG.organization.phone,
+      telephone: mainPhone,
       contactType: "customer service",
       areaServed: "VN",
       availableLanguage: "Vietnamese",
     },
     address: {
       "@type": "PostalAddress",
-      streetAddress: settings?.company_address
-        ? settings.company_address.split(",")[0].trim()
-        : "06 Dương Quảng Hàm",
-      addressLocality:
-        settings?.company_address && settings.company_address.split(",")[1]
-          ? settings.company_address.split(",")[1].trim()
-          : "Phường An Nhơn",
+      streetAddress: mainAddress,
+      addressLocality: "Ho Chi Minh City",
       addressRegion: "TP.HCM",
       addressCountry: "VN",
     },
     sameAs: sameAs,
+    // Add all branches as locations
+    ...(branches && branches.length > 0 && {
+      "location": branches.map(b => ({
+        "@type": "Place",
+        "name": b.name,
+        "address": {
+          "@type": "PostalAddress",
+          "streetAddress": b.address
+        },
+        "telephone": b.phone
+      }))
+    })
   };
 }
 
@@ -242,8 +250,9 @@ export function generateSchema(
     | "Organization",
   data: any,
   dynamicData?: {
-    settings?: Record<string, string>;
+    settings?: any;
     contacts?: any[];
+    branches?: any[];
   }
 ) {
   const base = { "@context": "https://schema.org" };
