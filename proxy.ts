@@ -14,8 +14,13 @@ export async function proxy(request: NextRequest) {
 
   if (destination) {
     if (destination === "GONE") {
-      // Trả về lỗi 410 (Gone) để Google xóa link này vĩnh viễn
-      return new NextResponse(null, { status: 410 });
+      // Rewrite về trang /gone để hiện giao diện đẹp, nhưng trả về status 410 cho SEO
+      const url = request.nextUrl.clone();
+      url.pathname = "/gone";
+      return NextResponse.rewrite(url, { 
+        status: 410,
+        headers: { "x-robots-tag": "noindex, follow" } 
+      });
     }
     
     // Redirect 301
