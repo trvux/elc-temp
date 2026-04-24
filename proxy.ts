@@ -1,7 +1,14 @@
-import { type NextRequest } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
 import { updateSession } from "@/lib/supabase/proxy";
-import { NextResponse } from "next/server";
 import redirectMap from "./redirect-map.json";
+
+// 1. Khai tử tự động các pattern WordPress rác - Dùng Set để tra cứu nhanh hơn (O(1))
+const WP_PATTERNS = [
+  'wp-admin', 'wp-includes', 'wp-content', 'wp-json', 
+  'xmlrpc.php', '.php', 
+  '/?p=', '/category/', '/tag/', '/author/', '/comments/', '/feed/',
+  '/product-category/', '/product-tag/', '/danh-muc/', '/san-pham-cu/'
+];
 
 export async function proxy(request: NextRequest) {
   const { pathname, search } = request.nextUrl;
@@ -16,23 +23,10 @@ export async function proxy(request: NextRequest) {
   
   const destination = (redirectMap as Record<string, string>)[fullPath] || (redirectMap as Record<string, string>)[path];
 
-  // 1.1 Khai tử tự động các pattern WordPress rác
-  const wpPatterns = [
-    'wp-admin', 'wp-includes', 'wp-content', 'wp-json', 
-    'xmlrpc.php', '.php', 
-    '/?p=', '/category/', '/tag/', '/author/', '/comments/', '/feed/',
-    '/product-category/', '/product-tag/', '/danh-muc/', '/san-pham-cu/'
-  ];
+  // 1.1 Kiểm tra pattern WP cũ
+  const isWpLegacy = WP_PATTERNS.some(p => pathname.includes(p) || search.includes(p));
   
-  const isWpLegacy = wpPatterns.some(p => 
-    pathname.includes(p) || 
-    search.includes(p) || 
-    pathname.startsWith('/wp-') ||
-    pathname.startsWith('/category/') ||
-    pathname.startsWith('/tag/')
-  );
-
-  // Nếu nằm trong Map hoặc dính Pattern WP cũ -> Trả về 410
+  // Nếu nằm trong Map hoặc dính Pattern WP cũ -> Trả về 410 (GONE)
   if (destination === "GONE" || isWpLegacy) {
     const url = request.nextUrl.clone();
     url.pathname = "/gone";
@@ -45,22 +39,24 @@ export async function proxy(request: NextRequest) {
     });
   }
 
-  // 2. Logic Admin & Session
-  const { response, user } = await updateSession(request);
-
-  const isLoginPage = pathname === "/admin/login";
+  // 2. Logic Admin & Session - CHỈ CHẠY KHI VÀO ADMIN ĐỂ TỐI ƯU TỐC ĐỘ (< 1s cho public)
   const isAdminPath = pathname.startsWith("/admin");
+  const isLoginPage = pathname === "/admin/login";
 
   if (isAdminPath) {
+    const { response, user } = await updateSession(request);
+    
     if (!user && !isLoginPage) {
       return NextResponse.redirect(new URL("/admin/login", request.url));
     }
     if (user && isLoginPage) {
       return NextResponse.redirect(new URL("/admin", request.url));
     }
+    return response;
   }
 
-  return response;
+  // Đối với trang Public, không cần check Supabase Session ở Middleware
+  return NextResponse.next();
 }
 
 export const config = {

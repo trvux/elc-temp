@@ -41,6 +41,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: "daily",
       priority: 0.5,
     },
+    {
+      url: `${baseUrl}/thong-tin`,
+      changeFrequency: "daily",
+      priority: 0.5,
+    },
   ];
 
   // 2. Fetch data with error handling
