@@ -39,7 +39,22 @@ export async function proxy(request: NextRequest) {
     });
   }
 
-  // 2. Logic Admin & Session - CHỈ CHẠY KHI VÀO ADMIN ĐỂ TỐI ƯU TỐC ĐỘ (< 1s cho public)
+  // 2. TỰ ĐỘNG DỌN DẸP LINK RÁC (SEO RESCUE)
+  // Nếu URL dính --- hoặc sai cấu trúc danh mục cũ -> Redirect về link chuẩn
+  const hasTripleDash = pathname.includes("---") || pathname.includes("--");
+  const hasOldCategory = pathname.includes("/may-lanh/treo-tuong/");
+  const hasSpaces = pathname.includes("%20") || pathname.includes(" ");
+
+  if (hasTripleDash || hasOldCategory || hasSpaces) {
+    let cleanPathname = pathname
+      .replace(/\/may-lanh\/treo-tuong\//g, "/may-lanh-treo-tuong/")
+      .replace(/-+/g, "-")
+      .replace(/\s+/g, "");
+    
+    return NextResponse.redirect(new URL(cleanPathname + search, request.url), 301);
+  }
+
+  // 3. Logic Admin & Session - CHỈ CHẠY KHI VÀO ADMIN ĐỂ TỐI ƯU TỐC ĐỘ (< 1s cho public)
   const isAdminPath = pathname.startsWith("/admin");
   const isLoginPage = pathname === "/admin/login";
 
