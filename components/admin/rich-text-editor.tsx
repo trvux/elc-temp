@@ -116,6 +116,8 @@ const RichTextEditor = ({
       attributes: {
         class: cn(
           "tiptap prose prose-lg dark:prose-invert focus:outline-none max-w-none min-h-[500px] py-12",
+          "prose-headings:font-newsreader prose-headings:font-medium",
+          "prose-img:rounded-sm",
           className,
         ),
       },
