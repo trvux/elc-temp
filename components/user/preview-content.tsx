@@ -1,6 +1,6 @@
-import { generateHTML } from "@tiptap/html";
 import { getTiptapExtensions } from "@/lib/tiptap-shared";
 import { cn } from "@/lib/utils";
+import { generateHTML } from "@tiptap/html";
 
 interface PreviewContentProps {
   content: any;
@@ -12,10 +12,10 @@ interface PreviewContentProps {
  * PreviewContent component renders Tiptap JSON content into styled HTML.
  * It uses the shared design system and Tailwind's Typography (prose) plugin.
  */
-export const PreviewContent = ({ 
-  content, 
+export const PreviewContent = ({
+  content,
   className,
-  hideFirstHeading = false 
+  hideFirstHeading = false,
 }: PreviewContentProps) => {
   if (!content) return null;
 
@@ -24,19 +24,25 @@ export const PreviewContent = ({
   try {
     if (typeof content === "string") {
       html = content;
-    } else if (content && typeof content === "object" && content.type === "doc") {
+    } else if (
+      content &&
+      typeof content === "object" &&
+      content.type === "doc"
+    ) {
       let contentToRender = content;
 
       // Logic: If hideFirstHeading is true, remove the first H1 node
       if (hideFirstHeading && Array.isArray(content.content)) {
         const firstH1Index = content.content.findIndex(
-          (node: any) => node.type === "heading" && node.attrs?.level === 1
+          (node: any) => node.type === "heading" && node.attrs?.level === 1,
         );
-        
+
         if (firstH1Index !== -1) {
           contentToRender = {
             ...content,
-            content: content.content.filter((_: any, index: number) => index !== firstH1Index)
+            content: content.content.filter(
+              (_: any, index: number) => index !== firstH1Index,
+            ),
           };
         }
       }
@@ -55,7 +61,7 @@ export const PreviewContent = ({
     <div
       className={cn(
         "prose prose-lg dark:prose-invert max-w-none",
-        "prose-headings:font-newsreader prose-headings:font-medium",
+        // "prose-headings:font-newsreader prose-headings:font-medium",
         "prose-img:rounded-sm",
         "tiptap",
         className,
