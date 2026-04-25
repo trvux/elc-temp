@@ -29,8 +29,9 @@ export function generateSlug(text: string): string {
     .replace(/[\u0300-\u036f]/g, "")
     .replace(/đ/g, "d")
     .replace(/[^a-z0-9\s-]/g, "")
-    .trim()
-    .replace(/\s+/g, "-");
+    .replace(/\s+/g, "-") // Thay khoảng trắng bằng -
+    .replace(/-+/g, "-") // Gộp nhiều dấu - liên tiếp
+    .replace(/^-+|-+$/g, ""); // Cắt dấu - ở đầu và cuối
 }
 
 export function extractTitleFromHtml(content: any): string {
