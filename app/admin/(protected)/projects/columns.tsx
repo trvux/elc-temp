@@ -13,6 +13,7 @@ export type ProjectRow = {
   title: string;
   images: string[];
   is_published: boolean;
+  is_featured: boolean;
   order_index: number;
   categories?: { name: string };
 };
@@ -73,9 +74,16 @@ export const getColumns = ({
     accessorKey: "is_published",
     header: "Trạng thái",
     cell: ({ row }) => (
-      <Badge variant={row.original.is_published ? "default" : "secondary"}>
-        {row.original.is_published ? "Hiện" : "Ẩn"}
-      </Badge>
+      <div className="flex gap-2">
+        <Badge variant={row.original.is_published ? "default" : "secondary"}>
+          {row.original.is_published ? "Hiện" : "Ẩn"}
+        </Badge>
+        {row.original.is_featured && (
+          <Badge variant="default" className="bg-amber-500 hover:bg-amber-600">
+            Nổi bật
+          </Badge>
+        )}
+      </div>
     ),
   },
   {

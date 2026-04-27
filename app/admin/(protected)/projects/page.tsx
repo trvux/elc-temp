@@ -52,6 +52,7 @@ type Project = {
   images: string[];
   category_id: string;
   is_published: boolean;
+  is_featured: boolean;
   order_index: number;
   categories?: { name: string };
 };
@@ -76,6 +77,7 @@ export default function ProjectsPage() {
   const [categoryId, setCategoryId] = useState("");
   const [images, setImages] = useState<string[]>([]);
   const [isPublished, setIsPublished] = useState(true);
+  const [isFeatured, setIsFeatured] = useState(false);
   const [orderIndex, setOrderIndex] = useState(0);
   const [metaTitle, setMetaTitle] = useState("");
   const [metaDescription, setMetaDescription] = useState("");
@@ -173,6 +175,7 @@ export default function ProjectsPage() {
     setCategoryId("");
     setImages([]);
     setIsPublished(true);
+    setIsFeatured(false);
     setOrderIndex(0);
     setMetaTitle("");
     setMetaDescription("");
@@ -197,6 +200,7 @@ export default function ProjectsPage() {
     setCategoryId(p.category_id || "");
     setImages(p.images || []);
     setIsPublished(p.is_published);
+    setIsFeatured(p.is_featured || false);
     setOrderIndex(p.order_index);
     // @ts-ignore
     setMetaTitle(p.meta_title || "");
@@ -245,6 +249,7 @@ export default function ProjectsPage() {
       category_id: categoryId || null,
       images,
       is_published: isPublished,
+      is_featured: isFeatured,
       order_index: orderIndex,
       meta_title: metaTitle.trim() || null,
       meta_description: metaDescription.trim() || null,
@@ -664,6 +669,20 @@ export default function ProjectsPage() {
                     <Switch
                       checked={isPublished}
                       onCheckedChange={setIsPublished}
+                    />
+                  </FieldContent>
+                </Field>
+                <Field
+                  orientation="horizontal"
+                  className="w-auto gap-3 flex items-center"
+                >
+                  <FieldLabel className="w-auto mb-0 font-medium">
+                    Nổi bật
+                  </FieldLabel>
+                  <FieldContent className="flex items-center min-h-0">
+                    <Switch
+                      checked={isFeatured}
+                      onCheckedChange={setIsFeatured}
                     />
                   </FieldContent>
                 </Field>

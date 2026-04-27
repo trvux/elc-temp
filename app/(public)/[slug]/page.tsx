@@ -1,15 +1,20 @@
 import { Button } from "@/components/ui/button";
 import { TypographyH1, TypographySmall } from "@/components/ui/typography";
+import { PreviewContent } from "@/components/user/preview-content";
 import { ScrollToTop } from "@/components/user/scroll-to-top";
+import {
+  SEO_CONFIG,
+  extractMetaDescription,
+  generateBreadcrumbSchema,
+  generateSchema,
+} from "@/lib/seo";
 import { createClient } from "@/lib/supabase/server";
 import { createStaticClient } from "@/lib/supabase/static";
 import { cn } from "@/lib/utils";
 import { ArrowLeft } from "lucide-react";
 import { Metadata } from "next";
 import Link from "next/link";
-import { notFound, redirect } from "next/navigation";
-import { SEO_CONFIG, extractMetaDescription, generateSchema, generateBreadcrumbSchema } from "@/lib/seo";
-import { PreviewContent } from "@/components/user/preview-content";
+import { redirect } from "next/navigation";
 
 // Design System / Style Constants
 const STYLES = {
@@ -56,14 +61,15 @@ export async function generateMetadata({
   return {
     title: page.meta_title || page.title,
     description:
-      page.meta_description || 
-      extractMetaDescription(page.content || "", 160),
+      page.meta_description || extractMetaDescription(page.content || "", 160),
     alternates: {
       canonical: `${SEO_CONFIG.baseUrl}/${slug}`,
     },
     openGraph: {
       title: page.meta_title || page.title,
-      description: page.meta_description || extractMetaDescription(page.content || "", 160),
+      description:
+        page.meta_description ||
+        extractMetaDescription(page.content || "", 160),
       url: `${SEO_CONFIG.baseUrl}/${slug}`,
       type: "website",
     },
@@ -87,7 +93,8 @@ export default async function StaticPage({ params }: PageProps) {
     redirect(`/tin-tuc/${slug}`);
   }
 
-  const schema = generateSchema("Article", { // Using Article schema for info pages
+  const schema = generateSchema("Article", {
+    // Using Article schema for info pages
     title: page.title,
     datePublished: page.created_at,
     dateModified: page.created_at,
