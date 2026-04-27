@@ -24,6 +24,7 @@ export default async function Home() {
       .from("projects")
       .select("*, categories(name, slug, parent:parent_id(name, slug))")
       .eq("is_published", true)
+      .order("is_featured", { ascending: false, nullsFirst: false })
       .order("order_index", { ascending: true })
       .limit(5),
     supabase

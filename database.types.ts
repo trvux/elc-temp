@@ -287,6 +287,7 @@ export type Database = {
           id: string
           images: string[] | null
           is_published: boolean | null
+          is_featured: boolean | null
           order_index: number | null
           slug: string | null
           title: string
@@ -298,6 +299,7 @@ export type Database = {
           id?: string
           images?: string[] | null
           is_published?: boolean | null
+          is_featured?: boolean | null
           order_index?: number | null
           slug?: string | null
           title: string
@@ -309,6 +311,7 @@ export type Database = {
           id?: string
           images?: string[] | null
           is_published?: boolean | null
+          is_featured?: boolean | null
           order_index?: number | null
           slug?: string | null
           title?: string
