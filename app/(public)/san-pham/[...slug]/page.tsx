@@ -158,10 +158,7 @@ export async function generateMetadata({
   // SEO Hierarchy: meta_description -> short_description -> Auto-generate from specs
   const description =
     // @ts-ignore
-    product.meta_description ||
-    (product.short_description && product.short_description.length > 20
-      ? product.short_description
-      : generateProductSmartDescription(product));
+    product.meta_description || generateProductSmartDescription(product);
 
   const url = `${SEO_CONFIG.baseUrl}/san-pham/${slug.join("/")}`;
   const images = product.images?.[0] || "/og-image.png";
