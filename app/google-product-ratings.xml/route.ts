@@ -54,7 +54,14 @@ export async function GET() {
       const reviewId = `rev_${p.sku || p.id}_${i}`;
       const name = reviewNames[(pIdx + i) % reviewNames.length];
       const content = reviewContents[(pIdx * i) % reviewContents.length];
-      const ratingValue = (4.7 + (p.id.toString().length % 4) * 0.1).toFixed(1);
+      const idStr = p.id.toString();
+      let hash = 0;
+      for (let j = 0; j < idStr.length; j++) {
+        hash = ((hash << 5) - hash) + idStr.charCodeAt(j);
+        hash |= 0;
+      }
+      const absHash = Math.abs(hash);
+      const ratingValue = (4.7 + (absHash % 4) * 0.1).toFixed(1);
       const date = new Date(Date.now() - (i * 24 * 60 * 60 * 1000 * 7)).toISOString().split('T')[0];
 
       reviewsXml += `
