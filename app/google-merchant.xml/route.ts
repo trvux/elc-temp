@@ -25,7 +25,8 @@ export async function GET() {
   const { data: products, error } = await supabase
     .from("products")
     .select("*, categories!inner(name, slug), brands(name)")
-    .eq("is_published", true);
+    .eq("is_published", true)
+    .gt("original_price", 0);
 
   if (error) {
     console.error("Feed Error:", error);
