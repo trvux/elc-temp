@@ -79,6 +79,8 @@ export async function GET() {
     <title>${escapeXml(SEO_CONFIG.siteName)}</title>
     <link>${baseUrl}</link>
     <description>${escapeXml(SEO_CONFIG.defaultDescription)}</description>
+    <!-- Feed Version: 2.0.1 - Deterministic Ratings Enabled -->
+    <lastBuildDate>${new Date().toUTCString()}</lastBuildDate>
     ${items}
   </channel>
 </rss>`;
