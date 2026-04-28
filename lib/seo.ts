@@ -187,7 +187,7 @@ export function generateOrganizationSchema(dynamicData?: {
     logo: settings?.company_logo || SEO_CONFIG.organization.logo,
     image: settings?.company_logo || SEO_CONFIG.organization.logo,
     telephone: mainPhone,
-    priceRange: "$$",
+    priceRange: dynamicData?.priceRange || "10.000.000đ - 100.000.000đ",
     ...merchantPolicies,
     contactPoint: {
       "@type": "ContactPoint",
@@ -216,6 +216,8 @@ export function generateOrganizationSchema(dynamicData?: {
           return {
             "@type": "LocalBusiness",
             name: `${SEO_CONFIG.siteName} - ${b.name}`,
+            image: b.image || settings?.company_logo || SEO_CONFIG.organization.logo,
+            priceRange: dynamicData?.priceRange || "10.000.000đ - 100.000.000đ",
             address: {
               "@type": "PostalAddress",
               streetAddress: b.address,
@@ -406,6 +408,7 @@ export function generateSchema(
     settings?: any;
     contacts?: any[];
     branches?: any[];
+    priceRange?: string;
   },
 ) {
   const base = { "@context": "https://schema.org" };
