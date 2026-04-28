@@ -362,7 +362,7 @@ export function generateProductSmartDescription(product: any): string {
   }
 
   const rawParts = [
-    `${name}${sku ? ` (${sku})` : ""}.`,
+    `${sku ? `[${sku}] ` : ""}${name}.`,
     dienTich ? `Phù hợp ${dienTich.includes("diện tích") ? dienTich : `diện tích ${dienTich}`}.` : "",
     benefit.endsWith(".") ? benefit : `${benefit}.`,
     gas ? `Sử dụng môi chất ${gas}.` : "",
