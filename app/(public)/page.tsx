@@ -4,7 +4,6 @@ import { FeaturesSection } from "@/components/sections/features";
 import { HeroSection } from "@/components/sections/hero";
 import { ShowcaseSection } from "@/components/sections/showcase";
 import { Separator } from "@/components/ui/separator";
-import { generateSchema } from "@/lib/seo";
 import { createClient } from "@/lib/supabase/server";
 
 export const revalidate = 3600;

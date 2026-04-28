@@ -1,3 +1,4 @@
+import { AnimateIn } from "@/components/ui/animate-in";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { TypographyH1, TypographyLead } from "@/components/ui/typography";
@@ -5,7 +6,6 @@ import { getOptimizedImage } from "@/lib/image";
 import Image from "next/image";
 import Link from "next/link";
 import { HeroContactButton } from "./hero-contact-button";
-import { AnimateIn } from "@/components/ui/animate-in";
 
 interface Contact {
   id: string;
@@ -34,7 +34,11 @@ export function HeroSection({
 }: HeroSectionProps) {
   // Đảm bảo luôn có ảnh mặc định và luôn là đường dẫn tuyệt đối (có dấu / ở đầu)
   let heroImage = image || "/img-herosection.jpg";
-  if (heroImage && !heroImage.startsWith("/") && !heroImage.startsWith("http")) {
+  if (
+    heroImage &&
+    !heroImage.startsWith("/") &&
+    !heroImage.startsWith("http")
+  ) {
     heroImage = "/" + heroImage;
   }
   // --- STYLES ---
