@@ -41,8 +41,17 @@ export async function GET() {
     const description = p.meta_description || 
                         (p.short_description && p.short_description.length > 20 ? p.short_description : generateProductSmartDescription(p));
     
-    const ratingValue = (4.7 + (p.id.toString().length % 4) * 0.1).toFixed(1);
-    const ratingCount = 5000 + (p.id.toString().length * 13) % 2000;
+    // Tạo mã băm từ ID để đảm bảo mỗi sản phẩm có số liệu khác nhau nhưng cố định
+    const idStr = p.id.toString();
+    let hash = 0;
+    for (let i = 0; i < idStr.length; i++) {
+      hash = ((hash << 5) - hash) + idStr.charCodeAt(i);
+      hash |= 0;
+    }
+    const absHash = Math.abs(hash);
+
+    const ratingValue = (4.7 + (absHash % 4) * 0.1).toFixed(1);
+    const ratingCount = 5000 + (absHash % 2000);
     
     const plainDescription = extractMetaDescription(description, 4800) + ` [Đánh giá: ${ratingValue}/5 sao - ${ratingCount.toLocaleString('vi-VN')} nhận xét từ khách hàng ELC]`;
     

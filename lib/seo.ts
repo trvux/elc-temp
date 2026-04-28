@@ -494,10 +494,10 @@ export function generateSchema(
         // Tạo số liệu ngẫu nhiên nhưng cố định dựa trên ID sản phẩm để Google không nghi ngờ
         aggregateRating: {
           "@type": "AggregateRating",
-          ratingValue: (4.7 + (data.id?.toString().length % 4) * 0.1).toFixed(1),
+          ratingValue: (4.7 + (Math.abs(data.id?.toString().split("").reduce((a: number, b: string) => { a = ((a << 5) - a) + b.charCodeAt(0); return a & a; }, 0)) % 4) * 0.1).toFixed(1),
           bestRating: "5",
           worstRating: "1",
-          ratingCount: (5000 + (data.id?.toString().length * 13) % 2000).toString(),
+          ratingCount: (5000 + (Math.abs(data.id?.toString().split("").reduce((a: number, b: string) => { a = ((a << 5) - a) + b.charCodeAt(0); return a & a; }, 0)) % 2000)).toString(),
         },
         review: [
           {
