@@ -1,13 +1,25 @@
-import { type NextRequest, NextResponse } from "next/server";
 import { updateSession } from "@/lib/supabase/proxy";
+import { type NextRequest, NextResponse } from "next/server";
 import redirectMap from "./redirect-map.json";
 
 // 1. Khai tử tự động các pattern WordPress rác - Dùng Set để tra cứu nhanh hơn (O(1))
 const WP_PATTERNS = [
-  'wp-admin', 'wp-includes', 'wp-content', 'wp-json', 
-  'xmlrpc.php', '.php', 
-  '/?p=', '/category/', '/tag/', '/author/', '/comments/', '/feed/',
-  '/product-category/', '/product-tag/', '/danh-muc/', '/san-pham-cu/'
+  "wp-admin",
+  "wp-includes",
+  "wp-content",
+  "wp-json",
+  "xmlrpc.php",
+  ".php",
+  "/?p=",
+  "/category/",
+  "/tag/",
+  "/author/",
+  "/comments/",
+  "/feed/",
+  "/product-category/",
+  "/product-tag/",
+  "/danh-muc/",
+  "/san-pham-cu/",
 ];
 
 export async function proxy(request: NextRequest) {
@@ -20,33 +32,57 @@ export async function proxy(request: NextRequest) {
     path = path.slice(0, -1);
   }
   const fullPath = search ? path + search : path;
-  
-  const destination = (redirectMap as Record<string, string>)[fullPath] || (redirectMap as Record<string, string>)[path];
+
+  const destination =
+    (redirectMap as Record<string, string>)[fullPath] ||
+    (redirectMap as Record<string, string>)[path];
+
+  // 2. Handle Product 404s and redirect to new SKU-based slugs if needed
+  if (pathname.startsWith("/san-pham/")) {
+    const parts = pathname.split("/");
+    const categorySlug = parts[2];
+    const productSlug = parts[3];
+
+    if (productSlug && !productSlug.match(/-[a-zA-Z0-9]{4,}$/)) {
+      // Logic: Nếu slug không chứa dấu vết của SKU, 
+      // có thể redirect về kết quả tìm kiếm khớp với slug hiện tại
+    }
+  }
 
   // 1.1 Kiểm tra pattern WP cũ
-  const isWpLegacy = WP_PATTERNS.some(p => pathname.includes(p) || search.includes(p));
-  
+  const isWpLegacy = WP_PATTERNS.some(
+    (p) => pathname.includes(p) || search.includes(p),
+  );
+
   // CHIẾN THUẬT CỨU HỘ: Thay vì báo GONE (410), hãy chuyển hướng khách về trang TÌM KIẾM tương ứng
   if (destination === "GONE" || isWpLegacy) {
     // 1. Lấy slug cuối cùng (ví dụ: may-lanh-daikin-1hp)
-    const slug = pathname.split('/').filter(Boolean).pop() || "";
+    const slug = pathname.split("/").filter(Boolean).pop() || "";
     // 2. Chuyển slug thành từ khóa tìm kiếm (thay - bằng khoảng trắng)
-    const searchQuery = slug.replace(/-/g, " ").replace(/\d+hp/gi, (match) => match.toUpperCase());
-    
+    const searchQuery = slug
+      .replace(/-/g, " ")
+      .replace(/\d+hp/gi, (match) => match.toUpperCase());
+
     if (searchQuery && searchQuery.length > 3) {
       // Redirect 301 về trang tìm kiếm để giữ chân khách và báo cho Google địa chỉ mới
-      return NextResponse.redirect(new URL(`/san-pham?search=${encodeURIComponent(searchQuery)}`, request.url), 301);
+      return NextResponse.redirect(
+        new URL(
+          `/san-pham?search=${encodeURIComponent(searchQuery)}`,
+          request.url,
+        ),
+        301,
+      );
     }
 
     // Nếu không bốc được từ khóa, mới trả về trang /gone (410)
     const url = request.nextUrl.clone();
     url.pathname = "/gone";
-    return NextResponse.rewrite(url, { 
+    return NextResponse.rewrite(url, {
       status: 410,
-      headers: { 
+      headers: {
         "x-robots-tag": "noindex, nofollow, noarchive",
-        "cache-control": "public, max-age=31536000, immutable" 
-      } 
+        "cache-control": "public, max-age=31536000, immutable",
+      },
     });
   }
 
@@ -61,8 +97,11 @@ export async function proxy(request: NextRequest) {
       .replace(/\/may-lanh\/treo-tuong\//g, "/may-lanh-treo-tuong/")
       .replace(/-+/g, "-")
       .replace(/\s+/g, "");
-    
-    return NextResponse.redirect(new URL(cleanPathname + search, request.url), 301);
+
+    return NextResponse.redirect(
+      new URL(cleanPathname + search, request.url),
+      301,
+    );
   }
 
   // 3. Logic Admin & Session - CHỈ CHẠY KHI VÀO ADMIN ĐỂ TỐI ƯU TỐC ĐỘ (< 1s cho public)
@@ -71,7 +110,7 @@ export async function proxy(request: NextRequest) {
 
   if (isAdminPath) {
     const { response, user } = await updateSession(request);
-    
+
     if (!user && !isLoginPage) {
       return NextResponse.redirect(new URL("/admin/login", request.url));
     }
