@@ -136,6 +136,7 @@ export function generateOrganizationSchema(dynamicData?: {
       merchantReturnDays: 7,
       returnMethod: "https://schema.org/ReturnByMail",
       returnFees: "https://schema.org/FreeReturn",
+      refundType: "https://schema.org/FullRefund",
     },
     shippingDetails: {
       "@type": "OfferShippingDetails",
@@ -202,6 +203,7 @@ export function generateOrganizationSchema(dynamicData?: {
       addressLocality: "Ho Chi Minh City",
       addressRegion: "TP.HCM",
       addressCountry: "VN",
+      postalCode: "700000",
     },
     sameAs: sameAs,
     // Add all branches as locations with LocalBusiness type
@@ -221,6 +223,10 @@ export function generateOrganizationSchema(dynamicData?: {
             address: {
               "@type": "PostalAddress",
               streetAddress: b.address,
+              addressLocality: b.city || "Gò Vấp",
+              addressRegion: b.region || "TP.HCM",
+              addressCountry: "VN",
+              postalCode: "700000",
             },
             telephone: b.phone,
             url: `${SEO_CONFIG.baseUrl}/chi-nhanh/${b.slug}`,
@@ -535,6 +541,7 @@ export function generateSchema(
             merchantReturnDays: 7,
             returnMethod: "https://schema.org/ReturnByMail",
             returnFees: "https://schema.org/FreeReturn",
+            refundType: "https://schema.org/FullRefund",
           },
           // THÊM: Khai báo giá gốc để Google hiện gạch ngang giá giảm
           ...(data.originalPrice > data.price && {
