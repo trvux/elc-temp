@@ -44,7 +44,6 @@ export async function GET() {
     
     const originalPrice = p.original_price;
     const salePrice = p.sale_price;
-    const finalPrice = salePrice || originalPrice;
 
     let imageLink = p.images?.[0] || "/og-image.png";
     if (imageLink.startsWith("/")) {
