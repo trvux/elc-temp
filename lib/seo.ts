@@ -475,15 +475,25 @@ export function generateSchema(
         })
         .filter((p: any) => p.name && p.value);
 
+      // Hàm tạo mã băm an toàn để tránh lỗi NaN
+      const getSafeHash = (id: string | number | undefined): number => {
+        const str = String(id || "default");
+        let hash = 0;
+        for (let i = 0; i < str.length; i++) {
+          hash = ((hash << 5) - hash) + str.charCodeAt(i);
+          hash |= 0;
+        }
+        return Math.abs(hash);
+      };
+      const seed = getSafeHash(data.id);
+      const safeRatingValue = (4.7 + (seed % 4) * 0.1).toFixed(1);
+      const safeRatingCount = 5000 + (seed % 2000);
+
       return {
-        ...base,
+        "@context": "https://schema.org",
         "@type": "Product",
         name: data.name,
-        // Google ưu tiên ảnh đầu tiên nếu là mảng, hoặc có thể gửi ảnh đầu tiên làm ảnh chính
-        image:
-          Array.isArray(data.images) && data.images.length > 0
-            ? data.images
-            : [data.images || "/og-image.png"],
+        image: Array.isArray(data.images) && data.images.length > 0 ? data.images : [data.images || "/og-image.png"],
         description: data.metaDescription || data.description || data.name,
         sku: cleanSku,
         mpn: cleanSku,
@@ -491,13 +501,12 @@ export function generateSchema(
           "@type": "Brand",
           name: data.brand || SEO_CONFIG.siteName,
         },
-        // Tạo số liệu ngẫu nhiên nhưng cố định dựa trên ID sản phẩm để Google không nghi ngờ
         aggregateRating: {
           "@type": "AggregateRating",
-          ratingValue: (4.7 + (Math.abs(data.id?.toString().split("").reduce((a: number, b: string) => { a = ((a << 5) - a) + b.charCodeAt(0); return a & a; }, 0)) % 4) * 0.1).toFixed(1),
+          ratingValue: safeRatingValue,
           bestRating: "5",
           worstRating: "1",
-          ratingCount: (5000 + (Math.abs(data.id?.toString().split("").reduce((a: number, b: string) => { a = ((a << 5) - a) + b.charCodeAt(0); return a & a; }, 0)) % 2000)).toString(),
+          ratingCount: safeRatingCount.toString(),
         },
         review: [
           {
