@@ -1,10 +1,10 @@
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import GoogleAnalytics from "@/components/user/google-analytics";
+import { SEO_CONFIG } from "@/lib/seo";
 import { cn } from "@/lib/utils";
 import type { Metadata } from "next";
 import { Inter, Newsreader } from "next/font/google";
-import { SEO_CONFIG, generateSchema } from "@/lib/seo";
-import GoogleAnalytics from "@/components/user/google-analytics";
 import { Suspense } from "react";
 import "./globals.css";
 
@@ -36,6 +36,9 @@ export const metadata: Metadata = {
     "điều hòa",
     "sửa chữa điện lạnh",
     "lắp đặt máy lạnh",
+    "thiết kế",
+    "thi công",
+    "trọn gói",
   ],
   authors: [{ name: "Điện máy ELC" }],
   creator: "Điện máy ELC",
@@ -79,6 +82,9 @@ export const metadata: Metadata = {
       "max-image-preview": "large",
       "max-snippet": -1,
     },
+  },
+  verification: {
+    google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION,
   },
 };
 
