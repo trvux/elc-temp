@@ -26,8 +26,19 @@ export async function proxy(request: NextRequest) {
   // 1.1 Kiểm tra pattern WP cũ
   const isWpLegacy = WP_PATTERNS.some(p => pathname.includes(p) || search.includes(p));
   
-  // Nếu nằm trong Map hoặc dính Pattern WP cũ -> Trả về 410 (GONE)
+  // CHIẾN THUẬT CỨU HỘ: Thay vì báo GONE (410), hãy chuyển hướng khách về trang TÌM KIẾM tương ứng
   if (destination === "GONE" || isWpLegacy) {
+    // 1. Lấy slug cuối cùng (ví dụ: may-lanh-daikin-1hp)
+    const slug = pathname.split('/').filter(Boolean).pop() || "";
+    // 2. Chuyển slug thành từ khóa tìm kiếm (thay - bằng khoảng trắng)
+    const searchQuery = slug.replace(/-/g, " ").replace(/\d+hp/gi, (match) => match.toUpperCase());
+    
+    if (searchQuery && searchQuery.length > 3) {
+      // Redirect 301 về trang tìm kiếm để giữ chân khách và báo cho Google địa chỉ mới
+      return NextResponse.redirect(new URL(`/san-pham?search=${encodeURIComponent(searchQuery)}`, request.url), 301);
+    }
+
+    // Nếu không bốc được từ khóa, mới trả về trang /gone (410)
     const url = request.nextUrl.clone();
     url.pathname = "/gone";
     return NextResponse.rewrite(url, { 
