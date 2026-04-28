@@ -42,7 +42,10 @@ export async function GET() {
     
     const plainDescription = extractMetaDescription(description, 5000);
     
-    const price = p.sale_price || p.original_price;
+    const originalPrice = p.original_price;
+    const salePrice = p.sale_price;
+    const finalPrice = salePrice || originalPrice;
+
     let imageLink = p.images?.[0] || "/og-image.png";
     if (imageLink.startsWith("/")) {
       imageLink = `${baseUrl}${imageLink}`;
@@ -58,7 +61,8 @@ export async function GET() {
       <g:image_link>${imageLink}</g:image_link>
       <g:condition>new</g:condition>
       <g:availability>in_stock</g:availability>
-      <g:price>${price} VND</g:price>
+      <g:price>${originalPrice} VND</g:price>
+      ${salePrice ? `<g:sale_price>${salePrice} VND</g:sale_price>` : ""}
       <g:brand>${escapeXml(brand)}</g:brand>
       <g:google_product_category>Home &amp; Garden &gt; Household Appliances &gt; Climate Control Appliances &gt; Air Conditioners</g:google_product_category>
     </item>`;
