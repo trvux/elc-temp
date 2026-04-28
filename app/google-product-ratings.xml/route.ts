@@ -54,7 +54,7 @@ export async function GET() {
       const reviewId = `rev_${p.sku || p.id}_${i}`;
       const name = reviewNames[(pIdx + i) % reviewNames.length];
       const content = reviewContents[(pIdx * i) % reviewContents.length];
-      const ratingValue = parseFloat((4.7 + (p.id.toString().length % 4) * 0.1).toFixed(1));
+      const ratingValue = (4.7 + (p.id.toString().length % 4) * 0.1).toFixed(1);
       const date = new Date(Date.now() - (i * 24 * 60 * 60 * 1000 * 7)).toISOString().split('T')[0];
 
       reviewsXml += `
