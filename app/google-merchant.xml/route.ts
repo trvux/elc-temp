@@ -2,7 +2,7 @@ import { createStaticClient } from "@/lib/supabase/static";
 import { SEO_CONFIG, extractMetaDescription, generateProductSmartDescription } from "@/lib/seo";
 import { NextResponse } from "next/server";
 
-export const revalidate = 3600; // Cache for 1 hour
+export const revalidate = 0; // Force immediate update for audit
 
 function escapeXml(unsafe: string): string {
   return unsafe.replace(/[<>&"']/g, (c) => {
