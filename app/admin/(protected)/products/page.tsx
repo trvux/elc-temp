@@ -302,10 +302,12 @@ export default function ProductsPage() {
       .normalize("NFD")
       .replace(/[\u0300-\u036f]/g, "")
       .replace(/đ/g, "d")
-      .replace(/[^a-z0-9\s.-]/g, "") // Tha cho dấu chấm (.)
+      .replace(/[\/\+]/g, "-") // Chuyển / và + thành dấu gạch ngang
+      .replace(/[^a-z0-9\s.-]/g, "")
       .trim()
       .replace(/\s+/g, "-")
-      .replace(/-+/g, "-"); // Triệt tiêu nhiều dấu gạch ngang liên tiếp
+      .replace(/-+/g, "-")
+      .replace(/^-+|-+$/g, "");
   }
 
   // Hàm tạo slug thông minh
@@ -332,13 +334,20 @@ export default function ProductsPage() {
         namePart = namePart.replace(catName, "").trim();
       }
 
-      // Nếu sau khi xóa mà tên bị trống (do tên sp trùng khít tên cat) thì lấy lại tên gốc
+      // Nếu sau khi xóa mà tên bị trống thì lấy lại tên gốc
       if (!namePart) namePart = currentName;
     }
 
-    // 3. Kết hợp với Brand (nếu có) và SKU
+    // 3. Kết hợp với Brand và FULL SKU
     const brand = brands.find((b) => b.id === currentBrandId)?.name || "";
-    const finalPart = `${brand} ${namePart} ${currentSku}`.trim();
+    // Làm sạch SKU trước khi gắn vào
+    const cleanSku = currentSku
+      .toLowerCase()
+      .replace(/[\/\+\s]+/g, "-")
+      .replace(/-+/g, "-")
+      .replace(/^-+|-+$/g, "");
+
+    const finalPart = `${brand} ${namePart} ${cleanSku}`.trim();
 
     setSlug(generateSlug(finalPart));
   };
