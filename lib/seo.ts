@@ -63,6 +63,7 @@ export function generateOrganizationSchema(dynamicData?: {
   settings?: any;
   contacts?: any[];
   branches?: any[];
+  priceRange?: string;
 }) {
   const { settings, contacts, branches } = dynamicData || {};
 
