@@ -494,7 +494,7 @@ export function generateSchema(
         "@type": "Product",
         name: data.name,
         image: Array.isArray(data.images) && data.images.length > 0 ? data.images : [data.images || "/og-image.png"],
-        description: data.metaDescription || data.description || data.name,
+        description: data.metaDescription || generateProductSmartDescription(data),
         sku: cleanSku,
         mpn: cleanSku,
         brand: {
