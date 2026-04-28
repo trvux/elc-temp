@@ -100,12 +100,21 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       .replace("https:/", "https://"); // Trả lại dấu // cho protocol
   };
 
-  const productUrls = (products || []).map((p: any) => ({
-    url: normalizeUrl(`${baseUrl}/san-pham/${p.categories.slug}/${p.slug}`),
-    lastModified: p.updated_at || p.created_at,
-    changeFrequency: "daily",
-    priority: 0.8,
-  }));
+  const productUrls = (products || []).map((p: any) => {
+    const catSlug = p.categories?.slug || "khac";
+    // Đảm bảo không bị lặp lại cat slug trong product slug nếu data cũ bị lỗi
+    let productSlug = p.slug;
+    if (productSlug.startsWith(`${catSlug}-`)) {
+      productSlug = productSlug.replace(`${catSlug}-`, "");
+    }
+    
+    return {
+      url: normalizeUrl(`${baseUrl}/san-pham/${catSlug}/${productSlug}`),
+      lastModified: p.updated_at || p.created_at,
+      changeFrequency: "daily",
+      priority: 0.8,
+    };
+  });
 
   const newsUrls = (news || []).map((n: any) => ({
     url: normalizeUrl(`${baseUrl}/tin-tuc/${n.slug}`),
@@ -114,12 +123,15 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.7,
   }));
 
-  const projectUrls = (projects || []).map((p: any) => ({
-    url: normalizeUrl(`${baseUrl}/du-an/${p.categories.slug}/${p.slug}`),
-    lastModified: p.updated_at || p.created_at,
-    changeFrequency: "daily",
-    priority: 0.7,
-  }));
+  const projectUrls = (projects || []).map((p: any) => {
+    const catSlug = p.categories?.slug || "khac";
+    return {
+      url: normalizeUrl(`${baseUrl}/du-an/${catSlug}/${p.slug}`),
+      lastModified: p.updated_at || p.created_at,
+      changeFrequency: "daily",
+      priority: 0.7,
+    };
+  });
 
   const serviceUrls = (services || []).map((s: any) => ({
     url: normalizeUrl(`${baseUrl}/dich-vu/${s.slug}`),
