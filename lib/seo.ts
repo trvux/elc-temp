@@ -412,6 +412,12 @@ export function generateSchema(
 
   switch (type) {
     case "Product":
+      // Làm sạch SKU và MPN cho Google (Xóa khoảng trắng, lấy mã đầu tiên nếu có dấu /)
+      const cleanSku = (data.sku || "")
+        .split("/")[0]
+        .replace(/\s+/g, "")
+        .trim() || `ELC-${data.id?.toString().substring(0, 8) || "PROD"}`;
+
       // Map specs to additionalProperty, handling both Array and legacy Object formats
       const rawSpecs = Array.isArray(data.specs)
         ? data.specs
@@ -446,8 +452,8 @@ export function generateSchema(
             ? data.images
             : [data.images || "/og-image.png"],
         description: data.metaDescription || data.description || data.name,
-        sku: data.sku || `ELC-${data.id?.toString().substring(0, 8) || "PROD"}`,
-        mpn: data.sku || `ELC-${data.id?.toString().substring(0, 8) || "PROD"}`,
+        sku: cleanSku,
+        mpn: cleanSku,
         brand: {
           "@type": "Brand",
           name: data.brand || SEO_CONFIG.siteName,
