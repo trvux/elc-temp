@@ -6,14 +6,20 @@
  * Clean content and extract a plain text summary for meta descriptions.
  * Supports both HTML strings and Tiptap JSON objects.
  */
-export function extractMetaDescription(content: any, maxLength: number = 160): string {
+export function extractMetaDescription(
+  content: any,
+  maxLength: number = 160,
+): string {
   if (!content) return "";
-  
+
   let plainText = "";
 
   if (typeof content === "string") {
     // Handle HTML String
-    const cleanHtml = content.replace(/<(script|style)[^>]*>[\s\S]*?<\/\1>/gi, "");
+    const cleanHtml = content.replace(
+      /<(script|style)[^>]*>[\s\S]*?<\/\1>/gi,
+      "",
+    );
     plainText = cleanHtml
       .replace(/<[^>]+>/g, " ")
       .replace(/\s+/g, " ")
@@ -30,7 +36,7 @@ export function extractMetaDescription(content: any, maxLength: number = 160): s
     };
     plainText = extractText(content).replace(/\s+/g, " ").trim();
   }
-    
+
   if (plainText.length <= maxLength) return plainText;
   return plainText.substring(0, maxLength).trim() + "...";
 }
@@ -39,7 +45,8 @@ export const SEO_CONFIG = {
   siteName: "Điện máy ELC",
   titleSeparator: " \\ ",
   defaultTitle: "Điện máy ELC - Giải pháp Không khí thuần khiết",
-  defaultDescription: "Tiên phong cung cấp giải pháp HVAC tổng thế, tích hợp công nghệ điều tiết khí thông minh và lọc khí tươi chuyên sâu cho không gian sống hiện đại.",
+  defaultDescription:
+    "Tiên phong cung cấp giải pháp HVAC tổng thế, tích hợp công nghệ điều tiết khí thông minh và lọc khí tươi chuyên sâu cho không gian sống hiện đại.",
   baseUrl: "https://dienmayelc.com.vn",
   organization: {
     name: "Công ty cổ phần giải pháp công nghệ TMDV ELC",
@@ -48,8 +55,8 @@ export const SEO_CONFIG = {
     address: "06 Dương Quảng Hàm, phường An Nhơn, Thành phố Hồ Chí Minh",
     facebook: "https://www.facebook.com/dienmayelc",
     messenger: "https://m.me/ELCdienmay",
-    zalo: "https://zalo.me/0789978898"
-  }
+    zalo: "https://zalo.me/0789978898",
+  },
 };
 
 export function generateOrganizationSchema(dynamicData?: {
@@ -65,21 +72,23 @@ export function generateOrganizationSchema(dynamicData?: {
       const type = c.type?.toLowerCase();
       let val = c.value?.trim();
       if (!val) return null;
-      
+
       // Nếu user đã nhập full link (có http) thì lấy luôn
       if (val.startsWith("http")) return val;
-      
+
       // Nếu chỉ nhập ID/Username/Số điện thoại thì tự bồi thêm domain
       if (type === "facebook") return `https://www.facebook.com/${val}`;
       if (type === "zalo") return `https://zalo.me/${val}`;
       if (type === "messenger") return `https://m.me/${val}`;
       if (type === "youtube") return `https://www.youtube.com/${val}`;
       if (type === "instagram") return `https://www.instagram.com/${val}`;
-      if (type === "tiktok") return `https://www.tiktok.com/@${val.replace("@", "")}`;
-      
+      if (type === "tiktok")
+        return `https://www.tiktok.com/@${val.replace("@", "")}`;
+
       // Với website thì bồi thêm https nếu thiếu
-      if (type === "website") return val.startsWith("http") ? val : `https://${val}`;
-      
+      if (type === "website")
+        return val.startsWith("http") ? val : `https://${val}`;
+
       return null;
     })
     .filter(Boolean);
@@ -93,25 +102,37 @@ export function generateOrganizationSchema(dynamicData?: {
     settings?.instagram_url,
   ].filter(Boolean);
 
-  const combinedLinks = Array.from(new Set([...socialLinks, ...settingsLinks])).filter(Boolean) as string[];
+  const combinedLinks = Array.from(
+    new Set([...socialLinks, ...settingsLinks]),
+  ).filter(Boolean) as string[];
 
-  const sameAs = combinedLinks.length > 0 ? combinedLinks : [
-    SEO_CONFIG.organization.facebook,
-    SEO_CONFIG.organization.messenger,
-    SEO_CONFIG.organization.zalo
-  ];
+  const sameAs =
+    combinedLinks.length > 0
+      ? combinedLinks
+      : [
+          SEO_CONFIG.organization.facebook,
+          SEO_CONFIG.organization.messenger,
+          SEO_CONFIG.organization.zalo,
+        ];
 
   // 3. Address Logic: Use first branch if available, else settings, else config
   const mainBranch = branches && branches.length > 0 ? branches[0] : null;
-  const mainAddress = mainBranch?.address || settings?.company_address || SEO_CONFIG.organization.address;
-  const mainPhone = mainBranch?.phone || settings?.company_phone || SEO_CONFIG.organization.phone;
+  const mainAddress =
+    mainBranch?.address ||
+    settings?.company_address ||
+    SEO_CONFIG.organization.address;
+  const mainPhone =
+    mainBranch?.phone ||
+    settings?.company_phone ||
+    SEO_CONFIG.organization.phone;
 
   // 4. Merchant Policies (New for Merchant Listings)
   const merchantPolicies = {
     hasMerchantReturnPolicy: {
       "@type": "MerchantReturnPolicy",
       applicableCountry: "VN",
-      returnPolicyCategory: "https://schema.org/MerchantReturnFiniteReturnWindow",
+      returnPolicyCategory:
+        "https://schema.org/MerchantReturnFiniteReturnWindow",
       merchantReturnDays: 7,
       returnMethod: "https://schema.org/ReturnByMail",
       returnFees: "https://schema.org/FreeReturn",
@@ -184,31 +205,33 @@ export function generateOrganizationSchema(dynamicData?: {
     },
     sameAs: sameAs,
     // Add all branches as locations with LocalBusiness type
-    ...(branches && branches.length > 0 && {
-      "location": branches.map(b => {
-        const geo = b.latitude && b.longitude 
-          ? { latitude: b.latitude, longitude: b.longitude }
-          : extractGeo(b.maps_url);
+    ...(branches &&
+      branches.length > 0 && {
+        location: branches.map((b) => {
+          const geo =
+            b.latitude && b.longitude
+              ? { latitude: b.latitude, longitude: b.longitude }
+              : extractGeo(b.maps_url);
 
-        return {
-          "@type": "LocalBusiness",
-          "name": `${SEO_CONFIG.siteName} - ${b.name}`,
-          "address": {
-            "@type": "PostalAddress",
-            "streetAddress": b.address
-          },
-          "telephone": b.phone,
-          "url": `${SEO_CONFIG.baseUrl}/chi-nhanh/${b.slug}`,
-          ...(geo && {
-            "geo": {
-              "@type": "GeoCoordinates",
-              "latitude": geo.latitude,
-              "longitude": geo.longitude
-            }
-          })
-        };
-      })
-    })
+          return {
+            "@type": "LocalBusiness",
+            name: `${SEO_CONFIG.siteName} - ${b.name}`,
+            address: {
+              "@type": "PostalAddress",
+              streetAddress: b.address,
+            },
+            telephone: b.phone,
+            url: `${SEO_CONFIG.baseUrl}/chi-nhanh/${b.slug}`,
+            ...(geo && {
+              geo: {
+                "@type": "GeoCoordinates",
+                latitude: geo.latitude,
+                longitude: geo.longitude,
+              },
+            }),
+          };
+        }),
+      }),
   };
 }
 
@@ -217,21 +240,21 @@ export function generateOrganizationSchema(dynamicData?: {
  * Strictly follows Google's recommendation for itemListElement.
  */
 export function generateBreadcrumbSchema(
-  items: { name: string; item: string }[]
+  items: { name: string; item: string }[],
 ) {
   return {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
-    "itemListElement": items.map((item, index) => {
+    itemListElement: items.map((item, index) => {
       const url = item.item.startsWith("http")
         ? item.item
         : `${SEO_CONFIG.baseUrl}${item.item === "/" ? "" : item.item}`;
-      
+
       return {
         "@type": "ListItem",
-        "position": index + 1,
-        "name": item.name,
-        "item": url // Google accepts string URL or object with @id. String is cleaner.
+        position: index + 1,
+        name: item.name,
+        item: url, // Google accepts string URL or object with @id. String is cleaner.
       };
     }),
   };
@@ -242,15 +265,10 @@ export function generateBreadcrumbSchema(
  * Follows the "Translated Specs" logic: Benefits + Technical Validation.
  */
 export function generateProductSmartDescription(product: any): string {
-  // Priority 1: Manual override from DB
-  if (product.short_description && product.short_description.length > 30) {
-    return product.short_description;
-  }
-
   const specs = product.specs || [];
   const getSpec = (labels: string[]) => {
     const s = specs.find((item: any) =>
-      labels.some((l) => item.label?.toLowerCase().includes(l.toLowerCase()))
+      labels.some((l) => item.label?.toLowerCase().includes(l.toLowerCase())),
     );
     if (!s) return null;
     if (s.value) return s.value.toString().replace(/\t/g, "").trim();
@@ -266,7 +284,7 @@ export function generateProductSmartDescription(product: any): string {
 
   const xuatXu = getSpec(["Xuất xứ", "Origin"]);
   const gas = getSpec(["Gas", "Môi chất"]);
-  const dienTich = getSpec(["phòng", "Diện tích", "Area"]);
+  const dienTich = getSpec(["phòng", "Diện tích", "Area", "Phạm vi"]);
   const cspf = getSpec(["CSPF", "Hiệu suất"]);
 
   const name = product.name || "";
@@ -275,53 +293,101 @@ export function generateProductSmartDescription(product: any): string {
 
   // Tạo "Seed" dựa trên SKU hoặc Tên để chọn câu văn ngẫu nhiên nhưng cố định cho máy đó
   const seed = (sku + name).length % 3;
+
+  // Tự động xác định đối tượng phòng và dịch vụ dựa trên công suất (HP) và loại máy
+  let roomTarget = "";
+  let serviceHighlight = "Thi công trọn gói, lắp đặt chuyên nghiệp";
+  let targetAudience = ""; // Dành cho người không chuyên
   
+  if (nameLower.includes("1hp") || nameLower.includes("1.5hp")) {
+    roomTarget = "phòng ngủ, căn hộ nhỏ";
+    targetAudience = "Giải pháp làm lạnh êm ái, bảo vệ giấc ngủ";
+  } else if (nameLower.includes("2hp") || nameLower.includes("2.5hp") || nameLower.includes("3hp")) {
+    roomTarget = "phòng khách, shop thời trang, căn hộ cao cấp";
+    targetAudience = "Làm lạnh nhanh, thiết kế sang trọng cho không gian chung";
+    serviceHighlight = "Tư vấn thiết kế & thi công thẩm mỹ";
+  } else if (nameLower.includes("4hp") || nameLower.includes("5hp") || nameLower.includes("6hp") || nameLower.includes("10hp")) {
+    roomTarget = "văn phòng, nhà hàng, biệt thự lớn";
+    targetAudience = "Hệ thống công suất lớn, vận hành bền bỉ";
+    serviceHighlight = "Giải pháp hệ thống điều hòa trung tâm chuyên sâu";
+  }
+
   const genericBenefits = [
-    "Giải pháp điều hòa không khí bền bỉ, tối ưu hóa điện năng và vận hành êm ái.",
-    "Trải nghiệm không gian mát lạnh tức thì, tiết kiệm điện năng vượt trội cho gia đình.",
-    "Đảm bảo luồng gió dễ chịu, vận hành cực êm và độ bền cao chuẩn chính hãng."
+    `${targetAudience || "Giải pháp điều hòa bền bỉ"}. ${serviceHighlight} bởi đội ngũ kỹ thuật ELC.`,
+    `Không gian mát lạnh${roomTarget ? ` cho ${roomTarget}` : ""}. ELC thiết kế hệ thống tối ưu thẩm mỹ và công suất.`,
+    `Vận hành cực êm, độ bền cao. Dịch vụ thi công lắp đặt trọn gói, bảo hành chính hãng dài lâu.`,
   ];
 
   const inverterBenefits = [
-    `Công nghệ Inverter ${nameLower.includes("daikin") ? "Daikin " : ""}tiết kiệm điện vượt trội, hoạt động bền bỉ và cực kỳ êm ái.`,
-    "Điều hòa Inverter thế hệ mới, làm lạnh nhanh, tối ưu hóa chi phí điện năng hàng tháng.",
-    "Vận hành êm ái với công nghệ biến tần Inverter, mang lại giấc ngủ ngon và sâu hơn."
+    `Công nghệ Inverter tiết kiệm điện tối đa${roomTarget ? ` cho ${roomTarget}` : ""}. ELC tư vấn thiết kế trọn gói.`,
+    `Làm lạnh nhanh, vận hành thông minh. Giải pháp điều hòa tối ưu chi phí và thẩm mỹ công trình.`,
+    `Tận hưởng không khí mát lành, êm ái. Kỹ thuật thi công chuyên nghiệp, chuẩn xác từng chi tiết.`,
   ];
 
   let benefit = genericBenefits[seed];
 
-  if (nameLower.includes("lọc") || nameLower.includes("cấp khí")) {
-    benefit = "Hệ thống lọc bụi mịn PM2.5, khử nồm và cấp khí tươi sạch khuẩn chuẩn Châu Âu.";
+  if (nameLower.includes("lọc") || nameLower.includes("cấp khí") || nameLower.includes("khử nồm")) {
+    benefit =
+      "Giải pháp không khí sạch, thoáng đãng, lọc bụi PM2.5 và khử ẩm. ELC chuyên thi công hệ thống khí tươi hồi nhiệt Menred cao cấp.";
   } else if (nameLower.includes("inverter")) {
     benefit = inverterBenefits[seed];
   } else if (nameLower.includes("âm trần") || nameLower.includes("giấu trần")) {
-    benefit = "Thiết kế sang trọng, tối ưu không gian, phân bổ luồng gió mát lạnh đều khắp căn phòng.";
+    benefit =
+      `Nâng tầm thẩm mỹ không gian${roomTarget ? ` ${roomTarget}` : ""}. Chuyên gia thiết kế & thi công máy lạnh giấu trần nối ống gió đẳng cấp.`;
+  }
+
+  // ƯU TIÊN: Nếu có mô tả trong DB, hãy dùng nó làm phần "Benefit"
+  const manualDesc = (product.meta_description || product.short_description || "").trim();
+  if (manualDesc.length > 20) {
+    let cleanedDesc = manualDesc;
+    // Tối ưu lọc trùng lặp: Chỉ xóa nếu lặp nguyên văn cả cụm tên dài ở đầu
+    if (cleanedDesc.toLowerCase().startsWith(nameLower)) {
+      const potentialBenefit = cleanedDesc.substring(name.length).trim().replace(/^[:;.,\s-]+/, "");
+      if (potentialBenefit.length > 15) {
+        cleanedDesc = potentialBenefit.charAt(0).toUpperCase() + potentialBenefit.slice(1);
+        benefit = cleanedDesc;
+      }
+    } else {
+      benefit = manualDesc;
+    }
   }
 
   const rawParts = [
-    `${name} ${sku ? `(${sku})` : ""}.`,
-    dienTich ? `Phù hợp diện tích ${dienTich}.` : "",
-    benefit,
-    gas ? `Sử dụng mô chất ${gas} hiện đại.` : "",
-    cspf ? `Chỉ số tiết kiệm điện CSPF ${cspf}.` : "",
-    xuatXu ? `Hàng nhập khẩu ${xuatXu} uy tín.` : "",
+    `${name}${sku ? ` (${sku})` : ""}.`,
+    dienTich ? `Phù hợp ${dienTich.includes("diện tích") ? dienTich : `diện tích ${dienTich}`}.` : "",
+    benefit.endsWith(".") ? benefit : `${benefit}.`,
+    gas ? `Sử dụng môi chất ${gas}.` : "",
+    cspf ? `Tiết kiệm điện CSPF ${cspf}.` : "",
+    xuatXu ? `Hàng nhập khẩu ${xuatXu}.` : "",
     "Giá tốt nhất tại ELC.",
   ];
 
-  // Logic cộng dồn câu thông minh
+  // Logic cộng dồn câu thông minh - Đảm bảo tính đồng bộ 100% cho 175 sản phẩm
   let result = "";
-  for (const part of rawParts) {
+  const MAX_LENGTH = 160;
+
+  for (let i = 0; i < rawParts.length; i++) {
+    const part = rawParts[i];
     if (!part) continue;
-    // Nếu cộng thêm câu này mà vẫn dưới 165 ký tự thì cộng
-    if ((result + " " + part).trim().length <= 165) {
-      result = (result + " " + part).trim();
+
+    const currentLen = result.length;
+    const nextPart = (currentLen > 0 ? " " : "") + part;
+
+    if (currentLen + nextPart.length <= MAX_LENGTH) {
+      result += nextPart;
     } else {
-      // Nếu hết chỗ thì dừng lại, không cộng thêm để tránh bị cụt
+      // Nếu là phần Lợi ích (index 2) mà hết chỗ, thì cố nhét nốt một đoạn rồi chấm lửng
+      if (i === 2) {
+        const remaining = MAX_LENGTH - currentLen - 5;
+        if (remaining > 20) {
+          result += (currentLen > 0 ? " " : "") + part.substring(0, remaining) + "...";
+        }
+      }
       break;
     }
   }
 
-  return result;
+  return result.trim();
 }
 
 /**
@@ -340,16 +406,19 @@ export function generateSchema(
     settings?: any;
     contacts?: any[];
     branches?: any[];
-  }
+  },
 ) {
   const base = { "@context": "https://schema.org" };
 
   switch (type) {
     case "Product":
       // Map specs to additionalProperty, handling both Array and legacy Object formats
-      const rawSpecs = Array.isArray(data.specs) 
-        ? data.specs 
-        : Object.entries(data.specs || {}).map(([label, value]) => ({ label, value }));
+      const rawSpecs = Array.isArray(data.specs)
+        ? data.specs
+        : Object.entries(data.specs || {}).map(([label, value]) => ({
+            label,
+            value,
+          }));
 
       const additionalProperties = rawSpecs
         .map((spec: any) => {
@@ -372,7 +441,10 @@ export function generateSchema(
         "@type": "Product",
         name: data.name,
         // Google ưu tiên ảnh đầu tiên nếu là mảng, hoặc có thể gửi ảnh đầu tiên làm ảnh chính
-        image: Array.isArray(data.images) && data.images.length > 0 ? data.images : [data.images || "/og-image.png"],
+        image:
+          Array.isArray(data.images) && data.images.length > 0
+            ? data.images
+            : [data.images || "/og-image.png"],
         description: data.metaDescription || data.description || data.name,
         sku: data.sku || `ELC-${data.id?.toString().substring(0, 8) || "PROD"}`,
         mpn: data.sku || `ELC-${data.id?.toString().substring(0, 8) || "PROD"}`,
@@ -449,7 +521,8 @@ export function generateSchema(
           hasMerchantReturnPolicy: {
             "@type": "MerchantReturnPolicy",
             applicableCountry: "VN",
-            returnPolicyCategory: "https://schema.org/MerchantReturnFiniteReturnWindow",
+            returnPolicyCategory:
+              "https://schema.org/MerchantReturnFiniteReturnWindow",
             merchantReturnDays: 7,
             returnMethod: "https://schema.org/ReturnByMail",
             returnFees: "https://schema.org/FreeReturn",
@@ -460,8 +533,8 @@ export function generateSchema(
               "@type": "PriceSpecification",
               price: data.originalPrice,
               priceCurrency: "VND",
-              valueAddedTaxIncluded: true
-            }
+              valueAddedTaxIncluded: true,
+            },
           }),
         },
         additionalProperty: additionalProperties,
@@ -542,4 +615,3 @@ export function generateSchema(
       return null;
   }
 }
-
