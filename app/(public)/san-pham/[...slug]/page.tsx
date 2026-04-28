@@ -142,9 +142,13 @@ export async function generateMetadata({
   if (!product) return { title: SEO_CONFIG.defaultTitle };
 
   // Nâng cấp Tiêu đề: Tên máy + Mã SKU + Chính hãng + Giá tốt (hoặc Thi công nếu là máy giấu trần)
-  const isProfessional = product.name.toLowerCase().includes("giấu trần") || product.name.toLowerCase().includes("âm trần");
-  const suffix = isProfessional ? "Thi công trọn gói thẩm mỹ" : "Chính hãng, Giá tốt nhất";
-  
+  const isProfessional =
+    product.name.toLowerCase().includes("giấu trần") ||
+    product.name.toLowerCase().includes("âm trần");
+  const suffix = isProfessional
+    ? "Thi công trọn gói thẩm mỹ"
+    : "Chính hãng, Giá tốt nhất";
+
   const title =
     // @ts-ignore
     product.meta_title ||
@@ -229,7 +233,16 @@ export default async function ProductDetail({
       supabase.from("contacts").select("*").order("order_index"),
     ])) as [
       { data: ProductData | null },
-      { data: { id: string; name: string; slug: string; parent_id: string | null }[] | null },
+      {
+        data:
+          | {
+              id: string;
+              name: string;
+              slug: string;
+              parent_id: string | null;
+            }[]
+          | null;
+      },
       { data: any[] | null },
     ];
 
@@ -238,8 +251,8 @@ export default async function ProductDetail({
   const product = rawProduct;
 
   const leafCat = product.categories;
-  const parentCat = leafCat?.parent_id 
-    ? allCategories?.find(c => c.id === leafCat.parent_id)
+  const parentCat = leafCat?.parent_id
+    ? allCategories?.find((c) => c.id === leafCat.parent_id)
     : null;
 
   const normalizedSpecs: SpecItem[] = Array.isArray(product.specs)
@@ -270,7 +283,7 @@ export default async function ProductDetail({
     url: `${SEO_CONFIG.baseUrl}/san-pham/${slug.join("/")}`,
     specs: normalizedSpecs, // Đưa toàn bộ specs vào để tạo snippet xịn trên Google
   });
-  
+
   // Build breadcrumbs by traversing the category tree from the DB
   const breadcrumbItems = [
     { name: "Trang chủ", item: "/" },
@@ -284,13 +297,13 @@ export default async function ProductDetail({
     while (currentCat) {
       trail.unshift({ name: currentCat.name, slug: currentCat.slug });
       if (currentCat.parent_id) {
-        currentCat = allCategories.find(c => c.id === currentCat.parent_id);
+        currentCat = allCategories.find((c) => c.id === currentCat.parent_id);
       } else {
         currentCat = null;
       }
     }
 
-    trail.forEach(cat => {
+    trail.forEach((cat) => {
       breadcrumbItems.push({
         name: cat.name,
         item: `/san-pham?category=${cat.slug}`,
@@ -510,7 +523,7 @@ export default async function ProductDetail({
         </div>
 
         {/* RELATED: Smart products logic */}
-        <RelatedProducts 
+        <RelatedProducts
           // @ts-ignore
           categoryId={product.category_id}
           currentProductId={product.id}
