@@ -1,6 +1,6 @@
 import { cn } from "@/lib/utils";
-import Link from "next/link";
 import Image from "next/image";
+import Link from "next/link";
 import { PhoneConfirmation } from "./phone-confirmation";
 
 interface FooterProps {
@@ -27,7 +27,9 @@ export function Footer({
     findContact("phone") || settings?.company_phone || "0909 411 633";
   const email =
     findContact("email") || settings?.company_email || "contact@elc.com";
-  const address = settings?.company_address || "06 Phan Chu Trinh St, Q7, HCM";
+  const address =
+    settings?.company_address ||
+    "06 Dương Quảng Hàm, Phường An Nhơn, Gò Vấp, HCM";
   const cleanPhone = phone.replace(/\s/g, "");
 
   const getSocialUrl = (type: "facebook" | "messenger" | "zalo") => {
@@ -85,11 +87,11 @@ export function Footer({
             href="/"
             className="inline-block hover:opacity-80 transition-opacity"
           >
-            <Image 
-              src="/logo/logo.svg" 
-              alt="Điện máy ELC" 
-              width={80} 
-              height={80} 
+            <Image
+              src="/logo/logo.svg"
+              alt="Điện máy ELC"
+              width={80}
+              height={80}
               className="h-12 w-auto brightness-0 invert"
               style={{ width: "auto" }}
             />
@@ -140,11 +142,7 @@ export function Footer({
           <NavCol title="Thông tin">
             {pages?.length ? (
               pages.slice(0, 8).map((p) => (
-                <Link
-                  key={p.slug}
-                  href={`/${p.slug}`}
-                  className={styles.link}
-                >
+                <Link key={p.slug} href={`/${p.slug}`} className={styles.link}>
                   {p.title}
                 </Link>
               ))

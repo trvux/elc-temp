@@ -141,10 +141,14 @@ export async function generateMetadata({
 
   if (!product) return { title: SEO_CONFIG.defaultTitle };
 
+  // Nâng cấp Tiêu đề: Tên máy + Mã SKU + Chính hãng + Giá tốt (hoặc Thi công nếu là máy giấu trần)
+  const isProfessional = product.name.toLowerCase().includes("giấu trần") || product.name.toLowerCase().includes("âm trần");
+  const suffix = isProfessional ? "Thi công trọn gói thẩm mỹ" : "Chính hãng, Giá tốt nhất";
+  
   const title =
     // @ts-ignore
     product.meta_title ||
-    `${product.brands?.name ? product.brands.name + " " : ""}${product.name} - ${product.sku}`;
+    `${product.name}${product.sku ? ` ${product.sku}` : ""} - ${suffix} | Điện máy ELC`;
 
   // Dùng hàm Smart Description cho Meta SEO
   // SEO Hierarchy: meta_description -> short_description -> Auto-generate from specs
