@@ -148,7 +148,7 @@ export async function generateMetadata({
   const title =
     // @ts-ignore
     product.meta_title ||
-    `${product.name}${product.sku ? ` ${product.sku}` : ""} - ${suffix} | Điện máy ELC`;
+    `${product.name} ${product.sku ? `(${product.sku})` : ""} - ${suffix} | Điện máy ELC`;
 
   // Dùng hàm Smart Description cho Meta SEO
   // SEO Hierarchy: meta_description -> short_description -> Auto-generate from specs
