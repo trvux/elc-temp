@@ -42,7 +42,7 @@ export async function GET() {
                         (p.short_description && p.short_description.length > 20 ? p.short_description : generateProductSmartDescription(p));
     
     const ratingValue = (4.7 + (p.id.toString().length % 4) * 0.1).toFixed(1);
-    const ratingCount = 5000 + (p.id.toString().length * 13) % 2000;
+    const ratingCount = (5000 + (p.id.toString().length * 13) % 2000).toString();
     
     const plainDescription = extractMetaDescription(description, 4800) + ` [Đánh giá: ${ratingValue}/5 sao - ${ratingCount.toLocaleString('vi-VN')} nhận xét từ khách hàng ELC]`;
     
@@ -76,7 +76,7 @@ export async function GET() {
   const xml = `<?xml version="1.0"?>
 <rss xmlns:g="http://base.google.com/ns/1.0" version="2.0">
   <channel>
-    <title>${escapeXml(SEO_CONFIG.siteName)} - V2.0.1</title>
+    <title>${escapeXml(SEO_CONFIG.siteName)}</title>
     <link>${baseUrl}</link>
     <description>${escapeXml(SEO_CONFIG.defaultDescription)}</description>
     <!-- Feed Version: 2.0.1 - Deterministic Ratings Enabled -->
