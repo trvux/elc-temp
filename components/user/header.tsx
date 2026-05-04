@@ -73,7 +73,7 @@ export function Header() {
     iconBox: "relative flex h-5 w-5 items-center justify-center",
     icon: cn("absolute", COMMON.transition),
     mobileMenu: cn(
-      "absolute inset-x-0 top-full -mt-px bg-cream lg:hidden border-b border-border rounded-2xl shadow-xl",
+      "absolute inset-x-0 top-full -mt-px bg-cream lg:hidden border-b border-border rounded-b-2xl shadow-xl",
       "data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:slide-out-to-top-2 data-[state=open]:slide-in-from-top-2",
       "duration-300",
     ),
