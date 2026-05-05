@@ -1,30 +1,23 @@
-import { AspectRatio } from "@/components/ui/aspect-ratio";
-import { Badge } from "@/components/ui/badge";
+import { AspectRatio } from "@/shared/components/ui/aspect-ratio";
+import { Badge } from "@/shared/components/ui/badge";
 import {
   Carousel,
   CarouselContent,
   CarouselItem,
   CarouselNext,
   CarouselPrevious,
-} from "@/components/ui/carousel";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+} from "@/shared/components/ui/carousel";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/shared/components/ui/tabs";
 import {
   TypographyH1,
   TypographyH3,
   TypographySmall,
-} from "@/components/ui/typography";
-import { ScrollToTop } from "@/components/user/scroll-to-top";
-import {
-  SEO_CONFIG,
-  extractMetaDescription,
-  generateBreadcrumbSchema,
-  generateProductSmartDescription,
-  generateSchema,
-} from "@/lib/seo";
-import { createClient } from "@/lib/supabase/server";
-import { createStaticClient } from "@/lib/supabase/static";
-import { cn, formatPrice } from "@/lib/utils";
-import { Metadata } from "next";
+} from "@/shared/components/ui/typography";
+import { ScrollToTop } from "@/shared/components/layout/user/scroll-to-top";
+import { createClient } from "@/shared/lib/supabase/server";
+import { createStaticClient } from "@/shared/lib/supabase/static";
+import { getCategories, type Category } from "@/modules/category";
+import { cn, formatPrice } from "@/shared/lib/utils";
 import Image from "next/image";
 import { notFound } from "next/navigation";
 
@@ -40,9 +33,9 @@ export async function generateStaticParams() {
   }));
 }
 
-import { OrderButton } from "@/components/user/order-button";
-import { ProductDescription } from "@/components/user/product-description";
-import RelatedProducts from "@/components/user/related-products";
+import { OrderButton } from "@/shared/components/layout/user/order-button";
+import { ProductDescription } from "@/shared/components/layout/user/product-description";
+import RelatedProducts from "@/shared/components/layout/user/related-products";
 import { Percent } from "lucide-react";
 
 interface SpecSubItem {
@@ -121,64 +114,6 @@ const STYLES = {
   ),
 };
 
-export async function generateMetadata({
-  params,
-}: {
-  params: Promise<{ slug: string[] }>;
-}): Promise<Metadata> {
-  const { slug } = await params;
-  const leafSlug = slug[slug.length - 1];
-  const categoryPathSegments = slug.slice(0, -1);
-  const combinedCategorySlug = categoryPathSegments.join("-");
-
-  const supabase = await createClient();
-  const { data: product } = await supabase
-    .from("products")
-    .select("*, categories!inner(name, slug), brands(name)")
-    .eq("slug", leafSlug)
-    .eq("categories.slug", combinedCategorySlug)
-    .single();
-
-  if (!product) return { title: SEO_CONFIG.defaultTitle };
-
-  // Nâng cấp Tiêu đề: Tên máy + Mã SKU + Chính hãng + Giá tốt (hoặc Thi công nếu là máy giấu trần)
-  const isProfessional =
-    product.name.toLowerCase().includes("giấu trần") ||
-    product.name.toLowerCase().includes("âm trần");
-  const suffix = isProfessional
-    ? "Thi công trọn gói thẩm mỹ"
-    : "Chính hãng, Giá tốt nhất";
-
-  const title =
-    // @ts-ignore
-    product.meta_title ||
-    `${product.name} ${product.sku ? `(${product.sku})` : ""} - ${suffix}`;
-
-  // Dùng hàm Smart Description cho Meta SEO
-  // SEO Hierarchy: meta_description -> short_description -> Auto-generate from specs
-  const description =
-    // @ts-ignore
-    product.meta_description || generateProductSmartDescription(product);
-
-  const url = `${SEO_CONFIG.baseUrl}/san-pham/${slug.join("/")}`;
-  const images = product.images?.[0] || "/og-image.png";
-
-  return {
-    title,
-    description,
-    alternates: {
-      canonical: url,
-    },
-    openGraph: {
-      title,
-      description,
-      url,
-      type: "website",
-      images: product.images?.[0] ? [{ url: product.images[0] }] : [],
-    },
-  };
-}
-
 export default async function ProductDetail({
   params,
 }: {
@@ -215,7 +150,7 @@ export default async function ProductDetail({
   }
 
   // Fetch the leaf category and all other categories to build the hierarchy
-  const [{ data: rawProduct }, { data: allCategories }, { data: contacts }] =
+  const [{ data: product }, allCategories, { data: contacts }] =
     (await Promise.all([
       supabase
         .from("products")
@@ -223,33 +158,19 @@ export default async function ProductDetail({
         .eq("slug", leafSlug)
         .eq("categories.slug", combinedCategorySlug)
         .single(),
-      supabase
-        .from("categories")
-        .select("id, name, slug, parent_id")
-        .eq("type", "product"),
+      getCategories({ type: "PRODUCT" }),
       supabase.from("contacts").select("*").order("order_index"),
     ])) as [
       { data: ProductData | null },
-      {
-        data:
-          | {
-              id: string;
-              name: string;
-              slug: string;
-              parent_id: string | null;
-            }[]
-          | null;
-      },
+      Category[],
       { data: any[] | null },
     ];
 
-  if (!rawProduct) notFound();
-
-  const product = rawProduct;
+  if (!product) notFound();
 
   const leafCat = product.categories;
-  const parentCat = leafCat?.parent_id
-    ? allCategories?.find((c) => c.id === leafCat.parent_id)
+  const parentCat = (leafCat as any)?.parent_id
+    ? allCategories?.find((c) => c.id === (leafCat as any).parent_id)
     : null;
 
   const normalizedSpecs: SpecItem[] = Array.isArray(product.specs)
@@ -268,69 +189,8 @@ export default async function ProductDetail({
     !spec.value &&
     !spec.items;
 
-  const schema = generateSchema("Product", {
-    name: product.name,
-    metaDescription: generateProductSmartDescription(product),
-    description: extractMetaDescription(product.description || "", 200),
-    images: product.images,
-    sku: product.sku,
-    brand: product.brands?.name,
-    price: finalPrice,
-    originalPrice: product.original_price,
-    url: `${SEO_CONFIG.baseUrl}/san-pham/${slug.join("/")}`,
-    specs: normalizedSpecs, // Đưa toàn bộ specs vào để tạo snippet xịn trên Google
-  });
-
-  // Build breadcrumbs by traversing the category tree from the DB
-  const breadcrumbItems = [
-    { name: "Trang chủ", item: "/" },
-    { name: "Sản phẩm", item: "/san-pham" },
-  ];
-
-  if (allCategories && product.categories) {
-    const trail: { name: string; slug: string }[] = [];
-    let currentCat: any = product.categories;
-
-    while (currentCat) {
-      trail.unshift({ name: currentCat.name, slug: currentCat.slug });
-      if (currentCat.parent_id) {
-        currentCat = allCategories.find((c) => c.id === currentCat.parent_id);
-      } else {
-        currentCat = null;
-      }
-    }
-
-    trail.forEach((cat) => {
-      breadcrumbItems.push({
-        name: cat.name,
-        item: `/san-pham?category=${cat.slug}`,
-      });
-    });
-  }
-
-  // Add the product itself
-  breadcrumbItems.push({
-    name: product.name,
-    item: `/san-pham/${slug.join("/")}`,
-  });
-
-  const breadcrumbs = generateBreadcrumbSchema(breadcrumbItems);
-
   return (
     <main className={STYLES.main}>
-      {/* JSON-LD for Google Search & Images */}
-      {schema && (
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
-        />
-      )}
-      {breadcrumbs && (
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbs) }}
-        />
-      )}
       <div className={STYLES.container}>
         {/* TOP: Carousel + Product Info */}
         <div className={STYLES.topSection}>

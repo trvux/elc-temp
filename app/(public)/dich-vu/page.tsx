@@ -4,29 +4,13 @@ import {
   TypographyLead,
   TypographyP,
   TypographySmall,
-} from "@/components/ui/typography";
-import { ScrollToTop } from "@/components/user/scroll-to-top";
-import { createClient } from "@/lib/supabase/server";
-import { cn } from "@/lib/utils";
+} from "@/shared/components/ui/typography";
+import { ScrollToTop } from "@/shared/components/layout/user/scroll-to-top";
+import { cn } from "@/shared/lib/utils";
 import { ArrowUpRight } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { generateBreadcrumbSchema, SEO_CONFIG } from "@/lib/seo";
-import { Metadata } from "next";
-
-export const metadata: Metadata = {
-  title: "Dịch vụ Kỹ thuật Điện lạnh",
-  description: "Dịch vụ lắp đặt, sửa chữa, bảo trì máy lạnh công nghiệp, hệ thống VRV/VRF và các giải pháp lọc không khí chuyên nghiệp từ ELC.",
-  alternates: {
-    canonical: `${SEO_CONFIG.baseUrl}/dich-vu`,
-  },
-  openGraph: {
-    title: "Dịch vụ Kỹ thuật Điện lạnh",
-    description: "Giải pháp kỹ thuật và bảo trì điện lạnh chuyên nghiệp cho doanh nghiệp và gia đình.",
-    url: `${SEO_CONFIG.baseUrl}/dich-vu`,
-    type: "website",
-  },
-};
+import { getServices } from "@/modules/service/application";
 
 const STYLES = {
   main: cn("w-full min-h-screen py-12 px-4 md:px-8"),
@@ -57,54 +41,26 @@ const STYLES = {
 };
 
 export default async function ServicesHub() {
-  const supabase = await createClient();
+  // Fetch all published services using the application layer
+  const allServices = await getServices({ isPublished: true });
 
-  // Fetch all published services
-  const { data: allServices } = await supabase
-    .from("services")
-    .select("id, title, slug, image, meta_description, created_at")
-    .eq("is_published", true)
-    .order("order_index", { ascending: true });
-
-  if (!allServices) {
+  if (!allServices || allServices.length === 0) {
     return (
       <main className={STYLES.main}>
         <div className={STYLES.container}>
-          <TypographyP className="animate-pulse">
-            Đang tải dữ liệu...
-          </TypographyP>
+           <header className={STYLES.header}>
+            <TypographyH1 className={STYLES.title}>Dịch vụ</TypographyH1>
+            <TypographyP className="text-muted-foreground">
+              Hiện tại chưa có dịch vụ nào được đăng tải.
+            </TypographyP>
+          </header>
         </div>
       </main>
     );
   }
 
-  const breadcrumbs = generateBreadcrumbSchema([
-    { name: "Trang chủ", item: "/" },
-    { name: "Dịch vụ", item: "/dich-vu" },
-  ]);
-
-  const itemListSchema = {
-    "@context": "https://schema.org",
-    "@type": "ItemList",
-    "itemListElement": allServices.map((s, i) => ({
-      "@type": "ListItem",
-      "position": i + 1,
-      "url": `${SEO_CONFIG.baseUrl}/dich-vu/${s.slug}`,
-      "name": s.title,
-      "image": s.image || "",
-    }))
-  };
-
   return (
     <main className={STYLES.main}>
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbs) }}
-      />
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(itemListSchema) }}
-      />
       <div className={STYLES.container}>
         <header className={STYLES.header}>
           <TypographyH1 className={STYLES.title}>Dịch vụ</TypographyH1>
@@ -139,15 +95,9 @@ export default async function ServicesHub() {
                   </TypographyH4>
                   <ArrowUpRight className={STYLES.articleIcon} />
                 </div>
-
-                {service.meta_description && (
-                  <TypographyP className={STYLES.articleDescription}>
-                    {service.meta_description}
-                  </TypographyP>
-                )}
                 
                 <TypographySmall className="text-muted-foreground/40 font-medium">
-                  Cập nhật: {new Date(service.created_at).toLocaleDateString("vi-VN", {
+                  Cập nhật: {new Date(service.updatedAt).toLocaleDateString("vi-VN", {
                     day: "numeric",
                     month: "long",
                     year: "numeric",

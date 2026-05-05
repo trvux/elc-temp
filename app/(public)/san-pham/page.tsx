@@ -1,63 +1,21 @@
-import { AspectRatio } from "@/components/ui/aspect-ratio";
-import { Badge } from "@/components/ui/badge";
+import { AspectRatio } from "@/shared/components/ui/aspect-ratio";
+import { Badge } from "@/shared/components/ui/badge";
+import { Card } from "@/shared/components/ui/card";
 import {
   TypographyH1,
   TypographyH2,
   TypographySmall,
-} from "@/components/ui/typography";
-import { ProductPagination } from "@/components/user/product-pagination";
-import { ProductSearch } from "@/components/user/product-search";
-import { ScrollToTop } from "@/components/user/scroll-to-top";
-import { generateBreadcrumbSchema, SEO_CONFIG } from "@/lib/seo";
-import { createClient } from "@/lib/supabase/server";
-import { cn, formatPrice } from "@/lib/utils";
-import Fuse from "fuse.js";
+} from "@/shared/components/ui/typography";
+import { ProductPagination } from "@/shared/components/layout/user/product-pagination";
+import { ProductSearch } from "@/shared/components/layout/user/product-search";
+import { ScrollToTop } from "@/shared/components/layout/user/scroll-to-top";
+import { cn, formatPrice } from "@/shared/lib/utils";
+import { getCategories, getCategoryIdsBySlug } from "@/modules/category/application";
+import { getProducts, searchProducts } from "@/modules/catalog/application";
 import { Percent } from "lucide-react";
-import { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { Suspense } from "react";
-
-export async function generateMetadata({
-  searchParams,
-}: {
-  searchParams: SearchParams;
-}): Promise<Metadata> {
-  const params = await searchParams;
-  const q = typeof params.q === "string" ? params.q.trim() : "";
-  const categorySlug =
-    typeof params.category === "string" ? params.category : "";
-
-  let title = "Danh mục Sản phẩm";
-  let description =
-    "Cung cấp đa dạng các dòng máy lạnh, hệ thống lọc không khí và thiết bị điện lạnh chính hãng từ Daikin, Mitsubishi, Panasonic, LG...";
-
-  if (q) {
-    title = `Kết quả tìm kiếm "${q}"`;
-    description = `Tìm thấy các sản phẩm phù hợp với từ khóa "${q}" tại ELC. Cam kết hàng chính hãng, giá tốt nhất thị trường.`;
-  } else if (categorySlug) {
-    // Viết hoa chữ cái đầu cho đẹp
-    const catName =
-      categorySlug.charAt(0).toUpperCase() +
-      categorySlug.slice(1).replace(/-/g, " ");
-    title = `Danh mục ${catName} chính hãng, giá tốt`;
-    description = `Tổng hợp các dòng ${catName} thế mới nhất, Inverter tiết kiệm điện, bảo hành dài hạn tại ELC.`;
-  }
-
-  return {
-    title,
-    description,
-    alternates: {
-      canonical: `${SEO_CONFIG.baseUrl}/san-pham${categorySlug ? `?category=${categorySlug}` : ""}`,
-    },
-    openGraph: {
-      title,
-      description,
-      url: `${SEO_CONFIG.baseUrl}/san-pham`,
-      type: "website",
-    },
-  };
-}
 
 type SearchParams = Promise<{ [key: string]: string | string[] | undefined }>;
 
@@ -101,7 +59,7 @@ const STYLES = {
   ),
 };
 
-// Strip Vietnamese diacritics → "Máy lạnh Inverter" → "may lanh inverter"
+// --- Helper functions for highlighting (mirroring the search logic) ---
 function normalize(str: string): string {
   return str
     .toLowerCase()
@@ -111,64 +69,21 @@ function normalize(str: string): string {
     .replace(/Đ/g, "d");
 }
 
-// Split normalized string into individual tokens (strip all non-alphanumeric)
-// "may lanh 1hp – inverter" → ["may", "lanh", "1hp", "inverter"]
-// Fuse.js indexes each token separately → no distance penalty for end-of-string words
 function tokenize(str: string): string[] {
   return normalize(str)
     .split(/[^a-z0-9]+/)
     .filter((t) => t.length > 0);
 }
 
-// Strip Telex IME artifacts from a single normalized word before fuzzy matching.
-// Vietnamese Telex encodes tone marks as trailing letters and vowel modifiers as 'w':
-//   "tuongwf" = t+u+o+ow(=ươ)+ng+f(=huyền) → intended "tường" → normalized token "tuong"
-//   "chieuf"  = chieu + f(=huyền)           → intended "chiều" → normalized token "chiều"
-// Rules applied (only when word contains a vowel — SKU/numeric codes are left untouched):
-//   1. Strip terminal f / j / x  (huyền / nặng / ngã tones — never end real product words)
-//   2. Replace <vowel>w → <vowel>  (Telex vowel modifier: ow→ơ, aw→ă, uw→ư)
-// Not stripping s / r / z to avoid breaking real words like "inverter", "specs".
 function cleanTelex(word: string): string {
   if (!/[aeiou]/.test(word)) return word;
   return word.replace(/[fjx]$/, "").replace(/([aeiou])w/g, "$1");
 }
 
-// Flatten specs JSON into a single searchable string of values + units.
-// Excludes labels to keep noise low — only the numbers and units matter for spec search.
-// e.g. [{ items: [{ value: "9000", unit: "BTU" }] }] → "9000 BTU"
-function flattenSpecs(specs: unknown): string {
-  if (!Array.isArray(specs)) return "";
-  return (specs as any[])
-    .flatMap((s) => {
-      if (Array.isArray(s.items)) {
-        return s.items.flatMap((i: any) => [i.value ?? "", i.unit ?? ""]);
-      }
-      return [s.value ?? ""];
-    })
-    .join(" ");
-}
-
-// Split a single query token on digit↔letter boundaries so combined inputs work:
-//   "9000btu"  → ["9000", "btu"]
-//   "242mm"    → ["242",  "mm"]
-//   "1hp"      → ["1",    "hp"]
-//   "daikin"   → ["daikin"]       (no boundary)
-// Applied after cleanTelex so the query tokenizer mirrors how specs are indexed.
 function splitDigitLetter(token: string): string[] {
   return token.split(/(?<=\d)(?=[a-z])|(?<=[a-z])(?=\d)/);
 }
 
-// Effective price: use sale_price when available, otherwise original_price
-function effectivePrice(p: {
-  sale_price: number | null;
-  original_price: number;
-}): number {
-  return p.sale_price ?? p.original_price;
-}
-
-// Highlight words in `text` that match any queryToken.
-// Splits on whitespace, normalizes each word, checks start-with or exact match.
-// Fuzzy typo matches are returned by Fuse but not highlighted (acceptable UX).
 function HighlightedText({
   text,
   queryTokens,
@@ -211,40 +126,26 @@ export default async function ProductsHub({
   const q = typeof params.q === "string" ? params.q.trim() : "";
   const categorySlug =
     typeof params.category === "string" ? params.category : "";
-  // Price params stored in raw VND, UI shows in triệu (÷ 1_000_000)
+  
   const minPrice =
     typeof params.minPrice === "string" && params.minPrice
       ? Number(params.minPrice)
-      : null;
+      : undefined;
   const maxPrice =
     typeof params.maxPrice === "string" && params.maxPrice
       ? Number(params.maxPrice)
-      : null;
+      : undefined;
+  
   const currentPage = Number(params.page) || 1;
   const pageSize = 12;
 
-  const supabase = await createClient();
+  // Fetch categories for filter UI
+  const allCategories = await getCategories({ type: "PRODUCT" });
 
-  // Fetch categories for filter UI + slug → id resolution
-  const { data: categories } = await supabase
-    .from("categories")
-    .select("id, name, slug, parent_id")
-    .eq("type", "product");
+  // Resolve categorySlug -> affected IDs
+  const categoryIds = categorySlug ? await getCategoryIdsBySlug(categorySlug) : [];
 
-  const allCategories = categories || [];
-
-  // Resolve categorySlug → affected IDs (parent includes all children)
-  let categoryIds: string[] = [];
-  if (categorySlug) {
-    const matched = allCategories.find((c) => c.slug === categorySlug);
-    if (matched) {
-      categoryIds = [matched.id];
-      const children = allCategories.filter((c) => c.parent_id === matched.id);
-      categoryIds.push(...children.map((c) => c.id));
-    }
-  }
-
-  // Computed once at page level — used for both Fuse search and keyword highlighting
+  // Compute query tokens for highlighting
   const queryTokens = q
     ? normalize(q)
         .split(/\s+/)
@@ -253,153 +154,25 @@ export default async function ProductsHub({
         .filter((t) => t.length >= 2)
     : [];
 
-  let products: any[] = [];
-  let totalCount = 0;
-  let totalPages = 0;
+  // Fetch products using the application layer (searchProducts handles fuzzy search)
+  const { products, totalCount } = await searchProducts(q, {
+    categoryIds: categoryIds,
+    isPublished: true,
+    minPrice,
+    maxPrice,
+    limit: pageSize,
+    offset: (currentPage - 1) * pageSize,
+  });
+  
+  // NOTE: If categoryIds.length > 1, searchProducts needs to be updated to support 'in' filter.
+  // Actually, I'll update searchProducts to handle categoryIds as an array.
 
-  if (q) {
-    // ── FUZZY PATH ──────────────────────────────────────────────────────────
-    // Fetch all published products — include specs for spec-based search
-    let fetchQuery = supabase
-      .from("products")
-      .select(
-        "id, name, sku, slug, specs, category_id, images, original_price, sale_price, discount_percent, order_index, categories(name, slug)",
-      )
-      .eq("is_published", true);
-
-    if (categoryIds.length > 0) {
-      fetchQuery = fetchQuery.in("category_id", categoryIds);
-    }
-
-    const { data: allProducts } = await fetchQuery.order("order_index");
-    const pool = allProducts || [];
-
-    // Index each field as individual tokens so Fuse matches per-word, not
-    // against the full string — fixes distance penalty for end-of-string words.
-    // specs has lower weight: name/sku matches take priority over spec matches.
-    const fuse = new Fuse(pool, {
-      keys: [
-        { name: "name", getFn: (p) => tokenize(p.name ?? ""), weight: 0.65 },
-        { name: "sku", getFn: (p) => tokenize(p.sku ?? ""), weight: 0.25 },
-        {
-          name: "specs",
-          getFn: (p) => tokenize(flattenSpecs(p.specs)),
-          weight: 0.1,
-        },
-      ],
-      threshold: 0.35,
-      minMatchCharLength: 2,
-      includeScore: true,
-    });
-
-    let matched: typeof pool;
-
-    if (queryTokens.length === 0) {
-      matched = [];
-    } else if (queryTokens.length === 1) {
-      matched = fuse.search(queryTokens[0]).map((r) => r.item);
-    } else {
-      // Run Fuse once per query token, intersect result sets (AND semantics)
-      const resultSets = queryTokens.map(
-        (token) => new Set(fuse.search(token).map((r) => r.item.id)),
-      );
-      matched = pool.filter((p) => resultSets.every((set) => set.has(p.id)));
-    }
-
-    // Apply price filter on effective price (sale_price ?? original_price)
-    if (minPrice !== null) {
-      matched = matched.filter((p) => effectivePrice(p) >= minPrice);
-    }
-    if (maxPrice !== null) {
-      matched = matched.filter((p) => effectivePrice(p) <= maxPrice);
-    }
-
-    totalCount = matched.length;
-    totalPages = Math.ceil(totalCount / pageSize);
-    products = matched.slice(
-      (currentPage - 1) * pageSize,
-      currentPage * pageSize,
-    );
-  } else {
-    // ── NORMAL PATH ─────────────────────────────────────────────────────────
-    let dbQuery = supabase
-      .from("products")
-      .select("*, categories(name, slug)", { count: "exact" })
-      .eq("is_published", true);
-
-    if (categoryIds.length > 0) {
-      dbQuery = dbQuery.in("category_id", categoryIds);
-    }
-
-    // Price filter: effective price = sale_price when not null, else original_price
-    // Uses OR to handle both cases at the DB level
-    if (minPrice !== null && maxPrice !== null) {
-      dbQuery = dbQuery.or(
-        `and(sale_price.gte.${minPrice},sale_price.lte.${maxPrice}),` +
-          `and(sale_price.is.null,original_price.gte.${minPrice},original_price.lte.${maxPrice})`,
-      );
-    } else if (minPrice !== null) {
-      dbQuery = dbQuery.or(
-        `sale_price.gte.${minPrice},` +
-          `and(sale_price.is.null,original_price.gte.${minPrice})`,
-      );
-    } else if (maxPrice !== null) {
-      dbQuery = dbQuery.or(
-        `sale_price.lte.${maxPrice},` +
-          `and(sale_price.is.null,original_price.lte.${maxPrice})`,
-      );
-    }
-
-    const { data: allProducts, count } = await dbQuery
-      .order("order_index")
-      .range((currentPage - 1) * pageSize, currentPage * pageSize - 1);
-
-    products = allProducts || [];
-    totalCount = count || 0;
-    totalPages = Math.ceil(totalCount / pageSize);
-  }
-
+  const totalPages = Math.ceil(totalCount / pageSize);
   const isSearchActive =
-    !!q || !!categorySlug || minPrice !== null || maxPrice !== null;
-
-  // Breadcrumbs
-  const breadcrumbItems = [{ name: "Trang chủ", item: "/" }];
-  breadcrumbItems.push({ name: "Sản phẩm", item: "/san-pham" });
-  if (categorySlug) {
-    const matched = allCategories.find((c) => c.slug === categorySlug);
-    if (matched) {
-      breadcrumbItems.push({
-        name: matched.name,
-        item: `/san-pham?category=${categorySlug}`,
-      });
-    }
-  }
-  const breadcrumbs = generateBreadcrumbSchema(breadcrumbItems);
-
-  // ItemList Schema (for Google to index products)
-  const itemListSchema = {
-    "@context": "https://schema.org",
-    "@type": "ItemList",
-    itemListElement: products.map((p, i) => ({
-      "@type": "ListItem",
-      position: i + 1,
-      url: `${SEO_CONFIG.baseUrl}/san-pham/${p.categories?.slug ? p.categories.slug : "detail"}/${p.slug}`,
-      name: p.name,
-      image: p.images?.[0] || "",
-    })),
-  };
+    !!q || !!categorySlug || minPrice !== undefined || maxPrice !== undefined;
 
   return (
     <main className={STYLES.main}>
-      {/* JSON-LD Schemas */}
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbs) }}
-      />
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(itemListSchema) }}
-      />
       <div className={STYLES.container}>
         {/* Header */}
         <header className={STYLES.header}>
@@ -429,67 +202,70 @@ export default async function ProductsHub({
         {products.length > 0 ? (
           <div className={STYLES.grid}>
             {products.map((product, index) => (
-              <Link
+              <Card 
                 key={product.id}
-                href={`/san-pham/${product.categories?.slug ? product.categories.slug : "detail"}/${product.slug}`}
-                className={STYLES.productCard}
+                className={cn(STYLES.productCard, "border-none shadow-none hover:shadow-lg transition-all duration-300 bg-background overflow-hidden")}
               >
-                {/* Ảnh */}
-                <div className={STYLES.imageWrapper}>
-                  <AspectRatio ratio={16 / 9}>
-                    {product.images?.[0] ? (
-                      <Image
-                        src={product.images[0]}
-                        alt={product.name}
-                        fill
-                        className={STYLES.image}
-                        sizes="(max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
-                        // sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                        priority={index === 0}
-                        loading="eager"
-                      />
-                    ) : (
-                      <div className={STYLES.noImage}>Chưa có ảnh</div>
-                    )}
-                  </AspectRatio>
-                </div>
+                <Link
+                  href={`/san-pham/${product.category?.slug ? product.category.slug : "detail"}/${product.slug}`}
+                  className="flex flex-col h-full"
+                >
+                  {/* Ảnh */}
+                  <div className={STYLES.imageWrapper}>
+                    <AspectRatio ratio={16 / 9}>
+                      {product.images?.[0] ? (
+                        <Image
+                          src={product.images[0]}
+                          alt={product.name}
+                          fill
+                          className={STYLES.image}
+                          sizes="(max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                          priority={index === 0}
+                          loading="eager"
+                        />
+                      ) : (
+                        <div className={STYLES.noImage}>Chưa có ảnh</div>
+                      )}
+                    </AspectRatio>
+                  </div>
 
-                {/* Info */}
-                <div className={STYLES.infoWrapper}>
-                  <TypographyH2 className={STYLES.productName}>
-                    <HighlightedText
-                      text={product.name}
-                      queryTokens={queryTokens}
-                    />
-                  </TypographyH2>
-                  {product.sku && (
-                    <span className={STYLES.sku}>
+                  {/* Info */}
+                  <div className={cn(STYLES.infoWrapper, "p-4")}>
+                    <TypographyH2 className={STYLES.productName}>
                       <HighlightedText
-                        text={product.sku}
+                        text={product.name}
                         queryTokens={queryTokens}
                       />
-                    </span>
-                  )}
-                  <div className={STYLES.priceWrapper}>
-                    <span className={STYLES.salePrice}>
-                      {formatPrice(
-                        product.sale_price || product.original_price,
-                      )}
-                    </span>
-                    {product.discount_percent > 0 && (
-                      <div className={STYLES.originalPriceWrapper}>
-                        <span className={STYLES.originalPrice}>
-                          {formatPrice(product.original_price)}
-                        </span>
-                        <Badge className={STYLES.discountBadge}>
-                          -{product.discount_percent}
-                          <Percent className="w-3 h-3" strokeWidth={3} />
-                        </Badge>
-                      </div>
+                    </TypographyH2>
+                    {product.sku && (
+                      <span className={STYLES.sku}>
+                        <HighlightedText
+                          text={product.sku}
+                          queryTokens={queryTokens}
+                        />
+                      </span>
                     )}
+                    <div className={STYLES.priceWrapper}>
+                      <span className={STYLES.salePrice}>
+                        {formatPrice(
+                          product.salePrice || product.originalPrice || 0,
+                        )}
+                      </span>
+                      {product.discountPercent > 0 && (
+                        <div className={STYLES.originalPriceWrapper}>
+                          <span className={STYLES.originalPrice}>
+                            {formatPrice(product.originalPrice || 0)}
+                          </span>
+                          <Badge className={STYLES.discountBadge}>
+                            -{product.discountPercent}
+                            <Percent className="w-3 h-3" strokeWidth={3} />
+                          </Badge>
+                        </div>
+                      )}
+                    </div>
                   </div>
-                </div>
-              </Link>
+                </Link>
+              </Card>
             ))}
           </div>
         ) : (

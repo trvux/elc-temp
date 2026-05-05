@@ -16,100 +16,145 @@ export type Database = {
     Tables: {
       about_blocks: {
         Row: {
-          caption: string | null
-          content: string | null
+          caption: string
+          content: string
           created_at: string | null
           id: string
-          order_index: number | null
+          order_index: number
           type: string
         }
         Insert: {
-          caption?: string | null
-          content?: string | null
+          caption?: string
+          content?: string
           created_at?: string | null
           id?: string
-          order_index?: number | null
+          order_index?: number
           type: string
         }
         Update: {
-          caption?: string | null
-          content?: string | null
+          caption?: string
+          content?: string
           created_at?: string | null
           id?: string
-          order_index?: number | null
+          order_index?: number
           type?: string
         }
         Relationships: []
       }
       branches: {
         Row: {
-          address: string | null
+          address: string
           created_at: string | null
-          description: string | null
-          email: string | null
+          deleted_at: string | null
+          description: Json
+          email: string
           id: string
-          is_published: boolean | null
-          maps_embed: string | null
-          maps_url: string | null
+          is_published: boolean
+          maps_embed: string
+          maps_url: string
           name: string
-          order_index: number | null
-          phone: string | null
+          order_index: number
+          phone: string
           slug: string
+          updated_at: string | null
         }
         Insert: {
-          address?: string | null
+          address?: string
           created_at?: string | null
-          description?: string | null
-          email?: string | null
+          deleted_at?: string | null
+          description?: Json
+          email?: string
           id?: string
-          is_published?: boolean | null
-          maps_embed?: string | null
-          maps_url?: string | null
+          is_published?: boolean
+          maps_embed?: string
+          maps_url?: string
           name: string
-          order_index?: number | null
-          phone?: string | null
+          order_index?: number
+          phone?: string
           slug: string
+          updated_at?: string | null
         }
         Update: {
-          address?: string | null
+          address?: string
           created_at?: string | null
-          description?: string | null
-          email?: string | null
+          deleted_at?: string | null
+          description?: Json
+          email?: string
           id?: string
-          is_published?: boolean | null
-          maps_embed?: string | null
-          maps_url?: string | null
+          is_published?: boolean
+          maps_embed?: string
+          maps_url?: string
           name?: string
-          order_index?: number | null
-          phone?: string | null
+          order_index?: number
+          phone?: string
           slug?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      brands: {
+        Row: {
+          created_at: string | null
+          deleted_at: string | null
+          description: string
+          id: string
+          logo_url: string
+          name: string
+          slug: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          deleted_at?: string | null
+          description?: string
+          id?: string
+          logo_url?: string
+          name: string
+          slug: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          deleted_at?: string | null
+          description?: string
+          id?: string
+          logo_url?: string
+          name?: string
+          slug?: string
+          updated_at?: string | null
         }
         Relationships: []
       }
       categories: {
         Row: {
           created_at: string | null
+          deleted_at: string | null
           id: string
           name: string
           parent_id: string | null
-          slug: string | null
+          slug: string
           type: string
+          updated_at: string | null
         }
         Insert: {
           created_at?: string | null
+          deleted_at?: string | null
           id?: string
           name: string
           parent_id?: string | null
-          slug?: string | null
+          slug: string
           type: string
+          updated_at?: string | null
         }
         Update: {
           created_at?: string | null
+          deleted_at?: string | null
           id?: string
           name?: string
           parent_id?: string | null
-          slug?: string | null
+          slug?: string
           type?: string
+          updated_at?: string | null
         }
         Relationships: [
           {
@@ -145,83 +190,85 @@ export type Database = {
         }
         Relationships: []
       }
-      pages: {
+      news: {
         Row: {
-          content: string | null
+          content: Json
           created_at: string | null
+          deleted_at: string | null
           id: string
-          is_published: boolean | null
-          meta_description: string | null
-          meta_title: string | null
+          image: string
+          is_published: boolean
+          order_index: number
           slug: string
           title: string
           updated_at: string | null
         }
         Insert: {
-          content?: string | null
+          content?: Json
           created_at?: string | null
+          deleted_at?: string | null
           id?: string
-          is_published?: boolean | null
-          meta_description?: string | null
-          meta_title?: string | null
+          image?: string
+          is_published?: boolean
+          order_index?: number
           slug: string
           title: string
           updated_at?: string | null
         }
         Update: {
-          content?: string | null
+          content?: Json
           created_at?: string | null
+          deleted_at?: string | null
           id?: string
-          is_published?: boolean | null
-          meta_description?: string | null
-          meta_title?: string | null
+          image?: string
+          is_published?: boolean
+          order_index?: number
           slug?: string
           title?: string
           updated_at?: string | null
         }
         Relationships: []
       }
-      product_branches: {
+      pages: {
         Row: {
-          branch_id: string | null
+          content: Json
+          created_at: string | null
+          deleted_at: string | null
           id: string
-          product_id: string | null
-          stock_status: string | null
+          is_published: boolean
+          slug: string
+          title: string
+          updated_at: string | null
         }
         Insert: {
-          branch_id?: string | null
+          content?: Json
+          created_at?: string | null
+          deleted_at?: string | null
           id?: string
-          product_id?: string | null
-          stock_status?: string | null
+          is_published?: boolean
+          slug: string
+          title: string
+          updated_at?: string | null
         }
         Update: {
-          branch_id?: string | null
+          content?: Json
+          created_at?: string | null
+          deleted_at?: string | null
           id?: string
-          product_id?: string | null
-          stock_status?: string | null
+          is_published?: boolean
+          slug?: string
+          title?: string
+          updated_at?: string | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "product_branches_branch_id_fkey"
-            columns: ["branch_id"]
-            isOneToOne: false
-            referencedRelation: "branches"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "product_branches_product_id_fkey"
-            columns: ["product_id"]
-            isOneToOne: false
-            referencedRelation: "products"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       products: {
         Row: {
-          category_id: string | null
+          brand_id: string
+          category_id: string
           created_at: string | null
-          description: string | null
+          deleted_at: string | null
+          description: Json
           discount_percent: number | null
           id: string
           images: string[] | null
@@ -231,14 +278,19 @@ export type Database = {
           order_index: number | null
           original_price: number | null
           sale_price: number | null
+          short_description: string
           sku: string
-          slug: string | null
-          specs: Json | null
+          slug: string
+          specs: Json
+          stock_status: string | null
+          updated_at: string | null
         }
         Insert: {
-          category_id?: string | null
+          brand_id: string
+          category_id: string
           created_at?: string | null
-          description?: string | null
+          deleted_at?: string | null
+          description?: Json
           discount_percent?: number | null
           id?: string
           images?: string[] | null
@@ -248,14 +300,19 @@ export type Database = {
           order_index?: number | null
           original_price?: number | null
           sale_price?: number | null
+          short_description?: string
           sku: string
-          slug?: string | null
-          specs?: Json | null
+          slug: string
+          specs?: Json
+          stock_status?: string | null
+          updated_at?: string | null
         }
         Update: {
-          category_id?: string | null
+          brand_id?: string
+          category_id?: string
           created_at?: string | null
-          description?: string | null
+          deleted_at?: string | null
+          description?: Json
           discount_percent?: number | null
           id?: string
           images?: string[] | null
@@ -265,11 +322,21 @@ export type Database = {
           order_index?: number | null
           original_price?: number | null
           sale_price?: number | null
+          short_description?: string
           sku?: string
-          slug?: string | null
-          specs?: Json | null
+          slug?: string
+          specs?: Json
+          stock_status?: string | null
+          updated_at?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "products_brand_id_fkey"
+            columns: ["brand_id"]
+            isOneToOne: false
+            referencedRelation: "brands"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "products_category_id_fkey"
             columns: ["category_id"]
@@ -281,40 +348,46 @@ export type Database = {
       }
       projects: {
         Row: {
-          category_id: string | null
+          category_id: string
           created_at: string | null
-          description: string | null
+          deleted_at: string | null
+          description: Json
           id: string
-          images: string[] | null
-          is_published: boolean | null
+          images: string[]
           is_featured: boolean | null
+          is_published: boolean | null
           order_index: number | null
-          slug: string | null
+          slug: string
           title: string
+          updated_at: string | null
         }
         Insert: {
-          category_id?: string | null
+          category_id: string
           created_at?: string | null
-          description?: string | null
+          deleted_at?: string | null
+          description?: Json
           id?: string
-          images?: string[] | null
-          is_published?: boolean | null
+          images?: string[]
           is_featured?: boolean | null
+          is_published?: boolean | null
           order_index?: number | null
-          slug?: string | null
+          slug: string
           title: string
+          updated_at?: string | null
         }
         Update: {
-          category_id?: string | null
+          category_id?: string
           created_at?: string | null
-          description?: string | null
+          deleted_at?: string | null
+          description?: Json
           id?: string
-          images?: string[] | null
-          is_published?: boolean | null
+          images?: string[]
           is_featured?: boolean | null
+          is_published?: boolean | null
           order_index?: number | null
-          slug?: string | null
+          slug?: string
           title?: string
+          updated_at?: string | null
         }
         Relationships: [
           {
@@ -325,6 +398,45 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      services: {
+        Row: {
+          content: Json
+          created_at: string | null
+          deleted_at: string | null
+          id: string
+          image: string
+          is_published: boolean
+          order_index: number
+          slug: string
+          title: string
+          updated_at: string | null
+        }
+        Insert: {
+          content?: Json
+          created_at?: string | null
+          deleted_at?: string | null
+          id?: string
+          image?: string
+          is_published?: boolean
+          order_index?: number
+          slug: string
+          title: string
+          updated_at?: string | null
+        }
+        Update: {
+          content?: Json
+          created_at?: string | null
+          deleted_at?: string | null
+          id?: string
+          image?: string
+          is_published?: boolean
+          order_index?: number
+          slug?: string
+          title?: string
+          updated_at?: string | null
+        }
+        Relationships: []
       }
       site_settings: {
         Row: {
@@ -346,6 +458,8 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      show_limit: { Args: never; Returns: number }
+      show_trgm: { Args: { "": string }; Returns: string[] }
       unaccent: { Args: { "": string }; Returns: string }
     }
     Enums: {

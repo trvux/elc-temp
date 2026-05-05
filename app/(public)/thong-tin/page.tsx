@@ -4,23 +4,12 @@ import {
   TypographyLead,
   TypographyP,
   TypographySmall,
-} from "@/components/ui/typography";
-import { ScrollToTop } from "@/components/user/scroll-to-top";
-import { generateBreadcrumbSchema, SEO_CONFIG } from "@/lib/seo";
-import { createClient } from "@/lib/supabase/server";
-import { cn } from "@/lib/utils";
+} from "@/shared/components/ui/typography";
+import { ScrollToTop } from "@/shared/components/layout/user/scroll-to-top";
+import { cn } from "@/shared/lib/utils";
 import { ArrowUpRight } from "lucide-react";
-import { Metadata } from "next";
 import Link from "next/link";
-
-export const metadata: Metadata = {
-  title: "Thông tin về ELC - Chính sách & Giá trị cốt lõi",
-  description:
-    "Kho lưu trữ minh bạch về các giá trị cốt lõi, cam kết bảo hành và triết lý kiến tạo của Điện máy ELC.",
-  alternates: {
-    canonical: "/thong-tin",
-  },
-};
+import { getPages } from "@/modules/page/application";
 
 const STYLES = {
   main: cn("w-full min-h-screen py-12 px-4 md:px-8"),
@@ -52,53 +41,26 @@ const STYLES = {
 };
 
 export default async function InformationHub() {
-  const supabase = await createClient();
+  // Fetch all published pages using the application layer
+  const allPages = await getPages({ isPublished: true });
 
-  // Fetch all published pages
-  const { data: allPages } = await supabase
-    .from("pages")
-    .select("id, title, slug, meta_description, created_at")
-    .eq("is_published", true)
-    .order("created_at", { ascending: true });
-
-  if (!allPages) {
+  if (!allPages || allPages.length === 0) {
     return (
       <main className={STYLES.main}>
         <div className={STYLES.container}>
-          <TypographyP className="animate-pulse">
-            Đang tải dữ liệu...
-          </TypographyP>
+          <header className={STYLES.header}>
+            <TypographyH1 className={STYLES.title}>Thông tin về ELC</TypographyH1>
+            <TypographyP className="text-muted-foreground">
+              Hiện tại chưa có thông tin nào được cập nhật.
+            </TypographyP>
+          </header>
         </div>
       </main>
     );
   }
 
-  const breadcrumbs = generateBreadcrumbSchema([
-    { name: "Trang chủ", item: "/" },
-    { name: "Thông tin", item: "/thong-tin" },
-  ]);
-
-  const itemListSchema = {
-    "@context": "https://schema.org",
-    "@type": "ItemList",
-    itemListElement: allPages.map((p, i) => ({
-      "@type": "ListItem",
-      position: i + 1,
-      url: `${SEO_CONFIG.baseUrl}/${p.slug}`,
-      name: p.title,
-    })),
-  };
-
   return (
     <main className={STYLES.main}>
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbs) }}
-      />
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(itemListSchema) }}
-      />
       <div className={STYLES.container}>
         <header className={STYLES.header}>
           <TypographyH1 className={STYLES.title}>Thông tin về ELC</TypographyH1>
@@ -115,33 +77,12 @@ export default async function InformationHub() {
               href={`/${page.slug}`}
               className={STYLES.article}
             >
-              {/* <div className={STYLES.articleMeta}>
-                <TypographySmall className="opacity-30">
-                  {new Date(page.created_at).toLocaleDateString("vi-VN", {
-                    month: "long",
-                    year: "numeric",
-                  })}
-                </TypographySmall>
-              </div> */}
-
               <div className={STYLES.articleHeader}>
                 <TypographyH4 className={STYLES.articleTitle}>
                   {page.title}
                 </TypographyH4>
                 <ArrowUpRight className={STYLES.articleIcon} />
               </div>
-
-              {page.meta_description && (
-                <TypographyP className={STYLES.articleDescription}>
-                  {page.meta_description}
-                </TypographyP>
-              )}
-
-              {/* <div className={STYLES.articleFooter}>
-                <TypographySmall className={STYLES.readMore}>
-                  Xem thêm
-                </TypographySmall>
-              </div> */}
             </Link>
           ))}
         </div>

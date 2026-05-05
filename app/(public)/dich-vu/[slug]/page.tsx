@@ -1,15 +1,13 @@
-import { Button } from "@/components/ui/button";
-import { TypographyH1, TypographySmall } from "@/components/ui/typography";
-import { ScrollToTop } from "@/components/user/scroll-to-top";
-import { createClient } from "@/lib/supabase/server";
-import { createStaticClient } from "@/lib/supabase/static";
-import { cn } from "@/lib/utils";
+import { Button } from "@/shared/components/ui/button";
+import { TypographyH1, TypographySmall } from "@/shared/components/ui/typography";
+import { ScrollToTop } from "@/shared/components/layout/user/scroll-to-top";
+import { createClient } from "@/shared/lib/supabase/server";
+import { createStaticClient } from "@/shared/lib/supabase/static";
+import { cn } from "@/shared/lib/utils";
 import { ArrowLeft } from "lucide-react";
-import { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { SEO_CONFIG, extractMetaDescription, generateSchema, generateBreadcrumbSchema } from "@/lib/seo";
-import { PreviewContent } from "@/components/user/preview-content";
+import { PreviewContent } from "@/shared/components/layout/user/preview-content";
 
 // Design System / Style Constants
 export const dynamic = "force-dynamic";
@@ -40,38 +38,6 @@ export async function generateStaticParams() {
   return (services ?? []).map((s) => ({ slug: s.slug }));
 }
 
-export async function generateMetadata({
-  params,
-}: PageProps): Promise<Metadata> {
-  const { slug } = await params;
-  const supabase = createStaticClient();
-
-  const { data: service } = await supabase
-    .from("services")
-    .select("title, content, meta_title, meta_description, created_at, image")
-    .eq("slug", slug)
-    .eq("is_published", true)
-    .maybeSingle();
-
-  if (!service) return { title: "Không tìm thấy nội dung" };
-
-  return {
-    title: service.meta_title || `Dịch vụ ${service.title}`,
-    description:
-      service.meta_description || 
-      extractMetaDescription(service.content || "", 160),
-    alternates: {
-      canonical: `${SEO_CONFIG.baseUrl}/dich-vu/${slug}`,
-    },
-    openGraph: {
-      title: service.meta_title || service.title,
-      description: service.meta_description || extractMetaDescription(service.content || "", 160),
-      url: `${SEO_CONFIG.baseUrl}/dich-vu/${slug}`,
-      type: "website",
-    },
-  };
-}
-
 export default async function ServiceDetailPage({ params }: PageProps) {
   const { slug } = await params;
   const supabase = createStaticClient();
@@ -88,24 +54,11 @@ export default async function ServiceDetailPage({ params }: PageProps) {
     notFound();
   }
 
-  const schema = generateSchema("Article", { // Using Article schema for service details as they are content-based
-    title: service.title || "",
-    image: service.image || "",
-    datePublished: service.created_at || "",
-    dateModified: service.created_at || "",
-  });
-
-  const breadcrumbs = generateBreadcrumbSchema([
-    { name: "Trang chủ", item: "/" },
-    { name: "Dịch vụ", item: "/dich-vu" },
-    { name: service.title || "Dịch vụ", item: `/dich-vu/${slug}` },
-  ]);
-
   // Safe date formatting
   let formattedDate = "";
   try {
     if (service.created_at) {
-      formattedDate = new Date(service.created_at).toLocaleDateString("vi-VN", {
+      formattedDate = new Date(service.created_at || Date.now()).toLocaleDateString("vi-VN", {
         day: "numeric",
         month: "long",
         year: "numeric",
@@ -117,19 +70,6 @@ export default async function ServiceDetailPage({ params }: PageProps) {
 
   return (
     <main className={STYLES.main}>
-      {/* JSON-LD for Service */}
-      {schema && (
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
-        />
-      )}
-      {breadcrumbs && (
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbs) }}
-        />
-      )}
       <div className={STYLES.container}>
         <header>
           {formattedDate && (

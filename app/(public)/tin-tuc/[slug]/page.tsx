@@ -1,14 +1,12 @@
-import { Button } from "@/components/ui/button";
-import { TypographyH1, TypographySmall } from "@/components/ui/typography";
-import { ScrollToTop } from "@/components/user/scroll-to-top";
-import { createStaticClient } from "@/lib/supabase/static";
-import { cn } from "@/lib/utils";
+import { Button } from "@/shared/components/ui/button";
+import { TypographyH1, TypographySmall } from "@/shared/components/ui/typography";
+import { ScrollToTop } from "@/shared/components/layout/user/scroll-to-top";
+import { cn } from "@/shared/lib/utils";
 import { ArrowLeft } from "lucide-react";
-import { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { SEO_CONFIG, extractMetaDescription, generateSchema, generateBreadcrumbSchema } from "@/lib/seo";
-import { PreviewContent } from "@/components/user/preview-content";
+import { PreviewContent } from "@/shared/components/layout/user/preview-content";
+import { getNewsBySlug, getNews } from "@/modules/news/application";
 
 // Design System / Style Constants
 const STYLES = {
@@ -29,79 +27,22 @@ interface PageProps {
 }
 
 export async function generateStaticParams() {
-  const supabase = createStaticClient();
-  const { data: newsList } = await supabase
-    .from("news")
-    .select("slug")
-    .eq("is_published", true);
+  const newsList = await getNews({ isPublished: true });
   return (newsList ?? []).map((n) => ({ slug: n.slug }));
-}
-
-export async function generateMetadata({
-  params,
-}: PageProps): Promise<Metadata> {
-  const { slug } = await params;
-  const supabase = createStaticClient();
-
-  const { data: newsItem } = await supabase
-    .from("news")
-    .select("title, content, image, meta_title, meta_description, created_at, updated_at")
-    .eq("slug", slug)
-    .eq("is_published", true)
-    .maybeSingle();
-
-  if (!newsItem) return { title: "Không tìm thấy nội dung" };
-
-  return {
-    title: newsItem.meta_title || newsItem.title,
-    description:
-      newsItem.meta_description || 
-      extractMetaDescription(newsItem.content || "", 160),
-    alternates: {
-      canonical: `${SEO_CONFIG.baseUrl}/tin-tuc/${slug}`,
-    },
-    openGraph: {
-      title: newsItem.meta_title || newsItem.title,
-      description: newsItem.meta_description || extractMetaDescription(newsItem.content || "", 160),
-      url: `${SEO_CONFIG.baseUrl}/tin-tuc/${slug}`,
-      type: "article",
-      images: newsItem.image ? [{ url: newsItem.image }] : [],
-    },
-  };
 }
 
 export default async function NewsDetailPage({ params }: PageProps) {
   const { slug } = await params;
-  const supabase = createStaticClient();
+  
+  // Fetch current news detail using the application layer
+  const newsItem = await getNewsBySlug(slug);
 
-  // Fetch current news detail
-  const { data: newsItem, error } = await supabase
-    .from("news")
-    .select("*")
-    .eq("slug", slug)
-    .eq("is_published", true)
-    .maybeSingle();
-
-  if (error || !newsItem) {
+  if (!newsItem || !newsItem.isPublished) {
     notFound();
   }
 
   const title = newsItem.title || "Tin tức";
-  const createdAt = newsItem.created_at || "";
-  const updatedAt = newsItem.updated_at || createdAt;
-
-  const schema = generateSchema("Article", {
-    title,
-    image: newsItem.image || "",
-    datePublished: createdAt,
-    dateModified: updatedAt,
-  });
-
-  const breadcrumbs = generateBreadcrumbSchema([
-    { name: "Trang chủ", item: "/" },
-    { name: "Tin tức", item: "/tin-tuc" },
-    { name: title, item: `/tin-tuc/${slug}` },
-  ]);
+  const createdAt = newsItem.createdAt || "";
 
   const formattedDate = createdAt ? new Date(createdAt).toLocaleDateString("vi-VN", {
     day: "numeric",
@@ -111,19 +52,6 @@ export default async function NewsDetailPage({ params }: PageProps) {
 
   return (
     <main className={STYLES.main}>
-      {/* JSON-LD for News */}
-      {schema && (
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
-        />
-      )}
-      {breadcrumbs && (
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbs) }}
-        />
-      )}
       <div className={STYLES.container}>
         <header>
           {formattedDate && (

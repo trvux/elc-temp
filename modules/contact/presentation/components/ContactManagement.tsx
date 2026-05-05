@@ -1,0 +1,341 @@
+"use client";
+
+import { standardSchemaResolver } from "@hookform/resolvers/standard-schema";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { Plus } from "lucide-react";
+import { useMemo, useState } from "react";
+import { Controller, useForm } from "react-hook-form";
+import { toast } from "sonner";
+
+import { AdminDialog } from "@/shared/components/layout/admin/admin-dialog";
+import { DeleteDialog } from "@/shared/components/layout/admin/delete-dialog";
+import { Button } from "@/shared/components/ui/button";
+import { DataTable } from "@/shared/components/ui/data-table";
+import {
+  Field,
+  FieldContent,
+  FieldDescription,
+  FieldGroup,
+  FieldLabel,
+} from "@/shared/components/ui/field";
+import { Input } from "@/shared/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/shared/components/ui/select";
+
+import { capitalize } from "@/shared/lib/utils";
+
+import { Contact, CONTACT_TYPES, createContactSchema, updateContactSchema } from "../../domain";
+import {
+  createContactAction,
+  deleteContactAction,
+  getContactsAction,
+  updateContactAction,
+} from "../actions";
+import { getContactColumns } from "./ContactColumns";
+
+type ContactFormValues = {
+  type: string;
+  label: string;
+  value: string;
+  orderIndex: number;
+};
+
+export function ContactManagement() {
+  const queryClient = useQueryClient();
+  const [open, setOpen] = useState(false);
+  const [editing, setEditing] = useState<Contact | null>(null);
+  const [deleteOpen, setDeleteOpen] = useState(false);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+
+  const [filterType, setFilterType] = useState<string>("all");
+
+  const form = useForm<ContactFormValues>({
+    resolver: standardSchemaResolver(createContactSchema as any) as any,
+    defaultValues: {
+      type: "phone",
+      label: "",
+      value: "",
+      orderIndex: 0,
+    },
+  });
+
+  // Fetch Data
+  const { data: contacts = [], isLoading } = useQuery({
+    queryKey: ["contacts"],
+    queryFn: async () => {
+      const { data, error } = await getContactsAction();
+      if (error) throw new Error(error);
+      return data;
+    },
+  });
+
+  // Mutations
+  const saveMutation = useMutation({
+    mutationFn: async (values: ContactFormValues) => {
+      if (editing) {
+        return updateContactAction({
+          ...values,
+          id: editing.id,
+        } as any);
+      }
+      return createContactAction(values as any);
+    },
+    onSuccess: (res) => {
+      if (res.error) {
+        toast.error(res.error);
+        return;
+      }
+      toast.success(editing ? "Đã cập nhật liên hệ" : "Đã tạo liên hệ");
+      setOpen(false);
+      queryClient.invalidateQueries({ queryKey: ["contacts"] });
+    },
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: deleteContactAction,
+    onSuccess: (res) => {
+      if (res.error) {
+        toast.error(res.error);
+        return;
+      }
+      toast.success("Đã xóa liên hệ");
+      setDeleteOpen(false);
+      queryClient.invalidateQueries({ queryKey: ["contacts"] });
+    },
+  });
+
+  async function handleDelete() {
+    if (!deletingId) return;
+    deleteMutation.mutate(deletingId);
+  }
+
+  const filteredContacts = useMemo(() => {
+    return contacts.filter((c) => {
+      const matchType = filterType === "all" || c.type === filterType;
+      return matchType;
+    });
+  }, [contacts, filterType]);
+
+  const columns = useMemo(
+    () =>
+      getContactColumns({
+        onEdit: (c) => openEdit(c),
+        onDelete: (id) => {
+          setDeletingId(id);
+          setDeleteOpen(true);
+        },
+      }),
+    [],
+  );
+
+  function openCreate() {
+    setEditing(null);
+    form.reset({
+      type: "phone",
+      label: "",
+      value: "",
+      orderIndex: 0,
+    });
+    setOpen(true);
+  }
+
+  function openEdit(c: Contact) {
+    setEditing(c);
+    form.reset({
+      type: c.type,
+      label: c.label || "",
+      value: c.value,
+      orderIndex: c.orderIndex,
+    });
+    setOpen(true);
+  }
+
+  function handleTypeChange(val: string) {
+    form.setValue("type", val);
+    const found = CONTACT_TYPES.find((t) => t.value === val);
+    const currentLabel = form.getValues("label");
+    if (found && !currentLabel) {
+      form.setValue("label", found.label);
+    }
+  }
+
+  return (
+    <div>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 mb-8">
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight text-foreground">Liên hệ</h1>
+          <p className="text-sm text-muted-foreground">
+            Cấu hình các kênh liên lạc hiển thị trên website.
+          </p>
+        </div>
+        <Button onClick={openCreate} className="h-9">
+          <Plus size={16} className="mr-2" /> Thêm liên hệ
+        </Button>
+      </div>
+
+      <div className="flex flex-wrap items-center gap-4 mb-4">
+        <Select value={filterType} onValueChange={setFilterType}>
+          <SelectTrigger className="w-full md:w-[200px]">
+            <SelectValue placeholder="Loại liên hệ" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">Tất cả các loại</SelectItem>
+            {CONTACT_TYPES.map((t) => (
+              <SelectItem key={t.value} value={t.value}>
+                <div className="flex items-center gap-2">
+                  <t.icon size={16} className="text-muted-foreground" />
+                  {t.label}
+                </div>
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+
+        {filterType !== "all" && (
+          <Button
+            variant="ghost"
+            onClick={() => setFilterType("all")}
+            className="h-10 text-muted-foreground"
+          >
+            Xóa lọc
+          </Button>
+        )}
+      </div>
+
+      <DataTable
+        columns={columns}
+        data={filteredContacts}
+        isLoading={isLoading}
+        searchKey="value"
+        searchPlaceholder="Tìm kiếm giá trị..."
+      />
+
+      <AdminDialog
+        open={open}
+        onOpenChange={setOpen}
+        size="lg"
+        title={editing ? "Sửa liên hệ" : "Thêm liên hệ mới"}
+        description="Thông tin này sẽ hiển thị ở chân trang hoặc trang liên hệ."
+      >
+        <form
+          onSubmit={form.handleSubmit((v) => saveMutation.mutate(v))}
+          className="space-y-8"
+        >
+          <FieldGroup>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <Field>
+                <FieldLabel className="mb-2 font-medium">Loại liên hệ</FieldLabel>
+                <FieldContent>
+                  <Controller
+                    control={form.control}
+                    name="type"
+                    render={({ field }) => (
+                      <Select value={field.value} onValueChange={handleTypeChange}>
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {CONTACT_TYPES.map((t) => (
+                            <SelectItem key={t.value} value={t.value}>
+                              <div className="flex items-center gap-2">
+                                <t.icon size={16} />
+                                {t.label}
+                              </div>
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    )}
+                  />
+                </FieldContent>
+              </Field>
+
+              <Field>
+                <FieldLabel className="mb-2 font-medium">Thứ tự hiển thị</FieldLabel>
+                <FieldContent>
+                  <Controller
+                    control={form.control}
+                    name="orderIndex"
+                    render={({ field }) => (
+                      <Input
+                        type="number"
+                        {...field}
+                        onChange={(e) => field.onChange(Number(e.target.value))}
+                      />
+                    )}
+                  />
+                </FieldContent>
+              </Field>
+            </div>
+
+            <Field>
+              <FieldLabel className="mb-2 font-medium">Nhãn hiển thị</FieldLabel>
+              <FieldContent>
+                <Controller
+                  control={form.control}
+                  name="label"
+                  render={({ field }) => (
+                    <Input
+                      {...field}
+                      placeholder="VD: Hotline, CSKH, Fanpage..."
+                      onChange={(e) => field.onChange(capitalize(e.target.value))}
+                    />
+                  )}
+                />
+                <FieldDescription className="text-xs italic">
+                  Tên ngắn gọn mô tả thông tin liên hệ.
+                </FieldDescription>
+              </FieldContent>
+            </Field>
+
+            <Field>
+              <FieldLabel className="mb-2 font-medium">Giá trị liên hệ</FieldLabel>
+              <FieldContent>
+                <Controller
+                  control={form.control}
+                  name="value"
+                  render={({ field }) => (
+                    <Input
+                      {...field}
+                      placeholder="Nhập số điện thoại, email hoặc URL..."
+                    />
+                  )}
+                />
+              </FieldContent>
+            </Field>
+          </FieldGroup>
+
+          <div className="flex justify-end gap-3 border-t pt-6">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setOpen(false)}
+              className="h-9"
+            >
+              Hủy
+            </Button>
+            <Button
+              type="submit"
+              className="h-9"
+              disabled={saveMutation.isPending}
+            >
+              {editing ? "Cập nhật" : "Tạo mới"}
+            </Button>
+          </div>
+        </form>
+      </AdminDialog>
+
+      <DeleteDialog
+        open={deleteOpen}
+        onOpenChange={setDeleteOpen}
+        onConfirm={handleDelete}
+        isLoading={deleteMutation.isPending}
+      />
+    </div>
+  );
+}
