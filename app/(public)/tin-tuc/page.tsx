@@ -4,29 +4,13 @@ import {
   TypographyLead,
   TypographyP,
   TypographySmall,
-} from "@/components/ui/typography";
-import { ScrollToTop } from "@/components/user/scroll-to-top";
-import { createClient } from "@/lib/supabase/server";
-import { cn } from "@/lib/utils";
-import { ArrowUpRight } from "lucide-react";
+} from "@/shared/components/ui/typography";
+import { ScrollToTop } from "@/shared/components/layout/user/scroll-to-top";
+import { cn } from "@/shared/lib/utils";
+import { ArrowUpRight as ArrowIcon } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { generateBreadcrumbSchema, SEO_CONFIG } from "@/lib/seo";
-import { Metadata } from "next";
-
-export const metadata: Metadata = {
-  title: "Tin tức & Giải pháp Kỹ thuật",
-  description: "Cập nhật những giải pháp kỹ thuật mới nhất, hướng dẫn lắp đặt và các tin tức chuyên sâu về ngành điện máy lạnh từ đội ngũ kỹ sư ELC.",
-  alternates: {
-    canonical: `${SEO_CONFIG.baseUrl}/tin-tuc`,
-  },
-  openGraph: {
-    title: "Tin tức & Giải pháp Kỹ thuật",
-    description: "Cập nhật những giải pháp kỹ thuật mới nhất và các tin tức chuyên sâu từ ELC.",
-    url: `${SEO_CONFIG.baseUrl}/tin-tuc`,
-    type: "website",
-  },
-};
+import { getNews } from "@/modules/news/application";
 
 const STYLES = {
   main: cn("w-full min-h-screen py-12 px-4 md:px-8"),
@@ -57,54 +41,26 @@ const STYLES = {
 };
 
 export default async function NewsHub() {
-  const supabase = await createClient();
+  // Fetch all published news using the application layer
+  const allNews = await getNews({ isPublished: true });
 
-  // Fetch all published news
-  const { data: allNews } = await supabase
-    .from("news")
-    .select("id, title, slug, image, meta_description, created_at")
-    .eq("is_published", true)
-    .order("order_index", { ascending: true });
-
-  if (!allNews) {
+  if (!allNews || allNews.length === 0) {
     return (
       <main className={STYLES.main}>
         <div className={STYLES.container}>
-          <TypographyP className="animate-pulse">
-            Đang tải dữ liệu...
-          </TypographyP>
+           <header className={STYLES.header}>
+            <TypographyH1 className={STYLES.title}>Tin tức</TypographyH1>
+            <TypographyP className="text-muted-foreground">
+              Hiện tại chưa có tin tức nào được đăng tải.
+            </TypographyP>
+          </header>
         </div>
       </main>
     );
   }
 
-  const breadcrumbs = generateBreadcrumbSchema([
-    { name: "Trang chủ", item: "/" },
-    { name: "Tin tức", item: "/tin-tuc" },
-  ]);
-
-  const itemListSchema = {
-    "@context": "https://schema.org",
-    "@type": "ItemList",
-    "itemListElement": allNews.map((n, i) => ({
-      "@type": "ListItem",
-      "position": i + 1,
-      "url": `${SEO_CONFIG.baseUrl}/tin-tuc/${n.slug}`,
-      "name": n.title,
-      "image": n.image || "",
-    }))
-  };
-
   return (
     <main className={STYLES.main}>
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbs) }}
-      />
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(itemListSchema) }}
-      />
       <div className={STYLES.container}>
         <header className={STYLES.header}>
           <TypographyH1 className={STYLES.title}>Tin tức</TypographyH1>
@@ -137,17 +93,11 @@ export default async function NewsHub() {
                   <TypographyH4 className={STYLES.articleTitle}>
                     {news.title}
                   </TypographyH4>
-                  <ArrowUpRight className={STYLES.articleIcon} />
+                  <ArrowIcon className={STYLES.articleIcon} />
                 </div>
 
-                {news.meta_description && (
-                  <TypographyP className={STYLES.articleDescription}>
-                    {news.meta_description}
-                  </TypographyP>
-                )}
-                
                 <TypographySmall className="text-muted-foreground/40 font-medium">
-                  {new Date(news.created_at).toLocaleDateString("vi-VN", {
+                  {new Date(news.createdAt).toLocaleDateString("vi-VN", {
                     day: "numeric",
                     month: "long",
                     year: "numeric",

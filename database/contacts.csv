@@ -1,0 +1,6 @@
+Column,Value (1),Value (2),Value (3),Value (4),Value (5)
+id,9355f209-ae6e-4f8b-bcba-e0850d86fb66,4bc8e3c9-5b7c-4a08-b15e-74c29b96bcf6,6b7198c0-0a7a-47f8-82a1-d7a0b2461b2e,9c254c30-d28c-4afb-8904-66fe8f42c20b,f96debf3-8bff-42a9-be88-485a07f9dc79
+type,phone,zalo,email,messenger,facebook
+label,Hotline,Zalo,Mail,Messenger,Facebook
+value,0789978898,0789978898,elc.jointstock@gmail.com,ELCdienmay,ELCdienmay
+order_index,0,0,0,0,0

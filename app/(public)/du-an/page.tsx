@@ -1,69 +1,24 @@
-import { AspectRatio } from "@/components/ui/aspect-ratio";
+import { AspectRatio } from "@/shared/components/ui/aspect-ratio";
 import {
   TypographyH1,
   TypographyH2,
   TypographyH3,
   TypographyMuted,
   TypographySmall,
-} from "@/components/ui/typography";
-import { generateBreadcrumbSchema, SEO_CONFIG } from "@/lib/seo";
-import { createClient } from "@/lib/supabase/server";
-import { Metadata } from "next";
+} from "@/shared/components/ui/typography";
+import { getProjects } from "@/modules/project";
 import Image from "next/image";
 import Link from "next/link";
 
-export const metadata: Metadata = {
-  title: "Dự án tiêu biểu",
-  description:
-    "Khám phá các dự án điều hòa không khí, giải pháp làm sạch không khí và hệ thống cơ điện lạnh tiêu biểu đã được ELC triển khai thành công.",
-  alternates: {
-    canonical: `${SEO_CONFIG.baseUrl}/du-an`,
-  },
-  openGraph: {
-    title: "Dự án tiêu biểu",
-    description:
-      "Tổng hợp các dự án cơ điện lạnh và giải pháp không khí chất lượng cao từ ELC.",
-    url: `${SEO_CONFIG.baseUrl}/du-an`,
-    type: "website",
-  },
-};
-
-interface Project {
-  id: string;
-  title: string;
-  slug: string;
-  images: string[];
-  is_published: boolean;
-  order_index: number;
-  categories?: {
-    name: string;
-    slug: string;
-    parent?: { name: string };
-  };
-}
-
 export default async function ProjectsPage() {
-  const supabase = await createClient();
+  const allProjects = await getProjects({ isPublished: true });
 
-  const { data: projects } = await supabase
-    .from("projects")
-    .select("*, categories(name, slug, parent:parent_id(name))")
-    .eq("is_published", true)
-    .order("order_index", { ascending: true });
-
-  const allProjects = (projects as unknown as Project[]) || [];
   const featured = allProjects[0];
   const rest = allProjects.slice(1);
 
-  const getUrl = (p: Project) =>
-    p.categories?.slug
-      ? `/du-an/${p.categories.slug}/${p.slug}`
-      : `/du-an/${p.slug}`;
+  const getUrl = (p: any) => `/du-an/${p.slug}`;
 
-  const getCat = (p: Project) =>
-    p.categories?.parent?.name
-      ? `${p.categories.parent.name} / ${p.categories.name}`
-      : p.categories?.name || "Khác";
+  const getCat = (p: any) => p.category?.name || "Khác";
 
   // --- STYLES (Only Layout & Interactions) ---
   const styles = {
@@ -87,7 +42,7 @@ export default async function ProjectsPage() {
     project,
     isFeatured = false,
   }: {
-    project: Project;
+    project: any;
     isFeatured?: boolean;
   }) => {
     const url = getUrl(project);
@@ -172,34 +127,8 @@ export default async function ProjectsPage() {
     );
   };
 
-  const breadcrumbs = generateBreadcrumbSchema([
-    { name: "Trang chủ", item: "/" },
-    { name: "Dự án", item: "/du-an" },
-  ]);
-
-  const itemListSchema = {
-    "@context": "https://schema.org",
-    "@type": "ItemList",
-    itemListElement: allProjects.map((p, i) => ({
-      "@type": "ListItem",
-      position: i + 1,
-      url: `${SEO_CONFIG.baseUrl}${getUrl(p)}`,
-      name: p.title,
-      image: p.images?.[0] || "",
-    })),
-  };
-
   return (
     <main className={styles.main}>
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbs) }}
-      />
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(itemListSchema) }}
-      />
-
       <div className={styles.container}>
         <header className={styles.header}>
           <TypographyH1>Dự án hoàn thiện</TypographyH1>
