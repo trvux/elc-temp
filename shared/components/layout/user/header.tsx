@@ -20,7 +20,6 @@ import {
   NavigationMenuList,
   navigationMenuTriggerStyle,
 } from "@/shared/components/ui/navigation-menu";
-import { Separator } from "@/shared/components/ui/separator";
 
 interface NavLink {
   name: string;
@@ -38,14 +37,7 @@ const navLinks: NavLink[] = [
 ];
 
 const COMMON = {
-  transition: "transition-all duration-300",
-  navActive: "text-primary font-semibold",
-  navInactive: "text-muted-foreground",
-};
-
-const STATIC_STYLES = {
-  iconBox: "relative flex h-5 w-5 items-center justify-center",
-  icon: cn("absolute", COMMON.transition),
+  transition: "transition-all duration-300 ease-in-out",
 };
 
 const NavItem = ({
@@ -65,8 +57,10 @@ const NavItem = ({
         href={link.href}
         onClick={onClick}
         className={cn(
-          "py-3 text-lg transition-all duration-300",
-          isActive ? COMMON.navActive : COMMON.navInactive,
+          "flex items-center w-full py-3 px-4 rounded-xl transition-colors",
+          isActive 
+            ? "bg-primary/5 text-primary font-medium" 
+            : "text-muted-foreground hover:bg-accent/50 hover:text-foreground"
         )}
       >
         {link.name}
@@ -80,29 +74,40 @@ const NavItem = ({
         asChild
         className={cn(
           navigationMenuTriggerStyle(),
-          "bg-transparent! text-base hover:underline hover:underline-offset-4 hover:decoration-2",
-          isActive ? COMMON.navActive : COMMON.navInactive,
-          COMMON.transition,
+          "bg-transparent! h-10 px-4 text-sm font-medium transition-colors duration-200",
+          isActive ? "text-primary" : "text-muted-foreground hover:text-foreground",
         )}
       >
-        <Link href={link.href}>{link.name}</Link>
+        <Link href={link.href} className="relative flex items-center h-full group/item">
+          <span className="relative py-1">
+            {link.name}
+            <span 
+              className={cn(
+                "absolute -bottom-0.5 left-0 h-0.5 bg-primary rounded-full transition-all duration-300 ease-in-out",
+                isActive 
+                  ? "w-full opacity-100" 
+                  : "w-0 opacity-0 group-hover/item:w-full group-hover/item:opacity-100"
+              )} 
+            />
+          </span>
+        </Link>
       </NavigationMenuLink>
     </NavigationMenuItem>
   );
 };
 
 const IconState = ({ isOpen }: { isOpen: boolean }) => (
-  <div className={STATIC_STYLES.iconBox}>
+  <div className="relative h-5 w-5">
     <Menu
       className={cn(
-        STATIC_STYLES.icon,
-        isOpen ? "scale-0 opacity-0" : "scale-100 opacity-100",
+        "absolute inset-0 h-5 w-5 transition-all duration-300",
+        isOpen ? "rotate-90 scale-0 opacity-0" : "rotate-0 scale-100 opacity-100"
       )}
     />
     <X
       className={cn(
-        STATIC_STYLES.icon,
-        isOpen ? "scale-100 opacity-100" : "scale-0 opacity-0",
+        "absolute inset-0 h-5 w-5 transition-all duration-300",
+        isOpen ? "rotate-0 scale-100 opacity-100" : "-rotate-90 scale-0 opacity-0"
       )}
     />
   </div>
@@ -114,7 +119,9 @@ export function Header() {
   const pathname = usePathname();
 
   React.useEffect(() => {
-    const handleScroll = () => setIsScrolled(window.scrollY > 20);
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 20);
+    };
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
@@ -122,106 +129,98 @@ export function Header() {
   const checkActive = (href: string) =>
     href === "/" ? pathname === "/" : pathname.startsWith(href);
 
-  // --- STYLES ---
-  const styles = {
-    wrapper: cn(
-      "sticky top-0 z-50 w-full",
-      COMMON.transition,
-      isScrolled || isMenuOpen
-        ? "bg-background backdrop-blur-md"
-        : "bg-transparent",
-    ),
-    container: "w-full max-w-7xl mx-auto relative",
-    topBar: "flex h-20 items-center justify-between px-6",
-    logo: "flex items-center font-semibold text-xl tracking-tighter",
-    desktopNav: "hidden lg:flex",
-    desktopAction: "hidden lg:flex items-center gap-4",
-    mobileToggle: "flex lg:hidden items-center",
-    mobileMenu: cn(
-      "absolute inset-x-0 top-full -mt-px bg-background lg:hidden border-b border-border rounded-b-2xl shadow-xl",
-      "data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:slide-out-to-top-2 data-[state=open]:slide-in-from-top-2",
-      "duration-300",
-    ),
-    mobileNavWrapper: "flex flex-col px-6 pb-6 pt-2",
-    overlay:
-      "fixed inset-0 top-20 bg-black/10 backdrop-blur-sm lg:hidden transition-all duration-500",
-    linkBase: (href: string) =>
-      cn(
-        COMMON.transition,
-        checkActive(href) ? COMMON.navActive : COMMON.navInactive,
-      ),
-  };
-
   return (
-    <div className={styles.wrapper}>
-      {isMenuOpen && (
-        <div className={styles.overlay} onClick={() => setIsMenuOpen(false)} />
-      )}
+    <>
+      {/* Spacer giúp Header chiếm diện tích trong layout để không bị đè nội dung */}
+      <div className="h-20 lg:h-24 shrink-0" aria-hidden="true" />
 
-      <header className={styles.container}>
-        <Collapsible open={isMenuOpen} onOpenChange={setIsMenuOpen}>
-          <div className={styles.topBar}>
-            <Link href="/" className={styles.logo}>
-              <Image
-                src="/logo/logo.svg"
-                alt="Điện máy ELC"
-                width={120}
-                height={40}
-                className="h-10 w-auto"
-                style={{ width: "auto" }}
-                priority
-              />
-            </Link>
+      <div 
+        className={cn(
+          "fixed top-4 left-1/2 -translate-x-1/2 z-50 w-[calc(100%-2rem)] max-w-7xl px-0",
+          COMMON.transition
+        )}
+      >
+        {isMenuOpen && (
+          <div 
+            className="fixed inset-0 -top-4 -left-1/2 translate-x-1/2 w-screen h-screen bg-background/10 backdrop-blur-sm lg:hidden"
+            onClick={() => setIsMenuOpen(false)}
+          />
+        )}
 
-            <NavigationMenu className={styles.desktopNav}>
-              <NavigationMenuList className="flex items-center gap-1">
+        <header 
+          className={cn(
+            "relative overflow-hidden rounded-2xl border border-border bg-background/70 backdrop-blur-xl shadow-sm transition-all duration-300",
+            isScrolled && "shadow-lg bg-background/90",
+            isMenuOpen && "rounded-b-none border-b-transparent bg-background"
+          )}
+        >
+          <Collapsible open={isMenuOpen} onOpenChange={setIsMenuOpen}>
+            <div className="flex h-16 items-center justify-between px-4 md:px-6">
+              <Link href="/" className="flex items-center shrink-0 transition-opacity hover:opacity-80">
+                <Image
+                  src="/logo/logo.svg"
+                  alt="Điện máy ELC"
+                  width={110}
+                  height={36}
+                  className="h-9 w-auto"
+                  style={{ width: "auto" }}
+                  priority
+                />
+              </Link>
+
+              <NavigationMenu className="hidden lg:flex">
+                <NavigationMenuList className="flex items-center gap-1">
+                  {navLinks.map((link) => (
+                    <NavItem
+                      key={link.name}
+                      link={link}
+                      isActive={checkActive(link.href)}
+                    />
+                  ))}
+                </NavigationMenuList>
+              </NavigationMenu>
+
+              <div className="flex items-center gap-2 md:gap-4">
+                <div className="hidden sm:flex">
+                  <Button asChild variant="default" size="sm" className="rounded-full px-6 font-medium">
+                    <Link href="/du-an">Khám phá</Link>
+                  </Button>
+                </div>
+
+                <CollapsibleTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="lg:hidden rounded-full hover:bg-accent"
+                    aria-label={isMenuOpen ? "Đóng menu" : "Mở menu"}
+                  >
+                    <IconState isOpen={isMenuOpen} />
+                  </Button>
+                </CollapsibleTrigger>
+              </div>
+            </div>
+
+            <CollapsibleContent className="lg:hidden overflow-hidden data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:slide-out-to-top-2 data-[state=open]:slide-in-from-top-2 duration-300">
+              <div className="border-t border-border bg-background/50 p-4 space-y-1">
                 {navLinks.map((link) => (
                   <NavItem
                     key={link.name}
                     link={link}
                     isActive={checkActive(link.href)}
-                  />
-                ))}
-              </NavigationMenuList>
-            </NavigationMenu>
-
-            <div className={styles.desktopAction}>
-              <Button asChild variant="default">
-                <Link href="/du-an">Khám phá</Link>
-              </Button>
-            </div>
-
-            <div className={styles.mobileToggle}>
-              <CollapsibleTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="bg-transparent!"
-                  aria-label={isMenuOpen ? "Đóng menu" : "Mở menu"}
-                >
-                  <IconState isOpen={isMenuOpen} />
-                </Button>
-              </CollapsibleTrigger>
-            </div>
-          </div>
-
-          <CollapsibleContent className={styles.mobileMenu}>
-            <nav className={styles.mobileNavWrapper}>
-              {navLinks.map((link, index) => (
-                <React.Fragment key={link.name}>
-                  <NavItem
-                    link={link}
-                    isActive={checkActive(link.href)}
                     isMobile
                     onClick={() => setIsMenuOpen(false)}
                   />
-                  {index < navLinks.length - 1 && <Separator />}
-                </React.Fragment>
-              ))}
-            </nav>
-          </CollapsibleContent>
-        </Collapsible>
-      </header>
-    </div>
+                ))}
+                <div className="pt-4 sm:hidden">
+                  <Button asChild className="w-full rounded-xl font-medium">
+                    <Link href="/du-an" onClick={() => setIsMenuOpen(false)}>Khám phá</Link>
+                  </Button>
+                </div>
+              </div>
+            </CollapsibleContent>
+          </Collapsible>
+        </header>
+      </div>
+    </>
   );
 }
