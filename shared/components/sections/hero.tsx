@@ -1,7 +1,10 @@
 import { AnimateIn } from "@/shared/components/ui/animate-in";
 import { Button } from "@/shared/components/ui/button";
 import { Separator } from "@/shared/components/ui/separator";
-import { TypographyH1, TypographyLead } from "@/shared/components/ui/typography";
+import {
+  TypographyH1,
+  TypographyLead,
+} from "@/shared/components/ui/typography";
 import { getOptimizedImage } from "@/shared/lib/image";
 import Image from "next/image";
 import Link from "next/link";
@@ -42,6 +45,7 @@ export function HeroSection({
     content: "flex flex-col gap-6 md:gap-8",
     actions: "grid grid-cols-1 lg:grid-cols-2 gap-4 pt-2 w-full",
     btn: "w-full lg:w-auto border-primary/40",
+    contact: "w-full lg:w-auto",
     media:
       "relative w-full aspect-square md:aspect-auto md:h-[500px] lg:h-[600px] rounded-3xl overflow-hidden shadow-2xl",
     image: "object-cover",
@@ -56,12 +60,10 @@ export function HeroSection({
         <TypographyLead>{subtitle}</TypographyLead>
 
         <div className={styles.actions}>
+          <HeroContactButton className={styles.contact} contacts={contacts} />
+
           <Button asChild size="lg" className={styles.btn}>
             <Link href={ctaUrl}>{ctaText}</Link>
-          </Button>
-
-          <Button size="lg" variant="ghost" className={styles.btn}>
-            <HeroContactButton contacts={contacts} />
           </Button>
         </div>
       </AnimateIn>

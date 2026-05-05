@@ -39,11 +39,11 @@ import { capitalize, formatPrice, generateSlug } from "@/shared/lib/utils";
 
 import { Category } from "@/modules/category/domain/types";
 import { getCategoriesAction } from "@/modules/category/presentation/actions";
+import type { z } from "zod";
 import {
   ProductWithRelations,
   STOCK_STATUS,
   createProductSchema,
-  updateProductSchema,
 } from "../../domain";
 import {
   createProductAction,
@@ -53,9 +53,11 @@ import {
   updateProductAction,
 } from "../actions";
 import { getProductColumns } from "./ProductColumns";
-import type { z } from "zod";
 
-type ProductFormValues = Omit<z.infer<typeof createProductSchema>, "description" | "specs"> & {
+type ProductFormValues = Omit<
+  z.infer<typeof createProductSchema>,
+  "description" | "specs"
+> & {
   description: any;
   specs: any;
 };

@@ -136,7 +136,7 @@ export function ProductSearch({ categories }: ProductSearchProps) {
           <SelectTrigger className=" w-full sm:w-52">
             <SelectValue placeholder="Tất cả danh mục" />
           </SelectTrigger>
-          <SelectContent className="bg-cream">
+          <SelectContent className="bg-background">
             <SelectItem value="all">Tất cả danh mục</SelectItem>
             <SelectSeparator />
             {parents.map((parent) => {
@@ -164,21 +164,21 @@ export function ProductSearch({ categories }: ProductSearchProps) {
           </SelectContent>
         </Select>
 
-        <InputGroup className="flex-1">
+        <InputGroup>
           <InputGroupAddon align="inline-start">
             <InputGroupText>
               <Search />
             </InputGroupText>
           </InputGroupAddon>
           <InputGroupInput
-            className="h-full text-base sm:text-sm"
-            placeholder="Tìm tên, SKU, thông số (9000 BTU, inverter...)"
+            className="h-full text-sm"
+            placeholder="Tìm sản phẩm"
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
           />
           <InputGroupAddon align="inline-end">
             <InputGroupButton
-              size="icon-sm"
+              size="icon-xs"
               onClick={clearSearch}
               className={inputValue ? "" : "opacity-0 pointer-events-none"}
               aria-label="Xóa tìm kiếm"

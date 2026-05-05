@@ -1,3 +1,5 @@
+import { getCategories, type Category } from "@/modules/category";
+import { ScrollToTop } from "@/shared/components/layout/user/scroll-to-top";
 import { AspectRatio } from "@/shared/components/ui/aspect-ratio";
 import { Badge } from "@/shared/components/ui/badge";
 import {
@@ -7,16 +9,19 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/shared/components/ui/carousel";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/shared/components/ui/tabs";
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "@/shared/components/ui/tabs";
 import {
   TypographyH1,
   TypographyH3,
   TypographySmall,
 } from "@/shared/components/ui/typography";
-import { ScrollToTop } from "@/shared/components/layout/user/scroll-to-top";
 import { createClient } from "@/shared/lib/supabase/server";
 import { createStaticClient } from "@/shared/lib/supabase/static";
-import { getCategories, type Category } from "@/modules/category";
 import { cn, formatPrice } from "@/shared/lib/utils";
 import Image from "next/image";
 import { notFound } from "next/navigation";
@@ -91,7 +96,7 @@ const STYLES = {
   // ),
   specHeaderLabel: cn(),
   specRow: cn(
-    "grid grid-cols-[1fr_1.5fr] bg-transparent hover:bg-muted/20 transition-colors",
+    "grid grid-cols-[1fr_1.5fr] bg-background hover:bg-muted/20 transition-colors",
   ),
   specLabel: cn("px-4 py-3.5 border-r border-border/40"),
   // specLabelText: cn("text-xs font-medium text-muted-foreground leading-snug"),
@@ -160,11 +165,7 @@ export default async function ProductDetail({
         .single(),
       getCategories({ type: "PRODUCT" }),
       supabase.from("contacts").select("*").order("order_index"),
-    ])) as [
-      { data: ProductData | null },
-      Category[],
-      { data: any[] | null },
-    ];
+    ])) as [{ data: ProductData | null }, Category[], { data: any[] | null }];
 
   if (!product) notFound();
 

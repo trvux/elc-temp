@@ -2,7 +2,7 @@ import { Toaster } from "@/shared/components/ui/sonner";
 import { TooltipProvider } from "@/shared/components/ui/tooltip";
 import { QueryProvider } from "@/shared/providers/query-provider";
 import { cn } from "@/shared/lib/utils";
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Inter, Newsreader } from "next/font/google";
 import "./globals.css";
 
@@ -27,6 +27,12 @@ export const metadata: Metadata = {
     icon: "/logo/favico.svg",
     apple: "/logo/favico.svg",
   },
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
 };
 
 export default function RootLayout({

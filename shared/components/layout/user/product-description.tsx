@@ -17,7 +17,7 @@ const STYLES = {
   ),
   triggerWrapper: cn("mt-8 flex justify-center"),
   triggerButton: cn(
-    "bg-transparent transition-all text-primary border-primary group z-20",
+    "bg-background transition-all text-primary border-primary group z-20",
   ),
 };
 
