@@ -173,16 +173,10 @@ export function Header() {
                 href="/"
                 className="flex items-center shrink-0 transition-opacity hover:opacity-80"
               >
-                <Image
+                <img
                   src="/logo/logo.svg"
                   alt="Điện máy ELC"
-                  width={110}
-                  height={36}
                   className="h-9 w-auto"
-                  style={{ width: "auto" }}
-
-                  priority
-                  unoptimized
                 />
               </Link>
 
