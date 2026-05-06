@@ -248,14 +248,14 @@ function FilterGroup({
           </div>
         )}
 
-        <div className="flex flex-col gap-1 -mx-3">
+        <div className="flex flex-col gap-1 -mx-4">
           {filteredItems.map((item) => {
             const isSelected = selectedValues.includes(item.id);
             const id = `filter-${label}-${item.id}`;
             return (
               <label
                 key={item.id}
-                className="flex items-center gap-3 px-3 py-2.5 rounded-md hover:bg-muted/50 cursor-pointer transition-colors group"
+                className="flex items-center gap-3 px-4 py-2.5 rounded-md hover:bg-muted/50 cursor-pointer transition-colors group"
               >
                 <ImmediateCheckbox
                   id={id}
