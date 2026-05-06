@@ -1,5 +1,4 @@
 import { getProjects, getProjectBySlug } from "@/modules/project";
-import { getCategories } from "@/modules/category";
 import { notFound } from "next/navigation";
 import Image from "next/image";
 import { InfoTOC } from "@/shared/components/layout/user/info-toc";
@@ -24,10 +23,9 @@ export default async function ProjectDetail({
 }) {
   const { slug } = await params;
 
-  // Fetch the project and all project categories to build the hierarchy
-  const [project, allCategories, allProjectsData] = await Promise.all([
+  // Fetch the project and all projects for the TOC
+  const [project, allProjectsData] = await Promise.all([
     getProjectBySlug(slug),
-    getCategories({ type: "PROJECT" }),
     getProjects({ isPublished: true }),
   ]);
 

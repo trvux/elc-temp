@@ -9,7 +9,6 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/shared/components/ui/dropdown-menu";
-import { ChevronDown } from "lucide-react";
 
 function getContactHref(type: string, value: string) {
   const cleanValue = value.replace(/\s/g, "");
@@ -50,7 +49,6 @@ export function HeroContactButton({
       <DropdownMenuTrigger asChild>
         <Button size="lg" variant="outline" className={className}>
           <span>Liên hệ ngay</span>
-          <ChevronDown />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
