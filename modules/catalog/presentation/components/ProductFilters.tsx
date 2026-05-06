@@ -13,7 +13,7 @@ import { Input } from "@/shared/components/ui/input";
 import { Label } from "@/shared/components/ui/label";
 import { Search } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { ProductSortBy } from "../../domain/types";
 
 interface ProductFiltersProps {
@@ -249,10 +249,10 @@ function FilterGroup({
             const id = `filter-${label}-${item.id}`;
             return (
               <div key={item.id} className="flex items-center space-x-2">
-                <Checkbox
+                <ImmediateCheckbox
                   id={id}
                   checked={isSelected}
-                  onCheckedChange={(checked) => onToggle(item.id, !!checked)}
+                  onCheckedChange={(checked) => onToggle(item.id, checked)}
                 />
                 <Label htmlFor={id} className="cursor-pointer">
                   {item.name}
@@ -269,5 +269,34 @@ function FilterGroup({
         )}
       </div>
     </AccordionFilterWrapper>
+  );
+}
+
+function ImmediateCheckbox({
+  id,
+  checked,
+  onCheckedChange,
+}: {
+  id: string;
+  checked: boolean;
+  onCheckedChange: (checked: boolean) => void;
+}) {
+  const [internalChecked, setInternalChecked] = useState(checked);
+
+  // Sync with props when server/router state changes
+  useEffect(() => {
+    setInternalChecked(checked);
+  }, [checked]);
+
+  return (
+    <Checkbox
+      id={id}
+      checked={internalChecked}
+      onCheckedChange={(v) => {
+        const newValue = !!v;
+        setInternalChecked(newValue);
+        onCheckedChange(newValue);
+      }}
+    />
   );
 }
