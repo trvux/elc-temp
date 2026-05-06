@@ -2,11 +2,15 @@
 
 import { cn } from "@/shared/lib/utils";
 import { Menu, X } from "lucide-react";
-import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import * as React from "react";
 
+import {
+  checkActiveLink,
+  navLinks,
+  type NavLink,
+} from "@/modules/settings/domain/navigation";
 import { Button } from "@/shared/components/ui/button";
 import {
   Collapsible,
@@ -20,9 +24,6 @@ import {
   NavigationMenuList,
   navigationMenuTriggerStyle,
 } from "@/shared/components/ui/navigation-menu";
-import { navLinks, checkActiveLink, type NavLink } from "@/modules/settings/domain/navigation";
-
-
 
 const COMMON = {
   transition: "transition-all duration-300 ease-in-out",
@@ -61,8 +62,7 @@ const NavItem = ({
       <NavigationMenuLink
         asChild
         className={cn(
-          navigationMenuTriggerStyle(),
-          "bg-background h-10 px-4 text-sm font-medium transition-colors duration-200",
+          "bg-transparent px-4 py-2 text-sm font-medium transition-colors duration-200",
           isActive
             ? "text-primary"
             : "text-muted-foreground hover:text-foreground",
@@ -131,8 +131,6 @@ export function Header() {
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
-
-
 
   return (
     <>
