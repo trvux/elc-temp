@@ -17,7 +17,7 @@ export class SupabaseProjectRepository implements ProjectRepository {
   private readonly TABLE_NAME = "projects";
   private readonly SELECT_WITH_CATEGORY = `
     *,
-    category:categories(id, name, slug)
+    category:categories(id, name, slug, parent:categories!parent_id(id, name, slug))
   `;
 
   async getAll(options?: ProjectFilter): Promise<ProjectWithCategory[]> {
@@ -246,7 +246,12 @@ export class SupabaseProjectRepository implements ProjectRepository {
       category: row.category ? {
         id: row.category.id,
         name: row.category.name,
-        slug: row.category.slug || ""
+        slug: row.category.slug || "",
+        parent: row.category.parent ? {
+          id: row.category.parent.id,
+          name: row.category.parent.name,
+          slug: row.category.parent.slug || ""
+        } : null
       } : null,
     };
   }

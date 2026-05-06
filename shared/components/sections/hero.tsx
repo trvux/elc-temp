@@ -41,10 +41,11 @@ export function HeroSection({
   // --- STYLES ---
   const styles = {
     section:
-      "grid grid-cols-1 md:grid-cols-2 gap-12 md:gap-16 p-4 max-w-7xl mx-auto items-center min-h-[60vh]",
+      "grid grid-cols-1 md:grid-cols-2 gap-12 md:gap-16 items-center min-h-[60vh]",
+
     content: "flex flex-col gap-6 md:gap-8",
     actions: "grid grid-cols-1 lg:grid-cols-2 gap-4 pt-2 w-full",
-    btn: "w-full lg:w-auto border-primary/40",
+    btn: "w-full lg:w-auto",
     contact: "w-full lg:w-auto",
     media:
       "relative w-full aspect-square md:aspect-auto md:h-[500px] lg:h-[600px] rounded-3xl overflow-hidden shadow-2xl",
@@ -60,11 +61,11 @@ export function HeroSection({
         <TypographyLead>{subtitle}</TypographyLead>
 
         <div className={styles.actions}>
-          <HeroContactButton className={styles.contact} contacts={contacts} />
-
-          <Button asChild size="lg" className={styles.btn}>
+          <Button asChild size="lg" variant="secondary" className={styles.btn}>
             <Link href={ctaUrl}>{ctaText}</Link>
           </Button>
+
+          <HeroContactButton className={styles.contact} contacts={contacts} />
         </div>
       </AnimateIn>
 

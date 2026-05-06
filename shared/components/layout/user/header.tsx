@@ -179,6 +179,8 @@ export function Header() {
                   width={110}
                   height={36}
                   className="h-9 w-auto"
+                  style={{ width: "auto" }}
+
                   priority
                   unoptimized
                 />

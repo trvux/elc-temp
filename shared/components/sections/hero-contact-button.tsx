@@ -47,7 +47,7 @@ export function HeroContactButton({
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button size="lg" variant="outline" className={className}>
+        <Button size="lg" variant="default" className={className}>
           <span>Liên hệ ngay</span>
         </Button>
       </DropdownMenuTrigger>

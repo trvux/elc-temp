@@ -22,7 +22,12 @@ export interface Project {
 }
 
 export interface ProjectWithCategory extends Project {
-  category?: { id: string; name: string; slug: string } | null;
+  category?: { 
+    id: string; 
+    name: string; 
+    slug: string;
+    parent?: { id: string; name: string; slug: string } | null;
+  } | null;
 }
 
 export interface CreateProjectInput {
