@@ -1,3 +1,4 @@
+import { getProjects } from "@/modules/project";
 import { AspectRatio } from "@/shared/components/ui/aspect-ratio";
 import {
   TypographyH1,
@@ -6,7 +7,6 @@ import {
   TypographyMuted,
   TypographySmall,
 } from "@/shared/components/ui/typography";
-import { getProjects } from "@/modules/project";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -23,9 +23,9 @@ export default async function ProjectsPage() {
   // --- STYLES (Only Layout & Interactions) ---
   const styles = {
     main: "w-full px-4 py-12 md:px-8",
-    container: "mx-auto w-full px-4 md:px-6 max-w-7xl flex flex-col gap-20",
+    container: "mx-auto w-full px-4 md:px-6 max-w-7xl flex flex-col gap-6 md:gap-20",
     header: "flex flex-col items-center text-center gap-3",
-    featured: "group block mb-16 md:mb-24",
+    featured: "group block mb-8 md:mb-24",
     featImg: "overflow-hidden rounded-lg shadow-2xl",
     grid: "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-12",
     card: "group flex flex-col gap-4",
