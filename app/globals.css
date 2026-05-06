@@ -17,12 +17,17 @@
 
 
 /* Tiptap Table */
+.table-wrapper {
+  overflow-x: auto;
+  width: 100%;
+  margin: 1.5rem 0;
+  -webkit-overflow-scrolling: touch;
+}
+
 .tiptap table {
   border-collapse: collapse;
-  table-layout: fixed;
   width: 100%;
-  margin: 2rem 0;
-  overflow: hidden;
+  min-width: 600px; /* Force a minimum width to ensure scrolling on small screens */
 }
 
 .tiptap table td,

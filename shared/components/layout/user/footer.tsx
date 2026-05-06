@@ -89,11 +89,7 @@ export function Footer({
               projects.slice(0, 8).map((p) => (
                 <Link
                   key={p.id}
-                  href={
-                    p.categories?.slug
-                      ? `/du-an/${p.categories.slug}/${p.slug}`
-                      : `/du-an/${p.slug}`
-                  }
+                  href={`/du-an/${p.slug}`}
                   className={styles.link}
                 >
                   {p.title}

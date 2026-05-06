@@ -11,6 +11,7 @@ import Link from "next/link";
 
 import { ProjectWithCategory as Project } from "@/modules/project/domain";
 import { Card, CardContent } from "@/shared/components/ui/card";
+import { Sparkle } from "lucide-react";
 
 interface ShowcaseSectionProps {
   projects: Project[];
@@ -22,9 +23,7 @@ export function ShowcaseSection({ projects }: ShowcaseSectionProps) {
   if (featuredProjects.length === 0) return null;
 
   const getProjectUrl = (p: Project) => {
-    return p.category?.slug
-      ? `/du-an/${p.category.slug}/${p.slug}`
-      : `/du-an/${p.slug}`;
+    return `/du-an/${p.slug}`;
   };
 
   const ProjectMolecule = ({
@@ -64,14 +63,22 @@ export function ShowcaseSection({ projects }: ShowcaseSectionProps) {
             </div>
             {/* Middle: Content */}
             <div className="flex-1 min-w-0 flex flex-col gap-1 md:gap-2 items-start">
-              {project.category && (
-                <Badge variant="secondary" className="max-w-full truncate">
-                  {project.category.parent?.name
-                    ? `${project.category.parent.name} / `
-                    : ""}
-                  {project.category.name}
+              <div className="flex flex-wrap items-center gap-2">
+                <Badge variant="outline" className="gap-1">
+                  <Sparkle className="w-1 h-1 fill-amber-500 text-amber-500" />
+                  Nổi bật
                 </Badge>
-              )}
+                {project.category && (
+                  <Badge variant="secondary" className="max-w-full truncate">
+                    Danh mục{" "}
+                    {project.category.parent?.name
+                      ? `${project.category.parent.name} / `
+                      : ""}
+                    {project.category.name}
+                  </Badge>
+                )}
+              </div>
+
               <TypographyLarge className="line-clamp-2 w-full">
                 {project.title}
               </TypographyLarge>

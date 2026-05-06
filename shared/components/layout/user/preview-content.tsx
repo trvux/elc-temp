@@ -66,7 +66,9 @@ export const PreviewContent = ({
         "tiptap",
         className,
       )}
-      dangerouslySetInnerHTML={{ __html: html }}
+      dangerouslySetInnerHTML={{ 
+        __html: html.replace(/<table/g, '<div class="table-wrapper"><table').replace(/<\/table>/g, '</table></div>') 
+      }}
     />
   );
 };

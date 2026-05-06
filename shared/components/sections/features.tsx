@@ -89,9 +89,9 @@ export function FeaturesSection({ products }: FeaturesSectionProps) {
                   </div>
                   <Badge
                     variant="destructive"
-                    className="w-full rounded-sm justify-start px-2 py-0.5"
+                    className="w-full rounded-sm justify-start px-2 py-0.5 font-medium"
                   >
-                    Tiết kiệm: {product.discountPercent}%
+                    Ưu đãi: {product.discountPercent}%
                   </Badge>
                 </>
               )}
@@ -114,7 +114,10 @@ export function FeaturesSection({ products }: FeaturesSectionProps) {
             <Carousel opts={{ align: "start" }} className="w-full">
               <CarouselContent className="ml-0 py-4">
                 {products.map((p) => (
-                  <CarouselItem key={p.id} className="pl-4 basis-[80%] sm:basis-[48%] flex">
+                  <CarouselItem
+                    key={p.id}
+                    className="pl-4 basis-[80%] sm:basis-[48%] flex"
+                  >
                     <ProductCard product={p} />
                   </CarouselItem>
                 ))}
