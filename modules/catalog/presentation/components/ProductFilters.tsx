@@ -10,6 +10,7 @@ import {
 import { Button } from "@/shared/components/ui/button";
 import { Checkbox } from "@/shared/components/ui/checkbox";
 import { Input } from "@/shared/components/ui/input";
+import { Separator } from "@/shared/components/ui/separator";
 import { Search } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -120,22 +121,15 @@ export function ProductFilters({
 
   return (
     <div className="flex flex-col gap-6">
-      {/* Filter Header */}
-      <div className="flex items-center justify-between pb-4 border-b">
-        <span className="font-bold text-base uppercase tracking-wider text-foreground/80">
-          Bộ lọc
-        </span>
+      <div className="flex items-center justify-between">
+        <h3 className="font-bold">Bộ lọc</h3>
         {hasAnyFilter && (
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={clearAllFilters}
-            className="h-auto p-0 text-destructive hover:bg-transparent hover:text-destructive/80 text-xs font-bold transition-all"
-          >
-            XÓA TẤT CẢ
+          <Button variant="ghost" size="sm" onClick={clearAllFilters}>
+            Xóa tất cả
           </Button>
         )}
       </div>
+      <Separator />
 
       <Accordion
         type="multiple"
