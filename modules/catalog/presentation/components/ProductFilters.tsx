@@ -10,7 +10,6 @@ import {
 import { Button } from "@/shared/components/ui/button";
 import { Checkbox } from "@/shared/components/ui/checkbox";
 import { Input } from "@/shared/components/ui/input";
-import { Label } from "@/shared/components/ui/label";
 import { Search } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -243,21 +242,24 @@ function FilterGroup({
           </div>
         )}
 
-        <div className="flex flex-col gap-4">
+        <div className="flex flex-col gap-1 -mx-3">
           {filteredItems.map((item) => {
             const isSelected = selectedValues.includes(item.id);
             const id = `filter-${label}-${item.id}`;
             return (
-              <div key={item.id} className="flex items-center space-x-2">
+              <label
+                key={item.id}
+                className="flex items-center gap-3 px-3 py-2.5 rounded-md hover:bg-muted/50 cursor-pointer transition-colors group"
+              >
                 <ImmediateCheckbox
                   id={id}
                   checked={isSelected}
                   onCheckedChange={(checked) => onToggle(item.id, checked)}
                 />
-                <Label htmlFor={id} className="cursor-pointer">
+                <span className="text-sm font-medium leading-none group-hover:text-foreground transition-colors">
                   {item.name}
-                </Label>
-              </div>
+                </span>
+              </label>
             );
           })}
         </div>
