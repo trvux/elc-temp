@@ -55,18 +55,25 @@ export function HeroContactButton({
         {contacts.map((contact) => {
           const typeInfo = CONTACT_TYPES.find((t) => t.value === contact.type);
           const label = contact.label || typeInfo?.label;
+          const href = getContactHref(contact.type, contact.value);
+          const isExternal = !["phone", "email"].includes(contact.type);
 
           return (
-            <DropdownMenuItem
-              key={contact.id}
-              onClick={() => {
-                window.open(
-                  getContactHref(contact.type, contact.value),
-                  "_blank",
-                );
-              }}
-            >
-              {label}
+            <DropdownMenuItem key={contact.id} asChild>
+              {isExternal ? (
+                <a
+                  href={href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-full cursor-pointer"
+                >
+                  {label}
+                </a>
+              ) : (
+                <a href={href} className="w-full cursor-pointer">
+                  {label}
+                </a>
+              )}
             </DropdownMenuItem>
           );
         })}

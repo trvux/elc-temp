@@ -78,11 +78,15 @@ export function CTASection({ settings, contacts }: CTASectionProps) {
         }
 
         return (
-          <DropdownMenuItem
-            key={c.id}
-            onClick={() => window.open(href, isExternal ? "_blank" : "_self")}
-          >
-            {label}
+          <DropdownMenuItem key={c.id} asChild>
+            <a
+              href={href}
+              target={isExternal ? "_blank" : undefined}
+              rel={isExternal ? "noopener noreferrer" : undefined}
+              className="w-full cursor-pointer"
+            >
+              {label}
+            </a>
           </DropdownMenuItem>
         );
       })}
