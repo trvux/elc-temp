@@ -60,15 +60,25 @@ export interface UpdateProductInput extends Partial<CreateProductInput> {
     id: string;
 }
 
+export type ProductSortBy =
+    | "price_asc"
+    | "price_desc"
+    | "newest"
+    | "popularity"
+    | "discount_desc";
+
 export interface ProductFilter {
     categoryId?: string;
     categoryIds?: string[];
     brandId?: string;
+    brandIds?: string[];
     isFeatured?: boolean;
     isPublished?: boolean;
     search?: string;
     minPrice?: number;
     maxPrice?: number;
+    sortBy?: ProductSortBy;
+    specs?: Record<string, string[]>;
     limit?: number;
     offset?: number;
     includeDeleted?: boolean;

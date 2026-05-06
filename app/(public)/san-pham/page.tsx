@@ -1,3 +1,13 @@
+import { searchProducts } from "@/modules/catalog/application";
+import { ProductFilterMobile } from "@/modules/catalog/presentation/components/ProductFilterMobile";
+import { ProductFilters } from "@/modules/catalog/presentation/components/ProductFilters";
+import {
+  getCategories,
+  getCategoryIdsBySlug,
+} from "@/modules/category/application";
+import { ProductPagination } from "@/shared/components/layout/user/product-pagination";
+import { ProductSearch } from "@/shared/components/layout/user/product-search";
+import { ScrollToTop } from "@/shared/components/layout/user/scroll-to-top";
 import { AspectRatio } from "@/shared/components/ui/aspect-ratio";
 import { Badge } from "@/shared/components/ui/badge";
 import { Card } from "@/shared/components/ui/card";
@@ -6,13 +16,7 @@ import {
   TypographyH2,
   TypographySmall,
 } from "@/shared/components/ui/typography";
-import { ProductPagination } from "@/shared/components/layout/user/product-pagination";
-import { ProductSearch } from "@/shared/components/layout/user/product-search";
-import { ScrollToTop } from "@/shared/components/layout/user/scroll-to-top";
 import { cn, formatPrice } from "@/shared/lib/utils";
-import { getCategories, getCategoryIdsBySlug } from "@/modules/category/application";
-import { getProducts, searchProducts } from "@/modules/catalog/application";
-import { Percent } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { Suspense } from "react";
@@ -21,7 +25,9 @@ type SearchParams = Promise<{ [key: string]: string | string[] | undefined }>;
 
 const STYLES = {
   main: cn("w-full px-4 py-12 md:px-8"),
-  container: cn("mx-auto w-full px-4 md:px-6 max-w-7xl flex flex-col gap-20"),
+  container: cn(
+    "mx-auto w-full px-4 md:px-6 max-w-7xl flex flex-col gap-6 md:gap-12",
+  ),
   header: cn("flex flex-col items-center text-center gap-3"),
   title: cn("w-full max-w-none! text-wrap!"),
   badge: cn("text-md text-muted-foreground"),
@@ -46,7 +52,7 @@ const STYLES = {
   salePrice: cn("text-base md:text-lg font-bold tracking-tight"),
   originalPriceWrapper: cn("flex items-center gap-2"),
   originalPrice: cn("text-md text-muted-foreground line-through"),
-  discountBadge: cn("font-bold rounded-lg"),
+  discountBadge: cn("rounded-sm"),
   highlight: cn("bg-primary/15 text-primary not-italic px-0.5"),
   emptyState: cn("py-24 text-center"),
   emptyText: cn("text-muted-foreground/60 italic text-sm"),
@@ -126,7 +132,7 @@ export default async function ProductsHub({
   const q = typeof params.q === "string" ? params.q.trim() : "";
   const categorySlug =
     typeof params.category === "string" ? params.category : "";
-  
+
   const minPrice =
     typeof params.minPrice === "string" && params.minPrice
       ? Number(params.minPrice)
@@ -135,15 +141,37 @@ export default async function ProductsHub({
     typeof params.maxPrice === "string" && params.maxPrice
       ? Number(params.maxPrice)
       : undefined;
-  
+
   const currentPage = Number(params.page) || 1;
   const pageSize = 12;
+
+  // Advanced filters
+  const brandIds = Array.isArray(params.brandIds)
+    ? params.brandIds
+    : typeof params.brandIds === "string"
+      ? [params.brandIds]
+      : [];
+
+  const specs: Record<string, string[]> = {};
+  Object.keys(params).forEach((key) => {
+    if (key.startsWith("spec_")) {
+      const label = key.replace("spec_", "");
+      const val = params[key];
+      specs[label] = Array.isArray(val)
+        ? val
+        : typeof val === "string"
+          ? [val]
+          : [];
+    }
+  });
 
   // Fetch categories for filter UI
   const allCategories = await getCategories({ type: "PRODUCT" });
 
   // Resolve categorySlug -> affected IDs
-  const categoryIds = categorySlug ? await getCategoryIdsBySlug(categorySlug) : [];
+  const categoryIds = categorySlug
+    ? await getCategoryIdsBySlug(categorySlug)
+    : [];
 
   // Compute query tokens for highlighting
   const queryTokens = q
@@ -155,15 +183,17 @@ export default async function ProductsHub({
     : [];
 
   // Fetch products using the application layer (searchProducts handles fuzzy search)
-  const { products, totalCount } = await searchProducts(q, {
+  const { products, totalCount, availableFilters } = await searchProducts(q, {
     categoryIds: categoryIds,
     isPublished: true,
     minPrice,
     maxPrice,
+    brandIds,
+    specs,
     limit: pageSize,
     offset: (currentPage - 1) * pageSize,
   });
-  
+
   // NOTE: If categoryIds.length > 1, searchProducts needs to be updated to support 'in' filter.
   // Actually, I'll update searchProducts to handle categoryIds as an array.
 
@@ -191,105 +221,131 @@ export default async function ProductsHub({
           </p>
         </header>
 
-        {/* Search + Filter */}
-        <div className={STYLES.searchWrapper}>
-          <Suspense fallback={null}>
-            <ProductSearch categories={allCategories} />
-          </Suspense>
-        </div>
-
-        {/* Grid */}
-        {products.length > 0 ? (
-          <div className={STYLES.grid}>
-            {products.map((product, index) => (
-              <Card 
-                key={product.id}
-                className={cn(STYLES.productCard, "border-none shadow-none hover:shadow-lg transition-all duration-300 bg-background overflow-hidden")}
-              >
-                <Link
-                  href={`/san-pham/${product.category?.slug ? product.category.slug : "detail"}/${product.slug}`}
-                  className="flex flex-col h-full"
-                >
-                  {/* Ảnh */}
-                  <div className={STYLES.imageWrapper}>
-                    <AspectRatio ratio={16 / 9}>
-                      {product.images?.[0] ? (
-                        <Image
-                          src={product.images[0]}
-                          alt={product.name}
-                          fill
-                          className={STYLES.image}
-                          sizes="(max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
-                          priority={index === 0}
-                          loading="eager"
-                        />
-                      ) : (
-                        <div className={STYLES.noImage}>Chưa có ảnh</div>
-                      )}
-                    </AspectRatio>
-                  </div>
-
-                  {/* Info */}
-                  <div className={cn(STYLES.infoWrapper, "p-4")}>
-                    <TypographyH2 className={STYLES.productName}>
-                      <HighlightedText
-                        text={product.name}
-                        queryTokens={queryTokens}
-                      />
-                    </TypographyH2>
-                    {product.sku && (
-                      <span className={STYLES.sku}>
-                        <HighlightedText
-                          text={product.sku}
-                          queryTokens={queryTokens}
-                        />
-                      </span>
-                    )}
-                    <div className={STYLES.priceWrapper}>
-                      <span className={STYLES.salePrice}>
-                        {formatPrice(
-                          product.salePrice || product.originalPrice || 0,
-                        )}
-                      </span>
-                      {product.discountPercent > 0 && (
-                        <div className={STYLES.originalPriceWrapper}>
-                          <span className={STYLES.originalPrice}>
-                            {formatPrice(product.originalPrice || 0)}
-                          </span>
-                          <Badge className={STYLES.discountBadge}>
-                            -{product.discountPercent}
-                            <Percent className="w-3 h-3" strokeWidth={3} />
-                          </Badge>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </Link>
-              </Card>
-            ))}
+        <div className="flex flex-col gap-4 md:gap-10">
+          {/* Search */}
+          <div className={STYLES.searchWrapper}>
+            <Suspense fallback={null}>
+              <ProductSearch />
+            </Suspense>
           </div>
-        ) : (
-          <div className={STYLES.emptyState}>
-            <p className={STYLES.emptyText}>
-              {isSearchActive
-                ? "Không tìm thấy sản phẩm phù hợp."
-                : "Hiện chưa có sản phẩm nào."}
-            </p>
-          </div>
-        )}
 
-        {totalPages > 1 && (
-          <div className={STYLES.paginationWrapper}>
-            <ProductPagination
-              currentPage={currentPage}
-              totalPages={totalPages}
-              searchQuery={q || undefined}
-              categorySlug={categorySlug || undefined}
-              minPrice={minPrice ?? undefined}
-              maxPrice={maxPrice ?? undefined}
+          {/* Content with Sidebar */}
+          <div className="flex flex-col lg:flex-row gap-12">
+            {/* Sidebar - Desktop */}
+            <aside className="hidden lg:block w-64 shrink-0">
+              <ProductFilters
+                categories={allCategories}
+                availableFilters={availableFilters}
+              />
+            </aside>
+
+            {/* Mobile Filter Trigger */}
+            <ProductFilterMobile
+              categories={allCategories}
+              availableFilters={availableFilters}
+              totalCount={totalCount}
             />
+
+            {/* Grid */}
+            <div className="flex-1">
+              {products.length > 0 ? (
+                <div className={STYLES.grid}>
+                  {products.map((product, index) => (
+                    <Card
+                      key={product.id}
+                      className={cn(
+                        STYLES.productCard,
+                        "border-none shadow-none hover:shadow-lg transition-all duration-300 bg-background overflow-hidden",
+                      )}
+                    >
+                      <Link
+                        href={`/san-pham/${product.category?.slug ? product.category.slug : "detail"}/${product.slug}`}
+                        className="flex flex-col h-full"
+                      >
+                        {/* Ảnh */}
+                        <div className={STYLES.imageWrapper}>
+                          <AspectRatio ratio={16 / 9}>
+                            {product.images?.[0] ? (
+                              <Image
+                                src={product.images[0]}
+                                alt={product.name}
+                                fill
+                                className={STYLES.image}
+                                sizes="(max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                                priority={index === 0}
+                                loading="eager"
+                              />
+                            ) : (
+                              <div className={STYLES.noImage}>Chưa có ảnh</div>
+                            )}
+                          </AspectRatio>
+                        </div>
+
+                        {/* Info */}
+                        <div className={cn(STYLES.infoWrapper, "p-4")}>
+                          <TypographyH2 className={STYLES.productName}>
+                            <HighlightedText
+                              text={product.name}
+                              queryTokens={queryTokens}
+                            />
+                          </TypographyH2>
+                          {product.sku && (
+                            <span className={STYLES.sku}>
+                              <HighlightedText
+                                text={product.sku}
+                                queryTokens={queryTokens}
+                              />
+                            </span>
+                          )}
+                          <div className={STYLES.priceWrapper}>
+                            <span className={STYLES.salePrice}>
+                              {formatPrice(
+                                product.salePrice || product.originalPrice || 0,
+                              )}
+                            </span>
+                            {product.discountPercent > 0 && (
+                              <>
+                                <span className={STYLES.originalPrice}>
+                                  {formatPrice(product.originalPrice || 0)}
+                                </span>
+                                <div className="pt-1">
+                                  <Badge
+                                    variant="destructive"
+                                    className={STYLES.discountBadge}
+                                  >
+                                    Giảm giá: {product.discountPercent} %
+                                  </Badge>
+                                </div>
+                              </>
+                            )}
+                          </div>
+                        </div>
+                      </Link>
+                    </Card>
+                  ))}
+                </div>
+              ) : (
+                <div className={STYLES.emptyState}>
+                  <p className={STYLES.emptyText}>
+                    {isSearchActive
+                      ? "Không tìm thấy sản phẩm phù hợp."
+                      : "Hiện chưa có sản phẩm nào."}
+                  </p>
+                </div>
+              )}
+
+              {totalPages > 1 && (
+                <div className={STYLES.paginationWrapper}>
+                  <ProductPagination
+                    currentPage={currentPage}
+                    totalPages={totalPages}
+                    searchParams={params}
+                  />
+                </div>
+              )}
+            </div>
           </div>
-        )}
+        </div>
 
         <footer className={STYLES.footer}>
           <TypographySmall>
