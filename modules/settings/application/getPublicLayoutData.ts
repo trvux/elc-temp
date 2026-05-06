@@ -13,12 +13,12 @@ export async function getPublicLayoutData() {
     { data: maxPriceProd }
   ] = await Promise.all([
     supabase.from("settings").select("*").maybeSingle(),
-    supabase.from("contacts").select("*"),
-    supabase.from("branches").select("*"),
-    supabase.from("projects").select("id, title, slug, categories(slug)").eq("is_published", true).limit(5),
-    supabase.from("pages").select("id, title, slug").eq("is_published", true),
-    supabase.from("products").select("price").eq("is_published", true).gt("price", 0).order("price", { ascending: true }).limit(1).maybeSingle(),
-    supabase.from("products").select("price").eq("is_published", true).gt("price", 0).order("price", { ascending: false }).limit(1).maybeSingle()
+    supabase.from("contacts").select("*").is("deleted_at", null),
+    supabase.from("branches").select("*").is("deleted_at", null),
+    supabase.from("projects").select("id, title, slug, categories(slug)").eq("is_published", true).is("deleted_at", null).limit(5),
+    supabase.from("pages").select("id, title, slug").eq("is_published", true).is("deleted_at", null),
+    supabase.from("products").select("price").eq("is_published", true).is("deleted_at", null).gt("price", 0).order("price", { ascending: true }).limit(1).maybeSingle(),
+    supabase.from("products").select("price").eq("is_published", true).is("deleted_at", null).gt("price", 0).order("price", { ascending: false }).limit(1).maybeSingle()
   ]);
 
   const formatCurrency = (val: number) => 
