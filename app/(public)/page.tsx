@@ -5,33 +5,30 @@ import { HeroSection } from "@/shared/components/sections/hero";
 import { ShowcaseSection } from "@/shared/components/sections/showcase";
 import { Separator } from "@/shared/components/ui/separator";
 
-import { getSiteSettings } from "@/modules/settings/application";
-import { getProjects } from "@/modules/project/application";
 import { getProducts } from "@/modules/catalog/application";
 import { getContacts } from "@/modules/contact/application";
+import { getProjects } from "@/modules/project/application";
+import { getSiteSettings } from "@/modules/settings/application";
 
 export const revalidate = 3600;
 
 export default async function Home() {
   // Fetch all necessary data for the homepage using the application layer
-  const [
-    settingsData,
-    projects,
-    featuredProducts,
-    contacts,
-  ] = await Promise.all([
-    getSiteSettings(),
-    getProjects({ 
-      isPublished: true, 
-      limit: 5 
-    }),
-    getProducts({ 
-      isPublished: true, 
-      isFeatured: true, 
-      limit: 12 
-    }),
-    getContacts(),
-  ]);
+  const [settingsData, projects, featuredProducts, contacts] =
+    await Promise.all([
+      getSiteSettings(),
+      getProjects({
+        isPublished: true,
+        isFeatured: true,
+        limit: 5,
+      }),
+      getProducts({
+        isPublished: true,
+        isFeatured: true,
+        limit: 12,
+      }),
+      getContacts(),
+    ]);
 
   // Convert settings array to a more usable object
   const settings: Record<string, string> = {};
@@ -39,29 +36,43 @@ export default async function Home() {
     settings[item.key] = item.value || "";
   });
 
+  const sections = [
+    {
+      id: "hero",
+      component: (
+        <HeroSection
+          title={settings.hero_title}
+          subtitle={settings.hero_subtitle}
+          ctaText={settings.hero_cta_text}
+          ctaUrl={settings.hero_cta_url}
+          image={settings.hero_image}
+          contacts={contacts || []}
+        />
+      ),
+    },
+    { id: "brand", component: <BrandShowcase /> },
+    {
+      id: "showcase",
+      component: <ShowcaseSection projects={projects || []} />,
+    },
+    {
+      id: "features",
+      component: <FeaturesSection products={featuredProducts || []} />,
+    },
+    {
+      id: "cta",
+      component: <CTASection settings={settings} contacts={contacts || []} />,
+    },
+  ];
+
   return (
-    <main className="px-4 md:px-6 lg:px-8 space-y-16 md:space-y-24">
-      <HeroSection
-        title={settings.hero_title}
-        subtitle={settings.hero_subtitle}
-        ctaText={settings.hero_cta_text}
-        ctaUrl={settings.hero_cta_url}
-        image={settings.hero_image}
-        contacts={contacts || []}
-      />
-      <Separator />
-
-      <BrandShowcase />
-      <Separator />
-
-      <ShowcaseSection projects={projects || []} />
-      <Separator />
-
-      <FeaturesSection products={featuredProducts || []} />
-      <Separator />
-
-      <CTASection settings={settings} contacts={contacts || []} />
-      <Separator />
+    <main className="max-w-7xl mx-auto px-4 md:px-6 lg:px-8 space-y-12 md:space-y-24 py-12 md:py-24">
+      {sections.map((section) => (
+        <div key={section.id} className="space-y-12 md:space-y-24">
+          {section.component}
+          <Separator />
+        </div>
+      ))}
     </main>
   );
 }

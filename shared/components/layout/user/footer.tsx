@@ -76,8 +76,10 @@ export function Footer({
               width={110}
               height={36}
               className="h-12 w-auto brightness-0 invert"
+              style={{ width: "auto" }}
               unoptimized
             />
+
           </Link>
           {settings?.company_short_desc && (
             <p className={styles.logoDesc}>{settings.company_short_desc}</p>

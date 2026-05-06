@@ -12,10 +12,8 @@ import {
   Carousel,
   CarouselContent,
   CarouselItem,
-  CarouselNext,
-  CarouselPrevious,
 } from "@/shared/components/ui/carousel";
-import { Separator } from "@/shared/components/ui/separator";
+import { Spinner } from "@/shared/components/ui/spinner";
 import {
   TypographyH1,
   TypographyLarge,
@@ -23,7 +21,7 @@ import {
   TypographyP,
 } from "@/shared/components/ui/typography"; // Điều chỉnh path cho đúng file mày lưu
 import { getOptimizedImage } from "@/shared/lib/image";
-import { cn, formatPrice } from "@/shared/lib/utils";
+import { formatPrice } from "@/shared/lib/utils";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -35,131 +33,88 @@ interface FeaturesSectionProps {
 
 export function FeaturesSection({ products }: FeaturesSectionProps) {
   const isShowingProducts = !!(products && products.length > 0);
-  const title = isShowingProducts ? "Sản phẩm nổi bật" : "Dịch vụ & Giải pháp";
+  const title = "Sản phẩm nổi bật";
 
   // --- STYLES ---
   const styles = {
-    section: "max-w-7xl mx-auto px-4 md:px-6 py-12 lg:py-20",
-    title: "mb-10 md:mb-14",
-    productGrid:
-      "grid gap-4 md:gap-6 grid-cols-1 md:grid-cols-3 lg:grid-cols-4 hidden md:grid",
-    serviceGrid:
-      "grid gap-4 md:gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-4",
-    productCard:
-      "group h-full flex flex-col border-none shadow-none hover:shadow-md transition-all duration-300",
-    navBtn:
-      "opacity-0 invisible group-hover/carousel:opacity-100 group-hover/carousel:visible transition-all duration-300",
-    defaultCard:
-      "group p-6 flex flex-col hover:shadow-md transition-all duration-300 h-full border-border/50",
-    priceOld: "line-through text-xs text-muted-foreground",
+    section: "py-10 md:py-20",
+    productGrid: "grid gap-6 md:grid-cols-3 lg:grid-cols-4 hidden md:grid",
+    priceOld: "line-through text-muted-foreground",
+    emptyState:
+      "flex flex-col items-center justify-center py-20 gap-4 text-muted-foreground border border-dashed rounded-xl bg-muted/30",
   };
-
-  const defaultFeatures = [
-    {
-      title: "Tư vấn Giải pháp Smarthome",
-      description: "Thiết kế hệ thống nhà thông minh chuyên biệt.",
-    },
-    {
-      title: "Thiết bị Điện tử Cao cấp",
-      description: "Cung cấp các dòng TV, Loa và thiết bị gia dụng.",
-    },
-    {
-      title: "Thi công & Lắp đặt Tận tâm",
-      description: "Đảm bảo quy trình lắp đặt chuẩn xác, an toàn.",
-    },
-    {
-      title: "Bảo hành & Hỗ trợ Kỹ thuật",
-      description: "Hỗ trợ xử lý sự cố nhanh chóng trong vòng 24h.",
-    },
-  ];
 
   const ProductCard = ({ product }: { product: Product }) => {
     const productUrl = `/san-pham/${product.category?.slug}/${product.slug}`;
 
     return (
-      <Card className={styles.productCard}>
-        <div className="relative group/carousel">
-          <Carousel className="w-full">
-            <CarouselContent>
-              {product.images.map((img, idx) => (
-                <CarouselItem key={idx}>
-                  <Link href={productUrl}>
-                    <AspectRatio ratio={16 / 9}>
-                      <Image
-                        src={getOptimizedImage(img, 600)}
-                        fill
-                        className="object-contain p-4"
-                        alt={product.name}
-                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                        loading="eager"
-                      />
-                    </AspectRatio>
-                  </Link>
-                </CarouselItem>
-              ))}
-            </CarouselContent>
-            <div className="hidden md:block">
-              <CarouselPrevious className={cn("left-2", styles.navBtn)} />
-              <CarouselNext className={cn("right-2", styles.navBtn)} />
-            </div>
-          </Carousel>
-        </div>
+      <Card className="h-full">
+        <Link href={productUrl}>
+          <AspectRatio ratio={16 / 9}>
+            <Image
+              src={getOptimizedImage(product.images[0], 600)}
+              fill
+              className="object-contain p-4"
+              alt={product.name}
+              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+              loading="eager"
+            />
+          </AspectRatio>
+        </Link>
 
-        <Link href={productUrl} className="p-4 flex flex-col gap-2">
-          <TypographyMuted>{product.sku}</TypographyMuted>
-          <TypographyLarge className="line-clamp-2 min-h-14">
+        <Link href={productUrl} className="p-4 pt-0 flex flex-col gap-2 flex-1">
+          <div className="h-5 overflow-hidden">
+            <TypographyMuted className="truncate">
+              {product.sku}
+            </TypographyMuted>
+          </div>
+          <TypographyLarge className="line-clamp-2 h-12 leading-snug">
             {product.name}
           </TypographyLarge>
 
-          <div className="flex flex-col gap-1 mt-auto">
+          <div className="flex flex-col gap-1 mt-2">
+            {/* Dòng 1: Giá hiện tại (Giá giảm hoặc Giá gốc) */}
             <TypographyLarge>
               {formatPrice(product.salePrice || product.originalPrice)}
             </TypographyLarge>
 
-            {(product.discountPercent ?? 0) > 0 && (
-              <div className="flex items-center gap-2">
-                <span className={styles.priceOld}>
-                  {formatPrice(product.originalPrice)}
-                </span>
-                <Badge variant="secondary" className="rounded-full">
-                  -{product.discountPercent}%
-                </Badge>
-              </div>
-            )}
+            {/* Dòng 2 & 3: Khu vực giá gốc và Badge - Cố định chiều cao để thẳng hàng */}
+            <div className="flex flex-col gap-2 min-h-13 mt-1">
+              {(product.discountPercent ?? 0) > 0 && (
+                <>
+                  <div className="flex items-center gap-2 h-5">
+                    <span className={styles.priceOld}>
+                      {formatPrice(product.originalPrice)}
+                    </span>
+                  </div>
+                  <Badge
+                    variant="destructive"
+                    className="w-full rounded-sm justify-start px-2 py-0.5"
+                  >
+                    Tiết kiệm: {product.discountPercent}%
+                  </Badge>
+                </>
+              )}
+            </div>
           </div>
         </Link>
       </Card>
     );
   };
 
-  const DefaultCard = ({ feature, index }: { feature: any; index: number }) => (
-    <Card className={styles.defaultCard}>
-      <TypographyH1 className="font-newsreader opacity-30 mb-6">
-        {String(index + 1).padStart(2, "0")}
-      </TypographyH1>
-      <Separator className="mb-6 opacity-50" />
-      <TypographyLarge className="mb-3 group-hover:text-primary transition-colors uppercase tracking-wider">
-        {feature.title}
-      </TypographyLarge>
-      <TypographyP className="line-clamp-4 flex-1 text-muted-foreground">
-        {feature.description}
-      </TypographyP>
-    </Card>
-  );
-
   return (
     <section className={styles.section}>
       <AnimateIn>
-        <TypographyH1 className={styles.title}>{title}</TypographyH1>
+        <TypographyH1 className="mb-10 text-center">{title}</TypographyH1>
       </AnimateIn>
 
       {isShowingProducts ? (
         <>
-          <AnimateIn delay={0.2}>
-            <Carousel className="md:hidden" opts={{ align: "center" }}>
-              <CarouselContent className="-ml-4">
+          <AnimateIn delay={0.2} className="md:hidden">
+            <Carousel opts={{ align: "start" }} className="w-full">
+              <CarouselContent className="ml-0 py-4">
                 {products.map((p) => (
-                  <CarouselItem key={p.id} className="pl-4 basis-[85%]">
+                  <CarouselItem key={p.id} className="pl-4 basis-[85%] flex">
                     <ProductCard product={p} />
                   </CarouselItem>
                 ))}
@@ -176,13 +131,10 @@ export function FeaturesSection({ products }: FeaturesSectionProps) {
           </StaggerContainer>
         </>
       ) : (
-        <StaggerContainer className={styles.serviceGrid}>
-          {defaultFeatures.map((f, i) => (
-            <StaggerItem key={i}>
-              <DefaultCard feature={f} index={i} />
-            </StaggerItem>
-          ))}
-        </StaggerContainer>
+        <div className={styles.emptyState}>
+          <Spinner className="size-8" />
+          <TypographyP>Sản phẩm đang được cập nhật</TypographyP>
+        </div>
       )}
     </section>
   );

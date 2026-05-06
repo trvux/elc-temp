@@ -27,7 +27,11 @@ export const metadata: Metadata = {
     icon: "/logo/favico.svg",
     apple: "/logo/favico.svg",
   },
+  formatDetection: {
+    telephone: false,
+  },
 };
+
 
 export const viewport: Viewport = {
   width: "device-width",

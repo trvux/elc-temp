@@ -94,7 +94,8 @@ export function CTASection({ settings, contacts }: CTASectionProps) {
   );
 
   return (
-    <section className="max-w-7xl mx-auto py-20 px-6">
+    <section>
+
       <AnimateIn className="flex flex-col items-center text-center max-w-3xl mx-auto gap-12">
         <div className="space-y-4">
           <TypographyH1>{title}</TypographyH1>
