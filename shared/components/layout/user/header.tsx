@@ -20,21 +20,9 @@ import {
   NavigationMenuList,
   navigationMenuTriggerStyle,
 } from "@/shared/components/ui/navigation-menu";
+import { navLinks, checkActiveLink, type NavLink } from "@/modules/settings/domain/navigation";
 
-interface NavLink {
-  name: string;
-  href: string;
-}
 
-const navLinks: NavLink[] = [
-  { name: "Trang chủ", href: "/" },
-  { name: "Dự án", href: "/du-an" },
-  { name: "Sản phẩm", href: "/san-pham" },
-  { name: "Dịch vụ", href: "/dich-vu" },
-  { name: "Chi nhánh", href: "/chi-nhanh" },
-  { name: "Tin tức", href: "/tin-tuc" },
-  { name: "Thông tin", href: "/thong-tin" },
-];
 
 const COMMON = {
   transition: "transition-all duration-300 ease-in-out",
@@ -144,8 +132,7 @@ export function Header() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  const checkActive = (href: string) =>
-    href === "/" ? pathname === "/" : pathname.startsWith(href);
+
 
   return (
     <>
@@ -192,8 +179,8 @@ export function Header() {
                   width={110}
                   height={36}
                   className="h-9 w-auto"
-                  style={{ width: "auto" }}
                   priority
+                  unoptimized
                 />
               </Link>
 
@@ -203,7 +190,7 @@ export function Header() {
                     <NavItem
                       key={link.name}
                       link={link}
-                      isActive={checkActive(link.href)}
+                      isActive={checkActiveLink(link.href, pathname)}
                     />
                   ))}
                 </NavigationMenuList>
@@ -236,7 +223,7 @@ export function Header() {
                   <NavItem
                     key={link.name}
                     link={link}
-                    isActive={checkActive(link.href)}
+                    isActive={checkActiveLink(link.href, pathname)}
                     isMobile
                     onClick={() => setIsMenuOpen(false)}
                   />
