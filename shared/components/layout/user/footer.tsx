@@ -70,14 +70,10 @@ export function Footer({
             href="/"
             className="inline-block hover:opacity-80 transition-opacity"
           >
-            <Image
+            <img
               src="/logo/logo.svg"
               alt="Điện máy ELC"
-              width={110}
-              height={36}
               className="h-12 w-auto brightness-0 invert"
-              style={{ width: "auto" }}
-              unoptimized
             />
 
           </Link>

@@ -38,8 +38,10 @@ export function ShowcaseSection({ projects }: ShowcaseSectionProps) {
       href={getProjectUrl(project)}
       className="group block transition-all duration-300"
     >
-      <Card className="transition-all duration-300 hover:border-primary/50 hover:shadow-md">
-        <CardContent className="p-4 md:p-8 lg:p-10">
+      <Card className="relative overflow-hidden transition-all duration-300 hover:border-primary/50 hover:shadow-md group/card">
+        {/* Background Pattern: Diagonal Stripes */}
+        <div className="absolute inset-0 opacity-[0.08] pointer-events-none bg-[repeating-linear-gradient(45deg,currentColor,currentColor_1px,transparent_1px,transparent_24px)]" />
+        <CardContent className="relative">
           <div className="flex items-center gap-4 md:gap-12">
             {/* Left: Image */}
             <div className="w-32 md:w-56 lg:w-80 shrink-0">
@@ -49,7 +51,7 @@ export function ShowcaseSection({ projects }: ShowcaseSectionProps) {
                     src={getOptimizedImage(project.images[0], 800)}
                     alt={project.title}
                     fill
-                    className="object-cover"
+                    className="object-cover border border-border p-2 bg-muted"
                     sizes="(max-width: 768px) 128px, (max-width: 1200px) 224px, 320px"
                     priority={priority}
                   />
