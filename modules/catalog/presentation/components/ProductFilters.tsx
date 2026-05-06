@@ -243,18 +243,24 @@ function FilterGroup({
           </div>
         )}
 
-        <div className="flex flex-col gap-4">
+        <div className="flex flex-col gap-1">
           {filteredItems.map((item) => {
             const isSelected = selectedValues.includes(item.id);
             const id = `filter-${label}-${item.id}`;
             return (
-              <div key={item.id} className="flex items-center space-x-2">
+              <div 
+                key={item.id} 
+                className="flex items-center space-x-2 group hover:bg-muted/50 px-2 py-1.5 -mx-2 rounded-md transition-colors cursor-pointer"
+              >
                 <ImmediateCheckbox
                   id={id}
                   checked={isSelected}
                   onCheckedChange={(checked) => onToggle(item.id, checked)}
                 />
-                <Label htmlFor={id} className="cursor-pointer">
+                <Label 
+                  htmlFor={id} 
+                  className="flex-1 cursor-pointer select-none py-0.5"
+                >
                   {item.name}
                 </Label>
               </div>
