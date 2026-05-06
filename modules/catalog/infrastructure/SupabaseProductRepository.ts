@@ -34,7 +34,29 @@ export class SupabaseProductRepository implements ProductRepository {
 
         query = this.applyFilters(query, options);
 
-        query = query.order("order_index", { ascending: true });
+        if (options?.sortBy) {
+            switch (options.sortBy) {
+                case "price_asc":
+                    query = query.order("sale_price", { ascending: true, nullsFirst: false });
+                    break;
+                case "price_desc":
+                    query = query.order("sale_price", { ascending: false, nullsFirst: false });
+                    break;
+                case "newest":
+                    query = query.order("created_at", { ascending: false });
+                    break;
+                case "popularity":
+                    query = query.order("is_featured", { ascending: false }).order("order_index", { ascending: true });
+                    break;
+                case "discount_desc":
+                    query = query.order("discount_percent", { ascending: false });
+                    break;
+                default:
+                    query = query.order("order_index", { ascending: true });
+            }
+        } else {
+            query = query.order("order_index", { ascending: true });
+        }
 
         if (options?.limit) {
             const from = options.offset || 0;
@@ -185,6 +207,9 @@ export class SupabaseProductRepository implements ProductRepository {
             q = q.in("category_id", options.categoryIds);
         }
         if (options.brandId) q = q.eq("brand_id", options.brandId);
+        if (options.brandIds && options.brandIds.length > 0) {
+            q = q.in("brand_id", options.brandIds);
+        }
         if (options.isFeatured !== undefined) q = q.eq("is_featured", options.isFeatured);
         if (options.isPublished !== undefined) q = q.eq("is_published", options.isPublished);
         if (options.search) q = q.ilike("name", `%${options.search}%`);

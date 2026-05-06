@@ -11,26 +11,26 @@ import {
 interface ProductPaginationProps {
   currentPage: number;
   totalPages: number;
-  searchQuery?: string;
-  categorySlug?: string;
-  minPrice?: number;
-  maxPrice?: number;
+  searchParams?: Record<string, string | string[] | undefined>;
 }
 
 export function ProductPagination({
   currentPage,
   totalPages,
-  searchQuery,
-  categorySlug,
-  minPrice,
-  maxPrice,
+  searchParams = {},
 }: ProductPaginationProps) {
   const getPageUrl = (page: number): string => {
     const params = new URLSearchParams();
-    if (searchQuery) params.set("q", searchQuery);
-    if (categorySlug) params.set("category", categorySlug);
-    if (minPrice !== undefined) params.set("minPrice", String(minPrice));
-    if (maxPrice !== undefined) params.set("maxPrice", String(maxPrice));
+    
+    // Copy all current params
+    Object.entries(searchParams).forEach(([key, value]) => {
+      if (Array.isArray(value)) {
+        value.forEach(v => params.append(key, v));
+      } else if (value !== undefined) {
+        params.set(key, value);
+      }
+    });
+
     params.set("page", String(page));
     return `?${params.toString()}`;
   };
