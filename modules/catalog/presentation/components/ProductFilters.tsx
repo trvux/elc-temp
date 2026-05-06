@@ -114,7 +114,9 @@ export function ProductFilters({
     params.delete("category");
     params.delete("minPrice");
     params.delete("maxPrice");
-    Object.keys(currentSpecs).forEach((label) => params.delete(`spec_${label}`));
+    Object.keys(currentSpecs).forEach((label) =>
+      params.delete(`spec_${label}`),
+    );
     params.delete("page");
     router.push(`?${params.toString()}`);
   };
@@ -204,7 +206,7 @@ function AccordionFilterWrapper({
           <span>{label}</span>
         </div>
       </AccordionTrigger>
-      <AccordionContent>{children}</AccordionContent>
+      <AccordionContent className="px-2">{children}</AccordionContent>
     </AccordionItem>
   );
 }
@@ -270,11 +272,7 @@ function FilterGroup({
           })}
         </div>
 
-        {filteredItems.length === 0 && (
-          <p>
-            Không tìm thấy kết quả
-          </p>
-        )}
+        {filteredItems.length === 0 && <p>Không tìm thấy kết quả</p>}
       </div>
     </AccordionFilterWrapper>
   );
