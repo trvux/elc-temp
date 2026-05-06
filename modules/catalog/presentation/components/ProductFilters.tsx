@@ -96,8 +96,47 @@ export function ProductFilters({
     updateFilters({ [key]: newValues.length > 0 ? newValues : null });
   };
 
+  const hasAnyFilter = useMemo(() => {
+    return (
+      currentBrands.length > 0 ||
+      (currentCategory !== "all" && currentCategory !== "") ||
+      Object.keys(currentSpecs).length > 0 ||
+      searchParams.get("minPrice") ||
+      searchParams.get("maxPrice")
+    );
+  }, [currentBrands, currentCategory, currentSpecs, searchParams]);
+
+  const clearAllFilters = () => {
+    const params = new URLSearchParams(searchParams.toString());
+    params.delete("brandIds");
+    params.delete("sortBy");
+    params.delete("category");
+    params.delete("minPrice");
+    params.delete("maxPrice");
+    Object.keys(currentSpecs).forEach((label) => params.delete(`spec_${label}`));
+    params.delete("page");
+    router.push(`?${params.toString()}`);
+  };
+
   return (
-    <div className="flex flex-col gap-8">
+    <div className="flex flex-col gap-6">
+      {/* Filter Header */}
+      <div className="flex items-center justify-between pb-4 border-b">
+        <span className="font-bold text-base uppercase tracking-wider text-foreground/80">
+          Bộ lọc
+        </span>
+        {hasAnyFilter && (
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={clearAllFilters}
+            className="h-auto p-0 text-destructive hover:bg-transparent hover:text-destructive/80 text-xs font-bold transition-all"
+          >
+            XÓA TẤT CẢ
+          </Button>
+        )}
+      </div>
+
       <Accordion
         type="multiple"
         defaultValue={["category", "Kiểu lắp đặt"]}
@@ -146,33 +185,6 @@ export function ProductFilters({
           />
         </AccordionFilterWrapper>
       </Accordion>
-
-      {/* Clear Filters */}
-      {(currentBrands.length > 0 ||
-        (currentCategory !== "all" && currentCategory !== "") ||
-        Object.keys(currentSpecs).length > 0 ||
-        searchParams.get("sortBy")) && (
-        <Button
-          variant="default"
-          size="lg"
-          className="w-full"
-          onClick={() => {
-            const params = new URLSearchParams(searchParams.toString());
-            params.delete("brandIds");
-            params.delete("sortBy");
-            params.delete("category");
-            params.delete("minPrice");
-            params.delete("maxPrice");
-            Object.keys(currentSpecs).forEach((label) =>
-              params.delete(`spec_${label}`),
-            );
-            params.delete("page");
-            router.push(`?${params.toString()}`);
-          }}
-        >
-          Xóa tất cả bộ lọc
-        </Button>
-      )}
     </div>
   );
 }
