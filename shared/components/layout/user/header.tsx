@@ -165,7 +165,7 @@ export function Header() {
           )}
         >
           <Collapsible open={isMenuOpen} onOpenChange={handleMenuToggle}>
-            <div className="flex h-12 lg:h-16 items-center justify-between px-6 md:px-9">
+            <div className="flex h-14 md:h-16 items-center justify-between px-6 md:px-9">
               <Link
                 href="/"
                 className="flex items-center shrink-0 transition-opacity hover:opacity-80"

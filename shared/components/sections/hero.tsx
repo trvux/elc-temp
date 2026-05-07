@@ -44,7 +44,7 @@ export function HeroSection({
       "grid grid-cols-1 md:grid-cols-2 gap-12 md:gap-16 items-center min-h-[60vh]",
 
     content: "flex flex-col gap-6 md:gap-8",
-    actions: "grid grid-cols-1 lg:grid-cols-2 gap-4 pt-2 w-full",
+    actions: "grid grid-cols-1 lg:grid-cols-2 gap-2 pt-2 w-full",
     btn: "w-full lg:w-auto",
     contact: "w-full lg:w-auto",
     media:
