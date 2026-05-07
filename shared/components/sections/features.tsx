@@ -111,7 +111,7 @@ export function FeaturesSection({ products }: FeaturesSectionProps) {
         <>
           <AnimateIn delay={0.2} className="md:hidden">
             <Carousel opts={{ align: "center" }} className="w-full">
-              <CarouselContent className="-ml-4 py-4">
+              <CarouselContent className="ml-0 py-4">
                 {products.map((p) => (
                   <CarouselItem
                     key={p.id}
