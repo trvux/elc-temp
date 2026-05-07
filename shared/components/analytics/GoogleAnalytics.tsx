@@ -12,8 +12,18 @@ export default function GoogleAnalytics() {
 
   useEffect(() => {
     if (pathname) {
-      const url = pathname + (searchParams?.toString() ? `?${searchParams.toString()}` : "");
-      trackPageView(url);
+      // Nếu vào trang admin, đánh dấu là nhân viên nội bộ
+      if (pathname.startsWith("/admin")) {
+        localStorage.setItem("elc_internal_user", "true");
+      }
+
+      // Chỉ track nếu KHÔNG phải là nhân viên nội bộ
+      const isInternal = localStorage.getItem("elc_internal_user") === "true";
+      
+      if (!isInternal) {
+        const url = pathname + (searchParams?.toString() ? `?${searchParams.toString()}` : "");
+        trackPageView(url);
+      }
     }
   }, [pathname, searchParams]);
 
@@ -22,6 +32,9 @@ export default function GoogleAnalytics() {
     let scrolled90 = false;
 
     const handleScroll = () => {
+      // Bỏ qua nếu là nhân viên
+      if (localStorage.getItem("elc_internal_user") === "true") return;
+
       const scrollHeight = document.documentElement.scrollHeight - window.innerHeight;
       const scrollPos = window.scrollY;
       const scrollPercent = (scrollPos / scrollHeight) * 100;

@@ -18,6 +18,11 @@ export const trackEvent = async ({
   metadata = {},
   isConversion = false,
 }: TrackEventProps) => {
+  // 0. Bỏ qua nếu là nhân viên nội bộ (đã từng vào trang admin)
+  if (typeof window !== "undefined" && localStorage.getItem("elc_internal_user") === "true") {
+    return;
+  }
+
   // Tự động bắt các tham số UTM từ URL
   const getUtms = () => {
     if (typeof window === "undefined") return {};
