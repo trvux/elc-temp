@@ -55,7 +55,7 @@ export const trackEvent = async ({
   // 3. Lưu vào Database Supabase để làm báo cáo Admin
   try {
     const supabase = createClient();
-    await supabase.from("tracking_events").insert({
+    await (supabase as any).from("tracking_events").insert({
       event_name: action,
       event_category: category,
       event_label: label,
@@ -71,7 +71,7 @@ export const trackPageView = (url: string) => {
   gtag.pageview(url);
   // Có thể lưu page_view vào DB nếu muốn báo cáo chi tiết luồng khách đi
   const supabase = createClient();
-  supabase.from("tracking_events").insert({
+  (supabase as any).from("tracking_events").insert({
     event_name: "page_view",
     event_category: "navigation",
     page_path: url,
