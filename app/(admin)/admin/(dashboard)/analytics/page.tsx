@@ -58,7 +58,8 @@ export default function AnalyticsPage() {
   useEffect(() => {
     // 1. Fetch initial data
     const fetchInitialData = async () => {
-      const { data, error } = await supabase
+      // Sử dụng as any để bypass lỗi type do bảng mới chưa có trong database.types
+      const { data, error } = await (supabase as any)
         .from("tracking_events")
         .select("*")
         .order("created_at", { ascending: false })
@@ -72,13 +73,17 @@ export default function AnalyticsPage() {
 
     fetchInitialData();
 
-    // 2. Subscribe to real-time changes
-    const channel = supabase
-      .channel("realtime_tracking")
+    // 2. Subscribe to realtime changes
+    const channel = (supabase as any)
+      .channel("tracking_events_realtime")
       .on(
         "postgres_changes",
-        { event: "INSERT", schema: "public", table: "tracking_events" },
-        (payload) => {
+        {
+          event: "INSERT",
+          schema: "public",
+          table: "tracking_events",
+        },
+        (payload: any) => {
           const newEvent = payload.new as TrackingEvent;
           setEvents((prev) => [newEvent, ...prev].slice(0, 50));
           updateStatsOnNewEvent(newEvent);
