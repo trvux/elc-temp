@@ -8,7 +8,7 @@ vi.mock("../../infrastructure/SupabaseProductRepository", () => ({
   },
 }));
 
-describe("searchProducts Use Case", () => {
+describe("xsearchProducts Use Case", () => {
   const mockProducts = [
     {
       id: "1",

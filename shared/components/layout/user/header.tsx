@@ -22,7 +22,6 @@ import {
   NavigationMenuItem,
   NavigationMenuLink,
   NavigationMenuList,
-  navigationMenuTriggerStyle,
 } from "@/shared/components/ui/navigation-menu";
 
 const COMMON = {
@@ -156,17 +155,17 @@ export function Header() {
       >
         <header
           className={cn(
-            "relative overflow-hidden rounded-2xl border border-border transition-all duration-300",
+            "relative overflow-hidden rounded-xl border border-border transition-all duration-300",
             // Giữ màu đặc (opaque) khi đang mở hoặc đang trong quá trình đóng/mở (transition)
             isMenuOpen || isTransitioning
               ? "bg-background border-b-transparent shadow-lg"
               : isScrolled
-                ? "bg-background/90 backdrop-blur-xl shadow-lg"
-                : "bg-background/70 backdrop-blur-xl shadow-sm",
+                ? "bg-background/70 backdrop-blur-xl shadow-lg"
+                : "bg-background/50 backdrop-blur-xl shadow-sm",
           )}
         >
           <Collapsible open={isMenuOpen} onOpenChange={handleMenuToggle}>
-            <div className="flex h-16 items-center justify-between px-4 md:px-6">
+            <div className="flex h-12 lg:h-16 items-center justify-between px-6 md:px-9">
               <Link
                 href="/"
                 className="flex items-center shrink-0 transition-opacity hover:opacity-80"

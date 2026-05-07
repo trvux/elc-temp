@@ -48,7 +48,7 @@ export function FeaturesSection({ products }: FeaturesSectionProps) {
     const productUrl = `/san-pham/${product.category?.slug}/${product.slug}`;
 
     return (
-      <Card className="h-full">
+      <Card className="h-full hover:shadow-md">
         <Link href={productUrl}>
           <AspectRatio ratio={16 / 9}>
             <Image
@@ -72,7 +72,7 @@ export function FeaturesSection({ products }: FeaturesSectionProps) {
             {product.name}
           </TypographyLarge>
 
-          <div className="flex flex-col gap-1 mt-2">
+          <div className="flex flex-col gap-1 mt-2 ">
             {/* Dòng 1: Giá hiện tại (Giá giảm hoặc Giá gốc) */}
             <TypographyLarge>
               {formatPrice(product.salePrice || product.originalPrice)}
@@ -89,7 +89,7 @@ export function FeaturesSection({ products }: FeaturesSectionProps) {
                   </div>
                   <Badge
                     variant="destructive"
-                    className="w-full rounded-sm justify-start px-2 py-0.5 font-medium"
+                    className=" rounded-sm justify-start px-2 py-0.5 font-medium"
                   >
                     Ưu đãi: {product.discountPercent}%
                   </Badge>
