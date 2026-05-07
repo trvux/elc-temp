@@ -37,7 +37,6 @@ export function FeaturesSection({ products }: FeaturesSectionProps) {
 
   // --- STYLES ---
   const styles = {
-    section: "py-10 md:py-20",
     productGrid: "grid gap-6 md:grid-cols-3 lg:grid-cols-4 hidden md:grid",
     priceOld: "line-through text-muted-foreground",
     emptyState:
@@ -103,7 +102,7 @@ export function FeaturesSection({ products }: FeaturesSectionProps) {
   };
 
   return (
-    <section className={styles.section}>
+    <section>
       <AnimateIn>
         <TypographyH1 className="mb-10 text-center">{title}</TypographyH1>
       </AnimateIn>
@@ -111,8 +110,8 @@ export function FeaturesSection({ products }: FeaturesSectionProps) {
       {isShowingProducts ? (
         <>
           <AnimateIn delay={0.2} className="md:hidden">
-            <Carousel opts={{ align: "start" }} className="w-full">
-              <CarouselContent className="ml-0 py-4">
+            <Carousel opts={{ align: "center" }} className="w-full">
+              <CarouselContent className="-ml-4 py-4">
                 {products.map((p) => (
                   <CarouselItem
                     key={p.id}

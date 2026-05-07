@@ -39,7 +39,7 @@ export function ShowcaseSection({ projects }: ShowcaseSectionProps) {
     >
       <Card className="relative overflow-hidden transition-all duration-300 hover:border-primary/50 hover:shadow-md group/card">
         {/* Background Pattern: Diagonal Stripes */}
-        <div className="absolute inset-0 opacity-[0.08] pointer-events-none bg-[repeating-linear-gradient(45deg,currentColor,currentColor_1px,transparent_1px,transparent_24px)]" />
+        <div className="absolute inset-0 opacity-5 pointer-events-none bg-[repeating-linear-gradient(45deg,currentColor,currentColor_2px,transparent_4px,transparent_24px)]" />
         <CardContent className="relative">
           <div className="flex items-center gap-4 md:gap-12">
             {/* Left: Image */}
@@ -64,8 +64,11 @@ export function ShowcaseSection({ projects }: ShowcaseSectionProps) {
             {/* Middle: Content */}
             <div className="flex-1 min-w-0 flex flex-col gap-1 md:gap-2 items-start">
               <div className="flex flex-wrap items-center gap-2">
-                <Badge variant="outline" className="gap-1">
-                  <Sparkle className="w-1 h-1 fill-amber-500 text-amber-500" />
+                <Badge variant="secondary">
+                  <Sparkle
+                    data-icon="inline-start"
+                    className="fill-foreground text-foreground "
+                  />
                   Nổi bật
                 </Badge>
                 {project.category && (
