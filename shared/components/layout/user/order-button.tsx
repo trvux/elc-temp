@@ -30,6 +30,7 @@ import { TypographyLarge } from "@/shared/components/ui/typography";
 import { useIsMobile } from "@/shared/hooks/use-mobile";
 import { cn } from "@/shared/lib/utils";
 import Link from "next/link";
+import { trackEvent } from "@/shared/lib/tracking";
 
 import { Contact } from "@/modules/contact/domain";
 
@@ -106,6 +107,21 @@ export function OrderButton({ contacts }: OrderButtonProps) {
     const href = getContactHref(contact.type, contact.value);
     const isProtocol = ["phone", "email"].includes(contact.type);
 
+    const handleContactClick = () => {
+      const isConversion = ["phone", "zalo", "messenger", "email", "facebook"].includes(contact.type);
+      
+      trackEvent({
+        action: "contact_click",
+        category: isConversion ? "conversion" : "engagement",
+        label: `${contact.type}: ${contact.value}`,
+        isConversion,
+        metadata: {
+          location: "order_button",
+          contact_type: contact.type
+        }
+      });
+    };
+
     const content = (
       <div
         className={cn(
@@ -130,7 +146,12 @@ export function OrderButton({ contacts }: OrderButtonProps) {
 
     if (isProtocol) {
       return (
-        <a key={contact.id} href={href} className="block w-full">
+        <a 
+          key={contact.id} 
+          href={href} 
+          className="block w-full"
+          onClick={handleContactClick}
+        >
           {content}
         </a>
       );
@@ -143,6 +164,7 @@ export function OrderButton({ contacts }: OrderButtonProps) {
         target="_blank"
         rel="noopener noreferrer"
         className="block w-full"
+        onClick={handleContactClick}
       >
         {content}
       </Link>
