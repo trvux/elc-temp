@@ -9,6 +9,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/shared/components/ui/dropdown-menu";
+import { trackEvent } from "@/shared/lib/tracking";
 
 function getContactHref(type: string, value: string) {
   const cleanValue = value.replace(/\s/g, "");
@@ -58,6 +59,21 @@ export function HeroContactButton({
           const href = getContactHref(contact.type, contact.value);
           const isExternal = !["phone", "email"].includes(contact.type);
 
+          const handleContactClick = () => {
+            const isConversion = ["phone", "zalo", "messenger", "email", "facebook"].includes(contact.type);
+
+            trackEvent({
+              action: "hero_contact_click",
+              category: isConversion ? "conversion" : "engagement",
+              label: `${contact.type}: ${contact.value}`,
+              isConversion,
+              metadata: {
+                location: "hero_section",
+                contact_type: contact.type
+              }
+            });
+          };
+
           return (
             <DropdownMenuItem key={contact.id} asChild>
               {isExternal ? (
@@ -66,11 +82,16 @@ export function HeroContactButton({
                   target="_blank"
                   rel="noopener noreferrer"
                   className="w-full cursor-pointer"
+                  onClick={handleContactClick}
                 >
                   {label}
                 </a>
               ) : (
-                <a href={href} className="w-full cursor-pointer">
+                <a 
+                  href={href} 
+                  className="w-full cursor-pointer"
+                  onClick={handleContactClick}
+                >
                   {label}
                 </a>
               )}

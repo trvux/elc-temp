@@ -4,6 +4,8 @@ import { QueryProvider } from "@/shared/providers/query-provider";
 import { cn } from "@/shared/lib/utils";
 import type { Metadata, Viewport } from "next";
 import { Inter, Newsreader } from "next/font/google";
+import { Suspense } from "react";
+import GoogleAnalytics from "@/shared/components/analytics/GoogleAnalytics";
 import "./globals.css";
 
 const inter = Inter({
@@ -63,6 +65,9 @@ export default function RootLayout({
       >
         <QueryProvider>
           <TooltipProvider>
+            <Suspense fallback={null}>
+              <GoogleAnalytics />
+            </Suspense>
             {children}
             <Toaster position="top-center" richColors />
           </TooltipProvider>

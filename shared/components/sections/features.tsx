@@ -106,7 +106,6 @@ export function FeaturesSection({ products }: FeaturesSectionProps) {
       <AnimateIn>
         <TypographyH1 className="mb-10 text-center">{title}</TypographyH1>
       </AnimateIn>
-
       {isShowingProducts ? (
         <>
           <AnimateIn delay={0.2} className="md:hidden">

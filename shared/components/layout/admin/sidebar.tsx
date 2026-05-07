@@ -26,6 +26,7 @@ import {
 } from "@/shared/components/ui/sidebar";
 import {
   LayoutDashboard,
+  BarChart3,
   FolderKanban,
   Package,
   Phone,
@@ -41,6 +42,7 @@ import {
 
 const navItems = [
   { href: "/admin", label: "Tổng quan", icon: LayoutDashboard },
+  { href: "/admin/analytics", label: "Phân tích (GA4)", icon: BarChart3 },
   { href: "/admin/categories", label: "Danh mục", icon: Tag },
   { href: "/admin/brands", label: "Thương hiệu", icon: Award },
   { href: "/admin/projects", label: "Dự án", icon: FolderKanban },

@@ -3,6 +3,7 @@
 import { Search, X } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
+import { trackEvent } from "@/shared/lib/tracking";
 
 import {
   InputGroup,
@@ -33,12 +34,19 @@ export function ProductSearchInput() {
       const params = new URLSearchParams(searchParamsRef.current.toString());
       if (inputValue.trim()) {
         params.set("q", inputValue.trim());
+        // Tracking: Ghi lại từ khóa tìm kiếm
+        trackEvent({
+          action: "search",
+          category: "engagement",
+          label: inputValue.trim(),
+          metadata: { query: inputValue.trim() }
+        });
       } else {
         params.delete("q");
       }
       params.delete("page");
       router.push(`?${params.toString()}`, { scroll: false });
-    }, 350);
+    }, 500); // Tăng delay lên 500ms để tránh bắn quá nhiều event khi đang gõ
     return () => clearTimeout(timer);
   }, [inputValue, router]);
 
