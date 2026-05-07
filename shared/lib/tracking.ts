@@ -18,8 +18,19 @@ export const trackEvent = async ({
   metadata = {},
   isConversion = false,
 }: TrackEventProps) => {
-  // 0. Bỏ qua nếu là nhân viên nội bộ (đã từng vào trang admin)
-  if (typeof window !== "undefined" && localStorage.getItem("elc_internal_user") === "true") {
+  if (typeof window === "undefined") return;
+
+  // 0. Bỏ qua nếu là nhân viên nội bộ
+  const isInternalFlag = localStorage.getItem("elc_internal_user") === "true";
+  
+  // Kiểm tra thêm session (nếu đang đăng nhập admin thì chắc chắn là nội bộ)
+  const supabase = createClient();
+  const { data: { session } } = await supabase.auth.getSession();
+  
+  if (isInternalFlag || session) {
+    if (session && !isInternalFlag) {
+      localStorage.setItem("elc_internal_user", "true");
+    }
     return;
   }
 
@@ -72,10 +83,17 @@ export const trackEvent = async ({
   }
 };
 
-export const trackPageView = (url: string) => {
+export const trackPageView = async (url: string) => {
+  if (typeof window === "undefined") return;
+
+  const isInternalFlag = localStorage.getItem("elc_internal_user") === "true";
+  const supabase = createClient();
+  const { data: { session } } = await supabase.auth.getSession();
+
+  if (isInternalFlag || session) return;
+
   gtag.pageview(url);
   // Có thể lưu page_view vào DB nếu muốn báo cáo chi tiết luồng khách đi
-  const supabase = createClient();
   (supabase as any).from("tracking_events").insert({
     event_name: "page_view",
     event_category: "navigation",
