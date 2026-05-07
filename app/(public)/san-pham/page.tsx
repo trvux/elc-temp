@@ -13,7 +13,7 @@ import { Badge } from "@/shared/components/ui/badge";
 import { Card } from "@/shared/components/ui/card";
 import {
   TypographyH1,
-  TypographyH2,
+  TypographyH4,
   TypographySmall,
 } from "@/shared/components/ui/typography";
 import { cn, formatPrice } from "@/shared/lib/utils";
@@ -44,9 +44,9 @@ const STYLES = {
     "w-full h-full flex items-center justify-center text-muted-foreground/30 text-xs tracking-widest",
   ),
   infoWrapper: cn("mt-4 flex flex-col gap-1.5"),
-  productName: cn(
-    "text-sm font-bold text-foreground leading-snug line-clamp-2 group-hover:underline underline-offset-4",
-  ),
+  // productName: cn(
+  //   "text-sm font-bold text-foreground leading-snug line-clamp-2 group-hover:underline underline-offset-4",
+  // ),
   sku: cn("text-xs text-muted-foreground tracking-wider"),
   priceWrapper: cn("mt-1 flex flex-col gap-0.5"),
   salePrice: cn("text-base md:text-lg font-bold tracking-tight"),
@@ -283,12 +283,12 @@ export default async function ProductsHub({
 
                         {/* Info */}
                         <div className={cn(STYLES.infoWrapper, "p-4")}>
-                          <TypographyH2 className={STYLES.productName}>
+                          <TypographyH4>
                             <HighlightedText
                               text={product.name}
                               queryTokens={queryTokens}
                             />
-                          </TypographyH2>
+                          </TypographyH4>
                           {product.sku && (
                             <span className={STYLES.sku}>
                               <HighlightedText

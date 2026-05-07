@@ -1,7 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { createClient } from "@/shared/lib/supabase/client";
+import { Badge } from "@/shared/components/ui/badge";
 import {
   Card,
   CardContent,
@@ -10,6 +9,13 @@ import {
   CardTitle,
 } from "@/shared/components/ui/card";
 import {
+  EmailIcon,
+  FacebookIcon,
+  MessengerIcon,
+  PhoneIcon,
+  ZaloIcon,
+} from "@/shared/components/ui/social-icons";
+import {
   Table,
   TableBody,
   TableCell,
@@ -17,23 +23,11 @@ import {
   TableHeader,
   TableRow,
 } from "@/shared/components/ui/table";
-import { Badge } from "@/shared/components/ui/badge";
+import { createClient } from "@/shared/lib/supabase/client";
 import { format } from "date-fns";
 import { vi } from "date-fns/locale";
-import { 
-  MousePointerClick, 
-  Eye, 
-  BarChart3, 
-  Zap,
-  Search,
-} from "lucide-react";
-import {
-  EmailIcon,
-  FacebookIcon,
-  MessengerIcon,
-  PhoneIcon,
-  ZaloIcon,
-} from "@/shared/components/ui/social-icons";
+import { BarChart3, Eye, MousePointerClick, Search, Zap } from "lucide-react";
+import { useEffect, useState } from "react";
 
 interface TrackingEvent {
   id: string;
@@ -87,7 +81,7 @@ export default function AnalyticsPage() {
           const newEvent = payload.new as TrackingEvent;
           setEvents((prev) => [newEvent, ...prev].slice(0, 50));
           updateStatsOnNewEvent(newEvent);
-        }
+        },
       )
       .subscribe();
 
@@ -97,17 +91,27 @@ export default function AnalyticsPage() {
   }, []);
 
   const calculateStats = (data: TrackingEvent[]) => {
-    const totalClicks = data.filter(e => e.event_name.includes("click")).length;
-    const conversions = data.filter(e => e.event_category === "conversion").length;
-    const pageViews = data.filter(e => e.event_name === "page_view").length;
+    const totalClicks = data.filter((e) =>
+      e.event_name.includes("click"),
+    ).length;
+    const conversions = data.filter(
+      (e) => e.event_category === "conversion",
+    ).length;
+    const pageViews = data.filter((e) => e.event_name === "page_view").length;
     setStats({ totalClicks, conversions, pageViews });
   };
 
   const updateStatsOnNewEvent = (event: TrackingEvent) => {
-    setStats(prev => ({
-      totalClicks: event.event_name.includes("click") ? prev.totalClicks + 1 : prev.totalClicks,
-      conversions: event.event_category === "conversion" ? prev.conversions + 1 : prev.conversions,
-      pageViews: event.event_name === "page_view" ? prev.pageViews + 1 : prev.pageViews,
+    setStats((prev) => ({
+      totalClicks: event.event_name.includes("click")
+        ? prev.totalClicks + 1
+        : prev.totalClicks,
+      conversions:
+        event.event_category === "conversion"
+          ? prev.conversions + 1
+          : prev.conversions,
+      pageViews:
+        event.event_name === "page_view" ? prev.pageViews + 1 : prev.pageViews,
     }));
   };
 
@@ -127,7 +131,7 @@ export default function AnalyticsPage() {
       .reduce((acc: Record<string, number>, curr) => {
         acc[curr.page_path] = (acc[curr.page_path] || 0) + 1;
         return acc;
-      }, {})
+      }, {}),
   )
     .sort((a, b) => b[1] - a[1])
     .slice(0, 5);
@@ -139,20 +143,23 @@ export default function AnalyticsPage() {
         const query = curr.metadata?.query || curr.event_label;
         if (query) acc[query] = (acc[query] || 0) + 1;
         return acc;
-      }, {})
+      }, {}),
   )
     .sort((a, b) => b[1] - a[1])
     .slice(0, 5);
 
   // Phân tích điểm rơi: Trang nào có view cao nhưng conversion thấp
   const pagePerformance = Object.entries(
-    events.reduce((acc: Record<string, { views: number; convs: number }>, curr) => {
-      const path = curr.page_path;
-      if (!acc[path]) acc[path] = { views: 0, convs: 0 };
-      if (curr.event_name === "page_view") acc[path].views++;
-      if (curr.event_category === "conversion") acc[path].convs++;
-      return acc;
-    }, {})
+    events.reduce(
+      (acc: Record<string, { views: number; convs: number }>, curr) => {
+        const path = curr.page_path;
+        if (!acc[path]) acc[path] = { views: 0, convs: 0 };
+        if (curr.event_name === "page_view") acc[path].views++;
+        if (curr.event_category === "conversion") acc[path].convs++;
+        return acc;
+      },
+      {},
+    ),
   )
     .map(([path, data]) => ({
       path,
@@ -165,7 +172,9 @@ export default function AnalyticsPage() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold tracking-tight">Phân tích Real-time</h1>
+        <h1 className="text-3xl font-bold tracking-tight">
+          Phân tích Real-time
+        </h1>
         <Badge variant="outline" className="gap-2 px-3 py-1">
           <Zap className="size-3 fill-yellow-400 text-yellow-400" />
           Đang cập nhật trực tiếp
@@ -175,22 +184,32 @@ export default function AnalyticsPage() {
       <div className="grid gap-4 md:grid-cols-3">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Tổng lượt Click</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Tổng lượt Click
+            </CardTitle>
             <MousePointerClick className="size-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{stats.totalClicks}</div>
-            <p className="text-xs text-muted-foreground">Trong 50 hành động gần nhất</p>
+            <p className="text-xs text-muted-foreground">
+              Trong 50 hành động gần nhất
+            </p>
           </CardContent>
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Lượt chuyển đổi</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Lượt chuyển đổi
+            </CardTitle>
             <BarChart3 className="size-4 text-primary" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-primary">{stats.conversions}</div>
-            <p className="text-xs text-muted-foreground">Khách bấm gọi/nhắn tin</p>
+            <div className="text-2xl font-bold text-primary">
+              {stats.conversions}
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Khách bấm gọi/nhắn tin
+            </p>
           </CardContent>
         </Card>
         <Card>
@@ -212,17 +231,25 @@ export default function AnalyticsPage() {
               <Search className="size-4" />
               Top Từ khóa tìm kiếm
             </CardTitle>
-            <CardDescription>Khách hàng đang lùng sục gì trên web?</CardDescription>
+            <CardDescription>Keyword khách tìm</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
               {topSearches.length === 0 ? (
-                <p className="text-sm text-muted-foreground text-center py-4">Chưa có lượt tìm kiếm nào</p>
+                <p className="text-sm text-muted-foreground text-center py-4">
+                  Chưa có lượt tìm kiếm nào
+                </p>
               ) : (
                 topSearches.map(([query, count]) => (
-                  <div key={query} className="flex items-center justify-between border-b pb-2 last:border-0">
+                  <div
+                    key={query}
+                    className="flex items-center justify-between border-b pb-2 last:border-0"
+                  >
                     <span className="text-sm font-medium">{query}</span>
-                    <Badge variant="outline" className="bg-orange-50 text-orange-600 border-orange-200">
+                    <Badge
+                      variant="outline"
+                      className="bg-orange-50 text-orange-600 border-orange-200"
+                    >
                       {count} lần
                     </Badge>
                   </div>
@@ -243,13 +270,22 @@ export default function AnalyticsPage() {
           <CardContent>
             <div className="space-y-4">
               {pagePerformance.length === 0 ? (
-                <p className="text-sm text-muted-foreground text-center py-4">Chưa có dữ liệu</p>
+                <p className="text-sm text-muted-foreground text-center py-4">
+                  Chưa có dữ liệu
+                </p>
               ) : (
                 pagePerformance.map((item) => (
-                  <div key={item.path} className="flex flex-col gap-1 border-b pb-2 last:border-0">
+                  <div
+                    key={item.path}
+                    className="flex flex-col gap-1 border-b pb-2 last:border-0"
+                  >
                     <div className="flex items-center justify-between">
-                      <span className="text-xs truncate max-w-[200px] font-medium">{item.path}</span>
-                      <span className="text-xs font-bold text-primary">{item.rate.toFixed(1)}% hiệu quả</span>
+                      <span className="text-xs truncate max-w-[200px] font-medium">
+                        {item.path}
+                      </span>
+                      <span className="text-xs font-bold text-primary">
+                        {item.rate.toFixed(1)}% hiệu quả
+                      </span>
                     </div>
                     <div className="flex items-center gap-2 text-[10px] text-muted-foreground">
                       <span>{item.views} view</span>
@@ -286,20 +322,37 @@ export default function AnalyticsPage() {
             <TableBody>
               {events.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={6} className="text-center py-10 text-muted-foreground">
+                  <TableCell
+                    colSpan={6}
+                    className="text-center py-10 text-muted-foreground"
+                  >
                     Đang chờ dữ liệu...
                   </TableCell>
                 </TableRow>
               ) : (
                 events.map((event) => (
-                  <TableRow key={event.id} className="animate-in fade-in slide-in-from-left-2 duration-500">
+                  <TableRow
+                    key={event.id}
+                    className="animate-in fade-in slide-in-from-left-2 duration-500"
+                  >
                     <TableCell className="font-medium">
-                      {format(new Date(event.created_at), "HH:mm:ss", { locale: vi })}
+                      {format(new Date(event.created_at), "HH:mm:ss", {
+                        locale: vi,
+                      })}
                     </TableCell>
                     <TableCell>
                       <div className="flex items-center gap-2">
-                        {event.event_name === "page_view" ? <Eye className="size-4 opacity-50" /> : getEventIcon(event.event_label)}
-                        <span className="capitalize">{event.event_name.replace("_", " ")}</span>
+                        {event.event_name === "page_view" ? (
+                          <Eye className="size-4 opacity-50" />
+                        ) : (
+                          getEventIcon(event.event_label)
+                        )}
+                        <span className="capitalize">
+                          {event.event_name === "page_view" ? "Xem trang" : 
+                           event.event_name === "search" ? "Tìm kiếm" :
+                           event.event_name.includes("click") ? "Click liên hệ" :
+                           event.event_name.replace("_", " ")}
+                        </span>
                       </div>
                     </TableCell>
                     <TableCell className="max-w-[200px] truncate">
@@ -310,16 +363,30 @@ export default function AnalyticsPage() {
                     </TableCell>
                     <TableCell>
                       {event.metadata?.utm_campaign ? (
-                        <Badge variant="outline" className="text-[10px] bg-blue-50 text-blue-600 border-blue-200">
+                        <Badge
+                          variant="outline"
+                          className="text-[10px] bg-blue-50 text-blue-600 border-blue-200"
+                        >
                           {event.metadata.utm_campaign}
                         </Badge>
                       ) : (
-                        <span className="text-muted-foreground text-xs italic">Tự nhiên</span>
+                        <span className="text-muted-foreground text-xs italic">
+                          Tự nhiên
+                        </span>
                       )}
                     </TableCell>
                     <TableCell>
-                      <Badge variant={event.event_category === "conversion" ? "default" : "secondary"}>
-                        {event.event_category}
+                      <Badge
+                        variant={
+                          event.event_category === "conversion"
+                            ? "default"
+                            : "secondary"
+                        }
+                      >
+                        {event.event_category === "conversion" ? "Chuyển đổi" :
+                         event.event_category === "engagement" ? "Tương tác" :
+                         event.event_category === "navigation" ? "Điều hướng" :
+                         event.event_category}
                       </Badge>
                     </TableCell>
                   </TableRow>
