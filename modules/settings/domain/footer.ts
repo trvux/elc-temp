@@ -20,9 +20,9 @@ export function getFooterLogic(
 ) {
   const findContact = (type: string) => contacts.find((c) => c.type === type)?.value;
 
-  const phone = findContact("phone") || settings.company_phone || "0909 411 633";
-  const email = findContact("email") || settings.company_email || "contact@elc.com";
-  const address = settings.company_address || "06 Dương Quảng Hàm, Phường An Nhơn, Gò Vấp, HCM";
+  const phone = findContact("phone") || settings.company_phone || "";
+  const email = findContact("email") || settings.company_email || "";
+  const address = settings.company_address || "";
   
   const cleanPhone = phone.replace(/\s/g, "");
 
@@ -30,7 +30,7 @@ export function getFooterLogic(
     const val = findContact(type) || (settings as any)[`${type}_url`];
     
     if (!val || val === "#") {
-      return type === "zalo" ? `https://zalo.me/${cleanPhone}` : "#";
+      return type === "zalo" && cleanPhone ? `https://zalo.me/${cleanPhone}` : "#";
     }
     
     if (val.startsWith("http")) return val;

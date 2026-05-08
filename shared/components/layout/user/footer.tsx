@@ -1,8 +1,11 @@
+"use client";
 import { cn } from "@/shared/lib/utils";
 import Image from "next/image";
 import Link from "next/link";
 import { PhoneConfirmation } from "./phone-confirmation";
 import { getFooterLogic } from "@/modules/settings/domain/footer";
+import { CONTACT_TYPES } from "@/modules/contact/domain/constants";
+import { trackEvent } from "@/shared/lib/tracking";
 
 interface FooterProps {
   branches?: any[];
@@ -23,8 +26,6 @@ export function Footer({
     phone,
     email,
     address,
-    cleanPhone,
-    getSocialUrl,
     currentYear,
   } = getFooterLogic(contacts, settings as any);
 
@@ -45,7 +46,22 @@ export function Footer({
     bottom:
       "mt-20 pt-8 border-t border-primary-foreground/5 flex flex-col md:flex-row justify-between items-center gap-8",
     socials: "flex items-center gap-6",
-    icon: "h-5 w-5 fill-current hover:text-primary-foreground transition-colors duration-300",
+    icon: "h-5 w-5 fill-current hover:text-primary-foreground transition-colors duration-300 flex items-center justify-center",
+  };
+
+  const getContactHref = (type: string, value: string) => {
+    const clean = value.replace(/\s/g, "");
+    if (value.startsWith("http")) return value;
+    const hrefs: Record<string, string> = {
+      phone: `tel:${clean}`,
+      email: `mailto:${value}`,
+      zalo: `https://zalo.me/${clean}`,
+      messenger: `https://m.me/${value}`,
+      facebook: `https://facebook.com/${value}`,
+      tiktok: `https://tiktok.com/@${value}`,
+      youtube: `https://youtube.com/${value}`,
+    };
+    return hrefs[type] || value;
   };
 
   const NavCol = ({
@@ -129,43 +145,71 @@ export function Footer({
           </NavCol>
 
           <NavCol title="Liên hệ">
-            <Link
-              href={getSocialUrl("zalo")}
-              target="_blank"
-              className={styles.link}
-            >
-              Zalo
-            </Link>
-            <Link
-              href={getSocialUrl("messenger")}
-              target="_blank"
-              className={styles.link}
-            >
-              Messenger
-            </Link>
-            <Link
-              href={getSocialUrl("facebook")}
-              target="_blank"
-              className={styles.link}
-            >
-              Facebook
-            </Link>
-            <PhoneConfirmation phone={cleanPhone}>
-              <button className={styles.link}>Phone: {phone}</button>
-            </PhoneConfirmation>
-            <Link
-              href={`mailto:${email}`}
-              className={cn(styles.link, "truncate")}
-            >
-              Email: {email}
-            </Link>
-            <Link
-              href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`}
-              target="_blank"
-              className={cn(styles.link, "leading-relaxed")}
-            >
-              {address}
-            </Link>
+            {contacts?.map((c) => {
+              const typeInfo = CONTACT_TYPES.find((t) => t.value === c.type);
+              const href = getContactHref(c.type, c.value);
+              const label = c.label || typeInfo?.label || c.type;
+              const isExternal = !["phone", "email"].includes(c.type);
+
+              const handleContactClick = () => {
+                const isConversion = ["phone", "zalo", "messenger", "email", "facebook"].includes(c.type);
+                trackEvent({
+                  action: "footer_contact_click",
+                  category: isConversion ? "conversion" : "engagement",
+                  label: `${c.type}: ${c.value}`,
+                  isConversion,
+                  metadata: { location: "footer_nav", contact_type: c.type }
+                });
+              };
+
+              if (c.type === "phone") {
+                return (
+                  <PhoneConfirmation key={c.id} phone={c.value.replace(/\s/g, "")}>
+                    <button className={styles.link} onClick={handleContactClick}>
+                      {label}: {c.value}
+                    </button>
+                  </PhoneConfirmation>
+                );
+              }
+
+              return (
+                <Link
+                  key={c.id}
+                  href={href}
+                  target={isExternal ? "_blank" : undefined}
+                  className={cn(styles.link, "truncate")}
+                  onClick={handleContactClick}
+                >
+                  {label}: {c.value}
+                </Link>
+              );
+            })}
+
+            {!contacts?.some(c => c.type === "phone") && phone && (
+              <PhoneConfirmation phone={phone.replace(/\s/g, "")}>
+                <button className={styles.link}>Điện thoại: {phone}</button>
+              </PhoneConfirmation>
+            )}
+
+            {!contacts?.some(c => c.type === "email") && email && (
+              <Link href={`mailto:${email}`} className={cn(styles.link, "truncate")}>
+                Email: {email}
+              </Link>
+            )}
+
+            {address && (
+              <Link
+                href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`}
+                target="_blank"
+                className={cn(styles.link, "leading-relaxed")}
+              >
+                {address}
+              </Link>
+            )}
+
+            {!contacts?.length && !address && (
+              <span className={styles.empty}>Đang cập nhật thông tin liên hệ</span>
+            )}
           </NavCol>
         </div>
 
@@ -175,34 +219,31 @@ export function Footer({
             © {currentYear} {settings?.company_name || "ELC"}
           </p>
           <div className={styles.socials}>
-            <Link
-              href={getSocialUrl("facebook")}
-              target="_blank"
-              className={styles.icon}
-              title="Facebook"
-            >
-              <svg className="w-5 h-5" viewBox="0 0 24 24">
-                <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
-              </svg>
-            </Link>
-            <Link
-              href={getSocialUrl("messenger")}
-              target="_blank"
-              className={styles.icon}
-              title="Messenger"
-            >
-              <svg className="w-5 h-5" viewBox="0 0 24 24">
-                <path d="M12 0C5.37 0 0 4.97 0 11.11c0 3.5 1.74 6.62 4.47 8.58.23.17.37.44.37.73v2.39c0 .64.69 1.05 1.25.73l2.67-1.55c.21-.12.45-.18.69-.18.82.11 1.66.18 2.55.18 6.63 0 12-4.97 12-11.11C24 4.97 18.63 0 12 0zm1.25 14.94l-3.21-3.41-6.27 3.41 6.9-7.34 3.21 3.41 6.27-3.41-6.9 7.34z" />
-              </svg>
-            </Link>
-            <Link
-              href={getSocialUrl("zalo")}
-              target="_blank"
-              className="font-bold text-lg hover:text-primary-foreground transition-colors"
-              title="Zalo"
-            >
-              Z
-            </Link>
+            {contacts?.filter(c => ["facebook", "messenger", "zalo", "tiktok", "youtube", "phone", "email"].includes(c.type)).map((c) => {
+              const typeInfo = CONTACT_TYPES.find((t) => t.value === c.type);
+              const Icon = typeInfo?.icon;
+              const href = getContactHref(c.type, c.value);
+
+              return (
+                <Link
+                  key={c.id}
+                  href={href}
+                  target={!["phone", "email"].includes(c.type) ? "_blank" : undefined}
+                  className={styles.icon}
+                  title={typeInfo?.label}
+                  onClick={() => {
+                    trackEvent({
+                      action: "footer_social_click",
+                      category: "engagement",
+                      label: `${c.type}: ${c.value}`,
+                      metadata: { location: "footer_bottom", contact_type: c.type }
+                    });
+                  }}
+                >
+                  {Icon ? <Icon size={20} /> : <span>{c.type[0].toUpperCase()}</span>}
+                </Link>
+              );
+            })}
           </div>
         </div>
       </div>
