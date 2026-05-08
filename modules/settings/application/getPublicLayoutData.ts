@@ -1,10 +1,11 @@
 import { createStaticClient } from "@/shared/lib/supabase/static";
+import { contactRepo } from "@/modules/contact/infrastructure";
 
 export async function getPublicLayoutData() {
   const supabase = createStaticClient();
 
   const [
-    { data: settings },
+    { data: settingsData },
     { data: contacts },
     { data: branches },
     { data: projects },
@@ -12,14 +13,19 @@ export async function getPublicLayoutData() {
     { data: minPriceProd },
     { data: maxPriceProd }
   ] = await Promise.all([
-    supabase.from("settings").select("*").maybeSingle(),
-    supabase.from("contacts").select("*").is("deleted_at", null),
+    supabase.from("site_settings").select("*"),
+    supabase.from("contacts").select("*").order("order_index", { ascending: true }),
     supabase.from("branches").select("*").is("deleted_at", null),
     supabase.from("projects").select("id, title, slug, categories(slug)").eq("is_published", true).is("deleted_at", null).limit(5),
     supabase.from("pages").select("id, title, slug").eq("is_published", true).is("deleted_at", null),
     supabase.from("products").select("price").eq("is_published", true).is("deleted_at", null).gt("price", 0).order("price", { ascending: true }).limit(1).maybeSingle(),
     supabase.from("products").select("price").eq("is_published", true).is("deleted_at", null).gt("price", 0).order("price", { ascending: false }).limit(1).maybeSingle()
   ]);
+
+  const settings: Record<string, string> = {};
+  settingsData?.forEach((item) => {
+    settings[item.key] = item.value || "";
+  });
 
   const formatCurrency = (val: number) => 
     new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(val);
@@ -29,7 +35,7 @@ export async function getPublicLayoutData() {
     : "10.000.000đ - 100.000.000đ";
 
   return {
-    settings: settings || {},
+    settings,
     contacts: contacts || [],
     branches: branches || [],
     projects: projects || [],
