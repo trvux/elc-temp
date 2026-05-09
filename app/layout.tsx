@@ -32,6 +32,10 @@ export const metadata: Metadata = {
   formatDetection: {
     telephone: false,
   },
+  openGraph: {
+    type: "website",
+    siteName: "Điện máy ELC",
+  },
 };
 
 

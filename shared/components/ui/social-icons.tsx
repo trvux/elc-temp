@@ -1,7 +1,7 @@
 import * as React from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { 
-  faFacebook, 
+  faFacebookF, 
   faFacebookMessenger, 
   faTiktok, 
   faYoutube,
@@ -12,6 +12,7 @@ import {
   faEnvelope,
   faGlobe,
   faLink,
+  faMapMarkerAlt,
 } from "@fortawesome/free-solid-svg-icons";
 import type { SVGProps } from "react";
 
@@ -19,7 +20,7 @@ type IconProps = SVGProps<SVGSVGElement> & { size?: number };
 
 export function FacebookIcon({ size = 16, className }: IconProps) {
   return (
-    <FontAwesomeIcon icon={faFacebook} style={{ width: size, height: size }} className={className} />
+    <FontAwesomeIcon icon={faFacebookF} style={{ width: size, height: size }} className={className} />
   );
 }
 
@@ -68,5 +69,11 @@ export function WebsiteIcon({ size = 16, className }: IconProps) {
 export function LinkIcon({ size = 16, className }: IconProps) {
   return (
     <FontAwesomeIcon icon={faLink} style={{ width: size, height: size }} className={className} />
+  );
+}
+
+export function MapIcon({ size = 16, className }: IconProps) {
+  return (
+    <FontAwesomeIcon icon={faMapMarkerAlt} style={{ width: size, height: size }} className={className} />
   );
 }
