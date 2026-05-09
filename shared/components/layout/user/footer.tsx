@@ -1,11 +1,11 @@
 "use client";
+import { CONTACT_TYPES } from "@/modules/contact/domain/constants";
+import { EmailIcon, MapIcon, PhoneIcon } from "@/shared/components/ui/social-icons";
+import { getFooterLogic } from "@/modules/settings/domain/footer";
+import { trackEvent } from "@/shared/lib/tracking";
 import { cn } from "@/shared/lib/utils";
-import Image from "next/image";
 import Link from "next/link";
 import { PhoneConfirmation } from "./phone-confirmation";
-import { getFooterLogic } from "@/modules/settings/domain/footer";
-import { CONTACT_TYPES } from "@/modules/contact/domain/constants";
-import { trackEvent } from "@/shared/lib/tracking";
 
 interface FooterProps {
   branches?: any[];
@@ -22,12 +22,10 @@ export function Footer({
   settings,
   contacts,
 }: FooterProps) {
-  const {
-    phone,
-    email,
-    address,
-    currentYear,
-  } = getFooterLogic(contacts, settings as any);
+  const { phone, email, address, currentYear } = getFooterLogic(
+    contacts,
+    settings as any,
+  );
 
   // --- STYLES ---
   const styles = {
@@ -91,7 +89,6 @@ export function Footer({
               alt="Điện máy ELC"
               className="h-12 w-auto brightness-0 invert"
             />
-
           </Link>
           {settings?.company_short_desc && (
             <p className={styles.logoDesc}>{settings.company_short_desc}</p>
@@ -152,21 +149,41 @@ export function Footer({
               const isExternal = !["phone", "email"].includes(c.type);
 
               const handleContactClick = () => {
-                const isConversion = ["phone", "zalo", "messenger", "email", "facebook"].includes(c.type);
+                const isConversion = [
+                  "phone",
+                  "zalo",
+                  "messenger",
+                  "email",
+                  "facebook",
+                ].includes(c.type);
                 trackEvent({
                   action: "footer_contact_click",
                   category: isConversion ? "conversion" : "engagement",
                   label: `${c.type}: ${c.value}`,
                   isConversion,
-                  metadata: { location: "footer_nav", contact_type: c.type }
+                  metadata: { location: "footer_nav", contact_type: c.type },
                 });
               };
 
+              const Icon = typeInfo?.icon;
+              const content = (
+                <div className="flex items-center gap-2.5">
+                  {Icon && <Icon size={14} className="shrink-0 opacity-70" />}
+                  <span className="truncate">{c.value}</span>
+                </div>
+              );
+
               if (c.type === "phone") {
                 return (
-                  <PhoneConfirmation key={c.id} phone={c.value.replace(/\s/g, "")}>
-                    <button className={styles.link} onClick={handleContactClick}>
-                      {label}: {c.value}
+                  <PhoneConfirmation
+                    key={c.id}
+                    phone={c.value.replace(/\s/g, "")}
+                  >
+                    <button
+                      className={styles.link}
+                      onClick={handleContactClick}
+                    >
+                      {content}
                     </button>
                   </PhoneConfirmation>
                 );
@@ -180,20 +197,31 @@ export function Footer({
                   className={cn(styles.link, "truncate")}
                   onClick={handleContactClick}
                 >
-                  {label}: {c.value}
+                  {content}
                 </Link>
               );
             })}
 
-            {!contacts?.some(c => c.type === "phone") && phone && (
+            {!contacts?.some((c) => c.type === "phone") && phone && (
               <PhoneConfirmation phone={phone.replace(/\s/g, "")}>
-                <button className={styles.link}>Điện thoại: {phone}</button>
+                <button className={styles.link}>
+                  <div className="flex items-center gap-2.5">
+                    <PhoneIcon size={14} className="shrink-0 opacity-70" />
+                    <span>{phone}</span>
+                  </div>
+                </button>
               </PhoneConfirmation>
             )}
 
-            {!contacts?.some(c => c.type === "email") && email && (
-              <Link href={`mailto:${email}`} className={cn(styles.link, "truncate")}>
-                Email: {email}
+            {!contacts?.some((c) => c.type === "email") && email && (
+              <Link
+                href={`mailto:${email}`}
+                className={cn(styles.link, "truncate")}
+              >
+                <div className="flex items-center gap-2.5">
+                  <EmailIcon size={14} className="shrink-0 opacity-70" />
+                  <span className="truncate">{email}</span>
+                </div>
               </Link>
             )}
 
@@ -203,12 +231,17 @@ export function Footer({
                 target="_blank"
                 className={cn(styles.link, "leading-relaxed")}
               >
-                {address}
+                <div className="flex items-start gap-2.5 pt-1">
+                  <MapIcon size={14} className="shrink-0 opacity-70 mt-1" />
+                  <span>{address}</span>
+                </div>
               </Link>
             )}
 
             {!contacts?.length && !address && (
-              <span className={styles.empty}>Đang cập nhật thông tin liên hệ</span>
+              <span className={styles.empty}>
+                Đang cập nhật thông tin liên hệ
+              </span>
             )}
           </NavCol>
         </div>
@@ -219,31 +252,54 @@ export function Footer({
             © {currentYear} {settings?.company_name || "ELC"}
           </p>
           <div className={styles.socials}>
-            {contacts?.filter(c => ["facebook", "messenger", "zalo", "tiktok", "youtube", "phone", "email"].includes(c.type)).map((c) => {
-              const typeInfo = CONTACT_TYPES.find((t) => t.value === c.type);
-              const Icon = typeInfo?.icon;
-              const href = getContactHref(c.type, c.value);
+            {contacts
+              ?.filter((c) =>
+                [
+                  "facebook",
+                  "messenger",
+                  "zalo",
+                  "tiktok",
+                  "youtube",
+                  "phone",
+                  "email",
+                ].includes(c.type),
+              )
+              .map((c) => {
+                const typeInfo = CONTACT_TYPES.find((t) => t.value === c.type);
+                const Icon = typeInfo?.icon;
+                const href = getContactHref(c.type, c.value);
 
-              return (
-                <Link
-                  key={c.id}
-                  href={href}
-                  target={!["phone", "email"].includes(c.type) ? "_blank" : undefined}
-                  className={styles.icon}
-                  title={typeInfo?.label}
-                  onClick={() => {
-                    trackEvent({
-                      action: "footer_social_click",
-                      category: "engagement",
-                      label: `${c.type}: ${c.value}`,
-                      metadata: { location: "footer_bottom", contact_type: c.type }
-                    });
-                  }}
-                >
-                  {Icon ? <Icon size={20} /> : <span>{c.type[0].toUpperCase()}</span>}
-                </Link>
-              );
-            })}
+                return (
+                  <Link
+                    key={c.id}
+                    href={href}
+                    target={
+                      !["phone", "email"].includes(c.type)
+                        ? "_blank"
+                        : undefined
+                    }
+                    className={styles.icon}
+                    title={typeInfo?.label}
+                    onClick={() => {
+                      trackEvent({
+                        action: "footer_social_click",
+                        category: "engagement",
+                        label: `${c.type}: ${c.value}`,
+                        metadata: {
+                          location: "footer_bottom",
+                          contact_type: c.type,
+                        },
+                      });
+                    }}
+                  >
+                    {Icon ? (
+                      <Icon size={20} />
+                    ) : (
+                      <span>{c.type[0].toUpperCase()}</span>
+                    )}
+                  </Link>
+                );
+              })}
           </div>
         </div>
       </div>
