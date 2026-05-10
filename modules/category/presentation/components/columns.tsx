@@ -69,10 +69,7 @@ export const getColumns = ({
       const type = row.original.type;
       const level = row.original.level;
       return (
-        <Badge
-          variant={type === "PRODUCT" ? "default" : "secondary"}
-          className={level > 0 ? "opacity-60" : ""}
-        >
+        <Badge variant={level === 0 ? "default" : "secondary"}>
           {type === "PRODUCT" ? "Sản phẩm" : "Dự án"}
         </Badge>
       );
