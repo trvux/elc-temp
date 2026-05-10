@@ -2,7 +2,6 @@
 
 import { AdminDialog } from "@/shared/components/layout/admin/admin-dialog";
 import { DeleteDialog } from "@/shared/components/layout/admin/delete-dialog";
-import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
 import { DataTable } from "@/shared/components/ui/data-table";
 import {
@@ -12,43 +11,41 @@ import {
   FieldLabel,
 } from "@/shared/components/ui/field";
 import { Input } from "@/shared/components/ui/input";
+import { ScrollArea } from "@/shared/components/ui/scroll-area";
 import {
   Select,
   SelectContent,
   SelectGroup,
   SelectItem,
-  SelectLabel,
   SelectSeparator,
   SelectTrigger,
   SelectValue,
 } from "@/shared/components/ui/select";
-import { ScrollArea } from "@/shared/components/ui/scroll-area";
 import { Switch } from "@/shared/components/ui/switch";
 
+import { Category } from "@/modules/category/domain/types";
+import { getCategoriesAction } from "@/modules/category/presentation/actions";
 import { TiptapEditor } from "@/shared/components/ui/tiptap-editor";
 import { convertToWebP } from "@/shared/lib/image";
 import { createClient } from "@/shared/lib/supabase/client";
-import { Category } from "@/modules/category/domain/types";
-import { getCategoriesAction } from "@/modules/category/presentation/actions";
-import { capitalize, cn, extractTitleFromHtml, generateSlug } from "@/shared/lib/utils";
-import { Plus, Upload, X } from "lucide-react";
+import { extractTitleFromHtml, generateSlug } from "@/shared/lib/utils";
+import { ExternalLink, Plus, Upload, X } from "lucide-react";
 import Image from "next/image";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { toast } from "sonner";
-import { 
-  getProjectsAction, 
-  createProjectAction, 
-  updateProjectAction, 
-  deleteProjectAction 
+import { Json, ProjectWithCategory } from "../../domain";
+import {
+  createProjectAction,
+  deleteProjectAction,
+  getProjectsAction,
+  updateProjectAction,
 } from "../actions";
 import { getColumns } from "./ProjectColumns";
-import { ProjectWithCategory, Json } from "../../domain";
 
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { useForm, Controller } from "react-hook-form";
 import { standardSchemaResolver } from "@hookform/resolvers/standard-schema";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { Controller, useForm } from "react-hook-form";
 import { createProjectSchema } from "../../domain";
-import type { z } from "zod";
 
 type ProjectFormValues = {
   title: string;
@@ -64,9 +61,11 @@ type ProjectFormValues = {
 export function ProjectManagement() {
   const queryClient = useQueryClient();
   const supabase = createClient();
-  
+
   // Consolidate modal states
-  const [activeProject, setActiveProject] = useState<ProjectWithCategory | "new" | null>(null);
+  const [activeProject, setActiveProject] = useState<
+    ProjectWithCategory | "new" | null
+  >(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
 
@@ -92,7 +91,9 @@ export function ProjectManagement() {
   const { data: projects = [], isLoading: isProjectsLoading } = useQuery({
     queryKey: ["projects"],
     queryFn: async () => {
-      const { data, error } = await getProjectsAction({ includeDeleted: false });
+      const { data, error } = await getProjectsAction({
+        includeDeleted: false,
+      });
       if (error) throw new Error(error);
       return data;
     },
@@ -120,7 +121,7 @@ export function ProjectManagement() {
             category: {
               ...p.category,
               id: cat.id,
-              name: `${parent.name} > ${cat.name}`,
+              name: `${parent.name} / ${cat.name}`,
               slug: cat.slug,
             },
           } as ProjectWithCategory;
@@ -150,7 +151,9 @@ export function ProjectManagement() {
         toast.error(res.error);
         return;
       }
-      toast.success(activeProject === "new" ? "Đã tạo dự án" : "Đã cập nhật dự án");
+      toast.success(
+        activeProject === "new" ? "Đã tạo dự án" : "Đã cập nhật dự án",
+      );
       setActiveProject(null);
       queryClient.invalidateQueries({ queryKey: ["projects"] });
     },
@@ -170,7 +173,8 @@ export function ProjectManagement() {
   });
 
   const flattenedCategories = useMemo(() => {
-    const result: (Category & { displayName: string; isParent: boolean })[] = [];
+    const result: (Category & { displayName: string; isParent: boolean })[] =
+      [];
     const rootCategories = categories.filter(
       (c) => !c.parentId || !categories.find((p) => p.id === c.parentId),
     );
@@ -193,8 +197,11 @@ export function ProjectManagement() {
 
   const filteredProjects = useMemo(() => {
     return enrichedProjects.filter((p) => {
-      const matchCategory = filterCategoryId === "all" || p.categoryId === filterCategoryId;
-      const matchPublished = filterIsPublished === "all" || (filterIsPublished === "true" ? p.isPublished : !p.isPublished);
+      const matchCategory =
+        filterCategoryId === "all" || p.categoryId === filterCategoryId;
+      const matchPublished =
+        filterIsPublished === "all" ||
+        (filterIsPublished === "true" ? p.isPublished : !p.isPublished);
       return matchCategory && matchPublished;
     });
   }, [enrichedProjects, filterCategoryId, filterIsPublished]);
@@ -337,7 +344,10 @@ export function ProjectManagement() {
         title={activeProject === "new" ? "Thêm dự án" : "Sửa dự án"}
         description="Quản lý chi tiết dự án, hình ảnh và hiển thị."
       >
-        <form onSubmit={form.handleSubmit((v) => saveMutation.mutate(v))} className="space-y-8">
+        <form
+          onSubmit={form.handleSubmit((v) => saveMutation.mutate(v))}
+          className="space-y-8"
+        >
           <FieldGroup>
             <div className="bg-muted/10 p-6 rounded-2xl border border-border/40 transition-colors hover:border-border/60">
               <h3 className="text-xs font-bold capitalize tracking-widest text-muted-foreground/60 mb-6">
@@ -346,16 +356,22 @@ export function ProjectManagement() {
               <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
                 <div className="md:col-span-12 lg:col-span-5">
                   <Field>
-                               <FieldContent>
+                    <FieldContent>
                       <Controller
                         control={form.control}
                         name="categoryId"
                         render={({ field }) => (
-                          <Select value={field.value} onValueChange={field.onChange}>
+                          <Select
+                            value={field.value}
+                            onValueChange={field.onChange}
+                          >
                             <SelectTrigger className="w-full">
                               <SelectValue placeholder="Chọn danh mục" />
                             </SelectTrigger>
-                            <SelectContent position="popper" className="w-[var(--radix-select-trigger-width)] max-h-80">
+                            <SelectContent
+                              position="popper"
+                              className="w-[var(--radix-select-trigger-width)] max-h-80"
+                            >
                               <ScrollArea className="h-full w-full">
                                 {categories
                                   .filter((c) => !c.parentId)
@@ -419,21 +435,18 @@ export function ProjectManagement() {
                     <div className="text-[10px] bg-muted/50 px-2 py-0.5 rounded font-bold capitalize text-muted-foreground/70 shrink-0 select-none">
                       Xem trước URL
                     </div>
-                    <p className="text-xs font-mono text-muted-foreground truncate">
+                    <a
+                      href={`/du-an/${form.watch("slug") || ""}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-xs font-mono text-muted-foreground truncate hover:text-primary hover:underline flex items-center gap-1 transition-colors"
+                    >
                       /du-an/
-                      <span className="text-primary font-medium">
-                        {(() => {
-                          const catId = form.watch("categoryId");
-                          const cat = categories.find(
-                            (c) => c.id === catId,
-                          );
-                          return cat?.slug ? `${cat.slug}/` : "";
-                        })()}
-                      </span>
                       <span className="text-primary font-bold">
                         {form.watch("slug") || "slug-du-an"}
                       </span>
-                    </p>
+                      <ExternalLink size={10} className="ml-1 opacity-50" />
+                    </a>
                   </div>
                 </div>
               </div>
@@ -452,14 +465,16 @@ export function ProjectManagement() {
                         field.onChange(val);
                         const extractedTitle = extractTitleFromHtml(val);
                         form.setValue("title", extractedTitle);
-                        
+
                         // Auto-slug logic
                         let namePart = extractedTitle.toLowerCase();
                         const catId = form.getValues("categoryId");
                         const cat = categories.find((c) => c.id === catId);
                         if (cat) {
                           const catName = cat.name.toLowerCase();
-                          const parentCat = categories.find((c) => c.id === cat.parentId);
+                          const parentCat = categories.find(
+                            (c) => c.id === cat.parentId,
+                          );
                           const parentName = parentCat?.name.toLowerCase();
 
                           if (parentName && namePart.startsWith(parentName)) {
@@ -469,8 +484,11 @@ export function ProjectManagement() {
                             namePart = namePart.replace(catName, "").trim();
                           }
                         }
-                        
-                        if (activeProject === "new" || !form.getValues("slug")) {
+
+                        if (
+                          activeProject === "new" ||
+                          !form.getValues("slug")
+                        ) {
                           form.setValue("slug", generateSlug(namePart));
                         }
                       }}
@@ -619,7 +637,9 @@ export function ProjectManagement() {
                           type="number"
                           className="w-20"
                           {...field}
-                          onChange={(e) => field.onChange(Number(e.target.value))}
+                          onChange={(e) =>
+                            field.onChange(Number(e.target.value))
+                          }
                         />
                       )}
                     />
@@ -627,11 +647,19 @@ export function ProjectManagement() {
                 </Field>
               </div>
               <div className="flex gap-3">
-                <Button variant="outline" type="button" onClick={() => setActiveProject(null)}>
+                <Button
+                  variant="outline"
+                  type="button"
+                  onClick={() => setActiveProject(null)}
+                >
                   Hủy
                 </Button>
                 <Button type="submit" disabled={saveMutation.isLoading}>
-                  {saveMutation.isLoading ? "Đang xử lý..." : (activeProject === "new" ? "Tạo mới" : "Cập nhật")}
+                  {saveMutation.isLoading
+                    ? "Đang xử lý..."
+                    : activeProject === "new"
+                      ? "Tạo mới"
+                      : "Cập nhật"}
                 </Button>
               </div>
             </div>
