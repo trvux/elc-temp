@@ -27,7 +27,7 @@ export default async function AdminLayout({
           avatar: user.user_metadata?.avatar_url ?? "",
         }}
       />
-      <SidebarInset>
+      <SidebarInset className="min-w-0 flex-1">
         <header className="flex h-16 shrink-0 items-center gap-2 border-b px-6">
           <SidebarTrigger className="-ml-1" />
           <Separator
@@ -38,7 +38,7 @@ export default async function AdminLayout({
              <AdminBreadcrumb />
           </div>
         </header>
-        <div className="flex flex-1 flex-col gap-6 p-4 md:p-6">{children}</div>
+        <div className="flex flex-1 flex-col gap-6 p-4 md:p-6 overflow-hidden min-w-0 w-full">{children}</div>
       </SidebarInset>
     </SidebarProvider>
   );
