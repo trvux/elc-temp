@@ -1,12 +1,12 @@
 "use client";
 
-import { ColumnDef } from "@tanstack/react-table";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
 import { ButtonGroup } from "@/shared/components/ui/button-group";
-import { Pencil, Trash2, CornerDownRight } from "lucide-react";
+import { ColumnDef } from "@tanstack/react-table";
+import { CornerDownRight, Pencil, Trash2 } from "lucide-react";
 
-import { Category, CategoryType } from "@/modules/category/domain/types";
+import { Category } from "@/modules/category/domain/types";
 
 export type CategoryRow = Category & {
   level: number;
@@ -31,21 +31,10 @@ export const getColumns = ({
           {level > 0 &&
             Array.from({ length: level }).map((_, i) => (
               <div key={i} className="flex items-center pl-4">
-                <CornerDownRight
-                  size={14}
-                  className="text-muted-foreground/20 shrink-0 mr-1.5"
-                />
+                <CornerDownRight size={14} className="shrink-0" />
               </div>
             ))}
-          <span
-            className={
-              level === 0
-                ? "text-sm font-semibold tracking-tight"
-                : "text-sm text-muted-foreground/80"
-            }
-          >
-            {row.original.name}
-          </span>
+          <span>{row.original.name}</span>
         </div>
       );
     },
@@ -55,11 +44,7 @@ export const getColumns = ({
     header: "Slug / Đường dẫn",
     cell: ({ row }) => {
       const slug = row.original.slug;
-      return (
-        <code className="bg-muted px-1.5 py-0.5 rounded text-xs text-muted-foreground font-mono font-medium">
-          {slug || "N/A"}
-        </code>
-      );
+      return <span>{slug || "—"}</span>;
     },
   },
   {
@@ -78,11 +63,7 @@ export const getColumns = ({
   {
     accessorKey: "level",
     header: "Cấp",
-    cell: ({ row }) => (
-      <span className="text-xs text-muted-foreground/60 font-medium">
-        Cấp {row.original.level + 1}
-      </span>
-    ),
+    cell: ({ row }) => <span>Cấp {row.original.level + 1}</span>,
   },
   {
     id: "actions",

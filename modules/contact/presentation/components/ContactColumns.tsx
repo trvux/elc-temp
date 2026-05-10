@@ -20,14 +20,10 @@ export const getContactColumns = ({
     header: "Loại",
     cell: ({ row }) => {
       const type = CONTACT_TYPES.find((t) => t.value === row.original.type);
-      const Icon = type?.icon;
       return (
-        <div className="flex items-center gap-2">
-          {Icon && <Icon size={16} className="text-muted-foreground" />}
-          <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
-            {type?.label || row.original.type}
-          </span>
-        </div>
+        <span>
+          {type?.label || row.original.type}
+        </span>
       );
     },
   },
@@ -35,7 +31,7 @@ export const getContactColumns = ({
     accessorKey: "label",
     header: "Nhãn",
     cell: ({ row }) => (
-      <span className="text-sm font-semibold tracking-tight text-foreground">
+      <span>
         {row.original.label || "-"}
       </span>
     ),
@@ -44,7 +40,7 @@ export const getContactColumns = ({
     accessorKey: "value",
     header: "Giá trị",
     cell: ({ row }) => (
-      <span className="text-sm font-medium text-foreground">
+      <span>
         {row.original.value}
       </span>
     ),
@@ -53,7 +49,7 @@ export const getContactColumns = ({
     accessorKey: "orderIndex",
     header: "Thứ tự",
     cell: ({ row }) => (
-      <span className="text-xs text-muted-foreground font-mono">
+      <span>
         {row.original.orderIndex}
       </span>
     ),

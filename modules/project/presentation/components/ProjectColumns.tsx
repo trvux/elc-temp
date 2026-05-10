@@ -4,7 +4,7 @@ import { ColumnDef } from "@tanstack/react-table";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
 import { ButtonGroup } from "@/shared/components/ui/button-group";
-import { Pencil, Trash2, Star } from "lucide-react";
+import { Pencil, Trash2, Star, Check, X, Minus } from "lucide-react";
 import { AspectRatio } from "@/shared/components/ui/aspect-ratio";
 import Image from "next/image";
 import { ProjectWithCategory } from "../../domain";
@@ -47,11 +47,11 @@ export const getColumns = ({
     accessorKey: "title",
     header: "Tên dự án",
     cell: ({ row }) => (
-      <div className="flex flex-col gap-0.5">
-        <span className="text-sm font-semibold tracking-tight">
+      <div className="flex flex-col">
+        <span>
           {row.original.title}
         </span>
-        <span className="text-[10px] text-muted-foreground font-mono">
+        <span>
           {row.original.slug}
         </span>
       </div>
@@ -61,26 +61,47 @@ export const getColumns = ({
     accessorKey: "category.name",
     header: "Danh mục",
     cell: ({ row }) => (
-      <span className="text-xs text-muted-foreground/80">
+      <span>
         {row.original.category?.name || "—"}
       </span>
+    ),
+  },
+  {
+    accessorKey: "isFeatured",
+    header: "Nổi bật",
+    cell: ({ row }) => (
+      <Badge variant={row.original.isFeatured ? "secondary" : "outline"}>
+        {row.original.isFeatured ? (
+          <>
+            <Star size={12} className="fill-amber-400 text-amber-400" />
+            <span>Nổi bật</span>
+          </>
+        ) : (
+          <>
+            <Minus size={12} />
+            <span>Thường</span>
+          </>
+        )}
+      </Badge>
     ),
   },
   {
     accessorKey: "isPublished",
     header: "Trạng thái",
     cell: ({ row }) => (
-      <div className="flex flex-wrap gap-2">
-        <Badge variant={row.original.isPublished ? "default" : "secondary"}>
-          {row.original.isPublished ? "Hiện" : "Ẩn"}
-        </Badge>
-        {row.original.isFeatured && (
-          <Badge variant="default" className="bg-amber-500 hover:bg-amber-600 gap-1 px-1.5">
-            <Star size={10} fill="currentColor" />
-            Nổi bật
-          </Badge>
+      <Badge variant={row.original.isPublished ? "secondary" : "outline"}>
+        {row.original.isPublished ? (
+          <>
+            <Check size={12} />
+            <span>Hiện</span>
+          </>
+        ) : (
+          <>
+            <X size={12} />
+            <span>Ẩn</span>
+          </>
         )}
-      </div>
+      </Badge>
     ),
   },
   {

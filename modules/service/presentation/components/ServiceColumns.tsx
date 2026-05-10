@@ -4,7 +4,7 @@ import { ColumnDef } from "@tanstack/react-table";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
 import { ButtonGroup } from "@/shared/components/ui/button-group";
-import { Pencil, Trash2, ExternalLink } from "lucide-react";
+import { Pencil, Trash2, ExternalLink, Check, X } from "lucide-react";
 import Image from "next/image";
 import { Service } from "../../domain";
 
@@ -42,10 +42,10 @@ export const getServiceColumns = ({
     header: "Tiêu đề",
     cell: ({ row }) => (
       <div className="flex flex-col">
-        <span className="text-sm font-semibold tracking-tight text-foreground">
+        <span>
           {row.original.title}
         </span>
-        <span className="text-[10px] text-muted-foreground">
+        <span>
           Thứ tự: {row.original.orderIndex}
         </span>
       </div>
@@ -59,10 +59,10 @@ export const getServiceColumns = ({
         href={`/dich-vu/${row.original.slug}`}
         target="_blank"
         rel="noopener noreferrer"
-        className="text-xs text-primary font-medium hover:underline flex items-center gap-1 transition-colors"
+        className="flex items-center gap-1"
       >
         /dich-vu/{row.original.slug}
-        <ExternalLink size={12} className="shrink-0" />
+        <ExternalLink size={12} />
       </a>
     ),
   },
@@ -70,8 +70,18 @@ export const getServiceColumns = ({
     accessorKey: "isPublished",
     header: "Trạng thái",
     cell: ({ row }) => (
-      <Badge variant={row.original.isPublished ? "default" : "secondary"}>
-        {row.original.isPublished ? "Hiển thị" : "Ẩn"}
+      <Badge variant={row.original.isPublished ? "secondary" : "outline"}>
+        {row.original.isPublished ? (
+          <>
+            <Check size={12} />
+            <span>Hiện</span>
+          </>
+        ) : (
+          <>
+            <X size={12} />
+            <span>Ẩn</span>
+          </>
+        )}
       </Badge>
     ),
   },
@@ -79,7 +89,7 @@ export const getServiceColumns = ({
     accessorKey: "createdAt",
     header: "Ngày tạo",
     cell: ({ row }) => (
-      <span className="text-xs text-muted-foreground whitespace-nowrap">
+      <span>
         {new Date(row.original.createdAt).toLocaleDateString("vi-VN")}
       </span>
     ),

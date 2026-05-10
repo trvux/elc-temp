@@ -11,6 +11,7 @@ import {
   getFilteredRowModel,
   FilterFn,
 } from "@tanstack/react-table";
+import { cn } from "@/shared/lib/utils";
 
 
 import { useState, useMemo } from "react";
@@ -62,6 +63,7 @@ interface DataTableProps<TData, TValue> {
   searchKey?: string;
   searchPlaceholder?: string;
   isLoading?: boolean;
+  rowClassName?: (data: TData) => string;
 }
 
 export function DataTable<TData, TValue>({
@@ -70,6 +72,7 @@ export function DataTable<TData, TValue>({
   searchKey,
   searchPlaceholder = "Tìm kiếm...",
   isLoading = false,
+  rowClassName,
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
@@ -146,13 +149,16 @@ export function DataTable<TData, TValue>({
                 table.getRowModel().rows.map((row) => (
                   <tr
                     key={row.id}
-                    className="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted"
+                    className={cn(
+                      "border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted",
+                      rowClassName?.(row.original)
+                    )}
                     data-state={row.getIsSelected() && "selected"}
                   >
                     {row.getVisibleCells().map((cell) => (
                       <td
                         key={cell.id}
-                        className="p-2 align-middle whitespace-nowrap"
+                        className="p-2 align-middle whitespace-normal min-w-[100px]"
                       >
                         {flexRender(
                           cell.column.columnDef.cell,
