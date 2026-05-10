@@ -5,7 +5,6 @@ import {
   flexRender,
   getCoreRowModel,
   useReactTable,
-  getPaginationRowModel,
   SortingState,
   getSortedRowModel,
   ColumnFiltersState,
@@ -13,18 +12,9 @@ import {
   FilterFn,
 } from "@tanstack/react-table";
 
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/shared/components/ui/table";
-import { Button } from "@/shared/components/ui/button";
+
 import { useState, useMemo } from "react";
 import { Input } from "@/shared/components/ui/input";
-import { ScrollArea, ScrollBar } from "@/shared/components/ui/scroll-area";
 
 // Fuzzy filter function for Vietnamese and general text
 const fuzzyFilter: FilterFn<any> = (row, columnId, value, addMeta) => {
@@ -89,7 +79,6 @@ export function DataTable<TData, TValue>({
     data,
     columns,
     getCoreRowModel: getCoreRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
     onSortingChange: setSorting,
     getSortedRowModel: getSortedRowModel(),
     onColumnFiltersChange: setColumnFilters,
@@ -119,87 +108,73 @@ export function DataTable<TData, TValue>({
         </div>
       )}
       <div className="rounded-md border bg-white overflow-hidden">
-        <ScrollArea className="w-full">
-          <Table className="min-w-[1000px]">
-            <TableHeader>
+        <div className="w-full h-[calc(100vh-300px)] min-h-[400px] overflow-auto relative">
+          <table className="w-full min-w-[1000px] caption-bottom text-sm border-separate border-spacing-0">
+            <thead className="[&_tr]:border-b">
               {table.getHeaderGroups().map((headerGroup) => (
-                <TableRow key={headerGroup.id}>
-                  {headerGroup.headers.map((header) => {
-                    return (
-                      <TableHead key={header.id}>
-                        {header.isPlaceholder
-                          ? null
-                          : flexRender(
-                              header.column.columnDef.header,
-                              header.getContext()
-                            )}
-                      </TableHead>
-                    );
-                  })}
-                </TableRow>
+                <tr key={headerGroup.id} className="border-b bg-white">
+                  {headerGroup.headers.map((header) => (
+                    <th
+                      key={header.id}
+                      className="sticky top-0 z-20 bg-white h-10 px-2 text-left align-middle text-sm font-medium whitespace-nowrap text-foreground border-b shadow-[0_1px_0_0_rgba(0,0,0,0.08)]"
+                    >
+                      {header.isPlaceholder
+                        ? null
+                        : flexRender(
+                            header.column.columnDef.header,
+                            header.getContext()
+                          )}
+                    </th>
+                  ))}
+                </tr>
               ))}
-            </TableHeader>
-            <TableBody>
+            </thead>
+            <tbody className="[&_tr:last-child]:border-0">
               {isLoading ? (
-                <TableRow>
-                  <TableCell
+                <tr>
+                  <td
                     colSpan={columns.length}
-                    className="h-24 text-center"
+                    className="h-24 text-center p-2 align-middle"
                   >
                     <div className="flex items-center justify-center gap-2">
                       <div className="w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin" />
                       Đang tải dữ liệu...
                     </div>
-                  </TableCell>
-                </TableRow>
+                  </td>
+                </tr>
               ) : table.getRowModel().rows?.length ? (
                 table.getRowModel().rows.map((row) => (
-                  <TableRow
+                  <tr
                     key={row.id}
+                    className="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted"
                     data-state={row.getIsSelected() && "selected"}
                   >
                     {row.getVisibleCells().map((cell) => (
-                      <TableCell key={cell.id}>
+                      <td
+                        key={cell.id}
+                        className="p-2 align-middle whitespace-nowrap"
+                      >
                         {flexRender(
                           cell.column.columnDef.cell,
                           cell.getContext()
                         )}
-                      </TableCell>
+                      </td>
                     ))}
-                  </TableRow>
+                  </tr>
                 ))
               ) : (
-                <TableRow>
-                  <TableCell
+                <tr>
+                  <td
                     colSpan={columns.length}
-                    className="h-24 text-center"
+                    className="h-24 text-center p-2 align-middle"
                   >
                     Không có dữ liệu.
-                  </TableCell>
-                </TableRow>
+                  </td>
+                </tr>
               )}
-            </TableBody>
-          </Table>
-          <ScrollBar orientation="horizontal" />
-        </ScrollArea>
-      </div>
-      <div className="flex items-center justify-end space-x-2 py-4">
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => table.previousPage()}
-          disabled={!table.getCanPreviousPage()}
-        >
-          Trước
-        </Button>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => table.nextPage()}
-          disabled={!table.getCanNextPage()}
-        >
-          Sau
-        </Button>
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   );
