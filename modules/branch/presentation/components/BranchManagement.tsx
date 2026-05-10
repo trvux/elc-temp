@@ -37,9 +37,9 @@ type BranchFormValues = z.infer<typeof createBranchSchema>;
 
 export function BranchManagement() {
   const queryClient = useQueryClient();
-  const [open, setOpen] = useState(false);
-  const [editing, setEditing] = useState<Branch | null>(null);
-  const [deleteOpen, setDeleteOpen] = useState(false);
+  
+  // Consolidate modal states into single objects
+  const [activeBranch, setActiveBranch] = useState<Branch | "new" | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
   const form = useForm<BranchFormValues>({
@@ -58,7 +58,7 @@ export function BranchManagement() {
     },
   });
 
-  // Fetch branches with React Query
+  // Fetch branches
   const { data: branches = [], isLoading } = useQuery({
     queryKey: ["branches"],
     queryFn: async () => {
@@ -71,10 +71,10 @@ export function BranchManagement() {
   // Create/Update Mutation
   const saveMutation = useMutation({
     mutationFn: async (values: BranchFormValues) => {
-      if (editing) {
+      if (activeBranch && activeBranch !== "new") {
         return updateBranchAction({ 
           ...values, 
-          id: editing.id,
+          id: activeBranch.id,
           description: values.description as Json
         } as UpdateBranchInput);
       }
@@ -88,9 +88,9 @@ export function BranchManagement() {
         toast.error(res.error);
         return;
       }
-      toast.success(editing ? "Đã cập nhật chi nhánh" : "Đã tạo chi nhánh");
-      setOpen(false);
-      queryClient.invalidateQueries(["branches"]);
+      toast.success(activeBranch === "new" ? "Đã tạo chi nhánh" : "Đã cập nhật chi nhánh");
+      setActiveBranch(null);
+      queryClient.invalidateQueries({ queryKey: ["branches"] });
     },
     onError: (error: any) => {
       toast.error(error.message || "Đã có lỗi xảy ra");
@@ -99,17 +99,15 @@ export function BranchManagement() {
 
   // Delete Mutation
   const deleteMutation = useMutation({
-    mutationFn: async (id: string) => {
-      return deleteBranchAction(id);
-    },
+    mutationFn: async (id: string) => deleteBranchAction(id),
     onSuccess: (res) => {
       if (res.error) {
         toast.error(res.error);
         return;
       }
-      toast.success("Đã xóa");
-      setDeleteOpen(false);
-      queryClient.invalidateQueries(["branches"]);
+      toast.success("Đã xóa chi nhánh");
+      setDeletingId(null);
+      queryClient.invalidateQueries({ queryKey: ["branches"] });
     },
     onError: (error: any) => {
       toast.error(error.message || "Đã có lỗi xảy ra");
@@ -119,14 +117,32 @@ export function BranchManagement() {
   const columns = useMemo(
     () =>
       getBranchColumns({
-        onEdit: (b) => openEdit(b),
-        onDelete: openDelete,
+        onEdit: (b) => {
+          setActiveBranch(b);
+          let description = (b.description as string) || "";
+          if (typeof description === "string" && !description.includes("<h1") && b.name) {
+            description = `<h1>${b.name}</h1>${description}`;
+          }
+          form.reset({
+            name: b.name,
+            slug: b.slug,
+            address: b.address || "",
+            phone: b.phone || "",
+            email: b.email || "",
+            mapsUrl: b.mapsUrl || "",
+            mapsEmbed: b.mapsEmbed || "",
+            description,
+            isPublished: b.isPublished,
+            orderIndex: b.orderIndex,
+          });
+        },
+        onDelete: setDeletingId,
       }),
-    [branches],
+    [form],
   );
 
   function openCreate() {
-    setEditing(null);
+    setActiveBranch("new");
     form.reset({
       name: "",
       slug: "",
@@ -139,44 +155,6 @@ export function BranchManagement() {
       isPublished: true,
       orderIndex: 0,
     });
-    setOpen(true);
-  }
-
-  function openEdit(b: Branch) {
-    setEditing(b);
-    
-    let description = (b.description as string) || "";
-    if (typeof description === "string" && !description.includes("<h1") && b.name) {
-      description = `<h1>${b.name}</h1>${description}`;
-    }
-
-    form.reset({
-      name: b.name,
-      slug: b.slug,
-      address: b.address || "",
-      phone: b.phone || "",
-      email: b.email || "",
-      mapsUrl: b.mapsUrl || "",
-      mapsEmbed: b.mapsEmbed || "",
-      description,
-      isPublished: b.isPublished,
-      orderIndex: b.orderIndex,
-    });
-    setOpen(true);
-  }
-
-  const onSave = (values: BranchFormValues) => {
-    saveMutation.mutate(values);
-  };
-
-  function openDelete(id: string) {
-    setDeletingId(id);
-    setDeleteOpen(true);
-  }
-
-  async function handleDelete() {
-    if (!deletingId) return;
-    deleteMutation.mutate(deletingId);
   }
 
   return (
@@ -202,13 +180,13 @@ export function BranchManagement() {
       />
 
       <AdminDialog
-        open={open}
-        onOpenChange={setOpen}
+        open={!!activeBranch}
+        onOpenChange={(open) => !open && setActiveBranch(null)}
         size="full"
-        title={editing ? "Sửa chi nhánh" : "Thêm chi nhánh"}
+        title={activeBranch === "new" ? "Thêm chi nhánh" : "Sửa chi nhánh"}
         description="Điền thông tin chi nhánh để hiển thị trên website."
       >
-        <form onSubmit={form.handleSubmit(onSave)} className="space-y-8">
+        <form onSubmit={form.handleSubmit((v) => saveMutation.mutate(v))} className="space-y-8">
           <FieldGroup>
             <div className="grid grid-cols-2 gap-6">
               <Field className="col-span-2">
@@ -436,11 +414,11 @@ export function BranchManagement() {
                 </Field>
               </div>
               <div className="flex gap-3">
-                <Button variant="outline" type="button" onClick={() => setOpen(false)}>
+                <Button variant="outline" type="button" onClick={() => setActiveBranch(null)}>
                   Hủy
                 </Button>
                 <Button type="submit" disabled={saveMutation.isLoading}>
-                  {saveMutation.isLoading ? "Đang xử lý..." : (editing ? "Cập nhật" : "Tạo mới")}
+                  {saveMutation.isLoading ? "Đang xử lý..." : (activeBranch === "new" ? "Tạo mới" : "Cập nhật")}
                 </Button>
               </div>
             </div>
@@ -449,9 +427,9 @@ export function BranchManagement() {
       </AdminDialog>
 
       <DeleteDialog
-        open={deleteOpen}
-        onOpenChange={setDeleteOpen}
-        onConfirm={handleDelete}
+        open={!!deletingId}
+        onOpenChange={(open) => !open && setDeletingId(null)}
+        onConfirm={() => deletingId && deleteMutation.mutate(deletingId)}
         isLoading={deleteMutation.isLoading}
       />
     </div>

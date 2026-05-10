@@ -1,6 +1,10 @@
 "use client";
 
-import { AnimateIn } from "@/shared/components/ui/animate-in";
+import {
+  AnimateIn,
+  StaggerContainer,
+  StaggerItem,
+} from "@/shared/components/ui/animate-in";
 import { Button } from "@/shared/components/ui/button";
 import {
   Drawer,
@@ -97,59 +101,69 @@ export function CTASection({ settings, contacts }: CTASectionProps) {
   return (
     <section>
 
-      <AnimateIn className="flex flex-col items-center text-center max-w-3xl mx-auto gap-12">
+      <StaggerContainer className="flex flex-col items-center text-center max-w-3xl mx-auto gap-10 md:gap-12">
         <div className="space-y-4">
-          <TypographyH1>{title}</TypographyH1>
-          <TypographyP className="text-muted-foreground">
-            {description}
-          </TypographyP>
+          <StaggerItem>
+            <TypographyH1>{title}</TypographyH1>
+          </StaggerItem>
+          <StaggerItem>
+            <TypographyP className="text-muted-foreground">
+              {description}
+            </TypographyP>
+          </StaggerItem>
         </div>
 
-        <div>
-          {isMobile ? (
-            <Drawer>
-              <DrawerTrigger asChild>
-                <Button size="lg" className="px-16">
-                  {settings?.cta_primary_btn_text || "Liên hệ ngay"}
-                </Button>
-              </DrawerTrigger>
-              <DrawerContent className="p-4">
-                <DrawerHeader className="text-left px-2">
-                  <DrawerTitle>Kênh liên hệ hỗ trợ</DrawerTitle>
-                  <DrawerDescription>
-                    Vui lòng chọn kênh để chúng tôi hỗ trợ tốt nhất.
-                  </DrawerDescription>
-                </DrawerHeader>
-                <ContactList isDrawer />
-              </DrawerContent>
-            </Drawer>
-          ) : (
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button size="lg" className="px-16">
-                  {settings?.cta_primary_btn_text || "Liên hệ ngay"}
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="center">
-                <DropdownMenuLabel>Kênh liên hệ</DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <ContactList />
-              </DropdownMenuContent>
-            </DropdownMenu>
-          )}
-        </div>
+        <StaggerItem>
+          <div>
+            {isMobile ? (
+              <Drawer>
+                <DrawerTrigger asChild>
+                  <Button size="lg" className="px-16">
+                    {settings?.cta_primary_btn_text || "Liên hệ ngay"}
+                  </Button>
+                </DrawerTrigger>
+                <DrawerContent className="p-4">
+                  <DrawerHeader className="text-left px-2">
+                    <DrawerTitle>Kênh liên hệ hỗ trợ</DrawerTitle>
+                    <DrawerDescription>
+                      Vui lòng chọn kênh để chúng tôi hỗ trợ tốt nhất.
+                    </DrawerDescription>
+                  </DrawerHeader>
+                  <ContactList isDrawer />
+                </DrawerContent>
+              </Drawer>
+            ) : (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button size="lg" className="px-16">
+                    {settings?.cta_primary_btn_text || "Liên hệ ngay"}
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="center">
+                  <DropdownMenuLabel>Kênh liên hệ</DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <ContactList />
+                </DropdownMenuContent>
+              </DropdownMenu>
+            )}
+          </div>
+        </StaggerItem>
 
-        <Separator className="max-w-xs opacity-50" />
+        <StaggerItem className="w-full flex justify-center">
+          <Separator className="max-w-xs opacity-50" />
+        </StaggerItem>
 
-        <div className="flex flex-col items-center gap-3">
-          <TypographyMuted>Hoặc kết nối trực tiếp qua email</TypographyMuted>
-          <Link href={`mailto:${email}`}>
-            <TypographyLarge className="font-newsreader italic text-2xl">
-              {email}
-            </TypographyLarge>
-          </Link>
-        </div>
-      </AnimateIn>
+        <StaggerItem>
+          <div className="flex flex-col items-center gap-3">
+            <TypographyMuted>Hoặc kết nối trực tiếp qua email</TypographyMuted>
+            <Link href={`mailto:${email}`}>
+              <TypographyLarge className="font-newsreader italic text-2xl">
+                {email}
+              </TypographyLarge>
+            </Link>
+          </div>
+        </StaggerItem>
+      </StaggerContainer>
     </section>
   );
 }

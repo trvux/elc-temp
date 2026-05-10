@@ -1,14 +1,14 @@
 "use client";
 
-import { LazyMotion, domAnimation, m, type Variants } from "framer-motion";
+import { m, type Variants } from "framer-motion";
 import type { ReactNode } from "react";
 
 const fadeUp: Variants = {
-  hidden: { opacity: 0, y: 60 },
+  hidden: { opacity: 0, y: 10 },
   visible: {
     opacity: 1,
     y: 0,
-    transition: { duration: 0.9, ease: [0.16, 1, 0.3, 1] },
+    transition: { duration: 1.2, ease: [0.16, 1, 0.3, 1] },
   },
 };
 
@@ -16,13 +16,13 @@ const fadeIn: Variants = {
   hidden: { opacity: 0 },
   visible: {
     opacity: 1,
-    transition: { duration: 0.8, ease: "easeOut" },
+    transition: { duration: 1.0, ease: "easeOut" },
   },
 };
 
 const stagger: Variants = {
   hidden: {},
-  visible: { transition: { staggerChildren: 0.15, delayChildren: 0.05 } },
+  visible: { transition: { staggerChildren: 0.12, delayChildren: 0.02 } },
 };
 
 interface AnimateInProps {
@@ -31,6 +31,7 @@ interface AnimateInProps {
   variant?: "fadeUp" | "fadeIn";
   delay?: number;
   as?: "div" | "section" | "li";
+  immediate?: boolean;
 }
 
 export function AnimateIn({
@@ -39,6 +40,7 @@ export function AnimateIn({
   variant = "fadeUp",
   delay = 0,
   as = "div",
+  immediate = false,
 }: AnimateInProps) {
   const base = variant === "fadeIn" ? fadeIn : fadeUp;
   const variants: Variants = {
@@ -55,39 +57,39 @@ export function AnimateIn({
   const Tag = m[as];
 
   return (
-    <LazyMotion features={domAnimation} strict>
-      <Tag
-        className={className}
-        initial="hidden"
-        whileInView="visible"
-        viewport={{ once: true, margin: "0px 0px -30% 0px" }} // Chỉ tính margin ở đáy (bottom)
-        variants={variants}
-      >
-        {children}
-      </Tag>
-    </LazyMotion>
+    <Tag
+      className={className}
+      initial="hidden"
+      animate={immediate ? "visible" : undefined}
+      whileInView={immediate ? undefined : "visible"}
+      viewport={{ once: true, margin: "0px 0px -10% 0px", amount: 0.1 }}
+      variants={variants}
+    >
+      {children}
+    </Tag>
   );
 }
 
 export function StaggerContainer({
   children,
   className,
+  immediate = false,
 }: {
   children: ReactNode;
   className?: string;
+  immediate?: boolean;
 }) {
   return (
-    <LazyMotion features={domAnimation} strict>
-      <m.div
-        className={className}
-        initial="hidden"
-        whileInView="visible"
-        viewport={{ once: true, margin: "0px 0px -30% 0px" }}
-        variants={stagger}
-      >
-        {children}
-      </m.div>
-    </LazyMotion>
+    <m.div
+      className={className}
+      initial="hidden"
+      animate={immediate ? "visible" : undefined}
+      whileInView={immediate ? undefined : "visible"}
+      viewport={{ once: true, margin: "0px 0px -10% 0px", amount: 0.3 }}
+      variants={stagger}
+    >
+      {children}
+    </m.div>
   );
 }
 

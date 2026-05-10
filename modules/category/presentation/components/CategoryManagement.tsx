@@ -1,7 +1,6 @@
 "use client";
 
-import { useEffect, useState, useMemo } from "react";
-import { Category, CategoryType } from "@/modules/category/domain/types";
+import { useState, useMemo } from "react";
 import { 
   getCategoriesAction, 
   createCategoryAction, 
@@ -32,38 +31,77 @@ import { Plus, CornerDownRight } from "lucide-react";
 import { toast } from "sonner";
 import { capitalize } from "@/shared/lib/utils";
 
-// Local type removed, using domain Category from modules/category
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useForm, Controller } from "react-hook-form";
+import { standardSchemaResolver } from "@hookform/resolvers/standard-schema";
+import { createCategorySchema, type Category, type CategoryType } from "@/modules/category/domain";
+import type { z } from "zod";
+
+type CategoryFormValues = z.infer<typeof createCategorySchema>;
 
 export function CategoryManagement() {
-  const [categories, setCategories] = useState<Category[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [open, setOpen] = useState(false);
-  const [editing, setEditing] = useState<Category | null>(null);
-  const [deleteOpen, setDeleteOpen] = useState(false);
+  const queryClient = useQueryClient();
+  
+  // Consolidate states
+  const [activeCategory, setActiveCategory] = useState<Category | "new" | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
-  const [name, setName] = useState("");
-  const [internalSlug, setInternalSlug] = useState("");
-  const [type, setType] = useState<CategoryType>("PRODUCT");
-  const [parentId, setParentId] = useState<string>("none");
+  const form = useForm<CategoryFormValues>({
+    resolver: standardSchemaResolver(createCategorySchema),
+    defaultValues: {
+      name: "",
+      slug: "",
+      type: "PRODUCT",
+      parentId: null,
+    },
+  });
 
-  async function fetchCategories() {
-    setLoading(true);
-    const { data, error } = await getCategoriesAction();
-    if (error) {
-      toast.error(error);
-    } else {
-      setCategories(data);
-    }
-    setLoading(false);
-  }
+  // Fetch Data
+  const { data: categories = [], isLoading } = useQuery({
+    queryKey: ["categories"],
+    queryFn: async () => {
+      const { data, error } = await getCategoriesAction();
+      if (error) throw new Error(error);
+      return data;
+    },
+  });
 
-  useEffect(() => {
-    fetchCategories();
-  }, []);
+  // Mutations
+  const saveMutation = useMutation({
+    mutationFn: async (values: CategoryFormValues) => {
+      if (activeCategory && activeCategory !== "new") {
+        return updateCategoryAction({
+          id: activeCategory.id,
+          ...values,
+        });
+      }
+      return createCategoryAction(values);
+    },
+    onSuccess: (res) => {
+      if (res.error) {
+        toast.error(res.error);
+        return;
+      }
+      toast.success(activeCategory === "new" ? "Đã tạo danh mục" : "Đã cập nhật danh mục");
+      setActiveCategory(null);
+      queryClient.invalidateQueries({ queryKey: ["categories"] });
+    },
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: deleteCategoryAction,
+    onSuccess: (res) => {
+      if (res.error) {
+        toast.error(res.error);
+        return;
+      }
+      toast.success("Đã xóa danh mục");
+      setDeletingId(null);
+      queryClient.invalidateQueries({ queryKey: ["categories"] });
+    },
+  });
 
   const flattenedData = useMemo(() => {
-    // Tìm các danh mục gốc (không có parentId hoặc parentId không tồn tại trong danh sách hiện tại)
     const rootCategories = categories.filter(
       (c) => !c.parentId || !categories.find((p) => p.id === c.parentId),
     );
@@ -74,21 +112,15 @@ export function CategoryManagement() {
     const processCategory = (cat: Category, level: number) => {
       if (visited.has(cat.id)) return;
       visited.add(cat.id);
-      
       result.push({ ...cat, level });
-      
       const children = categories.filter((c) => c.parentId === cat.id);
-      // Sắp xếp theo tên để hiển thị nhất quán
       children.sort((a, b) => a.name.localeCompare(b.name));
-      
       children.forEach((child) => processCategory(child, level + 1));
     };
 
-    // Sắp xếp các danh mục gốc
     rootCategories.sort((a, b) => a.name.localeCompare(b.name));
     rootCategories.forEach((root) => processCategory(root, 0));
 
-    // Đảm bảo không bỏ sót danh mục nào (phòng trường hợp logic gốc bỏ sót)
     if (result.length < categories.length) {
       categories.forEach(c => {
         if (!visited.has(c.id)) {
@@ -97,19 +129,34 @@ export function CategoryManagement() {
         }
       });
     }
-
     return result;
   }, [categories]);
-
 
   const columns = useMemo(
     () =>
       getColumns({
-        onEdit: (cat) => openEdit(cat as unknown as Category),
-        onDelete: openDelete,
+        onEdit: (cat) => {
+          const c = cat as Category;
+          setActiveCategory(c);
+          const slugParts = c.slug?.split("-") || [""];
+          form.reset({
+            name: c.name,
+            slug: slugParts[slugParts.length - 1],
+            type: c.type,
+            parentId: c.parentId,
+          });
+        },
+        onDelete: (id) => {
+          const hasChildren = categories.some((c) => c.parentId === id);
+          if (hasChildren) {
+            toast.error("Vui lòng xóa các danh mục con trước");
+            return;
+          }
+          setDeletingId(id);
+        },
       }),
-    [categories],
-  ); // Re-memo if needed, though functions are stable enough here
+    [categories, form],
+  );
 
   function generateSlug(text: string): string {
     return text
@@ -122,99 +169,30 @@ export function CategoryManagement() {
       .replace(/\s+/g, "-");
   }
 
+  const parentId = form.watch("parentId");
+  const internalSlug = form.watch("slug");
+  const type = form.watch("type");
+  const name = form.watch("name");
+
   const fullSlug = useMemo(() => {
-    if (parentId === "none") return internalSlug;
+    if (!parentId) return internalSlug;
     const parent = categories.find((c) => c.id === parentId);
     if (!parent) return internalSlug;
-    // Sử dụng dấu gạch ngang (-) để tạo slug kép SEO tốt hơn
     return `${parent.slug}-${internalSlug}`;
   }, [parentId, internalSlug, categories]);
 
-  // Only parents of same type shown as parent options
   function parentOptions(forType: CategoryType) {
     return categories.filter((c) => !c.parentId && c.type === forType);
   }
 
   function openCreate() {
-    setEditing(null);
-    setName("");
-    setInternalSlug("");
-    setType("PRODUCT");
-    setParentId("none");
-    setOpen(true);
-  }
-
-  function openEdit(cat: Category) {
-    setEditing(cat);
-    setName(cat.name);
-    // If it's a child, only show the last part of the slug in the input
-    const slugParts = cat.slug?.split("-") || [""];
-    setInternalSlug(slugParts[slugParts.length - 1]);
-    setType(cat.type);
-    setParentId(cat.parentId ?? "none");
-    setOpen(true);
-  }
-
-  async function handleSave() {
-    if (!name.trim()) return;
-
-    const payload = {
-      name: name.trim(),
-      slug: fullSlug,
-      type,
-      parentId: parentId === "none" ? null : parentId,
-    };
-
-    if (editing) {
-      if (parentId === editing.id) {
-        toast.error("Không thể chọn chính nó làm danh mục cha");
-        return;
-      }
-      
-      const { error } = await updateCategoryAction({
-        id: editing.id,
-        ...payload
-      });
-
-      if (error) {
-        toast.error(error);
-        return;
-      }
-
-      toast.success("Đã cập nhật danh mục");
-    } else {
-      const { error } = await createCategoryAction(payload);
-      if (error) {
-        toast.error(error);
-        return;
-      }
-      toast.success("Đã tạo danh mục");
-    }
-
-    setOpen(false);
-    fetchCategories();
-  }
-
-  function openDelete(id: string) {
-    const hasChildren = categories.some((c) => c.parentId === id);
-    if (hasChildren) {
-      toast.error("Vui lòng xóa các danh mục con trước");
-      return;
-    }
-    setDeletingId(id);
-    setDeleteOpen(true);
-  }
-
-  async function handleDelete() {
-    if (!deletingId) return;
-    const { error } = await deleteCategoryAction(deletingId);
-    if (error) {
-      toast.error(error);
-      return;
-    }
-    toast.success("Đã xóa danh mục");
-    setDeleteOpen(false);
-    fetchCategories();
+    setActiveCategory("new");
+    form.reset({
+      name: "",
+      slug: "",
+      type: "PRODUCT",
+      parentId: null,
+    });
   }
 
   return (
@@ -235,38 +213,44 @@ export function CategoryManagement() {
       <DataTable
         columns={columns}
         data={flattenedData}
+        isLoading={isLoading}
         searchKey="name"
         searchPlaceholder="Tìm kiếm danh mục..."
       />
 
       <AdminDialog
-        open={open}
-        onOpenChange={setOpen}
+        open={!!activeCategory}
+        onOpenChange={(open) => !open && setActiveCategory(null)}
         size="lg"
-        title={editing ? "Sửa danh mục" : "Thêm danh mục"}
+        title={activeCategory === "new" ? "Thêm danh mục" : "Sửa danh mục"}
         description={
-          editing
+          activeCategory !== "new"
             ? "Cập nhật thông tin cho danh mục này."
             : "Điền thông tin bên dưới để tạo danh mục mới."
         }
       >
-        <div className="space-y-6">
+        <form onSubmit={form.handleSubmit((v) => saveMutation.mutate({ ...v, slug: fullSlug }))} className="space-y-6">
           <FieldGroup>
             <Field orientation="horizontal">
               <FieldLabel className="min-w-[140px] pt-2 font-medium">
                 Tên danh mục
               </FieldLabel>
               <FieldContent>
-                <Input
-                  className="w-full"
-                  placeholder="VD: Máy lạnh âm trần"
-                  value={name}
-                  onChange={(e) => {
-                    const val = (e.target as HTMLInputElement).value;
-                    const capitalized = capitalize(val);
-                    setName(capitalized);
-                    setInternalSlug(generateSlug(capitalized));
-                  }}
+                <Controller
+                  control={form.control}
+                  name="name"
+                  render={({ field }) => (
+                    <Input
+                      className="w-full"
+                      placeholder="VD: Máy lạnh âm trần"
+                      {...field}
+                      onChange={(e) => {
+                        const val = capitalize(e.target.value);
+                        field.onChange(val);
+                        form.setValue("slug", generateSlug(val));
+                      }}
+                    />
+                  )}
                 />
               </FieldContent>
             </Field>
@@ -276,13 +260,17 @@ export function CategoryManagement() {
                 Slug / Đường dẫn
               </FieldLabel>
               <FieldContent>
-                <Input
-                  className="w-full font-mono text-sm"
-                  placeholder="may-lanh-am-tran"
-                  value={internalSlug}
-                  onChange={(e) =>
-                    setInternalSlug(generateSlug(e.target.value))
-                  }
+                <Controller
+                  control={form.control}
+                  name="slug"
+                  render={({ field }) => (
+                    <Input
+                      className="w-full font-mono text-sm"
+                      placeholder="may-lanh-am-tran"
+                      {...field}
+                      onChange={(e) => field.onChange(generateSlug(e.target.value))}
+                    />
+                  )}
                 />
                 <FieldDescription className="mt-1.5 text-xs">
                   Đường dẫn đầy đủ:{" "}
@@ -298,21 +286,27 @@ export function CategoryManagement() {
                 Loại
               </FieldLabel>
               <FieldContent>
-                <Select
-                  value={type}
-                  onValueChange={(v) => {
-                    setType(v as CategoryType);
-                    setParentId("none");
-                  }}
-                >
-                  <SelectTrigger className="w-full">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="PRODUCT">Sản phẩm</SelectItem>
-                    <SelectItem value="PROJECT">Dự án</SelectItem>
-                  </SelectContent>
-                </Select>
+                <Controller
+                  control={form.control}
+                  name="type"
+                  render={({ field }) => (
+                    <Select
+                      value={field.value}
+                      onValueChange={(v) => {
+                        field.onChange(v);
+                        form.setValue("parentId", null);
+                      }}
+                    >
+                      <SelectTrigger className="w-full">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="PRODUCT">Sản phẩm</SelectItem>
+                        <SelectItem value="PROJECT">Dự án</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  )}
+                />
               </FieldContent>
             </Field>
 
@@ -321,22 +315,28 @@ export function CategoryManagement() {
                 Danh mục cha
               </FieldLabel>
               <FieldContent>
-                <Select value={parentId} onValueChange={setParentId}>
-                  <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Không có (cấp 1)" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="none">Không có (cấp 1)</SelectItem>
-                    {parentOptions(type)
-                      .filter((p) => p.id !== editing?.id)
-                      .map((p) => (
-                        <SelectItem key={p.id} value={p.id}>
-                          {p.name}
-                        </SelectItem>
-                      ))}
-                  </SelectContent>
-                </Select>
-                {parentId !== "none" && (
+                <Controller
+                  control={form.control}
+                  name="parentId"
+                  render={({ field }) => (
+                    <Select value={field.value || "none"} onValueChange={(v) => field.onChange(v === "none" ? null : v)}>
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Không có (cấp 1)" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="none">Không có (cấp 1)</SelectItem>
+                        {parentOptions(type)
+                          .filter((p) => p.id !== (activeCategory !== "new" ? activeCategory?.id : null))
+                          .map((p) => (
+                            <SelectItem key={p.id} value={p.id}>
+                              {p.name}
+                            </SelectItem>
+                          ))}
+                      </SelectContent>
+                    </Select>
+                  )}
+                />
+                {parentId && (
                   <FieldDescription className="mt-1.5 flex items-center gap-1 text-xs">
                     Đường dẫn:
                     <span className="font-medium text-foreground">
@@ -356,20 +356,21 @@ export function CategoryManagement() {
           </FieldGroup>
 
           <div className="flex justify-end gap-3 pt-4 border-t">
-            <Button variant="outline" onClick={() => setOpen(false)}>
+            <Button variant="outline" type="button" onClick={() => setActiveCategory(null)}>
               Hủy
             </Button>
-            <Button onClick={handleSave} className="min-w-[100px]">
-              {editing ? "Cập nhật" : "Tạo mới"}
+            <Button type="submit" disabled={saveMutation.isLoading}>
+              {saveMutation.isLoading ? "Đang lưu..." : (activeCategory === "new" ? "Tạo mới" : "Cập nhật")}
             </Button>
           </div>
-        </div>
+        </form>
       </AdminDialog>
 
       <DeleteDialog
-        open={deleteOpen}
-        onOpenChange={setDeleteOpen}
-        onConfirm={handleDelete}
+        open={!!deletingId}
+        onOpenChange={(open) => !open && setDeletingId(null)}
+        onConfirm={() => deletingId && deleteMutation.mutate(deletingId)}
+        isLoading={deleteMutation.isLoading}
         title="Xóa danh mục này?"
         description="Lưu ý: Tất cả danh mục con (nếu có) cũng sẽ bị xóa vĩnh viễn khỏi hệ thống."
       />

@@ -1,4 +1,8 @@
-import { AnimateIn } from "@/shared/components/ui/animate-in";
+import {
+  AnimateIn,
+  StaggerContainer,
+  StaggerItem,
+} from "@/shared/components/ui/animate-in";
 import { Badge } from "@/shared/components/ui/badge";
 import {
   TypographyH1,
@@ -94,15 +98,17 @@ export function ShowcaseSection({ projects }: ShowcaseSectionProps) {
 
   return (
     <section>
-      <AnimateIn>
-        <TypographyH1 className="mb-10 text-center">Dự án</TypographyH1>
-      </AnimateIn>
+      <StaggerContainer className="flex flex-col gap-6 md:gap-10">
+        <StaggerItem>
+          <TypographyH1 className="mb-4 md:mb-10 text-center">Dự án</TypographyH1>
+        </StaggerItem>
 
-      <div className="flex flex-col gap-6 md:gap-10">
         {featuredProjects.map((p, idx) => (
-          <ProjectMolecule key={p.id} project={p} priority={idx < 2} />
+          <StaggerItem key={p.id}>
+            <ProjectMolecule project={p} priority={idx < 2} />
+          </StaggerItem>
         ))}
-      </div>
+      </StaggerContainer>
     </section>
   );
 }

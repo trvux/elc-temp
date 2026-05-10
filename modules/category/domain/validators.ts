@@ -1,10 +1,12 @@
 import { z } from "zod";
 import { CATEGORY_TYPES } from "./constants";
 
+import { type CategoryType } from "./types";
+
 // Chuyển keys của CATEGORY_TYPES thành array để dùng cho z.enum
 const categoryTypeKeys = Object.keys(CATEGORY_TYPES) as [
-  string,
-  ...string[],
+  CategoryType,
+  ...CategoryType[],
 ];
 
 export const categorySchema = z.object({
@@ -24,13 +26,13 @@ export const categorySchema = z.object({
   type: z.enum(categoryTypeKeys, {
     message: "Loại danh mục không hợp lệ",
   }),
-  createdAt: z.string().datetime({
+  createdAt: z.iso.datetime({
     message: "Thời gian tạo không đúng định dạng ISO",
   }),
-  updatedAt: z.string().datetime({
+  updatedAt: z.iso.datetime({
     message: "Thời gian cập nhật không đúng định dạng ISO",
   }),
-  deletedAt: z.string()
+  deletedAt: z.iso
     .datetime({
       message: "Thời gian xóa không đúng định dạng ISO",
     })

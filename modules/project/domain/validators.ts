@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { Json } from "./types";
 
 export const projectSchema = z.object({
   id: z.uuid({ message: "ID không đúng định dạng UUID" }),
@@ -13,7 +14,7 @@ export const projectSchema = z.object({
     .regex(/^[a-z0-9-]+$/, {
       message: "Slug chỉ được chứa chữ thường, số và dấu gạch ngang",
     }),
-  description: z.unknown().default({}),
+  description: z.custom<Json>().default({}),
   images: z
     .array(z.string().url({ message: "Đường dẫn ảnh không hợp lệ" }))
     .default([]),

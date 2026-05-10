@@ -36,9 +36,9 @@ type BrandFormValues = z.infer<typeof createBrandSchema>;
 
 export function BrandManagement() {
   const queryClient = useQueryClient();
-  const [open, setOpen] = useState(false);
-  const [editing, setEditing] = useState<Brand | null>(null);
-  const [deleteOpen, setDeleteOpen] = useState(false);
+  
+  // Consolidate modal states
+  const [activeBrand, setActiveBrand] = useState<Brand | "new" | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
 
@@ -65,10 +65,10 @@ export function BrandManagement() {
   // Create/Update Mutation
   const saveMutation = useMutation({
     mutationFn: async (values: BrandFormValues) => {
-      if (editing) {
+      if (activeBrand && activeBrand !== "new") {
         return updateBrandAction({
           ...values,
-          id: editing.id,
+          id: activeBrand.id,
         } as UpdateBrandInput);
       }
       return createBrandAction(values as CreateBrandInput);
@@ -78,8 +78,8 @@ export function BrandManagement() {
         toast.error(res.error);
         return;
       }
-      toast.success(editing ? "Đã cập nhật thương hiệu" : "Đã tạo thương hiệu");
-      setOpen(false);
+      toast.success(activeBrand === "new" ? "Đã tạo thương hiệu" : "Đã cập nhật thương hiệu");
+      setActiveBrand(null);
       queryClient.invalidateQueries({ queryKey: ["brands"] });
     },
     onError: (error: any) => {
@@ -89,16 +89,14 @@ export function BrandManagement() {
 
   // Delete Mutation
   const deleteMutation = useMutation({
-    mutationFn: async (id: string) => {
-      return deleteBrandAction(id);
-    },
+    mutationFn: async (id: string) => deleteBrandAction(id),
     onSuccess: (res) => {
       if (res.error) {
         toast.error(res.error);
         return;
       }
       toast.success("Đã xóa thương hiệu");
-      setDeleteOpen(false);
+      setDeletingId(null);
       queryClient.invalidateQueries({ queryKey: ["brands"] });
     },
     onError: (error: any) => {
@@ -109,46 +107,28 @@ export function BrandManagement() {
   const columns = useMemo(
     () =>
       getBrandColumns({
-        onEdit: (b) => openEdit(b),
-        onDelete: openDelete,
+        onEdit: (b) => {
+          setActiveBrand(b);
+          form.reset({
+            name: b.name,
+            slug: b.slug,
+            logoUrl: b.logoUrl || "",
+            description: b.description || "",
+          });
+        },
+        onDelete: setDeletingId,
       }),
-    []
+    [form]
   );
 
   function openCreate() {
-    setEditing(null);
+    setActiveBrand("new");
     form.reset({
       name: "",
       slug: "",
       logoUrl: "",
       description: "",
     });
-    setOpen(true);
-  }
-
-  function openEdit(b: Brand) {
-    setEditing(b);
-    form.reset({
-      name: b.name,
-      slug: b.slug,
-      logoUrl: b.logoUrl || "",
-      description: b.description || "",
-    });
-    setOpen(true);
-  }
-
-  const onSave = (values: BrandFormValues) => {
-    saveMutation.mutate(values);
-  };
-
-  function openDelete(id: string) {
-    setDeletingId(id);
-    setDeleteOpen(true);
-  }
-
-  async function handleDelete() {
-    if (!deletingId) return;
-    deleteMutation.mutate(deletingId);
   }
 
   const supabase = createClient();
@@ -199,12 +179,12 @@ export function BrandManagement() {
       />
 
       <AdminDialog
-        open={open}
-        onOpenChange={setOpen}
-        title={editing ? "Sửa thương hiệu" : "Thêm thương hiệu"}
+        open={!!activeBrand}
+        onOpenChange={(open) => !open && setActiveBrand(null)}
+        title={activeBrand === "new" ? "Thêm thương hiệu" : "Sửa thương hiệu"}
         description="Nhập thông tin hãng sản xuất."
       >
-        <form onSubmit={form.handleSubmit(onSave)} className="space-y-6">
+        <form onSubmit={form.handleSubmit((v) => saveMutation.mutate(v))} className="space-y-6">
           <FieldGroup>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-6">
@@ -221,7 +201,7 @@ export function BrandManagement() {
                             placeholder="VD: Daikin"
                             onChange={(e) => {
                               field.onChange(e.target.value);
-                              if (!editing) {
+                              if (activeBrand === "new") {
                                 form.setValue("slug", generateSlug(e.target.value));
                               }
                             }}
@@ -314,21 +294,21 @@ export function BrandManagement() {
           </FieldGroup>
 
           <div className="flex justify-end gap-3 mt-8">
-            <Button variant="ghost" type="button" onClick={() => setOpen(false)}>
+            <Button variant="ghost" type="button" onClick={() => setActiveBrand(null)}>
               Hủy
             </Button>
-            <Button type="submit" disabled={saveMutation.isPending}>
-              {saveMutation.isPending ? "Đang lưu..." : "Lưu thông tin"}
+            <Button type="submit" disabled={saveMutation.isLoading}>
+              {saveMutation.isLoading ? "Đang lưu..." : "Lưu thông tin"}
             </Button>
           </div>
         </form>
       </AdminDialog>
 
       <DeleteDialog
-        open={deleteOpen}
-        onOpenChange={setDeleteOpen}
-        onConfirm={handleDelete}
-        isLoading={deleteMutation.isPending}
+        open={!!deletingId}
+        onOpenChange={(open) => !open && setDeletingId(null)}
+        onConfirm={() => deletingId && deleteMutation.mutate(deletingId)}
+        isLoading={deleteMutation.isLoading}
         title="Xóa thương hiệu?"
         description="Hành động này không thể hoàn tác. Thương hiệu sẽ bị xóa vĩnh viễn khỏi hệ thống."
       />
