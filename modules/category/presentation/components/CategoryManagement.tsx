@@ -1,14 +1,15 @@
 "use client";
 
-import { useState, useMemo } from "react";
-import { 
-  getCategoriesAction, 
-  createCategoryAction, 
-  updateCategoryAction, 
-  deleteCategoryAction 
+import {
+  createCategoryAction,
+  deleteCategoryAction,
+  getCategoriesAction,
+  updateCategoryAction,
 } from "@/modules/category/presentation/actions";
+import { AdminDialog } from "@/shared/components/layout/admin/admin-dialog";
+import { DeleteDialog } from "@/shared/components/layout/admin/delete-dialog";
 import { Button } from "@/shared/components/ui/button";
-import { Input } from "@/shared/components/ui/input";
+import { DataTable } from "@/shared/components/ui/data-table";
 import {
   Field,
   FieldContent,
@@ -16,10 +17,7 @@ import {
   FieldGroup,
   FieldLabel,
 } from "@/shared/components/ui/field";
-import { DataTable } from "@/shared/components/ui/data-table";
-import { getColumns, type CategoryRow } from "./columns";
-import { AdminDialog } from "@/shared/components/layout/admin/admin-dialog";
-import { DeleteDialog } from "@/shared/components/layout/admin/delete-dialog";
+import { Input } from "@/shared/components/ui/input";
 import {
   Select,
   SelectContent,
@@ -27,23 +25,31 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/shared/components/ui/select";
-import { Plus, CornerDownRight } from "lucide-react";
-import { toast } from "sonner";
 import { capitalize } from "@/shared/lib/utils";
+import { CornerDownRight, Plus } from "lucide-react";
+import { useMemo, useState } from "react";
+import { toast } from "sonner";
+import { getColumns, type CategoryRow } from "./columns";
 
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { useForm, Controller } from "react-hook-form";
+import {
+  createCategorySchema,
+  type Category,
+  type CategoryType,
+} from "@/modules/category/domain";
 import { standardSchemaResolver } from "@hookform/resolvers/standard-schema";
-import { createCategorySchema, type Category, type CategoryType } from "@/modules/category/domain";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { Controller, useForm } from "react-hook-form";
 import type { z } from "zod";
 
 type CategoryFormValues = z.infer<typeof createCategorySchema>;
 
 export function CategoryManagement() {
   const queryClient = useQueryClient();
-  
+
   // Consolidate states
-  const [activeCategory, setActiveCategory] = useState<Category | "new" | null>(null);
+  const [activeCategory, setActiveCategory] = useState<Category | "new" | null>(
+    null,
+  );
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
   const form = useForm<CategoryFormValues>({
@@ -82,7 +88,9 @@ export function CategoryManagement() {
         toast.error(res.error);
         return;
       }
-      toast.success(activeCategory === "new" ? "Đã tạo danh mục" : "Đã cập nhật danh mục");
+      toast.success(
+        activeCategory === "new" ? "Đã tạo danh mục" : "Đã cập nhật danh mục",
+      );
       setActiveCategory(null);
       queryClient.invalidateQueries({ queryKey: ["categories"] });
     },
@@ -105,7 +113,7 @@ export function CategoryManagement() {
     const rootCategories = categories.filter(
       (c) => !c.parentId || !categories.find((p) => p.id === c.parentId),
     );
-    
+
     const result: CategoryRow[] = [];
     const visited = new Set<string>();
 
@@ -122,7 +130,7 @@ export function CategoryManagement() {
     rootCategories.forEach((root) => processCategory(root, 0));
 
     if (result.length < categories.length) {
-      categories.forEach(c => {
+      categories.forEach((c) => {
         if (!visited.has(c.id)) {
           result.push({ ...c, level: 0 });
           visited.add(c.id);
@@ -216,6 +224,9 @@ export function CategoryManagement() {
         isLoading={isLoading}
         searchKey="name"
         searchPlaceholder="Tìm kiếm danh mục..."
+        rowClassName={(row: CategoryRow) =>
+          row.level === 0 ? "bg-muted-foreground/5" : ""
+        }
       />
 
       <AdminDialog
@@ -229,7 +240,12 @@ export function CategoryManagement() {
             : "Điền thông tin bên dưới để tạo danh mục mới."
         }
       >
-        <form onSubmit={form.handleSubmit((v) => saveMutation.mutate({ ...v, slug: fullSlug }))} className="space-y-6">
+        <form
+          onSubmit={form.handleSubmit((v) =>
+            saveMutation.mutate({ ...v, slug: fullSlug }),
+          )}
+          className="space-y-6"
+        >
           <FieldGroup>
             <Field orientation="horizontal">
               <FieldLabel className="min-w-[140px] pt-2 font-medium">
@@ -268,7 +284,9 @@ export function CategoryManagement() {
                       className="w-full font-mono text-sm"
                       placeholder="may-lanh-am-tran"
                       {...field}
-                      onChange={(e) => field.onChange(generateSlug(e.target.value))}
+                      onChange={(e) =>
+                        field.onChange(generateSlug(e.target.value))
+                      }
                     />
                   )}
                 />
@@ -319,14 +337,25 @@ export function CategoryManagement() {
                   control={form.control}
                   name="parentId"
                   render={({ field }) => (
-                    <Select value={field.value || "none"} onValueChange={(v) => field.onChange(v === "none" ? null : v)}>
+                    <Select
+                      value={field.value || "none"}
+                      onValueChange={(v) =>
+                        field.onChange(v === "none" ? null : v)
+                      }
+                    >
                       <SelectTrigger className="w-full">
                         <SelectValue placeholder="Không có (cấp 1)" />
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="none">Không có (cấp 1)</SelectItem>
                         {parentOptions(type)
-                          .filter((p) => p.id !== (activeCategory !== "new" ? activeCategory?.id : null))
+                          .filter(
+                            (p) =>
+                              p.id !==
+                              (activeCategory !== "new"
+                                ? activeCategory?.id
+                                : null),
+                          )
                           .map((p) => (
                             <SelectItem key={p.id} value={p.id}>
                               {p.name}
@@ -356,11 +385,19 @@ export function CategoryManagement() {
           </FieldGroup>
 
           <div className="flex justify-end gap-3 pt-4 border-t">
-            <Button variant="outline" type="button" onClick={() => setActiveCategory(null)}>
+            <Button
+              variant="outline"
+              type="button"
+              onClick={() => setActiveCategory(null)}
+            >
               Hủy
             </Button>
             <Button type="submit" disabled={saveMutation.isLoading}>
-              {saveMutation.isLoading ? "Đang lưu..." : (activeCategory === "new" ? "Tạo mới" : "Cập nhật")}
+              {saveMutation.isLoading
+                ? "Đang lưu..."
+                : activeCategory === "new"
+                  ? "Tạo mới"
+                  : "Cập nhật"}
             </Button>
           </div>
         </form>

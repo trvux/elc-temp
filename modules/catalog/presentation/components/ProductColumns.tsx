@@ -1,13 +1,13 @@
 "use client";
 
-import { ColumnDef } from "@tanstack/react-table";
+import { AspectRatio } from "@/shared/components/ui/aspect-ratio";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
 import { ButtonGroup } from "@/shared/components/ui/button-group";
-import { Pencil, Trash2 } from "lucide-react";
-import { AspectRatio } from "@/shared/components/ui/aspect-ratio";
-import Image from "next/image";
 import { formatPrice } from "@/shared/lib/utils";
+import { ColumnDef } from "@tanstack/react-table";
+import { Check, Minus, Pencil, Star, Trash2, X } from "lucide-react";
+import Image from "next/image";
 import { ProductWithRelations } from "../../domain";
 
 interface ColumnProps {
@@ -47,44 +47,30 @@ export const getProductColumns = ({
   {
     accessorKey: "name",
     header: "Tên sản phẩm",
-    cell: ({ row }) => (
-      <span className="text-sm font-semibold tracking-tight">
-        {row.original.name}
-      </span>
-    ),
+    cell: ({ row }) => <span>{row.original.name}</span>,
   },
   {
     accessorKey: "brand.name",
     header: "Thương hiệu",
     cell: ({ row }) => (
-      <Badge variant="outline" className="text-[10px] font-bold capitalize tracking-wider bg-primary/5 text-primary border-primary/20">
-        {row.original.brand?.name || "Khác"}
-      </Badge>
+      <Badge variant="secondary">{row.original.brand?.name || "Khác"}</Badge>
     ),
   },
   {
     accessorKey: "sku",
     header: "SKU",
-    cell: ({ row }) => (
-      <span className="text-xs font-mono text-muted-foreground">
-        {row.original.sku || "—"}
-      </span>
-    ),
+    cell: ({ row }) => <span>{row.original.sku || "—"}</span>,
   },
   {
     accessorKey: "category.name",
     header: "Danh mục",
-    cell: ({ row }) => (
-      <span className="text-xs text-muted-foreground/80">
-        {row.original.category?.name || "—"}
-      </span>
-    ),
+    cell: ({ row }) => <span>{row.original.category?.name || "—"}</span>,
   },
   {
     accessorKey: "originalPrice",
     header: "Giá gốc",
     cell: ({ row }) => (
-      <span className="text-xs text-muted-foreground line-through decoration-muted-foreground/30">
+      <span className="line-through text-muted-foreground">
         {formatPrice(row.original.originalPrice)}
       </span>
     ),
@@ -95,14 +81,14 @@ export const getProductColumns = ({
     cell: ({ row }) => {
       const p = row.original;
       return (
-        <div className="flex flex-col gap-0.5">
-          <span className="text-sm font-bold text-primary tracking-tight">
+        <div className="flex flex-col">
+          <span className="font-bold">
             {formatPrice(p.salePrice || p.originalPrice)}
           </span>
           {p.discountPercent > 0 && (
-            <span className="text-[10px] text-destructive font-bold capitalize tracking-wider">
-              SAVE {p.discountPercent}%
-            </span>
+            <Badge variant="destructive" className="rounded-sm">
+              -{p.discountPercent}%
+            </Badge>
           )}
         </div>
       );
@@ -112,8 +98,18 @@ export const getProductColumns = ({
     accessorKey: "isFeatured",
     header: "Nổi bật",
     cell: ({ row }) => (
-      <Badge variant={row.original.isFeatured ? "default" : "outline"}>
-        {row.original.isFeatured ? "Nổi bật" : "Thường"}
+      <Badge variant={row.original.isFeatured ? "secondary" : "outline"}>
+        {row.original.isFeatured ? (
+          <>
+            <Star size={12} className="fill-amber-400 text-amber-400" />
+            <span>Nổi bật</span>
+          </>
+        ) : (
+          <>
+            <Minus size={12} />
+            <span>Thường</span>
+          </>
+        )}
       </Badge>
     ),
   },
@@ -121,32 +117,20 @@ export const getProductColumns = ({
     accessorKey: "isPublished",
     header: "Trạng thái",
     cell: ({ row }) => (
-      <Badge variant={row.original.isPublished ? "default" : "secondary"}>
-        {row.original.isPublished ? "Hiện" : "Ẩn"}
+      <Badge variant={row.original.isPublished ? "secondary" : "outline"}>
+        {row.original.isPublished ? (
+          <>
+            <Check size={12} />
+            <span>Hiện</span>
+          </>
+        ) : (
+          <>
+            <X size={12} />
+            <span>Ẩn</span>
+          </>
+        )}
       </Badge>
     ),
-  },
-  {
-    accessorKey: "stockStatus",
-    header: "Tình trạng",
-    cell: ({ row }) => {
-      const status = row.original.stockStatus || "in_stock";
-      const variants: Record<string, "default" | "secondary" | "destructive" | "outline"> = {
-        in_stock: "default",
-        out_of_stock: "destructive",
-        pre_order: "outline",
-      };
-      const labels: Record<string, string> = {
-        in_stock: "Còn hàng",
-        out_of_stock: "Hết hàng",
-        pre_order: "Đặt trước",
-      };
-      return (
-        <Badge variant={variants[status] || "secondary"}>
-          {labels[status] || status}
-        </Badge>
-      );
-    },
   },
   {
     id: "actions",

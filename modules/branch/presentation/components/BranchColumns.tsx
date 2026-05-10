@@ -4,7 +4,7 @@ import { ColumnDef } from "@tanstack/react-table";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
 import { ButtonGroup } from "@/shared/components/ui/button-group";
-import { Pencil, Trash2 } from "lucide-react";
+import { Pencil, Trash2, Check, X } from "lucide-react";
 import { Branch } from "../../domain/types";
 
 interface ColumnProps {
@@ -20,7 +20,7 @@ export const getBranchColumns = ({
     accessorKey: "name",
     header: "Tên chi nhánh",
     cell: ({ row }) => (
-      <span className="text-sm font-semibold tracking-tight">
+      <span>
         {row.original.name}
       </span>
     ),
@@ -29,16 +29,16 @@ export const getBranchColumns = ({
     accessorKey: "slug",
     header: "URL",
     cell: ({ row }) => (
-      <code className="text-xs bg-muted/50 px-2 py-0.5 rounded font-mono text-muted-foreground/80">
+      <span>
         /chi-nhanh/{row.original.slug}
-      </code>
+      </span>
     ),
   },
   {
     accessorKey: "address",
     header: "Địa chỉ",
     cell: ({ row }) => (
-      <span className="text-xs text-muted-foreground/70 truncate max-w-[250px] inline-block">
+      <span>
         {row.original.address || "—"}
       </span>
     ),
@@ -47,7 +47,7 @@ export const getBranchColumns = ({
     accessorKey: "phone",
     header: "Điện thoại",
     cell: ({ row }) => (
-      <span className="text-sm font-medium whitespace-nowrap">
+      <span>
         {row.original.phone || "—"}
       </span>
     ),
@@ -56,8 +56,18 @@ export const getBranchColumns = ({
     accessorKey: "isPublished",
     header: "Trạng thái",
     cell: ({ row }) => (
-      <Badge variant={row.original.isPublished ? "default" : "secondary"}>
-        {row.original.isPublished ? "Hiện" : "Ẩn"}
+      <Badge variant={row.original.isPublished ? "secondary" : "outline"}>
+        {row.original.isPublished ? (
+          <>
+            <Check size={12} />
+            <span>Hiện</span>
+          </>
+        ) : (
+          <>
+            <X size={12} />
+            <span>Ẩn</span>
+          </>
+        )}
       </Badge>
     ),
   },
