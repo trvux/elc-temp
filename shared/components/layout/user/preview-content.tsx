@@ -61,7 +61,7 @@ export const PreviewContent = ({
     <div
       className={cn(
         "prose prose-lg dark:prose-invert max-w-none",
-        // "prose-headings:font-newsreader prose-headings:font-medium",
+
         "prose-img:rounded-sm",
         "tiptap",
         className,
