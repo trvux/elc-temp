@@ -13,7 +13,7 @@ export const metadata = {
 
 export default function ThankYouPage() {
   return (
-    <div className="flex min-h-[70vh] flex-col items-center justify-center px-4 text-center">
+    <div className="flex flex-col items-center justify-center px-4 text-center min-h-screen">
       <div className="max-w-2xl space-y-8">
         <div className="space-y-4">
           <TypographyH1>Cảm ơn bạn đã tin tưởng ELC</TypographyH1>
