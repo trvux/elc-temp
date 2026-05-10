@@ -92,7 +92,7 @@ export function DashboardOverview() {
       <div>
         <h1 className="text-3xl font-bold tracking-tight">Tổng quan</h1>
         <p className="text-muted-foreground mt-1">
-          Chào mừng bạn quay lại hệ thống quản trị ELC ADMIN.
+          Dashboard dành cho admin quản lí
         </p>
       </div>
 
@@ -110,7 +110,9 @@ export function DashboardOverview() {
                 className="p-4 flex flex-col gap-1 shadow-sm"
               >
                 <div className="flex items-center justify-between">
-                  <p>{card.label}</p>
+                  <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest">
+                    {card.label}
+                  </p>
                   <card.icon size={14} className="text-muted-foreground/70" />
                 </div>
                 <p className="text-2xl font-bold tracking-tight">
@@ -136,7 +138,7 @@ export function DashboardOverview() {
                 <BarChart
                   data={categoryData}
                   layout="vertical"
-                  margin={{ left: 40, right: 20 }}
+                  margin={{ left: 0, right: 20, top: 0, bottom: 0 }}
                 >
                   <CartesianGrid
                     horizontal={false}
@@ -149,8 +151,8 @@ export function DashboardOverview() {
                     type="category"
                     tickLine={false}
                     axisLine={false}
-                    width={120}
-                    fontSize={11}
+                    width={100}
+                    fontSize={12}
                   />
                   <ChartTooltip content={<ChartTooltipContent />} />
                   <Bar dataKey="count" radius={[0, 4, 4, 0]} barSize={20} />
@@ -179,7 +181,7 @@ export function DashboardOverview() {
                 <BarChart
                   data={brandData}
                   layout="vertical"
-                  margin={{ left: 40, right: 20 }}
+                  margin={{ left: 0, right: 20, top: 0, bottom: 0 }}
                 >
                   <CartesianGrid
                     horizontal={false}
@@ -192,7 +194,7 @@ export function DashboardOverview() {
                     type="category"
                     tickLine={false}
                     axisLine={false}
-                    width={100}
+                    width={80}
                     fontSize={12}
                   />
                   <ChartTooltip content={<ChartTooltipContent />} />
@@ -315,8 +317,8 @@ export function DashboardOverview() {
                   <p className="font-medium leading-tight line-clamp-1">
                     {activity.title}
                   </p>
-                  <div className="flex items-center gap-2 text-[10px] text-muted-foreground">
-                    <span className="bg-muted px-1.5 py-0.5 rounded uppercase font-bold text-[9px]">
+                  <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                    <span className="bg-muted px-1.5 py-0.5 rounded uppercase font-bold text-[0.65rem]">
                       {activity.type}
                     </span>
                     <span>
