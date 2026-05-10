@@ -18,13 +18,13 @@ export const brandSchema = z.object({
     .or(z.literal(""))
     .optional(),
   description: z.string().optional(),
-  createdAt: z.string().datetime({
+  createdAt: z.iso.datetime({
     message: "Thời gian tạo không đúng định dạng ISO",
   }),
-  updatedAt: z.string().datetime({
+  updatedAt: z.iso.datetime({
     message: "Thời gian cập nhật không đúng định dạng ISO",
   }),
-  deletedAt: z.string()
+  deletedAt: z.iso
     .datetime({ message: "Thời gian xóa không đúng định dạng ISO" })
     .nullable(),
 });

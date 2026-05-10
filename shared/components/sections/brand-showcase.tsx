@@ -1,4 +1,8 @@
-import { AnimateIn } from "@/shared/components/ui/animate-in";
+import {
+  AnimateIn,
+  StaggerContainer,
+  StaggerItem,
+} from "@/shared/components/ui/animate-in";
 import { TypographyH2, TypographyH3 } from "@/shared/components/ui/typography";
 import { cn } from "@/shared/lib/utils";
 
@@ -33,14 +37,14 @@ export function BrandShowcase() {
 
   return (
     <section className={styles.section}>
-      <div className={styles.container}>
-        <AnimateIn className={styles.header}>
+      <StaggerContainer className={styles.container}>
+        <StaggerItem className={styles.header}>
           <TypographyH2>
             Hơn 10,000+ dự án cao cấp <br className="hidden md:block" /> tin dùng giải pháp từ ELC
           </TypographyH2>
-        </AnimateIn>
+        </StaggerItem>
 
-        <AnimateIn delay={0.2}>
+        <StaggerItem>
           <div className={styles.marqueeArea}>
             <div className={styles.marqueeTrack}>
               {/* Render 2 times for seamless loop */}
@@ -58,8 +62,8 @@ export function BrandShowcase() {
             <div className={cn(styles.gradient, styles.gradientLeft)} />
             <div className={cn(styles.gradient, styles.gradientRight)} />
           </div>
-        </AnimateIn>
-      </div>
+        </StaggerItem>
+      </StaggerContainer>
     </section>
   );
 }

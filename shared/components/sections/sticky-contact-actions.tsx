@@ -4,7 +4,7 @@ import { Contact } from "@/modules/contact/domain";
 import { Button } from "@/shared/components/ui/button";
 import { PhoneIcon, ZaloIcon } from "@/shared/components/ui/social-icons";
 import { cn } from "@/shared/lib/utils";
-import { AnimatePresence, motion, Variants } from "framer-motion";
+import { AnimatePresence, m, Variants } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
@@ -90,7 +90,7 @@ export function StickyContactActions({ contacts }: StickyContactActionsProps) {
   return (
     <AnimatePresence mode="wait">
       {isVisible && (
-        <motion.div
+        <m.div
           variants={containerVariants}
           initial="hidden"
           animate="show"
@@ -98,7 +98,7 @@ export function StickyContactActions({ contacts }: StickyContactActionsProps) {
           className="fixed bottom-8 right-8 z-100 flex flex-col items-end gap-3"
         >
           {zalo && (
-            <motion.div variants={itemVariants}>
+            <m.div variants={itemVariants}>
               <Button
                 asChild
                 className={cn(commonBtnClass, glassStyle)}
@@ -118,11 +118,11 @@ export function StickyContactActions({ contacts }: StickyContactActionsProps) {
                   <span>Tư vấn miễn phí</span>
                 </a>
               </Button>
-            </motion.div>
+            </m.div>
           )}
 
           {hotline && (
-            <motion.div variants={itemVariants}>
+            <m.div variants={itemVariants}>
               <Button
                 asChild
                 className={cn(commonBtnClass, glassStyle)}
@@ -140,9 +140,9 @@ export function StickyContactActions({ contacts }: StickyContactActionsProps) {
                   <span>Gọi ngay</span>
                 </a>
               </Button>
-            </motion.div>
+            </m.div>
           )}
-        </motion.div>
+        </m.div>
       )}
     </AnimatePresence>
   );

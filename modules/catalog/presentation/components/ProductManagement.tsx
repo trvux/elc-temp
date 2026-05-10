@@ -99,13 +99,12 @@ const AC_TEMPLATE: SpecItem[] = [
 
 export function ProductManagement() {
   const queryClient = useQueryClient();
-  const [open, setOpen] = useState(false);
-  const [editing, setEditing] = useState<ProductWithRelations | null>(null);
-  const [deleteOpen, setDeleteOpen] = useState(false);
+  // Consolidate modal states
+  const [activeProduct, setActiveProduct] = useState<ProductWithRelations | "new" | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
 
-  // Filters
+  // Filters (Keep these as local UI state)
   const [filterCategoryId, setFilterCategoryId] = useState<string>("all");
   const [filterIsFeatured, setFilterIsFeatured] = useState<string>("all");
   const [filterIsPublished, setFilterIsPublished] = useState<string>("all");
@@ -172,10 +171,10 @@ export function ProductManagement() {
   // Mutations
   const saveMutation = useMutation({
     mutationFn: async (values: ProductFormValues) => {
-      if (editing) {
+      if (activeProduct && activeProduct !== "new") {
         return updateProductAction({
           ...values,
-          id: editing.id,
+          id: activeProduct.id,
         } as any);
       }
       return createProductAction(values as any);
@@ -185,8 +184,8 @@ export function ProductManagement() {
         toast.error(res.error);
         return;
       }
-      toast.success(editing ? "Đã cập nhật sản phẩm" : "Đã tạo sản phẩm");
-      setOpen(false);
+      toast.success(activeProduct === "new" ? "Đã tạo sản phẩm" : "Đã cập nhật sản phẩm");
+      setActiveProduct(null);
       queryClient.invalidateQueries({ queryKey: ["products"] });
     },
   });
@@ -199,7 +198,7 @@ export function ProductManagement() {
         return;
       }
       toast.success("Đã xóa sản phẩm");
-      setDeleteOpen(false);
+      setDeletingId(null);
       queryClient.invalidateQueries({ queryKey: ["products"] });
     },
   });
@@ -246,17 +245,34 @@ export function ProductManagement() {
   const columns = useMemo(
     () =>
       getProductColumns({
-        onEdit: (p) => openEdit(p),
-        onDelete: (id) => {
-          setDeletingId(id);
-          setDeleteOpen(true);
+        onEdit: (p) => {
+          setActiveProduct(p);
+          form.reset({
+            name: p.name,
+            slug: p.slug,
+            sku: p.sku,
+            shortDescription: p.shortDescription || "",
+            description: p.description || "",
+            originalPrice: p.originalPrice,
+            salePrice: p.salePrice || 0,
+            images: p.images || [],
+            isFeatured: p.isFeatured,
+            isPublished: p.isPublished,
+            orderIndex: p.orderIndex,
+            categoryId: p.categoryId,
+            brandId: p.brandId,
+            stockStatus: p.stockStatus || STOCK_STATUS.IN_STOCK,
+            discountPercent: p.discountPercent || 0,
+            specs: Array.isArray(p.specs) ? p.specs : [],
+          });
         },
+        onDelete: setDeletingId,
       }),
-    [],
+    [form],
   );
 
   function openCreate() {
-    setEditing(null);
+    setActiveProduct("new");
     form.reset({
       name: "",
       slug: "",
@@ -275,30 +291,6 @@ export function ProductManagement() {
       discountPercent: 0,
       specs: AC_TEMPLATE,
     });
-    setOpen(true);
-  }
-
-  function openEdit(p: ProductWithRelations) {
-    setEditing(p);
-    form.reset({
-      name: p.name,
-      slug: p.slug,
-      sku: p.sku,
-      shortDescription: p.shortDescription || "",
-      description: p.description || "",
-      originalPrice: p.originalPrice,
-      salePrice: p.salePrice || 0,
-      images: p.images || [],
-      isFeatured: p.isFeatured,
-      isPublished: p.isPublished,
-      orderIndex: p.orderIndex,
-      categoryId: p.categoryId,
-      brandId: p.brandId,
-      stockStatus: p.stockStatus || STOCK_STATUS.IN_STOCK,
-      discountPercent: p.discountPercent || 0,
-      specs: Array.isArray(p.specs) ? p.specs : [],
-    });
-    setOpen(true);
   }
 
   const updateAutoSlug = (
@@ -432,10 +424,10 @@ export function ProductManagement() {
       />
 
       <AdminDialog
-        open={open}
-        onOpenChange={setOpen}
+        open={!!activeProduct}
+        onOpenChange={(open) => !open && setActiveProduct(null)}
         size="full"
-        title={editing ? "Sửa sản phẩm" : "Thêm sản phẩm"}
+        title={activeProduct === "new" ? "Thêm sản phẩm" : "Sửa sản phẩm"}
         description="Cập nhật thông tin chi tiết cho sản phẩm."
       >
         <form
@@ -1190,16 +1182,16 @@ export function ProductManagement() {
               <Button
                 variant="outline"
                 type="button"
-                onClick={() => setOpen(false)}
+                onClick={() => setActiveProduct(null)}
               >
                 Hủy
               </Button>
-              <Button type="submit" disabled={saveMutation.isPending}>
-                {saveMutation.isPending
+              <Button type="submit" disabled={saveMutation.isLoading}>
+                {saveMutation.isLoading
                   ? "Đang lưu..."
-                  : editing
-                    ? "Cập nhật sản phẩm"
-                    : "Tạo sản phẩm mới"}
+                  : activeProduct === "new"
+                    ? "Tạo sản phẩm mới"
+                    : "Cập nhật sản phẩm"}
               </Button>
             </div>
           </FieldGroup>
@@ -1207,10 +1199,10 @@ export function ProductManagement() {
       </AdminDialog>
 
       <DeleteDialog
-        open={deleteOpen}
-        onOpenChange={setDeleteOpen}
+        open={!!deletingId}
+        onOpenChange={(open) => !open && setDeletingId(null)}
         onConfirm={handleDelete}
-        isLoading={deleteMutation.isPending}
+        isLoading={deleteMutation.isLoading}
       />
     </div>
   );

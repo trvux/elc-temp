@@ -45,7 +45,7 @@ export function ProductFilterMobile({
             Lọc sản phẩm
           </Button>
         </SheetTrigger>
-        <SheetContent side="left" className="w-[300px] sm:w-[400px] p-0">
+        <SheetContent side="left" className="w-75 sm:w-100 p-0">
           <SheetHeader className="p-4 text-left">
             <SheetTitle>Bộ lọc sản phẩm</SheetTitle>
             <SheetDescription>

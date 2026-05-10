@@ -47,9 +47,9 @@ type ContactFormValues = {
 
 export function ContactManagement() {
   const queryClient = useQueryClient();
-  const [open, setOpen] = useState(false);
-  const [editing, setEditing] = useState<Contact | null>(null);
-  const [deleteOpen, setDeleteOpen] = useState(false);
+  
+  // Consolidate modal states
+  const [activeContact, setActiveContact] = useState<Contact | "new" | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
   const [filterType, setFilterType] = useState<string>("all");
@@ -77,10 +77,10 @@ export function ContactManagement() {
   // Mutations
   const saveMutation = useMutation({
     mutationFn: async (values: ContactFormValues) => {
-      if (editing) {
+      if (activeContact && activeContact !== "new") {
         return updateContactAction({
           ...values,
-          id: editing.id,
+          id: activeContact.id,
         } as any);
       }
       return createContactAction(values as any);
@@ -90,8 +90,8 @@ export function ContactManagement() {
         toast.error(res.error);
         return;
       }
-      toast.success(editing ? "Đã cập nhật liên hệ" : "Đã tạo liên hệ");
-      setOpen(false);
+      toast.success(activeContact === "new" ? "Đã tạo liên hệ" : "Đã cập nhật liên hệ");
+      setActiveContact(null);
       queryClient.invalidateQueries({ queryKey: ["contacts"] });
     },
   });
@@ -104,15 +104,10 @@ export function ContactManagement() {
         return;
       }
       toast.success("Đã xóa liên hệ");
-      setDeleteOpen(false);
+      setDeletingId(null);
       queryClient.invalidateQueries({ queryKey: ["contacts"] });
     },
   });
-
-  async function handleDelete() {
-    if (!deletingId) return;
-    deleteMutation.mutate(deletingId);
-  }
 
   const filteredContacts = useMemo(() => {
     return contacts.filter((c) => {
@@ -124,35 +119,28 @@ export function ContactManagement() {
   const columns = useMemo(
     () =>
       getContactColumns({
-        onEdit: (c) => openEdit(c),
-        onDelete: (id) => {
-          setDeletingId(id);
-          setDeleteOpen(true);
+        onEdit: (c) => {
+          setActiveContact(c);
+          form.reset({
+            type: c.type,
+            label: c.label || "",
+            value: c.value,
+            orderIndex: c.orderIndex,
+          });
         },
+        onDelete: setDeletingId,
       }),
-    [],
+    [form],
   );
 
   function openCreate() {
-    setEditing(null);
+    setActiveContact("new");
     form.reset({
       type: "phone",
       label: "",
       value: "",
       orderIndex: 0,
     });
-    setOpen(true);
-  }
-
-  function openEdit(c: Contact) {
-    setEditing(c);
-    form.reset({
-      type: c.type,
-      label: c.label || "",
-      value: c.value,
-      orderIndex: c.orderIndex,
-    });
-    setOpen(true);
   }
 
   function handleTypeChange(val: string) {
@@ -216,10 +204,10 @@ export function ContactManagement() {
       />
 
       <AdminDialog
-        open={open}
-        onOpenChange={setOpen}
+        open={!!activeContact}
+        onOpenChange={(open) => !open && setActiveContact(null)}
         size="lg"
-        title={editing ? "Sửa liên hệ" : "Thêm liên hệ mới"}
+        title={activeContact === "new" ? "Thêm liên hệ mới" : "Sửa liên hệ"}
         description="Thông tin này sẽ hiển thị ở chân trang hoặc trang liên hệ."
       >
         <form
@@ -314,7 +302,7 @@ export function ContactManagement() {
             <Button
               type="button"
               variant="outline"
-              onClick={() => setOpen(false)}
+              onClick={() => setActiveContact(null)}
               className="h-9"
             >
               Hủy
@@ -322,19 +310,19 @@ export function ContactManagement() {
             <Button
               type="submit"
               className="h-9"
-              disabled={saveMutation.isPending}
+              disabled={saveMutation.isLoading}
             >
-              {editing ? "Cập nhật" : "Tạo mới"}
+              {saveMutation.isLoading ? "Đang xử lý..." : (activeContact === "new" ? "Tạo mới" : "Cập nhật")}
             </Button>
           </div>
         </form>
       </AdminDialog>
 
       <DeleteDialog
-        open={deleteOpen}
-        onOpenChange={setDeleteOpen}
-        onConfirm={handleDelete}
-        isLoading={deleteMutation.isPending}
+        open={!!deletingId}
+        onOpenChange={(open) => !open && setDeletingId(null)}
+        onConfirm={() => deletingId && deleteMutation.mutate(deletingId)}
+        isLoading={deleteMutation.isLoading}
       />
     </div>
   );

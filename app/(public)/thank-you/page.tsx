@@ -9,6 +9,9 @@ export const metadata = {
   title: "Cảm ơn bạn đã liên hệ - ELC",
   description:
     "Yêu cầu của bạn đã được ghi nhận thành công. ELC sẽ liên hệ lại với bạn trong thời gian sớm nhất.",
+  robots: {
+    index: false,
+  },
 };
 
 export default function ThankYouPage() {
@@ -16,10 +19,10 @@ export default function ThankYouPage() {
     <div className="flex flex-col items-center justify-center px-4 text-center min-h-screen">
       <div className="max-w-2xl space-y-8">
         <div className="space-y-4">
-          <TypographyH1>Cảm ơn bạn đã tin tưởng ELC</TypographyH1>
+          <TypographyH1>Cảm ơn bạn đã liên hệ đến</TypographyH1>
+          <TypographyH1>Điện Máy ELC</TypographyH1>
           <TypographyLead>
-            Thông tin của bạn đã được chuyển đến bộ phận chuyên trách. Chúng tôi
-            sẽ phản hồi ngay.
+            Hãy để lại lời nhắn. Chúng tôi sẽ phản hồi ngay.
           </TypographyLead>
           <RedirectTimer />
         </div>

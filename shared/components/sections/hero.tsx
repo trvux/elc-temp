@@ -8,7 +8,6 @@ import { getOptimizedImage } from "@/shared/lib/image";
 import Image from "next/image";
 
 import { Contact } from "@/modules/contact/domain";
-import { Button } from "@/shared/components/ui/button";
 import { HeroContactActions } from "./hero-contact-actions";
 
 interface HeroSectionProps {
