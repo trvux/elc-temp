@@ -4,9 +4,10 @@ import { ColumnDef } from "@tanstack/react-table";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
 import { ButtonGroup } from "@/shared/components/ui/button-group";
-import { Pencil, Trash2, Star, Check, X, Minus } from "lucide-react";
+import { Pencil, Trash2, Star, Check, X, Minus, ExternalLink } from "lucide-react";
 import { AspectRatio } from "@/shared/components/ui/aspect-ratio";
 import Image from "next/image";
+import Link from "next/link";
 import { ProjectWithCategory } from "../../domain";
 
 interface ColumnProps {
@@ -47,13 +48,19 @@ export const getColumns = ({
     accessorKey: "title",
     header: "Tên dự án",
     cell: ({ row }) => (
-      <div className="flex flex-col">
-        <span>
+      <div className="flex flex-col gap-1">
+        <span className="font-medium text-foreground">
           {row.original.title}
         </span>
-        <span>
-          {row.original.slug}
-        </span>
+        <a 
+          href={`/du-an/${row.original.slug}`} 
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-xs text-primary hover:underline flex items-center gap-1 w-fit"
+        >
+          /du-an/{row.original.slug}
+          <ExternalLink size={12} />
+        </a>
       </div>
     ),
   },
