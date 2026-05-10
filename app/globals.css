@@ -87,8 +87,7 @@
 
 @theme inline {
   --font-inter: var(--font-inter);
-  --font-newsreader: var(--font-newsreader), serif;
-  --font-crimsonpro: var(--font-crimsonpro), serif;
+
 
   --color-background: var(--background);
   --color-foreground: var(--foreground);

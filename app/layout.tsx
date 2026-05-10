@@ -3,7 +3,7 @@ import { TooltipProvider } from "@/shared/components/ui/tooltip";
 import { QueryProvider } from "@/shared/providers/query-provider";
 import { cn } from "@/shared/lib/utils";
 import type { Metadata, Viewport } from "next";
-import { Inter, Newsreader } from "next/font/google";
+import { Inter } from "next/font/google";
 import { Suspense } from "react";
 import "./globals.css";
 
@@ -14,12 +14,7 @@ const inter = Inter({
   display: "optional",
 });
 
-const newsreader = Newsreader({
-  subsets: ["latin", "vietnamese"],
-  style: ["normal", "italic"],
-  variable: "--font-newsreader",
-  display: "optional",
-});
+
 
 export const metadata: Metadata = {
   title: "Điện máy ELC",
@@ -53,7 +48,7 @@ export default function RootLayout({
     <html
       lang="vi"
       suppressHydrationWarning
-      className={cn("h-full antialiased", inter.variable, newsreader.variable)}
+      className={cn("h-full antialiased", inter.variable)}
     >
       <head>
         <link

@@ -63,7 +63,7 @@ export function TypographyP({ children, className }: Typography) {
   return (
     <p
       className={cn(
-        "leading-7 not-first:mt-6 font-crimsonpro text-sm md:text-base lg:text-lg",
+        "leading-7 not-first:mt-6 text-sm md:text-base lg:text-lg",
         className,
       )}
     >

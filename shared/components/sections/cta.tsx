@@ -157,7 +157,7 @@ export function CTASection({ settings, contacts }: CTASectionProps) {
           <div className="flex flex-col items-center gap-3">
             <TypographyMuted>Hoặc kết nối trực tiếp qua email</TypographyMuted>
             <Link href={`mailto:${email}`}>
-              <TypographyLarge className="font-newsreader italic text-2xl">
+              <TypographyLarge className="italic text-2xl">
                 {email}
               </TypographyLarge>
             </Link>

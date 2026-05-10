@@ -149,7 +149,7 @@ export default async function ProjectsPage() {
 
         {!allProjects.length && (
           <div className="py-32 text-center">
-            <TypographyMuted className="italic font-newsreader opacity-40">
+            <TypographyMuted className="italic opacity-40">
               Hiện chưa có dự án nào được cập nhật.
             </TypographyMuted>
           </div>
