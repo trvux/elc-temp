@@ -27,7 +27,6 @@ import {
 } from "@/shared/components/ui/typography";
 import { useIsMobile } from "@/shared/hooks/use-mobile";
 import Link from "next/link";
-import { trackEvent } from "@/shared/lib/tracking";
 
 import { Contact } from "@/modules/contact/domain";
 
@@ -64,20 +63,6 @@ export function CTASection({ settings, contacts }: CTASectionProps) {
         const label = c.label || c.type;
         const isExternal = !["phone", "email"].includes(c.type);
 
-        const handleContactClick = () => {
-          const isConversion = ["phone", "zalo", "messenger", "email", "facebook"].includes(c.type);
-
-          trackEvent({
-            action: "cta_contact_click",
-            category: isConversion ? "conversion" : "engagement",
-            label: `${c.type}: ${c.value}`,
-            isConversion,
-            metadata: {
-              location: "cta_section",
-              contact_type: c.type
-            }
-          });
-        };
 
         if (isDrawer) {
           return (
@@ -86,7 +71,6 @@ export function CTASection({ settings, contacts }: CTASectionProps) {
               href={href}
               target={isExternal ? "_blank" : undefined}
               className="flex flex-col py-3 px-2"
-              onClick={handleContactClick}
             >
               <span className="font-medium capitalize">{label}</span>
               <span className="text-xs text-muted-foreground">{c.value}</span>
@@ -101,7 +85,6 @@ export function CTASection({ settings, contacts }: CTASectionProps) {
               target={isExternal ? "_blank" : undefined}
               rel={isExternal ? "noopener noreferrer" : undefined}
               className="w-full cursor-pointer"
-              onClick={handleContactClick}
             >
               {label}
             </a>

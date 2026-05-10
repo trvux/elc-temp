@@ -1,5 +1,4 @@
 import { AnimateIn } from "@/shared/components/ui/animate-in";
-import { Button } from "@/shared/components/ui/button";
 import { Separator } from "@/shared/components/ui/separator";
 import {
   TypographyH1,
@@ -7,10 +6,10 @@ import {
 } from "@/shared/components/ui/typography";
 import { getOptimizedImage } from "@/shared/lib/image";
 import Image from "next/image";
-import Link from "next/link";
-import { HeroContactButton } from "./hero-contact-button";
 
 import { Contact } from "@/modules/contact/domain";
+import { Button } from "@/shared/components/ui/button";
+import { HeroContactActions } from "./hero-contact-actions";
 
 interface HeroSectionProps {
   title?: string;
@@ -61,11 +60,12 @@ export function HeroSection({
         <TypographyLead>{subtitle}</TypographyLead>
 
         <div className={styles.actions}>
-          <Button asChild size="lg" variant="secondary" className={styles.btn}>
+          {/* <Button asChild size="lg" variant="secondary" className={styles.btn}>
             <Link href={ctaUrl}>{ctaText}</Link>
-          </Button>
+          </Button> */}
+          <HeroContactActions contacts={contacts} />
 
-          <HeroContactButton className={styles.contact} contacts={contacts} />
+          {/* <HeroContactButton className={styles.contact} contacts={contacts} /> */}
         </div>
       </AnimateIn>
 
