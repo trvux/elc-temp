@@ -1,3 +1,7 @@
+import { getBranchBySlug, getBranches } from "@/modules/branch";
+import { PhoneConfirmation } from "@/shared/components/layout/user/phone-confirmation";
+import { PreviewContent } from "@/shared/components/layout/user/preview-content";
+import { ScrollToTop } from "@/shared/components/layout/user/scroll-to-top";
 import {
   Accordion,
   AccordionContent,
@@ -11,12 +15,8 @@ import {
   TypographyH4,
   TypographySmall,
 } from "@/shared/components/ui/typography";
-import { PhoneConfirmation } from "@/shared/components/layout/user/phone-confirmation";
-import { ScrollToTop } from "@/shared/components/layout/user/scroll-to-top";
 import { cn } from "@/shared/lib/utils";
 import { notFound } from "next/navigation";
-import { PreviewContent } from "@/shared/components/layout/user/preview-content";
-import { getBranchBySlug, getBranches } from "@/modules/branch";
 
 // Helper to control Google Maps zoom level
 const getZoomedUrl = (url: string, zoomLevel = "13.1") => {
@@ -35,9 +35,9 @@ const STYLES = {
   accordionItem: cn("flex flex-col gap-4 border-b last:border-b-0"),
   accordionContent: cn("text-lg"),
   prose: cn("prose prose-neutral max-w-none dark:prose-invert"),
-  mapCard: cn("my-2 overflow-hidden p-2 shadow-md bg-background/60"),
+  mapCard: cn("m-1 overflow-hidden p-2 shadow-sm bg-background/60"),
   mapIframe: cn(
-    "w-full h-full rounded-lg transition-all duration-2000 ease-in-out",
+    "w-full h-full rounded-lg transition-all duration-2000 ease-in-out ",
   ),
   footer: cn(
     "mt-10 flex w-full flex-col items-center justify-between gap-10 border-t border-border pt-8 text-muted-foreground md:flex-row",
@@ -144,7 +144,10 @@ export default async function BranchDetail({
         </section>
 
         <article>
-          <PreviewContent content={branch.description} hideFirstHeading={true} />
+          <PreviewContent
+            content={branch.description}
+            hideFirstHeading={true}
+          />
         </article>
 
         <footer className={STYLES.footer}>

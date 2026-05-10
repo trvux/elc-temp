@@ -1,9 +1,11 @@
 "use client";
 
-import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
 import { logoutAction } from "@/modules/auth";
-import { Avatar, AvatarFallback, AvatarImage } from "@/shared/components/ui/avatar";
+import {
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
+} from "@/shared/components/ui/avatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -16,33 +18,33 @@ import {
   Sidebar,
   SidebarContent,
   SidebarFooter,
+  SidebarGroup,
+  SidebarGroupLabel,
   SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-  SidebarGroup,
-  SidebarGroupLabel,
   useSidebar,
 } from "@/shared/components/ui/sidebar";
 import {
-  LayoutDashboard,
-  BarChart3,
-  FolderKanban,
-  Package,
-  Phone,
-  MapPin,
-  Settings,
-  LogOut,
-  Tag,
-  ShieldCheck,
+  Award,
   ChevronsUpDown,
   FileText,
-  Award,
+  FolderKanban,
+  LayoutDashboard,
+  LogOut,
+  MapPin,
+  Package,
+  Phone,
+  Settings,
+  ShieldCheck,
+  Tag,
 } from "lucide-react";
+import Link from "next/link";
+import { usePathname, useRouter } from "next/navigation";
 
 const navItems = [
   { href: "/admin", label: "Tổng quan", icon: LayoutDashboard },
-  { href: "/admin/analytics", label: "Phân tích (GA4)", icon: BarChart3 },
   { href: "/admin/categories", label: "Danh mục", icon: Tag },
   { href: "/admin/brands", label: "Thương hiệu", icon: Award },
   { href: "/admin/projects", label: "Dự án", icon: FolderKanban },

@@ -2,7 +2,6 @@
 import { CONTACT_TYPES } from "@/modules/contact/domain/constants";
 import { EmailIcon, MapIcon, PhoneIcon } from "@/shared/components/ui/social-icons";
 import { getFooterLogic } from "@/modules/settings/domain/footer";
-import { trackEvent } from "@/shared/lib/tracking";
 import { cn } from "@/shared/lib/utils";
 import Link from "next/link";
 import { PhoneConfirmation } from "./phone-confirmation";
@@ -148,22 +147,6 @@ export function Footer({
               const label = c.label || typeInfo?.label || c.type;
               const isExternal = !["phone", "email"].includes(c.type);
 
-              const handleContactClick = () => {
-                const isConversion = [
-                  "phone",
-                  "zalo",
-                  "messenger",
-                  "email",
-                  "facebook",
-                ].includes(c.type);
-                trackEvent({
-                  action: "footer_contact_click",
-                  category: isConversion ? "conversion" : "engagement",
-                  label: `${c.type}: ${c.value}`,
-                  isConversion,
-                  metadata: { location: "footer_nav", contact_type: c.type },
-                });
-              };
 
               const Icon = typeInfo?.icon;
               const content = (
@@ -181,7 +164,6 @@ export function Footer({
                   >
                     <button
                       className={styles.link}
-                      onClick={handleContactClick}
                     >
                       {content}
                     </button>
@@ -195,7 +177,6 @@ export function Footer({
                   href={href}
                   target={isExternal ? "_blank" : undefined}
                   className={cn(styles.link, "truncate")}
-                  onClick={handleContactClick}
                 >
                   {content}
                 </Link>
@@ -280,17 +261,6 @@ export function Footer({
                     }
                     className={styles.icon}
                     title={typeInfo?.label}
-                    onClick={() => {
-                      trackEvent({
-                        action: "footer_social_click",
-                        category: "engagement",
-                        label: `${c.type}: ${c.value}`,
-                        metadata: {
-                          location: "footer_bottom",
-                          contact_type: c.type,
-                        },
-                      });
-                    }}
                   >
                     {Icon ? (
                       <Icon size={20} />

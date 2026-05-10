@@ -3,6 +3,7 @@ import { CTASection } from "@/shared/components/sections/cta";
 import { FeaturesSection } from "@/shared/components/sections/features";
 import { HeroSection } from "@/shared/components/sections/hero";
 import { ShowcaseSection } from "@/shared/components/sections/showcase";
+import { StickyContactActions } from "@/shared/components/sections/sticky-contact-actions";
 
 import { getProducts } from "@/modules/catalog/application";
 import { getContacts } from "@/modules/contact/application";
@@ -67,10 +68,11 @@ export default async function Home() {
   return (
     <main className="max-w-7xl mx-auto px-4 md:px-6 lg:px-8">
       {sections.map((section) => (
-        <div key={section.id} className="py-12 md:py-24">
+        <div key={section.id} id={section.id} className="py-12 md:py-24">
           {section.component}
         </div>
       ))}
+      <StickyContactActions contacts={contacts || []} />
     </main>
   );
 }

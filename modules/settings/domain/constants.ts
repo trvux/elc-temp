@@ -16,7 +16,6 @@ export const SETTINGS_KEYS = {
   LOGO_URL: "logo_url",
   FAVICON_URL: "favicon_url",
   FOOTER_TEXT: "footer_text",
-  GOOGLE_ANALYTICS_ID: "google_analytics_id",
 } as const;
 
 export type SettingsKey = typeof SETTINGS_KEYS[keyof typeof SETTINGS_KEYS];
