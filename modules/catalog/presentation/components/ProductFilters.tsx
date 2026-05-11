@@ -7,11 +7,12 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/shared/components/ui/accordion";
+import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
 import { Checkbox } from "@/shared/components/ui/checkbox";
 import { Input } from "@/shared/components/ui/input";
 import { Separator } from "@/shared/components/ui/separator";
-import { Search } from "lucide-react";
+import { Check, Search } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { ProductSortBy } from "../../domain/types";
@@ -77,25 +78,40 @@ export function ProductFilters({
   const handleSortChange = (value: string) => updateFilters({ sortBy: value });
 
   const handleCategoryChange = (slug: string, checked: boolean) => {
-    updateFilters({ category: checked ? slug : null });
+    if (checked) {
+      // Reset all other filters when switching to a different category
+      const updates: Record<string, string | string[] | null> = {
+        category: slug,
+        brandIds: null,
+        minPrice: null,
+        maxPrice: null,
+      };
+
+      // Also clear all specification-based filters
+      searchParams.forEach((_, key) => {
+        if (key.startsWith("spec_")) {
+          updates[key] = null;
+        }
+      });
+
+      updateFilters(updates);
+    } else {
+      updateFilters({ category: null });
+    }
   };
 
   const handleBrandChange = (brandId: string, checked: boolean) => {
-    const newBrands = checked
-      ? [...currentBrands, brandId]
-      : currentBrands.filter((id) => id !== brandId);
-    updateFilters({ brandIds: newBrands });
+    updateFilters({ brandIds: checked ? brandId : null });
   };
 
   const handleSpecChange = (label: string, value: string, checked: boolean) => {
     const key = `spec_${label}`;
-    const values = currentSpecs[label] || [];
-    const newValues = checked
-      ? [...values, value]
-      : values.filter((v) => v !== value);
-
-    updateFilters({ [key]: newValues.length > 0 ? newValues : null });
+    updateFilters({ [key]: checked ? value : null });
   };
+
+  const hasPriceFilter = useMemo(() => {
+    return !!(searchParams.get("minPrice") || searchParams.get("maxPrice"));
+  }, [searchParams]);
 
   const hasAnyFilter = useMemo(() => {
     return (
@@ -123,7 +139,7 @@ export function ProductFilters({
 
   return (
     <div className="flex flex-col gap-2">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between h-10">
         <h3 className="font-bold">Bộ lọc</h3>
         {hasAnyFilter && (
           <Button variant="ghost" size="sm" onClick={clearAllFilters}>
@@ -133,17 +149,14 @@ export function ProductFilters({
       </div>
       <Separator />
 
-      <Accordion
-        type="multiple"
-        defaultValue={["category", "Kiểu lắp đặt"]}
-        className="w-full"
-      >
+      <Accordion type="multiple" defaultValue={["Danh mục"]} className="w-full">
         {/* Unified Category Filter */}
         {categories.length > 0 && (
           <FilterGroup
             label="Danh mục"
             items={categories.map((c) => ({ id: c.slug, name: c.name }))}
             selectedValues={[currentCategory]}
+            hasSelection={currentCategory !== "all" && currentCategory !== ""}
             onToggle={handleCategoryChange}
           />
         )}
@@ -154,9 +167,22 @@ export function ProductFilters({
             label="Thương hiệu"
             items={availableFilters.brands}
             selectedValues={currentBrands}
+            hasSelection={currentBrands.length > 0}
             onToggle={handleBrandChange}
           />
         )}
+
+        {/* Price Filter */}
+        <AccordionFilterWrapper
+          label="Khoảng giá"
+          hasSelection={hasPriceFilter}
+        >
+          <ProductPriceFilter
+            hideLabel
+            minPriceLimit={availableFilters.minPrice}
+            maxPriceLimit={availableFilters.maxPrice}
+          />
+        </AccordionFilterWrapper>
 
         {/* Unified Specs Filters */}
         {availableFilters.specs.map((spec) => (
@@ -165,45 +191,40 @@ export function ProductFilters({
             label={spec.label}
             items={spec.values.map((v) => ({ id: v, name: v }))}
             selectedValues={currentSpecs[spec.label] || []}
+            hasSelection={(currentSpecs[spec.label] || []).length > 0}
             onToggle={(id, checked) =>
               handleSpecChange(spec.label, id, checked)
             }
             showSearch={spec.values.length > 8}
           />
         ))}
-
-        {/* Price Filter */}
-        <AccordionFilterWrapper label="Khoảng giá" hasSelection={false}>
-          <ProductPriceFilter
-            hideLabel
-            minPriceLimit={availableFilters.minPrice}
-            maxPriceLimit={availableFilters.maxPrice}
-          />
-        </AccordionFilterWrapper>
       </Accordion>
     </div>
   );
 }
 
-interface AccordionFilterWrapperProps {
-  label: string;
-  hasSelection: boolean;
-  children: React.ReactNode;
-}
-
 function AccordionFilterWrapper({
   label,
+  hasSelection = false,
   children,
 }: {
   label: string;
-  hasSelection: boolean;
+  hasSelection?: boolean;
   children: React.ReactNode;
 }) {
   return (
     <AccordionItem value={label}>
-      <AccordionTrigger>
+      <AccordionTrigger className="hover:no-underline">
         <div className="flex items-center gap-2">
-          <span>{label}</span>
+          <span className="group-hover/accordion-trigger:underline">
+            {label}
+          </span>
+          {hasSelection && (
+            <Badge variant="secondary" className="no-underline rounded-sm">
+              <Check data-icon="inline-start" />
+              Được chọn
+            </Badge>
+          )}
         </div>
       </AccordionTrigger>
       <AccordionContent className="px-2">{children}</AccordionContent>
@@ -215,12 +236,14 @@ function FilterGroup({
   label,
   items,
   selectedValues,
+  hasSelection = false,
   onToggle,
   showSearch = false,
 }: {
   label: string;
   items: { id: string; name: string }[];
   selectedValues: string[];
+  hasSelection?: boolean;
   onToggle: (id: string, checked: boolean) => void;
   showSearch?: boolean;
 }) {
@@ -231,9 +254,6 @@ function FilterGroup({
       item.name.toLowerCase().includes(search.toLowerCase()),
     );
   }, [items, search]);
-
-  const hasSelection =
-    selectedValues.length > 0 && !selectedValues.includes("all");
 
   return (
     <AccordionFilterWrapper label={label} hasSelection={hasSelection}>

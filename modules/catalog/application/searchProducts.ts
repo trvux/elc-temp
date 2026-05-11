@@ -66,21 +66,34 @@ function effectivePrice(p: {
 
 // Define Whitelist and Mapping for HVAC Specs - Focused on Top Essentials
 const SPEC_WHITELIST: Record<string, string[]> = {
-  "Kiểu lắp đặt": ["Kiểu lắp đặt", "Loại máy", "Kiểu máy", "Dòng máy"],
   "Công suất": ["BTU", "Công suất làm lạnh", "HP", "Ngựa", "Công suất"],
+  "Số chiều": [
+    "Số chiều",
+    "Số chiều làm lạnh",
+    "1 chiều/2 chiều",
+    "Lạnh/Sưởi",
+    "Số chiều hoạt động",
+  ],
   "Công nghệ": [
     "Inverter",
     "Công nghệ Inverter",
     "Loại Inverter",
     "Tiết kiệm điện",
     "Công nghệ",
+    "Công nghệ tiết kiệm điện",
+    "Tính năng tiết kiệm điện",
   ],
-  "Số chiều": [
-    "Số chiều",
-    "Số chiều làm lạnh",
-    "1 chiều/2 chiều",
-    "Làm lạnh/Sưởi",
+  "Lọc không khí": [
+    "Hệ thống lọc khí",
+    "Tính năng lọc không khí",
+    "Khả năng lọc không khí",
+    "Bộ lọc khí",
+    "Bộ lọc",
+    "Màng lọc",
+    "Tính năng lọc bụi",
   ],
+  "Hiệu suất lọc": ["Hiệu suất lọc không khí", "Hiệu suất lọc"],
+  "Loại Gas": ["Loại Gas", "Môi chất lạnh", "Gas", "Môi chất làm lạnh"],
 };
 
 const REVERSE_SPEC_MAPPING: Record<string, string> = {};
@@ -90,20 +103,42 @@ Object.entries(SPEC_WHITELIST).forEach(([uiLabel, dbLabels]) => {
   });
 });
 
-function getInstallationType(text: string): string | null {
-  const l = text.toLowerCase();
-  if (l.includes("treo tường") || l.includes("treotuong") || l.includes("wall")) return "Treo tường";
-  if (l.includes("âm trần") || l.includes("amtran") || l.includes("cassette")) return "Âm trần";
-  if (l.includes("áp trần") || l.includes("aptran")) return "Áp trần";
-  if (l.includes("tủ đứng") || l.includes("tudung") || l.includes("đặt sàn") || l.includes("floor")) return "Tủ đứng / Đặt sàn";
-  if (l.includes("giấu trần") || l.includes("giautran") || l.includes("nối ống gió") || l.includes("duct")) return "Giấu trần nối ống gió";
-  return null;
-}
 
 function getCoolingDirection(text: string): string | null {
   const l = text.toLowerCase();
-  if (l.includes("hai chiều") || l.includes("2 chiều") || l.includes("sưởi")) return "2 Chiều";
-  if (l.includes("một chiều") || l.includes("1 chiều") || l.includes("chỉ làm lạnh") || l.includes("lạnh")) return "1 Chiều";
+  if (l.includes("hai chiều") || l.includes("2 chiều") || l.includes("sưởi"))
+    return "2 Chiều";
+  if (
+    l.includes("một chiều") ||
+    l.includes("1 chiều") ||
+    l.includes("chỉ làm lạnh") ||
+    l.includes("lạnh")
+  )
+    return "1 Chiều";
+  return null;
+}
+
+function getCapacityFromText(text: string): string | null {
+  const l = text.toLowerCase();
+  // ONLY check for HP or Ngựa (e.g. 1HP, 1.5HP, 2 Ngựa)
+  const hpMatch = l.match(/(\d+(\.\d+)?)\s*(hp|ngựa|ngua)/);
+  if (hpMatch) {
+    const numeric = parseFloat(hpMatch[1]);
+    // Exact matching for standard HP steps
+    if (Math.abs(numeric - 1.0) < 0.05) return "1 HP";
+    if (Math.abs(numeric - 1.5) < 0.05) return "1.5 HP";
+    if (Math.abs(numeric - 2.0) < 0.05) return "2 HP";
+    if (Math.abs(numeric - 2.5) < 0.05) return "2.5 HP";
+    if (numeric > 2.7) return "> 2.5 HP";
+  }
+  return null;
+}
+
+function getGasType(text: string): string | null {
+  const l = text.toLowerCase();
+  if (l.includes("r32")) return "Gas R32";
+  if (l.includes("r410a") || l.includes("r410")) return "Gas R410A";
+  if (l.includes("r22")) return "Gas R22";
   return null;
 }
 
@@ -111,6 +146,7 @@ const normalizeSpecValue = (
   uiLabel: string,
   rawValue: string,
   unit?: string,
+  originalLabel?: string,
 ): string => {
   let val = rawValue.trim();
   if (!val) return "";
@@ -121,10 +157,7 @@ const normalizeSpecValue = (
   }
 
   const lower = val.toLowerCase().replace(/\s/g, "");
-
-  if (uiLabel === "Kiểu lắp đặt") {
-    return getInstallationType(val) || "";
-  }
+  const lowerLabel = (originalLabel || "").toLowerCase();
 
   if (uiLabel === "Công nghệ") {
     // If it's a star rating or includes "tiết kiệm", it's "Có Inverter"
@@ -135,7 +168,7 @@ const normalizeSpecValue = (
 
     if (isNo) return "Không Inverter";
     if (isYes) return "Có Inverter";
-    
+
     return "";
   }
 
@@ -144,28 +177,70 @@ const normalizeSpecValue = (
   }
 
   if (uiLabel === "Công suất") {
-    const numeric = parseFloat(val.replace(/,/g, "").replace(/\./g, ""));
-    const isHP = lower.includes("hp") || (numeric > 0 && numeric < 10);
-    const isBTU = lower.includes("btu") || numeric >= 5000;
+    let numeric = 0;
+    const valWithDotAsDecimal = parseFloat(val.replace(/,/g, "."));
+
+    // ONLY check if the label or value explicitly mentions HP or Ngựa
+    const isHP =
+      lowerLabel.includes("hp") ||
+      lowerLabel.includes("ngựa") ||
+      lowerLabel.includes("ngua") ||
+      lowerLabel.includes("mã lực") ||
+      lower.includes("hp") ||
+      lower.includes("ngựa") ||
+      lower.includes("ngua");
 
     if (isHP) {
-      if (numeric <= 1.2) return "9.000 BTU (1 HP)";
-      if (numeric <= 1.7) return "12.000 BTU (1.5 HP)";
-      if (numeric <= 2.2) return "18.000 BTU (2 HP)";
-      if (numeric <= 2.7) return "24.000 BTU (2.5 HP)";
-      return "Trên 24.000 BTU (> 2.5 HP)";
+      numeric = valWithDotAsDecimal;
+
+      // Exact matching for standard HP steps
+      if (Math.abs(numeric - 1.0) < 0.05) return "1 HP";
+      if (Math.abs(numeric - 1.5) < 0.05) return "1.5 HP";
+      if (Math.abs(numeric - 2.0) < 0.05) return "2 HP";
+      if (Math.abs(numeric - 2.5) < 0.05) return "2.5 HP";
+      if (numeric > 2.7) return "> 2.5 HP";
     }
 
-    if (isBTU) {
-      if (numeric <= 10000) return "9.000 BTU (1 HP)";
-      if (numeric <= 13500) return "12.000 BTU (1.5 HP)";
-      if (numeric <= 20000) return "18.000 BTU (2 HP)";
-      if (numeric <= 26000) return "24.000 BTU (2.5 HP)";
-      return "Trên 24.000 BTU (> 2.5 HP)";
-    }
+    // Ignore BTU or ambiguous power consumption values as requested
+    return "";
+  }
+
+  if (uiLabel === "Lọc không khí") {
+    if (lower.includes("hepa")) return "Lọc HEPA";
+    if (lower.includes("pm2.5") || lower.includes("bụi mịn"))
+      return "Lọc bụi mịn PM2.5";
+    if (
+      lower.includes("ion") ||
+      lower.includes("khử mùi") ||
+      lower.includes("nanoe")
+    )
+      return "Khử mùi & Diệt khuẩn";
+
+    if (
+      (lower.includes("tiêu chuẩn") ||
+        lower.includes("mesh") ||
+        lower.includes("lọc thô")) &&
+      !lower.includes("hepa") &&
+      !lower.includes("pm2.5")
+    )
+      return "Lọc bụi tiêu chuẩn";
 
     return "";
   }
+
+  if (uiLabel === "Hiệu suất lọc") {
+    const num = parseFloat(val.replace(/[^0-9.]/g, ""));
+    if (isNaN(num)) return "";
+    if (num >= 99.9) return "Trên 99.9% (Ultra)";
+    if (num >= 99) return "Trên 99% (HEPA H13)";
+    if (num >= 95) return "Trên 95% (HEPA H11)";
+    return "Lọc tiêu chuẩn";
+  }
+
+  if (uiLabel === "Loại Gas") {
+    return getGasType(val) || "";
+  }
+
   return val;
 };
 
@@ -191,18 +266,69 @@ export async function searchProducts(
     isFeatured: options.isFeatured,
   });
 
-  // Extract available filters from ALL products matching the base criteria
+  // 1. First, apply search query if present to get the "searched" set
+  let searchedProducts = allProducts;
+  if (q) {
+    const queryTokens = normalize(q)
+      .split(/\s+/)
+      .map(cleanTelex)
+      .flatMap(splitDigitLetter)
+      .filter((t) => t.length >= 2);
+
+    const fuse = new Fuse(allProducts, {
+      keys: [
+        { name: "name", getFn: (p) => tokenize(p.name ?? ""), weight: 0.65 },
+        { name: "sku", getFn: (p) => tokenize(p.sku ?? ""), weight: 0.25 },
+        {
+          name: "specs",
+          getFn: (p) => tokenize(flattenSpecs(p.specs)),
+          weight: 0.1,
+        },
+      ],
+      threshold: 0.35,
+      minMatchCharLength: 2,
+    });
+
+    if (queryTokens.length > 0) {
+      if (queryTokens.length === 1) {
+        searchedProducts = fuse.search(queryTokens[0]).map((r) => r.item);
+      } else {
+        const resultSets = queryTokens.map(
+          (token) => new Set(fuse.search(token).map((r) => r.item.id)),
+        );
+        searchedProducts = allProducts.filter((p) =>
+          resultSets.every((set) => set.has(p.id)),
+        );
+      }
+    }
+  }
+
+  // 2. Calculate available brands from the searched products
   const availableBrands = new Map<string, { id: string; name: string }>();
+  searchedProducts.forEach((p) => {
+    if (p.brand) {
+      availableBrands.set(p.brandId, { id: p.brandId, name: p.brand.name });
+    }
+  });
+
+  // 3. Apply brand filter to get the set for calculating specs and prices
+  let productsForFilters = searchedProducts;
+  if (options.brandIds && options.brandIds.length > 0) {
+    productsForFilters = searchedProducts.filter((p) =>
+      options.brandIds!.includes(p.brandId),
+    );
+  } else if (options.brandId) {
+    productsForFilters = searchedProducts.filter(
+      (p) => p.brandId === options.brandId,
+    );
+  }
+
+  // 4. Extract available specs and prices from the brand-filtered searched set
   const availableSpecs = new Map<string, Set<string>>();
   let minPrice = Infinity;
   let maxPrice = -Infinity;
 
-  allProducts.forEach((p) => {
-    if (p.brand) {
-      availableBrands.set(p.brandId, { id: p.brandId, name: p.brand.name });
-    }
-
-    // Calculate global min/max price for the filter range
+  productsForFilters.forEach((p) => {
     const prices = [p.salePrice, p.originalPrice].filter(
       (v) => v !== undefined && v !== null && v > 0,
     ) as number[];
@@ -213,32 +339,37 @@ export async function searchProducts(
       if (pMax > maxPrice) maxPrice = pMax;
     }
 
-    // Extract installation type and direction from NAME as well
-    const nameInstType = getInstallationType(p.name);
-    if (nameInstType) {
-      if (!availableSpecs.has("Kiểu lắp đặt")) availableSpecs.set("Kiểu lắp đặt", new Set());
-      availableSpecs.get("Kiểu lắp đặt")!.add(nameInstType);
-    }
-
     const nameDirection = getCoolingDirection(p.name);
     if (nameDirection) {
-      if (!availableSpecs.has("Số chiều")) availableSpecs.set("Số chiều", new Set());
+      if (!availableSpecs.has("Số chiều"))
+        availableSpecs.set("Số chiều", new Set());
       availableSpecs.get("Số chiều")!.add(nameDirection);
+    }
+
+    const nameCapacity = getCapacityFromText(p.name);
+    if (nameCapacity) {
+      if (!availableSpecs.has("Công suất"))
+        availableSpecs.set("Công suất", new Set());
+      availableSpecs.get("Công suất")!.add(nameCapacity);
+    }
+
+    const nameGas = getGasType(p.name);
+    if (nameGas) {
+      if (!availableSpecs.has("Loại Gas"))
+        availableSpecs.set("Loại Gas", new Set());
+      availableSpecs.get("Loại Gas")!.add(nameGas);
     }
 
     if (Array.isArray(p.specs)) {
       p.specs.forEach((s: any) => {
         if (!s.label) return;
-
         const uiLabel = REVERSE_SPEC_MAPPING[s.label.toLowerCase().trim()];
-        if (!uiLabel) return; // Only include whitelisted specs
+        if (!uiLabel) return;
 
         if (!availableSpecs.has(uiLabel))
           availableSpecs.set(uiLabel, new Set());
 
         const targetSet = availableSpecs.get(uiLabel)!;
-
-        // Handle both s.items and s.value if it's an array
         const items = Array.isArray(s.items)
           ? s.items
           : Array.isArray(s.value)
@@ -247,17 +378,18 @@ export async function searchProducts(
 
         if (items) {
           items.forEach((item: any) => {
-            const valToNormalize =
+            const val =
               item.value !== undefined
                 ? item.value
                 : typeof item === "string"
                   ? item
                   : null;
-            if (valToNormalize !== null && valToNormalize !== undefined) {
+            if (val !== null && val !== undefined) {
               const normalized = normalizeSpecValue(
                 uiLabel,
-                String(valToNormalize),
+                String(val),
                 item.unit,
+                s.label,
               );
               if (normalized) targetSet.add(normalized);
             }
@@ -267,6 +399,7 @@ export async function searchProducts(
             uiLabel,
             String(s.value),
             s.unit,
+            s.label,
           );
           if (normalized) targetSet.add(normalized);
         }
@@ -274,16 +407,9 @@ export async function searchProducts(
     }
   });
 
-  let filtered = allProducts;
+  // 5. Final filtering for products (Brand + Price + Specs)
+  let filtered = productsForFilters;
 
-  // Apply brandIds filter
-  if (options.brandIds && options.brandIds.length > 0) {
-    filtered = filtered.filter((p) => options.brandIds!.includes(p.brandId));
-  } else if (options.brandId) {
-    filtered = filtered.filter((p) => p.brandId === options.brandId);
-  }
-
-  // Apply price filters
   if (options.minPrice !== undefined) {
     filtered = filtered.filter(
       (p) => effectivePrice(p) >= (options.minPrice || 0),
@@ -295,7 +421,6 @@ export async function searchProducts(
     );
   }
 
-  // Apply Specs filter
   if (options.specs && Object.keys(options.specs).length > 0) {
     filtered = filtered.filter((p) => {
       const pSpecs = p.specs as any[];
@@ -304,17 +429,19 @@ export async function searchProducts(
       return Object.entries(options.specs!).every(([label, values]) => {
         if (!values || values.length === 0) return true;
 
-        // NEW: Check product NAME for installation type and direction as well
-        if (label === "Kiểu lắp đặt") {
-          const nameInstType = getInstallationType(p.name);
-          if (nameInstType && values.includes(nameInstType)) return true;
-        }
-        if (label === "Số chiều") {
-          const nameDirection = getCoolingDirection(p.name);
-          if (nameDirection && values.includes(nameDirection)) return true;
+        // Check product NAME
+        let nameMatch: string | null = null;
+        if (label === "Số chiều") nameMatch = getCoolingDirection(p.name);
+        else if (label === "Công suất") nameMatch = getCapacityFromText(p.name);
+        else if (label === "Loại Gas") nameMatch = getGasType(p.name);
+
+        // If name matches one of the selected values, it's a hit
+        if (nameMatch && values.includes(nameMatch)) {
+          return true;
         }
 
-        // Find if any spec matches the label (mapped or direct) and has one of the values
+        // Also check SPECS (don't return early if nameMatch exists but doesn't match values)
+        const pSpecs = (p.specs as any[]) || [];
         return pSpecs.some((s) => {
           if (!s.label) return false;
           const uiLabel =
@@ -338,11 +465,13 @@ export async function searchProducts(
                     : null;
               if (val !== null && val !== undefined)
                 pValues.push(
-                  normalizeSpecValue(uiLabel, String(val), item.unit),
+                  normalizeSpecValue(uiLabel, String(val), item.unit, s.label),
                 );
             });
           } else if (s.value !== undefined && s.value !== null) {
-            pValues.push(normalizeSpecValue(uiLabel, String(s.value), s.unit));
+            pValues.push(
+              normalizeSpecValue(uiLabel, String(s.value), s.unit, s.label),
+            );
           }
 
           return pValues.some((pv) => values.includes(pv));
@@ -433,16 +562,25 @@ export async function searchProducts(
       minPrice: minPrice === Infinity ? 0 : minPrice,
       maxPrice: maxPrice === -Infinity ? 0 : maxPrice,
       specs: Object.keys(SPEC_WHITELIST)
-        .filter((label) => availableSpecs.has(label))
+        .filter(
+          (label) =>
+            availableSpecs.has(label) && availableSpecs.get(label)!.size > 0,
+        )
         .map((label) => ({
           label,
           values: Array.from(availableSpecs.get(label)!)
             .filter((v) => v !== "")
             .sort((a, b) => {
-              // Smart numeric sort
-              const aNum = parseFloat(a.replace(/,/g, ""));
-              const bNum = parseFloat(b.replace(/,/g, ""));
-              if (!isNaN(aNum) && !isNaN(bNum)) return aNum - bNum;
+              // Smart numeric sort - extract only numbers for comparison
+              const aNum = parseFloat(a.replace(/[^\d.]/g, ""));
+              const bNum = parseFloat(b.replace(/[^\d.]/g, ""));
+              if (!isNaN(aNum) && !isNaN(bNum)) {
+                if (aNum !== bNum) return aNum - bNum;
+                // If numbers are same, put the one with '>' last
+                if (a.includes(">") && !b.includes(">")) return 1;
+                if (!a.includes(">") && b.includes(">")) return -1;
+                return 0;
+              }
               return a.localeCompare(b);
             }),
         })),
