@@ -139,7 +139,7 @@ export function Header() {
       {/* Overlay blur toàn màn hình khi mở menu mobile */}
       <div
         className={cn(
-          "fixed inset-0 z-40 bg-background/20 backdrop-blur-sm lg:hidden transition-all duration-1000 ease-[cubic-bezier(0.16,1,0.3,1)]",
+          "fixed inset-0 z-40 bg-muted-foreground/80 lg:hidden transition-all duration-1000 ease-[cubic-bezier(0.64,0,0.78,0)]",
           isMenuOpen
             ? "opacity-100 pointer-events-auto"
             : "opacity-0 pointer-events-none",
@@ -160,8 +160,8 @@ export function Header() {
             isMenuOpen || isTransitioning
               ? "bg-background border-b-transparent shadow-lg"
               : isScrolled
-                ? "bg-background/70 backdrop-blur-xl shadow-lg"
-                : "bg-background/50 backdrop-blur-xl shadow-sm",
+                ? "bg-background/80 backdrop-blur-md shadow-md"
+                : "bg-background/40 backdrop-blur-sm shadow-sm",
           )}
         >
           <Collapsible open={isMenuOpen} onOpenChange={handleMenuToggle}>
