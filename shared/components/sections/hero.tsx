@@ -4,6 +4,7 @@ import {
   TypographyH1,
   TypographyLead,
 } from "@/shared/components/ui/typography";
+import { Button } from "@/shared/components/ui/button";
 import { getOptimizedImage } from "@/shared/lib/image";
 import Image from "next/image";
 
@@ -13,6 +14,8 @@ import { HeroContactActions } from "./hero-contact-actions";
 interface HeroSectionProps {
   title?: string;
   subtitle?: string;
+  ctaText?: string;
+  ctaUrl?: string;
   image?: string;
   contacts?: Contact[];
 }
@@ -20,6 +23,8 @@ interface HeroSectionProps {
 export function HeroSection({
   title = "Giải pháp Không khí thuần khiết.",
   subtitle = "Xóa bỏ ranh giới giữa bên trong và thiên nhiên. Hệ thống điều khí thông minh từ ELC tự động tối ưu từng nhịp thở cho ngôi nhà của bạn.",
+  ctaText,
+  ctaUrl,
   image,
   contacts = [],
 }: HeroSectionProps) {
@@ -56,6 +61,14 @@ export function HeroSection({
         <StaggerItem duration={0.25}>
           <TypographyLead>{subtitle}</TypographyLead>
         </StaggerItem>
+
+        {ctaText && (
+          <StaggerItem duration={0.25}>
+            <Button asChild size="lg" className="w-fit">
+              <a href={ctaUrl || "#"}>{ctaText}</a>
+            </Button>
+          </StaggerItem>
+        )}
 
         <HeroContactActions contacts={contacts} />
       </StaggerContainer>
