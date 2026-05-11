@@ -3,6 +3,7 @@
 import { Contact } from "@/modules/contact/domain";
 import { Button } from "@/shared/components/ui/button";
 import { useRouter } from "next/navigation";
+import { StaggerContainer, StaggerItem } from "@/shared/components/ui/animate-in";
 
 interface HeroContactActionsProps {
   contacts: Contact[];
@@ -20,58 +21,62 @@ export function HeroContactActions({ contacts }: HeroContactActionsProps) {
   };
 
   return (
-    <>
-      {hotline ? (
-        <Button
-          asChild
-          variant="secondary"
-          size="lg"
-          className="w-full lg:w-auto gap-2"
-        >
-          <a
-            href={`tel:${getCleanValue(hotline.value)}`}
-            onClick={() => handleAction("hotline")}
+    <StaggerContainer className="grid grid-cols-1 lg:grid-cols-2 gap-2 pt-2 w-full">
+      <StaggerItem className="w-full lg:w-auto">
+        {hotline ? (
+          <Button
+            asChild
+            variant="secondary"
+            size="lg"
+            className="w-full gap-2"
           >
-            {hotline.label || "Số điện thoại"}: {hotline.value}
-          </a>
-        </Button>
-      ) : (
-        <Button
-          variant="secondary"
-          size="lg"
-          className="w-full lg:w-auto gap-2"
-          disabled
-        >
-          Hotline
-        </Button>
-      )}
+            <a
+              href={`tel:${getCleanValue(hotline.value)}`}
+              onClick={() => handleAction("hotline")}
+            >
+              {hotline.label || "Số điện thoại"}: {hotline.value}
+            </a>
+          </Button>
+        ) : (
+          <Button
+            variant="secondary"
+            size="lg"
+            className="w-full gap-2"
+            disabled
+          >
+            Hotline
+          </Button>
+        )}
+      </StaggerItem>
 
-      {zalo ? (
-        <Button
-          asChild
-          variant="default"
-          size="lg"
-          className="w-full lg:w-auto gap-2"
-        >
-          <a
-            href={`https://zalo.me/${getCleanValue(zalo.value)}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            onClick={() => handleAction("zalo")}
+      <StaggerItem className="w-full lg:w-auto">
+        {zalo ? (
+          <Button
+            asChild
+            variant="default"
+            size="lg"
+            className="w-full gap-2"
           >
-            {zalo.label || "Zalo"}: {zalo.value}
-          </a>
-        </Button>
-      ) : (
-        <Button
-          variant="default"
-          size="lg"
-          className="w-full lg:w-auto gap-2"
-          disabled
-        >
-          Zalo
-        </Button>
-      )}
-    </>
+            <a
+              href={`https://zalo.me/${getCleanValue(zalo.value)}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={() => handleAction("zalo")}
+            >
+              {zalo.label || "Zalo"}: {zalo.value}
+            </a>
+          </Button>
+        ) : (
+          <Button
+            variant="default"
+            size="lg"
+            className="w-full gap-2"
+            disabled
+          >
+            Zalo
+          </Button>
+        )}
+      </StaggerItem>
+    </StaggerContainer>
   );
 }

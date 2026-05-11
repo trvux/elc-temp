@@ -1,4 +1,4 @@
-import { AnimateIn } from "@/shared/components/ui/animate-in";
+import { StaggerContainer, StaggerItem } from "@/shared/components/ui/animate-in";
 import { Separator } from "@/shared/components/ui/separator";
 import {
   TypographyH1,
@@ -53,20 +53,19 @@ export function HeroSection({
   return (
     <section className={styles.section}>
       {/* Cụm Content */}
-      <AnimateIn className={styles.content}>
-        <TypographyH1>{title}</TypographyH1>
-        <Separator />
-        <TypographyLead>{subtitle}</TypographyLead>
+      <StaggerContainer className={styles.content}>
+        <StaggerItem>
+          <TypographyH1>{title}</TypographyH1>
+        </StaggerItem>
+        <StaggerItem>
+          <Separator />
+        </StaggerItem>
+        <StaggerItem>
+          <TypographyLead>{subtitle}</TypographyLead>
+        </StaggerItem>
 
-        <div className={styles.actions}>
-          {/* <Button asChild size="lg" variant="secondary" className={styles.btn}>
-            <Link href={ctaUrl}>{ctaText}</Link>
-          </Button> */}
-          <HeroContactActions contacts={contacts} />
-
-          {/* <HeroContactButton className={styles.contact} contacts={contacts} /> */}
-        </div>
-      </AnimateIn>
+        <HeroContactActions contacts={contacts} />
+      </StaggerContainer>
 
       {/* Cụm Media - KHÔNG bọc AnimateIn để bảo vệ LCP */}
       <div className={styles.media}>
