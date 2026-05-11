@@ -643,6 +643,19 @@ export function ProductManagement() {
                       value={field.value}
                       onChange={field.onChange}
                       placeholder="Mô tả chi tiết sản phẩm..."
+                      uploadImage={async (file) => {
+                        const fileName = `products/${Date.now()}-${Math.random().toString(36).slice(2)}.webp`;
+                        const { error } = await supabase.storage
+                          .from("images")
+                          .upload(fileName, file, {
+                            contentType: "image/webp",
+                          });
+                        if (error) throw error;
+                        const { data } = supabase.storage
+                          .from("images")
+                          .getPublicUrl(fileName);
+                        return data.publicUrl;
+                      }}
                     />
                   )}
                 />

@@ -16,6 +16,8 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useForm, Controller } from "react-hook-form";
 import { standardSchemaResolver } from "@hookform/resolvers/standard-schema";
 import type { z } from "zod";
+import { createClient } from "@/shared/lib/supabase/client";
+import { convertToWebP } from "@/shared/lib/image";
 import {
   Field,
   FieldContent,
@@ -37,6 +39,7 @@ type BranchFormValues = z.infer<typeof createBranchSchema>;
 
 export function BranchManagement() {
   const queryClient = useQueryClient();
+  const supabase = createClient();
   
   // Consolidate modal states into single objects
   const [activeBranch, setActiveBranch] = useState<Branch | "new" | null>(null);
@@ -264,6 +267,19 @@ export function BranchManagement() {
                         }
                       }}
                       placeholder="Viết nội dung chi nhánh..."
+                      uploadImage={async (file) => {
+                        const fileName = `branches/${Date.now()}-${Math.random().toString(36).slice(2)}.webp`;
+                        const { error } = await supabase.storage
+                          .from("images")
+                          .upload(fileName, file, {
+                            contentType: "image/webp",
+                          });
+                        if (error) throw error;
+                        const { data } = supabase.storage
+                          .from("images")
+                          .getPublicUrl(fileName);
+                        return data.publicUrl;
+                      }}
                     />
                   )}
                 />
