@@ -122,6 +122,28 @@ function HighlightedText({
   );
 }
 
+function getCategoryDisplayName(
+  category: { name: string; parentId?: string | null },
+  allCategories: { id: string; name: string }[],
+) {
+  if (category.parentId) {
+    const parent = allCategories.find((p) => p.id === category.parentId);
+    if (parent && parent.name.toLowerCase() === "máy lạnh") {
+      return `Máy lạnh ${category.name}`;
+    }
+  }
+  return category.name;
+}
+
+function formatCapacity(val: string): string {
+  const match = val.match(/\((.*?)\s*HP\)/);
+  if (match) {
+    const hpValue = match[1].trim().replace(/\s+/g, "");
+    return `${hpValue}HP`;
+  }
+  return val;
+}
+
 export default async function ProductsHub({
   searchParams,
 }: {
@@ -166,7 +188,9 @@ export default async function ProductsHub({
   });
 
   // Fetch categories for filter UI
-  const allCategories = await getCategories({ type: "PRODUCT" });
+  const allCategories = (await getCategories({ type: "PRODUCT" })).filter(
+    (c) => c.name.toLowerCase() !== "chưa phân loại",
+  );
 
   // Resolve categorySlug -> affected IDs
   const categoryIds = categorySlug
@@ -209,10 +233,38 @@ export default async function ProductsHub({
           <TypographyH1 className={STYLES.title}>
             {q
               ? `Kết quả cho "${q}"`
-              : categorySlug
-                ? allCategories.find((c) => c.slug === categorySlug)?.name ||
-                  "Sản phẩm"
-                : "Giải pháp thông minh"}
+              : (() => {
+                  const currentCategory = allCategories.find(
+                    (c) => c.slug === categorySlug,
+                  );
+                  const categoryName = currentCategory
+                    ? getCategoryDisplayName(currentCategory, allCategories)
+                    : "";
+                  const selectedBrands = availableFilters.brands.filter((b) =>
+                    brandIds.includes(b.id),
+                  );
+                  const brandNames = selectedBrands
+                    .map((b) => b.name)
+                    .join(", ");
+                  const capacity = specs["Công suất"]
+                    ?.map(formatCapacity)
+                    .join(", ");
+
+                  if (!categoryName && !brandNames && !capacity) {
+                    return "Giải pháp thông minh";
+                  }
+
+                  if (!categoryName) {
+                    return `Dòng sản phẩm ${brandNames} ${capacity}`
+                      .trim()
+                      .replace(/\s+/g, " ");
+                  }
+
+                  const parts = [categoryName];
+                  if (brandNames) parts.push(brandNames);
+                  if (capacity) parts.push(capacity);
+                  return parts.join(" ");
+                })()}
           </TypographyH1>
           <p className={STYLES.badge}>
             {isSearchActive
@@ -221,7 +273,7 @@ export default async function ProductsHub({
           </p>
         </header>
 
-        <div className="flex flex-col gap-4 md:gap-10">
+        <div className="flex flex-col gap-4">
           {/* Search */}
           <div className={STYLES.searchWrapper}>
             <Suspense fallback={null}>
@@ -234,16 +286,75 @@ export default async function ProductsHub({
             {/* Sidebar - Desktop */}
             <aside className="hidden lg:block w-64 shrink-0">
               <ProductFilters
-                categories={allCategories}
+                categories={(() => {
+                  const parentIds = new Set(
+                    allCategories.map((c) => c.parentId).filter(Boolean),
+                  );
+                  return allCategories
+                    .filter((c) => c.parentId || !parentIds.has(c.id))
+                    .map((c) => ({
+                      ...c,
+                      name: getCategoryDisplayName(c, allCategories),
+                    }))
+                    .sort((a, b) => {
+                      const priority = [
+                        "treo tường",
+                        "máy lọc nước",
+                        "tủ đứng",
+                        "âm trần",
+                        "giấu trần",
+                        "áp trần",
+                        "máy cấp khí tươi",
+                        "phụ kiện",
+                      ];
+                      const getIndex = (name: string) => {
+                        const lower = name.toLowerCase();
+                        if (lower.includes("chưa phân loại")) return 9999;
+                        const idx = priority.findIndex((p) =>
+                          lower.includes(p),
+                        );
+                        return idx === -1 ? 999 : idx;
+                      };
+                      return getIndex(a.name) - getIndex(b.name);
+                    });
+                })()}
                 availableFilters={availableFilters}
               />
             </aside>
 
             {/* Mobile Filter Trigger */}
             <ProductFilterMobile
-              categories={allCategories}
+              categories={(() => {
+                const parentIds = new Set(
+                  allCategories.map((c) => c.parentId).filter(Boolean),
+                );
+                return allCategories
+                  .filter((c) => c.parentId || !parentIds.has(c.id))
+                  .map((c) => ({
+                    ...c,
+                    name: getCategoryDisplayName(c, allCategories),
+                  }))
+                  .sort((a, b) => {
+                    const priority = [
+                      "treo tường",
+                      "máy lọc nước",
+                      "tủ đứng",
+                      "âm trần",
+                      "giấu trần",
+                      "áp trần",
+                      "máy cấp khí tươi",
+                      "phụ kiện",
+                    ];
+                    const getIndex = (name: string) => {
+                      const lower = name.toLowerCase();
+                      if (lower.includes("chưa phân loại")) return 9999;
+                      const idx = priority.findIndex((p) => lower.includes(p));
+                      return idx === -1 ? 999 : idx;
+                    };
+                    return getIndex(a.name) - getIndex(b.name);
+                  });
+              })()}
               availableFilters={availableFilters}
-              totalCount={totalCount}
             />
 
             {/* Grid */}

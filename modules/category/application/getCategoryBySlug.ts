@@ -6,16 +6,23 @@ export async function getCategoryBySlug(slug: string): Promise<Category | null> 
 }
 
 /**
- * Get category by slug and its children IDs (useful for filtering products)
+ * Get category by slug and all its descendant IDs (useful for filtering products)
  */
 export async function getCategoryIdsBySlug(slug: string): Promise<string[]> {
   const matched = await categoryRepo.getBySlug(slug);
-  
   if (!matched) return [];
+
+  const categoryIds: string[] = [matched.id];
   
-  const categoryIds = [matched.id];
-  const children = await categoryRepo.getChildren(matched.id);
-  categoryIds.push(...children.map((c) => c.id));
-  
+  // Recursive function to get all children IDs
+  async function fetchChildrenRecursively(parentId: string) {
+    const children = await categoryRepo.getChildren(parentId);
+    for (const child of children) {
+      categoryIds.push(child.id);
+      await fetchChildrenRecursively(child.id);
+    }
+  }
+
+  await fetchChildrenRecursively(matched.id);
   return categoryIds;
 }

@@ -75,7 +75,6 @@ type SpecItem = {
 };
 
 const AC_TEMPLATE: SpecItem[] = [
-  { label: "Loại máy", value: "" },
   { label: "Công nghệ Inverter", value: "" },
   {
     label: "Công suất làm lạnh",
