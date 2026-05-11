@@ -17,6 +17,7 @@ import {
   TypographySmall,
 } from "@/shared/components/ui/typography";
 import { cn, formatPrice } from "@/shared/lib/utils";
+import { Package } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { Suspense } from "react";
@@ -268,7 +269,9 @@ export default async function ProductsHub({
           </TypographyH1>
           <div className="flex items-center justify-center">
             <Badge variant="secondary" className="rounded-sm">
-              Danh sách có {totalCount} sản phẩm
+              Danh sách có
+              <Package data-icon="inline-start" />
+              {totalCount} sản phẩm
             </Badge>
           </div>
         </header>
