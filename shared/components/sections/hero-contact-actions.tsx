@@ -1,9 +1,12 @@
 "use client";
 
 import { Contact } from "@/modules/contact/domain";
+import {
+  StaggerContainer,
+  StaggerItem,
+} from "@/shared/components/ui/animate-in";
 import { Button } from "@/shared/components/ui/button";
 import { useRouter } from "next/navigation";
-import { StaggerContainer, StaggerItem } from "@/shared/components/ui/animate-in";
 
 interface HeroContactActionsProps {
   contacts: Contact[];
@@ -21,8 +24,11 @@ export function HeroContactActions({ contacts }: HeroContactActionsProps) {
   };
 
   return (
-    <StaggerContainer className="grid grid-cols-1 lg:grid-cols-2 gap-2 pt-2 w-full">
-      <StaggerItem className="w-full lg:w-auto">
+    <StaggerContainer
+      className="grid grid-cols-1 lg:grid-cols-2 gap-2 pt-2 w-full"
+      staggerDelay={0.08}
+    >
+      <StaggerItem className="w-full lg:w-auto" duration={0.25}>
         {hotline ? (
           <Button
             asChild
@@ -49,14 +55,9 @@ export function HeroContactActions({ contacts }: HeroContactActionsProps) {
         )}
       </StaggerItem>
 
-      <StaggerItem className="w-full lg:w-auto">
+      <StaggerItem className="w-full lg:w-auto" duration={0.25}>
         {zalo ? (
-          <Button
-            asChild
-            variant="default"
-            size="lg"
-            className="w-full gap-2"
-          >
+          <Button asChild variant="default" size="lg" className="w-full gap-2">
             <a
               href={`https://zalo.me/${getCleanValue(zalo.value)}`}
               target="_blank"
@@ -67,12 +68,7 @@ export function HeroContactActions({ contacts }: HeroContactActionsProps) {
             </a>
           </Button>
         ) : (
-          <Button
-            variant="default"
-            size="lg"
-            className="w-full gap-2"
-            disabled
-          >
+          <Button variant="default" size="lg" className="w-full gap-2" disabled>
             Zalo
           </Button>
         )}

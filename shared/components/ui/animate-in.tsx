@@ -8,7 +8,7 @@ const fadeUp: Variants = {
   visible: {
     opacity: 1,
     y: 0,
-    transition: { duration: 1.2, ease: [0.16, 1, 0.3, 1] },
+    transition: { duration: 0.6, ease: [0.16, 1, 0.3, 1] },
   },
 };
 
@@ -16,13 +16,13 @@ const fadeIn: Variants = {
   hidden: { opacity: 0 },
   visible: {
     opacity: 1,
-    transition: { duration: 1.0, ease: "easeOut" },
+    transition: { duration: 0.5, ease: "easeOut" },
   },
 };
 
 const stagger: Variants = {
   hidden: {},
-  visible: { transition: { staggerChildren: 0.12, delayChildren: 0.02 } },
+  visible: { transition: { staggerChildren: 0.1, delayChildren: 0.02 } },
 };
 
 interface AnimateInProps {
@@ -30,6 +30,7 @@ interface AnimateInProps {
   className?: string;
   variant?: "fadeUp" | "fadeIn";
   delay?: number;
+  duration?: number;
   as?: "div" | "section" | "li";
   immediate?: boolean;
 }
@@ -39,6 +40,7 @@ export function AnimateIn({
   className,
   variant = "fadeUp",
   delay = 0,
+  duration,
   as = "div",
   immediate = false,
 }: AnimateInProps) {
@@ -50,6 +52,7 @@ export function AnimateIn({
       transition: {
         ...((base.visible as { transition?: object }).transition ?? {}),
         delay,
+        ...(duration ? { duration } : {}),
       },
     },
   };
@@ -74,11 +77,18 @@ export function StaggerContainer({
   children,
   className,
   immediate = false,
+  staggerDelay = 0.1,
 }: {
   children: ReactNode;
   className?: string;
   immediate?: boolean;
+  staggerDelay?: number;
 }) {
+  const variants: Variants = {
+    hidden: {},
+    visible: { transition: { staggerChildren: staggerDelay, delayChildren: 0.02 } },
+  };
+
   return (
     <m.div
       className={className}
@@ -86,7 +96,7 @@ export function StaggerContainer({
       animate={immediate ? "visible" : undefined}
       whileInView={immediate ? undefined : "visible"}
       viewport={{ once: true, margin: "0px 0px -10% 0px", amount: 0.3 }}
-      variants={stagger}
+      variants={variants}
     >
       {children}
     </m.div>
@@ -97,12 +107,25 @@ export function StaggerContainer({
 export function StaggerItem({
   children,
   className,
+  duration = 0.5,
 }: {
   children: ReactNode;
   className?: string;
+  duration?: number;
 }) {
+  const variants: Variants = {
+    hidden: fadeUp.hidden,
+    visible: {
+      ...(fadeUp.visible as object),
+      transition: {
+        ...((fadeUp.visible as { transition?: object }).transition ?? {}),
+        duration,
+      },
+    },
+  };
+
   return (
-    <m.div className={className} variants={fadeUp}>
+    <m.div className={className} variants={variants}>
       {children}
     </m.div>
   );
