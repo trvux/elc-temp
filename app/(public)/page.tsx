@@ -43,8 +43,6 @@ export default async function Home() {
         <HeroSection
           title={settings.hero_title}
           subtitle={settings.hero_subtitle}
-          ctaText={settings.hero_cta_text}
-          ctaUrl={settings.hero_cta_url}
           image={settings.hero_image}
           contacts={contacts || []}
         />

@@ -139,7 +139,7 @@ export function Header() {
       {/* Overlay blur toàn màn hình khi mở menu mobile */}
       <div
         className={cn(
-          "fixed inset-0 z-40 bg-muted-foreground/80 lg:hidden transition-all duration-1000 ease-[cubic-bezier(0.64,0,0.78,0)]",
+          "fixed inset-0 z-40 bg-muted-foreground/60 lg:hidden transition-all duration-1000 ease-[cubic-bezier(0.64,0,0.78,0)]",
           isMenuOpen
             ? "opacity-100 pointer-events-auto"
             : "opacity-0 pointer-events-none",
