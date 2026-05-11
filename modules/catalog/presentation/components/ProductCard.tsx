@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import React from "react";
 import { ProductWithRelations } from "../../domain/types";
+import { TypographyLarge, TypographySmall } from "@/shared/components/ui/typography";
 
 interface ProductCardProps {
   product: ProductWithRelations;
@@ -32,13 +33,13 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
         )}
       </Link>
       <CardContent className="p-4 flex-grow">
-        <div className="text-xs text-muted-foreground mb-1 capitalize">
+        <TypographySmall className="text-muted-foreground mb-1 capitalize block">
           {product.brand?.name}
-        </div>
+        </TypographySmall>
         <Link href={`/san-pham/${categorySlug}/${product.slug}`}>
-          <h3 className="font-semibold text-lg line-clamp-2 group-hover:text-primary transition-colors">
+          <TypographyLarge className="line-clamp-2 group-hover:text-primary transition-colors">
             {product.name}
-          </h3>
+          </TypographyLarge>
         </Link>
         <div className="mt-2 flex items-baseline gap-2">
           {product.salePrice ? (
