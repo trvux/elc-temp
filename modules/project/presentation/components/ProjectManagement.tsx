@@ -494,18 +494,18 @@ export function ProjectManagement() {
                       }}
                       placeholder="Viết nội dung dự án..."
                       uploadImage={async (file) => {
-                        const ext = file.name.split(".").pop();
-                        const fileName = `projects/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
+                        const fileName = `projects/${Date.now()}-${Math.random().toString(36).slice(2)}.webp`;
                         const { error } = await supabase.storage
                           .from("images")
-                          .upload(fileName, file);
+                          .upload(fileName, file, {
+                            contentType: "image/webp",
+                          });
                         if (error) throw error;
                         const { data } = supabase.storage
                           .from("images")
                           .getPublicUrl(fileName);
                         return data.publicUrl;
-                      }}
-                    />
+                      }}                    />
                   )}
                 />
               </FieldContent>
