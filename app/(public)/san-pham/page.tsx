@@ -266,11 +266,11 @@ export default async function ProductsHub({
                   return parts.join(" ");
                 })()}
           </TypographyH1>
-          <p className={STYLES.badge}>
-            {isSearchActive
-              ? `${totalCount} kết quả tìm kiếm`
-              : `${totalCount} sản phẩm`}
-          </p>
+          <div className="flex items-center justify-center">
+            <Badge variant="secondary" className="rounded-sm">
+              Danh sách có {totalCount} sản phẩm
+            </Badge>
+          </div>
         </header>
 
         <div className="flex flex-col gap-4">
