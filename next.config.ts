@@ -13,10 +13,6 @@ const nextConfig: NextConfig = {
         protocol: "https",
         hostname: "media.dienmayelc.com.vn",
       },
-      {
-        protocol: "https",
-        hostname: "images.unsplash.com",
-      },
     ],
   },
 };
