@@ -2,6 +2,7 @@ import { AspectRatio } from "@/shared/components/ui/aspect-ratio";
 import { Badge } from "@/shared/components/ui/badge";
 import {
   TypographyH2,
+  TypographyLarge,
   TypographySmall,
 } from "@/shared/components/ui/typography";
 import { createClient } from "@/shared/lib/supabase/server";
@@ -21,7 +22,9 @@ const STYLES = {
   title: cn("mb-10"),
   grid: cn("grid grid-cols-2 md:grid-cols-4 gap-x-6 gap-y-12 md:gap-y-16"),
   productCard: cn("group flex flex-col"),
-  imageWrapper: cn("w-full overflow-hidden bg-background rounded-lg border border-border/40"),
+  imageWrapper: cn(
+    "w-full overflow-hidden bg-background rounded-lg border border-border/40",
+  ),
   image: cn(
     "object-contain p-4 transition-transform duration-700 group-hover:scale-105",
   ),
@@ -86,21 +89,21 @@ export default async function RelatedProducts({
               </div>
 
               <div className={STYLES.infoWrapper}>
-                <TypographyH2 className={STYLES.productName}>
+                <TypographyLarge className={STYLES.productName}>
                   {product.name}
-                </TypographyH2>
+                </TypographyLarge>
 
                 {product.sku && (
-                  <span className={STYLES.sku}>
+                  <TypographySmall className={STYLES.sku}>
                     {product.sku}
-                  </span>
+                  </TypographySmall>
                 )}
 
                 <div className={STYLES.priceWrapper}>
                   <span className={STYLES.salePrice}>
                     {formatPrice(finalPrice)}
                   </span>
-                  
+
                   {product.discount_percent > 0 && (
                     <div className={STYLES.originalPriceWrapper}>
                       <span className={STYLES.originalPrice}>

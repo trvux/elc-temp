@@ -13,7 +13,7 @@ import { Badge } from "@/shared/components/ui/badge";
 import { Card } from "@/shared/components/ui/card";
 import {
   TypographyH1,
-  TypographyH4,
+  TypographyLarge,
   TypographySmall,
 } from "@/shared/components/ui/typography";
 import { cn, formatPrice } from "@/shared/lib/utils";
@@ -394,19 +394,19 @@ export default async function ProductsHub({
 
                         {/* Info */}
                         <div className={cn(STYLES.infoWrapper, "p-4")}>
-                          <TypographyH4>
+                          <TypographyLarge className="line-clamp-2">
                             <HighlightedText
                               text={product.name}
                               queryTokens={queryTokens}
                             />
-                          </TypographyH4>
+                          </TypographyLarge>
                           {product.sku && (
-                            <span className={STYLES.sku}>
+                            <TypographySmall className="text-muted-foreground">
                               <HighlightedText
                                 text={product.sku}
                                 queryTokens={queryTokens}
                               />
-                            </span>
+                            </TypographySmall>
                           )}
                           <div className={STYLES.priceWrapper}>
                             <span className={STYLES.salePrice}>
