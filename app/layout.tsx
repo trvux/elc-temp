@@ -19,6 +19,9 @@ const inter = Inter({
 export const metadata: Metadata = {
   title: "Điện máy ELC",
   description: "Điện máy ELC chuyên cung cấp máy lạnh và giải pháp không khí chuyên nghiệp.",
+  icons: {
+    apple: "/apple-icon.svg",
+  },
   formatDetection: {
     telephone: false,
   },
