@@ -67,7 +67,7 @@ export function ProductSearchInput() {
             className={inputValue ? "" : "opacity-0 pointer-events-none"}
             aria-label="Xóa tìm kiếm"
           >
-            <X />
+            <X className="text-red-600" />
           </InputGroupButton>
         </InputGroupAddon>
       </InputGroup>

@@ -15,7 +15,9 @@ export interface Product {
     name: string;
     slug: string;
     sku: string;
-    shortDescription: string;
+    shortDescription?: string;
+    metaTitle?: string | null;
+    metaDescription?: string | null;
     description: Json;
     specs: Json;
     originalPrice: number;
@@ -43,6 +45,8 @@ export interface CreateProductInput {
     slug: string;
     sku: string;
     shortDescription?: string;
+    metaTitle?: string | null;
+    metaDescription?: string | null;
     description?: Json;
     specs?: Json;
     originalPrice: number;
@@ -72,6 +76,7 @@ export interface ProductFilter {
     categoryIds?: string[];
     brandId?: string;
     brandIds?: string[];
+    brandSlugs?: string[];
     isFeatured?: boolean;
     isPublished?: boolean;
     search?: string;

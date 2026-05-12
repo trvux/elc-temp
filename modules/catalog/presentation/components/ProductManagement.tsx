@@ -297,22 +297,56 @@ export function ProductManagement() {
     sku: string,
     catId: string,
     brdId: string,
+    specs: any[] = []
   ) => {
-    let namePart = name.toLowerCase();
-    const cat = categories.find((c) => c.id === catId);
-    if (cat) {
-      const parentCat = categories.find((c) => c.id === cat.parentId);
-      if (parentCat && namePart.startsWith(parentCat.name.toLowerCase())) {
-        namePart = namePart.replace(parentCat.name.toLowerCase(), "").trim();
-      }
-      if (namePart.startsWith(cat.name.toLowerCase())) {
-        namePart = namePart.replace(cat.name.toLowerCase(), "").trim();
-      }
-      if (!namePart) namePart = name;
-    }
     const brandName = brands.find((b) => b.id === brdId)?.name || "";
-    const finalPart = `${brandName} ${namePart} ${sku}`.trim();
-    form.setValue("slug", generateSlug(finalPart));
+    
+    // Extract HP from specs or name
+    let hpValue = "";
+    
+    // 1. Try to find in specs
+    if (Array.isArray(specs)) {
+      for (const spec of specs) {
+        if (spec.items && Array.isArray(spec.items)) {
+          for (const item of spec.items) {
+            const valStr = item.value?.toString() || "";
+            const unitStr = item.unit?.toString() || "";
+            if (unitStr.toUpperCase() === "HP" || valStr.toUpperCase().includes("HP")) {
+              const match = valStr.match(/(\d+(\.\d+)?)/);
+              if (match) {
+                const num = parseFloat(match[1]);
+                hpValue = num.toString().replace(".", "").replace(",", "");
+                break;
+              }
+            }
+          }
+        }
+        if (hpValue) break;
+      }
+    }
+
+    // 2. Fallback to product name if still not found
+    if (!hpValue) {
+      const nameMatch = name.match(/(\d+(\.\d+)?)\s*HP/i);
+      if (nameMatch) {
+        const num = parseFloat(nameMatch[1]);
+        hpValue = num.toString().replace(".", "").replace(",", "");
+      }
+    }
+
+    // Clean SKU: only take the first part if it's a set (contains / or +)
+    const cleanedSku = sku.split(/[\/\+]/)[0].trim();
+    
+    // Formula: [brand]-[hp]hp-[sku]
+    let parts = [brandName];
+    if (hpValue) parts.push(`${hpValue}hp`);
+    if (cleanedSku) parts.push(cleanedSku);
+    
+    const finalPart = parts.join(" ").trim();
+    
+    if (finalPart) {
+      form.setValue("slug", generateSlug(finalPart));
+    }
   };
 
   const supabase = createClient();
@@ -462,6 +496,7 @@ export function ProductManagement() {
                                   form.getValues("sku"),
                                   form.getValues("categoryId"),
                                   form.getValues("brandId"),
+                                  form.getValues("specs"),
                                 );
                               }}
                             />
@@ -495,6 +530,7 @@ export function ProductManagement() {
                                   val,
                                   form.getValues("categoryId"),
                                   form.getValues("brandId"),
+                                  form.getValues("specs"),
                                 );
                               }}
                             />
@@ -526,6 +562,7 @@ export function ProductManagement() {
                                   form.getValues("sku"),
                                   val,
                                   form.getValues("brandId"),
+                                  form.getValues("specs"),
                                 );
                               }}
                             >
@@ -584,6 +621,7 @@ export function ProductManagement() {
                                   form.getValues("sku"),
                                   form.getValues("categoryId"),
                                   val,
+                                  form.getValues("specs"),
                                 );
                               }}
                             >
@@ -870,7 +908,15 @@ export function ProductManagement() {
                               <FieldContent>
                                 <Input
                                   placeholder="VD: 1.5 HP"
-                                  {...form.register(`specs.${i}.value`)}
+                                  {...form.register(`specs.${i}.value`, {
+                                    onChange: () => updateAutoSlug(
+                                      form.getValues("name"),
+                                      form.getValues("sku"),
+                                      form.getValues("categoryId"),
+                                      form.getValues("brandId"),
+                                      form.getValues("specs")
+                                    )
+                                  })}
                                   className="bg-background/50"
                                 />
                               </FieldContent>
@@ -959,6 +1005,15 @@ export function ProductManagement() {
                                       placeholder="VD: 2"
                                       {...form.register(
                                         `specs.${i}.items.${j}.value`,
+                                        {
+                                          onChange: () => updateAutoSlug(
+                                            form.getValues("name"),
+                                            form.getValues("sku"),
+                                            form.getValues("categoryId"),
+                                            form.getValues("brandId"),
+                                            form.getValues("specs")
+                                          )
+                                        }
                                       )}
                                       className="h-8 text-xs bg-background/50"
                                     />
@@ -973,6 +1028,15 @@ export function ProductManagement() {
                                       placeholder="VD: BTU"
                                       {...form.register(
                                         `specs.${i}.items.${j}.unit`,
+                                        {
+                                          onChange: () => updateAutoSlug(
+                                            form.getValues("name"),
+                                            form.getValues("sku"),
+                                            form.getValues("categoryId"),
+                                            form.getValues("brandId"),
+                                            form.getValues("specs")
+                                          )
+                                        }
                                       )}
                                       className="h-8 text-xs bg-background/50"
                                     />

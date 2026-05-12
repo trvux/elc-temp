@@ -2,7 +2,6 @@
 
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
-import { Separator } from "@/shared/components/ui/separator";
 import {
   Sheet,
   SheetContent,
@@ -11,7 +10,7 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/shared/components/ui/sheet";
-import { Check, Filter } from "lucide-react";
+import { Filter } from "lucide-react";
 import { useSearchParams } from "next/navigation";
 import { useMemo } from "react";
 import { ProductFilters } from "./ProductFilters";
@@ -19,7 +18,7 @@ import { ProductFilters } from "./ProductFilters";
 interface ProductFilterMobileProps {
   categories?: { id: string; name: string; slug: string }[];
   availableFilters: {
-    brands: { id: string; name: string }[];
+    brands: { id: string; name: string; slug: string }[];
     specs: { label: string; values: string[] }[];
     minPrice: number;
     maxPrice: number;
@@ -40,7 +39,8 @@ export function ProductFilterMobile({
     if (category && category !== "all") count++;
 
     // Check brands
-    const brands = searchParams.getAll("brandIds");
+    const brands =
+      searchParams.getAll("brands") || searchParams.getAll("brandIds");
     if (brands.length > 0) count++;
 
     // Check price
@@ -56,32 +56,32 @@ export function ProductFilterMobile({
   }, [searchParams]);
 
   return (
-    <div className="lg:hidden flex justify-between items-center p-3 mb-6 border rounded-lg">
-      <div className="flex items-center gap-2 px-1">
-        <span className="text-sm font-semibold">Bộ lọc</span>
-        {activeFilterCount > 0 && (
-          <Badge variant="secondary" className="rounded-sm">
-            <Check data-icon="inline-start" />
-            Đã lọc {activeFilterCount} mục
-          </Badge>
-        )}
-      </div>
+    <div className="lg:hidden shrink-0">
       <Sheet>
         <SheetTrigger asChild>
-          <Button variant="outline" size="sm" className="gap-2">
-            <Filter size={14} />
-            Lọc sản phẩm
+          <Button variant="outline" className="relative gap-2">
+            <Filter data-icon="inline-start" />
+            <span className="hidden sm:inline">Lọc sản phẩm</span>
+            <span className="sm:hidden">Lọc</span>
+            {activeFilterCount > 0 && (
+              <Badge variant="secondary" className="rounded-sm">
+                Chọn {activeFilterCount}
+              </Badge>
+            )}
           </Button>
         </SheetTrigger>
-        <SheetContent side="left" className="w-75 sm:w-100 p-0">
-          <SheetHeader className="p-4 text-left">
-            <SheetTitle>Bộ lọc sản phẩm</SheetTitle>
-            <SheetDescription>
-              Tìm kiếm sản phẩm phù hợp với nhu cầu của bạn.
+        <SheetContent
+          side="right"
+          // className="w-[300px] sm:w-[400px] p-0"
+          showCloseButton={false}
+        >
+          <SheetHeader className="hidden p-6">
+            <SheetTitle className="sr-only">Bộ lọc sản phẩm</SheetTitle>
+            <SheetDescription className="sr-only">
+              Bộ lọc sản phẩm theo danh mục các mục được chọn
             </SheetDescription>
           </SheetHeader>
-          <Separator />
-          <div className="p-4 overflow-y-auto h-[calc(100vh-140px)]">
+          <div className="h-[calc(100vh-80px)] overflow-y-auto p-6">
             <ProductFilters
               categories={categories}
               availableFilters={availableFilters}
