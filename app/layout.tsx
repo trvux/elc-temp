@@ -1,10 +1,9 @@
 import { Toaster } from "@/shared/components/ui/sonner";
 import { TooltipProvider } from "@/shared/components/ui/tooltip";
-import { QueryProvider } from "@/shared/providers/query-provider";
 import { cn } from "@/shared/lib/utils";
+import { QueryProvider } from "@/shared/providers/query-provider";
 import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
-import { Suspense } from "react";
 import "./globals.css";
 
 const inter = Inter({
@@ -14,23 +13,25 @@ const inter = Inter({
   display: "optional",
 });
 
-
-
 export const metadata: Metadata = {
-  title: "Điện máy ELC",
-  description: "Điện máy ELC chuyên cung cấp máy lạnh và giải pháp không khí chuyên nghiệp.",
-  icons: {
-    apple: "/apple-icon.svg",
-  },
-  formatDetection: {
-    telephone: false,
-  },
+  title:
+    "Điện máy ELC \ Thi công công trình & dự án \ dịch vụ điện máy \ thu cũ đổi mới các dòng máy lạnh",
+  description:
+    "Điện máy ELC chuyên cung cấp máy lạnh và giải pháp không khí chuyên nghiệp.",
   openGraph: {
-    type: "website",
+    title: "Điện máy ELC",
+    description: "Giải pháp không khí chuyên nghiệp",
+    url: "https://dienmayelc.com.vn", // Thay bằng domain thật của bạn
     siteName: "Điện máy ELC",
+    locale: "vi_VN",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Điện máy ELC",
+    description: "Giải pháp không khí chuyên nghiệp",
   },
 };
-
 
 export const viewport: Viewport = {
   width: "device-width",
@@ -54,7 +55,6 @@ export default function RootLayout({
           rel="preconnect"
           href="https://gdzihzsjfczuggwpykjk.supabase.co"
         />
-
       </head>
       <body
         suppressHydrationWarning

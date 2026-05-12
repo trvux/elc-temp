@@ -175,6 +175,7 @@ export function Header() {
                   alt="Điện máy ELC"
                   className="h-9 w-auto"
                 />
+                <span>Điện Máy ELC</span>
               </Link>
 
               <NavigationMenu className="hidden lg:flex">
