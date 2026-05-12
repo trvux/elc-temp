@@ -12,7 +12,7 @@ import { Button } from "@/shared/components/ui/button";
 import { Checkbox } from "@/shared/components/ui/checkbox";
 import { Input } from "@/shared/components/ui/input";
 import { Separator } from "@/shared/components/ui/separator";
-import { Check, Search } from "lucide-react";
+import { Check, Search, X } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { ProductSortBy } from "../../domain/types";
@@ -142,7 +142,8 @@ export function ProductFilters({
       <div className="flex items-center justify-between h-10">
         <h3 className="font-bold">Bộ lọc</h3>
         {hasAnyFilter && (
-          <Button variant="ghost" size="sm" onClick={clearAllFilters}>
+          <Button variant="secondary" size="sm" onClick={clearAllFilters}>
+            <X data-icon="inline-start" />
             Xóa tất cả
           </Button>
         )}
@@ -284,7 +285,7 @@ function FilterGroup({
                   checked={isSelected}
                   onCheckedChange={(checked) => onToggle(item.id, checked)}
                 />
-                <span className="text-sm font-medium leading-none group-hover:text-foreground transition-colors">
+                <span className="text-sm font-medium leading-snug group-hover:text-foreground transition-colors">
                   {item.name}
                 </span>
               </label>

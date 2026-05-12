@@ -62,8 +62,7 @@ export function ProductFilterMobile({
         {activeFilterCount > 0 && (
           <Badge variant="secondary" className="rounded-sm">
             <Check data-icon="inline-start" />
-            {activeFilterCount}
-            <span>Mục được chọn</span>
+            Đã lọc {activeFilterCount} mục
           </Badge>
         )}
       </div>
