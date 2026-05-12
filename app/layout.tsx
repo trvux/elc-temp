@@ -14,8 +14,11 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title:
-    "Điện máy ELC \ Thi công công trình & dự án \ dịch vụ điện máy \ thu cũ đổi mới các dòng máy lạnh",
+  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || "https://dienmayelc.vn"),
+  title: {
+    default: "Điện máy ELC | Giải pháp không khí & Nguồn nước chính hãng",
+    template: "%s | Điện máy ELC",
+  },
   description:
     "Điện máy ELC chuyên cung cấp máy lạnh và giải pháp không khí chuyên nghiệp.",
   openGraph: {

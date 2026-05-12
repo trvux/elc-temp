@@ -1,5 +1,6 @@
 "use client";
 
+import { getCategoryDisplayName } from "@/modules/category/application/getCategoryDisplayName";
 import { ProductPriceFilter } from "@/shared/components/layout/user/product-price-filter";
 import {
   Accordion,
@@ -13,34 +14,68 @@ import { Checkbox } from "@/shared/components/ui/checkbox";
 import { Input } from "@/shared/components/ui/input";
 import { Separator } from "@/shared/components/ui/separator";
 import { Check, Search, X } from "lucide-react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { ProductSortBy } from "../../domain/types";
 
 interface ProductFiltersProps {
   categories?: { id: string; name: string; slug: string }[];
   availableFilters: {
-    brands: { id: string; name: string }[];
+    brands: { id: string; name: string; slug: string }[];
     specs: { label: string; values: string[] }[];
     minPrice: number;
     maxPrice: number;
   };
+  isMobile?: boolean;
+  onFilterChange?: () => void;
+}
+
+const CATEGORY_PRIORITY_ORDER = [
+  "may-lanh-treo-tuong",
+  "may-loc-khong-khi-may-loc-nuoc",
+  "may-lanh-dieu-hoa-tu-dung",
+  "may-lanh-am-tran",
+  "may-lanh-giau-tran-noi-ong-gio",
+  "may-lanh-ap-tran",
+  "may-loc-khong-khi-may-cap-khi-tuoi-loc-khong-khi",
+  "may-loc-khong-khi-phu-kien-dong-bo-cua-he-thong-cap-gio-tuoi",
+];
+
+function getCategoryPriority(slug: string): number {
+  const index = CATEGORY_PRIORITY_ORDER.indexOf(slug);
+  return index === -1 ? 999 : index;
 }
 
 export function ProductFilters({
   categories = [],
   availableFilters,
+  isMobile,
+  onFilterChange,
 }: ProductFiltersProps) {
+  const sortedCategories = useMemo(() => {
+    return categories
+      .filter((c) => CATEGORY_PRIORITY_ORDER.includes(c.slug))
+      .map((c) => {
+        const displayName = getCategoryDisplayName(c);
+        return { ...c, displayName };
+      })
+      .sort(
+        (a, b) => getCategoryPriority(a.slug) - getCategoryPriority(b.slug),
+      );
+  }, [categories]);
+
   const router = useRouter();
   const searchParams = useSearchParams();
 
   const currentSort =
     (searchParams.get("sortBy") as ProductSortBy) || "price_asc";
   const currentBrands = useMemo(
-    () => searchParams.getAll("brandIds"),
+    () => searchParams.getAll("brands"),
     [searchParams],
   );
-  const currentCategory = searchParams.get("category") || "all";
+  const params = useParams();
+  const categorySlugFromPath = params.categorySlug as string;
+  const currentCategory = categorySlugFromPath || "all";
 
   const currentSpecs = useMemo(() => {
     const specs: Record<string, string[]> = {};
@@ -79,29 +114,16 @@ export function ProductFilters({
 
   const handleCategoryChange = (slug: string, checked: boolean) => {
     if (checked) {
-      // Reset all other filters when switching to a different category
-      const updates: Record<string, string | string[] | null> = {
-        category: slug,
-        brandIds: null,
-        minPrice: null,
-        maxPrice: null,
-      };
-
-      // Also clear all specification-based filters
-      searchParams.forEach((_, key) => {
-        if (key.startsWith("spec_")) {
-          updates[key] = null;
-        }
-      });
-
-      updateFilters(updates);
+      // Navigate to the new clean category URL
+      router.push(`/san-pham/${slug}`);
     } else {
-      updateFilters({ category: null });
+      // If unchecked, go back to the main products page
+      router.push("/san-pham");
     }
   };
 
-  const handleBrandChange = (brandId: string, checked: boolean) => {
-    updateFilters({ brandIds: checked ? brandId : null });
+  const handleBrandChange = (brandSlug: string, checked: boolean) => {
+    updateFilters({ brands: checked ? brandSlug : null });
   };
 
   const handleSpecChange = (label: string, value: string, checked: boolean) => {
@@ -124,17 +146,9 @@ export function ProductFilters({
   }, [currentBrands, currentCategory, currentSpecs, searchParams]);
 
   const clearAllFilters = () => {
-    const params = new URLSearchParams(searchParams.toString());
-    params.delete("brandIds");
-    params.delete("sortBy");
-    params.delete("category");
-    params.delete("minPrice");
-    params.delete("maxPrice");
-    Object.keys(currentSpecs).forEach((label) =>
-      params.delete(`spec_${label}`),
-    );
-    params.delete("page");
-    router.push(`?${params.toString()}`);
+    // Navigate to the main products hub to clear both the category path and all search filters
+    router.push("/san-pham");
+    if (onFilterChange) onFilterChange();
   };
 
   return (
@@ -150,14 +164,23 @@ export function ProductFilters({
       </div>
       <Separator />
 
-      <Accordion type="multiple" defaultValue={["Danh mục"]} className="w-full">
+      <Accordion
+        type="multiple"
+        defaultValue={["Danh mục", "Công suất"]}
+        className="w-full"
+      >
         {/* Unified Category Filter */}
-        {categories.length > 0 && (
+        {sortedCategories.length > 0 && (
           <FilterGroup
             label="Danh mục"
-            items={categories.map((c) => ({ id: c.slug, name: c.name }))}
+            items={sortedCategories.map((c) => ({
+              id: c.slug,
+              name: (c as any).displayName || c.name,
+            }))}
             selectedValues={[currentCategory]}
-            hasSelection={currentCategory !== "all" && currentCategory !== ""}
+            selectionCount={
+              currentCategory !== "all" && currentCategory !== "" ? 1 : 0
+            }
             onToggle={handleCategoryChange}
           />
         )}
@@ -166,9 +189,12 @@ export function ProductFilters({
         {availableFilters.brands.length > 0 && (
           <FilterGroup
             label="Thương hiệu"
-            items={availableFilters.brands}
+            items={availableFilters.brands.map((b) => ({
+              id: b.slug,
+              name: b.name,
+            }))}
             selectedValues={currentBrands}
-            hasSelection={currentBrands.length > 0}
+            selectionCount={currentBrands.length}
             onToggle={handleBrandChange}
           />
         )}
@@ -176,7 +202,7 @@ export function ProductFilters({
         {/* Price Filter */}
         <AccordionFilterWrapper
           label="Khoảng giá"
-          hasSelection={hasPriceFilter}
+          selectionCount={hasPriceFilter ? 1 : 0}
         >
           <ProductPriceFilter
             hideLabel
@@ -192,11 +218,11 @@ export function ProductFilters({
             label={spec.label}
             items={spec.values.map((v) => ({ id: v, name: v }))}
             selectedValues={currentSpecs[spec.label] || []}
-            hasSelection={(currentSpecs[spec.label] || []).length > 0}
+            selectionCount={(currentSpecs[spec.label] || []).length}
             onToggle={(id, checked) =>
               handleSpecChange(spec.label, id, checked)
             }
-            showSearch={spec.values.length > 8}
+            showSearch={spec.label !== "Công suất" && spec.values.length > 8}
           />
         ))}
       </Accordion>
@@ -206,11 +232,11 @@ export function ProductFilters({
 
 function AccordionFilterWrapper({
   label,
-  hasSelection = false,
+  selectionCount = 0,
   children,
 }: {
   label: string;
-  hasSelection?: boolean;
+  selectionCount?: number;
   children: React.ReactNode;
 }) {
   return (
@@ -220,10 +246,9 @@ function AccordionFilterWrapper({
           <span className="group-hover/accordion-trigger:underline">
             {label}
           </span>
-          {hasSelection && (
-            <Badge variant="secondary" className="no-underline rounded-sm">
-              <Check data-icon="inline-start" />
-              Được chọn
+          {selectionCount > 0 && (
+            <Badge variant="secondary" className="rounded-sm">
+              <Check data-icon="inline-start" /> Được chọn
             </Badge>
           )}
         </div>
@@ -237,14 +262,14 @@ function FilterGroup({
   label,
   items,
   selectedValues,
-  hasSelection = false,
+  selectionCount = 0,
   onToggle,
   showSearch = false,
 }: {
   label: string;
   items: { id: string; name: string }[];
   selectedValues: string[];
-  hasSelection?: boolean;
+  selectionCount?: number;
   onToggle: (id: string, checked: boolean) => void;
   showSearch?: boolean;
 }) {
@@ -257,7 +282,7 @@ function FilterGroup({
   }, [items, search]);
 
   return (
-    <AccordionFilterWrapper label={label} hasSelection={hasSelection}>
+    <AccordionFilterWrapper label={label} selectionCount={selectionCount}>
       <div className="flex flex-col gap-5">
         {showSearch && (
           <div className="relative">

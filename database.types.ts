@@ -129,7 +129,11 @@ export type Database = {
         Row: {
           created_at: string | null
           deleted_at: string | null
+          description: string | null
           id: string
+          image_url: string | null
+          meta_description: string | null
+          meta_title: string | null
           name: string
           parent_id: string | null
           slug: string
@@ -139,7 +143,11 @@ export type Database = {
         Insert: {
           created_at?: string | null
           deleted_at?: string | null
+          description?: string | null
           id?: string
+          image_url?: string | null
+          meta_description?: string | null
+          meta_title?: string | null
           name: string
           parent_id?: string | null
           slug: string
@@ -149,7 +157,11 @@ export type Database = {
         Update: {
           created_at?: string | null
           deleted_at?: string | null
+          description?: string | null
           id?: string
+          image_url?: string | null
+          meta_description?: string | null
+          meta_title?: string | null
           name?: string
           parent_id?: string | null
           slug?: string
@@ -274,11 +286,12 @@ export type Database = {
           images: string[] | null
           is_featured: boolean | null
           is_published: boolean | null
+          meta_description: string | null
+          meta_title: string | null
           name: string
           order_index: number | null
           original_price: number | null
           sale_price: number | null
-          short_description: string
           sku: string
           slug: string
           specs: Json
@@ -296,11 +309,12 @@ export type Database = {
           images?: string[] | null
           is_featured?: boolean | null
           is_published?: boolean | null
+          meta_description?: string | null
+          meta_title?: string | null
           name: string
           order_index?: number | null
           original_price?: number | null
           sale_price?: number | null
-          short_description?: string
           sku: string
           slug: string
           specs?: Json
@@ -318,11 +332,12 @@ export type Database = {
           images?: string[] | null
           is_featured?: boolean | null
           is_published?: boolean | null
+          meta_description?: string | null
+          meta_title?: string | null
           name?: string
           order_index?: number | null
           original_price?: number | null
           sale_price?: number | null
-          short_description?: string
           sku?: string
           slug?: string
           specs?: Json
@@ -450,6 +465,39 @@ export type Database = {
         Update: {
           key?: string
           value?: string | null
+        }
+        Relationships: []
+      }
+      tracking_events: {
+        Row: {
+          created_at: string
+          event_category: string | null
+          event_label: string | null
+          event_name: string
+          id: string
+          metadata: Json | null
+          page_path: string | null
+          session_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          event_category?: string | null
+          event_label?: string | null
+          event_name: string
+          id?: string
+          metadata?: Json | null
+          page_path?: string | null
+          session_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          event_category?: string | null
+          event_label?: string | null
+          event_name?: string
+          id?: string
+          metadata?: Json | null
+          page_path?: string | null
+          session_id?: string | null
         }
         Relationships: []
       }
