@@ -25,6 +25,14 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     siteName: "Điện máy ELC",
+    images: [
+      {
+        url: "/opengraph-image.svg",
+        width: 1200,
+        height: 630,
+        alt: "Điện máy ELC",
+      },
+    ],
   },
 };
 
