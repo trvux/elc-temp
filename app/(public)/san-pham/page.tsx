@@ -17,7 +17,6 @@ import {
   TypographySmall,
 } from "@/shared/components/ui/typography";
 import { cn, formatPrice } from "@/shared/lib/utils";
-import { Package } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { Suspense } from "react";
@@ -255,25 +254,27 @@ export default async function ProductsHub({
                     return "Giải pháp thông minh";
                   }
 
-                  if (!categoryName) {
-                    return `Dòng sản phẩm ${brandNames} ${capacity}`
-                      .trim()
-                      .replace(/\s+/g, " ");
-                  }
-
-                  const parts = [categoryName];
+                  const baseTitle = categoryName || "Dòng sản phẩm";
+                  const parts = [baseTitle];
                   if (brandNames) parts.push(brandNames);
                   if (capacity) parts.push(capacity);
-                  return parts.join(" ");
+                  const title = parts
+                    .join(" ")
+                    .trim()
+                    .replace(/\s+/g, " ")
+                    .toLowerCase();
+                  return title.charAt(0).toUpperCase() + title.slice(1);
                 })()}
           </TypographyH1>
-          <div className="flex items-center justify-center">
-            <Badge variant="secondary" className="rounded-sm">
-              Danh sách có
-              <Package data-icon="inline-start" />
+
+          <TypographyLarge className="flex items-center gap-x-1 text-sm! md:text-md! lg:text-lg! text-muted-foreground">
+            Danh sách
+            <span className="flex gap-x-1 bg-blue-100 text-blue-800 px-2 rounded-sm items-center">
+              {/* <Package data-icon="inline-start" /> */}
               {totalCount} sản phẩm
-            </Badge>
-          </div>
+            </span>{" "}
+            đáp ứng tiêu chí
+          </TypographyLarge>
         </header>
 
         <div className="flex flex-col gap-4">
