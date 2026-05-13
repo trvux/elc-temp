@@ -32,15 +32,25 @@ export async function generateMetadata({
   const sParams = await searchParams;
   const q = typeof sParams.q === "string" ? sParams.q.trim() : "";
 
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "https://dienmayelc.com.vn";
+  const canonicalUrl = `${baseUrl}/san-pham`;
+
   if (q) {
     const title = `Kết quả tìm kiếm cho "${q}" | ${SHOP_NAME}`;
     const description = `Tìm thấy các sản phẩm liên quan đến "${q}" tại ${SHOP_NAME}. Cam kết hàng chính hãng, giá tốt nhất, giao hàng nhanh.`;
-    return { title, description };
+    return { 
+      title, 
+      description,
+      robots: { index: false, follow: true } // Don't index search results
+    };
   }
 
   return {
     title: `Danh sách sản phẩm chính hãng | ${SHOP_NAME}`,
     description: `Khám phá hàng ngàn sản phẩm điện máy chính hãng tại ${SHOP_NAME}. Máy lạnh, điều hòa, tủ lạnh, máy giặt giá tốt nhất, bảo hành uy tín.`,
+    alternates: {
+      canonical: canonicalUrl,
+    }
   };
 }
 
