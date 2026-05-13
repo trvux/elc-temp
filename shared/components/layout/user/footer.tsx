@@ -1,8 +1,18 @@
 "use client";
 import { CONTACT_TYPES } from "@/modules/contact/domain/constants";
-import { EmailIcon, MapIcon, PhoneIcon } from "@/shared/components/ui/social-icons";
 import { getFooterLogic } from "@/modules/settings/domain/footer";
+import { ZaloIcon } from "@/shared/components/ui/social-icons";
 import { cn } from "@/shared/lib/utils";
+import {
+  EnvelopeSimpleIcon,
+  GlobeIcon,
+  MapPinIcon,
+  MessengerLogoIcon,
+  MetaLogoIcon,
+  PhoneIcon,
+  TiktokLogoIcon,
+  YoutubeLogoIcon,
+} from "@phosphor-icons/react";
 import Link from "next/link";
 import React from "react";
 import { PhoneConfirmation } from "./phone-confirmation";
@@ -45,8 +55,9 @@ export function Footer({
     empty: "text-xs italic text-primary-foreground/20",
     bottom:
       "mt-20 pt-8 border-t border-primary-foreground/5 flex flex-col md:flex-row justify-between items-center gap-8",
-    socials: "flex items-center gap-6",
-    icon: "h-5 w-5 fill-current hover:text-primary-foreground transition-colors duration-300 flex items-center justify-center",
+    socials:
+      "flex w-full md:w-auto items-center justify-evenly md:justify-end md:gap-4",
+    icon: "p-2 bg-primary-foreground/80 text-primary hover:bg-primary-foreground/90 hover:text-primary rounded-sm transition-colors duration-300 flex items-center justify-center",
   };
 
   const getContactHref = (type: string, value: string) => {
@@ -62,6 +73,20 @@ export function Footer({
       youtube: `https://youtube.com/${value}`,
     };
     return hrefs[type] || value;
+  };
+
+  const getContactIcon = (type: string) => {
+    const icons: Record<string, any> = {
+      phone: PhoneIcon,
+      email: EnvelopeSimpleIcon,
+      facebook: MetaLogoIcon,
+      messenger: MessengerLogoIcon,
+      zalo: ZaloIcon,
+      tiktok: TiktokLogoIcon,
+      youtube: YoutubeLogoIcon,
+      website: GlobeIcon,
+    };
+    return icons[type];
   };
 
   const NavCol = ({
@@ -107,7 +132,10 @@ export function Footer({
                   <React.Fragment key={parent.slug}>
                     <Link
                       href={`/san-pham/${parent.slug}`}
-                      className={cn(styles.link, "font-bold text-primary-foreground/70")}
+                      className={cn(
+                        styles.link,
+                        "font-bold text-primary-foreground/70",
+                      )}
                     >
                       {parent.name}
                     </Link>
@@ -178,14 +206,18 @@ export function Footer({
             {contacts?.map((c) => {
               const typeInfo = CONTACT_TYPES.find((t) => t.value === c.type);
               const href = getContactHref(c.type, c.value);
-              const label = c.label || typeInfo?.label || c.type;
               const isExternal = !["phone", "email"].includes(c.type);
 
-
-              const Icon = typeInfo?.icon;
+              const Icon = getContactIcon(c.type);
               const content = (
                 <div className="flex items-center gap-2.5">
-                  {Icon && <Icon size={14} className="shrink-0 opacity-70" />}
+                  {Icon && (
+                    <Icon
+                      size={14}
+                      weight="bold"
+                      className="shrink-0 text-primary-foreground"
+                    />
+                  )}
                   <span className="truncate">{c.value}</span>
                 </div>
               );
@@ -196,11 +228,7 @@ export function Footer({
                     key={c.id}
                     phone={c.value.replace(/\s/g, "")}
                   >
-                    <button
-                      className={styles.link}
-                    >
-                      {content}
-                    </button>
+                    <button className={styles.link}>{content}</button>
                   </PhoneConfirmation>
                 );
               }
@@ -221,7 +249,11 @@ export function Footer({
               <PhoneConfirmation phone={phone.replace(/\s/g, "")}>
                 <button className={styles.link}>
                   <div className="flex items-center gap-2.5">
-                    <PhoneIcon size={14} className="shrink-0 opacity-70" />
+                    <PhoneIcon
+                      size={14}
+                      weight="bold"
+                      className="shrink-0 text-primary-foreground"
+                    />
                     <span>{phone}</span>
                   </div>
                 </button>
@@ -234,7 +266,11 @@ export function Footer({
                 className={cn(styles.link, "truncate")}
               >
                 <div className="flex items-center gap-2.5">
-                  <EmailIcon size={14} className="shrink-0 opacity-70" />
+                  <EnvelopeSimpleIcon
+                    size={14}
+                    weight="bold"
+                    className="shrink-0 text-primary-foreground"
+                  />
                   <span className="truncate">{email}</span>
                 </div>
               </Link>
@@ -247,7 +283,11 @@ export function Footer({
                 className={cn(styles.link, "leading-relaxed")}
               >
                 <div className="flex items-start gap-2.5 pt-1">
-                  <MapIcon size={14} className="shrink-0 opacity-70 mt-1" />
+                  <MapPinIcon
+                    size={14}
+                    weight="bold"
+                    className="shrink-0 text-primary-foreground mt-1"
+                  />
                   <span>{address}</span>
                 </div>
               </Link>
@@ -281,7 +321,7 @@ export function Footer({
               )
               .map((c) => {
                 const typeInfo = CONTACT_TYPES.find((t) => t.value === c.type);
-                const Icon = typeInfo?.icon;
+                const Icon = getContactIcon(c.type);
                 const href = getContactHref(c.type, c.value);
 
                 return (
@@ -297,7 +337,7 @@ export function Footer({
                     title={typeInfo?.label}
                   >
                     {Icon ? (
-                      <Icon size={20} />
+                      <Icon size={20} weight="bold" />
                     ) : (
                       <span>{c.type[0].toUpperCase()}</span>
                     )}
