@@ -1,7 +1,7 @@
 "use client";
 
 import { cn } from "@/shared/lib/utils";
-import { Menu, X } from "lucide-react";
+import { ListIcon, XIcon } from "@phosphor-icons/react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import * as React from "react";
@@ -89,18 +89,18 @@ const NavItem = ({
 };
 
 const IconState = ({ isOpen }: { isOpen: boolean }) => (
-  <div className="grid size-5 place-items-center">
-    <Menu
+  <div className="grid size-6 place-items-center">
+    <ListIcon
       className={cn(
-        "col-start-1 row-start-1 size-5 transition-all duration-300",
+        "col-start-1 row-start-1 size-6 transition-all duration-300",
         isOpen
           ? "rotate-90 scale-0 opacity-0"
-          : "rotate-0 scale-100 opacity-100",
+          : "rotate-0 scale-x-125 opacity-100",
       )}
     />
-    <X
+    <XIcon
       className={cn(
-        "col-start-1 row-start-1 size-5 transition-all duration-300",
+        "col-start-1 row-start-1 size-6 transition-all duration-300",
         isOpen
           ? "rotate-0 scale-100 opacity-100"
           : "-rotate-90 scale-0 opacity-0",
