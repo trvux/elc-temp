@@ -114,8 +114,11 @@ export function StickyContactActions({ contacts }: StickyContactActionsProps) {
                   className="flex items-center"
                 >
                   <ZaloIcon size={14} className="text-blue-600 shrink-0" />
-                  <span>Zalo: {zalo.value}</span>
-                  <span>\</span>
+                  <span>
+                    Zalo: <span className="text-blue-700">{zalo.value}</span>
+                  </span>
+                  <span className="text-foreground/20 font-bold">\</span>
+
                   <span>Tư vấn miễn phí</span>
                 </a>
               </Button>
@@ -140,8 +143,11 @@ export function StickyContactActions({ contacts }: StickyContactActionsProps) {
                     weight="bold"
                     className="text-green-600 shrink-0"
                   />
-                  <span>Số điện thoại: {hotline.value}</span>
-                  <span>\</span>
+                  <span>
+                    Số điện thoại:{" "}
+                    <span className="text-green-700">{hotline.value}</span>
+                  </span>
+                  <span className="text-foreground/20 font-bold">\</span>
                   <span>Gọi ngay</span>
                 </a>
               </Button>
