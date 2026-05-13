@@ -327,6 +327,11 @@ export default async function ProductDetail({ params }: Props) {
 
         <RelatedProducts categoryId={product.category_id} currentProductId={product.id} brandId={product.brand_id} />
 
+        <footer className={STYLES.footer}>
+          <TypographySmall>&copy; {new Date().getFullYear()} ELC Holdings. Đã đăng ký bản quyền.</TypographySmall>
+          <ScrollToTop className={STYLES.scrollToTop}>
+            <TypographySmall>Quay lại đầu trang</TypographySmall>
+          </ScrollToTop>
         </footer>
       </div>
 
