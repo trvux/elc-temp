@@ -86,8 +86,15 @@ export async function generateMetadata(
   const seoMetadata = generateProductMetadata(product as unknown as ProductWithRelations);
   const previousImages = (await parent).openGraph?.images || [];
   
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "https://dienmayelc.com.vn";
+  const category = Array.isArray(product.categories) ? product.categories[0] : product.categories;
+  const canonicalUrl = `${baseUrl}/san-pham/${category?.slug || "unknown"}/${product.slug}`;
+
   return {
     ...seoMetadata,
+    alternates: {
+      canonical: canonicalUrl,
+    },
     openGraph: {
       ...seoMetadata.openGraph,
       images: [...(seoMetadata.openGraph?.images || []), ...previousImages],
@@ -320,13 +327,16 @@ export default async function ProductDetail({ params }: Props) {
 
         <RelatedProducts categoryId={product.category_id} currentProductId={product.id} brandId={product.brand_id} />
 
-        <footer className={STYLES.footer}>
-          <TypographySmall>&copy; {new Date().getFullYear()} ELC Holdings. Đã đăng ký bản quyền.</TypographySmall>
-          <ScrollToTop className={STYLES.scrollToTop}>
-            <TypographySmall>Quay lại đầu trang</TypographySmall>
-          </ScrollToTop>
         </footer>
       </div>
+
+      {/* Structured Data for Google SEO */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(generateProductSchema(product as unknown as ProductWithRelations)),
+        }}
+      />
     </main>
   );
 }

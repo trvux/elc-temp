@@ -61,8 +61,14 @@ export async function generateMetadata(
   const seoMetadata = generateCategoryMetadata(category, count || 0);
   const previousImages = (await parent).openGraph?.images || [];
 
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "https://dienmayelc.com.vn";
+  const canonicalUrl = `${baseUrl}/san-pham/${categorySlug}`;
+
   return {
     ...seoMetadata,
+    alternates: {
+      canonical: canonicalUrl,
+    },
     openGraph: {
       ...seoMetadata.openGraph,
       images: [...(seoMetadata.openGraph?.images || []), ...previousImages],
@@ -329,12 +335,18 @@ export default async function CategoryPage({ params, searchParams }: Props) {
         </footer>
       </div>
       {/* Google Price Range Schema */}
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{
-          __html: JSON.stringify(generateCategorySchema(currentCategory, products)),
-        }}
-      />
+      {(() => {
+        const schema = generateCategorySchema(currentCategory, products);
+        if (!schema) return null;
+        return (
+          <script
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{
+              __html: JSON.stringify(schema),
+            }}
+          />
+        );
+      })()}
     </main>
   );
 }
