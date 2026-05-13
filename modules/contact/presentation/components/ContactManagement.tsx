@@ -26,6 +26,16 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/shared/components/ui/select";
+import {
+  EnvelopeSimpleIcon,
+  GlobeIcon,
+  MessengerLogoIcon,
+  MetaLogoIcon,
+  PhoneIcon,
+  TiktokLogoIcon,
+  YoutubeLogoIcon,
+} from "@phosphor-icons/react";
+import { ZaloIcon } from "@/shared/components/ui/social-icons";
 
 import { capitalize } from "@/shared/lib/utils";
 
@@ -43,6 +53,20 @@ type ContactFormValues = {
   label: string;
   value: string;
   orderIndex: number;
+};
+
+const getContactIcon = (type: string) => {
+  const icons: Record<string, any> = {
+    phone: PhoneIcon,
+    email: EnvelopeSimpleIcon,
+    facebook: MetaLogoIcon,
+    messenger: MessengerLogoIcon,
+    zalo: ZaloIcon,
+    tiktok: TiktokLogoIcon,
+    youtube: YoutubeLogoIcon,
+    website: GlobeIcon,
+  };
+  return icons[type] || PhoneIcon;
 };
 
 export function ContactManagement() {
@@ -173,14 +197,17 @@ export function ContactManagement() {
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">Tất cả các loại</SelectItem>
-            {CONTACT_TYPES.map((t) => (
-              <SelectItem key={t.value} value={t.value}>
-                <div className="flex items-center gap-2">
-                  <t.icon size={16} className="text-muted-foreground" />
-                  {t.label}
-                </div>
-              </SelectItem>
-            ))}
+            {CONTACT_TYPES.map((t) => {
+              const Icon = getContactIcon(t.value);
+              return (
+                <SelectItem key={t.value} value={t.value}>
+                  <div className="flex items-center gap-2">
+                    <Icon size={16} className="text-muted-foreground" />
+                    {t.label}
+                  </div>
+                </SelectItem>
+              );
+            })}
           </SelectContent>
         </Select>
 
@@ -228,14 +255,17 @@ export function ContactManagement() {
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
-                          {CONTACT_TYPES.map((t) => (
-                            <SelectItem key={t.value} value={t.value}>
-                              <div className="flex items-center gap-2">
-                                <t.icon size={16} />
-                                {t.label}
-                              </div>
-                            </SelectItem>
-                          ))}
+                          {CONTACT_TYPES.map((t) => {
+                            const Icon = getContactIcon(t.value);
+                            return (
+                              <SelectItem key={t.value} value={t.value}>
+                                <div className="flex items-center gap-2">
+                                  <Icon size={16} />
+                                  {t.label}
+                                </div>
+                              </SelectItem>
+                            );
+                          })}
                         </SelectContent>
                       </Select>
                     )}
