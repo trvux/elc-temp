@@ -1,9 +1,5 @@
 export function getCategoryDisplayName(category: { name: string; parentId?: string | null }) {
-  const isAirCondChild = category.parentId === "f300f65c-bab7-4351-9a3f-3ef22e5d3b02";
-  
-  if (isAirCondChild && !category.name.toLowerCase().includes("máy lạnh")) {
-    return `Máy lạnh ${category.name.toLowerCase()}`;
-  }
-  
+  // We no longer use hardcoded IDs to avoid hydration issues and DB dependency.
+  // The prefix logic should be handled by the data itself or a more robust check.
   return category.name;
 }

@@ -16,7 +16,7 @@ import { useMemo } from "react";
 import { ProductFilters } from "./ProductFilters";
 
 interface ProductFilterMobileProps {
-  categories?: { id: string; name: string; slug: string }[];
+  categories?: { id: string; name: string; slug: string; parentId?: string | null }[];
   availableFilters: {
     brands: { id: string; name: string; slug: string }[];
     specs: { label: string; values: string[] }[];

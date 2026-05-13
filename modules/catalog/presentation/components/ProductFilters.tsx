@@ -16,10 +16,11 @@ import { Separator } from "@/shared/components/ui/separator";
 import { Check, Search, X } from "lucide-react";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { cn } from "@/shared/lib/utils";
 import { ProductSortBy } from "../../domain/types";
 
 interface ProductFiltersProps {
-  categories?: { id: string; name: string; slug: string }[];
+  categories?: { id: string; name: string; slug: string; parentId?: string | null }[];
   availableFilters: {
     brands: { id: string; name: string; slug: string }[];
     specs: { label: string; values: string[] }[];
@@ -31,7 +32,9 @@ interface ProductFiltersProps {
 }
 
 const CATEGORY_PRIORITY_ORDER = [
+  "may-lanh",
   "may-lanh-treo-tuong",
+  "may-loc-khong-khi",
   "may-loc-khong-khi-may-loc-nuoc",
   "may-lanh-dieu-hoa-tu-dung",
   "may-lanh-am-tran",
@@ -53,15 +56,39 @@ export function ProductFilters({
   onFilterChange,
 }: ProductFiltersProps) {
   const sortedCategories = useMemo(() => {
-    return categories
-      .filter((c) => CATEGORY_PRIORITY_ORDER.includes(c.slug))
-      .map((c) => {
-        const displayName = getCategoryDisplayName(c);
-        return { ...c, displayName };
-      })
-      .sort(
-        (a, b) => getCategoryPriority(a.slug) - getCategoryPriority(b.slug),
-      );
+    const activeCategories = categories.filter(
+      (c) => !c.name.toLowerCase().includes("chưa phân loại")
+    );
+    const roots = activeCategories
+      .filter((c) => !c.parentId)
+      .sort((a, b) => a.name.localeCompare(b.name));
+    
+    const result: (typeof categories[0] & { displayName: string; isChild: boolean; hasCheckbox: boolean })[] = [];
+
+    roots.forEach((root) => {
+      // Add parent (no checkbox)
+      result.push({
+        ...root,
+        displayName: getCategoryDisplayName(root),
+        isChild: false,
+        hasCheckbox: false,
+      });
+
+      // Add immediate children (with checkbox)
+      const children = activeCategories
+        .filter((c) => c.parentId === root.id)
+        .sort((a, b) => a.name.localeCompare(b.name))
+        .map((c) => ({
+          ...c,
+          displayName: getCategoryDisplayName(c),
+          isChild: true,
+          hasCheckbox: true,
+        }));
+      
+      result.push(...children);
+    });
+
+    return result;
   }, [categories]);
 
   const router = useRouter();
@@ -151,6 +178,19 @@ export function ProductFilters({
     if (onFilterChange) onFilterChange();
   };
 
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  if (!isMounted) {
+    return <div className="animate-pulse space-y-4">
+      <div className="h-10 bg-muted rounded w-1/2" />
+      <div className="h-40 bg-muted rounded" />
+    </div>;
+  }
+
   return (
     <div className="flex flex-col gap-2">
       <div className="flex items-center justify-between h-10">
@@ -175,7 +215,10 @@ export function ProductFilters({
             label="Danh mục"
             items={sortedCategories.map((c) => ({
               id: c.slug,
-              name: (c as any).displayName || c.name,
+              name: c.displayName,
+              className: !c.isChild ? "font-bold text-foreground py-3" : "text-muted-foreground",
+              rowClassName: !c.isChild ? "pl-4" : "pl-10",
+              hideCheckbox: !c.hasCheckbox,
             }))}
             selectedValues={[currentCategory]}
             selectionCount={
@@ -267,7 +310,7 @@ function FilterGroup({
   showSearch = false,
 }: {
   label: string;
-  items: { id: string; name: string }[];
+  items: { id: string; name: string; className?: string; rowClassName?: string; hideCheckbox?: boolean }[];
   selectedValues: string[];
   selectionCount?: number;
   onToggle: (id: string, checked: boolean) => void;
@@ -303,14 +346,23 @@ function FilterGroup({
             return (
               <label
                 key={item.id}
-                className="flex items-center gap-3 pl-6 pr-4 py-2.5 rounded-md hover:bg-muted/50 cursor-pointer transition-colors group"
+                className={cn(
+                  "flex items-center gap-2 pr-4 py-2 rounded-md transition-colors group",
+                  !item.hideCheckbox && "hover:bg-muted/50 cursor-pointer",
+                  item.rowClassName || "pl-6"
+                )}
               >
-                <ImmediateCheckbox
-                  id={id}
-                  checked={isSelected}
-                  onCheckedChange={(checked) => onToggle(item.id, checked)}
-                />
-                <span className="text-sm font-medium leading-snug group-hover:text-foreground transition-colors">
+                {!item.hideCheckbox && (
+                  <ImmediateCheckbox
+                    id={id}
+                    checked={isSelected}
+                    onCheckedChange={(checked) => onToggle(item.id, checked)}
+                  />
+                )}
+                <span className={cn(
+                  "text-sm font-medium leading-snug group-hover:text-foreground transition-colors",
+                  item.className
+                )}>
                   {item.name}
                 </span>
               </label>

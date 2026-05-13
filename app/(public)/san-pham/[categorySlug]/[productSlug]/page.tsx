@@ -2,6 +2,7 @@ import { getCategories, type Category } from "@/modules/category";
 import { ScrollToTop } from "@/shared/components/layout/user/scroll-to-top";
 import { AspectRatio } from "@/shared/components/ui/aspect-ratio";
 import { Badge } from "@/shared/components/ui/badge";
+import { Breadcrumbs } from "@/shared/components/layout/user/breadcrumbs";
 import {
   Carousel,
   CarouselContent,
@@ -133,22 +134,27 @@ const STYLES = {
 export default async function ProductDetail({ params }: Props) {
   const { categorySlug, productSlug } = await params;
   const supabase = await createClient();
+  // Fetch the product first by its unique slug
+  const { data: product, error: productError } = await supabase
+    .from("products")
+    .select("*, categories(id, name, slug, parent_id), brands(name)")
+    .eq("slug", productSlug)
+    .single();
 
-  // Fetch the product and all categories to build hierarchy
-  const [{ data: product }, allCategories, { data: contacts }] = await Promise.all([
-    supabase
-      .from("products")
-      .select("*, categories!inner(id, name, slug, parent_id), brands(name)")
-      .eq("slug", productSlug)
-      .eq("categories.slug", categorySlug)
-      .single(),
+  if (!product) notFound();
+
+  // If the category in the URL doesn't match the product's category, 
+  // we could redirect to the correct URL, but for now we'll just allow it
+  // and use the actual product's category for breadcrumbs.
+
+  const [allCategories, { data: contacts }] = await Promise.all([
     getCategories({ type: "PRODUCT" }),
     supabase.from("contacts").select("*").order("order_index"),
   ]);
 
-  if (!product) notFound();
+  const leafCat = Array.isArray(product.categories) ? product.categories[0] : product.categories;
+  if (!leafCat) notFound();
 
-  const leafCat = product.categories;
   const parentCat = (leafCat as any)?.parent_id
     ? allCategories?.find((c) => c.id === (leafCat as any).parent_id)
     : null;
@@ -177,6 +183,14 @@ export default async function ProductDetail({ params }: Props) {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
       <div className={STYLES.container}>
+        <Breadcrumbs
+          items={[
+            { label: "Sản phẩm", href: "/san-pham" },
+            ...(parentCat ? [{ label: parentCat.name, href: `/san-pham/${parentCat.slug}` }] : []),
+            { label: (leafCat as any).name, href: `/san-pham/${(leafCat as any).slug}` },
+            { label: product.name, active: true },
+          ]}
+        />
         <div className={STYLES.topSection}>
           <div className={STYLES.imageArea}>
             <div className={STYLES.carouselWrapper}>

@@ -10,14 +10,22 @@ export async function getPublicLayoutData() {
     { data: branches },
     { data: projects },
     { data: pages },
+    { data: categories },
     { data: minPriceProd },
     { data: maxPriceProd }
   ] = await Promise.all([
     supabase.from("site_settings").select("*"),
     supabase.from("contacts").select("*").order("order_index", { ascending: true }),
     supabase.from("branches").select("*").is("deleted_at", null),
-    supabase.from("projects").select("id, title, slug, categories(slug)").eq("is_published", true).is("deleted_at", null).limit(5),
+    supabase.from("projects").select("id, title, slug").eq("is_published", true).is("deleted_at", null).limit(5),
     supabase.from("pages").select("id, title, slug").eq("is_published", true).is("deleted_at", null),
+    supabase.from("categories")
+      .select("id, name, slug, parent_id")
+      .eq("type", "product")
+      .is("deleted_at", null)
+      .not("name", "ilike", "%chưa phân loại%")
+      .not("name", "ilike", "%test%")
+      .order("name", { ascending: true }),
     supabase.from("products").select("price").eq("is_published", true).is("deleted_at", null).gt("price", 0).order("price", { ascending: true }).limit(1).maybeSingle(),
     supabase.from("products").select("price").eq("is_published", true).is("deleted_at", null).gt("price", 0).order("price", { ascending: false }).limit(1).maybeSingle()
   ]);
@@ -40,6 +48,7 @@ export async function getPublicLayoutData() {
     branches: branches || [],
     projects: projects || [],
     pages: pages || [],
+    categories: categories || [],
     priceRange
   };
 }

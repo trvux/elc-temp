@@ -12,7 +12,8 @@ export default async function PublicLayout({ children }: PublicLayoutProps) {
     contacts, 
     branches, 
     projects, 
-    pages 
+    pages,
+    categories
   } = await getPublicLayoutData();
 
   return (
@@ -25,6 +26,7 @@ export default async function PublicLayout({ children }: PublicLayoutProps) {
         pages={pages}
         settings={settings}
         contacts={contacts}
+        categories={categories}
       />
     </div>
   );

@@ -31,6 +31,9 @@ export const metadata: Metadata = {
     title: "Điện máy ELC - Máy lạnh chính hãng, giá tốt",
     description: "Chuyên máy lạnh, hệ thống lọc khí chuyên nghiệp. Giá tốt nhất thị trường.",
   },
+  alternates: {
+    canonical: "https://dienmayelc.com.vn",
+  },
 };
 
 export const viewport: Viewport = {

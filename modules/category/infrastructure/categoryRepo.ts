@@ -101,7 +101,7 @@ export class SupabaseCategoryRepository implements CategoryRepository {
     let query = supabase
       .from(this.TABLE_NAME)
       .select("*")
-      .eq("slug", slug)
+      .ilike("slug", slug)
       .is("deleted_at", null);
     
     if (type) {
