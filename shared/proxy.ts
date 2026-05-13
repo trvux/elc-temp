@@ -36,12 +36,13 @@ export async function proxy(request: NextRequest) {
     (redirectMap as Record<string, string>)[fullPath] ||
     (redirectMap as Record<string, string>)[path];
 
-  // Kiểm tra pattern WP cũ
-  const isWpLegacy = WP_PATTERNS.some(
-    (p) => pathname.includes(p) || search.includes(p),
-  );
+  // Kiểm tra pattern WP cũ - Chỉ chạy nếu KHÔNG phải đường dẫn sản phẩm/danh mục hiện tại
+  const isWpLegacy = pathname.startsWith("/san-pham/") 
+    ? false 
+    : WP_PATTERNS.some((p) => pathname.includes(p) || search.includes(p));
 
   if (destination === "GONE" || isWpLegacy) {
+    console.log(`[Proxy] Redirecting ${pathname} because GONE=${destination === "GONE"}, isWpLegacy=${isWpLegacy}`);
     const slug = pathname.split("/").filter(Boolean).pop() || "";
     const searchQuery = slug
       .replace(/-/g, " ")

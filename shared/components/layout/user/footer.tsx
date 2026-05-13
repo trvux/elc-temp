@@ -4,6 +4,7 @@ import { EmailIcon, MapIcon, PhoneIcon } from "@/shared/components/ui/social-ico
 import { getFooterLogic } from "@/modules/settings/domain/footer";
 import { cn } from "@/shared/lib/utils";
 import Link from "next/link";
+import React from "react";
 import { PhoneConfirmation } from "./phone-confirmation";
 
 interface FooterProps {
@@ -12,6 +13,7 @@ interface FooterProps {
   pages?: any[];
   settings?: Record<string, string>;
   contacts?: any[];
+  categories?: any[];
 }
 
 export function Footer({
@@ -20,6 +22,7 @@ export function Footer({
   pages,
   settings,
   contacts,
+  categories,
 }: FooterProps) {
   const { phone, email, address, currentYear } = getFooterLogic(
     contacts,
@@ -34,7 +37,7 @@ export function Footer({
     logo: "text-2xl font-bold tracking-tighter text-primary-foreground",
     logoDesc:
       "text-sm leading-relaxed max-w-sm mt-4 text-primary-foreground/40",
-    grid: "grid grid-cols-2 lg:grid-cols-4 gap-y-12 gap-x-8",
+    grid: "grid grid-cols-2 lg:grid-cols-5 gap-y-12 gap-x-8",
     col: "flex flex-col gap-6",
     colTitle: "font-bold text-primary-foreground/80",
     nav: "flex flex-col gap-3.5",
@@ -96,6 +99,37 @@ export function Footer({
 
         {/* Navigation Grid */}
         <div className={styles.grid}>
+          <NavCol title="Sản phẩm">
+            {categories?.length ? (
+              (() => {
+                const parents = categories.filter((c) => !c.parent_id);
+                return parents.map((parent) => (
+                  <React.Fragment key={parent.slug}>
+                    <Link
+                      href={`/san-pham/${parent.slug}`}
+                      className={cn(styles.link, "font-bold text-primary-foreground/70")}
+                    >
+                      {parent.name}
+                    </Link>
+                    {categories
+                      .filter((child) => child.parent_id === parent.id)
+                      .map((child) => (
+                        <Link
+                          key={child.slug}
+                          href={`/san-pham/${child.slug}`}
+                          className={cn(styles.link, "opacity-80")}
+                        >
+                          {child.name}
+                        </Link>
+                      ))}
+                  </React.Fragment>
+                ));
+              })()
+            ) : (
+              <span className={styles.empty}>Đang cập nhật</span>
+            )}
+          </NavCol>
+
           <NavCol title="Dự án">
             {projects?.length ? (
               projects.slice(0, 8).map((p) => (

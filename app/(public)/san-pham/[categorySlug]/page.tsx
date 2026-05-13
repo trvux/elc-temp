@@ -6,6 +6,7 @@ import {
   getCategoryIdsBySlug,
 } from "@/modules/category/application";
 import { getCategoryDisplayName } from "@/modules/category/application/getCategoryDisplayName";
+import { Breadcrumbs } from "@/shared/components/layout/user/breadcrumbs";
 import { HighlightedText } from "@/shared/components/layout/user/highlighted-text";
 import { ProductPagination } from "@/shared/components/layout/user/product-pagination";
 import { ProductSearch } from "@/shared/components/layout/user/product-search";
@@ -46,7 +47,7 @@ export async function generateMetadata(
   const { data: category } = await supabase
     .from("categories")
     .select("name, meta_title, meta_description, image_url")
-    .eq("slug", categorySlug)
+    .ilike("slug", categorySlug)
     .single();
 
   if (!category) return {};
@@ -145,7 +146,7 @@ export default async function CategoryPage({ params, searchParams }: Props) {
   });
 
   const allCategories = await getCategories({ type: "PRODUCT" });
-  const currentCategoryRaw = allCategories.find((c) => c.slug === categorySlug);
+  const currentCategoryRaw = allCategories.find((c) => c.slug.toLowerCase() === categorySlug.toLowerCase());
   if (!currentCategoryRaw) notFound();
 
   const currentCategory = {
@@ -173,6 +174,17 @@ export default async function CategoryPage({ params, searchParams }: Props) {
   return (
     <main className={STYLES.main}>
       <div className={STYLES.container}>
+        <Breadcrumbs 
+          items={[
+            { label: "Sản phẩm", href: "/san-pham" },
+            ...(currentCategoryRaw.parentId ? (() => {
+              const parent = allCategories.find(c => c.id === currentCategoryRaw.parentId);
+              return parent ? [{ label: parent.name, href: `/san-pham/${parent.slug}` }] : [];
+            })() : []),
+            { label: currentCategory.displayName, active: true }
+          ]} 
+        />
+
         <header className={STYLES.header}>
           <TypographyH1 className={STYLES.title}>
             {currentCategory.displayName}
@@ -218,7 +230,7 @@ export default async function CategoryPage({ params, searchParams }: Props) {
                       )}
                     >
                       <Link
-                        href={`/san-pham/${currentCategory.slug}/${product.slug}`}
+                        href={`/san-pham/${product.category?.slug || currentCategory.slug}/${product.slug}`}
                         className="flex flex-col h-full"
                       >
                         <div className={STYLES.imageWrapper}>

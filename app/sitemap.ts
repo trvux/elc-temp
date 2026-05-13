@@ -48,13 +48,15 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.8,
   }));
 
-  // Product Routes
-  const productRoutes = (products || []).map((prod: any) => ({
-    url: `${BASE_URL}/san-pham/${prod.category?.slug || 'unknown'}/${prod.slug}`,
-    lastModified: new Date(prod.updated_at || Date.now()),
-    changeFrequency: 'daily' as const,
-    priority: 0.9,
-  }));
+  // Product Routes - Filter out any products with missing categories or slugs
+  const productRoutes = (products || [])
+    .filter((prod: any) => prod.slug && prod.category?.slug)
+    .map((prod: any) => ({
+      url: `${BASE_URL}/san-pham/${prod.category.slug}/${prod.slug}`,
+      lastModified: new Date(prod.updated_at || Date.now()),
+      changeFrequency: 'daily' as const,
+      priority: 0.9,
+    }));
 
   // Service Routes
   const serviceRoutes = (services || []).map((serv) => ({
