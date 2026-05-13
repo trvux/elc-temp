@@ -79,12 +79,20 @@ export async function proxy(request: NextRequest) {
       const { createClient } = await import("@/shared/lib/supabase/server");
       const supabase = await createClient();
       
+      // Define the exact shape expected from Supabase
+      type ProductWithBrand = {
+        slug: string;
+        brands: { slug: string } | { slug: string }[] | null;
+      };
+
       // 1. Try exact match
-      let { data: product } = await supabase
+      const { data: exactMatch } = await supabase
         .from("products")
         .select("slug, brands(slug)")
         .eq("slug", productSlug)
         .single();
+        
+      let product: ProductWithBrand | null = exactMatch as ProductWithBrand | null;
 
       // 2. If not found, it might be an old slug that still has the brand prefix
       if (!product) {
@@ -98,7 +106,7 @@ export async function proxy(request: NextRequest) {
               .eq("slug", strippedSlug)
               .single();
             if (p) {
-              product = p;
+              product = p as ProductWithBrand;
               break;
             }
           }
@@ -106,7 +114,8 @@ export async function proxy(request: NextRequest) {
       }
 
       if (product && product.brands) {
-        const brandSlug = Array.isArray(product.brands) ? product.brands[0].slug : product.brands.slug;
+        const brandsData = product.brands;
+        const brandSlug = Array.isArray(brandsData) ? brandsData[0].slug : brandsData.slug;
         const finalProductSlug = product.slug;
         return NextResponse.redirect(
           new URL(`/san-pham/${categorySlug}/${brandSlug}/${finalProductSlug}${search}`, request.url),

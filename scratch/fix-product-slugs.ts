@@ -2,7 +2,6 @@ import { createClient } from '@supabase/supabase-js';
 import * as dotenv from 'dotenv';
 dotenv.config({ path: '.env.local' });
 
-// Utility function to generate slug (copied from shared/lib/utils.ts)
 function generateSlug(text: string): string {
   if (!text) return "";
   return text
@@ -17,20 +16,18 @@ function generateSlug(text: string): string {
 }
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!; // I might need service role if RLS is on
-// Note: User should use service_role key if they want to bypass RLS.
-// For now I'll try with anon key, but usually migrations need service_role.
+// USE SERVICE ROLE KEY TO BYPASS RLS
+const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY!; 
 
 const supabase = createClient(supabaseUrl, supabaseKey);
 
 async function fixSlugs() {
-  console.log('--- Checking for products with invalid slugs (spaces) ---');
+  console.log('--- Checking for products with invalid slugs (spaces) using SERVICE ROLE ---');
   
-  // Find products where slug contains a space
   const { data: products, error } = await supabase
     .from('products')
     .select('id, slug, name')
-    .ilike('slug', '% %'); // Slugs containing spaces
+    .ilike('slug', '% %'); 
 
   if (error) {
     console.error('Error fetching products:', error);
@@ -48,13 +45,23 @@ async function fixSlugs() {
     const newSlug = generateSlug(product.slug);
     console.log(`Fixing: "${product.slug}" -> "${newSlug}" (Product: ${product.name})`);
     
-    const { error: updateError } = await supabase
+    // Check if the new slug already exists
+    const { data: existing } = await supabase.from('products').select('id').eq('slug', newSlug).single();
+    if (existing && existing.id !== product.id) {
+        console.error(`ERROR: Slug ${newSlug} already exists for another product. Cannot update.`);
+        continue;
+    }
+
+    const { error: updateError, data: updatedData } = await supabase
       .from('products')
       .update({ slug: newSlug })
-      .eq('id', product.id);
+      .eq('id', product.id)
+      .select();
 
     if (updateError) {
       console.error(`Failed to update ${product.id}:`, updateError.message);
+    } else {
+      console.log(`Successfully updated ${product.id}`);
     }
   }
 
