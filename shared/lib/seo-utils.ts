@@ -75,9 +75,17 @@ export function generateCategoryMetadata(category: any, totalCount: number) {
   if (!category) return {};
 
   const name = category.name || "";
+  const parentName = category.parent?.name || "";
   const isProject = category.type === "project";
-  const synonym = name.toLowerCase().includes("máy lạnh") ? "Điều hòa" : "";
-  const displayName = synonym ? `${name} (${synonym})` : name;
+
+  // Smart name: "Âm trần" + Parent "Máy lạnh" -> "Máy lạnh âm trần"
+  let fullName = name;
+  if (parentName && !name.toLowerCase().includes(parentName.toLowerCase())) {
+    fullName = `${parentName} ${name}`;
+  }
+
+  const synonym = fullName.toLowerCase().includes("máy lạnh") ? "Điều hòa" : "";
+  const displayName = synonym ? `${fullName} (${synonym})` : fullName;
 
   let title = "";
   let description = "";
@@ -86,11 +94,14 @@ export function generateCategoryMetadata(category: any, totalCount: number) {
     title = `Dự án ${name} tiêu biểu`;
     description = `Khám phá các công trình ${name} thực tế do ELC thực hiện. Giải pháp không khí chuyên nghiệp, thẩm mỹ và bền bỉ. Xem ngay các dự án tiêu biểu!`;
   } else {
-    title = `${displayName} chính hãng, giá rẻ nhất`;
-    if (name.toLowerCase().includes("âm trần") || name.toLowerCase().includes("giấu trần")) {
+    // 1. Use meta_title if provided in DB
+    // 2. Fallback to smart generated displayName
+    title = category.meta_title || `${displayName} chính hãng, giá rẻ nhất`;
+
+    if (!category.meta_title && (name.toLowerCase().includes("âm trần") || name.toLowerCase().includes("giấu trần"))) {
       title = `${displayName} cho hệ thống VRV/VRF chính hãng`;
     }
-    description = `Chuyên cung cấp ${displayName} chính hãng tại Điện máy ELC. Máy lạnh giá tốt nhất thị trường, hỗ trợ thi công lắp đặt máy lạnh chuyên nghiệp, bảo hành uy tín. Xem ngay!`;
+    description = category.meta_description || `Chuyên cung cấp ${displayName} chính hãng tại Điện máy ELC. Máy lạnh giá tốt nhất thị trường, hỗ trợ thi công lắp đặt máy lạnh chuyên nghiệp, bảo hành uy tín. Xem ngay!`;
   }
 
   if (!title.endsWith(SHOP_NAME)) {
