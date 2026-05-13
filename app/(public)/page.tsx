@@ -13,11 +13,11 @@ import { getSiteSettings } from "@/modules/settings/application";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Điện máy ELC | Máy lạnh & Giải pháp không khí chuyên nghiệp, giá tốt",
-  description: "Điện máy ELC - Chuyên cung cấp máy lạnh chính hãng, hệ thống VRV/VRF và máy lọc không khí. Cam kết giá tốt nhất thị trường, lắp đặt chuyên nghiệp, bảo trì tận tâm.",
+  title: "Điện máy ELC - Siêu thị máy lạnh & Giải pháp không khí chính hãng, giá tốt",
+  description: "Điện máy ELC - Hệ thống cung cấp máy lạnh chính hãng, máy lọc không khí và giải pháp điều hòa trung tâm VRV/VRF. Cam kết giá rẻ nhất thị trường, lắp đặt chuyên nghiệp, bảo hành dài hạn.",
   openGraph: {
     title: "Điện máy ELC - Máy lạnh chính hãng, giá tốt nhất",
-    description: "Chuyên máy lạnh, máy lọc khí và giải pháp không khí cho gia đình, dự án. Lắp đặt nhanh, uy tín.",
+    description: "Hệ thống điện máy chuyên cung cấp máy lạnh, máy lọc khí và giải pháp không khí cho gia đình, dự án. Uy tín, chất lượng.",
     images: ["/images/hero-bg.jpg"],
   }
 };

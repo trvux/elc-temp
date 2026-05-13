@@ -1,4 +1,5 @@
 import { searchProducts } from "@/modules/catalog/application";
+import { ProductCard } from "@/modules/catalog/presentation/components/ProductCard";
 import { ProductFilterMobile } from "@/modules/catalog/presentation/components/ProductFilterMobile";
 import { ProductFilters } from "@/modules/catalog/presentation/components/ProductFilters";
 import {
@@ -24,7 +25,9 @@ import { createClient } from "@/shared/lib/supabase/server";
 import { cn, formatPrice } from "@/shared/lib/utils";
 import {
   generateCategoryMetadata,
-  generateCategorySchema,
+  generateCollectionSchema,
+  generateBrandMetadata,
+  SHOP_NAME,
 } from "@/shared/lib/seo-utils";
 import { Metadata, ResolvingMetadata } from "next";
 import Image from "next/image";
@@ -38,42 +41,76 @@ type Props = {
 };
 
 export async function generateMetadata(
-  { params }: Props,
+  { params, searchParams }: Props,
   parent: ResolvingMetadata,
 ): Promise<Metadata> {
   const { categorySlug } = await params;
+  const sParams = await searchParams;
   const supabase = await createClient();
 
+  // 1. Try Category first
   const { data: category } = await supabase
     .from("categories")
-    .select("name, meta_title, meta_description, image_url")
+    .select("id, name, meta_title, meta_description, image_url")
     .ilike("slug", categorySlug)
     .single();
 
-  if (!category) return {};
-
-  // Fetch count for SEO description
-  const { count } = await supabase
-    .from("products")
-    .select("*", { count: "exact", head: true })
-    .eq("category_id", (await getCategoryIdsBySlug(categorySlug))[0]);
-
-  const seoMetadata = generateCategoryMetadata(category, count || 0);
+  const baseUrl = (process.env.NEXT_PUBLIC_APP_URL || "https://dienmayelc.com.vn").replace(/\/$/, "");
   const previousImages = (await parent).openGraph?.images || [];
 
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "https://dienmayelc.com.vn";
-  const canonicalUrl = `${baseUrl}/san-pham/${categorySlug}`;
+  if (category) {
+    const brands = typeof sParams.brands === "string" ? [sParams.brands] : Array.isArray(sParams.brands) ? sParams.brands : [];
+    const { count } = await supabase
+      .from("products")
+      .select("*", { count: "exact", head: true })
+      .eq("category_id", category.id);
 
-  return {
-    ...seoMetadata,
-    alternates: {
-      canonical: canonicalUrl,
-    },
-    openGraph: {
-      ...seoMetadata.openGraph,
-      images: [...(seoMetadata.openGraph?.images || []), ...previousImages],
+    let seoMetadata = generateCategoryMetadata(category, count || 0);
+    
+    if (brands.length === 1) {
+      const { data: bData } = await supabase.from("brands").select("name").ilike("slug", brands[0]).single();
+      const brandName = bData?.name || brands[0];
+      const title = `Danh sách ${category.name} ${brandName} chính hãng, giá tốt nhất | ${SHOP_NAME}`;
+      const description = `Mua ${category.name} ${brandName} chính hãng tại Điện máy ELC. Cam kết chất lượng cao, bảo hành lâu dài, lắp đặt chuyên nghiệp, giá rẻ nhất thị trường.`;
+      
+      seoMetadata = {
+        ...seoMetadata,
+        title,
+        description,
+        openGraph: {
+          ...seoMetadata.openGraph,
+          title,
+          description,
+        }
+      };
     }
-  } as Metadata;
+
+    return {
+      ...seoMetadata,
+      alternates: { canonical: `${baseUrl}/san-pham/${categorySlug}` },
+      openGraph: {
+        ...seoMetadata.openGraph,
+        images: [...(seoMetadata.openGraph?.images || []), ...previousImages],
+      }
+    } as Metadata;
+  }
+
+  // 2. Try Brand if not category
+  const { data: brand } = await supabase
+    .from("brands")
+    .select("id, name, description")
+    .ilike("slug", categorySlug)
+    .single();
+
+  if (brand) {
+    const brandMetadata = generateBrandMetadata(brand);
+    return {
+      ...brandMetadata,
+      alternates: { canonical: `${baseUrl}/san-pham/${categorySlug}` },
+    };
+  }
+
+  return {};
 }
 
 const STYLES = {
@@ -87,18 +124,6 @@ const STYLES = {
     "grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-6 gap-y-12 md:gap-y-16",
   ),
   productCard: cn("group flex flex-col"),
-  imageWrapper: cn("w-full overflow-hidden bg-background rounded-lg"),
-  image: cn(
-    "object-contain p-4 transition-transform duration-700 group-hover:scale-105",
-  ),
-  noImage: cn(
-    "w-full h-full flex items-center justify-center text-muted-foreground/30 text-xs tracking-widest",
-  ),
-  infoWrapper: cn("p-4 flex flex-col gap-3"),
-  priceWrapper: cn("flex flex-col gap-1"),
-  salePrice: cn("text-base md:text-lg font-bold tracking-tight"),
-  originalPrice: cn("text-md text-muted-foreground line-through"),
-  discountBadge: cn("rounded-sm"),
   highlight: cn("bg-primary/15 text-primary not-italic px-0.5"),
   emptyState: cn("py-24 text-center"),
   emptyText: cn("text-muted-foreground/60 italic text-sm"),
@@ -132,7 +157,8 @@ export default async function CategoryPage({ params, searchParams }: Props) {
     : typeof sParams.brands === "string"
       ? [sParams.brands]
       : [];
-  const brandIds = Array.isArray(sParams.brandIds)
+  
+  let brandIds = Array.isArray(sParams.brandIds)
     ? sParams.brandIds
     : typeof sParams.brandIds === "string"
       ? [sParams.brandIds]
@@ -153,18 +179,34 @@ export default async function CategoryPage({ params, searchParams }: Props) {
 
   const allCategories = await getCategories({ type: "PRODUCT" });
   const currentCategoryRaw = allCategories.find((c) => c.slug.toLowerCase() === categorySlug.toLowerCase());
-  if (!currentCategoryRaw) notFound();
+  let brandInfo = null;
 
-  const currentCategory = {
+  if (!currentCategoryRaw) {
+    // Check if it's a brand
+    const supabase = await createClient();
+    const { data: brand } = await supabase
+      .from("brands")
+      .select("*")
+      .ilike("slug", categorySlug)
+      .single();
+    
+    if (!brand) notFound();
+    brandInfo = brand;
+    if (!brandIds.includes(brand.id)) {
+      brandIds = [...brandIds, brand.id];
+    }
+  }
+
+  const currentCategory = currentCategoryRaw ? {
     ...currentCategoryRaw,
     displayName: getCategoryDisplayName(currentCategoryRaw),
-  };
+  } : null;
 
-  const categoryIds = await getCategoryIdsBySlug(categorySlug);
+  const categoryIds = currentCategoryRaw ? await getCategoryIdsBySlug(categorySlug) : undefined;
   const queryTokens = getQueryTokens(q);
 
   const { products, totalCount, availableFilters } = await searchProducts(q, {
-    categoryIds: categoryIds,
+    categoryIds,
     isPublished: true,
     minPrice,
     maxPrice,
@@ -177,30 +219,33 @@ export default async function CategoryPage({ params, searchParams }: Props) {
 
   const totalPages = Math.ceil(totalCount / pageSize);
 
+  const pageTitle = currentCategory ? currentCategory.displayName : brandInfo?.name;
+  const subTitlePrefix = currentCategory ? "danh mục" : "thương hiệu";
+
   return (
     <main className={STYLES.main}>
       <div className={STYLES.container}>
         <Breadcrumbs 
           items={[
-            { label: "Sản phẩm", href: "/san-pham" },
-            ...(currentCategoryRaw.parentId ? (() => {
+            // Show parent category if it exists (e.g., Trang chủ / Máy lạnh / Treo tường)
+            ...(currentCategoryRaw?.parentId ? (() => {
               const parent = allCategories.find(c => c.id === currentCategoryRaw.parentId);
               return parent ? [{ label: parent.name, href: `/san-pham/${parent.slug}` }] : [];
             })() : []),
-            { label: currentCategory.displayName, active: true }
+            { label: pageTitle || "", active: true }
           ]} 
         />
 
         <header className={STYLES.header}>
           <TypographyH1 className={STYLES.title}>
-            {currentCategory.displayName}
+            {pageTitle}
           </TypographyH1>
           <TypographyLarge className="flex items-center gap-x-1 text-sm! md:text-md! lg:text-lg! text-muted-foreground">
             Danh sách{" "}
             <span className="flex gap-x-1 bg-blue-100 text-blue-800 px-2 rounded-sm items-center">
               {totalCount} sản phẩm
             </span>{" "}
-            thuộc danh mục
+            thuộc {subTitlePrefix}
           </TypographyLarge>
         </header>
 
@@ -228,79 +273,14 @@ export default async function CategoryPage({ params, searchParams }: Props) {
               {products.length > 0 ? (
                 <div className={STYLES.grid}>
                   {products.map((product, index) => (
-                    <Card
+                    <ProductCard
                       key={product.id}
-                      className={cn(
-                        STYLES.productCard,
-                        "border-none shadow-none hover:shadow-lg transition-all duration-300 bg-background overflow-hidden",
-                      )}
-                    >
-                      <Link
-                        href={`/san-pham/${product.category?.slug || currentCategory.slug}/${product.slug}`}
-                        className="flex flex-col h-full"
-                      >
-                        <div className={STYLES.imageWrapper}>
-                          <AspectRatio ratio={16 / 9}>
-                            {product.images?.[0] ? (
-                              <Image
-                                src={product.images[0]}
-                                alt={product.name}
-                                fill
-                                className={STYLES.image}
-                                sizes="(max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
-                                priority={index < 4}
-                              />
-                            ) : (
-                              <div className={STYLES.noImage}>Chưa có ảnh</div>
-                            )}
-                          </AspectRatio>
-                        </div>
-                        <div className={STYLES.infoWrapper}>
-                          <div className="flex flex-col gap-1">
-                            <div className="font-semibold text-sm line-clamp-2 min-h-10">
-                              <HighlightedText
-                                text={product.name}
-                                queryTokens={queryTokens}
-                              />
-                            </div>
-                            {product.sku && (
-                              <TypographySmall className="text-muted-foreground uppercase">
-                                SKU:{" "}
-                                <HighlightedText
-                                  text={product.sku
-                                    .split("/")[0]
-                                    .split("+")[0]
-                                    .trim()}
-                                  queryTokens={queryTokens}
-                                />
-                              </TypographySmall>
-                            )}
-                          </div>
-                          <div className={STYLES.priceWrapper}>
-                            <span className={STYLES.salePrice}>
-                              {formatPrice(
-                                product.salePrice || product.originalPrice || 0,
-                              )}
-                            </span>
-                            {product.discountPercent > 0 && (
-                              <div className="flex flex-col gap-1">
-                                <span className={STYLES.originalPrice}>
-                                  {formatPrice(product.originalPrice || 0)}
-                                </span>
-                                <div>
-                                  <Badge
-                                    variant="destructive"
-                                    className={STYLES.discountBadge}
-                                  >
-                                    Giảm giá: {product.discountPercent}%
-                                  </Badge>
-                                </div>
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                      </Link>
-                    </Card>
+                      product={product}
+                      categorySlug={product.category?.slug || categorySlug}
+                      brandSlug={product.brand?.slug || "all"}
+                      queryTokens={queryTokens}
+                      priority={index < 8}
+                    />
                   ))}
                 </div>
               ) : (
@@ -324,6 +304,50 @@ export default async function CategoryPage({ params, searchParams }: Props) {
           </div>
         </div>
 
+        {/* Quick Links Section for Sitelinks SEO */}
+        <section className="mt-12 py-8 border-t border-dashed">
+          <TypographyLarge className="mb-6 text-foreground font-semibold">
+            Gợi ý tìm kiếm cho {pageTitle}
+          </TypographyLarge>
+          <div className="flex flex-wrap gap-3">
+            {/* Dynamic Suggestions: If brand, show categories. If category, show brands. */}
+            {(currentCategory ? availableFilters.brands : availableFilters.categories)
+              ?.slice(0, 8) // Show top 8 for clean UI
+              .map((item: any) => {
+                const label = currentCategory 
+                  ? `${currentCategory.displayName} ${item.name}` 
+                  : `${item.name} ${brandInfo?.name || ""}`;
+                const href = currentCategory
+                  ? `/san-pham/${categorySlug}/${item.slug}`
+                  : `/san-pham/${item.slug}/${brandInfo?.slug || ""}`;
+
+                return (
+                  <Link 
+                    key={item.id} 
+                    href={href}
+                    className="px-5 py-2.5 bg-muted/40 hover:bg-primary/10 hover:text-primary border border-transparent hover:border-primary/20 rounded-full text-sm transition-all duration-300 shadow-sm font-medium"
+                  >
+                    {label}
+                  </Link>
+                );
+              })}
+            
+            {/* Essential Service Links */}
+            <Link 
+              href="/dich-vu/ve-sinh-may-lanh"
+              className="px-5 py-2.5 bg-muted/40 hover:bg-primary/10 hover:text-primary border border-transparent hover:border-primary/20 rounded-full text-sm transition-all duration-300 shadow-sm font-medium"
+            >
+              Vệ sinh máy lạnh tận nơi
+            </Link>
+            <Link 
+              href="/gioi-thieu"
+              className="px-5 py-2.5 bg-muted/40 hover:bg-primary/10 hover:text-primary border border-transparent hover:border-primary/20 rounded-full text-sm transition-all duration-300 shadow-sm font-medium"
+            >
+              Chính sách bảo hành ELC
+            </Link>
+          </div>
+        </section>
+
         <footer className={STYLES.footer}>
           <TypographySmall>
             &copy; {new Date().getFullYear()} ELC Holdings. Đã đăng ký bản
@@ -336,7 +360,7 @@ export default async function CategoryPage({ params, searchParams }: Props) {
       </div>
       {/* Google Price Range Schema */}
       {(() => {
-        const schema = generateCategorySchema(currentCategory, products);
+        const schema = generateCollectionSchema(currentCategory || brandInfo, products);
         if (!schema) return null;
         return (
           <script

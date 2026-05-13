@@ -8,11 +8,12 @@ interface HighlightedTextProps {
 
 export function HighlightedText({
   text,
-  queryTokens,
+  queryTokens = [],
   className,
 }: HighlightedTextProps) {
-  if (!queryTokens.length || !text) return <>{text}</>;
-
+  if (!queryTokens || !queryTokens.length || !text) {
+    return <span className={className}>{text}</span>;
+  }
   const normalizedText = normalize(text);
   const ranges: { start: number; end: number }[] = [];
 

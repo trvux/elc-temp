@@ -337,12 +337,12 @@ export function ProductManagement() {
     // Clean SKU: only take the first part if it's a set (contains / or +)
     const cleanedSku = sku.split(/[\/\+]/)[0].trim();
     
-    // Formula: [brand]-[hp]hp-[sku]
-    let parts = [brandName];
+    // Formula: [hp]hp-[sku] (Brand is now handled by the URL path level)
+    let parts = [];
     if (hpValue) parts.push(`${hpValue}hp`);
     if (cleanedSku) parts.push(cleanedSku);
     
-    const finalPart = parts.join(" ").trim();
+    const finalPart = parts.join("-").trim();
     
     if (finalPart) {
       form.setValue("slug", generateSlug(finalPart));
@@ -647,18 +647,30 @@ export function ProductManagement() {
                 <div className="md:col-span-12">
                   <Field>
                     <FieldLabel className="mb-2 font-medium">
-                      Slug (Tự động)
+                      Slug & URL Preview
                     </FieldLabel>
                     <FieldContent>
                       <Controller
                         control={form.control}
                         name="slug"
-                        render={({ field, fieldState }) => (
-                          <>
-                            <Input {...field} className="font-mono text-sm" />
-                            <FieldError errors={[fieldState.error]} />
-                          </>
-                        )}
+                        render={({ field, fieldState }) => {
+                          const catId = form.watch("categoryId");
+                          const brdId = form.watch("brandId");
+                          const catSlug = categories.find(c => c.id === catId)?.slug || "all";
+                          const brdSlug = brands.find(b => b.id === brdId)?.slug || "all";
+                          const fullUrl = `/san-pham/${catSlug}/${brdSlug}/${field.value}`;
+
+                          return (
+                            <div className="space-y-2">
+                              <Input {...field} className="font-mono text-sm" />
+                              <div className="p-3 bg-muted/30 rounded-lg border border-dashed border-border/60">
+                                <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-1">Cấu trúc URL SEO mới:</p>
+                                <p className="text-xs font-mono text-primary break-all">{fullUrl}</p>
+                              </div>
+                              <FieldError errors={[fieldState.error]} />
+                            </div>
+                          );
+                        }}
                       />
                     </FieldContent>
                   </Field>

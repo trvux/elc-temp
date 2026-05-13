@@ -47,7 +47,23 @@ export const getProductColumns = ({
   {
     accessorKey: "name",
     header: "Tên sản phẩm",
-    cell: ({ row }) => <span>{row.original.name}</span>,
+    cell: ({ row }) => {
+      const p = row.original;
+      const url = `/san-pham/${p.category?.slug || "all"}/${p.brand?.slug || "all"}/${p.slug}`;
+      return (
+        <div className="flex flex-col gap-1">
+          <span className="font-medium">{p.name}</span>
+          <a 
+            href={url} 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="text-[10px] text-primary hover:underline font-mono"
+          >
+            {url}
+          </a>
+        </div>
+      );
+    },
   },
   {
     accessorKey: "brand.name",
