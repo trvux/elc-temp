@@ -99,6 +99,8 @@ export type Database = {
           description: string
           id: string
           logo_url: string
+          meta_description: string | null
+          meta_title: string | null
           name: string
           slug: string
           updated_at: string | null
@@ -109,6 +111,8 @@ export type Database = {
           description?: string
           id?: string
           logo_url?: string
+          meta_description?: string | null
+          meta_title?: string | null
           name: string
           slug: string
           updated_at?: string | null
@@ -119,6 +123,8 @@ export type Database = {
           description?: string
           id?: string
           logo_url?: string
+          meta_description?: string | null
+          meta_title?: string | null
           name?: string
           slug?: string
           updated_at?: string | null

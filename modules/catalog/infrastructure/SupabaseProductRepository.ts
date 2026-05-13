@@ -15,7 +15,7 @@ type ProductRow = Tables<"products">;
 type ProductInsert = Insert<"products">;
 type ProductUpdate = Update<"products">;
 type ProductRowWithRelations = ProductRow & {
-    category: { id: string; name: string; slug: string } | null;
+    category: { id: string; name: string; slug: string; meta_title: string | null; meta_description: string | null } | null;
     brand: Tables<"brands"> | null;
 };
 
@@ -28,7 +28,7 @@ export class SupabaseProductRepository implements ProductRepository {
             .from(this.TABLE_NAME)
             .select(`
         *,
-        category:categories(id, name, slug),
+        category:categories(id, name, slug, meta_title, meta_description),
         brand:brands(*)
       `);
 
@@ -89,14 +89,13 @@ export class SupabaseProductRepository implements ProductRepository {
             .from(this.TABLE_NAME)
             .select(`
         *,
-        category:categories(id, name, slug),
+        category:categories(id, name, slug, meta_title, meta_description),
         brand:brands(*)
       `)
             .eq("id", id)
             .maybeSingle();
 
         if (error) this.handleError(error, "getById");
-
         return data ? this.mapToDomainWithRelations(data) : null;
     }
 
@@ -106,14 +105,13 @@ export class SupabaseProductRepository implements ProductRepository {
             .from(this.TABLE_NAME)
             .select(`
         *,
-        category:categories(id, name, slug),
+        category:categories(id, name, slug, meta_title, meta_description),
         brand:brands(*)
       `)
             .eq("slug", slug)
             .maybeSingle();
 
         if (error) this.handleError(error, "getBySlug");
-
         return data ? this.mapToDomainWithRelations(data) : null;
     }
 
@@ -269,13 +267,17 @@ export class SupabaseProductRepository implements ProductRepository {
             category: row.category ? {
                 id: row.category.id,
                 name: row.category.name,
-                slug: row.category.slug || ""
+                slug: row.category.slug || "",
+                metaTitle: row.category.meta_title,
+                metaDescription: row.category.meta_description,
             } : null,
             brand: row.brand ? {
                 id: row.brand.id,
                 name: row.brand.name,
                 slug: row.brand.slug,
                 logoUrl: row.brand.logo_url || "",
+                metaTitle: row.brand.meta_title,
+                metaDescription: row.brand.meta_description,
                 description: row.brand.description || "",
                 createdAt: row.brand.created_at || new Date().toISOString(),
                 updatedAt: row.brand.created_at || new Date().toISOString(),

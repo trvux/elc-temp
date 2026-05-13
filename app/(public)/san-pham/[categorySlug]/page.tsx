@@ -81,6 +81,8 @@ export async function generateMetadata(
           ...seoMetadata.openGraph,
           title,
           description,
+          images: seoMetadata.openGraph?.images || [],
+          type: seoMetadata.openGraph?.type || "website",
         }
       };
     }
@@ -304,49 +306,6 @@ export default async function CategoryPage({ params, searchParams }: Props) {
           </div>
         </div>
 
-        {/* Quick Links Section for Sitelinks SEO */}
-        <section className="mt-12 py-8 border-t border-dashed">
-          <TypographyLarge className="mb-6 text-foreground font-semibold">
-            Gợi ý tìm kiếm cho {pageTitle}
-          </TypographyLarge>
-          <div className="flex flex-wrap gap-3">
-            {/* Dynamic Suggestions: If brand, show categories. If category, show brands. */}
-            {(currentCategory ? availableFilters.brands : availableFilters.categories)
-              ?.slice(0, 8) // Show top 8 for clean UI
-              .map((item: any) => {
-                const label = currentCategory 
-                  ? `${currentCategory.displayName} ${item.name}` 
-                  : `${item.name} ${brandInfo?.name || ""}`;
-                const href = currentCategory
-                  ? `/san-pham/${categorySlug}/${item.slug}`
-                  : `/san-pham/${item.slug}/${brandInfo?.slug || ""}`;
-
-                return (
-                  <Link 
-                    key={item.id} 
-                    href={href}
-                    className="px-5 py-2.5 bg-muted/40 hover:bg-primary/10 hover:text-primary border border-transparent hover:border-primary/20 rounded-full text-sm transition-all duration-300 shadow-sm font-medium"
-                  >
-                    {label}
-                  </Link>
-                );
-              })}
-            
-            {/* Essential Service Links */}
-            <Link 
-              href="/dich-vu/ve-sinh-may-lanh"
-              className="px-5 py-2.5 bg-muted/40 hover:bg-primary/10 hover:text-primary border border-transparent hover:border-primary/20 rounded-full text-sm transition-all duration-300 shadow-sm font-medium"
-            >
-              Vệ sinh máy lạnh tận nơi
-            </Link>
-            <Link 
-              href="/gioi-thieu"
-              className="px-5 py-2.5 bg-muted/40 hover:bg-primary/10 hover:text-primary border border-transparent hover:border-primary/20 rounded-full text-sm transition-all duration-300 shadow-sm font-medium"
-            >
-              Chính sách bảo hành ELC
-            </Link>
-          </div>
-        </section>
 
         <footer className={STYLES.footer}>
           <TypographySmall>

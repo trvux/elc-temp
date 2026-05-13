@@ -227,32 +227,6 @@ export default async function ProductsPage({
           </div>
         </div>
 
-        {/* Quick Links Section for Sitelinks SEO */}
-        <section className="mt-12 py-8 border-t border-dashed">
-          <TypographyLarge className="mb-6 text-foreground font-semibold">
-            Khám phá danh mục nổi bật
-          </TypographyLarge>
-          <div className="flex flex-wrap gap-3">
-            {allCategories?.slice(0, 6).map((cat) => (
-              <Link 
-                key={cat.id} 
-                href={`/san-pham/${cat.slug}`}
-                className="px-5 py-2.5 bg-muted/40 hover:bg-primary/10 hover:text-primary border border-transparent hover:border-primary/20 rounded-full text-sm transition-all duration-300 shadow-sm font-medium"
-              >
-                {cat.name}
-              </Link>
-            ))}
-            {availableFilters.brands?.slice(0, 6).map((brand) => (
-              <Link 
-                key={brand.id} 
-                href={`/san-pham/${brand.slug}`}
-                className="px-5 py-2.5 bg-muted/40 hover:bg-primary/10 hover:text-primary border border-transparent hover:border-primary/20 rounded-full text-sm transition-all duration-300 shadow-sm font-medium"
-              >
-                Máy lạnh {brand.name}
-              </Link>
-            ))}
-          </div>
-        </section>
 
         <footer className={STYLES.footer}>
           <TypographySmall>

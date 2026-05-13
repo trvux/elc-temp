@@ -9,7 +9,6 @@ import {
   BreadcrumbSeparator,
 } from "@/shared/components/ui/breadcrumb";
 import { cn } from "@/shared/lib/utils";
-import { Slash } from "lucide-react";
 import Link from "next/link";
 import React from "react";
 
@@ -65,14 +64,17 @@ export function Breadcrumbs({ items, className }: BreadcrumbsProps) {
         <BreadcrumbList className="flex-nowrap overflow-x-auto no-scrollbar pb-1">
           <BreadcrumbItem className="shrink-0">
             <BreadcrumbLink asChild>
-              <Link href="/" className="flex items-center gap-1 hover:text-primary transition-colors">
+              <Link
+                href="/"
+                className="flex items-center gap-1 hover:text-primary transition-colors"
+              >
                 Trang chủ
               </Link>
             </BreadcrumbLink>
           </BreadcrumbItem>
 
           <BreadcrumbSeparator className="shrink-0 opacity-40">
-            <Slash className="size-3" />
+            <span>/</span>
           </BreadcrumbSeparator>
 
           {items.map((item, index) => {
@@ -80,13 +82,15 @@ export function Breadcrumbs({ items, className }: BreadcrumbsProps) {
 
             return (
               <React.Fragment key={index}>
-                <BreadcrumbItem className={cn(
-                  "shrink-0 max-w-[120px] sm:max-w-[200px] md:max-w-none",
-                  isLast && "max-w-[150px] sm:max-w-none"
-                )}>
+                <BreadcrumbItem
+                  className={cn(
+                    "shrink-0 max-w-[120px] sm:max-w-[200px] md:max-w-none",
+                    isLast && "max-w-[150px] sm:max-w-none",
+                  )}
+                >
                   {item.href && !isLast ? (
                     <BreadcrumbLink asChild>
-                      <Link 
+                      <Link
                         href={item.href}
                         className="truncate block text-muted-foreground/80 hover:text-primary transition-colors font-medium"
                         title={item.label}
@@ -95,10 +99,10 @@ export function Breadcrumbs({ items, className }: BreadcrumbsProps) {
                       </Link>
                     </BreadcrumbLink>
                   ) : (
-                    <BreadcrumbPage 
+                    <BreadcrumbPage
                       className={cn(
                         "font-bold text-foreground truncate block",
-                        isLast && "opacity-100"
+                        isLast && "opacity-100",
                       )}
                       title={item.label}
                     >
@@ -108,7 +112,7 @@ export function Breadcrumbs({ items, className }: BreadcrumbsProps) {
                 </BreadcrumbItem>
                 {!isLast && (
                   <BreadcrumbSeparator className="shrink-0 opacity-40">
-                    <Slash className="size-3" />
+                    <span>/</span>
                   </BreadcrumbSeparator>
                 )}
               </React.Fragment>

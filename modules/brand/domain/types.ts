@@ -3,6 +3,8 @@ export interface Brand {
   name: string;
   slug: string;
   logoUrl: string;
+  metaTitle?: string | null;
+  metaDescription?: string | null;
   description: string;
   createdAt: string;
   updatedAt: string;

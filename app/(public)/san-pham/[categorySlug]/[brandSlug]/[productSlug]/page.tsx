@@ -91,21 +91,21 @@ export async function generateMetadata(
 
   if (!product) return {};
 
+  // Map brands/categories for SEO and layout
+  const category = Array.isArray(product.categories) ? product.categories[0] : product.categories;
+  const brand = Array.isArray(product.brands) ? product.brands[0] : product.brands;
+
   // Use our smart SEO module to catch all keywords
-  const seoMetadata = generateProductMetadata(
-    product as unknown as ProductWithRelations,
-  );
+  const seoMetadata = generateProductMetadata({
+    ...product,
+    category,
+    brand,
+  } as unknown as ProductWithRelations);
   const previousImages = (await parent).openGraph?.images || [];
 
   const baseUrl = (
     process.env.NEXT_PUBLIC_APP_URL || "https://dienmayelc.com.vn"
   ).replace(/\/$/, "");
-  const category = Array.isArray(product.categories)
-    ? product.categories[0]
-    : product.categories;
-  const brand = Array.isArray(product.brands)
-    ? product.brands[0]
-    : product.brands;
 
   // New 3-level Canonical URL
   const canonicalUrl = `${baseUrl}/san-pham/${category?.slug || "unknown"}/${brand?.slug || "all"}/${product.slug}`;
@@ -192,17 +192,17 @@ export default async function ProductDetail({ params }: Props) {
     supabase.from("contacts").select("*").order("order_index"),
   ]);
 
-  const leafCat = Array.isArray(product.categories)
+  const category = Array.isArray(product.categories)
     ? product.categories[0]
     : product.categories;
-  if (!leafCat) notFound();
+  if (!category) notFound();
 
   const brand = Array.isArray(product.brands)
     ? product.brands[0]
     : product.brands;
 
-  const parentCat = (leafCat as any)?.parent_id
-    ? allCategories?.find((c) => c.id === (leafCat as any).parent_id)
+  const parentCat = (category as any)?.parent_id
+    ? allCategories?.find((c) => c.id === (category as any).parent_id)
     : null;
 
   const normalizedSpecs: SpecItem[] = Array.isArray(product.specs)
@@ -223,13 +223,10 @@ export default async function ProductDetail({ params }: Props) {
     !spec.value &&
     !spec.items;
 
-  const category = Array.isArray(product.categories)
-    ? product.categories[0]
-    : product.categories;
   const productWithRelations = {
     ...product,
     category,
-    brand: product.brands,
+    brand,
   } as unknown as ProductWithRelations;
   const jsonLd = generateProductSchema(productWithRelations);
 
@@ -246,15 +243,15 @@ export default async function ProductDetail({ params }: Props) {
               // Merge parent and leaf categories for a cleaner look (e.g., "Máy lạnh" + "Treo tường" = "Máy lạnh treo tường")
               {
                 label: parentCat
-                  ? `${parentCat.name} ${leafCat.name}`
-                  : leafCat.name,
-                href: `/san-pham/${leafCat.slug}`,
+                  ? `${parentCat.name} ${category.name}`
+                  : category.name,
+                href: `/san-pham/${category.slug}`,
               },
               ...(brand
                 ? [
                     {
                       label: brand.name,
-                      href: `/san-pham/${leafCat.slug}?brands=${brand.slug}`,
+                      href: `/san-pham/${category.slug}?brands=${brand.slug}`,
                     },
                   ]
                 : []),
@@ -308,12 +305,12 @@ export default async function ProductDetail({ params }: Props) {
                 {parentCat?.name && (
                   <TypographySmall>{parentCat.name}</TypographySmall>
                 )}
-                {parentCat?.name && leafCat?.name && (
-                  <span className="text-muted-foreground/20">/</span>
+                {parentCat?.name && category?.name && (
+                  <span className="text-muted-foreground">/</span>
                 )}
-                {leafCat?.name && (
-                  <TypographySmall className="font-semibold text-foreground">
-                    {leafCat.name}
+                {category?.name && (
+                  <TypographySmall className="text-muted-foreground">
+                    {category.name}
                   </TypographySmall>
                 )}
               </div>

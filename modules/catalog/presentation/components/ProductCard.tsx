@@ -13,8 +13,8 @@ import Link from "next/link";
 
 interface ProductCardProps {
   product: any;
-  categorySlug: string;
-  brandSlug: string;
+  categorySlug?: string;
+  brandSlug?: string;
   queryTokens?: string[];
   priority?: boolean;
 }
@@ -26,13 +26,17 @@ export function ProductCard({
   queryTokens = [],
   priority = false,
 }: ProductCardProps) {
+  const finalCategorySlug = categorySlug || (product.category?.slug || "unknown");
+  const finalBrandSlug = brandSlug || (product.brand?.slug || "all");
+  const productUrl = `/san-pham/${finalCategorySlug}/${finalBrandSlug}/${product.slug}`;
+
   const hasDiscount = product.discountPercent > 0;
   const currentPrice = product.salePrice || product.originalPrice || 0;
 
   return (
     <Card className="group flex flex-col overflow-hidden transition-all duration-300 hover:shadow-lg border-none shadow-none bg-background h-full">
       <Link
-        href={`/san-pham/${categorySlug}/${brandSlug}/${product.slug}`}
+        href={productUrl}
         className="flex flex-col h-full"
       >
         <CardHeader className="p-0">
