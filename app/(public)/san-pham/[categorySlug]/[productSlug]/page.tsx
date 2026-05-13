@@ -30,6 +30,8 @@ import { OrderButton } from "@/shared/components/layout/user/order-button";
 import { ProductDescription } from "@/shared/components/layout/user/product-description";
 import RelatedProducts from "@/shared/components/layout/user/related-products";
 import { Percent } from "lucide-react";
+import { generateProductMetadata, generateProductSchema } from "@/shared/lib/seo-utils";
+import { ProductWithRelations } from "@/modules/catalog/domain";
 
 interface SpecSubItem {
   label: string;
@@ -68,39 +70,28 @@ export async function generateMetadata(
   { params }: Props,
   parent: ResolvingMetadata
 ): Promise<Metadata> {
-  const { productSlug, categorySlug } = await params;
+  const { productSlug } = await params;
   const supabase = await createClient();
 
   const { data: product } = await supabase
     .from("products")
-    .select("name, meta_title, meta_description, images, brands(name)")
+    .select("*, categories(id, name, slug), brands(id, name)")
     .eq("slug", productSlug)
-    .eq("categories.slug", categorySlug)
     .single();
 
   if (!product) return {};
 
+  // Use our smart SEO module to catch all keywords
+  const seoMetadata = generateProductMetadata(product as unknown as ProductWithRelations);
   const previousImages = (await parent).openGraph?.images || [];
-  const title = product.meta_title || `${product.name} | Điện máy ELC`;
-  const description = product.meta_description || `Thông tin chi tiết về ${product.name} tại Điện máy ELC.`;
-  const images = product.images?.[0] ? [product.images[0], ...previousImages] : previousImages;
-
+  
   return {
-    title,
-    description,
+    ...seoMetadata,
     openGraph: {
-      title,
-      description,
-      images,
-      type: 'article',
-    },
-    twitter: {
-      card: "summary_large_image",
-      title,
-      description,
-      images,
+      ...seoMetadata.openGraph,
+      images: [...(seoMetadata.openGraph?.images || []), ...previousImages],
     }
-  };
+  } as Metadata;
 }
 
 const STYLES = {
@@ -175,8 +166,16 @@ export default async function ProductDetail({ params }: Props) {
   const isSectionHeader = (spec: SpecItem) =>
     spec.label === spec.label.toUpperCase() && spec.label.length > 3 && !spec.value && !spec.items;
 
+  const category = Array.isArray(product.categories) ? product.categories[0] : product.categories;
+  const productWithRelations = { ...product, category, brand: product.brands } as unknown as ProductWithRelations;
+  const jsonLd = generateProductSchema(productWithRelations);
+
   return (
     <main className={STYLES.main}>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <div className={STYLES.container}>
         <div className={STYLES.topSection}>
           <div className={STYLES.imageArea}>

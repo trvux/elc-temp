@@ -8,9 +8,24 @@ import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { PreviewContent } from "@/shared/components/layout/user/preview-content";
+import { generateServiceMetadata } from "@/shared/lib/seo-utils";
+import { Metadata } from "next";
 
 // Design System / Style Constants
 export const dynamic = "force-dynamic";
+
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+  const { slug } = await params;
+  const supabase = createStaticClient();
+  const { data: service } = await supabase
+    .from("services")
+    .select("*")
+    .eq("slug", slug)
+    .eq("is_published", true)
+    .maybeSingle();
+
+  return generateServiceMetadata(service);
+}
 
 const STYLES = {
   main: cn("w-full min-h-screen py-10 px-4 md:py-20"),

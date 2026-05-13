@@ -1,0 +1,207 @@
+import { ProductWithRelations } from "@/modules/catalog/domain";
+
+export const SHOP_NAME = "Điện máy ELC";
+export const BASE_URL = "https://dienmayelc.com.vn";
+
+/**
+ * Generates SEO-optimized Meta Title and Description to catch all keywords
+ */
+export function generateProductMetadata(product: ProductWithRelations) {
+  if (!product) return {};
+
+  const brandName = product.brand?.name || "";
+  const categoryName = product.category?.name || "Máy lạnh";
+
+  // Synonym logic: If it's "Máy lạnh", add "Điều hòa" and vice-versa
+  const isAirCon =
+    categoryName.toLowerCase().includes("máy lạnh") ||
+    categoryName.toLowerCase().includes("điều hòa");
+  const synonyms = isAirCon ? "(Điều hòa)" : "";
+
+  // Extract HP/Capacity from specs if available
+  const productSpecs = Array.isArray(product.specs) ? (product.specs as any[]) : [];
+  const hpSpec = productSpecs.find(
+    (s: any) =>
+      s.label?.toLowerCase().includes("công suất") ||
+      s.label?.toLowerCase().includes("hp"),
+  );
+  const hpValue = hpSpec?.value || "";
+
+  // Local terminology: 1HP = 1 ngựa
+  const hpLocal = hpValue ? ` (${hpValue.replace(/HP/i, "ngựa")})` : "";
+
+  // Clean SKU (main part only)
+  const mainSku = product.sku?.split(/[\/\+]/)[0].trim() || "";
+
+  // Strategy: [Category] [Synonym] [Brand] [HP] [SKU] [Tech]
+  let title =
+    `${categoryName} ${synonyms} ${brandName} ${hpValue} ${mainSku} Inverter`
+      .replace(/\s+/g, " ")
+      .trim();
+
+  // Always append Shop Name in the module for consistent branding
+  if (!title.endsWith(SHOP_NAME)) {
+    title += ` | ${SHOP_NAME}`;
+  }
+
+  const description =
+    `Báo giá ${categoryName} ${brandName} ${mainSku} ${hpValue}${hpLocal} chính hãng tại Điện máy ELC. Máy lạnh giá tốt nhất, tiết kiệm điện vượt trội, hỗ trợ thi công lắp đặt máy lạnh chuyên nghiệp. Click xem ngay!`
+      .replace(/\s+/g, " ")
+      .trim();
+
+  return {
+    title,
+    description,
+    openGraph: {
+      title,
+      description,
+      images: product.images?.[0] ? [product.images[0]] : [],
+      url: `${BASE_URL}/san-pham/${product.slug}`,
+      type: "website",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: product.images?.[0] ? [product.images[0]] : [],
+    },
+  };
+}
+
+/**
+ * Generates SEO for Category pages
+ */
+export function generateCategoryMetadata(category: any, totalCount: number) {
+  if (!category) return {};
+
+  const name = category.name || "";
+  const isProject = category.type === "project";
+  const synonym = name.toLowerCase().includes("máy lạnh") ? "Điều hòa" : "";
+  const displayName = synonym ? `${name} (${synonym})` : name;
+
+  let title = "";
+  let description = "";
+
+  if (isProject) {
+    title = `Dự án ${name} tiêu biểu`;
+    description = `Khám phá các công trình ${name} thực tế do ELC thực hiện. Giải pháp không khí chuyên nghiệp, thẩm mỹ và bền bỉ. Xem ngay các dự án tiêu biểu!`;
+  } else {
+    title = `${displayName} chính hãng, giá rẻ nhất`;
+    if (name.toLowerCase().includes("âm trần") || name.toLowerCase().includes("giấu trần")) {
+      title = `${displayName} cho hệ thống VRV/VRF chính hãng`;
+    }
+    description = `Chuyên cung cấp ${displayName} chính hãng tại Điện máy ELC. Máy lạnh giá tốt nhất thị trường, hỗ trợ thi công lắp đặt máy lạnh chuyên nghiệp, bảo hành uy tín. Xem ngay!`;
+  }
+
+  if (!title.endsWith(SHOP_NAME)) {
+    title += ` | ${SHOP_NAME}`;
+  }
+
+  return {
+    title,
+    description,
+    openGraph: {
+      title,
+      description,
+      images: category.image_url ? [category.image_url] : [],
+      type: "website",
+    },
+  };
+}
+
+/**
+ * Generates SEO for Service pages
+ */
+export function generateServiceMetadata(service: any) {
+  if (!service) return {};
+
+  const title = `${service.title} - Dịch vụ chuyên nghiệp | ${SHOP_NAME}`;
+  const description = `Cung cấp dịch vụ ${service.title} uy tín, giá tốt tại ${SHOP_NAME}. Đội ngũ kỹ thuật tay nghề cao, thi công nhanh chóng, hỗ trợ 24/7. Click để nhận báo giá chi tiết!`;
+
+  return {
+    title,
+    description,
+    openGraph: {
+      title,
+      description,
+      images: service.image ? [service.image] : [],
+      type: "article",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: service.image ? [service.image] : [],
+    }
+  };
+}
+
+/**
+ * Generates JSON-LD for Category pages (Price Range)
+ * This is what makes Google show "₫4,990,000 to ₫58,640,000"
+ */
+export function generateCategorySchema(category: any, products: any[]) {
+  if (!category || !products || products.length === 0) return null;
+
+  const prices = products
+    .map(p => p.salePrice || p.originalPrice || 0)
+    .filter(p => p > 0);
+  
+  if (prices.length === 0) return null;
+
+  const lowPrice = Math.min(...prices);
+  const highPrice = Math.max(...prices);
+
+  return {
+    "@context": "https://schema.org/",
+    "@type": "ItemList",
+    "name": category.name,
+    "description": category.meta_description || category.description,
+    "url": `${BASE_URL}/san-pham/${category.slug}`,
+    "numberOfItems": products.length,
+    "offers": {
+      "@type": "AggregateOffer",
+      "lowPrice": lowPrice,
+      "highPrice": highPrice,
+      "priceCurrency": "VND",
+      "offerCount": products.length
+    }
+  };
+}
+
+/**
+ * Generates JSON-LD Structured Data for Google Rich Snippets
+ */
+export function generateProductSchema(product: ProductWithRelations) {
+  const price = product.salePrice || product.originalPrice || 0;
+
+  return {
+    "@context": "https://schema.org/",
+    "@type": "Product",
+    name: product.name,
+    image: product.images,
+    description: product.metaDescription || product.description?.toString() || "",
+    sku: product.sku,
+    mpn: product.sku,
+    brand: {
+      "@type": "Brand",
+      name: product.brand?.name || SHOP_NAME,
+    },
+    offers: {
+      "@type": "Offer",
+      url: `${BASE_URL}/san-pham/${product.slug}`,
+      priceCurrency: "VND",
+      price: price,
+      priceValidUntil: "2026-12-31",
+      itemCondition: "https://schema.org/NewCondition",
+      availability:
+        product.stockStatus === "in_stock"
+          ? "https://schema.org/InStock"
+          : "https://schema.org/OutOfStock",
+      seller: {
+        "@type": "Organization",
+        name: SHOP_NAME,
+      },
+    },
+  };
+}
