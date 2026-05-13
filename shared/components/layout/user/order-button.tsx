@@ -18,17 +18,19 @@ import {
   DropdownMenuTrigger,
 } from "@/shared/components/ui/dropdown-menu";
 import {
-  EmailIcon,
-  FacebookIcon,
-  LinkIcon,
-  MessengerIcon,
-  PhoneIcon,
-  WebsiteIcon,
   ZaloIcon,
 } from "@/shared/components/ui/social-icons";
 import { TypographyLarge } from "@/shared/components/ui/typography";
 import { useIsMobile } from "@/shared/hooks/use-mobile";
 import { cn } from "@/shared/lib/utils";
+import {
+  EnvelopeSimpleIcon,
+  GlobeIcon,
+  LinkIcon,
+  MessengerLogoIcon,
+  MetaLogoIcon,
+  PhoneIcon,
+} from "@phosphor-icons/react";
 import Link from "next/link";
 
 import { Contact } from "@/modules/contact/domain";
@@ -45,7 +47,7 @@ const STYLES = {
     drawer: cn("gap-6 px-4 py-4 hover:bg-muted/50 rounded-lg"),
     dropdown: cn("gap-5 px-4 py-3.5"),
     icon: cn(
-      "text-foreground/70 group-hover:text-primary transition-colors shrink-0",
+      "text-primary transition-colors shrink-0",
     ),
     info: cn("flex flex-col gap-0.5 min-w-0 text-left"),
     label: cn("font-bold tracking-wider truncate text-foreground/90"),
@@ -56,11 +58,11 @@ const STYLES = {
 const getContactIcon = (type: string) => {
   const icons: Record<string, any> = {
     phone: PhoneIcon,
-    email: EmailIcon,
-    facebook: FacebookIcon,
-    messenger: MessengerIcon,
+    email: EnvelopeSimpleIcon,
+    facebook: MetaLogoIcon,
+    messenger: MessengerLogoIcon,
     zalo: ZaloIcon,
-    website: WebsiteIcon,
+    website: GlobeIcon,
   };
   return icons[type] || LinkIcon;
 };
@@ -114,7 +116,7 @@ export function OrderButton({ contacts }: OrderButtonProps) {
           isDropdown ? STYLES.item.dropdown : STYLES.item.drawer,
         )}
       >
-        <Icon size={isDropdown ? 18 : 22} className={STYLES.item.icon} />
+        <Icon size={isDropdown ? 18 : 22} weight="bold" className={STYLES.item.icon} />
         <div className={STYLES.item.info}>
           <span
             className={cn(

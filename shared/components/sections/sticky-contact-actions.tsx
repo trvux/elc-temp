@@ -2,8 +2,9 @@
 
 import { Contact } from "@/modules/contact/domain";
 import { Button } from "@/shared/components/ui/button";
-import { PhoneIcon, ZaloIcon } from "@/shared/components/ui/social-icons";
+import { ZaloIcon } from "@/shared/components/ui/social-icons";
 import { cn } from "@/shared/lib/utils";
+import { PhoneIcon } from "@phosphor-icons/react";
 import { AnimatePresence, m, Variants } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -51,7 +52,7 @@ export function StickyContactActions({ contacts }: StickyContactActionsProps) {
   if (!hotline && !zalo) return null;
 
   const glassStyle =
-    "bg-background/60 backdrop-blur-md border border-white/80 shadow-md rounded-full ring-offset-background hover:bg-background hover:ring-primary/90 transition-all duration-300 hover:ring-2 hover:ring-offset-2";
+    "bg-background/60 backdrop-blur-md border border-white/80 shadow-md rounded-full ring-offset-background hover:bg-background hover:ring-primary/10 transition-all duration-300 hover:ring-2 hover:ring-offset-2";
 
   const containerVariants: Variants = {
     hidden: { opacity: 0 },
@@ -112,7 +113,7 @@ export function StickyContactActions({ contacts }: StickyContactActionsProps) {
                   title={`Zalo: Tư vấn miễn phí: ${zalo.value}`}
                   className="flex items-center"
                 >
-                  <ZaloIcon size={18} className="text-blue-600 shrink-0" />
+                  <ZaloIcon size={14} className="text-blue-600 shrink-0" />
                   <span>Zalo: {zalo.value}</span>
                   <span>\</span>
                   <span>Tư vấn miễn phí</span>
@@ -134,7 +135,11 @@ export function StickyContactActions({ contacts }: StickyContactActionsProps) {
                   title={`Gọi ngay: ${hotline.value}`}
                   className="flex items-center"
                 >
-                  <PhoneIcon size={14} className="text-green-600 shrink-0" />
+                  <PhoneIcon
+                    size={14}
+                    weight="bold"
+                    className="text-green-600 shrink-0"
+                  />
                   <span>Số điện thoại: {hotline.value}</span>
                   <span>\</span>
                   <span>Gọi ngay</span>
