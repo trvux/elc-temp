@@ -206,37 +206,6 @@ export default async function CategoryBrandPage({ params, searchParams }: Props)
           <ScrollToTop />
         </div>
 
-        {/* Quick Links Section for Sitelinks SEO */}
-        <section className="mt-12 py-8 border-t border-dashed">
-          <TypographyLarge className="mb-6 text-foreground font-semibold">
-            Gợi ý tìm kiếm liên quan
-          </TypographyLarge>
-          <div className="flex flex-wrap gap-3">
-            {/* Brands in the same category */}
-            {availableFilters.brands?.slice(0, 6).map((b: any) => (
-              <Link 
-                key={b.id} 
-                href={`/san-pham/${categorySlug}/${b.slug}`}
-                className="px-5 py-2.5 bg-muted/40 hover:bg-primary/10 hover:text-primary border border-transparent hover:border-primary/20 rounded-full text-sm transition-all duration-300 shadow-sm font-medium"
-              >
-                {currentCategory.displayName} {b.name}
-              </Link>
-            ))}
-            {/* Essential Service Links */}
-            <Link 
-              href="/dich-vu/ve-sinh-may-lanh"
-              className="px-5 py-2.5 bg-muted/40 hover:bg-primary/10 hover:text-primary border border-transparent hover:border-primary/20 rounded-full text-sm transition-all duration-300 shadow-sm font-medium"
-            >
-              Dịch vụ vệ sinh máy lạnh
-            </Link>
-            <Link 
-              href="/gioi-thieu"
-              className="px-5 py-2.5 bg-muted/40 hover:bg-primary/10 hover:text-primary border border-transparent hover:border-primary/20 rounded-full text-sm transition-all duration-300 shadow-sm font-medium"
-            >
-              Chính sách bảo hành ELC
-            </Link>
-          </div>
-        </section>
       </div>
     </main>
   );

@@ -18,17 +18,47 @@ export function generateProductMetadata(product: ProductWithRelations) {
     categoryName.toLowerCase().includes("điều hòa");
   const synonyms = isAirCon ? "(Điều hòa)" : "";
 
-  // Extract HP/Capacity from specs if available
+  // 1. Try to get HP from specs
   const productSpecs = Array.isArray(product.specs) ? (product.specs as any[]) : [];
-  const hpSpec = productSpecs.find(
+  let hpSpec = productSpecs.find(
     (s: any) =>
       s.label?.toLowerCase().includes("công suất") ||
       s.label?.toLowerCase().includes("hp"),
   );
-  const hpValue = hpSpec?.value || "";
+  let hpValue = hpSpec?.value || "";
 
-  // Local terminology: 1HP = 1 ngựa
-  const hpLocal = hpValue ? ` (${hpValue.replace(/HP/i, "ngựa")})` : "";
+  // 2. Fallback: Try to extract from SKU or Name (e.g., "15hp" or "1.5hp")
+  if (!hpValue) {
+    const combinedText = `${product.sku} ${product.name}`.toLowerCase();
+    const hpMatch = combinedText.match(/(\d+(\.\d+)?)\s*(hp|ngựa|ngua)/) || combinedText.match(/(\d{2})hp/);
+    
+    if (hpMatch) {
+      const val = hpMatch[1];
+      // Special case: "15hp" -> "1.5HP"
+      if (val === "10") hpValue = "1.0HP";
+      else if (val === "15") hpValue = "1.5HP";
+      else if (val === "20") hpValue = "2.0HP";
+      else if (val === "25") hpValue = "2.5HP";
+      else if (val.length === 2 && parseInt(val) > 25) hpValue = `${val}HP`; // e.g. 50HP
+      else hpValue = val.includes(".") || val.length === 1 ? `${val}HP` : hpValue;
+    }
+  }
+
+  // Local terminology mapping pattern: 1HP -> 1 ngựa, 1.5HP -> 1.5 ngựa (1 ngựa rưỡi)
+  let hpLocal = "";
+  if (hpValue) {
+    const numericHP = parseFloat(hpValue.replace(/[^\d.]/g, ""));
+    if (!isNaN(numericHP)) {
+      const isHalf = numericHP % 1 !== 0;
+      if (isHalf) {
+        const base = Math.floor(numericHP);
+        const halfText = base === 0 ? "nửa ngựa" : `${base} ngựa rưỡi`;
+        hpLocal = ` (${numericHP} ngựa - ${halfText})`;
+      } else {
+        hpLocal = ` (${numericHP} ngựa)`;
+      }
+    }
+  }
 
   // Clean SKU (main part only)
   const mainSku = product.sku?.split(/[\/\+]/)[0].trim() || "";
@@ -45,7 +75,7 @@ export function generateProductMetadata(product: ProductWithRelations) {
   }
 
   const description =
-    `Điện máy ELC - Chuyên cung cấp ${categoryName} ${brandName} ${mainSku} ${hpValue}${hpLocal} chính hãng. Máy lạnh giá tốt nhất thị trường, tiết kiệm điện vượt trội, hỗ trợ thi công lắp đặt chuyên nghiệp. Xem ngay!`
+    `Điện máy ELC - Chuyên cung cấp ${categoryName} ${brandName} ${mainSku} ${hpValue}${hpLocal} chính hãng. Máy lạnh giá tốt nhất thị trường, tiết kiệm điện vượt trội, hỗ trợ thi công lắp đặt máy lạnh chuyên nghiệp. Xem ngay!`
       .replace(/\s+/g, " ")
       .trim();
 
@@ -96,12 +126,12 @@ export function generateCategoryMetadata(category: any, totalCount: number) {
   } else {
     // 1. Use meta_title if provided in DB
     // 2. Fallback to smart generated displayName
-    title = category.meta_title || `Danh sách ${displayName} chính hãng, giá tốt nhất`;
+    title = category.metaTitle || `Danh sách ${displayName} chính hãng, giá tốt nhất`;
 
-    if (!category.meta_title && (name.toLowerCase().includes("âm trần") || name.toLowerCase().includes("giấu trần"))) {
+    if (!category.metaTitle && (name.toLowerCase().includes("âm trần") || name.toLowerCase().includes("giấu trần"))) {
       title = `Danh sách ${displayName} cho hệ thống VRV/VRF chính hãng`;
     }
-    description = category.meta_description || `Chuyên cung cấp ${displayName} chính hãng tại Điện máy ELC. Máy lạnh giá tốt nhất thị trường, hỗ trợ thi công lắp đặt máy lạnh chuyên nghiệp, bảo hành uy tín. Xem ngay!`;
+    description = category.metaDescription || `Chuyên cung cấp ${displayName} chính hãng tại Điện máy ELC. Máy lạnh giá tốt nhất thị trường, hỗ trợ thi công lắp đặt máy lạnh chuyên nghiệp, bảo hành uy tín. Xem ngay!`;
   }
 
   if (!title.endsWith(SHOP_NAME)) {
@@ -134,8 +164,8 @@ export function generateBrandMetadata(brand: any, category?: any) {
 
   // 1. Use meta_title if provided in DB
   // 2. Fallback to smart generated name
-  const title = brand.meta_title || `${displayName} chính hãng, giá tốt nhất`;
-  const description = brand.meta_description || `Chuyên cung cấp ${displayName} chính hãng tại Điện máy ELC. Cam kết chất lượng cao, bảo hành uy tín, thi công lắp đặt chuyên nghiệp. Xem ngay!`;
+  const title = brand.metaTitle || `${displayName} chính hãng, giá tốt nhất`;
+  const description = brand.metaDescription || `Chuyên cung cấp ${displayName} chính hãng tại Điện máy ELC. Cam kết chất lượng cao, bảo hành uy tín, thi công lắp đặt chuyên nghiệp. Xem ngay!`;
 
   let finalTitle = title;
   if (!finalTitle.endsWith(SHOP_NAME)) {
@@ -148,7 +178,7 @@ export function generateBrandMetadata(brand: any, category?: any) {
     openGraph: {
       title: finalTitle,
       description,
-      images: brand.logo_url ? [brand.logo_url] : [],
+      images: brand.logoUrl ? [brand.logoUrl] : [],
       type: "website",
     },
   };
@@ -201,7 +231,7 @@ export function generateCollectionSchema(entity: any, products: any[]) {
     "@context": "https://schema.org/",
     "@type": "ItemList",
     "name": entity.name || entity.displayName,
-    "description": entity.meta_description || entity.metaDescription || entity.description,
+    "description": entity.metaDescription || entity.meta_description || entity.description,
     "url": `${BASE_URL}/san-pham/${entity.slug}`,
     "numberOfItems": products.length,
     "offers": {
@@ -219,6 +249,9 @@ export function generateCollectionSchema(entity: any, products: any[]) {
  */
 export function generateProductSchema(product: ProductWithRelations) {
   const price = product.salePrice || product.originalPrice || 0;
+  
+  // Reuse the smart metadata logic to get the same description
+  const metadata = generateProductMetadata(product);
 
   return {
     "@context": "https://schema.org/",
@@ -234,13 +267,13 @@ export function generateProductSchema(product: ProductWithRelations) {
         ? product.images[0] 
         : undefined
     },
-    description: product.meta_description || product.metaDescription || product.description?.toString() || "",
+    description: metadata.description || "",
     sku: product.sku,
     mpn: product.sku,
     brand: {
       "@type": "Brand",
       name: product.brand?.name || SHOP_NAME,
-      logo: product.brand?.logo_url || undefined,
+      logo: product.brand?.logoUrl || undefined,
     },
     offers: {
       "@type": "Offer",

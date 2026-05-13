@@ -36,7 +36,13 @@ export interface Product {
 }
 
 export interface ProductWithRelations extends Product {
-    category?: { id: string; name: string; slug: string } | null;
+    category?: { 
+        id: string; 
+        name: string; 
+        slug: string;
+        metaTitle?: string | null;
+        metaDescription?: string | null;
+    } | null;
     brand?: Brand | null;
 }
 

@@ -7,6 +7,8 @@ export interface Category {
   name: string;
   slug: string;
   parentId: string | null;
+  metaTitle?: string | null;
+  metaDescription?: string | null;
   type: CategoryType;
   createdAt: string;
   updatedAt: string;
