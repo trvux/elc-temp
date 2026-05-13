@@ -3,6 +3,8 @@ import { createStaticClient } from '@/shared/lib/supabase/static';
 
 const BASE_URL = 'https://dienmayelc.com.vn';
 
+export const revalidate = 0; // Always fetch latest data instantly
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const supabase = createStaticClient();
 
