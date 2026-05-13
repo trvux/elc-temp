@@ -14,25 +14,22 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || "https://dienmayelc.vn"),
-  title: {
-    default: "Điện máy ELC | Giải pháp không khí & Nguồn nước chính hãng",
-    template: "%s | Điện máy ELC",
-  },
+  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || "https://dienmayelc.com.vn"),
+  title: "Điện máy ELC | Máy lạnh & Giải pháp không khí chuyên nghiệp, giá tốt",
   description:
-    "Điện máy ELC chuyên cung cấp máy lạnh và giải pháp không khí chuyên nghiệp.",
+    "Điện máy ELC chuyên cung cấp máy lạnh chính hãng, máy lọc không khí và hệ thống điều hòa trung tâm VRV/VRF. Giá tốt nhất, lắp đặt chuyên nghiệp, bảo hành uy tín.",
   openGraph: {
-    title: "Điện máy ELC",
-    description: "Giải pháp không khí chuyên nghiệp",
-    url: "https://dienmayelc.com.vn", // Thay bằng domain thật của bạn
+    title: "Điện máy ELC - Máy lạnh chính hãng, giá tốt",
+    description: "Giải pháp không khí chuyên nghiệp cho gia đình và doanh nghiệp. Lắp đặt nhanh, bảo hành tận tâm.",
+    url: "https://dienmayelc.com.vn",
     siteName: "Điện máy ELC",
     locale: "vi_VN",
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Điện máy ELC",
-    description: "Giải pháp không khí chuyên nghiệp",
+    title: "Điện máy ELC - Máy lạnh chính hãng, giá tốt",
+    description: "Chuyên máy lạnh, hệ thống lọc khí chuyên nghiệp. Giá tốt nhất thị trường.",
   },
 };
 
