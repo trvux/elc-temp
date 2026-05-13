@@ -18,6 +18,7 @@ import {
   TypographyMuted,
   TypographyP,
 } from "@/shared/components/ui/typography";
+import { ArrowUpRight } from "lucide-react";
 import Link from "next/link";
 
 interface FeaturesSectionProps {
@@ -38,25 +39,23 @@ export function FeaturesSection({ products }: FeaturesSectionProps) {
   return (
     <section className="space-y-8">
       <StaggerContainer>
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
-          <div className="space-y-2">
-            <StaggerItem>
-              <TypographyH1>{title}</TypographyH1>
-            </StaggerItem>
-            <StaggerItem>
-              <TypographyP className="text-muted-foreground max-w-2xl">
-                Khám phá những giải pháp làm mát và lọc không khí tối ưu, được lựa
-                chọn kỹ lưỡng cho không gian sống của bạn.
-              </TypographyP>
-            </StaggerItem>
-          </div>
+        <div className="flex flex-col items-center text-center gap-3">
           <StaggerItem>
-            <Link
-              href="/san-pham"
-              className="text-primary hover:underline font-medium text-sm transition-all"
-            >
-              Xem tất cả sản phẩm &rarr;
-            </Link>
+            <TypographyH1>
+              <Link
+                href="/san-pham"
+                className="group relative inline-flex items-center justify-center hover:text-blue-800 transition-colors"
+              >
+                {title}
+                <ArrowUpRight className="absolute left-full ml-2 opacity-0 group-hover:opacity-100 h-6 w-6 md:h-8 md:w-8 transition-all duration-300 group-hover:-translate-y-6 group-hover:translate-x-6" />
+              </Link>
+            </TypographyH1>
+          </StaggerItem>
+          <StaggerItem>
+            <TypographyP className="text-muted-foreground max-w-2xl mx-auto">
+              Khám phá những giải pháp làm mát và lọc không khí tối ưu, được lựa
+              chọn kỹ lưỡng cho không gian sống của bạn.
+            </TypographyP>
           </StaggerItem>
         </div>
       </StaggerContainer>
@@ -67,12 +66,13 @@ export function FeaturesSection({ products }: FeaturesSectionProps) {
           <div className="md:hidden">
             <Carousel className="w-full">
               <CarouselContent className="-ml-8 p-1">
-                {products.map((product) => (
+                {products.map((product, index) => (
                   <CarouselItem key={product.id} className="pl-8 basis-[70%]">
                     <ProductCard
                       product={product}
                       categorySlug={product.category?.slug || "all"}
                       brandSlug={product.brand?.slug || "all"}
+                      priority={index === 0}
                     />
                   </CarouselItem>
                 ))}
@@ -82,12 +82,13 @@ export function FeaturesSection({ products }: FeaturesSectionProps) {
 
           {/* Desktop Grid */}
           <StaggerContainer className={styles.productGrid}>
-            {products.map((product) => (
+            {products.map((product, index) => (
               <StaggerItem key={product.id}>
                 <ProductCard
                   product={product}
                   categorySlug={product.category?.slug || "all"}
                   brandSlug={product.brand?.slug || "all"}
+                  priority={index < 4}
                 />
               </StaggerItem>
             ))}
