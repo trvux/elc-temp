@@ -37,23 +37,29 @@ export function FeaturesSection({ products }: FeaturesSectionProps) {
 
   return (
     <section className="space-y-8">
-      <AnimateIn>
+      <StaggerContainer>
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
           <div className="space-y-2">
-            <TypographyH1>{title}</TypographyH1>
-            <TypographyP className="text-muted-foreground max-w-2xl">
-              Khám phá những giải pháp làm mát và lọc không khí tối ưu, được lựa
-              chọn kỹ lưỡng cho không gian sống của bạn.
-            </TypographyP>
+            <StaggerItem>
+              <TypographyH1>{title}</TypographyH1>
+            </StaggerItem>
+            <StaggerItem>
+              <TypographyP className="text-muted-foreground max-w-2xl">
+                Khám phá những giải pháp làm mát và lọc không khí tối ưu, được lựa
+                chọn kỹ lưỡng cho không gian sống của bạn.
+              </TypographyP>
+            </StaggerItem>
           </div>
-          <Link
-            href="/san-pham"
-            className="text-primary hover:underline font-medium text-sm transition-all"
-          >
-            Xem tất cả sản phẩm &rarr;
-          </Link>
+          <StaggerItem>
+            <Link
+              href="/san-pham"
+              className="text-primary hover:underline font-medium text-sm transition-all"
+            >
+              Xem tất cả sản phẩm &rarr;
+            </Link>
+          </StaggerItem>
         </div>
-      </AnimateIn>
+      </StaggerContainer>
 
       {isShowingProducts ? (
         <>
