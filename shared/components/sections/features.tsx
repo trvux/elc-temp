@@ -1,5 +1,7 @@
 "use client";
 
+import { ProductWithRelations as Product } from "@/modules/catalog/domain";
+import { ProductCard } from "@/modules/catalog/presentation/components/ProductCard";
 import {
   AnimateIn,
   StaggerContainer,
@@ -13,12 +15,9 @@ import {
 import { Spinner } from "@/shared/components/ui/spinner";
 import {
   TypographyH1,
-  TypographyLarge,
   TypographyMuted,
   TypographyP,
 } from "@/shared/components/ui/typography";
-import { ProductCard } from "@/modules/catalog/presentation/components/ProductCard";
-import { ProductWithRelations as Product } from "@/modules/catalog/domain";
 import Link from "next/link";
 
 interface FeaturesSectionProps {
@@ -61,12 +60,9 @@ export function FeaturesSection({ products }: FeaturesSectionProps) {
           {/* Mobile Carousel */}
           <div className="md:hidden">
             <Carousel className="w-full">
-              <CarouselContent className="-ml-4">
+              <CarouselContent className="-ml-8 p-1">
                 {products.map((product) => (
-                  <CarouselItem
-                    key={product.id}
-                    className="pl-4 basis-[85%] sm:basis-[50%]"
-                  >
+                  <CarouselItem key={product.id} className="pl-8 basis-[70%]">
                     <ProductCard
                       product={product}
                       categorySlug={product.category?.slug || "all"}

@@ -1,7 +1,7 @@
 import { readFileSync } from 'fs';
 
 async function auditSitemap() {
-  const content = readFileSync('/Users/tranvux/.gemini/antigravity/brain/89bdfa4b-2fc7-4fae-8f6c-4b6b2466429f/.system_generated/steps/4386/content.md', 'utf-8');
+  const content = readFileSync('/Users/tranvux/.gemini/antigravity/brain/89bdfa4b-2fc7-4fae-8f6c-4b6b2466429f/.system_generated/steps/4487/content.md', 'utf-8');
   const urls = content.match(/<loc>(.*?)<\/loc>/g)?.map(val => val.replace(/<\/?loc>/g, '')) || [];
 
   console.log(`--- Starting Final Audit for ${urls.length} URLs ---`);
