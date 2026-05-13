@@ -201,7 +201,8 @@ export class SupabaseCategoryRepository implements CategoryRepository {
     const { data, error } = await supabase
       .from(this.TABLE_NAME)
       .select("*")
-      .in("id", ids);
+      .in("id", ids)
+      .is("deleted_at", null);
 
     if (error) this.handleError(error, "getByIds");
     return (data || []).map(row => this.mapToDomain(row));

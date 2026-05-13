@@ -141,11 +141,12 @@ const STYLES = {
 export default async function ProductDetail({ params }: Props) {
   const { categorySlug, productSlug } = await params;
   const supabase = await createClient();
-  // Fetch the product first by its unique slug
+  // Fetch the product first by its unique slug, ensuring it is not deleted
   const { data: product, error: productError } = await supabase
     .from("products")
     .select("*, categories(id, name, slug, parent_id), brands(name)")
     .eq("slug", productSlug)
+    .is("deleted_at", null)
     .single();
 
   if (!product) notFound();

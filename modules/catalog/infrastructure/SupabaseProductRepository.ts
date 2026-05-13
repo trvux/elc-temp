@@ -202,8 +202,8 @@ export class SupabaseProductRepository implements ProductRepository {
     }
 
     private applyFilters(query: any, options?: ProductFilter) {
-        if (!options) return query;
-        let q = query;
+        let q = query.is("deleted_at", null);
+        if (!options) return q;
         if (options.categoryId) q = q.eq("category_id", options.categoryId);
         if (options.categoryIds && options.categoryIds.length > 0) {
             q = q.in("category_id", options.categoryIds);
