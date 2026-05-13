@@ -6,10 +6,10 @@ const BASE_URL = 'https://dienmayelc.com.vn';
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const supabase = createStaticClient();
 
-  // 1. Fetch Categories
+  // 1. Fetch Categories (with type to filter)
   const { data: categories } = await supabase
     .from('categories')
-    .select('slug, updated_at')
+    .select('slug, updated_at, type')
     .is('deleted_at', null);
 
   // 2. Fetch Products with their category and brand slug for the URL
@@ -26,13 +26,27 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     .eq('is_published', true)
     .is('deleted_at', null);
 
+  // 4. Fetch Static Pages
+  const { data: pages } = await supabase
+    .from('pages')
+    .select('slug, updated_at')
+    .eq('is_published', true)
+    .is('deleted_at', null);
+
+  // 5. Fetch Projects
+  const { data: projects } = await supabase
+    .from('projects')
+    .select('slug, updated_at')
+    .eq('is_published', true)
+    .is('deleted_at', null);
+
   // Static Routes
   const staticRoutes = [
     '',
     '/san-pham',
     '/dich-vu',
-    '/lien-he',
-    '/gioi-thieu',
+    '/du-an',
+    '/tin-tuc',
   ].map((route) => ({
     url: `${BASE_URL}${route}`,
     lastModified: new Date(),
@@ -40,15 +54,25 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 1.0,
   }));
 
-  // Category Routes
-  const categoryRoutes = (categories || []).map((cat) => ({
-    url: `${BASE_URL}/san-pham/${cat.slug}`,
-    lastModified: new Date(cat.updated_at || Date.now()),
+  // Page Routes (from the database)
+  const pageRoutes = (pages || []).map((p) => ({
+    url: `${BASE_URL}/${p.slug}`,
+    lastModified: new Date(p.updated_at || Date.now()),
     changeFrequency: 'weekly' as const,
-    priority: 0.8,
+    priority: 0.7,
   }));
 
-  // Product Routes - Filter out any products with missing categories or slugs
+  // Category Routes (Only Product type categories go under /san-pham/)
+  const categoryRoutes = (categories || [])
+    .filter(cat => cat.type === 'product' || !cat.type)
+    .map((cat) => ({
+      url: `${BASE_URL}/san-pham/${cat.slug}`,
+      lastModified: new Date(cat.updated_at || Date.now()),
+      changeFrequency: 'weekly' as const,
+      priority: 0.8,
+    }));
+
+  // Product Routes
   const productRoutes = (products || [])
     .filter((prod: any) => prod.slug && prod.category?.slug && prod.brand?.slug)
     .map((prod: any) => ({
@@ -58,7 +82,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.9,
     }));
 
-  // Category + Brand Routes (New 3-level structure)
+  // Category + Brand Routes
   const categoryBrandRoutes = Array.from(
     new Set(
       (products || [])
@@ -80,11 +104,21 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.7,
   }));
 
+  // Project Routes
+  const projectRoutes = (projects || []).map((proj) => ({
+    url: `${BASE_URL}/du-an/${proj.slug}`,
+    lastModified: new Date(proj.updated_at || Date.now()),
+    changeFrequency: 'weekly' as const,
+    priority: 0.7,
+  }));
+
   return [
     ...staticRoutes,
+    ...pageRoutes,
     ...categoryRoutes,
     ...categoryBrandRoutes,
     ...productRoutes,
     ...serviceRoutes,
+    ...projectRoutes,
   ];
 }
