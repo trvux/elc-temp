@@ -20,7 +20,7 @@ export default function ThankYouPage() {
       <div className="max-w-2xl space-y-8">
         <div className="space-y-4">
           <TypographyH1>Cảm ơn bạn đã liên hệ đến</TypographyH1>
-          <TypographyH1>Điện Máy ELC</TypographyH1>
+          <TypographyH1>Điện máy ELC</TypographyH1>
           <TypographyLead>
             Hãy để lại lời nhắn. Chúng tôi sẽ phản hồi ngay.
           </TypographyLead>

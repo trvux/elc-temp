@@ -96,13 +96,23 @@ export function ProductFilters({
 
   const currentSort =
     (searchParams.get("sortBy") as ProductSortBy) || "price_asc";
-  const currentBrands = useMemo(
-    () => searchParams.getAll("brands"),
-    [searchParams],
-  );
   const params = useParams();
   const categorySlugFromPath = params.categorySlug as string;
-  const currentCategory = categorySlugFromPath || "all";
+  const brandSlugFromPath = params.brandSlug as string;
+
+  // We need to know if the first segment is a brand or category
+  const currentCategory = categories.find(c => c.slug === categorySlugFromPath) ? categorySlugFromPath : "all";
+  const brandInFirstSegment = !categories.find(c => c.slug === categorySlugFromPath) ? categorySlugFromPath : null;
+  const currentBrandFromPath = brandInFirstSegment || brandSlugFromPath;
+
+  const currentBrands = useMemo(() => {
+    const fromQuery = searchParams.getAll("brands");
+    if (currentBrandFromPath) {
+      // If the brand is in the path, it should be the primary brand
+      return [currentBrandFromPath, ...fromQuery.filter(b => b !== currentBrandFromPath)];
+    }
+    return fromQuery;
+  }, [searchParams, currentBrandFromPath]);
 
   const currentSpecs = useMemo(() => {
     const specs: Record<string, string[]> = {};
@@ -150,7 +160,25 @@ export function ProductFilters({
   };
 
   const handleBrandChange = (brandSlug: string, checked: boolean) => {
-    updateFilters({ brands: checked ? brandSlug : null });
+    const sParams = new URLSearchParams(searchParams.toString());
+    sParams.delete("brands");
+    sParams.delete("page");
+    const queryString = sParams.toString();
+    const suffix = queryString ? `?${queryString}` : "";
+
+    if (checked) {
+      if (currentCategory && currentCategory !== "all") {
+        router.push(`/san-pham/${currentCategory}/${brandSlug}${suffix}`);
+      } else {
+        router.push(`/san-pham/${brandSlug}${suffix}`);
+      }
+    } else {
+      if (currentCategory && currentCategory !== "all") {
+        router.push(`/san-pham/${currentCategory}${suffix}`);
+      } else {
+        router.push(`/san-pham${suffix}`);
+      }
+    }
   };
 
   const handleSpecChange = (label: string, value: string, checked: boolean) => {
@@ -184,6 +212,16 @@ export function ProductFilters({
     setIsMounted(true);
   }, []);
 
+  const activeAccordionValues = useMemo(() => {
+    const values = ["Danh mục", "Công suất"];
+    if (currentBrands.length > 0) values.push("Thương hiệu");
+    if (hasPriceFilter) values.push("Khoảng giá");
+    Object.keys(currentSpecs).forEach(label => {
+      if (currentSpecs[label].length > 0) values.push(label);
+    });
+    return values;
+  }, [currentBrands, hasPriceFilter, currentSpecs]);
+
   if (!isMounted) {
     return <div className="animate-pulse space-y-4">
       <div className="h-10 bg-muted rounded w-1/2" />
@@ -206,7 +244,8 @@ export function ProductFilters({
 
       <Accordion
         type="multiple"
-        defaultValue={["Danh mục", "Công suất"]}
+        defaultValue={activeAccordionValues}
+        key={activeAccordionValues.join(",")}
         className="w-full"
       >
         {/* Unified Category Filter */}

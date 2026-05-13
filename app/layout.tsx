@@ -63,6 +63,29 @@ export default function RootLayout({
         suppressHydrationWarning
         className={cn("min-h-full flex flex-col text-foreground")}
       >
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "Organization",
+              "name": "Điện máy ELC",
+              "url": "https://dienmayelc.com.vn",
+              "logo": "https://dienmayelc.com.vn/icon.svg",
+              "contactPoint": {
+                "@type": "ContactPoint",
+                "telephone": "+84-xxx-xxx-xxx",
+                "contactType": "customer service",
+                "areaServed": "VN",
+                "availableLanguage": "Vietnamese"
+              },
+              "sameAs": [
+                "https://www.facebook.com/dienmayelc",
+                "https://www.youtube.com/dienmayelc"
+              ]
+            })
+          }}
+        />
         <QueryProvider>
           <TooltipProvider>
             {children}

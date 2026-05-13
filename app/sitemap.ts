@@ -12,10 +12,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     .select('slug, updated_at')
     .is('deleted_at', null);
 
-  // 2. Fetch Products with their category slug for the URL
+  // 2. Fetch Products with their category and brand slug for the URL
   const { data: products } = await supabase
     .from('products')
-    .select('slug, updated_at, category:categories(slug)')
+    .select('slug, updated_at, category:categories(slug), brand:brands(slug)')
     .eq('is_published', true)
     .is('deleted_at', null);
 
@@ -50,13 +50,27 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   // Product Routes - Filter out any products with missing categories or slugs
   const productRoutes = (products || [])
-    .filter((prod: any) => prod.slug && prod.category?.slug)
+    .filter((prod: any) => prod.slug && prod.category?.slug && prod.brand?.slug)
     .map((prod: any) => ({
-      url: `${BASE_URL}/san-pham/${prod.category.slug}/${prod.slug}`,
+      url: `${BASE_URL}/san-pham/${prod.category.slug}/${prod.brand.slug}/${prod.slug}`,
       lastModified: new Date(prod.updated_at || Date.now()),
       changeFrequency: 'daily' as const,
       priority: 0.9,
     }));
+
+  // Category + Brand Routes (New 3-level structure)
+  const categoryBrandRoutes = Array.from(
+    new Set(
+      (products || [])
+        .filter((p: any) => p.category?.slug && p.brand?.slug)
+        .map((p: any) => `${p.category.slug}/${p.brand.slug}`)
+    )
+  ).map((pair) => ({
+    url: `${BASE_URL}/san-pham/${pair}`,
+    lastModified: new Date(),
+    changeFrequency: 'weekly' as const,
+    priority: 0.7,
+  }));
 
   // Service Routes
   const serviceRoutes = (services || []).map((serv) => ({
@@ -69,6 +83,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   return [
     ...staticRoutes,
     ...categoryRoutes,
+    ...categoryBrandRoutes,
     ...productRoutes,
     ...serviceRoutes,
   ];

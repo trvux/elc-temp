@@ -45,7 +45,7 @@ export function generateProductMetadata(product: ProductWithRelations) {
   }
 
   const description =
-    `Báo giá ${categoryName} ${brandName} ${mainSku} ${hpValue}${hpLocal} chính hãng tại Điện máy ELC. Máy lạnh giá tốt nhất, tiết kiệm điện vượt trội, hỗ trợ thi công lắp đặt máy lạnh chuyên nghiệp. Click xem ngay!`
+    `Điện máy ELC - Chuyên cung cấp ${categoryName} ${brandName} ${mainSku} ${hpValue}${hpLocal} chính hãng. Máy lạnh giá tốt nhất thị trường, tiết kiệm điện vượt trội, hỗ trợ thi công lắp đặt chuyên nghiệp. Xem ngay!`
       .replace(/\s+/g, " ")
       .trim();
 
@@ -96,10 +96,10 @@ export function generateCategoryMetadata(category: any, totalCount: number) {
   } else {
     // 1. Use meta_title if provided in DB
     // 2. Fallback to smart generated displayName
-    title = category.meta_title || `${displayName} chính hãng, giá rẻ nhất`;
+    title = category.meta_title || `Danh sách ${displayName} chính hãng, giá tốt nhất`;
 
     if (!category.meta_title && (name.toLowerCase().includes("âm trần") || name.toLowerCase().includes("giấu trần"))) {
-      title = `${displayName} cho hệ thống VRV/VRF chính hãng`;
+      title = `Danh sách ${displayName} cho hệ thống VRV/VRF chính hãng`;
     }
     description = category.meta_description || `Chuyên cung cấp ${displayName} chính hãng tại Điện máy ELC. Máy lạnh giá tốt nhất thị trường, hỗ trợ thi công lắp đặt máy lạnh chuyên nghiệp, bảo hành uy tín. Xem ngay!`;
   }
@@ -115,6 +115,40 @@ export function generateCategoryMetadata(category: any, totalCount: number) {
       title,
       description,
       images: category.image_url ? [category.image_url] : [],
+      type: "website",
+    },
+  };
+}
+
+/**
+ * Generates SEO for Brand pages
+ */
+export function generateBrandMetadata(brand: any, category?: any) {
+  if (!brand) return {};
+
+  const brandName = brand.name || "";
+  const categoryName = category?.name || "Máy lạnh";
+  
+  const synonym = categoryName.toLowerCase().includes("máy lạnh") ? " (Điều hòa)" : "";
+  const displayName = `${categoryName}${synonym} ${brandName}`;
+
+  // 1. Use meta_title if provided in DB
+  // 2. Fallback to smart generated name
+  const title = brand.meta_title || `${displayName} chính hãng, giá tốt nhất`;
+  const description = brand.meta_description || `Chuyên cung cấp ${displayName} chính hãng tại Điện máy ELC. Cam kết chất lượng cao, bảo hành uy tín, thi công lắp đặt chuyên nghiệp. Xem ngay!`;
+
+  let finalTitle = title;
+  if (!finalTitle.endsWith(SHOP_NAME)) {
+    finalTitle += ` | ${SHOP_NAME}`;
+  }
+
+  return {
+    title: finalTitle,
+    description,
+    openGraph: {
+      title: finalTitle,
+      description,
+      images: brand.logo_url ? [brand.logo_url] : [],
       type: "website",
     },
   };
@@ -148,11 +182,11 @@ export function generateServiceMetadata(service: any) {
 }
 
 /**
- * Generates JSON-LD for Category pages (Price Range)
+ * Generates JSON-LD for Collection pages (Category or Brand) (Price Range)
  * This is what makes Google show "₫4,990,000 to ₫58,640,000"
  */
-export function generateCategorySchema(category: any, products: any[]) {
-  if (!category || !products || products.length === 0) return null;
+export function generateCollectionSchema(entity: any, products: any[]) {
+  if (!entity || !products || products.length === 0) return null;
 
   const prices = products
     .map(p => p.salePrice || p.originalPrice || 0)
@@ -166,9 +200,9 @@ export function generateCategorySchema(category: any, products: any[]) {
   return {
     "@context": "https://schema.org/",
     "@type": "ItemList",
-    "name": category.name,
-    "description": category.meta_description || category.description,
-    "url": `${BASE_URL}/san-pham/${category.slug}`,
+    "name": entity.name || entity.displayName,
+    "description": entity.meta_description || entity.metaDescription || entity.description,
+    "url": `${BASE_URL}/san-pham/${entity.slug}`,
     "numberOfItems": products.length,
     "offers": {
       "@type": "AggregateOffer",
@@ -190,13 +224,23 @@ export function generateProductSchema(product: ProductWithRelations) {
     "@context": "https://schema.org/",
     "@type": "Product",
     name: product.name,
-    image: product.images,
-    description: product.metaDescription || product.description?.toString() || "",
+    image: Array.isArray(product.images) && product.images.length > 0 
+      ? product.images 
+      : [],
+    mainEntityOfPage: {
+      "@type": "WebPage",
+      "@id": `${BASE_URL}/san-pham/${product.slug}`,
+      "primaryImageOfPage": Array.isArray(product.images) && product.images.length > 0 
+        ? product.images[0] 
+        : undefined
+    },
+    description: product.meta_description || product.metaDescription || product.description?.toString() || "",
     sku: product.sku,
     mpn: product.sku,
     brand: {
       "@type": "Brand",
       name: product.brand?.name || SHOP_NAME,
+      logo: product.brand?.logo_url || undefined,
     },
     offers: {
       "@type": "Offer",

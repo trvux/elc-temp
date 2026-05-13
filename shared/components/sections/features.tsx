@@ -5,9 +5,6 @@ import {
   StaggerContainer,
   StaggerItem,
 } from "@/shared/components/ui/animate-in";
-import { AspectRatio } from "@/shared/components/ui/aspect-ratio";
-import { Badge } from "@/shared/components/ui/badge";
-import { Card } from "@/shared/components/ui/card";
 import {
   Carousel,
   CarouselContent,
@@ -19,13 +16,10 @@ import {
   TypographyLarge,
   TypographyMuted,
   TypographyP,
-} from "@/shared/components/ui/typography"; // Điều chỉnh path cho đúng file mày lưu
-import { getOptimizedImage } from "@/shared/lib/image";
-import { formatPrice } from "@/shared/lib/utils";
-import Image from "next/image";
-import Link from "next/link";
-
+} from "@/shared/components/ui/typography";
+import { ProductCard } from "@/modules/catalog/presentation/components/ProductCard";
 import { ProductWithRelations as Product } from "@/modules/catalog/domain";
+import Link from "next/link";
 
 interface FeaturesSectionProps {
   products: Product[];
@@ -38,104 +32,70 @@ export function FeaturesSection({ products }: FeaturesSectionProps) {
   // --- STYLES ---
   const styles = {
     productGrid: "grid gap-6 md:grid-cols-3 lg:grid-cols-4 hidden md:grid",
-    priceOld: "line-through text-muted-foreground",
     emptyState:
       "flex flex-col items-center justify-center py-20 gap-4 text-muted-foreground border border-dashed rounded-xl bg-muted/30",
   };
 
-  const ProductCard = ({ product }: { product: Product }) => {
-    const productUrl = `/san-pham/${product.category?.slug}/${product.slug}`;
-
-    return (
-      <Card className="h-full hover:shadow-md">
-        <Link href={productUrl}>
-          <AspectRatio ratio={16 / 9}>
-            <Image
-              src={getOptimizedImage(product.images[0], 600)}
-              fill
-              className="object-contain p-4"
-              alt={product.name}
-              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-              loading="eager"
-            />
-          </AspectRatio>
-        </Link>
-
-        <Link href={productUrl} className="p-4 pt-0 flex flex-col gap-2 flex-1">
-          <div className="h-5 overflow-hidden">
-            <TypographyMuted className="truncate">
-              {product.sku}
-            </TypographyMuted>
-          </div>
-          <TypographyLarge className="line-clamp-2 h-12 leading-snug">
-            {product.name}
-          </TypographyLarge>
-
-          <div className="flex flex-col gap-1 mt-2 ">
-            {/* Dòng 1: Giá hiện tại (Giá giảm hoặc Giá gốc) */}
-            <TypographyLarge>
-              {formatPrice(product.salePrice || product.originalPrice)}
-            </TypographyLarge>
-
-            {/* Dòng 2 & 3: Khu vực giá gốc và Badge - Cố định chiều cao để thẳng hàng */}
-            <div className="flex flex-col gap-2 min-h-13 mt-1">
-              {(product.discountPercent ?? 0) > 0 && (
-                <>
-                  <div className="flex items-center gap-2 h-5">
-                    <span className={styles.priceOld}>
-                      {formatPrice(product.originalPrice)}
-                    </span>
-                  </div>
-                  <Badge
-                    variant="destructive"
-                    className=" rounded-sm justify-start px-2 py-0.5 font-medium"
-                  >
-                    Ưu đãi: {product.discountPercent}%
-                  </Badge>
-                </>
-              )}
-            </div>
-          </div>
-        </Link>
-      </Card>
-    );
-  };
-
   return (
-    <section>
+    <section className="space-y-8">
       <AnimateIn>
-        <TypographyH1 className="mb-10 text-center">{title}</TypographyH1>
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
+          <div className="space-y-2">
+            <TypographyH1>{title}</TypographyH1>
+            <TypographyP className="text-muted-foreground max-w-2xl">
+              Khám phá những giải pháp làm mát và lọc không khí tối ưu, được lựa
+              chọn kỹ lưỡng cho không gian sống của bạn.
+            </TypographyP>
+          </div>
+          <Link
+            href="/san-pham"
+            className="text-primary hover:underline font-medium text-sm transition-all"
+          >
+            Xem tất cả sản phẩm &rarr;
+          </Link>
+        </div>
       </AnimateIn>
+
       {isShowingProducts ? (
         <>
-          <AnimateIn delay={0.2} className="md:hidden">
-            <Carousel opts={{ align: "center" }} className="w-full">
-              <CarouselContent className="ml-0 py-4">
-                {products.map((p) => (
+          {/* Mobile Carousel */}
+          <div className="md:hidden">
+            <Carousel className="w-full">
+              <CarouselContent className="-ml-4">
+                {products.map((product) => (
                   <CarouselItem
-                    key={p.id}
-                    className="pl-4 basis-[80%] sm:basis-[48%] flex"
+                    key={product.id}
+                    className="pl-4 basis-[85%] sm:basis-[50%]"
                   >
-                    <ProductCard product={p} />
+                    <ProductCard
+                      product={product}
+                      categorySlug={product.category?.slug || "all"}
+                      brandSlug={product.brand?.slug || "all"}
+                    />
                   </CarouselItem>
                 ))}
               </CarouselContent>
             </Carousel>
-          </AnimateIn>
+          </div>
 
+          {/* Desktop Grid */}
           <StaggerContainer className={styles.productGrid}>
-            {products.map((p) => (
-              <StaggerItem key={p.id}>
-                <ProductCard product={p} />
+            {products.map((product) => (
+              <StaggerItem key={product.id}>
+                <ProductCard
+                  product={product}
+                  categorySlug={product.category?.slug || "all"}
+                  brandSlug={product.brand?.slug || "all"}
+                />
               </StaggerItem>
             ))}
           </StaggerContainer>
         </>
       ) : (
-        <div className={styles.emptyState}>
-          <Spinner className="size-8" />
-          <TypographyP>Sản phẩm đang được cập nhật</TypographyP>
-        </div>
+        <AnimateIn className={styles.emptyState}>
+          <Spinner />
+          <TypographyMuted>Đang tải sản phẩm nổi bật...</TypographyMuted>
+        </AnimateIn>
       )}
     </section>
   );
