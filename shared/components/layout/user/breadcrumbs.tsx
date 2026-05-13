@@ -25,16 +25,26 @@ interface BreadcrumbsProps {
 }
 
 export function Breadcrumbs({ items, className }: BreadcrumbsProps) {
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "https://dienmayelc.com.vn";
+
   // Generate JSON-LD for Google SEO
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
-    "itemListElement": items.map((item, index) => ({
-      "@type": "ListItem",
-      "position": index + 1,
-      "name": item.label,
-      "item": item.href ? `${process.env.NEXT_PUBLIC_APP_URL || ""}${item.href}` : undefined,
-    })),
+    "itemListElement": [
+      {
+        "@type": "ListItem",
+        "position": 1,
+        "name": "Trang chủ",
+        "item": `${baseUrl}`
+      },
+      ...items.map((item, index) => ({
+        "@type": "ListItem",
+        "position": index + 2,
+        "name": item.label,
+        "item": item.href ? (item.href.startsWith("http") ? item.href : `${baseUrl}${item.href}`) : undefined,
+      })),
+    ],
   };
 
   return (
