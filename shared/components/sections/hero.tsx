@@ -40,10 +40,10 @@ export function HeroSection({
   const styles = {
     section: "flex flex-col items-center gap-12 md:gap-16 w-full",
     content:
-      "flex flex-col gap-6 md:gap-8 items-center text-center max-w-7xl w-full px-4 sm:px-6",
+      " flex flex-col gap-6 md:gap-8 items-center justify-center max-w-7xl w-full px-4 sm:px-6",
     media:
-      "w-full max-w-4xl md:mx-0 rounded-3xl overflow-hidden bg-transparent backdrop-blur-xl border border-border/50 p-2 shadow-sm",
-    image: "object-cover rounded-2xl border border-border inset-shadow-sm",
+      "relative w-full max-w-4xl md:mx-0 rounded-3xl overflow-hidden bg-background/10 backdrop-blur-md border-2 border-border/20 p-1.5 shadow-sm",
+    image: "object-cover rounded-2xl border-2 border-border/20 shadow-sm",
   };
 
   return (
@@ -62,8 +62,9 @@ export function HeroSection({
 
         <HeroContactActions contacts={contacts} />
       </StaggerContainer>
-
       {/* Cụm Media */}
+      {/* <div className="relative w-full max-w-4xl flex justify-center">
+        <div className="absolute -inset-10 md:-inset-20 bg-linear-to-tr from-blue-500/20 via-indigo-500/20 to-blue-500/10 blur-[80px] md:blur-[120px] rounded-full pointer-events-none -z-10" /> */}
 
       <div className={styles.media}>
         <AspectRatio ratio={16 / 9} className="block">
@@ -80,6 +81,7 @@ export function HeroSection({
           />
         </AspectRatio>
       </div>
+      {/* </div> */}
     </section>
   );
 }

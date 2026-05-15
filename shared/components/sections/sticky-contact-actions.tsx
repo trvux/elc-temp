@@ -17,7 +17,7 @@ export function StickyContactActions({ contacts }: StickyContactActionsProps) {
   const router = useRouter();
 
   const displayContacts = useMemo(
-    () => getDisplayContacts(contacts, { include: ["zalo", "phone"] }),
+    () => getDisplayContacts(contacts, { include: ["phone", "zalo"] }),
     [contacts],
   );
 
@@ -46,92 +46,58 @@ export function StickyContactActions({ contacts }: StickyContactActionsProps) {
 
   if (displayContacts.length === 0) return null;
 
-  const glassStyle =
-    "bg-background/55 backdrop-blur-md border border-white/80 shadow-md rounded-full ring-offset-background hover:bg-background hover:ring-primary/10 transition-all duration-300 hover:ring-2 hover:ring-offset-2";
-
-  const containerVariants: Variants = {
-    hidden: { opacity: 0 },
-    show: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.4,
-        staggerDirection: -1,
-      },
-    },
-    exit: {
-      opacity: 0,
-      transition: {
-        staggerChildren: 0.1,
-        staggerDirection: 1,
-      },
-    },
-  };
-
   const itemVariants: Variants = {
-    hidden: { opacity: 0, y: 20 },
+    hidden: { opacity: 0, scale: 0.8 },
     show: {
       opacity: 1,
-      y: 0,
-      transition: { duration: 0.5, ease: "easeOut" },
+      scale: 1,
+      transition: { duration: 0.4, ease: [0.23, 1, 0.32, 1] },
     },
-    exit: { opacity: 0, y: 20, transition: { duration: 0.3 } },
+    exit: { opacity: 0, scale: 0.8, transition: { duration: 0.2 } },
   };
-
-  const commonBtnClass = "h-12 px-6 min-w-[280px] justify-center gap-3";
 
   return (
-    <AnimatePresence mode="wait">
+    <AnimatePresence>
       {isVisible && (
         <m.div
-          variants={containerVariants}
+          variants={itemVariants}
           initial="hidden"
           animate="show"
           exit="exit"
-          className="fixed bottom-8 right-8 z-100 flex flex-col items-end gap-3"
+          className="fixed bottom-8 inset-x-0 z-100 flex justify-center px-4 sm:px-8"
         >
-          {displayContacts.map((contact) => (
-            <m.div key={contact.id} variants={itemVariants}>
+          <div className="flex items-center gap-4 px-6 py-2 bg-background/55 backdrop-blur-xl rounded-2xl border shadow-2xl w-auto">
+            <span className="">Liên hệ</span>
+            {displayContacts.map((contact) => (
               <Button
+                key={contact.id}
                 asChild
-                className={cn(commonBtnClass, glassStyle)}
-                variant="outline"
+                variant="ghost"
+                className={cn(
+                  "h-9 sm:h-10 px-4 sm:px-6 shadow-sm rounded-xl transition-all active:scale-95 border-none",
+                  contact.type === "zalo"
+                    ? "bg-blue-50 hover:bg-blue-100 text-blue-700"
+                    : "bg-green-50 hover:bg-green-100 text-green-700",
+                )}
               >
                 <ContactLink
                   contact={contact}
                   onClick={() => handleAction(contact.type)}
-                  iconProps={{
-                    size: 14,
-                    weight: contact.type === "phone" ? "bold" : "regular",
-                  }}
+                  iconProps={{ size: 18, weight: "bold" }}
+                  showLabel={false}
                   iconClassName={cn(
                     contact.type === "zalo"
-                      ? "text-blue-600"
-                      : "text-green-600",
-                    "shrink-0",
+                      ? "text-blue-700"
+                      : "text-green-700",
                   )}
                 >
-                  <span className="flex items-center gap-2">
-                    <span>
-                      {contact.label || contact.type}:{" "}
-                      <span
-                        className={
-                          contact.type === "zalo"
-                            ? "text-blue-700"
-                            : "text-green-700"
-                        }
-                      >
-                        {contact.value}
-                      </span>
-                    </span>
-                    <span className="text-foreground/20 font-bold">\</span>
-                    <span>
-                      {contact.type === "zalo" ? "Tư vấn miễn phí" : "Gọi ngay"}
-                    </span>
+                  <span>
+                    {contact.type === "phone" ? "Gọi ngay" : "Nhắn Zalo"}
                   </span>
                 </ContactLink>
               </Button>
-            </m.div>
-          ))}
+            ))}
+          </div>
         </m.div>
       )}
     </AnimatePresence>
