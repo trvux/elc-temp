@@ -59,7 +59,7 @@ export function MobileMenu({ links, isOpen, onOpenChange }: MobileMenuProps) {
       <SheetContent
         side="top"
         showCloseButton={false}
-        className="min-h-screen mt-16.25"
+        className="min-h-screen mt-16"
       >
         <SheetHeader className="sr-only">
           <SheetTitle>Menu điều hướng</SheetTitle>
