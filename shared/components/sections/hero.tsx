@@ -42,7 +42,7 @@ export function HeroSection({
     content:
       "flex flex-col gap-6 md:gap-8 items-center text-center max-w-7xl w-full px-4 sm:px-6",
     media:
-      "w-full  md:mx-0 rounded-3xl overflow-hidden bg-transparent backdrop-blur-xl border border-border/50 p-2 shadow-sm",
+      "w-full max-w-4xl md:mx-0 rounded-3xl overflow-hidden bg-transparent backdrop-blur-xl border border-border/50 p-2 shadow-sm",
     image: "object-cover rounded-2xl border border-border inset-shadow-sm",
   };
 
