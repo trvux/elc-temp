@@ -14,7 +14,7 @@ export function Header() {
     <div className="sticky top-0 z-100 w-full">
       <header
         className={cn(
-          "border-b border-dashed border-muted-foreground/40 transition-all duration-500",
+          "h-16 border-b border-dashed border-muted-foreground/40 transition-all duration-500",
           isMenuOpen
             ? "bg-background"
             : isScrolled
@@ -22,7 +22,7 @@ export function Header() {
               : "",
         )}
       >
-        <div className="flex h-16 items-center justify-between px-6 md:px-7 lg:px-8">
+        <div className="flex h-full items-center justify-between px-6 md:px-7 lg:px-8">
           <Link
             href="/"
             className="flex items-center shrink-0 transition-opacity hover:opacity-80"
