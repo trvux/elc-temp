@@ -187,6 +187,7 @@ export type Database = {
       contacts: {
         Row: {
           id: string
+          is_active: boolean | null
           label: string | null
           order_index: number | null
           type: string
@@ -194,6 +195,7 @@ export type Database = {
         }
         Insert: {
           id?: string
+          is_active?: boolean | null
           label?: string | null
           order_index?: number | null
           type: string
@@ -201,6 +203,7 @@ export type Database = {
         }
         Update: {
           id?: string
+          is_active?: boolean | null
           label?: string | null
           order_index?: number | null
           type?: string

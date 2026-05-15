@@ -5,6 +5,7 @@ export const contactSchema = z.object({
   type: z.string().min(1, { message: "Loại liên hệ không được để trống" }),
   label: z.string().max(100).nullable().default(""),
   value: z.string().min(1, { message: "Giá trị liên hệ không được để trống" }),
+  isActive: z.boolean().default(true),
   orderIndex: z.number().int().default(0),
 });
 

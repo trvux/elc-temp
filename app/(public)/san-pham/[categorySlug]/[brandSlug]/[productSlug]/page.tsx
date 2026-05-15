@@ -2,6 +2,7 @@ import { ProductWithRelations } from "@/modules/catalog/domain";
 import { getCategories } from "@/modules/category";
 import { Breadcrumbs } from "@/shared/components/layout/user/breadcrumbs";
 import { OrderButton } from "@/shared/components/layout/user/order-button";
+import { mapContactRowToDomain } from "@/modules/contact/domain";
 import { ProductDescription } from "@/shared/components/layout/user/product-description";
 import RelatedProducts from "@/shared/components/layout/user/related-products";
 import { ScrollToTop } from "@/shared/components/layout/user/scroll-to-top";
@@ -187,10 +188,12 @@ export default async function ProductDetail({ params }: Props) {
 
   if (!product) notFound();
 
-  const [allCategories, { data: contacts }] = await Promise.all([
+  const [allCategories, { data: rawContacts }] = await Promise.all([
     getCategories({ type: "PRODUCT" }),
-    supabase.from("contacts").select("*").order("order_index"),
+    supabase.from("contacts").select("*").eq("is_active", true).order("order_index"),
   ]);
+
+  const contacts = (rawContacts || []).map(mapContactRowToDomain);
 
   const category = Array.isArray(product.categories)
     ? product.categories[0]
@@ -341,12 +344,7 @@ export default async function ProductDetail({ params }: Props) {
                 </div>
               )}
             </div>
-            <OrderButton
-              contacts={(contacts || []).map((c) => ({
-                ...c,
-                orderIndex: c.order_index || 0,
-              }))}
-            />
+            <OrderButton contacts={contacts || []} />
           </div>
         </div>
       </div>

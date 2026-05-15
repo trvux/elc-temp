@@ -1,6 +1,7 @@
 "use client";
 
 import { ColumnDef } from "@tanstack/react-table";
+import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
 import { ButtonGroup } from "@/shared/components/ui/button-group";
 import { Pencil, Trash2 } from "lucide-react";
@@ -52,6 +53,15 @@ export const getContactColumns = ({
       <span>
         {row.original.orderIndex}
       </span>
+    ),
+  },
+  {
+    accessorKey: "isActive",
+    header: "Trạng thái",
+    cell: ({ row }) => (
+      <Badge variant={row.original.isActive ? "default" : "secondary"}>
+        {row.original.isActive ? "Đang bật" : "Đã tắt"}
+      </Badge>
     ),
   },
   {

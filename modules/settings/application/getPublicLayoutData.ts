@@ -1,5 +1,6 @@
 import { createStaticClient } from "@/shared/lib/supabase/static";
 import { contactRepo } from "@/modules/contact/infrastructure";
+import { mapContactRowToDomain } from "@/modules/contact/domain";
 
 export async function getPublicLayoutData() {
   const supabase = createStaticClient();
@@ -15,7 +16,7 @@ export async function getPublicLayoutData() {
     { data: maxPriceProd }
   ] = await Promise.all([
     supabase.from("site_settings").select("*"),
-    supabase.from("contacts").select("*").order("order_index", { ascending: true }),
+    supabase.from("contacts").select("*").eq("is_active", true).order("order_index", { ascending: true }),
     supabase.from("branches").select("*").is("deleted_at", null),
     supabase.from("projects").select("id, title, slug").eq("is_published", true).is("deleted_at", null).limit(5),
     supabase.from("pages").select("id, title, slug").eq("is_published", true).is("deleted_at", null),
@@ -44,7 +45,7 @@ export async function getPublicLayoutData() {
 
   return {
     settings,
-    contacts: contacts || [],
+    contacts: (contacts || []).map(mapContactRowToDomain),
     branches: branches || [],
     projects: projects || [],
     pages: pages || [],

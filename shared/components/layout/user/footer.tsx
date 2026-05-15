@@ -1,7 +1,5 @@
 "use client";
-import { CONTACT_TYPES } from "@/modules/contact/domain/constants";
 import { getFooterLogic } from "@/modules/settings/domain/footer";
-import { ZaloIcon } from "@/shared/components/ui/social-icons";
 import {
   Tooltip,
   TooltipContent,
@@ -9,26 +7,19 @@ import {
   TooltipTrigger,
 } from "@/shared/components/ui/tooltip";
 import { cn } from "@/shared/lib/utils";
-import {
-  EnvelopeSimpleIcon,
-  GlobeIcon,
-  MapPinIcon,
-  MessengerLogoIcon,
-  MetaLogoIcon,
-  PhoneIcon,
-  TiktokLogoIcon,
-  YoutubeLogoIcon,
-} from "@phosphor-icons/react";
+import { MapPinIcon } from "@phosphor-icons/react";
 import Link from "next/link";
-import React from "react";
-import { PhoneConfirmation } from "./phone-confirmation";
+import React, { useMemo } from "react";
+
+import { Contact, getDisplayContacts } from "@/modules/contact/domain";
+import { ContactLink } from "@/modules/contact/presentation/components/ContactLink";
 
 interface FooterProps {
   branches?: any[];
   projects?: any[];
   pages?: any[];
   settings?: Record<string, string>;
-  contacts?: any[];
+  contacts?: Contact[];
   categories?: any[];
 }
 
@@ -37,12 +28,14 @@ export function Footer({
   projects,
   pages,
   settings,
-  contacts,
+  contacts = [],
   categories,
 }: FooterProps) {
-  const { phone, email, address, currentYear } = getFooterLogic(
-    contacts,
-    settings as any,
+  const { address, currentYear } = getFooterLogic(contacts, settings as any);
+
+  const displayContacts = useMemo(
+    () => getDisplayContacts(contacts),
+    [contacts],
   );
 
   // --- STYLES ---
@@ -57,42 +50,13 @@ export function Footer({
     col: "flex flex-col gap-6",
     colTitle: "font-bold text-primary-foreground/80",
     nav: "flex flex-col gap-3.5",
-    link: "text-sm text-primary-foreground/50 hover:text-primary-foreground transition-all duration-300",
+    link: "text-sm text-primary-foreground/50 hover:text-primary-foreground transition-all duration-300 ",
     empty: "text-xs italic text-primary-foreground/20",
     bottom:
       "mt-20 pt-8 border-t border-primary-foreground/5 flex flex-col md:flex-row justify-between items-center gap-8",
     socials:
       "flex w-full md:w-auto items-center justify-evenly md:justify-end md:gap-4",
     icon: "p-2 bg-primary-foreground/60 text-primary hover:bg-primary-foreground/90 hover:text-primary rounded-sm transition-colors duration-300 flex items-center justify-center",
-  };
-
-  const getContactHref = (type: string, value: string) => {
-    const clean = value.replace(/\s/g, "");
-    if (value.startsWith("http")) return value;
-    const hrefs: Record<string, string> = {
-      phone: `tel:${clean}`,
-      email: `mailto:${value}`,
-      zalo: `https://zalo.me/${clean}`,
-      messenger: `https://m.me/${value}`,
-      facebook: `https://facebook.com/${value}`,
-      tiktok: `https://tiktok.com/@${value}`,
-      youtube: `https://youtube.com/${value}`,
-    };
-    return hrefs[type] || value;
-  };
-
-  const getContactIcon = (type: string) => {
-    const icons: Record<string, any> = {
-      phone: PhoneIcon,
-      email: EnvelopeSimpleIcon,
-      facebook: MetaLogoIcon,
-      messenger: MessengerLogoIcon,
-      zalo: ZaloIcon,
-      tiktok: TiktokLogoIcon,
-      youtube: YoutubeLogoIcon,
-      website: GlobeIcon,
-    };
-    return icons[type];
   };
 
   const NavCol = ({
@@ -210,102 +174,23 @@ export function Footer({
 
           <NavCol title="Liên hệ">
             <TooltipProvider>
-              {contacts?.map((c) => {
-                const typeInfo = CONTACT_TYPES.find((t) => t.value === c.type);
-                const href = getContactHref(c.type, c.value);
-                const isExternal = !["phone", "email"].includes(c.type);
-
-                const Icon = getContactIcon(c.type);
-                const content = (
-                  <div className="flex items-center gap-2.5">
-                    {Icon && (
-                      <Icon
-                        size={14}
-                        weight="bold"
-                        className="shrink-0 text-primary-foreground"
-                      />
-                    )}
-                    <span className="truncate">{c.value}</span>
-                  </div>
-                );
-
-                const item =
-                  c.type === "phone" ? (
-                    <div className="w-fit">
-                      <PhoneConfirmation
-                        key={c.id}
-                        phone={c.value.replace(/\s/g, "")}
-                      >
-                        <button className={styles.link}>{content}</button>
-                      </PhoneConfirmation>
-                    </div>
-                  ) : (
-                    <Link
-                      key={c.id}
-                      href={href}
-                      target={isExternal ? "_blank" : undefined}
-                      className={cn(styles.link, "truncate w-fit")}
-                    >
-                      {content}
-                    </Link>
-                  );
-
-                return (
-                  <Tooltip key={c.id}>
-                    <TooltipTrigger asChild>{item}</TooltipTrigger>
-                    <TooltipContent side="right">
-                      <p>{typeInfo?.label || c.type}</p>
-                    </TooltipContent>
-                  </Tooltip>
-                );
-              })}
-
-              {!contacts?.some((c) => c.type === "phone") && phone && (
-                <Tooltip>
+              {displayContacts.map((contact) => (
+                <Tooltip key={contact.id}>
                   <TooltipTrigger asChild>
-                    <div className="w-fit">
-                      <PhoneConfirmation phone={phone.replace(/\s/g, "")}>
-                        <button className={styles.link}>
-                          <div className="flex items-center gap-2.5">
-                            <PhoneIcon
-                              size={14}
-                              weight="bold"
-                              className="shrink-0 text-primary-foreground"
-                            />
-                            <span>{phone}</span>
-                          </div>
-                        </button>
-                      </PhoneConfirmation>
-                    </div>
+                    <ContactLink
+                      contact={contact}
+                      showLabel={false}
+                      showValue
+                      iconProps={{ size: 14, weight: "bold" }}
+                      iconClassName="shrink-0 text-primary-foreground"
+                      className={cn(styles.link, "truncate w-fit")}
+                    />
                   </TooltipTrigger>
                   <TooltipContent side="right">
-                    <p>Số điện thoại</p>
+                    <p>{contact.label || contact.type}</p>
                   </TooltipContent>
                 </Tooltip>
-              )}
-
-              {!contacts?.some((c) => c.type === "email") && email && (
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Link
-                      href={`mailto:${email}`}
-                      className={cn(styles.link, "truncate w-fit")}
-                    >
-                      <div className="flex items-center gap-2.5">
-                        <EnvelopeSimpleIcon
-                          size={14}
-                          weight="bold"
-                          className="shrink-0 text-primary-foreground"
-                        />
-                        <span className="truncate">{email}</span>
-                      </div>
-                    </Link>
-                  </TooltipTrigger>
-                  <TooltipContent side="right">
-                    <p>Email liên hệ</p>
-                  </TooltipContent>
-                </Tooltip>
-              )}
+              ))}
 
               {address && (
                 <Tooltip>
@@ -331,7 +216,7 @@ export function Footer({
                 </Tooltip>
               )}
 
-              {!contacts?.length && !address && (
+              {displayContacts.length === 0 && !address && (
                 <span className={styles.empty}>
                   Đang cập nhật thông tin liên hệ
                 </span>
@@ -347,50 +232,22 @@ export function Footer({
           </p>
           <div className={styles.socials}>
             <TooltipProvider>
-              {contacts
-                ?.filter((c) =>
-                  [
-                    "facebook",
-                    "messenger",
-                    "zalo",
-                    "tiktok",
-                    "youtube",
-                    "phone",
-                    "email",
-                  ].includes(c.type),
-                )
-                .map((c) => {
-                  const typeInfo = CONTACT_TYPES.find(
-                    (t) => t.value === c.type,
-                  );
-                  const Icon = getContactIcon(c.type);
-                  const href = getContactHref(c.type, c.value);
-
-                  return (
-                    <Tooltip key={c.id}>
-                      <TooltipTrigger asChild>
-                        <Link
-                          href={href}
-                          target={
-                            !["phone", "email"].includes(c.type)
-                              ? "_blank"
-                              : undefined
-                          }
-                          className={styles.icon}
-                        >
-                          {Icon ? (
-                            <Icon size={20} weight="bold" />
-                          ) : (
-                            <span>{c.type[0].toUpperCase()}</span>
-                          )}
-                        </Link>
-                      </TooltipTrigger>
-                      <TooltipContent side="top">
-                        <p>{typeInfo?.label || c.type}</p>
-                      </TooltipContent>
-                    </Tooltip>
-                  );
-                })}
+              {displayContacts.map((contact) => (
+                <Tooltip key={contact.id}>
+                  <TooltipTrigger asChild>
+                    <ContactLink
+                      contact={contact}
+                      showLabel={false}
+                      showValue={false}
+                      iconProps={{ size: 20, weight: "bold" }}
+                      className={styles.icon}
+                    />
+                  </TooltipTrigger>
+                  <TooltipContent side="top">
+                    <p>{contact.label || contact.type}</p>
+                  </TooltipContent>
+                </Tooltip>
+              ))}
             </TooltipProvider>
           </div>
         </div>

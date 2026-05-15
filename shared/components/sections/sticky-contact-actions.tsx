@@ -1,13 +1,12 @@
 "use client";
 
-import { Contact } from "@/modules/contact/domain";
+import { Contact, getDisplayContacts } from "@/modules/contact/domain";
+import { ContactLink } from "@/modules/contact/presentation/components/ContactLink";
 import { Button } from "@/shared/components/ui/button";
-import { ZaloIcon } from "@/shared/components/ui/social-icons";
 import { cn } from "@/shared/lib/utils";
-import { PhoneIcon } from "@phosphor-icons/react";
 import { AnimatePresence, m, Variants } from "framer-motion";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 interface StickyContactActionsProps {
   contacts: Contact[];
@@ -17,8 +16,10 @@ export function StickyContactActions({ contacts }: StickyContactActionsProps) {
   const [isVisible, setIsVisible] = useState(false);
   const router = useRouter();
 
-  const hotline = contacts.find((c) => c.type === "phone");
-  const zalo = contacts.find((c) => c.type === "zalo");
+  const displayContacts = useMemo(
+    () => getDisplayContacts(contacts, { include: ["zalo", "phone"] }),
+    [contacts],
+  );
 
   useEffect(() => {
     const handleScroll = () => {
@@ -31,11 +32,7 @@ export function StickyContactActions({ contacts }: StickyContactActionsProps) {
         isFooterVisible = rect.top < window.innerHeight;
       }
 
-      if (scrollY > 200 && !isFooterVisible) {
-        setIsVisible(true);
-      } else {
-        setIsVisible(false);
-      }
+      setIsVisible(scrollY > 200 && !isFooterVisible);
     };
 
     window.addEventListener("scroll", handleScroll, { passive: true });
@@ -43,16 +40,14 @@ export function StickyContactActions({ contacts }: StickyContactActionsProps) {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  const getCleanValue = (val: string) => val.replace(/\s/g, "");
-
   const handleAction = (type: string) => {
-    router.push(`/thank-you?source=${type}`);
+    router.push(`/thank-you?source=sticky_${type}`);
   };
 
-  if (!hotline && !zalo) return null;
+  if (displayContacts.length === 0) return null;
 
   const glassStyle =
-    "bg-background/60 backdrop-blur-md border border-white/80 shadow-md rounded-full ring-offset-background hover:bg-background hover:ring-primary/10 transition-all duration-300 hover:ring-2 hover:ring-offset-2";
+    "bg-background/55 backdrop-blur-md border border-white/80 shadow-md rounded-full ring-offset-background hover:bg-background hover:ring-primary/10 transition-all duration-300 hover:ring-2 hover:ring-offset-2";
 
   const containerVariants: Variants = {
     hidden: { opacity: 0 },
@@ -79,11 +74,7 @@ export function StickyContactActions({ contacts }: StickyContactActionsProps) {
       y: 0,
       transition: { duration: 0.5, ease: "easeOut" },
     },
-    exit: {
-      opacity: 0,
-      y: 20,
-      transition: { duration: 0.3 },
-    },
+    exit: { opacity: 0, y: 20, transition: { duration: 0.3 } },
   };
 
   const commonBtnClass = "h-12 px-6 min-w-[280px] justify-center gap-3";
@@ -98,61 +89,49 @@ export function StickyContactActions({ contacts }: StickyContactActionsProps) {
           exit="exit"
           className="fixed bottom-8 right-8 z-100 flex flex-col items-end gap-3"
         >
-          {zalo && (
-            <m.div variants={itemVariants}>
+          {displayContacts.map((contact) => (
+            <m.div key={contact.id} variants={itemVariants}>
               <Button
                 asChild
                 className={cn(commonBtnClass, glassStyle)}
                 variant="outline"
               >
-                <a
-                  href={`https://zalo.me/${getCleanValue(zalo.value)}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  onClick={() => handleAction("sticky_zalo")}
-                  title={`Zalo: Tư vấn miễn phí: ${zalo.value}`}
-                  className="flex items-center"
+                <ContactLink
+                  contact={contact}
+                  onClick={() => handleAction(contact.type)}
+                  iconProps={{
+                    size: 14,
+                    weight: contact.type === "phone" ? "bold" : "regular",
+                  }}
+                  iconClassName={cn(
+                    contact.type === "zalo"
+                      ? "text-blue-600"
+                      : "text-green-600",
+                    "shrink-0",
+                  )}
                 >
-                  <ZaloIcon size={14} className="text-blue-600 shrink-0" />
-                  <span>
-                    Zalo: <span className="text-blue-700">{zalo.value}</span>
+                  <span className="flex items-center gap-2">
+                    <span>
+                      {contact.label || contact.type}:{" "}
+                      <span
+                        className={
+                          contact.type === "zalo"
+                            ? "text-blue-700"
+                            : "text-green-700"
+                        }
+                      >
+                        {contact.value}
+                      </span>
+                    </span>
+                    <span className="text-foreground/20 font-bold">\</span>
+                    <span>
+                      {contact.type === "zalo" ? "Tư vấn miễn phí" : "Gọi ngay"}
+                    </span>
                   </span>
-                  <span className="text-foreground/20 font-bold">\</span>
-
-                  <span>Tư vấn miễn phí</span>
-                </a>
+                </ContactLink>
               </Button>
             </m.div>
-          )}
-
-          {hotline && (
-            <m.div variants={itemVariants}>
-              <Button
-                asChild
-                className={cn(commonBtnClass, glassStyle)}
-                variant="outline"
-              >
-                <a
-                  href={`tel:${getCleanValue(hotline.value)}`}
-                  onClick={() => handleAction("sticky_hotline")}
-                  title={`Gọi ngay: ${hotline.value}`}
-                  className="flex items-center"
-                >
-                  <PhoneIcon
-                    size={14}
-                    weight="bold"
-                    className="text-green-600 shrink-0"
-                  />
-                  <span>
-                    Số điện thoại:{" "}
-                    <span className="text-green-700">{hotline.value}</span>
-                  </span>
-                  <span className="text-foreground/20 font-bold">\</span>
-                  <span>Gọi ngay</span>
-                </a>
-              </Button>
-            </m.div>
-          )}
+          ))}
         </m.div>
       )}
     </AnimatePresence>

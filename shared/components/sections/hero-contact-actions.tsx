@@ -1,78 +1,38 @@
-"use client";
-
-import { Contact } from "@/modules/contact/domain";
-import {
-  StaggerContainer,
-  StaggerItem,
-} from "@/shared/components/ui/animate-in";
+import { Contact, getDisplayContacts } from "@/modules/contact/domain";
+import { ContactLink } from "@/modules/contact/presentation/components/ContactLink";
 import { Button } from "@/shared/components/ui/button";
-import { useRouter } from "next/navigation";
 
 interface HeroContactActionsProps {
   contacts: Contact[];
 }
 
 export function HeroContactActions({ contacts }: HeroContactActionsProps) {
-  const router = useRouter();
-  const hotline = contacts.find((c) => c.type === "phone");
-  const zalo = contacts.find((c) => c.type === "zalo");
-  const getCleanValue = (val: string) => val.replace(/\s/g, "");
-
-  const handleAction = (type: string) => {
-    // Navigate the current window to thank-you page with source tracking
-    router.push(`/thank-you?source=${type}`);
-  };
+  const displayContacts = getDisplayContacts(contacts, {
+    include: ["zalo", "phone"],
+  });
 
   return (
-    <StaggerContainer
-      className="grid grid-cols-1 lg:grid-cols-2 gap-2 pt-2 w-full"
-      staggerDelay={0.08}
-    >
-      <StaggerItem className="w-full lg:w-auto" duration={0.25}>
-        {hotline ? (
+    <div className="flex flex-col sm:flex-row gap-4 pt-4 justify-center items-center w-full">
+      {displayContacts.map((contact) => (
+        <div key={contact.id} className="w-full sm:w-auto">
           <Button
             asChild
-            variant="secondary"
+            variant={contact.type === "zalo" ? "default" : "outline"}
             size="lg"
             className="w-full gap-2"
           >
-            <a
-              href={`tel:${getCleanValue(hotline.value)}`}
-              onClick={() => handleAction("hotline")}
+            <ContactLink
+              contact={contact}
+              iconProps={{ size: 20, weight: "regular" }}
+              showValue={contact.type !== "phone"}
             >
-              {hotline.label || "Số điện thoại"}: {hotline.value}
-            </a>
+              {contact.type === "phone"
+                ? `Gọi báo giá ngay - ${contact.value}`
+                : `Tư vấn miễn phí - ${contact.value}`}
+            </ContactLink>
           </Button>
-        ) : (
-          <Button
-            variant="secondary"
-            size="lg"
-            className="w-full gap-2"
-            disabled
-          >
-            Hotline
-          </Button>
-        )}
-      </StaggerItem>
-
-      <StaggerItem className="w-full lg:w-auto" duration={0.25}>
-        {zalo ? (
-          <Button asChild variant="default" size="lg" className="w-full gap-2">
-            <a
-              href={`https://zalo.me/${getCleanValue(zalo.value)}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              onClick={() => handleAction("zalo")}
-            >
-              {zalo.label || "Zalo"}: {zalo.value}
-            </a>
-          </Button>
-        ) : (
-          <Button variant="default" size="lg" className="w-full gap-2" disabled>
-            Zalo
-          </Button>
-        )}
-      </StaggerItem>
-    </StaggerContainer>
+        </div>
+      ))}
+    </div>
   );
 }

@@ -2,6 +2,7 @@ import {
   StaggerContainer,
   StaggerItem,
 } from "@/shared/components/ui/animate-in";
+import { AspectRatio } from "@/shared/components/ui/aspect-ratio";
 import { Separator } from "@/shared/components/ui/separator";
 import {
   TypographyH1,
@@ -27,7 +28,7 @@ export function HeroSection({
   contacts = [],
 }: HeroSectionProps) {
   // Đảm bảo luôn có ảnh mặc định và luôn là đường dẫn tuyệt đối (có dấu / ở đầu)
-  let heroImage = image || "/images/img-herosection.webp";
+  let heroImage = image || "/images/hero-hvac.png";
   if (
     heroImage &&
     !heroImage.startsWith("/") &&
@@ -37,13 +38,12 @@ export function HeroSection({
   }
   // --- STYLES ---
   const styles = {
-    section:
-      "grid grid-cols-1 md:grid-cols-2 gap-12 md:gap-16 items-center min-h-[60vh]",
-
-    content: "flex flex-col gap-6 md:gap-8",
+    section: "flex flex-col items-center gap-12 md:gap-16 w-full",
+    content:
+      "flex flex-col gap-6 md:gap-8 items-center text-center max-w-7xl w-full px-4 sm:px-6",
     media:
-      "relative w-full aspect-square md:aspect-auto md:h-[500px] lg:h-[600px] rounded-3xl overflow-hidden shadow-2xl",
-    image: "object-cover",
+      "w-full  md:mx-0 rounded-3xl overflow-hidden bg-transparent backdrop-blur-xl border border-border/50 p-2 shadow-sm",
+    image: "object-cover rounded-2xl border border-border inset-shadow-sm",
   };
 
   return (
@@ -54,7 +54,7 @@ export function HeroSection({
           <TypographyH1>{title}</TypographyH1>
         </StaggerItem>
         <StaggerItem duration={0.25}>
-          <Separator />
+          <Separator className="w-24" />
         </StaggerItem>
         <StaggerItem duration={0.25}>
           <TypographyLead>{subtitle}</TypographyLead>
@@ -63,19 +63,22 @@ export function HeroSection({
         <HeroContactActions contacts={contacts} />
       </StaggerContainer>
 
-      {/* Cụm Media - KHÔNG bọc AnimateIn để bảo vệ LCP */}
+      {/* Cụm Media */}
+
       <div className={styles.media}>
-        <Image
-          src={getOptimizedImage(heroImage, 1200, 75, "cover")}
-          alt="ELC Space"
-          fill
-          priority
-          unoptimized
-          fetchPriority="high"
-          className={styles.image}
-          sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 640px"
-          loading="eager"
-        />
+        <AspectRatio ratio={16 / 9} className="block">
+          <Image
+            src={getOptimizedImage(heroImage, 1600, 100, "cover")}
+            alt="ELC Space"
+            fill
+            priority
+            unoptimized
+            fetchPriority="high"
+            className={styles.image}
+            sizes="100vw"
+            loading="eager"
+          />
+        </AspectRatio>
       </div>
     </section>
   );
