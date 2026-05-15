@@ -11,7 +11,7 @@ export default async function PublicLayout({ children }: PublicLayoutProps) {
     await getPublicLayoutData();
 
   return (
-    <div className="flex flex-col min-h-screen bg-background">
+    <div className="flex flex-col min-h-screen bg-home">
       <Header />
       <div className="flex-1">{children}</div>
       <Footer

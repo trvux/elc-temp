@@ -26,20 +26,18 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/shared/components/ui/select";
-import {
-  EnvelopeSimpleIcon,
-  GlobeIcon,
-  MessengerLogoIcon,
-  MetaLogoIcon,
-  PhoneIcon,
-  TiktokLogoIcon,
-  YoutubeLogoIcon,
-} from "@phosphor-icons/react";
+import { Switch } from "@/shared/components/ui/switch";
 import { ZaloIcon } from "@/shared/components/ui/social-icons";
 
 import { capitalize } from "@/shared/lib/utils";
 
-import { Contact, CONTACT_TYPES, createContactSchema, updateContactSchema } from "../../domain";
+import {
+  Contact,
+  CONTACT_TYPES,
+  createContactSchema,
+  updateContactSchema,
+} from "../../domain";
+import { getContactIcon } from "../utils";
 import {
   createContactAction,
   deleteContactAction,
@@ -52,22 +50,10 @@ type ContactFormValues = {
   type: string;
   label: string;
   value: string;
+  isActive: boolean;
   orderIndex: number;
 };
 
-const getContactIcon = (type: string) => {
-  const icons: Record<string, any> = {
-    phone: PhoneIcon,
-    email: EnvelopeSimpleIcon,
-    facebook: MetaLogoIcon,
-    messenger: MessengerLogoIcon,
-    zalo: ZaloIcon,
-    tiktok: TiktokLogoIcon,
-    youtube: YoutubeLogoIcon,
-    website: GlobeIcon,
-  };
-  return icons[type] || PhoneIcon;
-};
 
 export function ContactManagement() {
   const queryClient = useQueryClient();
@@ -84,6 +70,7 @@ export function ContactManagement() {
       type: "phone",
       label: "",
       value: "",
+      isActive: true,
       orderIndex: 0,
     },
   });
@@ -149,6 +136,7 @@ export function ContactManagement() {
             type: c.type,
             label: c.label || "",
             value: c.value,
+            isActive: c.isActive,
             orderIndex: c.orderIndex,
           });
         },
@@ -163,6 +151,7 @@ export function ContactManagement() {
       type: "phone",
       label: "",
       value: "",
+      isActive: true,
       orderIndex: 0,
     });
   }
@@ -285,6 +274,27 @@ export function ContactManagement() {
                         {...field}
                         onChange={(e) => field.onChange(Number(e.target.value))}
                       />
+                    )}
+                  />
+                </FieldContent>
+              </Field>
+
+              <Field>
+                <FieldLabel className="mb-2 font-medium">Trạng thái hoạt động</FieldLabel>
+                <FieldContent>
+                  <Controller
+                    control={form.control}
+                    name="isActive"
+                    render={({ field }) => (
+                      <div className="flex items-center gap-3 py-2">
+                        <Switch
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                        />
+                        <span className="text-sm text-muted-foreground">
+                          {field.value ? "Đang bật" : "Đang tắt"}
+                        </span>
+                      </div>
                     )}
                   />
                 </FieldContent>

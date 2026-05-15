@@ -1,5 +1,4 @@
 import { getBranchBySlug, getBranches } from "@/modules/branch";
-import { PhoneConfirmation } from "@/shared/components/layout/user/phone-confirmation";
 import { PreviewContent } from "@/shared/components/layout/user/preview-content";
 import { ScrollToTop } from "@/shared/components/layout/user/scroll-to-top";
 import {
@@ -98,9 +97,9 @@ export default async function BranchDetail({
       value: "phone",
       trigger: "Số điện thoại liên hệ",
       content: (
-        <PhoneConfirmation phone={branch.phone || ""}>
-          <div>{branch.phone || ""}</div>
-        </PhoneConfirmation>
+        <a href={`tel:${branch.phone?.replace(/\s/g, "")}`}>
+          {branch.phone || ""}
+        </a>
       ),
       isVisible: !!branch.phone,
     },

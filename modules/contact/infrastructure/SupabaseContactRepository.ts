@@ -6,6 +6,7 @@ import {
   ContactFilter,
   ContactRepository,
   UpdateContactInput,
+  mapContactRowToDomain,
 } from "../domain";
 
 type ContactRow = Tables<"contacts">;
@@ -71,6 +72,7 @@ export class SupabaseContactRepository implements ContactRepository {
       type: input.type,
       label: input.label || null,
       value: input.value,
+      is_active: input.isActive ?? true,
       order_index: input.orderIndex ?? 0,
     };
 
@@ -91,6 +93,7 @@ export class SupabaseContactRepository implements ContactRepository {
       type: input.type,
       label: input.label,
       value: input.value,
+      is_active: input.isActive,
       order_index: input.orderIndex,
     };
 
@@ -117,13 +120,7 @@ export class SupabaseContactRepository implements ContactRepository {
   }
 
   private mapToDomain(row: ContactRow): Contact {
-    return {
-      id: row.id,
-      type: row.type,
-      label: row.label,
-      value: row.value,
-      orderIndex: row.order_index || 0,
-    };
+    return mapContactRowToDomain(row);
   }
 
   private handleError(error: unknown, context: string): never {

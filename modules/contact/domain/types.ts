@@ -5,13 +5,17 @@ export interface Contact {
   type: ContactType | string;
   label: string | null;
   value: string;
+  isActive: boolean;
   orderIndex: number;
+  href: string;
+  isExternal: boolean;
 }
 
 export interface CreateContactInput {
   type: ContactType | string;
   label?: string | null;
   value: string;
+  isActive?: boolean;
   orderIndex?: number;
 }
 
