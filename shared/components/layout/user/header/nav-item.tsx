@@ -53,10 +53,10 @@ export const MobileNavItem = ({ link, isActive, onClick }: NavItemProps) => {
       href={link.href}
       onClick={onClick}
       className={cn(
-        "flex items-center w-full py-4 px-6 text-lg transition-colors",
+        "flex items-center gap-2 text-2xl font-medium transition-colors",
         isActive
-          ? "text-primary font-semibold"
-          : "text-muted-foreground hover:text-foreground",
+          ? "text-foreground"
+          : "text-foreground/60 hover:text-foreground",
       )}
     >
       {link.name}
