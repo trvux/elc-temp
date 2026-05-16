@@ -14,12 +14,12 @@ import { Button } from "@/shared/components/ui/button";
 import { DataTable } from "@/shared/components/ui/data-table";
 import {
   Field,
-  FieldContent,
   FieldDescription,
   FieldError,
   FieldGroup,
   FieldLabel,
   FieldLegend,
+  FieldSeparator,
   FieldSet,
 } from "@/shared/components/ui/field";
 import { Input } from "@/shared/components/ui/input";
@@ -50,9 +50,9 @@ import { Category } from "@/modules/category/domain/types";
 import { getCategoriesAction } from "@/modules/category/presentation/actions";
 import type { z } from "zod";
 import {
+  createProductSchema,
   ProductWithRelations,
   STOCK_STATUS,
-  createProductSchema,
 } from "../../domain";
 import {
   createProductAction,
@@ -386,6 +386,7 @@ export function ProductManagement() {
   };
 
   const supabase = createClient();
+
   async function handleUpload(e: React.ChangeEvent<HTMLInputElement>) {
     const files = e.target.files;
     if (!files || files.length === 0) return;
@@ -511,132 +512,144 @@ export function ProductManagement() {
             </TabsList>
           </div>
 
-          <form
-            onSubmit={form.handleSubmit((v) => saveMutation.mutate(v))}
-            className="flex-1 flex flex-col min-h-0 w-full"
-          >
-            <div className="flex-1 overflow-y-auto p-6 lg:p-10">
-              <TabsContent
-                value="general"
-                className="mt-0 focus-visible:outline-none pb-8"
-              >
-                <FieldGroup className="gap-12">
-                  <FieldSet>
-                    <FieldLegend>Định danh & Phân loại</FieldLegend>
-                    <FieldGroup>
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <div className="md:col-span-2">
-                          <Controller
-                            control={form.control}
-                            name="name"
-                            render={({ field, fieldState }) => (
-                              <Field>
-                                <FieldLabel>Tên sản phẩm *</FieldLabel>
-                                <FieldContent>
-                                  <Input
-                                    {...field}
-                                    placeholder="VD: Máy lạnh Daikin 1.5HP"
-                                    onChange={(e) => {
-                                      field.onChange(e);
-                                      updateAutoSlug(
-                                        e.target.value,
-                                        form.getValues("sku"),
-                                        form.getValues("categoryId"),
-                                        form.getValues("brandId"),
-                                      );
-                                    }}
-                                  />
-                                  <FieldError errors={[fieldState.error]} />
-                                </FieldContent>
-                              </Field>
-                            )}
-                          />
-                        </div>
+          <div className="w-full max-w-5xl mx-auto">
+            <form
+              onSubmit={form.handleSubmit((v) => saveMutation.mutate(v))}
+              className="flex-1 flex flex-col min-h-0 w-full"
+            >
+              <div className="flex-1 overflow-y-auto p-6 lg:p-10">
+                <TabsContent
+                  value="general"
+                  className="mt-0 focus-visible:outline-none pb-8"
+                >
+                  <FieldGroup className="gap-8">
+                    <FieldSet>
+                      <FieldLegend>Thông tin sản phẩm</FieldLegend>
+                      <FieldGroup className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-5">
+                        <Controller
+                          control={form.control}
+                          name="name"
+                          render={({ field, fieldState }) => (
+                            <Field className="md:col-span-2">
+                              <FieldLabel>Tên sản phẩm *</FieldLabel>
+                              <Input
+                                {...field}
+                                placeholder="VD: Máy lạnh Daikin 1.5HP"
+                                onChange={(e) => {
+                                  field.onChange(e);
+                                  updateAutoSlug(
+                                    e.target.value,
+                                    form.getValues("sku"),
+                                    form.getValues("categoryId"),
+                                    form.getValues("brandId"),
+                                  );
+                                }}
+                              />
+                              <FieldError errors={[fieldState.error]} />
+                            </Field>
+                          )}
+                        />
 
-                        <div className="md:col-span-1">
-                          <Controller
-                            control={form.control}
-                            name="sku"
-                            render={({ field, fieldState }) => (
-                              <Field>
-                                <FieldLabel>Mã sản phẩm (SKU) *</FieldLabel>
-                                <FieldContent>
-                                  <Input
-                                    {...field}
-                                    placeholder="VD: DAIKIN-15HP"
-                                    onChange={(e) => {
-                                      field.onChange(e);
-                                      updateAutoSlug(
-                                        form.getValues("name"),
-                                        e.target.value,
-                                        form.getValues("categoryId"),
-                                        form.getValues("brandId"),
-                                      );
-                                    }}
-                                  />
-                                  <FieldError errors={[fieldState.error]} />
-                                </FieldContent>
-                              </Field>
-                            )}
-                          />
-                        </div>
-                      </div>
-                    </FieldGroup>
-                  </FieldSet>
+                        <Controller
+                          control={form.control}
+                          name="sku"
+                          render={({ field, fieldState }) => (
+                            <Field>
+                              <FieldLabel>Mã sản phẩm (SKU) *</FieldLabel>
+                              <Input
+                                {...field}
+                                placeholder="VD: DAIKIN-15HP"
+                                onChange={(e) => {
+                                  field.onChange(e);
+                                  updateAutoSlug(
+                                    form.getValues("name"),
+                                    e.target.value,
+                                    form.getValues("categoryId"),
+                                    form.getValues("brandId"),
+                                  );
+                                }}
+                              />
+                              <FieldError errors={[fieldState.error]} />
+                            </Field>
+                          )}
+                        />
 
-                  <FieldSet>
-                    <FieldLegend>Thông tin định danh & SEO</FieldLegend>
-                    <FieldGroup>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <Controller
+                          control={form.control}
+                          name="stockStatus"
+                          render={({ field }) => (
+                            <Field>
+                              <FieldLabel>Trạng thái kho</FieldLabel>
+                              <Select
+                                value={field.value}
+                                onValueChange={field.onChange}
+                              >
+                                <SelectTrigger>
+                                  <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="in_stock">
+                                    Còn hàng
+                                  </SelectItem>
+                                  <SelectItem value="out_of_stock">
+                                    Hết hàng
+                                  </SelectItem>
+                                  <SelectItem value="pre_order">
+                                    Đặt trước
+                                  </SelectItem>
+                                </SelectContent>
+                              </Select>
+                            </Field>
+                          )}
+                        />
+
                         <Controller
                           control={form.control}
                           name="categoryId"
                           render={({ field, fieldState }) => (
                             <Field>
                               <FieldLabel>Danh mục</FieldLabel>
-                              <FieldContent>
-                                <Select
-                                  value={field.value}
-                                  onValueChange={(val) => {
-                                    field.onChange(val);
-                                    updateAutoSlug(
-                                      form.getValues("name"),
-                                      form.getValues("sku"),
-                                      val,
-                                      form.getValues("brandId"),
-                                    );
-                                  }}
-                                >
-                                  <SelectTrigger>
-                                    <SelectValue placeholder="Chọn danh mục" />
-                                  </SelectTrigger>
-                                  <SelectContent>
-                                    {categories
-                                      .filter((c) => !c.parentId)
-                                      .map((parent) => (
-                                        <SelectGroup key={parent.id}>
-                                          <SelectLabel className="opacity-50">
-                                            {parent.name}
-                                          </SelectLabel>
-                                          {categories
-                                            .filter(
-                                              (c) => c.parentId === parent.id,
-                                            )
-                                            .map((child) => (
-                                              <SelectItem
-                                                key={child.id}
-                                                value={child.id}
-                                              >
-                                                {child.name}
-                                              </SelectItem>
-                                            ))}
-                                          <SelectSeparator />
-                                        </SelectGroup>
-                                      ))}
-                                  </SelectContent>
-                                </Select>
-                                <FieldError errors={[fieldState.error]} />
-                              </FieldContent>
+                              <Select
+                                value={field.value}
+                                onValueChange={(val) => {
+                                  field.onChange(val);
+                                  updateAutoSlug(
+                                    form.getValues("name"),
+                                    form.getValues("sku"),
+                                    val,
+                                    form.getValues("brandId"),
+                                  );
+                                }}
+                              >
+                                <SelectTrigger>
+                                  <SelectValue placeholder="Chọn danh mục" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  {categories
+                                    .filter((c) => !c.parentId)
+                                    .map((parent) => (
+                                      <SelectGroup key={parent.id}>
+                                        <SelectLabel className="opacity-50">
+                                          {parent.name}
+                                        </SelectLabel>
+                                        {categories
+                                          .filter(
+                                            (c) => c.parentId === parent.id,
+                                          )
+                                          .map((child) => (
+                                            <SelectItem
+                                              key={child.id}
+                                              value={child.id}
+                                            >
+                                              {child.name}
+                                            </SelectItem>
+                                          ))}
+                                        <SelectSeparator />
+                                      </SelectGroup>
+                                    ))}
+                                </SelectContent>
+                              </Select>
+                              <FieldError errors={[fieldState.error]} />
                             </Field>
                           )}
                         />
@@ -647,52 +660,46 @@ export function ProductManagement() {
                           render={({ field, fieldState }) => (
                             <Field>
                               <FieldLabel>Thương hiệu</FieldLabel>
-                              <FieldContent>
-                                <Select
-                                  value={field.value}
-                                  onValueChange={(val) => {
-                                    field.onChange(val);
-                                    updateAutoSlug(
-                                      form.getValues("name"),
-                                      form.getValues("sku"),
-                                      form.getValues("categoryId"),
-                                      val,
-                                    );
-                                  }}
-                                >
-                                  <SelectTrigger>
-                                    <SelectValue placeholder="Chọn thương hiệu" />
-                                  </SelectTrigger>
-                                  <SelectContent>
-                                    {brands.map((b) => (
-                                      <SelectItem key={b.id} value={b.id}>
-                                        {b.name}
-                                      </SelectItem>
-                                    ))}
-                                  </SelectContent>
-                                </Select>
-                                <FieldError errors={[fieldState.error]} />
-                              </FieldContent>
+                              <Select
+                                value={field.value}
+                                onValueChange={(val) => {
+                                  field.onChange(val);
+                                  updateAutoSlug(
+                                    form.getValues("name"),
+                                    form.getValues("sku"),
+                                    form.getValues("categoryId"),
+                                    val,
+                                  );
+                                }}
+                              >
+                                <SelectTrigger>
+                                  <SelectValue placeholder="Chọn thương hiệu" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  {brands.map((b) => (
+                                    <SelectItem key={b.id} value={b.id}>
+                                      {b.name}
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                              <FieldError errors={[fieldState.error]} />
                             </Field>
                           )}
                         />
-                      </div>
 
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <Controller
                           control={form.control}
                           name="mpn"
                           render={({ field, fieldState }) => (
                             <Field>
                               <FieldLabel>MPN (Mã linh kiện)</FieldLabel>
-                              <FieldContent>
-                                <Input
-                                  {...field}
-                                  value={field.value ?? ""}
-                                  placeholder="VD: MPN-123"
-                                />
-                                <FieldError errors={[fieldState.error]} />
-                              </FieldContent>
+                              <Input
+                                {...field}
+                                value={field.value ?? ""}
+                                placeholder="VD: MPN-123"
+                              />
+                              <FieldError errors={[fieldState.error]} />
                             </Field>
                           )}
                         />
@@ -703,61 +710,56 @@ export function ProductManagement() {
                           render={({ field, fieldState }) => (
                             <Field>
                               <FieldLabel>GTIN (Barcode/EAN)</FieldLabel>
-                              <FieldContent>
-                                <Input
-                                  {...field}
-                                  value={field.value ?? ""}
-                                  placeholder="VD: 8931234567890"
-                                />
-                                <FieldError errors={[fieldState.error]} />
-                              </FieldContent>
+                              <Input
+                                {...field}
+                                value={field.value ?? ""}
+                                placeholder="VD: 8931234567890"
+                              />
+                              <FieldError errors={[fieldState.error]} />
                             </Field>
                           )}
                         />
-                      </div>
 
-                      <Controller
-                        control={form.control}
-                        name="slug"
-                        render={({ field, fieldState }) => {
-                          const catId = form.watch("categoryId");
-                          const brdId = form.watch("brandId");
-                          const catSlug =
-                            categories.find((c) => c.id === catId)?.slug ||
-                            "all";
-                          const brdSlug =
-                            brands.find((b) => b.id === brdId)?.slug || "all";
-                          const fullUrl = `/san-pham/${catSlug}/${brdSlug}/${field.value}`;
+                        <Controller
+                          control={form.control}
+                          name="slug"
+                          render={({ field, fieldState }) => {
+                            const catId = form.watch("categoryId");
+                            const brdId = form.watch("brandId");
+                            const catSlug =
+                              categories.find((c) => c.id === catId)?.slug ||
+                              "all";
+                            const brdSlug =
+                              brands.find((b) => b.id === brdId)?.slug || "all";
+                            const fullUrl = `/san-pham/${catSlug}/${brdSlug}/${field.value}`;
 
-                          return (
-                            <Field>
-                              <FieldLabel>Slug & URL Preview</FieldLabel>
-                              <FieldContent>
+                            return (
+                              <Field className="md:col-span-2">
+                                <FieldLabel>Slug & URL Preview</FieldLabel>
                                 <Input {...field} />
                                 <FieldDescription>
                                   URL: {fullUrl}
                                 </FieldDescription>
                                 <FieldError errors={[fieldState.error]} />
-                              </FieldContent>
-                            </Field>
-                          );
-                        }}
-                      />
-                    </FieldGroup>
-                  </FieldSet>
+                              </Field>
+                            );
+                          }}
+                        />
+                      </FieldGroup>
+                    </FieldSet>
 
-                  {/* Giá & Kho */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12">
-                    <FieldSet>
-                      <FieldLegend>Giá bán</FieldLegend>
-                      <FieldGroup>
-                        <Controller
-                          control={form.control}
-                          name="originalPrice"
-                          render={({ field, fieldState }) => (
-                            <Field>
-                              <FieldLabel>Giá gốc *</FieldLabel>
-                              <FieldContent>
+                    <FieldSeparator />
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                      <FieldSet>
+                        <FieldLegend>Giá bán</FieldLegend>
+                        <FieldGroup className="gap-5">
+                          <Controller
+                            control={form.control}
+                            name="originalPrice"
+                            render={({ field, fieldState }) => (
+                              <Field>
+                                <FieldLabel>Giá gốc *</FieldLabel>
                                 <Input
                                   type="number"
                                   {...field}
@@ -778,18 +780,16 @@ export function ProductManagement() {
                                   {formatPrice(field.value)}
                                 </FieldDescription>
                                 <FieldError errors={[fieldState.error]} />
-                              </FieldContent>
-                            </Field>
-                          )}
-                        />
+                              </Field>
+                            )}
+                          />
 
-                        <Controller
-                          control={form.control}
-                          name="salePrice"
-                          render={({ field, fieldState }) => (
-                            <Field>
-                              <FieldLabel>Giá bán</FieldLabel>
-                              <FieldContent>
+                          <Controller
+                            control={form.control}
+                            name="salePrice"
+                            render={({ field, fieldState }) => (
+                              <Field>
+                                <FieldLabel>Giá bán</FieldLabel>
                                 <Input
                                   type="number"
                                   {...field}
@@ -810,22 +810,17 @@ export function ProductManagement() {
                                     }
                                   }}
                                 />
-                                <FieldDescription>
-                                  {formatPrice(field.value)}
-                                </FieldDescription>
                                 <FieldError errors={[fieldState.error]} />
-                              </FieldContent>
-                            </Field>
-                          )}
-                        />
+                              </Field>
+                            )}
+                          />
 
-                        <Controller
-                          control={form.control}
-                          name="discountPercent"
-                          render={({ field, fieldState }) => (
-                            <Field>
-                              <FieldLabel>Giảm %</FieldLabel>
-                              <FieldContent>
+                          <Controller
+                            control={form.control}
+                            name="discountPercent"
+                            render={({ field, fieldState }) => (
+                              <Field>
+                                <FieldLabel>Giảm %</FieldLabel>
                                 <Input
                                   type="number"
                                   {...field}
@@ -843,371 +838,348 @@ export function ProductManagement() {
                                   }}
                                 />
                                 <FieldError errors={[fieldState.error]} />
-                              </FieldContent>
-                            </Field>
-                          )}
-                        />
-                      </FieldGroup>
-                    </FieldSet>
+                              </Field>
+                            )}
+                          />
+                        </FieldGroup>
+                      </FieldSet>
 
-                    <FieldSet>
-                      <FieldLegend>Kho hàng & Hiển thị</FieldLegend>
-                      <FieldGroup>
-                        <Controller
-                          control={form.control}
-                          name="isFeatured"
-                          render={({ field }) => (
-                            <Field>
-                              <FieldLabel>Sản phẩm nổi bật</FieldLabel>
-                              <FieldContent>
-                                <Switch
-                                  checked={field.value}
-                                  onCheckedChange={field.onChange}
-                                />
-                              </FieldContent>
-                            </Field>
-                          )}
-                        />
-
-                        <Controller
-                          control={form.control}
-                          name="isPublished"
-                          render={({ field }) => (
-                            <Field>
-                              <FieldLabel>Đang hiển thị</FieldLabel>
-                              <FieldContent>
-                                <Switch
-                                  checked={field.value}
-                                  onCheckedChange={field.onChange}
-                                />
-                              </FieldContent>
-                            </Field>
-                          )}
-                        />
-
-                        <Controller
-                          control={form.control}
-                          name="stockStatus"
-                          render={({ field }) => (
-                            <Field>
-                              <FieldLabel>Trạng thái kho</FieldLabel>
-                              <FieldContent>
-                                <Select
-                                  value={field.value}
-                                  onValueChange={field.onChange}
-                                >
-                                  <SelectTrigger>
-                                    <SelectValue />
-                                  </SelectTrigger>
-                                  <SelectContent>
-                                    <SelectItem value="in_stock">
-                                      Còn hàng
-                                    </SelectItem>
-                                    <SelectItem value="out_of_stock">
-                                      Hết hàng
-                                    </SelectItem>
-                                    <SelectItem value="pre_order">
-                                      Đặt trước
-                                    </SelectItem>
-                                  </SelectContent>
-                                </Select>
-                              </FieldContent>
-                            </Field>
-                          )}
-                        />
-
-                        <Controller
-                          control={form.control}
-                          name="orderIndex"
-                          render={({ field }) => (
-                            <Field>
-                              <FieldLabel>Thứ tự hiển thị</FieldLabel>
-                              <FieldContent>
+                      <FieldSet>
+                        <FieldLegend>Cấu hình hiển thị</FieldLegend>
+                        <FieldGroup className="gap-5">
+                          <Controller
+                            control={form.control}
+                            name="orderIndex"
+                            render={({ field }) => (
+                              <Field>
+                                <FieldLabel>Thứ tự hiển thị</FieldLabel>
                                 <Input
                                   type="number"
                                   {...field}
                                   onFocus={(e) => e.target.select()}
                                 />
-                              </FieldContent>
-                            </Field>
-                          )}
-                        />
-                      </FieldGroup>
-                    </FieldSet>
-                  </div>
+                              </Field>
+                            )}
+                          />
 
-                  {/* Hình ảnh */}
+                          <div className="grid grid-cols-1 gap-4">
+                            <Controller
+                              control={form.control}
+                              name="isFeatured"
+                              render={({ field }) => (
+                                <Field
+                                  orientation="horizontal"
+                                  className="justify-between border p-3 rounded-lg"
+                                >
+                                  <FieldLabel className="font-normal">
+                                    Sản phẩm nổi bật
+                                  </FieldLabel>
+                                  <Switch
+                                    checked={field.value}
+                                    onCheckedChange={field.onChange}
+                                  />
+                                </Field>
+                              )}
+                            />
+
+                            <Controller
+                              control={form.control}
+                              name="isPublished"
+                              render={({ field }) => (
+                                <Field
+                                  orientation="horizontal"
+                                  className="justify-between border p-3 rounded-lg"
+                                >
+                                  <FieldLabel className="font-normal">
+                                    Trạng thái hiển thị
+                                  </FieldLabel>
+                                  <Switch
+                                    checked={field.value}
+                                    onCheckedChange={field.onChange}
+                                  />
+                                </Field>
+                              )}
+                            />
+                          </div>
+                        </FieldGroup>
+                      </FieldSet>
+                    </div>
+
+                    <FieldSet>
+                      <div className="flex items-center justify-between mb-4">
+                        <FieldLegend>Hình ảnh sản phẩm</FieldLegend>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          disabled={uploading}
+                          asChild
+                        >
+                          <label className="cursor-pointer">
+                            <Input
+                              type="file"
+                              multiple
+                              accept="image/*"
+                              className="hidden"
+                              onChange={handleUpload}
+                              disabled={uploading}
+                            />
+                            <Upload size={14} className="mr-2" />
+                            {uploading ? "Đang tải..." : "Thêm ảnh"}
+                          </label>
+                        </Button>
+                      </div>
+
+                      <Controller
+                        control={form.control}
+                        name="images"
+                        render={({ field }) => (
+                          <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-4">
+                            {(field.value || []).map(
+                              (url: string, i: number) => (
+                                <div
+                                  key={i}
+                                  className="group relative aspect-square bg-background rounded-lg border overflow-hidden"
+                                >
+                                  <Image
+                                    src={url}
+                                    alt=""
+                                    fill
+                                    className="object-contain p-2"
+                                  />
+                                  <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                    <Button
+                                      type="button"
+                                      variant="destructive"
+                                      size="icon"
+                                      className="h-7 w-7 rounded-full"
+                                      onClick={() => {
+                                        const next = [...field.value];
+                                        next.splice(i, 1);
+                                        field.onChange(next);
+                                      }}
+                                    >
+                                      <X size={14} />
+                                    </Button>
+                                  </div>
+                                </div>
+                              ),
+                            )}
+                            {(!field.value || field.value.length === 0) && (
+                              <div className="col-span-full py-12 flex flex-col items-center justify-center border-2 border-dashed border-border/60 rounded-xl bg-muted/5">
+                                <p className="text-xs font-bold text-muted-foreground/40 uppercase tracking-widest">
+                                  Chưa có hình ảnh nào
+                                </p>
+                              </div>
+                            )}
+                          </div>
+                        )}
+                      />
+                    </FieldSet>
+                  </FieldGroup>
+                </TabsContent>
+
+                <TabsContent
+                  value="specs"
+                  className="mt-0 focus-visible:outline-none pb-8"
+                >
                   <FieldSet>
                     <div className="flex items-center justify-between">
-                      <FieldLegend>Quản lý hình ảnh</FieldLegend>
+                      <FieldLegend>Thông số kỹ thuật</FieldLegend>
                       <Button
                         type="button"
                         variant="outline"
                         size="sm"
-                        disabled={uploading}
-                        asChild
+                        onClick={() => appendSpec({ label: "", value: "" })}
                       >
-                        <label className="cursor-pointer">
-                          <Input
-                            type="file"
-                            multiple
-                            accept="image/*"
-                            className="hidden"
-                            onChange={handleUpload}
-                            disabled={uploading}
-                          />
-                          <Upload size={14} className="mr-2" />
-                          {uploading ? "Đang tải..." : "Thêm ảnh sản phẩm"}
-                        </label>
+                        <Plus size={14} className="mr-2" /> Thêm thông số mới
                       </Button>
                     </div>
 
-                    <Controller
-                      control={form.control}
-                      name="images"
-                      render={({ field }) => (
-                        <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-4">
-                          {(field.value || []).map((url: string, i: number) => (
-                            <div
-                              key={i}
-                              className="group relative aspect-square bg-background rounded-lg border overflow-hidden"
-                            >
-                              <Image
-                                src={url}
-                                alt=""
-                                fill
-                                className="object-contain p-2"
-                              />
-                              <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                                <Button
-                                  type="button"
-                                  variant="destructive"
-                                  size="icon"
-                                  className="h-7 w-7 rounded-full"
-                                  onClick={() => {
-                                    const next = [...field.value];
-                                    next.splice(i, 1);
-                                    field.onChange(next);
-                                  }}
-                                >
-                                  <X size={14} />
-                                </Button>
-                              </div>
-                            </div>
-                          ))}
-                          {(!field.value || field.value.length === 0) && (
-                            <div className="col-span-full py-12 flex flex-col items-center justify-center border-2 border-dashed border-border/60 rounded-xl bg-muted/5">
-                              <p className="text-xs font-bold text-muted-foreground/40 uppercase tracking-widest">
-                                Chưa có hình ảnh nào
-                              </p>
-                            </div>
-                          )}
-                        </div>
-                      )}
-                    />
-                  </FieldSet>
-                </FieldGroup>
-              </TabsContent>
+                    <FieldGroup>
+                      {specsFields.map((field, i) => {
+                        const spec = form.watch(`specs.${i}`);
+                        const hasItems = spec?.items && spec.items.length > 0;
 
-              <TabsContent
-                value="specs"
-                className="mt-0 focus-visible:outline-none pb-8"
-              >
-                <FieldSet>
-                  <div className="flex items-center justify-between">
-                    <FieldLegend>Thông số kỹ thuật</FieldLegend>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      onClick={() => appendSpec({ label: "", value: "" })}
-                    >
-                      <Plus size={14} className="mr-2" /> Thêm thông số mới
-                    </Button>
-                  </div>
-
-                  <FieldGroup>
-                    {specsFields.map((field, i) => {
-                      const spec = form.watch(`specs.${i}`);
-                      const hasItems = spec?.items && spec.items.length > 0;
-
-                      return (
-                        <div key={field.id} className="border p-4 rounded-lg">
-                          <FieldGroup>
-                            <Field>
-                              <FieldLabel>Tên thông số (Nhãn)</FieldLabel>
-                              <Input
-                                placeholder="VD: Kích thước"
-                                {...form.register(`specs.${i}.label`)}
-                              />
-                            </Field>
-
-                            {!hasItems && (
+                        return (
+                          <div key={field.id} className="border p-4 rounded-lg">
+                            <FieldGroup>
                               <Field>
-                                <FieldLabel>Giá trị hiển thị</FieldLabel>
+                                <FieldLabel>Tên thông số (Nhãn)</FieldLabel>
                                 <Input
-                                  placeholder="VD: 800 x 600 mm"
-                                  {...form.register(`specs.${i}.value`, {
-                                    onChange: () =>
-                                      updateAutoSlug(
-                                        form.getValues("name"),
-                                        form.getValues("sku"),
-                                        form.getValues("categoryId"),
-                                        form.getValues("brandId"),
-                                      ),
-                                  })}
+                                  placeholder="VD: Kích thước"
+                                  {...form.register(`specs.${i}.label`)}
                                 />
                               </Field>
-                            )}
 
-                            {hasItems && (
-                              <FieldSet>
-                                <div className="flex items-center justify-between">
-                                  <FieldLegend variant="label">
-                                    Danh sách mục con
-                                  </FieldLegend>
+                              {!hasItems && (
+                                <Field>
+                                  <FieldLabel>Giá trị hiển thị</FieldLabel>
+                                  <Input
+                                    placeholder="VD: 800 x 600 mm"
+                                    {...form.register(`specs.${i}.value`, {
+                                      onChange: () =>
+                                        updateAutoSlug(
+                                          form.getValues("name"),
+                                          form.getValues("sku"),
+                                          form.getValues("categoryId"),
+                                          form.getValues("brandId"),
+                                        ),
+                                    })}
+                                  />
+                                </Field>
+                              )}
+
+                              {hasItems && (
+                                <FieldSet>
+                                  <div className="flex items-center justify-between">
+                                    <FieldLegend variant="label">
+                                      Danh sách mục con
+                                    </FieldLegend>
+                                    <Button
+                                      type="button"
+                                      variant="outline"
+                                      size="sm"
+                                      onClick={() =>
+                                        appendSpecItem(i, {
+                                          label: "",
+                                          value: "",
+                                        })
+                                      }
+                                    >
+                                      <Plus size={14} className="mr-1" /> Thêm
+                                      mục
+                                    </Button>
+                                  </div>
+
+                                  <FieldGroup>
+                                    {spec.items?.map((_: any, j: number) => (
+                                      <Field
+                                        key={j}
+                                        orientation="horizontal"
+                                        className="gap-2"
+                                      >
+                                        <Input
+                                          placeholder="Nhãn"
+                                          {...form.register(
+                                            `specs.${i}.items.${j}.label`,
+                                          )}
+                                        />
+                                        <Input
+                                          placeholder="Giá trị"
+                                          {...form.register(
+                                            `specs.${i}.items.${j}.value`,
+                                          )}
+                                        />
+                                        <Button
+                                          type="button"
+                                          variant="ghost"
+                                          size="icon"
+                                          onClick={() => removeSpecItem(i, j)}
+                                        >
+                                          <X size={14} />
+                                        </Button>
+                                      </Field>
+                                    ))}
+                                  </FieldGroup>
+                                </FieldSet>
+                              )}
+
+                              <div className="flex justify-end gap-2 pt-2 border-t">
+                                {!hasItems && (
                                   <Button
                                     type="button"
                                     variant="outline"
                                     size="sm"
-                                    onClick={() =>
+                                    onClick={() => {
                                       appendSpecItem(i, {
                                         label: "",
                                         value: "",
-                                      })
-                                    }
+                                      });
+                                      form.setValue(
+                                        `specs.${i}.value`,
+                                        undefined,
+                                      );
+                                    }}
                                   >
-                                    <Plus size={14} className="mr-1" /> Thêm mục
+                                    + Nhóm con
                                   </Button>
-                                </div>
-
-                                <FieldGroup>
-                                  {spec.items?.map((_: any, j: number) => (
-                                    <Field
-                                      key={j}
-                                      orientation="horizontal"
-                                      className="gap-2"
-                                    >
-                                      <Input
-                                        placeholder="Nhãn"
-                                        {...form.register(
-                                          `specs.${i}.items.${j}.label`,
-                                        )}
-                                      />
-                                      <Input
-                                        placeholder="Giá trị"
-                                        {...form.register(
-                                          `specs.${i}.items.${j}.value`,
-                                        )}
-                                      />
-                                      <Button
-                                        type="button"
-                                        variant="ghost"
-                                        size="icon"
-                                        onClick={() => removeSpecItem(i, j)}
-                                      >
-                                        <X size={14} />
-                                      </Button>
-                                    </Field>
-                                  ))}
-                                </FieldGroup>
-                              </FieldSet>
-                            )}
-
-                            <div className="flex justify-end gap-2 pt-2 border-t">
-                              {!hasItems && (
+                                )}
                                 <Button
                                   type="button"
-                                  variant="outline"
+                                  variant="ghost"
                                   size="sm"
-                                  onClick={() => {
-                                    appendSpecItem(i, {
-                                      label: "",
-                                      value: "",
-                                    });
-                                    form.setValue(
-                                      `specs.${i}.value`,
-                                      undefined,
-                                    );
-                                  }}
+                                  className="text-destructive"
+                                  onClick={() => removeSpec(i)}
                                 >
-                                  + Nhóm con
+                                  <Trash2 size={14} className="mr-1" /> Xóa
+                                  thông số
                                 </Button>
-                              )}
-                              <Button
-                                type="button"
-                                variant="ghost"
-                                size="sm"
-                                className="text-destructive"
-                                onClick={() => removeSpec(i)}
-                              >
-                                <Trash2 size={14} className="mr-1" /> Xóa thông
-                                số
-                              </Button>
-                            </div>
-                          </FieldGroup>
-                        </div>
-                      );
-                    })}
-                  </FieldGroup>
-                </FieldSet>
-              </TabsContent>
+                              </div>
+                            </FieldGroup>
+                          </div>
+                        );
+                      })}
+                    </FieldGroup>
+                  </FieldSet>
+                </TabsContent>
 
-              <TabsContent
-                value="description"
-                className="mt-0 focus-visible:outline-none"
-              >
-                <FieldSet>
-                  <FieldLegend>Mô tả chi tiết sản phẩm</FieldLegend>
-                  <FieldGroup>
-                    <Field>
-                      <Controller
-                        control={form.control}
-                        name="description"
-                        render={({ field }) => (
-                          <TiptapEditor
-                            value={field.value}
-                            onChange={field.onChange}
-                            placeholder="Bắt đầu kể câu chuyện về sản phẩm của bạn..."
-                            uploadImage={async (file) => {
-                              const fileName = `products/${Date.now()}-${Math.random().toString(36).slice(2)}.webp`;
-                              const { error } = await supabase.storage
-                                .from("images")
-                                .upload(fileName, file, {
-                                  contentType: "image/webp",
-                                });
-                              if (error) throw error;
-                              const { data } = supabase.storage
-                                .from("images")
-                                .getPublicUrl(fileName);
-                              return data.publicUrl;
-                            }}
-                          />
-                        )}
-                      />
-                    </Field>
-                  </FieldGroup>
-                </FieldSet>
-              </TabsContent>
-            </div>
+                <TabsContent
+                  value="description"
+                  className="mt-0 focus-visible:outline-none"
+                >
+                  <FieldSet>
+                    <FieldLegend>Mô tả chi tiết sản phẩm</FieldLegend>
+                    <FieldGroup>
+                      <Field>
+                        <Controller
+                          control={form.control}
+                          name="description"
+                          render={({ field }) => (
+                            <TiptapEditor
+                              value={field.value}
+                              onChange={field.onChange}
+                              placeholder="Bắt đầu kể câu chuyện về sản phẩm của bạn..."
+                              uploadImage={async (file) => {
+                                const fileName = `products/${Date.now()}-${Math.random().toString(36).slice(2)}.webp`;
+                                const { error } = await supabase.storage
+                                  .from("images")
+                                  .upload(fileName, file, {
+                                    contentType: "image/webp",
+                                  });
+                                if (error) throw error;
+                                const { data } = supabase.storage
+                                  .from("images")
+                                  .getPublicUrl(fileName);
+                                return data.publicUrl;
+                              }}
+                            />
+                          )}
+                        />
+                      </Field>
+                    </FieldGroup>
+                  </FieldSet>
+                </TabsContent>
+              </div>
 
-            <div className="flex justify-end gap-3 p-6 border-t">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => setActiveProduct(null)}
-              >
-                Hủy
-              </Button>
-              <Button type="submit" disabled={saveMutation.isPending}>
-                {saveMutation.isPending
-                  ? "Đang lưu..."
-                  : activeProduct === "new"
-                    ? "Tạo sản phẩm"
-                    : "Lưu thay đổi"}
-              </Button>
-            </div>
-          </form>
+              <div className="flex justify-end gap-3 p-6 border-t">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setActiveProduct(null)}
+                >
+                  Hủy
+                </Button>
+                <Button type="submit" disabled={saveMutation.isPending}>
+                  {saveMutation.isPending
+                    ? "Đang lưu..."
+                    : activeProduct === "new"
+                      ? "Tạo sản phẩm"
+                      : "Lưu thay đổi"}
+                </Button>
+              </div>
+            </form>
+          </div>
         </Tabs>
       </AdminDialog>
 
