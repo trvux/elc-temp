@@ -4,6 +4,7 @@ import { type NavLink } from "@/modules/settings/domain/navigation";
 import {
   NavigationMenuItem,
   NavigationMenuLink,
+  navigationMenuTriggerStyle,
 } from "@/shared/components/ui/navigation-menu";
 import { cn } from "@/shared/lib/utils";
 import Link from "next/link";
@@ -19,29 +20,10 @@ export const DesktopNavItem = ({ link, isActive }: NavItemProps) => {
     <NavigationMenuItem>
       <NavigationMenuLink
         asChild
-        className={cn(
-          "bg-transparent px-2 lg:px-4 py-4 text-sm lg:text-sm font-medium transition-colors duration-200 whitespace-nowrap",
-          isActive
-            ? "text-primary"
-            : "text-muted-foreground hover:text-foreground",
-        )}
+        active={isActive}
+        className={navigationMenuTriggerStyle()}
       >
-        <Link
-          href={link.href}
-          className="relative flex items-center h-full group/item"
-        >
-          <span className="relative py-1">
-            {link.name}
-            <span
-              className={cn(
-                "absolute -bottom-0.5 left-0 h-0.5 bg-primary rounded-full transition-all duration-300 ease-in-out",
-                isActive
-                  ? "w-full opacity-100"
-                  : "w-0 opacity-0 group-hover/item:w-full group-hover/item:opacity-100",
-              )}
-            />
-          </span>
-        </Link>
+        <Link href={link.href}>{link.name}</Link>
       </NavigationMenuLink>
     </NavigationMenuItem>
   );
@@ -53,10 +35,8 @@ export const MobileNavItem = ({ link, isActive, onClick }: NavItemProps) => {
       href={link.href}
       onClick={onClick}
       className={cn(
-        "flex items-center gap-2 text-2xl font-medium transition-colors",
-        isActive
-          ? "text-foreground"
-          : "text-foreground/60 hover:text-foreground",
+        "flex items-center text-xl font-medium transition-colors",
+        isActive ? "text-foreground" : "text-muted-foreground hover:text-foreground",
       )}
     >
       {link.name}

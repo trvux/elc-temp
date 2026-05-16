@@ -79,7 +79,7 @@ export function MobileMenu({ links, isOpen, onOpenChange }: MobileMenuProps) {
       <Portal.Root>
         <div
           className={cn(
-            "fixed inset-x-0 top-16 h-[calc(100svh-64px)] bg-background z-100",
+            "fixed inset-x-0 top-16 h-[calc(100svh-64px)] bg-background z-[150]",
             "transition-all duration-300 ease-out",
             isOpen
               ? "translate-y-0 opacity-100 visible pointer-events-auto"
@@ -109,7 +109,7 @@ export function MobileMenu({ links, isOpen, onOpenChange }: MobileMenuProps) {
         {/* Click-outside backdrop (transparent, below menu panel) */}
         {isOpen && (
           <div
-            className="fixed inset-0 z-[800]"
+            className="fixed inset-0 z-[100]"
             onClick={() => onOpenChange(false)}
             aria-hidden="true"
           />
