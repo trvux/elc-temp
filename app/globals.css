@@ -234,12 +234,7 @@
     }
   }
 
-  .animate-collapsible-down {
-    animation: collapsible-down 1000ms cubic-bezier(0.64, 0, 0.78, 0);
-  }
-  .animate-collapsible-up {
-    animation: collapsible-up 1000ms cubic-bezier(0.64, 0, 0.78, 0);
-  }
+
 
   @keyframes marquee {
     from {
