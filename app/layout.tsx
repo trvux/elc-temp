@@ -3,24 +3,34 @@ import { TooltipProvider } from "@/shared/components/ui/tooltip";
 import { cn } from "@/shared/lib/utils";
 import { QueryProvider } from "@/shared/providers/query-provider";
 import type { Metadata, Viewport } from "next";
-import { Inter } from "next/font/google";
+import { Inter, Noto_Serif } from "next/font/google";
 import "./globals.css";
 
-const inter = Inter({
-  subsets: ["latin", "vietnamese"],
-  style: ["normal", "italic"],
-  variable: "--font-inter",
-  display: "optional",
+const notoSerifHeading = Noto_Serif({
+  subsets: ["latin"],
+  variable: "--font-heading",
 });
 
+const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
+
+// const inter = Inter({
+//   subsets: ["latin", "vietnamese"],
+//   style: ["normal", "italic"],
+//   variable: "--font-inter",
+//   display: "optional",
+// });
+
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || "https://dienmayelc.com.vn"),
+  metadataBase: new URL(
+    process.env.NEXT_PUBLIC_APP_URL || "https://dienmayelc.com.vn",
+  ),
   title: "Điện máy ELC | Máy lạnh & Giải pháp không khí chuyên nghiệp, giá tốt",
   description:
     "Điện máy ELC chuyên cung cấp máy lạnh chính hãng, máy lọc không khí và hệ thống điều hòa trung tâm VRV/VRF. Giá tốt nhất, lắp đặt chuyên nghiệp, bảo hành uy tín.",
   openGraph: {
     title: "Điện máy ELC - Máy lạnh chính hãng, giá tốt",
-    description: "Giải pháp không khí chuyên nghiệp cho gia đình và doanh nghiệp. Lắp đặt nhanh, bảo hành tận tâm.",
+    description:
+      "Giải pháp không khí chuyên nghiệp cho gia đình và doanh nghiệp. Lắp đặt nhanh, bảo hành tận tâm.",
     url: "https://dienmayelc.com.vn",
     siteName: "Điện máy ELC",
     locale: "vi_VN",
@@ -29,7 +39,8 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: "Điện máy ELC - Máy lạnh chính hãng, giá tốt",
-    description: "Chuyên máy lạnh, hệ thống lọc khí chuyên nghiệp. Giá tốt nhất thị trường.",
+    description:
+      "Chuyên máy lạnh, hệ thống lọc khí chuyên nghiệp. Giá tốt nhất thị trường.",
   },
   alternates: {
     canonical: "https://dienmayelc.com.vn",
@@ -51,7 +62,12 @@ export default function RootLayout({
     <html
       lang="vi"
       suppressHydrationWarning
-      className={cn("h-full antialiased", inter.variable)}
+      className={cn(
+        "h-full antialiased",
+        inter.variable,
+        "font-sans",
+        notoSerifHeading.variable,
+      )}
     >
       <head>
         <link
@@ -69,29 +85,29 @@ export default function RootLayout({
             __html: JSON.stringify({
               "@context": "https://schema.org",
               "@type": "Organization",
-              "name": "Điện máy ELC",
-              "url": "https://dienmayelc.com.vn",
-              "logo": "https://dienmayelc.com.vn/icon.svg",
-              "contactPoint": {
+              name: "Điện máy ELC",
+              url: "https://dienmayelc.com.vn",
+              logo: "https://dienmayelc.com.vn/icon.svg",
+              contactPoint: {
                 "@type": "ContactPoint",
-                "telephone": "+84-xxx-xxx-xxx",
-                "contactType": "customer service",
-                "areaServed": "VN",
-                "availableLanguage": "Vietnamese"
+                telephone: "+84-xxx-xxx-xxx",
+                contactType: "customer service",
+                areaServed: "VN",
+                availableLanguage: "Vietnamese",
               },
-              "sameAs": [
+              sameAs: [
                 "https://www.facebook.com/dienmayelc",
-                "https://www.youtube.com/dienmayelc"
-              ]
-            })
+                "https://www.youtube.com/dienmayelc",
+              ],
+            }),
           }}
         />
-        <QueryProvider>
-          <TooltipProvider>
+        <TooltipProvider>
+          <QueryProvider>
             {children}
             <Toaster position="top-center" richColors />
-          </TooltipProvider>
-        </QueryProvider>
+          </QueryProvider>
+        </TooltipProvider>
       </body>
     </html>
   );
