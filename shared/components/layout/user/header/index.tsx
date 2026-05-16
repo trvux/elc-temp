@@ -11,7 +11,7 @@ export function Header() {
   const { isMenuOpen, handleMenuToggle, isScrolled } = useHeader();
 
   return (
-    <div className="sticky top-0 z-100 w-full">
+    <div className="sticky top-0 z-[1000] w-full">
       <header
         className={cn(
           "h-16 border-b border-dashed border-muted-foreground/40 transition-all duration-500",
