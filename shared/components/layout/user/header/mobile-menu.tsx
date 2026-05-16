@@ -7,6 +7,7 @@ import {
 import { Button } from "@/shared/components/ui/button";
 import { cn } from "@/shared/lib/utils";
 import { usePathname } from "next/navigation";
+import { Portal } from "radix-ui";
 import { useEffect, useRef } from "react";
 import { MobileNavItem } from "./nav-item";
 
@@ -74,44 +75,46 @@ export function MobileMenu({ links, isOpen, onOpenChange }: MobileMenuProps) {
         </span>
       </Button>
 
-      {/* Menu panel - fixed below header, no Portal, no z-index fight */}
-      <div
-        className={cn(
-          "fixed inset-x-0 top-16 h-[calc(100svh-64px)] bg-background/80 backdrop-blur-xl z-40",
-          "transition-all duration-300 ease-in-out",
-          isOpen
-            ? "opacity-100 translate-y-0 pointer-events-auto"
-            : "opacity-0 -translate-y-4 pointer-events-none",
-        )}
-        aria-hidden={!isOpen}
-      >
-        <div className="flex flex-col gap-12 overflow-auto px-6 py-6">
-          <div className="flex flex-col gap-4">
-            <div className="text-sm font-medium text-muted-foreground">
-              Menu
-            </div>
-            <div className="flex flex-col gap-3">
-              {links.map((link) => (
-                <MobileNavItem
-                  key={link.name}
-                  link={link}
-                  isActive={checkActiveLink(link.href, pathname)}
-                  onClick={() => onOpenChange(false)}
-                />
-              ))}
+      {/* Menu panel - fixed below header, using Portal to stay behind header z-index */}
+      <Portal.Root>
+        <div
+          className={cn(
+            "fixed inset-x-0 top-16 h-[calc(100svh-64px)] bg-background z-100",
+            "transition-all duration-300 ease-out",
+            isOpen
+              ? "translate-y-0 opacity-100 visible pointer-events-auto"
+              : "-translate-y-4 opacity-0 invisible pointer-events-none",
+          )}
+          aria-hidden={!isOpen}
+        >
+          <div className="flex flex-col gap-12 overflow-auto px-6 py-6">
+            <div className="flex flex-col gap-4">
+              <div className="text-sm font-medium text-muted-foreground">
+                Menu
+              </div>
+              <div className="flex flex-col gap-3">
+                {links.map((link) => (
+                  <MobileNavItem
+                    key={link.name}
+                    link={link}
+                    isActive={checkActiveLink(link.href, pathname)}
+                    onClick={() => onOpenChange(false)}
+                  />
+                ))}
+              </div>
             </div>
           </div>
         </div>
-      </div>
 
-      {/* Click-outside backdrop (transparent, below menu panel) */}
-      {isOpen && (
-        <div
-          className="fixed inset-0 z-30"
-          onClick={() => onOpenChange(false)}
-          aria-hidden="true"
-        />
-      )}
+        {/* Click-outside backdrop (transparent, below menu panel) */}
+        {isOpen && (
+          <div
+            className="fixed inset-0 z-[800]"
+            onClick={() => onOpenChange(false)}
+            aria-hidden="true"
+          />
+        )}
+      </Portal.Root>
     </>
   );
 }
