@@ -1,12 +1,20 @@
 "use client";
 
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { ExternalLink, Plus, Upload, X } from "lucide-react";
+import Image from "next/image";
+import { useMemo, useState } from "react";
+import { Controller } from "react-hook-form";
+import { toast } from "sonner";
+
 import { AdminDialog } from "@/shared/components/layout/admin/admin-dialog";
 import { DeleteDialog } from "@/shared/components/layout/admin/delete-dialog";
 import { Button } from "@/shared/components/ui/button";
 import { DataTable } from "@/shared/components/ui/data-table";
 import {
   Field,
-  FieldContent,
+  FieldDescription,
+  FieldError,
   FieldGroup,
   FieldLabel,
 } from "@/shared/components/ui/field";
@@ -22,78 +30,29 @@ import {
   SelectValue,
 } from "@/shared/components/ui/select";
 import { Switch } from "@/shared/components/ui/switch";
+import { TiptapEditor } from "@/shared/components/ui/tiptap-editor";
 
 import { Category } from "@/modules/category/domain/types";
 import { getCategoriesAction } from "@/modules/category/presentation/actions";
-import { TiptapEditor } from "@/shared/components/ui/tiptap-editor";
-import { convertToWebP } from "@/shared/lib/image";
-import { createClient } from "@/shared/lib/supabase/client";
-import { extractTitleFromHtml, generateSlug } from "@/shared/lib/utils";
-import { ExternalLink, Plus, Upload, X } from "lucide-react";
-import Image from "next/image";
-import { useMemo, useState } from "react";
-import { toast } from "sonner";
-import { Json, ProjectWithCategory } from "../../domain";
-import {
-  createProjectAction,
-  deleteProjectAction,
-  getProjectsAction,
-  updateProjectAction,
-} from "../actions";
+import { ProjectWithCategory } from "../../domain";
+import { deleteProjectAction, getProjectsAction } from "../actions";
 import { getColumns } from "./ProjectColumns";
-
-import { standardSchemaResolver } from "@hookform/resolvers/standard-schema";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Controller, useForm } from "react-hook-form";
-import { createProjectSchema } from "../../domain";
-
-type ProjectFormValues = {
-  title: string;
-  slug: string;
-  description: unknown;
-  images: string[];
-  isFeatured: boolean;
-  isPublished: boolean;
-  orderIndex: number;
-  categoryId: string;
-};
+import { useProjectForm } from "../hooks/useProjectForm";
 
 export function ProjectManagement() {
   const queryClient = useQueryClient();
-  const supabase = createClient();
-
-  // Consolidate modal states
-  const [activeProject, setActiveProject] = useState<
-    ProjectWithCategory | "new" | null
-  >(null);
+  const [activeProject, setActiveProject] = useState<ProjectWithCategory | "new" | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
-  const [uploading, setUploading] = useState(false);
 
-  // Filter states
+  // Filters
   const [filterCategoryId, setFilterCategoryId] = useState<string>("all");
   const [filterIsPublished, setFilterIsPublished] = useState<string>("all");
-
-  const form = useForm<ProjectFormValues>({
-    resolver: standardSchemaResolver(createProjectSchema as any) as any,
-    defaultValues: {
-      title: "",
-      slug: "",
-      description: null,
-      categoryId: "",
-      images: [],
-      isPublished: true,
-      isFeatured: false,
-      orderIndex: 0,
-    } as ProjectFormValues,
-  });
 
   // Fetch Data
   const { data: projects = [], isLoading: isProjectsLoading } = useQuery({
     queryKey: ["projects"],
     queryFn: async () => {
-      const { data, error } = await getProjectsAction({
-        includeDeleted: false,
-      });
+      const { data, error } = await getProjectsAction({ includeDeleted: false });
       if (error) throw new Error(error);
       return data;
     },
@@ -105,6 +64,30 @@ export function ProjectManagement() {
       const { data, error } = await getCategoriesAction("PROJECT");
       if (error) throw new Error(error);
       return data;
+    },
+  });
+
+  // Custom Form Hook
+  const {
+    form,
+    saveMutation,
+    handleUpload,
+    uploading,
+    handleDescriptionChange,
+    supabase,
+  } = useProjectForm(activeProject, () => setActiveProject(null), categories);
+
+  // Delete Mutation
+  const deleteMutation = useMutation({
+    mutationFn: deleteProjectAction,
+    onSuccess: (res) => {
+      if (res.error) {
+        toast.error(res.error);
+        return;
+      }
+      toast.success("Đã xóa dự án");
+      setDeletingId(null);
+      queryClient.invalidateQueries({ queryKey: ["projects"] });
     },
   });
 
@@ -131,52 +114,18 @@ export function ProjectManagement() {
     });
   }, [projects, categories]);
 
-  // Mutations
-  const saveMutation = useMutation({
-    mutationFn: async (values: ProjectFormValues) => {
-      if (activeProject && activeProject !== "new") {
-        return updateProjectAction({
-          ...values,
-          id: activeProject.id,
-          description: values.description as Json,
-        });
-      }
-      return createProjectAction({
-        ...values,
-        description: values.description as Json,
-      });
-    },
-    onSuccess: (res) => {
-      if (res.error) {
-        toast.error(res.error);
-        return;
-      }
-      toast.success(
-        activeProject === "new" ? "Đã tạo dự án" : "Đã cập nhật dự án",
-      );
-      setActiveProject(null);
-      queryClient.invalidateQueries({ queryKey: ["projects"] });
-    },
-  });
-
-  const deleteMutation = useMutation({
-    mutationFn: deleteProjectAction,
-    onSuccess: (res) => {
-      if (res.error) {
-        toast.error(res.error);
-        return;
-      }
-      toast.success("Đã xóa dự án");
-      setDeletingId(null);
-      queryClient.invalidateQueries({ queryKey: ["projects"] });
-    },
-  });
+  const filteredProjects = useMemo(() => {
+    return enrichedProjects.filter((p) => {
+      const matchCategory = filterCategoryId === "all" || p.categoryId === filterCategoryId;
+      const matchPublished = filterIsPublished === "all" || (filterIsPublished === "true" ? p.isPublished : !p.isPublished);
+      return matchCategory && matchPublished;
+    });
+  }, [enrichedProjects, filterCategoryId, filterIsPublished]);
 
   const flattenedCategories = useMemo(() => {
-    const result: (Category & { displayName: string; isParent: boolean })[] =
-      [];
+    const result: (Category & { displayName: string; isParent: boolean })[] = [];
     const rootCategories = categories.filter(
-      (c) => !c.parentId || !categories.find((p) => p.id === c.parentId),
+      (c) => !c.parentId || !categories.find((p) => p.id === c.parentId)
     );
 
     const processCategory = (cat: Category, level: number) => {
@@ -194,17 +143,6 @@ export function ProjectManagement() {
     rootCategories.forEach((root) => processCategory(root, 0));
     return result;
   }, [categories]);
-
-  const filteredProjects = useMemo(() => {
-    return enrichedProjects.filter((p) => {
-      const matchCategory =
-        filterCategoryId === "all" || p.categoryId === filterCategoryId;
-      const matchPublished =
-        filterIsPublished === "all" ||
-        (filterIsPublished === "true" ? p.isPublished : !p.isPublished);
-      return matchCategory && matchPublished;
-    });
-  }, [enrichedProjects, filterCategoryId, filterIsPublished]);
 
   const columns = useMemo(
     () =>
@@ -224,7 +162,7 @@ export function ProjectManagement() {
         },
         onDelete: setDeletingId,
       }),
-    [form],
+    [form]
   );
 
   function openCreate() {
@@ -241,33 +179,8 @@ export function ProjectManagement() {
     });
   }
 
-  async function handleUpload(e: React.ChangeEvent<HTMLInputElement>) {
-    const files = e.target.files;
-    if (!files || files.length === 0) return;
-    setUploading(true);
-    const uploaded: string[] = [];
-    for (const file of Array.from(files)) {
-      try {
-        const webpFile = await convertToWebP(file);
-        const fileName = `projects/${Date.now()}-${Math.random().toString(36).slice(2)}.webp`;
-        const { error } = await supabase.storage
-          .from("images")
-          .upload(fileName, webpFile, { contentType: "image/webp" });
-        if (error) throw error;
-        const { data } = supabase.storage.from("images").getPublicUrl(fileName);
-        uploaded.push(data.publicUrl);
-      } catch (error) {
-        toast.error(`Lỗi upload: ${file.name}`);
-      }
-    }
-    const currentImages = form.getValues("images") || [];
-    form.setValue("images", [...currentImages, ...uploaded]);
-    setUploading(false);
-    toast.success(`Đã upload ${uploaded.length} ảnh`);
-  }
-
   return (
-    <div className="container mx-auto py-8 px-4">
+    <div>
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 mb-8">
         <div>
           <h1 className="text-2xl font-bold tracking-tight">Dự án</h1>
@@ -280,41 +193,36 @@ export function ProjectManagement() {
         </Button>
       </div>
 
-      <div className="flex flex-wrap items-center gap-4 mb-1">
-        <div className="w-full md:w-auto">
-          <Select value={filterCategoryId} onValueChange={setFilterCategoryId}>
-            <SelectTrigger className="w-full md:w-[200px]">
-              <SelectValue placeholder="Tất cả danh mục" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Tất cả danh mục</SelectItem>
-              {flattenedCategories.map((c) => (
-                <SelectItem
-                  key={c.id}
-                  value={c.id}
-                  className={c.isParent ? "font-bold" : "pl-6"}
-                >
-                  {c.displayName}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-        <div className="w-full md:w-auto">
-          <Select
-            value={filterIsPublished}
-            onValueChange={setFilterIsPublished}
-          >
-            <SelectTrigger className="w-full md:w-[150px]">
-              <SelectValue placeholder="Trạng thái" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Tất cả trạng thái</SelectItem>
-              <SelectItem value="true">Đang hiển thị</SelectItem>
-              <SelectItem value="false">Đang ẩn</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
+      <div className="flex flex-wrap items-center gap-4 mb-4">
+        <Select value={filterCategoryId} onValueChange={setFilterCategoryId}>
+          <SelectTrigger className="w-full md:w-[200px]">
+            <SelectValue placeholder="Tất cả danh mục" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">Tất cả danh mục</SelectItem>
+            {flattenedCategories.map((c) => (
+              <SelectItem
+                key={c.id}
+                value={c.id}
+                className={c.isParent ? "font-bold" : "pl-6"}
+              >
+                {c.displayName}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+
+        <Select value={filterIsPublished} onValueChange={setFilterIsPublished}>
+          <SelectTrigger className="w-full md:w-[150px]">
+            <SelectValue placeholder="Trạng thái" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">Tất cả trạng thái</SelectItem>
+            <SelectItem value="true">Đang hiển thị</SelectItem>
+            <SelectItem value="false">Đang ẩn</SelectItem>
+          </SelectContent>
+        </Select>
+
         {(filterCategoryId !== "all" || filterIsPublished !== "all") && (
           <Button
             variant="ghost"
@@ -334,7 +242,7 @@ export function ProjectManagement() {
         data={filteredProjects}
         isLoading={isProjectsLoading}
         searchKey="title"
-        searchPlaceholder="Tìm kiếm tên, slug, danh mục..."
+        searchPlaceholder="Tìm kiếm tên dự án..."
       />
 
       <AdminDialog
@@ -346,324 +254,188 @@ export function ProjectManagement() {
       >
         <form
           onSubmit={form.handleSubmit((v) => saveMutation.mutate(v))}
-          className="space-y-8"
+          className="flex flex-col flex-1 min-h-0"
         >
-          <FieldGroup>
-            <div className="bg-muted/10 p-6 rounded-2xl border border-border/40 transition-colors hover:border-border/60">
-              <h3 className="text-xs font-bold capitalize tracking-widest text-muted-foreground/60 mb-6">
-                Thông tin chung
-              </h3>
-              <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
-                <div className="md:col-span-12 lg:col-span-5">
-                  <Field>
-                    <FieldContent>
-                      <Controller
-                        control={form.control}
-                        name="categoryId"
-                        render={({ field }) => (
-                          <Select
-                            value={field.value}
-                            onValueChange={field.onChange}
-                          >
-                            <SelectTrigger className="w-full">
-                              <SelectValue placeholder="Chọn danh mục" />
-                            </SelectTrigger>
-                            <SelectContent
-                              position="popper"
-                              className="w-[var(--radix-select-trigger-width)] max-h-80"
-                            >
-                              <ScrollArea className="h-full w-full">
-                                {categories
-                                  .filter((c) => !c.parentId)
-                                  .map((parent) => {
-                                    const children = categories.filter(
-                                      (c) => c.parentId === parent.id,
-                                    );
-                                    return (
-                                      <SelectGroup key={parent.id}>
-                                        <SelectItem
-                                          value={parent.id}
-                                          className="font-bold text-foreground py-2 px-2 capitalize tracking-tight"
-                                        >
-                                          {parent.name}
+          <div className="flex-1 overflow-y-auto p-6 lg:p-10">
+            <div className="max-w-5xl mx-auto space-y-12">
+              {/* Common Info Section */}
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                <div className="lg:col-span-4 space-y-6">
+                  <Controller
+                    control={form.control}
+                    name="categoryId"
+                    render={({ field }) => (
+                      <Field>
+                        <FieldLabel>Danh mục dự án</FieldLabel>
+                        <Select value={field.value} onValueChange={field.onChange}>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Chọn danh mục" />
+                          </SelectTrigger>
+                          <SelectContent position="popper" className="max-h-80">
+                            <ScrollArea className="h-full">
+                              {categories
+                                .filter((c) => !c.parentId)
+                                .map((parent) => (
+                                  <SelectGroup key={parent.id}>
+                                    <SelectItem value={parent.id} className="font-bold">
+                                      {parent.name}
+                                    </SelectItem>
+                                    {categories
+                                      .filter((c) => c.parentId === parent.id)
+                                      .map((child) => (
+                                        <SelectItem key={child.id} value={child.id} className="pl-6">
+                                          {child.name}
                                         </SelectItem>
-                                        {children.map((child) => (
-                                          <SelectItem
-                                            key={child.id}
-                                            value={child.id}
-                                            className="pl-6"
-                                          >
-                                            {child.name}
-                                          </SelectItem>
-                                        ))}
-                                        <SelectSeparator />
-                                      </SelectGroup>
-                                    );
-                                  })}
-                              </ScrollArea>
-                            </SelectContent>
-                          </Select>
-                        )}
-                      />
-                    </FieldContent>
-                  </Field>
-                </div>
+                                      ))}
+                                    <SelectSeparator />
+                                  </SelectGroup>
+                                ))}
+                            </ScrollArea>
+                          </SelectContent>
+                        </Select>
+                      </Field>
+                    )}
+                  />
 
-                <div className="md:col-span-12 lg:col-span-7">
-                  <Field>
-                    <FieldLabel className="mb-2 font-medium">
-                      Slug (Đường dẫn tinh gọn)
-                    </FieldLabel>
-                    <FieldContent>
-                      <Controller
-                        control={form.control}
-                        name="slug"
-                        render={({ field }) => (
-                          <Input
-                            className="font-mono text-sm"
-                            placeholder="lap-may-lanh-nha-anh-tuan-q1"
-                            {...field}
-                          />
-                        )}
-                      />
-                    </FieldContent>
-                  </Field>
-                </div>
-
-                <div className="md:col-span-12">
-                  <div className="bg-white/50 border rounded-lg p-3 flex items-center gap-2">
-                    <div className="text-[10px] bg-muted/50 px-2 py-0.5 rounded font-bold capitalize text-muted-foreground/70 shrink-0 select-none">
-                      Xem trước URL
-                    </div>
-                    <a
-                      href={`/du-an/${form.watch("slug") || ""}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-xs font-mono text-muted-foreground truncate hover:text-primary hover:underline flex items-center gap-1 transition-colors"
-                    >
-                      /du-an/
-                      <span className="text-primary font-bold">
-                        {form.watch("slug") || "slug-du-an"}
-                      </span>
-                      <ExternalLink size={10} className="ml-1 opacity-50" />
-                    </a>
+                  <div className="grid grid-cols-2 gap-4">
+                    <Controller
+                      control={form.control}
+                      name="isPublished"
+                      render={({ field }) => (
+                        <Field orientation="horizontal" className="justify-between border p-3 rounded-xl">
+                          <FieldLabel className="font-normal">Hiển thị</FieldLabel>
+                          <Switch checked={field.value} onCheckedChange={field.onChange} />
+                        </Field>
+                      )}
+                    />
+                    <Controller
+                      control={form.control}
+                      name="isFeatured"
+                      render={({ field }) => (
+                        <Field orientation="horizontal" className="justify-between border p-3 rounded-xl">
+                          <FieldLabel className="font-normal">Nổi bật</FieldLabel>
+                          <Switch checked={field.value} onCheckedChange={field.onChange} />
+                        </Field>
+                      )}
+                    />
                   </div>
+
+                  <Controller
+                    control={form.control}
+                    name="orderIndex"
+                    render={({ field }) => (
+                      <Field>
+                        <FieldLabel>Thứ tự hiển thị</FieldLabel>
+                        <Input
+                          type="number"
+                          {...field}
+                          onChange={(e) => field.onChange(Number(e.target.value))}
+                        />
+                      </Field>
+                    )}
+                  />
+                </div>
+
+                <div className="lg:col-span-8 space-y-6">
+                  <Controller
+                    control={form.control}
+                    name="slug"
+                    render={({ field, fieldState }) => (
+                      <Field>
+                        <FieldLabel>Slug / URL Preview</FieldLabel>
+                        <Input {...field} placeholder="vd: lap-may-lanh-nha-anh-tuan" />
+                        <FieldDescription className="flex items-center gap-2">
+                          <ExternalLink size={12} />
+                          /du-an/{field.value || "..."}
+                        </FieldDescription>
+                        <FieldError errors={[fieldState.error]} />
+                      </Field>
+                    )}
+                  />
+
+                  <Controller
+                    control={form.control}
+                    name="images"
+                    render={({ field }) => (
+                      <Field>
+                        <FieldLabel>Hình ảnh dự án ({field.value?.length || 0})</FieldLabel>
+                        <div className="grid grid-cols-3 sm:grid-cols-4 gap-3">
+                          <label className="aspect-square border-2 border-dashed rounded-xl flex flex-col items-center justify-center gap-2 cursor-pointer hover:bg-muted/50 transition-colors border-muted-foreground/20">
+                            <Upload size={20} className="text-muted-foreground" />
+                            <span className="text-[10px] font-medium uppercase text-muted-foreground">Tải lên</span>
+                            <input
+                              type="file"
+                              accept="image/*"
+                              multiple
+                              className="hidden"
+                              onChange={handleUpload}
+                              disabled={uploading}
+                            />
+                          </label>
+                          {field.value?.map((url: string, i: number) => (
+                            <div key={i} className="relative aspect-square rounded-xl overflow-hidden group border bg-muted/20">
+                              <Image src={url} alt="" fill className="object-cover" />
+                              <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                <Button
+                                  size="icon"
+                                  variant="destructive"
+                                  className="h-7 w-7 rounded-full"
+                                  onClick={() => {
+                                    const next = [...field.value];
+                                    next.splice(i, 1);
+                                    field.onChange(next);
+                                  }}
+                                >
+                                  <X size={14} />
+                                </Button>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </Field>
+                    )}
+                  />
                 </div>
               </div>
-            </div>
 
-            <Field>
-              <FieldLabel className="mb-2 font-medium">Mô tả dự án</FieldLabel>
-              <FieldContent>
+              {/* Editor Section */}
+              <div className="space-y-4">
+                <div className="flex items-center justify-between border-b pb-2">
+                  <h3 className="text-sm font-semibold tracking-tight">Nội dung dự án</h3>
+                  <span className="text-[10px] text-muted-foreground uppercase tracking-widest">Tiptap Editor</span>
+                </div>
                 <Controller
                   control={form.control}
                   name="description"
                   render={({ field }) => (
                     <TiptapEditor
                       value={field.value}
-                      onChange={(val) => {
-                        field.onChange(val);
-                        const extractedTitle = extractTitleFromHtml(val);
-                        form.setValue("title", extractedTitle);
-
-                        // Auto-slug logic
-                        let namePart = extractedTitle.toLowerCase();
-                        const catId = form.getValues("categoryId");
-                        const cat = categories.find((c) => c.id === catId);
-                        if (cat) {
-                          const catName = cat.name.toLowerCase();
-                          const parentCat = categories.find(
-                            (c) => c.id === cat.parentId,
-                          );
-                          const parentName = parentCat?.name.toLowerCase();
-
-                          if (parentName && namePart.startsWith(parentName)) {
-                            namePart = namePart.replace(parentName, "").trim();
-                          }
-                          if (catName && namePart.startsWith(catName)) {
-                            namePart = namePart.replace(catName, "").trim();
-                          }
-                        }
-
-                        if (
-                          activeProject === "new" ||
-                          !form.getValues("slug")
-                        ) {
-                          form.setValue("slug", generateSlug(namePart));
-                        }
-                      }}
-                      placeholder="Viết nội dung dự án..."
+                      onChange={handleDescriptionChange}
+                      placeholder="Viết nội dung chi tiết dự án ở đây..."
                       uploadImage={async (file) => {
                         const fileName = `projects/${Date.now()}-${Math.random().toString(36).slice(2)}.webp`;
                         const { error } = await supabase.storage
                           .from("images")
-                          .upload(fileName, file, {
-                            contentType: "image/webp",
-                          });
+                          .upload(fileName, file, { contentType: "image/webp" });
                         if (error) throw error;
-                        const { data } = supabase.storage
-                          .from("images")
-                          .getPublicUrl(fileName);
+                        const { data } = supabase.storage.from("images").getPublicUrl(fileName);
                         return data.publicUrl;
-                      }}                    />
+                      }}
+                    />
                   )}
                 />
-              </FieldContent>
-            </Field>
-
-            <Field>
-              <FieldLabel className="mb-2 font-medium">
-                Hình ảnh dự án
-              </FieldLabel>
-              <FieldContent>
-                <label className="flex flex-col items-center justify-center gap-2 border-2 border-dashed rounded-xl p-8 cursor-pointer hover:bg-muted/50 transition-colors border-muted-foreground/20">
-                  <div className="bg-primary/10 p-3 rounded-full">
-                    <Upload size={24} className="text-primary" />
-                  </div>
-                  <div className="text-center">
-                    <p className="text-sm font-medium">
-                      {uploading
-                        ? "Đang xử lý..."
-                        : "Nhấn để tải lên hoặc kéo thả"}
-                    </p>
-                    <p className="text-xs text-muted-foreground mt-1">
-                      PNG, JPG up to 10MB (Có thể chọn nhiều)
-                    </p>
-                  </div>
-                  <input
-                    type="file"
-                    accept="image/*"
-                    multiple
-                    className="hidden"
-                    onChange={handleUpload}
-                    disabled={uploading}
-                  />
-                </label>
-
-                <Controller
-                  control={form.control}
-                  name="images"
-                  render={({ field }) => (
-                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 mt-6">
-                      {(field.value || []).map((url: string, i: number) => (
-                        <div
-                          key={i}
-                          className="relative group aspect-square ring-1 ring-muted rounded-lg overflow-hidden bg-muted/30"
-                        >
-                          <Image
-                            src={url}
-                            alt=""
-                            fill
-                            className="object-cover transition-transform group-hover:scale-105"
-                            sizes="(max-width: 768px) 50vw, 200px"
-                          />
-                          <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                            <Button
-                              size="icon"
-                              variant="destructive"
-                              className="h-8 w-8"
-                              onClick={() => {
-                                const next = [...field.value];
-                                next.splice(i, 1);
-                                field.onChange(next);
-                              }}
-                            >
-                              <X size={14} />
-                            </Button>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                />
-              </FieldContent>
-            </Field>
-
-            <div className="flex items-center justify-between border-t pt-8 pb-4">
-              <div className="flex flex-wrap items-center gap-8">
-                <Field
-                  orientation="horizontal"
-                  className="w-auto gap-3 flex items-center"
-                >
-                  <FieldLabel className="w-auto mb-0 font-medium">
-                    Hiển thị
-                  </FieldLabel>
-                  <FieldContent className="flex items-center min-h-0">
-                    <Controller
-                      control={form.control}
-                      name="isPublished"
-                      render={({ field }) => (
-                        <Switch
-                          checked={field.value}
-                          onCheckedChange={field.onChange}
-                        />
-                      )}
-                    />
-                  </FieldContent>
-                </Field>
-                <Field
-                  orientation="horizontal"
-                  className="w-auto gap-3 flex items-center"
-                >
-                  <FieldLabel className="w-auto mb-0 font-medium">
-                    Nổi bật
-                  </FieldLabel>
-                  <FieldContent className="flex items-center min-h-0">
-                    <Controller
-                      control={form.control}
-                      name="isFeatured"
-                      render={({ field }) => (
-                        <Switch
-                          checked={field.value}
-                          onCheckedChange={field.onChange}
-                        />
-                      )}
-                    />
-                  </FieldContent>
-                </Field>
-                <Field
-                  orientation="horizontal"
-                  className="w-auto gap-3 flex items-center"
-                >
-                  <FieldLabel className="w-auto mb-0 font-medium h-full">
-                    Thứ tự
-                  </FieldLabel>
-                  <FieldContent className="flex items-center min-h-0">
-                    <Controller
-                      control={form.control}
-                      name="orderIndex"
-                      render={({ field }) => (
-                        <Input
-                          type="number"
-                          className="w-20"
-                          {...field}
-                          onChange={(e) =>
-                            field.onChange(Number(e.target.value))
-                          }
-                        />
-                      )}
-                    />
-                  </FieldContent>
-                </Field>
-              </div>
-              <div className="flex gap-3">
-                <Button
-                  variant="outline"
-                  type="button"
-                  onClick={() => setActiveProject(null)}
-                >
-                  Hủy
-                </Button>
-                <Button type="submit" disabled={saveMutation.isLoading}>
-                  {saveMutation.isLoading
-                    ? "Đang xử lý..."
-                    : activeProject === "new"
-                      ? "Tạo mới"
-                      : "Cập nhật"}
-                </Button>
               </div>
             </div>
-          </FieldGroup>
+          </div>
+
+          <div className="flex justify-end gap-3 p-6 border-t bg-background sticky bottom-0 z-20">
+            <Button variant="outline" type="button" onClick={() => setActiveProject(null)}>
+              Hủy
+            </Button>
+            <Button type="submit" disabled={saveMutation.isPending}>
+              {saveMutation.isPending ? "Đang lưu..." : activeProject === "new" ? "Tạo dự án" : "Lưu thay đổi"}
+            </Button>
+          </div>
         </form>
       </AdminDialog>
 
@@ -671,7 +443,7 @@ export function ProjectManagement() {
         open={!!deletingId}
         onOpenChange={(open) => !open && setDeletingId(null)}
         onConfirm={() => deletingId && deleteMutation.mutate(deletingId)}
-        isLoading={deleteMutation.isLoading}
+        isLoading={deleteMutation.isPending}
       />
     </div>
   );

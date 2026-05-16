@@ -1,19 +1,19 @@
 "use client";
 
-import {
-  createCategoryAction,
-  deleteCategoryAction,
-  getCategoriesAction,
-  updateCategoryAction,
-} from "@/modules/category/presentation/actions";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { CornerDownRight, Plus } from "lucide-react";
+import { useMemo, useState } from "react";
+import { Controller } from "react-hook-form";
+import { toast } from "sonner";
+
 import { AdminDialog } from "@/shared/components/layout/admin/admin-dialog";
 import { DeleteDialog } from "@/shared/components/layout/admin/delete-dialog";
 import { Button } from "@/shared/components/ui/button";
 import { DataTable } from "@/shared/components/ui/data-table";
 import {
   Field,
-  FieldContent,
   FieldDescription,
+  FieldError,
   FieldGroup,
   FieldLabel,
 } from "@/shared/components/ui/field";
@@ -25,42 +25,19 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/shared/components/ui/select";
-import { capitalize } from "@/shared/lib/utils";
-import { CornerDownRight, Plus } from "lucide-react";
-import { useMemo, useState } from "react";
-import { toast } from "sonner";
+import { capitalize, generateSlug } from "@/shared/lib/utils";
+
+import { Category } from "../../domain";
+import { deleteCategoryAction, getCategoriesAction } from "../actions";
+import { useCategoryForm } from "../hooks/useCategoryForm";
 import { getColumns, type CategoryRow } from "./columns";
-
-import {
-  createCategorySchema,
-  type Category,
-  type CategoryType,
-} from "@/modules/category/domain";
-import { standardSchemaResolver } from "@hookform/resolvers/standard-schema";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Controller, useForm } from "react-hook-form";
-import type { z } from "zod";
-
-type CategoryFormValues = z.infer<typeof createCategorySchema>;
 
 export function CategoryManagement() {
   const queryClient = useQueryClient();
-
-  // Consolidate states
   const [activeCategory, setActiveCategory] = useState<Category | "new" | null>(
     null,
   );
   const [deletingId, setDeletingId] = useState<string | null>(null);
-
-  const form = useForm<CategoryFormValues>({
-    resolver: standardSchemaResolver(createCategorySchema),
-    defaultValues: {
-      name: "",
-      slug: "",
-      type: "PRODUCT",
-      parentId: null,
-    },
-  });
 
   // Fetch Data
   const { data: categories = [], isLoading } = useQuery({
@@ -72,30 +49,22 @@ export function CategoryManagement() {
     },
   });
 
-  // Mutations
-  const saveMutation = useMutation({
-    mutationFn: async (values: CategoryFormValues) => {
-      if (activeCategory && activeCategory !== "new") {
-        return updateCategoryAction({
-          id: activeCategory.id,
-          ...values,
-        });
-      }
-      return createCategoryAction(values);
-    },
-    onSuccess: (res) => {
-      if (res.error) {
-        toast.error(res.error);
-        return;
-      }
-      toast.success(
-        activeCategory === "new" ? "Đã tạo danh mục" : "Đã cập nhật danh mục",
-      );
-      setActiveCategory(null);
-      queryClient.invalidateQueries({ queryKey: ["categories"] });
-    },
-  });
+  // Custom Form Hook
+  const {
+    form,
+    saveMutation,
+    fullSlug,
+    onNameChange,
+    getParentOptions,
+    type,
+    parentId,
+  } = useCategoryForm(
+    activeCategory,
+    () => setActiveCategory(null),
+    categories,
+  );
 
+  // Delete Mutation
   const deleteMutation = useMutation({
     mutationFn: deleteCategoryAction,
     onSuccess: (res) => {
@@ -129,14 +98,6 @@ export function CategoryManagement() {
     rootCategories.sort((a, b) => a.name.localeCompare(b.name));
     rootCategories.forEach((root) => processCategory(root, 0));
 
-    if (result.length < categories.length) {
-      categories.forEach((c) => {
-        if (!visited.has(c.id)) {
-          result.push({ ...c, level: 0 });
-          visited.add(c.id);
-        }
-      });
-    }
     return result;
   }, [categories]);
 
@@ -166,33 +127,6 @@ export function CategoryManagement() {
     [categories, form],
   );
 
-  function generateSlug(text: string): string {
-    return text
-      .toLowerCase()
-      .normalize("NFD")
-      .replace(/[\u0300-\u036f]/g, "")
-      .replace(/đ/g, "d")
-      .replace(/[^a-z0-9\s-]/g, "")
-      .trim()
-      .replace(/\s+/g, "-");
-  }
-
-  const parentId = form.watch("parentId");
-  const internalSlug = form.watch("slug");
-  const type = form.watch("type");
-  const name = form.watch("name");
-
-  const fullSlug = useMemo(() => {
-    if (!parentId) return internalSlug;
-    const parent = categories.find((c) => c.id === parentId);
-    if (!parent) return internalSlug;
-    return `${parent.slug}-${internalSlug}`;
-  }, [parentId, internalSlug, categories]);
-
-  function parentOptions(forType: CategoryType) {
-    return categories.filter((c) => !c.parentId && c.type === forType);
-  }
-
   function openCreate() {
     setActiveCategory("new");
     form.reset({
@@ -204,17 +138,16 @@ export function CategoryManagement() {
   }
 
   return (
-    <div className="space-y-8">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
+    <div>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 mb-8">
         <div>
           <h1 className="text-2xl font-bold tracking-tight">Danh mục</h1>
           <p className="text-sm text-muted-foreground">
             Quản lý cấu trúc danh mục sản phẩm và dự án.
           </p>
         </div>
-        <Button onClick={openCreate}>
-          <Plus size={16} className="mr-2" />
-          Thêm danh mục
+        <Button onClick={openCreate} className="h-9">
+          <Plus size={16} className="mr-2" /> Thêm danh mục
         </Button>
       </div>
 
@@ -232,82 +165,65 @@ export function CategoryManagement() {
       <AdminDialog
         open={!!activeCategory}
         onOpenChange={(open) => !open && setActiveCategory(null)}
-        size="lg"
         title={activeCategory === "new" ? "Thêm danh mục" : "Sửa danh mục"}
-        description={
-          activeCategory !== "new"
-            ? "Cập nhật thông tin cho danh mục này."
-            : "Điền thông tin bên dưới để tạo danh mục mới."
-        }
+        description="Quản lý thông tin và phân cấp danh mục."
       >
         <form
-          onSubmit={form.handleSubmit((v) =>
-            saveMutation.mutate({ ...v, slug: fullSlug }),
-          )}
-          className="space-y-6"
+          onSubmit={form.handleSubmit((v) => saveMutation.mutate(v))}
+          className="flex flex-col gap-6"
         >
-          <FieldGroup>
-            <Field orientation="horizontal">
-              <FieldLabel className="min-w-[140px] pt-2 font-medium">
-                Tên danh mục
-              </FieldLabel>
-              <FieldContent>
-                <Controller
-                  control={form.control}
-                  name="name"
-                  render={({ field }) => (
-                    <Input
-                      className="w-full"
-                      placeholder="VD: Máy lạnh âm trần"
-                      {...field}
-                      onChange={(e) => {
-                        const val = capitalize(e.target.value);
-                        field.onChange(val);
-                        form.setValue("slug", generateSlug(val));
-                      }}
-                    />
-                  )}
-                />
-              </FieldContent>
-            </Field>
+          <FieldGroup className="flex flex-col gap-5">
+            <Controller
+              control={form.control}
+              name="name"
+              render={({ field, fieldState }) => (
+                <Field>
+                  <FieldLabel>Tên danh mục *</FieldLabel>
+                  <Input
+                    {...field}
+                    placeholder="VD: Máy lạnh âm trần"
+                    onChange={(e) => {
+                      const val = capitalize(e.target.value);
+                      field.onChange(val);
+                      form.setValue("slug", generateSlug(val));
+                    }}
+                  />
+                  <FieldError errors={[fieldState.error]} />
+                </Field>
+              )}
+            />
 
-            <Field orientation="horizontal">
-              <FieldLabel className="min-w-[140px] pt-2 font-medium">
-                Slug / Đường dẫn
-              </FieldLabel>
-              <FieldContent>
-                <Controller
-                  control={form.control}
-                  name="slug"
-                  render={({ field }) => (
-                    <Input
-                      className="w-full font-mono text-sm"
-                      placeholder="may-lanh-am-tran"
-                      {...field}
-                      onChange={(e) =>
-                        field.onChange(generateSlug(e.target.value))
-                      }
-                    />
-                  )}
-                />
-                <FieldDescription className="mt-1.5 text-xs">
-                  Đường dẫn đầy đủ:{" "}
-                  <span className="font-mono text-primary font-medium">
-                    /{fullSlug || "..."}
-                  </span>
-                </FieldDescription>
-              </FieldContent>
-            </Field>
+            <Controller
+              control={form.control}
+              name="slug"
+              render={({ field, fieldState }) => (
+                <Field>
+                  <FieldLabel>Slug / Đường dẫn</FieldLabel>
+                  <Input
+                    {...field}
+                    placeholder="may-lanh-am-tran"
+                    onChange={(e) =>
+                      field.onChange(generateSlug(e.target.value))
+                    }
+                  />
+                  <FieldDescription>
+                    Đường dẫn đầy đủ:{" "}
+                    <span className="font-mono text-primary">
+                      /{fullSlug || "..."}
+                    </span>
+                  </FieldDescription>
+                  <FieldError errors={[fieldState.error]} />
+                </Field>
+              )}
+            />
 
-            <Field orientation="horizontal">
-              <FieldLabel className="min-w-[140px] pt-2 font-medium">
-                Loại
-              </FieldLabel>
-              <FieldContent>
-                <Controller
-                  control={form.control}
-                  name="type"
-                  render={({ field }) => (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <Controller
+                control={form.control}
+                name="type"
+                render={({ field }) => (
+                  <Field>
+                    <FieldLabel>Loại danh mục</FieldLabel>
                     <Select
                       value={field.value}
                       onValueChange={(v) => {
@@ -315,7 +231,7 @@ export function CategoryManagement() {
                         form.setValue("parentId", null);
                       }}
                     >
-                      <SelectTrigger className="w-full">
+                      <SelectTrigger>
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
@@ -323,32 +239,28 @@ export function CategoryManagement() {
                         <SelectItem value="PROJECT">Dự án</SelectItem>
                       </SelectContent>
                     </Select>
-                  )}
-                />
-              </FieldContent>
-            </Field>
+                  </Field>
+                )}
+              />
 
-            <Field orientation="horizontal">
-              <FieldLabel className="min-w-[140px] pt-2 font-medium">
-                Danh mục cha
-              </FieldLabel>
-              <FieldContent>
-                <Controller
-                  control={form.control}
-                  name="parentId"
-                  render={({ field }) => (
+              <Controller
+                control={form.control}
+                name="parentId"
+                render={({ field }) => (
+                  <Field>
+                    <FieldLabel>Danh mục cha</FieldLabel>
                     <Select
                       value={field.value || "none"}
                       onValueChange={(v) =>
                         field.onChange(v === "none" ? null : v)
                       }
                     >
-                      <SelectTrigger className="w-full">
-                        <SelectValue placeholder="Không có (cấp 1)" />
+                      <SelectTrigger>
+                        <SelectValue placeholder="Không có (Cấp 1)" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="none">Không có (cấp 1)</SelectItem>
-                        {parentOptions(type)
+                        <SelectItem value="none">Không có (Cấp 1)</SelectItem>
+                        {getParentOptions(type)
                           .filter(
                             (p) =>
                               p.id !==
@@ -363,41 +275,41 @@ export function CategoryManagement() {
                           ))}
                       </SelectContent>
                     </Select>
-                  )}
-                />
-                {parentId && (
-                  <FieldDescription className="mt-1.5 flex items-center gap-1 text-xs">
-                    Đường dẫn:
-                    <span className="font-medium text-foreground">
-                      {categories.find((c) => c.id === parentId)?.name}
-                    </span>
-                    <CornerDownRight
-                      size={12}
-                      className="mx-0.5 text-muted-foreground"
-                    />
-                    <span className="font-medium text-primary">
-                      {name || "..."}
-                    </span>
-                  </FieldDescription>
+                    {parentId && (
+                      <FieldDescription className="flex items-center gap-1">
+                        Phân cấp:{" "}
+                        <span className="text-foreground">
+                          {categories.find((c) => c.id === parentId)?.name}
+                        </span>
+                        <CornerDownRight
+                          size={12}
+                          className="text-muted-foreground"
+                        />
+                        <span className="text-primary font-medium">
+                          {form.watch("name") || "..."}
+                        </span>
+                      </FieldDescription>
+                    )}
+                  </Field>
                 )}
-              </FieldContent>
-            </Field>
+              />
+            </div>
           </FieldGroup>
 
-          <div className="flex justify-end gap-3 pt-4 border-t">
+          <div className="flex justify-end gap-3 pt-6 border-t mt-4">
             <Button
-              variant="outline"
+              variant="ghost"
               type="button"
               onClick={() => setActiveCategory(null)}
             >
               Hủy
             </Button>
-            <Button type="submit" disabled={saveMutation.isLoading}>
-              {saveMutation.isLoading
+            <Button type="submit" disabled={saveMutation.isPending}>
+              {saveMutation.isPending
                 ? "Đang lưu..."
                 : activeCategory === "new"
-                  ? "Tạo mới"
-                  : "Cập nhật"}
+                  ? "Tạo danh mục"
+                  : "Lưu thay đổi"}
             </Button>
           </div>
         </form>
@@ -407,9 +319,7 @@ export function CategoryManagement() {
         open={!!deletingId}
         onOpenChange={(open) => !open && setDeletingId(null)}
         onConfirm={() => deletingId && deleteMutation.mutate(deletingId)}
-        isLoading={deleteMutation.isLoading}
-        title="Xóa danh mục này?"
-        description="Lưu ý: Tất cả danh mục con (nếu có) cũng sẽ bị xóa vĩnh viễn khỏi hệ thống."
+        isLoading={deleteMutation.isPending}
       />
     </div>
   );

@@ -61,7 +61,7 @@ export const PreviewContent = ({
     <div
       className={cn(
         "prose prose-lg dark:prose-invert max-w-none",
-
+        "prose-headings:font-bold prose-headings:tracking-tight prose-headings:text-foreground",
         "prose-img:rounded-sm",
         "tiptap",
         className,
