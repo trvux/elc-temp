@@ -65,9 +65,9 @@ export function FeaturesSection({ products }: FeaturesSectionProps) {
           {/* Mobile Carousel */}
           <div className="md:hidden">
             <Carousel className="w-full">
-              <CarouselContent className="-ml-8 p-1">
+              <CarouselContent className="-ml-8 p-2">
                 {products.map((product, index) => (
-                  <CarouselItem key={product.id} className="pl-8 basis-[70%]">
+                  <CarouselItem key={product.id} className="pl-8 basis-[80%]">
                     <ProductCard
                       product={product}
                       categorySlug={product.category?.slug || "all"}
