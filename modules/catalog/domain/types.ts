@@ -1,5 +1,5 @@
 
-import { Brand, CreateBrandInput, UpdateBrandInput } from "../../brand";
+export * from "../../brand/domain";
 import { StockStatus } from "./constants";
 
 export type Json =
