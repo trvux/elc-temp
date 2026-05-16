@@ -44,6 +44,17 @@ export const getTiptapExtensions = () => [
           parseHTML: (element) =>
             element.getAttribute("data-align") || "center",
         },
+        ratio: {
+          default: "auto",
+          renderHTML: (attributes) => {
+            if (!attributes.ratio || attributes.ratio === "auto") return {};
+            return {
+              "data-ratio": attributes.ratio,
+              style: `aspect-ratio: ${attributes.ratio}; object-fit: cover;`,
+            };
+          },
+          parseHTML: (element) => element.getAttribute("data-ratio") || "auto",
+        },
       };
     },
   }).configure({

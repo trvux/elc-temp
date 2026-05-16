@@ -9,18 +9,20 @@ import {
   PopoverTrigger,
 } from "@/shared/components/ui/popover";
 import { Separator } from "@/shared/components/ui/separator";
+import { convertToWebP } from "@/shared/lib/image";
 import { cn } from "@/shared/lib/utils";
+import BubbleMenuExtension from "@tiptap/extension-bubble-menu";
+import FloatingMenuExtension from "@tiptap/extension-floating-menu";
 import Placeholder from "@tiptap/extension-placeholder";
 import { EditorContent, useEditor } from "@tiptap/react";
 import { BubbleMenu, FloatingMenu } from "@tiptap/react/menus";
-import BubbleMenuExtension from "@tiptap/extension-bubble-menu";
-import FloatingMenuExtension from "@tiptap/extension-floating-menu";
 import {
   ArrowDownToLine,
   ArrowLeftToLine,
   ArrowRightToLine,
   ArrowUpToLine,
   Bold,
+  Eraser,
   Image as ImageIcon,
   Italic,
   Link as LinkIcon,
@@ -35,9 +37,7 @@ import {
   TableCellsSplit,
   Table as TableIcon,
   Trash2,
-  Eraser,
 } from "lucide-react";
-import { convertToWebP } from "@/shared/lib/image";
 import { useCallback, useState } from "react";
 
 const COLORS = {
@@ -116,29 +116,26 @@ const RichTextEditor = ({
     editorProps: {
       attributes: {
         class: cn(
-          "tiptap prose prose-lg dark:prose-invert focus:outline-none max-w-none min-h-[500px] py-12",
-          "prose-headings:font-medium",
+          "tiptap prose prose-lg dark:prose-invert focus:outline-none max-w-none min-h-125 py-12",
+          "prose-headings:font-bold prose-headings:tracking-tight prose-headings:text-foreground",
           "prose-img:rounded-sm",
           className,
         ),
       },
       transformPastedHTML(html) {
         // Strip all attributes except href and src
-        return html.replace(
-          /<([a-z0-9]+)([^>]*)>/gi,
-          (match, tag, attrs) => {
-            if (tag.toLowerCase() === "a") {
-              const hrefMatch = attrs.match(/href="([^"]*)"/i);
-              return hrefMatch ? `<a href="${hrefMatch[1]}">` : "<a>";
-            }
-            if (tag.toLowerCase() === "img") {
-              const srcMatch = attrs.match(/src="([^"]*)"/i);
-              const altMatch = attrs.match(/alt="([^"]*)"/i);
-              return `<img ${srcMatch ? `src="${srcMatch[1]}"` : ""} ${altMatch ? `alt="${altMatch[1]}"` : ""}>`;
-            }
-            return `<${tag}>`;
-          },
-        );
+        return html.replace(/<([a-z0-9]+)([^>]*)>/gi, (match, tag, attrs) => {
+          if (tag.toLowerCase() === "a") {
+            const hrefMatch = attrs.match(/href="([^"]*)"/i);
+            return hrefMatch ? `<a href="${hrefMatch[1]}">` : "<a>";
+          }
+          if (tag.toLowerCase() === "img") {
+            const srcMatch = attrs.match(/src="([^"]*)"/i);
+            const altMatch = attrs.match(/alt="([^"]*)"/i);
+            return `<img ${srcMatch ? `src="${srcMatch[1]}"` : ""} ${altMatch ? `alt="${altMatch[1]}"` : ""}>`;
+          }
+          return `<${tag}>`;
+        });
       },
     },
   });
@@ -157,6 +154,15 @@ const RichTextEditor = ({
       if (!editor) return;
       // @ts-ignore
       editor.chain().focus().updateAttributes("image", { align }).run();
+    },
+    [editor],
+  );
+
+  const setImageRatio = useCallback(
+    (ratio: string) => {
+      if (!editor) return;
+      // @ts-ignore
+      editor.chain().focus().updateAttributes("image", { ratio }).run();
     },
     [editor],
   );
@@ -398,10 +404,7 @@ const RichTextEditor = ({
             variant="ghost"
             size="sm"
             onClick={stripFormatting}
-            className={cn(
-              COMMON_CLASSES.bubbleButton,
-              COLORS.default,
-            )}
+            className={cn(COMMON_CLASSES.bubbleButton, COLORS.default)}
             title="Strip Formatting"
           >
             <Eraser className="h-4 w-4" />
@@ -456,6 +459,36 @@ const RichTextEditor = ({
           >
             <Maximize className="h-4 w-4" />
           </Button>
+
+          <Separator orientation="vertical" className="mx-1 h-4 bg-white/20" />
+
+          {/* Ratio Options */}
+          <div className="flex items-center gap-1 px-1">
+            {[
+              { label: "Auto", value: "auto" },
+              { label: "1:1", value: "1/1" },
+              { label: "16:9", value: "16/9" },
+              { label: "9:16", value: "9/16" },
+              { label: "4:3", value: "4/3" },
+            ].map((r) => (
+              <Button
+                key={r.value}
+                type="button"
+                variant="ghost"
+                size="sm"
+                onClick={() => setImageRatio(r.value)}
+                className={cn(
+                  "h-7 px-2 text-[10px] font-bold hover:bg-white/10",
+                  editor.getAttributes("image").ratio === r.value ||
+                    (!editor.getAttributes("image").ratio && r.value === "auto")
+                    ? COLORS.active
+                    : COLORS.default,
+                )}
+              >
+                {r.label}
+              </Button>
+            ))}
+          </div>
 
           <Separator orientation="vertical" className="mx-1 h-4 bg-white/20" />
 

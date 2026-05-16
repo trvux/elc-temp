@@ -27,7 +27,7 @@
 .tiptap table {
   border-collapse: collapse;
   width: 100%;
-  min-width: 600px; /* Force a minimum width to ensure scrolling on small screens */
+  min-width: 600px !important; /* Force a minimum width to ensure scrolling on small screens, overriding Tiptap inline styles */
 }
 
 .tiptap table td,

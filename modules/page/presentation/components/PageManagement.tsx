@@ -1,10 +1,9 @@
 "use client";
 
-import { standardSchemaResolver } from "@hookform/resolvers/standard-schema";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Plus, Trash2, X } from "lucide-react";
+import { Plus } from "lucide-react";
 import { useMemo, useState } from "react";
-import { Controller, useForm } from "react-hook-form";
+import { Controller } from "react-hook-form";
 import { toast } from "sonner";
 
 import { AdminDialog } from "@/shared/components/layout/admin/admin-dialog";
@@ -13,11 +12,10 @@ import { Button } from "@/shared/components/ui/button";
 import { DataTable } from "@/shared/components/ui/data-table";
 import {
   Field,
-  FieldContent,
+  FieldDescription,
   FieldError,
   FieldGroup,
   FieldLabel,
-  FieldDescription,
 } from "@/shared/components/ui/field";
 import { Input } from "@/shared/components/ui/input";
 import {
@@ -30,45 +28,23 @@ import {
 import { Switch } from "@/shared/components/ui/switch";
 import { TiptapEditor } from "@/shared/components/ui/tiptap-editor";
 
-import { convertToWebP } from "@/shared/lib/image";
-import { createClient } from "@/shared/lib/supabase/client";
-import { extractTitleFromHtml, generateSlug } from "@/shared/lib/utils";
-
-import { Page, createPageSchema, updatePageSchema } from "../../domain";
+import { Page } from "../../domain";
 import {
-  createPageAction,
   deletePageAction,
   getPagesAction,
-  updatePageAction,
 } from "../actions";
 import { getPageColumns } from "./PageColumns";
-
-type PageFormValues = {
-  title: string;
-  slug: string;
-  content: string;
-  isPublished: boolean;
-};
+import { usePageForm } from "../hooks/usePageForm";
+import { convertToWebP } from "@/shared/lib/image";
 
 export function PageManagement() {
   const queryClient = useQueryClient();
-  const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<Page | null>(null);
-  const [deleteOpen, setDeleteOpen] = useState(false);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
   // Filters
   const [filterIsPublished, setFilterIsPublished] = useState<string>("all");
-
-  const form = useForm<PageFormValues>({
-    resolver: standardSchemaResolver(createPageSchema as any) as any,
-    defaultValues: {
-      title: "",
-      slug: "",
-      content: "",
-      isPublished: true,
-    },
-  });
 
   // Fetch Data
   const { data: pages = [], isLoading } = useQuery({
@@ -80,28 +56,15 @@ export function PageManagement() {
     },
   });
 
-  // Mutations
-  const saveMutation = useMutation({
-    mutationFn: async (values: PageFormValues) => {
-      if (editing) {
-        return updatePageAction({
-          ...values,
-          id: editing.id,
-        } as any);
-      }
-      return createPageAction(values as any);
-    },
-    onSuccess: (res) => {
-      if (res.error) {
-        toast.error(res.error);
-        return;
-      }
-      toast.success(editing ? "Đã cập nhật trang" : "Đã tạo trang");
-      setOpen(false);
-      queryClient.invalidateQueries({ queryKey: ["pages"] });
-    },
-  });
+  // Custom Form Hook
+  const {
+    form,
+    saveMutation,
+    handleContentChange,
+    supabase,
+  } = usePageForm(editing, () => setIsDialogOpen(false));
 
+  // Delete Mutation
   const deleteMutation = useMutation({
     mutationFn: deletePageAction,
     onSuccess: (res) => {
@@ -110,15 +73,10 @@ export function PageManagement() {
         return;
       }
       toast.success("Đã xóa trang");
-      setDeleteOpen(false);
+      setDeletingId(null);
       queryClient.invalidateQueries({ queryKey: ["pages"] });
     },
   });
-
-  async function handleDelete() {
-    if (!deletingId) return;
-    deleteMutation.mutate(deletingId);
-  }
 
   const filteredPages = useMemo(() => {
     return pages.filter((p) => {
@@ -132,13 +90,19 @@ export function PageManagement() {
   const columns = useMemo(
     () =>
       getPageColumns({
-        onEdit: (p) => openEdit(p),
-        onDelete: (id) => {
-          setDeletingId(id);
-          setDeleteOpen(true);
+        onEdit: (p) => {
+          setEditing(p);
+          form.reset({
+            title: p.title,
+            slug: p.slug,
+            content: p.content as any,
+            isPublished: p.isPublished,
+          });
+          setIsDialogOpen(true);
         },
+        onDelete: (id) => setDeletingId(id),
       }),
-    [],
+    [form]
   );
 
   function openCreate() {
@@ -149,21 +113,8 @@ export function PageManagement() {
       content: "",
       isPublished: true,
     });
-    setOpen(true);
+    setIsDialogOpen(true);
   }
-
-  function openEdit(p: Page) {
-    setEditing(p);
-    form.reset({
-      title: p.title,
-      slug: p.slug,
-      content: p.content as any,
-      isPublished: p.isPublished,
-    });
-    setOpen(true);
-  }
-
-  const supabase = createClient();
 
   return (
     <div>
@@ -211,129 +162,110 @@ export function PageManagement() {
       />
 
       <AdminDialog
-        open={open}
-        onOpenChange={setOpen}
+        open={isDialogOpen}
+        onOpenChange={(open) => {
+          setIsDialogOpen(open);
+          if (!open) setEditing(null);
+        }}
         size="full"
-        title={editing ? `Sửa: ${editing.title}` : "Thêm trang mới"}
+        title={editing ? `Sửa bài viết` : "Thêm trang mới"}
         description="Cấu hình nội dung chi tiết cho trang tĩnh."
       >
         <form
           onSubmit={form.handleSubmit((v) => saveMutation.mutate(v))}
-          className="space-y-8"
+          className="flex flex-col flex-1 min-h-0"
         >
-          <FieldGroup>
-            <div className="bg-muted/10 p-6 rounded-2xl border border-border/40 space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                 <Field className="md:col-span-2">
-                    <FieldLabel className="mb-2 font-medium text-primary">
-                      Slug (URL) *
-                    </FieldLabel>
-                    <FieldContent>
-                      <Controller
-                        control={form.control}
-                        name="slug"
-                        render={({ field, fieldState }) => (
-                          <>
-                            <Input
-                              {...field}
-                              placeholder="tieu-de-trang-khong-dau"
-                              onChange={(e) => field.onChange(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, "-").replace(/-+/g, "-"))}
-                            />
-                            <FieldDescription>
-                              Đường dẫn: <span className="font-medium text-primary">/{field.value || "slug"}</span>
-                            </FieldDescription>
-                            <FieldError errors={[fieldState.error]} />
-                          </>
-                        )}
-                      />
-                    </FieldContent>
-                  </Field>
-              </div>
-
-              <Field>
-                <FieldLabel className="mb-2 font-medium text-foreground/80">
-                  Nội dung trang
-                </FieldLabel>
-                <FieldContent>
+          <div className="flex-1 overflow-y-auto p-6 lg:p-10">
+            <div className="max-w-5xl mx-auto space-y-12">
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
+                <div className="lg:col-span-4 space-y-8">
                   <Controller
                     control={form.control}
-                    name="content"
+                    name="isPublished"
                     render={({ field }) => (
-                      <TiptapEditor
-                        value={field.value as any}
-                        onChange={(val) => {
-                          field.onChange(val);
-                          const title = extractTitleFromHtml(val);
-                          if (title) {
-                            form.setValue("title", title);
-                            if (!editing) {
-                              form.setValue("slug", generateSlug(title));
-                            }
-                          }
-                        }}
-                        placeholder="Bắt đầu viết nội dung trang..."
-                        uploadImage={async (file) => {
-                           const webpFile = await convertToWebP(file);
-                           const fileName = `pages/${Date.now()}-${Math.random().toString(36).slice(2)}.webp`;
-                           const { error } = await supabase.storage
-                             .from("images")
-                             .upload(fileName, webpFile, { contentType: "image/webp" });
-                           if (error) throw error;
-                           const { data } = supabase.storage.from("images").getPublicUrl(fileName);
-                           return data.publicUrl;
-                        }}
-                      />
+                      <Field orientation="horizontal" className="justify-between border p-3 rounded-xl">
+                        <FieldLabel className="font-normal">Hiển thị trang</FieldLabel>
+                        <Switch checked={field.value} onCheckedChange={field.onChange} />
+                      </Field>
                     )}
                   />
-                </FieldContent>
-              </Field>
-
-              <div className="flex items-center justify-between pt-4 border-t">
-                <div className="flex items-center gap-6">
-                  <Field orientation="horizontal" className="w-auto gap-3 flex items-center">
-                    <FieldLabel className="w-auto mb-0 font-medium">Hiển thị</FieldLabel>
-                    <FieldContent className="flex items-center min-h-0">
-                      <Controller
-                        control={form.control}
-                        name="isPublished"
-                        render={({ field }) => (
-                          <Switch
-                            checked={field.value}
-                            onCheckedChange={field.onChange}
-                          />
-                        )}
-                      />
-                    </FieldContent>
-                  </Field>
                 </div>
 
-                <div className="flex gap-3">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={() => setOpen(false)}
-                    className="h-9"
-                  >
-                    Hủy
-                  </Button>
-                  <Button
-                    type="submit"
-                    className="h-9"
-                    disabled={saveMutation.isPending}
-                  >
-                    {editing ? "Cập nhật" : "Tạo mới"}
-                  </Button>
+                <div className="lg:col-span-8 space-y-8">
+                  <Controller
+                    control={form.control}
+                    name="slug"
+                    render={({ field, fieldState }) => (
+                      <Field>
+                        <FieldLabel>Slug / URL</FieldLabel>
+                        <Input
+                          {...field}
+                          placeholder="vd: ve-chung-toi"
+                          onChange={(e) =>
+                            field.onChange(
+                              e.target.value
+                                .toLowerCase()
+                                .replace(/[^a-z0-9-]/g, "-")
+                                .replace(/-+/g, "-")
+                            )
+                          }
+                        />
+                        <FieldDescription>
+                          Đường dẫn: <span className="text-primary font-medium">/{field.value || "..."}</span>
+                        </FieldDescription>
+                        <FieldError errors={[fieldState.error]} />
+                      </Field>
+                    )}
+                  />
                 </div>
               </div>
+
+              {/* Editor Section */}
+              <div className="space-y-4">
+                <div className="flex items-center justify-between border-b pb-2">
+                  <h3 className="text-sm font-semibold tracking-tight">Nội dung trang</h3>
+                  <span className="text-[10px] text-muted-foreground uppercase tracking-widest">Tiptap Editor</span>
+                </div>
+                <Controller
+                  control={form.control}
+                  name="content"
+                  render={({ field }) => (
+                    <TiptapEditor
+                      value={field.value}
+                      onChange={handleContentChange}
+                      placeholder="Bắt đầu viết nội dung trang..."
+                      uploadImage={async (file) => {
+                        const webpFile = await convertToWebP(file);
+                        const fileName = `pages/${Date.now()}-${Math.random().toString(36).slice(2)}.webp`;
+                        const { error } = await supabase.storage
+                          .from("images")
+                          .upload(fileName, webpFile, { contentType: "image/webp" });
+                        if (error) throw error;
+                        const { data } = supabase.storage.from("images").getPublicUrl(fileName);
+                        return data.publicUrl;
+                      }}
+                    />
+                  )}
+                />
+              </div>
             </div>
-          </FieldGroup>
+          </div>
+
+          <div className="flex justify-end gap-3 p-6 border-t bg-background sticky bottom-0 z-20">
+            <Button variant="outline" type="button" onClick={() => setIsDialogOpen(false)}>
+              Hủy
+            </Button>
+            <Button type="submit" disabled={saveMutation.isPending}>
+              {saveMutation.isPending ? "Đang lưu..." : editing ? "Cập nhật trang" : "Tạo trang"}
+            </Button>
+          </div>
         </form>
       </AdminDialog>
 
       <DeleteDialog
-        open={deleteOpen}
-        onOpenChange={setDeleteOpen}
-        onConfirm={handleDelete}
+        open={!!deletingId}
+        onOpenChange={(open) => !open && setDeletingId(null)}
+        onConfirm={() => deletingId && deleteMutation.mutate(deletingId)}
         isLoading={deleteMutation.isPending}
       />
     </div>
