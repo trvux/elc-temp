@@ -134,7 +134,9 @@ export class SupabaseProductRepository implements ProductRepository {
             category_id: input.categoryId,
             brand_id: input.brandId,
             stock_status: input.stockStatus || STOCK_STATUS.IN_STOCK,
-        };
+            mpn: input.mpn,
+            gtin: input.gtin,
+        } as any;
 
         const { data, error } = await supabase
             .from(this.TABLE_NAME)
@@ -166,8 +168,10 @@ export class SupabaseProductRepository implements ProductRepository {
             category_id: input.categoryId,
             brand_id: input.brandId,
             stock_status: input.stockStatus,
+            mpn: input.mpn,
+            gtin: input.gtin,
             updated_at: new Date().toISOString(),
-        };
+        } as any;
 
         const { data, error } = await supabase
             .from(this.TABLE_NAME)
@@ -254,6 +258,8 @@ export class SupabaseProductRepository implements ProductRepository {
             categoryId: row.category_id || "",
             brandId: row.brand_id || "",
             stockStatus: (row.stock_status as StockStatus) || STOCK_STATUS.IN_STOCK,
+            mpn: (row as any).mpn || null,
+            gtin: (row as any).gtin || null,
             createdAt: row.created_at || new Date().toISOString(),
             updatedAt: row.updated_at || new Date().toISOString(),
             deletedAt: null,

@@ -30,6 +30,8 @@ export interface Product {
     categoryId: string;
     brandId: string;
     stockStatus: StockStatus;
+    mpn?: string | null;
+    gtin?: string | null;
     createdAt: string;
     updatedAt: string;
     deletedAt: string | null;
@@ -64,6 +66,8 @@ export interface CreateProductInput {
     categoryId: string;
     brandId: string;
     stockStatus?: StockStatus;
+    mpn?: string | null;
+    gtin?: string | null;
 }
 
 export interface UpdateProductInput extends Partial<CreateProductInput> {

@@ -27,7 +27,7 @@ export const getProductColumns = ({
       const name = row.original.name;
       return images?.[0] ? (
         <div className="w-10">
-          <AspectRatio ratio={1 / 1}>
+          <AspectRatio ratio={19 / 9}>
             <Image
               src={images[0]}
               alt={name}
@@ -53,9 +53,9 @@ export const getProductColumns = ({
       return (
         <div className="flex flex-col gap-1">
           <span className="font-medium">{p.name}</span>
-          <a 
-            href={url} 
-            target="_blank" 
+          <a
+            href={url}
+            target="_blank"
             rel="noopener noreferrer"
             className="text-[10px] text-primary hover:underline font-mono"
           >
@@ -76,6 +76,20 @@ export const getProductColumns = ({
     accessorKey: "sku",
     header: "SKU",
     cell: ({ row }) => <span>{row.original.sku || "—"}</span>,
+  },
+  {
+    accessorKey: "mpn",
+    header: "MPN",
+    cell: ({ row }) => (
+      <span className="font-mono text-[10px]">{row.original.mpn || "—"}</span>
+    ),
+  },
+  {
+    accessorKey: "gtin",
+    header: "GTIN",
+    cell: ({ row }) => (
+      <span className="font-mono text-[10px]">{row.original.gtin || "—"}</span>
+    ),
   },
   {
     accessorKey: "category.name",

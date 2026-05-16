@@ -33,6 +33,8 @@ export const productSchema = z.object({
   stockStatus: z
     .nativeEnum(STOCK_STATUS)
     .default(STOCK_STATUS.IN_STOCK),
+  mpn: z.string().nullable().optional(),
+  gtin: z.string().nullable().optional(),
   createdAt: z.iso.datetime({
     message: "Thời gian tạo không đúng định dạng ISO",
   }),

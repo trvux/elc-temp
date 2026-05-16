@@ -269,7 +269,8 @@ export function generateProductSchema(product: ProductWithRelations) {
     },
     description: metadata.description || "",
     sku: product.sku,
-    mpn: product.sku,
+    mpn: product.mpn || product.sku,
+    gtin: product.gtin || undefined,
     brand: {
       "@type": "Brand",
       name: product.brand?.name || SHOP_NAME,
