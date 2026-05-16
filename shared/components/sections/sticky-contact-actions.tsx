@@ -85,7 +85,7 @@ export function StickyContactActions({ contacts }: StickyContactActionsProps) {
                   onClick={() => handleAction(contact.type)}
                   iconProps={
                     {
-                      size: contact.type === "zalo" ? 18 : 26,
+                      size: contact.type === "zalo" ? 16 : 22,
                       weight: "fill",
                       ...(contact.type === "zalo" ? { stroke: 4 } : {}),
                     } as any
