@@ -44,7 +44,7 @@ export function ContactIcon({ type, className, ...props }: ContactIconProps) {
         className
       )}
     >
-      <Icon {...props} />
+      <Icon className="size-full" {...props} />
     </span>
   );
 }

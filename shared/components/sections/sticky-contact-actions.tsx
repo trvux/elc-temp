@@ -64,36 +64,41 @@ export function StickyContactActions({ contacts }: StickyContactActionsProps) {
           initial="hidden"
           animate="show"
           exit="exit"
-          className="fixed bottom-8 inset-x-0 z-100 flex justify-center px-4 sm:px-8"
+          className="fixed bottom-2 right-2 z-100"
         >
-          <div className="flex items-center gap-4 px-6 py-2 bg-background/55 backdrop-blur-xl rounded-2xl border shadow-2xl w-auto">
-            <span className="text-sm font-bold">Liên hệ</span>
+          <div className="flex items-center gap-2 px-2 py-2 bg-background/55 backdrop-blur-sm rounded-full border border-border/55 shadow-2xl w-auto">
+            {/* <span className="text-sm font-bold">Liên hệ</span> */}
             {displayContacts.map((contact) => (
               <Button
                 key={contact.id}
                 asChild
                 variant="ghost"
                 className={cn(
-                  "h-9 sm:h-10 px-4 sm:px-6 shadow-sm rounded-xl transition-all active:scale-95 border-none",
+                  "h-9 sm:h-10 px-5 rounded-full transition-all active:scale-95 border-none",
                   contact.type === "zalo"
-                    ? "bg-blue-50 hover:bg-blue-100 text-blue-700"
-                    : "bg-green-50 hover:bg-green-100 text-green-700",
+                    ? "bg-blue-500 hover:bg-blue-600 "
+                    : "",
                 )}
               >
                 <ContactLink
                   contact={contact}
                   onClick={() => handleAction(contact.type)}
-                  iconProps={{ size: 18, weight: "bold" }}
+                  iconProps={
+                    {
+                      size: contact.type === "zalo" ? 18 : 26,
+                      weight: "fill",
+                      ...(contact.type === "zalo" ? { stroke: 4 } : {}),
+                    } as any
+                  }
                   showLabel={false}
                   iconClassName={cn(
-                    contact.type === "zalo"
-                      ? "text-blue-700"
-                      : "text-green-700",
+                    "flex items-center justify-center shrink-0",
+                    contact.type === "zalo" ? "text-white" : "text-green-600 ",
                   )}
                 >
-                  <span>
+                  {/* <span>
                     {contact.type === "phone" ? "Gọi ngay" : "Nhắn Zalo"}
-                  </span>
+                  </span> */}
                 </ContactLink>
               </Button>
             ))}
