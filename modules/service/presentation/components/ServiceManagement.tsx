@@ -37,6 +37,7 @@ import {
 import { getServiceColumns } from "./ServiceColumns";
 import { useServiceForm } from "../hooks/useServiceForm";
 import { convertToWebP } from "@/shared/lib/image";
+import { generateSlug } from "@/shared/lib/utils";
 
 export function ServiceManagement() {
   const queryClient = useQueryClient();
@@ -62,8 +63,8 @@ export function ServiceManagement() {
     form,
     saveMutation,
     handleImageUpload,
-    uploading,
     handleContentChange,
+    uploading,
     supabase,
   } = useServiceForm(editing, () => setIsDialogOpen(false));
 
@@ -266,6 +267,8 @@ export function ServiceManagement() {
                 </div>
 
                 <div className="lg:col-span-8 space-y-8">
+
+
                   <Controller
                     control={form.control}
                     name="slug"
@@ -275,14 +278,7 @@ export function ServiceManagement() {
                         <Input
                           {...field}
                           placeholder="vd: lap-dat-kho-lanh"
-                          onChange={(e) =>
-                            field.onChange(
-                              e.target.value
-                                .toLowerCase()
-                                .replace(/[^a-z0-9-]/g, "-")
-                                .replace(/-+/g, "-")
-                            )
-                          }
+                          onChange={(e) => field.onChange(generateSlug(e.target.value))}
                         />
                         <FieldDescription>
                           Đường dẫn: <span className="text-primary font-medium">/dich-vu/{field.value || "..."}</span>
@@ -305,6 +301,7 @@ export function ServiceManagement() {
                   name="content"
                   render={({ field }) => (
                     <TiptapEditor
+                      key={editing?.id ?? "new"}
                       value={field.value}
                       onChange={handleContentChange}
                       placeholder="Bắt đầu viết nội dung bài viết dịch vụ..."

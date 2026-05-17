@@ -1,18 +1,17 @@
-import { getProjects, getProjectBySlug } from "@/modules/project";
-import { notFound } from "next/navigation";
-import Image from "next/image";
-import { InfoTOC } from "@/shared/components/layout/user/info-toc";
-import { Badge } from "@/shared/components/ui/badge";
+import { getProjectBySlug, getProjects } from "@/modules/project";
+import { PreviewContent } from "@/shared/components/layout/user/preview-content";
 import { ScrollToTop } from "@/shared/components/layout/user/scroll-to-top";
 import { AspectRatio } from "@/shared/components/ui/aspect-ratio";
+import { Badge } from "@/shared/components/ui/badge";
 import { Sparkle } from "lucide-react";
-import { PreviewContent } from "@/shared/components/layout/user/preview-content";
+import Image from "next/image";
+import { notFound } from "next/navigation";
 
 export async function generateStaticParams() {
   const projects = await getProjects({ isPublished: true });
-  
+
   return projects.map((p) => ({
-    slug: p.slug
+    slug: p.slug,
   }));
 }
 
@@ -50,12 +49,12 @@ export default async function ProjectDetail({
         <header className="mb-10 border-b border-border pb-8 flex flex-col gap-4">
           {/* Row 1: TOC */}
           <div className="w-full flex justify-start md:justify-start">
-            <InfoTOC
+            {/* <InfoTOC
               pages={allProjects}
               currentSlug={project.slug}
               basePath="/du-an"
               className="w-full md:w-fit min-w-52"
-            />
+            /> */}
           </div>
 
           {/* Row 2: Title and Category */}
@@ -95,7 +94,10 @@ export default async function ProjectDetail({
           )}
 
           {/* Rich text content with image optimization */}
-          <PreviewContent content={project.description} hideFirstHeading={true} />
+          <PreviewContent
+            content={project.description}
+            hideFirstHeading={true}
+          />
 
           {/* Additional images */}
           {images.length > 1 && (

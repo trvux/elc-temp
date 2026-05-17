@@ -36,6 +36,7 @@ import {
 import { getPageColumns } from "./PageColumns";
 import { usePageForm } from "../hooks/usePageForm";
 import { convertToWebP } from "@/shared/lib/image";
+import { generateSlug } from "@/shared/lib/utils";
 
 export function PageManagement() {
   const queryClient = useQueryClient();
@@ -192,6 +193,8 @@ export function PageManagement() {
                 </div>
 
                 <div className="lg:col-span-8 space-y-8">
+
+
                   <Controller
                     control={form.control}
                     name="slug"
@@ -201,14 +204,7 @@ export function PageManagement() {
                         <Input
                           {...field}
                           placeholder="vd: ve-chung-toi"
-                          onChange={(e) =>
-                            field.onChange(
-                              e.target.value
-                                .toLowerCase()
-                                .replace(/[^a-z0-9-]/g, "-")
-                                .replace(/-+/g, "-")
-                            )
-                          }
+                          onChange={(e) => field.onChange(generateSlug(e.target.value))}
                         />
                         <FieldDescription>
                           Đường dẫn: <span className="text-primary font-medium">/{field.value || "..."}</span>
@@ -231,6 +227,7 @@ export function PageManagement() {
                   name="content"
                   render={({ field }) => (
                     <TiptapEditor
+                      key={editing?.id ?? "new"}
                       value={field.value}
                       onChange={handleContentChange}
                       placeholder="Bắt đầu viết nội dung trang..."

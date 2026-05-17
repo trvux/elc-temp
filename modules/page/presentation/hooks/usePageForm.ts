@@ -1,19 +1,19 @@
 import { standardSchemaResolver } from "@hookform/resolvers/standard-schema";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
+import type { Resolver } from "react-hook-form";
 import { toast } from "sonner";
 
 import { createClient } from "@/shared/lib/supabase/client";
-import { convertToWebP } from "@/shared/lib/image";
-import { extractTitleFromHtml, generateSlug } from "@/shared/lib/utils";
+import { useTiptapTitleSlugSync } from "@/shared/hooks/use-tiptap-title-slug-sync";
 
-import { Page, createPageSchema } from "../../domain";
+import { Page, createPageSchema, Json } from "../../domain";
 import { createPageAction, updatePageAction } from "../actions";
 
 export type PageFormValues = {
   title: string;
   slug: string;
-  content: string;
+  content: unknown;
   isPublished: boolean;
 };
 
@@ -25,7 +25,7 @@ export function usePageForm(
   const supabase = createClient();
 
   const form = useForm<PageFormValues>({
-    resolver: standardSchemaResolver(createPageSchema as any) as any,
+    resolver: standardSchemaResolver(createPageSchema) as unknown as Resolver<PageFormValues>,
     defaultValues: {
       title: "",
       slug: "",
@@ -34,15 +34,28 @@ export function usePageForm(
     },
   });
 
+  const { handleContentChange } = useTiptapTitleSlugSync({
+    setValue: form.setValue,
+    getValues: form.getValues,
+    contentField: "content",
+    titleField: "title",
+    slugField: "slug",
+    isEditMode: !!editingPage,
+  });
+
   const saveMutation = useMutation({
     mutationFn: async (values: PageFormValues) => {
+      const payload = {
+        ...values,
+        content: JSON.parse(JSON.stringify(values.content)) as Json,
+      };
       if (editingPage) {
         return updatePageAction({
-          ...values,
+          ...payload,
           id: editingPage.id,
-        } as any);
+        });
       }
-      return createPageAction(values as any);
+      return createPageAction(payload);
     },
     onSuccess: (res) => {
       if (res.error) {
@@ -54,17 +67,6 @@ export function usePageForm(
       queryClient.invalidateQueries({ queryKey: ["pages"] });
     },
   });
-
-  const handleContentChange = (val: any) => {
-    form.setValue("content", val);
-    const title = extractTitleFromHtml(val);
-    if (title) {
-      form.setValue("title", title);
-      if (!editingPage || !form.getValues("slug")) {
-        form.setValue("slug", generateSlug(title));
-      }
-    }
-  };
 
   return {
     form,

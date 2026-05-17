@@ -34,28 +34,58 @@ export function generateSlug(text: string): string {
     .replace(/^-+|-+$/g, ""); // Cắt dấu - ở đầu và cuối
 }
 
-export function extractTitleFromHtml(content: any): string {
+export function extractTitleFromHtml(content: unknown): string {
   if (!content) return "";
 
   // Handle Tiptap JSON Object
-  if (typeof content === "object") {
-    const nodes = content.content || [];
-    // Tìm node đầu tiên là heading level 1
-    const h1Node = nodes.find(
-      (node: any) => node.type === "heading" && node.attrs?.level === 1,
-    );
-    if (h1Node && h1Node.content) {
-      return h1Node.content.map((n: any) => n.text).join("").trim();
+  if (typeof content === "object" && content !== null) {
+    const obj = content as Record<string, unknown>;
+    const nodes = (obj.content as unknown[]) || [];
+    
+    // Tìm node đầu tiên là heading level 1 (mặc định level 1 khi thiếu level hoặc attrs)
+    const h1Node = nodes.find((node) => {
+      if (typeof node !== "object" || node === null) return false;
+      const n = node as Record<string, unknown>;
+      const attrs = n.attrs as Record<string, unknown> | undefined;
+      const level = attrs && attrs.level !== undefined ? Number(attrs.level) : 1;
+      return n.type === "heading" && level === 1;
+    }) as Record<string, unknown> | undefined;
+
+    if (h1Node && Array.isArray(h1Node.content)) {
+      return h1Node.content
+        .map((n) => {
+          if (typeof n === "object" && n !== null && "text" in n) {
+            return String((n as Record<string, unknown>).text);
+          }
+          return "";
+        })
+        .join("")
+        .trim();
     }
+
     // Fallback: Lấy đoạn văn bản đầu tiên có nội dung
-    const firstTextNode = nodes.find((node: any) => node.content && node.content.length > 0);
-    if (firstTextNode) {
-      return firstTextNode.content.map((n: any) => n.text).join("").trim();
+    const firstTextNode = nodes.find((node) => {
+      if (typeof node !== "object" || node === null) return false;
+      const n = node as Record<string, unknown>;
+      return Array.isArray(n.content) && n.content.length > 0;
+    }) as Record<string, unknown> | undefined;
+
+    if (firstTextNode && Array.isArray(firstTextNode.content)) {
+      return firstTextNode.content
+        .map((n) => {
+          if (typeof n === "object" && n !== null && "text" in n) {
+            return String((n as Record<string, unknown>).text);
+          }
+          return "";
+        })
+        .join("")
+        .trim();
     }
     return "";
   }
 
   // Handle Legacy HTML String
+  if (typeof content !== "string") return "";
   if (typeof window === "undefined") return "";
   const parser = new DOMParser();
   const doc = parser.parseFromString(content, "text/html");

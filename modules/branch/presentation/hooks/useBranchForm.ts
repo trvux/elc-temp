@@ -4,7 +4,6 @@ import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 
 import { createClient } from "@/shared/lib/supabase/client";
-import { extractTitleFromHtml, generateSlug } from "@/shared/lib/utils";
 
 import { Branch, createBranchSchema, Json, CreateBranchInput, UpdateBranchInput } from "../../domain";
 import { createBranchAction, updateBranchAction } from "../actions";
@@ -39,7 +38,7 @@ export function useBranchForm(
     mutationFn: async (values: BranchFormValues) => {
       const payload = {
         ...values,
-        description: values.description as Json,
+        description: JSON.parse(JSON.stringify(values.description)) as Json,
       };
       if (activeBranch && activeBranch !== "new") {
         return updateBranchAction({
@@ -65,21 +64,9 @@ export function useBranchForm(
     },
   });
 
-  const handleDescriptionChange = (val: string) => {
-    form.setValue("description", val);
-    const extractedTitle = extractTitleFromHtml(val);
-    if (!form.getValues("name")) {
-      form.setValue("name", extractedTitle);
-    }
-    if (!form.getValues("slug")) {
-      form.setValue("slug", generateSlug(extractedTitle));
-    }
-  };
-
   return {
     form,
     saveMutation,
-    handleDescriptionChange,
     supabase,
   };
 }

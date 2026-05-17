@@ -1,9 +1,9 @@
-import { getTiptapExtensions } from "@/shared/lib/tiptap-shared";
+import { getTiptapExtensions, normalizeTiptapJson } from "@/shared/lib/tiptap-shared";
 import { cn } from "@/shared/lib/utils";
 import { generateHTML } from "@tiptap/html";
 
 interface PreviewContentProps {
-  content: any;
+  content: unknown;
   className?: string;
   hideFirstHeading?: boolean;
 }
@@ -27,27 +27,29 @@ export const PreviewContent = ({
     } else if (
       content &&
       typeof content === "object" &&
-      content.type === "doc"
+      (content as Record<string, unknown>).type === "doc"
     ) {
-      let contentToRender = content;
+      // Normalize heading nodes that were stored without attrs.level (legacy DB records)
+      let contentToRender = normalizeTiptapJson(content) as Record<string, unknown>;
 
       // Logic: If hideFirstHeading is true, remove the first H1 node
-      if (hideFirstHeading && Array.isArray(content.content)) {
-        const firstH1Index = content.content.findIndex(
-          (node: any) => node.type === "heading" && node.attrs?.level === 1,
+      if (hideFirstHeading && Array.isArray(contentToRender.content)) {
+        const nodes = contentToRender.content as Array<Record<string, unknown>>;
+        const firstH1Index = nodes.findIndex(
+          (node) =>
+            node.type === "heading" &&
+            (node.attrs as Record<string, unknown> | undefined)?.level === 1,
         );
 
         if (firstH1Index !== -1) {
           contentToRender = {
-            ...content,
-            content: content.content.filter(
-              (_: any, index: number) => index !== firstH1Index,
-            ),
+            ...contentToRender,
+            content: nodes.filter((_, index) => index !== firstH1Index),
           };
         }
       }
 
-      html = generateHTML(contentToRender, getTiptapExtensions());
+      html = generateHTML(contentToRender as Parameters<typeof generateHTML>[0], getTiptapExtensions());
     } else {
       console.warn("Invalid content format received by PreviewContent");
       return null;
