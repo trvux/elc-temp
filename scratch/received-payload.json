@@ -3,24 +3,350 @@
   "content": [
     {
       "type": "heading",
+      "attrs": {
+        "level": 1
+      },
       "content": [
         {
           "type": "text",
-          "text": "Culpa irure et proident excepteur est ex et incididunt qui cillum fugiat duis ullamco."
+          "text": "Thiết kế và thi công lắp đặt hệ thống cấp khí tươi thu hồi nhiệt, lọc không khí Menred Hagisu cho căn hộ Mr. Vĩnh (Quận Gò Vấp)"
         }
-      ],
-      "attrs": {
-        "level": 1
-      }
+      ]
     },
     {
       "type": "paragraph",
       "content": [
         {
           "type": "text",
-          "text": "Amet voluptate laborum voluptate dolor cupidatat occaecat. Occaecat adipisicing quis et et aute ut anim culpa. Fugiat ullamco pariatur anim. Enim incididunt minim sit. Incididunt nostrud quis laboris ullamco quis commodo cillum. Tempor incididunt ut est est. Amet officia minim magna labore sunt."
+          "text": "Đối với cư dân tại các khu chung cư đô thị, việc đối mặt với khói bụi giao thông, tiếng ồn và tình trạng bí bách do không gian đóng kín là điều không thể tránh khỏi. Để giải quyết triệt để bài toán này và kiến tạo một không gian sống xanh sạch ngay trong lòng căn hộ cao tầng, vừa qua "
+        },
+        {
+          "type": "text",
+          "marks": [
+            {
+              "type": "bold"
+            }
+          ],
+          "text": "Công ty Điện máy ELC"
+        },
+        {
+          "type": "text",
+          "text": " đã hoàn thành bàn giao dự án: "
+        },
+        {
+          "type": "text",
+          "marks": [
+            {
+              "type": "bold"
+            }
+          ],
+          "text": "Nghiệm thu hoàn thành hệ thống lọc không khí trung tâm"
+        },
+        {
+          "type": "text",
+          "text": " cho căn hộ của Mr. Vĩnh tại chung cư Khang Gia, Quận Gò Vấp, TP.HCM."
         }
       ]
+    },
+    {
+      "type": "paragraph",
+      "content": [
+        {
+          "type": "text",
+          "text": "Dự án là giải pháp đồng bộ từ khâu "
+        },
+        {
+          "type": "text",
+          "marks": [
+            {
+              "type": "bold"
+            }
+          ],
+          "text": "thiết kế và thi công lắp đặt hệ thống cấp khí tươi"
+        },
+        {
+          "type": "text",
+          "text": " chuyên sâu, mang lại nguồn khí thở tinh khiết và giàu oxy cho cả gia đình."
+        }
+      ]
+    },
+    {
+      "type": "table",
+      "content": [
+        {
+          "type": "tableRow",
+          "content": [
+            {
+              "type": "tableHeader",
+              "attrs": {
+                "colspan": 1,
+                "rowspan": 1,
+                "colwidth": null,
+                "align": null
+              },
+              "content": [
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "Thông tin dự án"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "tableHeader",
+              "attrs": {
+                "colspan": 1,
+                "rowspan": 1,
+                "colwidth": null,
+                "align": null
+              },
+              "content": [
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "Chi tiết dự án"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "tableRow",
+          "content": [
+            {
+              "type": "tableCell",
+              "attrs": {
+                "colspan": 1,
+                "rowspan": 1,
+                "colwidth": null,
+                "align": null
+              },
+              "content": [
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "📍 Tên dự án"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "tableCell",
+              "attrs": {
+                "colspan": 1,
+                "rowspan": 1,
+                "colwidth": null,
+                "align": null
+              },
+              "content": [
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "Thiết kế và thi công lắp đặt hệ thống cấp khí tươi thu hồi nhiệt, lọc không khí Menred Hagisu - Căn hộ Mr. Vĩnh"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "tableRow",
+          "content": [
+            {
+              "type": "tableCell",
+              "attrs": {
+                "colspan": 1,
+                "rowspan": 1,
+                "colwidth": null,
+                "align": null
+              },
+              "content": [
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "🏢 Địa điểm"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "tableCell",
+              "attrs": {
+                "colspan": 1,
+                "rowspan": 1,
+                "colwidth": null,
+                "align": null
+              },
+              "content": [
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "Chung cư Khang Gia, Quận Gò Vấp, TP.HCM"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "tableRow",
+          "content": [
+            {
+              "type": "tableCell",
+              "attrs": {
+                "colspan": 1,
+                "rowspan": 1,
+                "colwidth": null,
+                "align": null
+              },
+              "content": [
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "🛠️ Hạng mục thi công"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "tableCell",
+              "attrs": {
+                "colspan": 1,
+                "rowspan": 1,
+                "colwidth": null,
+                "align": null
+              },
+              "content": [
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "Hệ thống lọc khí & cấp gió tươi Menred P5 (Phân khúc công suất lớn 450m3/h)"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "tableRow",
+          "content": [
+            {
+              "type": "tableCell",
+              "attrs": {
+                "colspan": 1,
+                "rowspan": 1,
+                "colwidth": null,
+                "align": null
+              },
+              "content": [
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "🏗️ Đơn vị thực hiện"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "tableCell",
+              "attrs": {
+                "colspan": 1,
+                "rowspan": 1,
+                "colwidth": null,
+                "align": null
+              },
+              "content": [
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "Công ty Điện máy ELC"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "tableRow",
+          "content": [
+            {
+              "type": "tableCell",
+              "attrs": {
+                "colspan": 1,
+                "rowspan": 1,
+                "colwidth": null,
+                "align": null
+              },
+              "content": [
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "📅 Ngày hoàn thành"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "tableCell",
+              "attrs": {
+                "colspan": 1,
+                "rowspan": 1,
+                "colwidth": null,
+                "align": null
+              },
+              "content": [
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "03/06/2024"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "horizontalRule"
     },
     {
       "type": "heading",
@@ -30,7 +356,7 @@
       "content": [
         {
           "type": "text",
-          "text": "Adipisicing et consequat duis ut ullamco."
+          "text": "Thực trạng không gian và tư duy giải pháp kỹ thuật từ ELC"
         }
       ]
     },
@@ -39,9 +365,246 @@
       "content": [
         {
           "type": "text",
-          "text": "Amet voluptate laborum voluptate dolor cupidatat occaecat. Occaecat adipisicing quis et et aute ut anim culpa. Fugiat ullamco pariatur anim. Enim incididunt minim sit. Incididunt nostrud quis laboris ullamco quis commodo cillum. Tempor incididunt ut est est. Amet officia minim magna labore sunt."
+          "text": "Căn hộ của Mr. Vĩnh nằm trong khu vực chung cư Khang Gia, Gò Vấp – một quận có mật độ dân cư và lưu lượng giao thông vô cùng đông đúc của TP.HCM. Do đặc thù căn hộ chung cư diện tích tiếp xúc với khoảng thoáng tự nhiên hạn chế, việc mở cửa đón gió thường đi kèm với nguy cơ khói bụi PM2.5, tiếng ồn và côn trùng bay vào nhà."
         }
       ]
+    },
+    {
+      "type": "paragraph",
+      "content": [
+        {
+          "type": "text",
+          "text": "Nhận diện được những hạn chế đó, các kỹ sư tại "
+        },
+        {
+          "type": "text",
+          "marks": [
+            {
+              "type": "bold"
+            }
+          ],
+          "text": "Điện máy ELC"
+        },
+        {
+          "type": "text",
+          "text": " đã đưa ra giải pháp cá nhân hóa bằng "
+        },
+        {
+          "type": "text",
+          "marks": [
+            {
+              "type": "bold"
+            }
+          ],
+          "text": "hệ thống cấp khí tươi thu hồi nhiệt, lọc không khí Menred Hagisu"
+        },
+        {
+          "type": "text",
+          "text": " thông qua model cao cấp Menred P5:"
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "content": [
+        {
+          "type": "text",
+          "text": "1. Công suất 450m3/h tối ưu cho toàn bộ không gian căn hộ"
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "content": [
+        {
+          "type": "text",
+          "text": "Với lưu lượng mạnh mẽ lên đến 450m3/h, thiết bị Menred P5 đảm bảo khả năng tuần hoàn và làm mới không khí liên tục cho tất cả các phòng chức năng từ phòng khách đến các phòng ngủ. Toàn bộ lượng khí cũ, khí quẩn tích tụ sẽ được hút thải ra ngoài, thay thế bằng nguồn khí tươi mới giàu oxy sau mỗi giờ."
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "content": [
+        {
+          "type": "text",
+          "text": "2. Công nghệ thanh lọc bụi mịn và hồi nhiệt đỉnh cao từ Menred Hagisu"
+        }
+      ]
+    },
+    {
+      "type": "bulletList",
+      "content": [
+        {
+          "type": "listItem",
+          "content": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "type": "text",
+                  "marks": [
+                    {
+                      "type": "bold"
+                    }
+                  ],
+                  "text": "Lọc đa tầng chuyên sâu:"
+                },
+                {
+                  "type": "text",
+                  "text": " Hệ thống màng lọc hiệu suất cao giúp loại bỏ hoàn toàn các hạt bụi mịn, tác nhân gây dị ứng, trả lại nguồn không khí sạch tinh khiết bảo vệ tối đa hệ hô hấp của gia đình Mr. Vĩnh."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "listItem",
+          "content": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "type": "text",
+                  "marks": [
+                    {
+                      "type": "bold"
+                    }
+                  ],
+                  "text": "Thu hồi nhiệt lượng thông minh:"
+                },
+                {
+                  "type": "text",
+                  "text": " Khác với việc quạt thông gió thông thường làm thất thoát hơi lạnh của máy điều hòa, công nghệ hồi nhiệt của Menred Hagisu sẽ giữ lại năng lượng lạnh từ luồng khí thải, truyền sang cho luồng khí tươi đi vào. Điều này giúp không khí vào phòng luôn mát mẻ, không gây sốc nhiệt và giảm tải điện năng đáng kể cho hệ thống làm lạnh của căn hộ."
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "horizontalRule"
+    },
+    {
+      "type": "heading",
+      "attrs": {
+        "level": 2
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "Quy trình thi công và kiểm soát chất lượng của Điện máy ELC"
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "content": [
+        {
+          "type": "text",
+          "text": "Việc triển khai thi công trong không gian trần thạch cao giới hạn của căn hộ chung cư đòi hỏi sự tỉ mỉ và độ chuẩn xác cực cao:"
+        }
+      ]
+    },
+    {
+      "type": "bulletList",
+      "content": [
+        {
+          "type": "listItem",
+          "content": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "type": "text",
+                  "marks": [
+                    {
+                      "type": "bold"
+                    }
+                  ],
+                  "text": "Bước 1 (Khảo sát và bố trí tuyến ống):"
+                },
+                {
+                  "type": "text",
+                  "text": " Tính toán cao độ trần thạch cao hiện hữu để thiết kế mạng lưới ống gió mềm và các hộp box chia gió, đảm bảo tối ưu hóa không gian, không làm hạ trần gây cảm giác chật hẹp."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "listItem",
+          "content": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "type": "text",
+                  "marks": [
+                    {
+                      "type": "bold"
+                    }
+                  ],
+                  "text": "Bước 2 (Lắp đặt thiết bị trung tâm):"
+                },
+                {
+                  "type": "text",
+                  "text": " Định vị và treo cố định máy Menred P5 tại khu vực lô gia kỹ thuật khép kín, bọc tiêu âm chuyên dụng để đảm bảo khi máy hoạt động đạt độ yên tĩnh tuyệt đối trong nhà."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "listItem",
+          "content": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "type": "text",
+                  "marks": [
+                    {
+                      "type": "bold"
+                    }
+                  ],
+                  "text": "Bước 3 (Thi công đường gió cấp và hút):"
+                },
+                {
+                  "type": "text",
+                  "text": " Đi các tuyến ống dẫn đến từng phòng, lắp đặt các cửa gió khuếch tán thẩm mỹ, tiệp màu với thiết kế nội thất căn hộ."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "listItem",
+          "content": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "type": "text",
+                  "marks": [
+                    {
+                      "type": "bold"
+                    }
+                  ],
+                  "text": "Bước 4 (Testing và bàn giao):"
+                },
+                {
+                  "type": "text",
+                  "text": " Ngày 03/06/2024, ELC tiến hành đo đạc áp suất, cân chỉnh lưu lượng gió tại từng cửa gió bằng thiết bị chuyên dụng, nghiệm thu toàn bộ hệ thống vận hành hoàn hảo và bàn giao cho gia đình Mr. Vĩnh."
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "paragraph"
     }
   ]
 }
