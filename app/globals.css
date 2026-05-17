@@ -14,8 +14,9 @@
   opacity: 0.5;
 }
 
-/* Tiptap Table */
-.table-wrapper {
+/* Tiptap Table Wrapper */
+.table-wrapper,
+.tiptap .tableWrapper {
   overflow-x: auto;
   width: 100%;
   margin: 1.5rem 0;
@@ -71,10 +72,7 @@
   pointer-events: none;
 }
 
-.tiptap .tableWrapper {
-  overflow-x: auto;
-  margin: 2rem 0;
-}
+/* Table wrapper within Tiptap editor is handled by the shared rule above */
 
 .tiptap.resize-cursor {
   cursor: ew-resize;

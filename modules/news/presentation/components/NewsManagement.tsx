@@ -202,6 +202,7 @@ export function NewsManagement() {
                                   alt="Thumbnail"
                                   fill
                                   className="object-cover"
+                                  sizes="(max-width: 1024px) 100vw, 350px"
                                 />
                                 <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                                   <Button

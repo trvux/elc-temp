@@ -176,6 +176,7 @@ export function BrandManagement() {
                             alt="Logo"
                             fill
                             className="object-contain p-6"
+                            sizes="(max-width: 768px) 100vw, 250px"
                           />
                           <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                             <Button
