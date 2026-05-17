@@ -31,6 +31,7 @@ import {
 } from "@/shared/components/ui/select";
 import { Switch } from "@/shared/components/ui/switch";
 import { TiptapEditor } from "@/shared/components/ui/tiptap-editor";
+import { generateSlug } from "@/shared/lib/utils";
 
 import { Category } from "@/modules/category/domain/types";
 import { getCategoriesAction } from "@/modules/category/presentation/actions";
@@ -72,8 +73,8 @@ export function ProjectManagement() {
     form,
     saveMutation,
     handleUpload,
+    handleContentChange,
     uploading,
-    handleDescriptionChange,
     supabase,
   } = useProjectForm(activeProject, () => setActiveProject(null), categories);
 
@@ -337,6 +338,8 @@ export function ProjectManagement() {
                 </div>
 
                 <div className="lg:col-span-8 space-y-6">
+
+
                   <Controller
                     control={form.control}
                     name="slug"
@@ -409,8 +412,9 @@ export function ProjectManagement() {
                   name="description"
                   render={({ field }) => (
                     <TiptapEditor
+                      key={activeProject === "new" ? "new" : activeProject?.id}
                       value={field.value}
-                      onChange={handleDescriptionChange}
+                      onChange={handleContentChange}
                       placeholder="Viết nội dung chi tiết dự án ở đây..."
                       uploadImage={async (file) => {
                         const fileName = `projects/${Date.now()}-${Math.random().toString(36).slice(2)}.webp`;

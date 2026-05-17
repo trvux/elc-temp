@@ -21,7 +21,14 @@ describe("Contact Use Cases", () => {
         label: "CSKH",
       };
 
-      const mockResult = { id: "1", ...input, orderIndex: 0 };
+      const mockResult = {
+        id: "1",
+        ...input,
+        orderIndex: 0,
+        isActive: true,
+        href: "tel:0123456789",
+        isExternal: true,
+      };
       vi.mocked(contactRepo.create).mockResolvedValue(mockResult);
 
       const result = await createContact(input);

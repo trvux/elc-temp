@@ -1,21 +1,21 @@
 import { standardSchemaResolver } from "@hookform/resolvers/standard-schema";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
 import { useForm } from "react-hook-form";
+import type { Resolver } from "react-hook-form";
 import { toast } from "sonner";
 
 import { createClient } from "@/shared/lib/supabase/client";
-import { convertToWebP } from "@/shared/lib/image";
-import { extractTitleFromHtml, generateSlug } from "@/shared/lib/utils";
+import { useFeaturedImageUpload } from "@/shared/hooks/use-featured-image-upload";
+import { useTiptapTitleSlugSync } from "@/shared/hooks/use-tiptap-title-slug-sync";
 
-import { Service, createServiceSchema } from "../../domain";
+import { Service, createServiceSchema, Json } from "../../domain";
 import { createServiceAction, updateServiceAction } from "../actions";
 
 export type ServiceFormValues = {
   title: string;
   slug: string;
   image: string;
-  content: string;
+  content: unknown;
   isPublished: boolean;
   orderIndex: number;
 };
@@ -25,11 +25,10 @@ export function useServiceForm(
   onClose: () => void
 ) {
   const queryClient = useQueryClient();
-  const [uploading, setUploading] = useState(false);
   const supabase = createClient();
 
   const form = useForm<ServiceFormValues>({
-    resolver: standardSchemaResolver(createServiceSchema as any) as any,
+    resolver: standardSchemaResolver(createServiceSchema) as unknown as Resolver<ServiceFormValues>,
     defaultValues: {
       title: "",
       slug: "",
@@ -40,15 +39,34 @@ export function useServiceForm(
     },
   });
 
+  const { uploading, handleImageUpload } = useFeaturedImageUpload<ServiceFormValues>({
+    setValue: form.setValue,
+    imageField: "image",
+    folderPath: "services",
+  });
+
+  const { handleContentChange } = useTiptapTitleSlugSync({
+    setValue: form.setValue,
+    getValues: form.getValues,
+    contentField: "content",
+    titleField: "title",
+    slugField: "slug",
+    isEditMode: !!editingService,
+  });
+
   const saveMutation = useMutation({
     mutationFn: async (values: ServiceFormValues) => {
+      const payload = {
+        ...values,
+        content: JSON.parse(JSON.stringify(values.content)) as Json,
+      };
       if (editingService) {
         return updateServiceAction({
-          ...values,
+          ...payload,
           id: editingService.id,
         });
       }
-      return createServiceAction(values);
+      return createServiceAction(payload);
     },
     onSuccess: (res) => {
       if (res.error) {
@@ -61,49 +79,12 @@ export function useServiceForm(
     },
   });
 
-  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    setUploading(true);
-
-    try {
-      const webpFile = await convertToWebP(file);
-      const fileName = `services/${Date.now()}-${Math.random()
-        .toString(36)
-        .slice(2)}.webp`;
-      const { error } = await supabase.storage
-        .from("images")
-        .upload(fileName, webpFile, { contentType: "image/webp" });
-
-      if (error) throw error;
-
-      const { data } = supabase.storage.from("images").getPublicUrl(fileName);
-      form.setValue("image", data.publicUrl);
-      toast.success("Đã tải lên ảnh đại diện");
-    } catch (error) {
-      toast.error("Lỗi tải ảnh");
-    } finally {
-      setUploading(false);
-    }
-  };
-
-  const handleContentChange = (val: any) => {
-    form.setValue("content", val);
-    const title = extractTitleFromHtml(val);
-    if (title) {
-      form.setValue("title", title);
-      if (!editingService || !form.getValues("slug")) {
-        form.setValue("slug", generateSlug(title));
-      }
-    }
-  };
-
   return {
     form,
     saveMutation,
     handleImageUpload,
-    uploading,
     handleContentChange,
+    uploading,
     supabase,
   };
 }

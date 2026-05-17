@@ -1,21 +1,21 @@
 import { standardSchemaResolver } from "@hookform/resolvers/standard-schema";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
 import { useForm } from "react-hook-form";
+import type { Resolver } from "react-hook-form";
 import { toast } from "sonner";
 
 import { createClient } from "@/shared/lib/supabase/client";
-import { convertToWebP } from "@/shared/lib/image";
-import { extractTitleFromHtml, generateSlug } from "@/shared/lib/utils";
+import { useFeaturedImageUpload } from "@/shared/hooks/use-featured-image-upload";
+import { useTiptapTitleSlugSync } from "@/shared/hooks/use-tiptap-title-slug-sync";
 
-import { News, createNewsSchema } from "../../domain";
+import { News, createNewsSchema, Json } from "../../domain";
 import { createNewsAction, updateNewsAction } from "../actions";
 
 export type NewsFormValues = {
   title: string;
   slug: string;
   image: string;
-  content: string;
+  content: unknown;
   isPublished: boolean;
   orderIndex: number;
 };
@@ -25,11 +25,10 @@ export function useNewsForm(
   onClose: () => void
 ) {
   const queryClient = useQueryClient();
-  const [uploading, setUploading] = useState(false);
   const supabase = createClient();
 
   const form = useForm<NewsFormValues>({
-    resolver: standardSchemaResolver(createNewsSchema as any) as any,
+    resolver: standardSchemaResolver(createNewsSchema) as unknown as Resolver<NewsFormValues>,
     defaultValues: {
       title: "",
       slug: "",
@@ -40,15 +39,34 @@ export function useNewsForm(
     },
   });
 
+  const { uploading, handleImageUpload } = useFeaturedImageUpload<NewsFormValues>({
+    setValue: form.setValue,
+    imageField: "image",
+    folderPath: "news",
+  });
+
+  const { handleContentChange } = useTiptapTitleSlugSync({
+    setValue: form.setValue,
+    getValues: form.getValues,
+    contentField: "content",
+    titleField: "title",
+    slugField: "slug",
+    isEditMode: !!editingNews,
+  });
+
   const saveMutation = useMutation({
     mutationFn: async (values: NewsFormValues) => {
+      const payload = {
+        ...values,
+        content: JSON.parse(JSON.stringify(values.content)) as Json,
+      };
       if (editingNews) {
         return updateNewsAction({
-          ...values,
+          ...payload,
           id: editingNews.id,
-        } as any);
+        });
       }
-      return createNewsAction(values as any);
+      return createNewsAction(payload);
     },
     onSuccess: (res) => {
       if (res.error) {
@@ -61,49 +79,12 @@ export function useNewsForm(
     },
   });
 
-  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    setUploading(true);
-
-    try {
-      const webpFile = await convertToWebP(file);
-      const fileName = `news/${Date.now()}-${Math.random()
-        .toString(36)
-        .slice(2)}.webp`;
-      const { error } = await supabase.storage
-        .from("images")
-        .upload(fileName, webpFile, { contentType: "image/webp" });
-
-      if (error) throw error;
-
-      const { data } = supabase.storage.from("images").getPublicUrl(fileName);
-      form.setValue("image", data.publicUrl);
-      toast.success("Đã tải lên ảnh đại diện");
-    } catch (error) {
-      toast.error("Lỗi tải ảnh");
-    } finally {
-      setUploading(false);
-    }
-  };
-
-  const handleContentChange = (val: any) => {
-    form.setValue("content", val);
-    const title = extractTitleFromHtml(val);
-    if (title) {
-      form.setValue("title", title);
-      if (!editingNews || !form.getValues("slug")) {
-        form.setValue("slug", generateSlug(title));
-      }
-    }
-  };
-
   return {
     form,
     saveMutation,
     handleImageUpload,
-    uploading,
     handleContentChange,
+    uploading,
     supabase,
   };
 }

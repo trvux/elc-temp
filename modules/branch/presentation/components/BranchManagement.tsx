@@ -43,7 +43,7 @@ export function BranchManagement() {
   });
 
   // Custom Form Hook
-  const { form, saveMutation, handleDescriptionChange, supabase } =
+  const { form, saveMutation, supabase } =
     useBranchForm(activeBranch, () => setActiveBranch(null));
 
   // Delete Mutation
@@ -348,8 +348,9 @@ export function BranchManagement() {
                   name="description"
                   render={({ field }) => (
                     <TiptapEditor
-                      value={field.value as string}
-                      onChange={handleDescriptionChange}
+                      key={activeBranch === "new" ? "new" : (activeBranch as Branch)?.id}
+                      value={field.value}
+                      onChange={field.onChange}
                       placeholder="Viết nội dung giới thiệu chi nhánh..."
                       uploadImage={async (file) => {
                         const fileName = `branches/${Date.now()}-${Math.random().toString(36).slice(2)}.webp`;

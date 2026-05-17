@@ -35,8 +35,9 @@ import {
   getNewsAction,
 } from "../actions";
 import { getNewsColumns } from "./NewsColumns";
-import { useNewsForm } from "../hooks/useNewsForm";
+import { useNewsForm, NewsFormValues } from "../hooks/useNewsForm";
 import { convertToWebP } from "@/shared/lib/image";
+import { generateSlug } from "@/shared/lib/utils";
 
 export function NewsManagement() {
   const queryClient = useQueryClient();
@@ -62,8 +63,8 @@ export function NewsManagement() {
     form,
     saveMutation,
     handleImageUpload,
-    uploading,
     handleContentChange,
+    uploading,
     supabase,
   } = useNewsForm(editing, () => setIsDialogOpen(false));
 
@@ -264,6 +265,8 @@ export function NewsManagement() {
                 </div>
 
                 <div className="lg:col-span-8 space-y-8">
+
+
                   <Controller
                     control={form.control}
                     name="slug"
@@ -273,14 +276,7 @@ export function NewsManagement() {
                         <Input
                           {...field}
                           placeholder="vd: tieu-de-tin-tuc-khong-dau"
-                          onChange={(e) =>
-                            field.onChange(
-                              e.target.value
-                                .toLowerCase()
-                                .replace(/[^a-z0-9-]/g, "-")
-                                .replace(/-+/g, "-")
-                            )
-                          }
+                          onChange={(e) => field.onChange(generateSlug(e.target.value))}
                         />
                         <FieldDescription>
                           Đường dẫn: <span className="text-primary font-medium">/tin-tuc/{field.value || "..."}</span>
@@ -303,6 +299,7 @@ export function NewsManagement() {
                   name="content"
                   render={({ field }) => (
                     <TiptapEditor
+                      key={editing?.id ?? "new"}
                       value={field.value}
                       onChange={handleContentChange}
                       placeholder="Bắt đầu viết nội dung bài viết..."

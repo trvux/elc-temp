@@ -47,8 +47,29 @@ export async function createProjectAction(input: CreateProjectInput) {
   }
 }
 
+import fs from "fs";
+import path from "path";
+
 export async function updateProjectAction(input: UpdateProjectInput) {
   try {
+    console.log("SERVER-SIDE ACTION RECEIVED PAYLOAD DESCRIPTION:", JSON.stringify(input.description, null, 2));
+    
+    // Write received payload directly to scratch file
+    try {
+      const scratchDir = "/Users/tranvux/Documents/elc-tem/scratch";
+      if (!fs.existsSync(scratchDir)) {
+        fs.mkdirSync(scratchDir, { recursive: true });
+      }
+      fs.writeFileSync(
+        path.join(scratchDir, "received-payload.json"),
+        JSON.stringify(input.description, null, 2),
+        "utf-8"
+      );
+      console.log("Successfully wrote payload to scratch/received-payload.json");
+    } catch (fsErr) {
+      console.error("Failed to write scratch file:", fsErr);
+    }
+
     const data = await updateProject(input);
     revalidatePaths();
     return { data, error: null };

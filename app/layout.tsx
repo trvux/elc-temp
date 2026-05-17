@@ -11,7 +11,7 @@ const notoSerifHeading = Noto_Serif({
   variable: "--font-heading",
 });
 
-const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
+const inter = Inter({subsets:['latin'],variable:'--font-sans'});
 
 // const inter = Inter({
 //   subsets: ["latin", "vietnamese"],

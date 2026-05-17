@@ -28,7 +28,7 @@ export function HeroSection({
   contacts = [],
 }: HeroSectionProps) {
   // Đảm bảo luôn có ảnh mặc định và luôn là đường dẫn tuyệt đối (có dấu / ở đầu)
-  let heroImage = image || "/images/hero-hvac.png";
+  let heroImage = image || "/images/hero-hvac.jpg";
   if (
     heroImage &&
     !heroImage.startsWith("/") &&
@@ -42,7 +42,7 @@ export function HeroSection({
     content:
       " flex flex-col gap-6 md:gap-8 items-center justify-center text-center max-w-5xl w-full px-4 sm:px-6",
     media:
-      "relative w-full max-w-4xl md:mx-0 rounded-3xl overflow-hidden bg-background/10 backdrop-blur-md border-2 border-border/20 p-1.5 shadow-sm",
+      "relative w-full md:mx-0 rounded-3xl overflow-hidden bg-background/5 backdrop-blur-md border-2 border-border/20 p-1.5 shadow-sm",
     image: "object-cover rounded-2xl border-2 border-border/20 shadow-sm",
   };
 

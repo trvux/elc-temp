@@ -2,11 +2,13 @@ import { standardSchemaResolver } from "@hookform/resolvers/standard-schema";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
+import type { Resolver } from "react-hook-form";
 import { toast } from "sonner";
 
 import { createClient } from "@/shared/lib/supabase/client";
 import { convertToWebP } from "@/shared/lib/image";
-import { extractTitleFromHtml, generateSlug } from "@/shared/lib/utils";
+import { useTiptapTitleSlugSync } from "@/shared/hooks/use-tiptap-title-slug-sync";
+
 
 import { Category } from "@/modules/category/domain/types";
 import { createProjectSchema, ProjectWithCategory, Json } from "../../domain";
@@ -33,7 +35,7 @@ export function useProjectForm(
   const supabase = createClient();
 
   const form = useForm<ProjectFormValues>({
-    resolver: standardSchemaResolver(createProjectSchema as any) as any,
+    resolver: standardSchemaResolver(createProjectSchema) as unknown as Resolver<ProjectFormValues>,
     defaultValues: {
       title: "",
       slug: "",
@@ -46,12 +48,22 @@ export function useProjectForm(
     },
   });
 
+  const { handleContentChange } = useTiptapTitleSlugSync({
+    setValue: form.setValue,
+    getValues: form.getValues,
+    contentField: "description",
+    titleField: "title",
+    slugField: "slug",
+    isEditMode: activeProject !== "new",
+  });
+
   const saveMutation = useMutation({
     mutationFn: async (values: ProjectFormValues) => {
       const payload = {
         ...values,
-        description: values.description as Json,
+        description: JSON.parse(JSON.stringify(values.description)) as Json,
       };
+      console.log("CLIENT-SIDE FORM SUBMITTING PAYLOAD:", JSON.stringify(payload.description, null, 2));
       if (activeProject && activeProject !== "new") {
         return updateProjectAction({
           ...payload,
@@ -104,39 +116,12 @@ export function useProjectForm(
     toast.success(`Đã upload ${uploaded.length} ảnh`);
   };
 
-  const handleDescriptionChange = (val: any) => {
-    form.setValue("description", val);
-    const extractedTitle = extractTitleFromHtml(val);
-    form.setValue("title", extractedTitle);
-
-    // Auto-slug logic
-    let namePart = extractedTitle.toLowerCase();
-    const catId = form.getValues("categoryId");
-    const cat = categories.find((c) => c.id === catId);
-    if (cat) {
-      const catName = cat.name.toLowerCase();
-      const parentCat = categories.find((c) => c.id === cat.parentId);
-      const parentName = parentCat?.name.toLowerCase();
-
-      if (parentName && namePart.startsWith(parentName)) {
-        namePart = namePart.replace(parentName, "").trim();
-      }
-      if (catName && namePart.startsWith(catName)) {
-        namePart = namePart.replace(catName, "").trim();
-      }
-    }
-
-    if (activeProject === "new" || !form.getValues("slug")) {
-      form.setValue("slug", generateSlug(namePart));
-    }
-  };
-
   return {
     form,
     saveMutation,
     handleUpload,
+    handleContentChange,
     uploading,
-    handleDescriptionChange,
     supabase,
   };
 }
