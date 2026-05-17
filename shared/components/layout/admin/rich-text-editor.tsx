@@ -64,9 +64,10 @@ const RichTextEditor = ({
     editorProps: {
       attributes: {
         class: cn(
-          "tiptap prose prose-lg dark:prose-invert focus:outline-none max-w-none min-h-125 py-12",
+          "prose prose-lg dark:prose-invert focus:outline-none max-w-none min-h-125 py-12",
           "prose-headings:font-bold prose-headings:tracking-tight prose-headings:text-foreground",
           "prose-img:rounded-sm",
+          "tiptap",
           className,
         ),
       },
@@ -122,7 +123,7 @@ const RichTextEditor = ({
   }
 
   return (
-    <div className="relative w-full max-w-7xl mx-auto">
+    <div className="relative w-full max-w-3xl mx-auto">
       {/* Sub-component Menus (SOLID Architecture) */}
       <TextBubbleMenu editor={editor} />
       <ImageBubbleMenu editor={editor} />

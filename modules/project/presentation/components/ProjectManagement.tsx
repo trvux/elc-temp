@@ -377,7 +377,13 @@ export function ProjectManagement() {
                           </label>
                           {field.value?.map((url: string, i: number) => (
                             <div key={i} className="relative aspect-square rounded-xl overflow-hidden group border bg-muted/20">
-                              <Image src={url} alt="" fill className="object-cover" />
+                              <Image
+                                src={url}
+                                alt=""
+                                fill
+                                className="object-cover"
+                                sizes="(max-width: 640px) 33vw, (max-width: 1024px) 25vw, 150px"
+                              />
                               <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                                 <Button
                                   size="icon"

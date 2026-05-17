@@ -64,6 +64,7 @@ export function ProductGalleryTab({
                   alt=""
                   fill
                   className="object-contain p-2"
+                  sizes="(max-width: 640px) 50vw, (max-width: 768px) 25vw, (max-width: 1024px) 16vw, 120px"
                 />
                 <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                   <Button
