@@ -36,8 +36,8 @@ export function BrandShowcase() {
       <StaggerContainer className={styles.container}>
         <StaggerItem className={styles.header}>
           <TypographyH2>
-            Hơn 10,000+ dự án cao cấp <br className="hidden md:block" /> tin
-            dùng giải pháp từ ELC
+            Hơn 10,000 dự án cao cấp <br className="hidden md:block" /> tin dùng
+            giải pháp từ ELC
           </TypographyH2>
         </StaggerItem>
 
