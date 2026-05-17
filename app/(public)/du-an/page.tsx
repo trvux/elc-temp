@@ -50,8 +50,15 @@ export default async function ProjectsPage() {
               return (
                 <Card
                   key={project.id}
-                  className="relative mx-auto w-full pt-0 flex flex-col group overflow-hidden border-none shadow-none ring-1 ring-foreground/10"
+                  className="relative cursor-pointer mx-auto w-full pt-0 flex flex-col group overflow-hidden border-none shadow-none ring-1 ring-foreground/10"
                 >
+                  {/* Absolute link overlay to make the whole card clickable */}
+                  <Link
+                    href={url}
+                    className="absolute inset-0 z-10"
+                    aria-label={`Chi tiết dự án ${project.title}`}
+                  />
+
                   <div className="relative overflow-hidden">
                     <AspectRatio ratio={16 / 9}>
                       <div className="absolute inset-0 z-10 bg-black/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
@@ -98,7 +105,7 @@ export default async function ProjectsPage() {
                     </CardDescription>
                   </CardHeader>
 
-                  <CardFooter className="mt-auto">
+                  <CardFooter className="mt-auto relative z-20">
                     <Link href={url} className="w-full">
                       <Button className="w-full">Xem chi tiết</Button>
                     </Link>

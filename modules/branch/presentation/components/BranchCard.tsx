@@ -11,18 +11,25 @@ interface BranchCardProps {
 
 export const BranchCard: React.FC<BranchCardProps> = ({ branch }) => {
   return (
-    <Card className="overflow-hidden hover:shadow-md transition-shadow flex flex-col border-none bg-background/50 backdrop-blur-sm shadow-sm">
+    <Card className="relative cursor-pointer overflow-hidden hover:shadow-md transition-shadow flex flex-col border-none bg-background/50 backdrop-blur-sm shadow-sm group/card">
       <CardContent className="p-6 flex flex-col h-full">
+        {/* Absolute link overlay to make the whole card clickable */}
         <Link
           href={`/chi-nhanh/${branch.slug}`}
-          className="hover:text-primary transition-colors group"
+          className="absolute inset-0 z-0"
+          aria-label={`Chi tiết chi nhánh ${branch.name}`}
+        />
+
+        <Link
+          href={`/chi-nhanh/${branch.slug}`}
+          className="hover:text-primary transition-colors group relative z-10"
         >
           <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
             {branch.name}
-            <ArrowRight className="w-4 h-4 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all" />
+            <ArrowRight className="w-4 h-4 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all group-hover/card:opacity-100 group-hover/card:translate-x-0" />
           </h3>
         </Link>
-        <div className="space-y-3 text-sm grow text-muted-foreground">
+        <div className="space-y-3 text-sm grow text-muted-foreground relative z-10">
           <div className="flex gap-3">
             <MapPin className="w-5 h-5 text-primary shrink-0" />
             <span>{branch.address}</span>
@@ -47,7 +54,7 @@ export const BranchCard: React.FC<BranchCardProps> = ({ branch }) => {
           </div>
         </div>
 
-        <div className="mt-6 grid grid-cols-2 gap-3">
+        <div className="mt-6 grid grid-cols-2 gap-3 relative z-10">
           <Link
             href={`/chi-nhanh/${branch.slug}`}
             className={cn(
