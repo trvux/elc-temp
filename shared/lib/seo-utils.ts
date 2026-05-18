@@ -19,7 +19,9 @@ export function generateProductMetadata(product: ProductWithRelations) {
   const synonyms = isAirCon ? "(Điều hòa)" : "";
 
   // 1. Try to get HP from specs
-  const productSpecs = Array.isArray(product.specs) ? (product.specs as any[]) : [];
+  const productSpecs = Array.isArray(product.specs)
+    ? (product.specs as any[])
+    : [];
   let hpSpec = productSpecs.find(
     (s: any) =>
       s.label?.toLowerCase().includes("công suất") ||
@@ -30,8 +32,10 @@ export function generateProductMetadata(product: ProductWithRelations) {
   // 2. Fallback: Try to extract from SKU or Name (e.g., "15hp" or "1.5hp")
   if (!hpValue) {
     const combinedText = `${product.sku} ${product.name}`.toLowerCase();
-    const hpMatch = combinedText.match(/(\d+(\.\d+)?)\s*(hp|ngựa|ngua)/) || combinedText.match(/(\d{2})hp/);
-    
+    const hpMatch =
+      combinedText.match(/(\d+(\.\d+)?)\s*(hp|ngựa|ngua)/) ||
+      combinedText.match(/(\d{2})hp/);
+
     if (hpMatch) {
       const val = hpMatch[1];
       // Special case: "15hp" -> "1.5HP"
@@ -39,8 +43,10 @@ export function generateProductMetadata(product: ProductWithRelations) {
       else if (val === "15") hpValue = "1.5HP";
       else if (val === "20") hpValue = "2.0HP";
       else if (val === "25") hpValue = "2.5HP";
-      else if (val.length === 2 && parseInt(val) > 25) hpValue = `${val}HP`; // e.g. 50HP
-      else hpValue = val.includes(".") || val.length === 1 ? `${val}HP` : hpValue;
+      else if (val.length === 2 && parseInt(val) > 25)
+        hpValue = `${val}HP`; // e.g. 50HP
+      else
+        hpValue = val.includes(".") || val.length === 1 ? `${val}HP` : hpValue;
     }
   }
 
@@ -101,7 +107,10 @@ export function generateProductMetadata(product: ProductWithRelations) {
 /**
  * Generates SEO for Category pages
  */
-export function generateCategoryMetadata(category: Record<string, unknown> | null | undefined, totalCount: number) {
+export function generateCategoryMetadata(
+  category: Record<string, unknown> | null | undefined,
+  totalCount: number,
+) {
   if (!category) return {};
 
   const name = (category.name || "") as string;
@@ -121,9 +130,14 @@ export function generateCategoryMetadata(category: Record<string, unknown> | nul
   let title = "";
   let description = "";
 
-  const metaTitle = (category.metaTitle || category.meta_title) as string | undefined;
-  const metaDescription = (category.metaDescription || category.meta_description) as string | undefined;
-  const imageUrl = (category.image_url || category.imageUrl) as string | undefined;
+  const metaTitle = (category.metaTitle || category.meta_title) as
+    | string
+    | undefined;
+  const metaDescription = (category.metaDescription ||
+    category.meta_description) as string | undefined;
+  const imageUrl = (category.image_url || category.imageUrl) as
+    | string
+    | undefined;
 
   if (isProject) {
     title = `Dự án ${name} tiêu biểu`;
@@ -133,10 +147,16 @@ export function generateCategoryMetadata(category: Record<string, unknown> | nul
     // 2. Fallback to smart generated displayName
     title = metaTitle || `Danh sách ${displayName} chính hãng, giá tốt nhất`;
 
-    if (!metaTitle && (name.toLowerCase().includes("âm trần") || name.toLowerCase().includes("giấu trần"))) {
+    if (
+      !metaTitle &&
+      (name.toLowerCase().includes("âm trần") ||
+        name.toLowerCase().includes("giấu trần"))
+    ) {
       title = `Danh sách ${displayName} cho hệ thống VRV/VRF chính hãng`;
     }
-    description = metaDescription || `Chuyên cung cấp ${displayName} chính hãng tại Điện máy ELC. Máy lạnh giá tốt nhất thị trường, hỗ trợ thi công lắp đặt máy lạnh chuyên nghiệp, bảo hành uy tín. Xem ngay!`;
+    description =
+      metaDescription ||
+      `Chuyên cung cấp ${displayName} chính hãng tại Điện máy ELC. Máy lạnh giá tốt nhất thị trường, hỗ trợ thi công lắp đặt máy lạnh chuyên nghiệp, bảo hành uy tín. Xem ngay!`;
   }
 
   if (!title.endsWith(SHOP_NAME)) {
@@ -158,23 +178,32 @@ export function generateCategoryMetadata(category: Record<string, unknown> | nul
 /**
  * Generates SEO for Brand pages
  */
-export function generateBrandMetadata(brand: Record<string, unknown> | null | undefined, category?: Record<string, unknown> | null | undefined) {
+export function generateBrandMetadata(
+  brand: Record<string, unknown> | null | undefined,
+  category?: Record<string, unknown> | null | undefined,
+) {
   if (!brand) return {};
 
   const brandName = (brand.name || "") as string;
   const categoryName = (category?.name || "Máy lạnh") as string;
-  
-  const synonym = categoryName.toLowerCase().includes("máy lạnh") ? " (Điều hòa)" : "";
+
+  const synonym = categoryName.toLowerCase().includes("máy lạnh")
+    ? " (Điều hòa)"
+    : "";
   const displayName = `${categoryName}${synonym} ${brandName}`;
 
   const metaTitle = (brand.metaTitle || brand.meta_title) as string | undefined;
-  const metaDescription = (brand.metaDescription || brand.meta_description) as string | undefined;
+  const metaDescription = (brand.metaDescription || brand.meta_description) as
+    | string
+    | undefined;
   const logo = (brand.logoUrl || brand.logo_url) as string | undefined;
 
   // 1. Use meta_title if provided in DB
   // 2. Fallback to smart generated name
   const title = metaTitle || `${displayName} chính hãng, giá tốt nhất`;
-  const description = metaDescription || `Chuyên cung cấp ${displayName} chính hãng tại Điện máy ELC. Cam kết chất lượng cao, bảo hành uy tín, thi công lắp đặt chuyên nghiệp. Xem ngay!`;
+  const description =
+    metaDescription ||
+    `Chuyên cung cấp ${displayName} chính hãng tại Điện máy ELC. Cam kết chất lượng cao, bảo hành uy tín, thi công lắp đặt chuyên nghiệp. Xem ngay!`;
 
   let finalTitle = title;
   if (!finalTitle.endsWith(SHOP_NAME)) {
@@ -196,7 +225,9 @@ export function generateBrandMetadata(brand: Record<string, unknown> | null | un
 /**
  * Generates SEO for Service pages
  */
-export function generateServiceMetadata(service: Record<string, unknown> | null | undefined) {
+export function generateServiceMetadata(
+  service: Record<string, unknown> | null | undefined,
+) {
   if (!service) return {};
 
   const serviceTitle = (service.title || "") as string;
@@ -219,7 +250,7 @@ export function generateServiceMetadata(service: Record<string, unknown> | null 
       title,
       description,
       images: image ? [image] : [],
-    }
+    },
   };
 }
 
@@ -228,42 +259,61 @@ export function generateServiceMetadata(service: Record<string, unknown> | null 
  * This is what makes Google show "₫4,990,000 to ₫58,640,000"
  */
 export function generateCollectionSchema(
-  entity: unknown, 
-  products: Array<{ salePrice?: number; sale_price?: number; originalPrice?: number; original_price?: number }>
+  entity: unknown,
+  products: Array<{
+    salePrice?: number;
+    sale_price?: number;
+    originalPrice?: number;
+    original_price?: number;
+    images?: string[];
+  }>,
 ) {
   if (!entity || !products || products.length === 0) return null;
 
   const prices = products
-    .map(p => {
+    .map((p) => {
       const salePrice = p.salePrice ?? p.sale_price ?? 0;
       const originalPrice = p.originalPrice ?? p.original_price ?? 0;
       return salePrice || originalPrice || 0;
     })
-    .filter(p => p > 0);
-  
+    .filter((p) => p > 0);
+
   if (prices.length === 0) return null;
 
   const lowPrice = Math.min(...prices);
   const highPrice = Math.max(...prices);
 
   const entityRecord = entity as Record<string, unknown>;
-  const entityName = (entityRecord.name || entityRecord.displayName) as string | undefined;
-  const entityDesc = (entityRecord.metaDescription || entityRecord.meta_description || entityRecord.description) as string | undefined;
+  const entityName = (entityRecord.name || entityRecord.displayName) as
+    | string
+    | undefined;
+  const entityDesc = (entityRecord.metaDescription ||
+    entityRecord.meta_description ||
+    entityRecord.description) as string | undefined;
+
+  // Extract first product image to make Product schema valid and warning-free
+  const firstProductWithImage = products.find((p) => {
+    const imgs = p.images;
+    return Array.isArray(imgs) && imgs.length > 0;
+  });
+  const imageUrl = firstProductWithImage ? firstProductWithImage.images?.[0] : undefined;
 
   return {
     "@context": "https://schema.org/",
-    "@type": "ItemList",
-    "name": entityName,
-    "description": entityDesc,
-    "url": `${BASE_URL}/san-pham/${entityRecord.slug}`,
-    "numberOfItems": products.length,
-    "offers": {
+    "@type": "Product",
+    name: `Danh sách sản phẩm ${entityName} chính hãng`,
+    description:
+      entityDesc ||
+      `Khám phá danh sách các sản phẩm ${entityName} chính hãng chất lượng cao tại Điện máy ELC.`,
+    image: imageUrl,
+    url: `${BASE_URL}/san-pham/${entityRecord.slug}`,
+    offers: {
       "@type": "AggregateOffer",
-      "lowPrice": lowPrice,
-      "highPrice": highPrice,
-      "priceCurrency": "VND",
-      "offerCount": products.length
-    }
+      lowPrice: lowPrice,
+      highPrice: highPrice,
+      priceCurrency: "VND",
+      offerCount: prices.length,
+    },
   };
 }
 
@@ -273,47 +323,56 @@ export function generateCollectionSchema(
 export function generateProductSchema(product: ProductWithRelations) {
   const rawProduct = product as unknown as Record<string, unknown>;
   const salePrice = (product.salePrice ?? rawProduct.sale_price ?? 0) as number;
-  const originalPrice = (product.originalPrice ?? rawProduct.original_price ?? 0) as number;
+  const originalPrice = (product.originalPrice ??
+    rawProduct.original_price ??
+    0) as number;
   const price = salePrice || originalPrice || 0;
   const hasPrice = price > 0;
 
-  const hasDiscount = hasPrice && 
-                      typeof salePrice === "number" && 
-                      typeof originalPrice === "number" && 
-                      salePrice > 0 && 
-                      originalPrice > 0 && 
-                      salePrice < originalPrice;
+  const hasDiscount =
+    hasPrice &&
+    typeof salePrice === "number" &&
+    typeof originalPrice === "number" &&
+    salePrice > 0 &&
+    originalPrice > 0 &&
+    salePrice < originalPrice;
 
-  const stockStatus = (product.stockStatus ?? rawProduct.stock_status) as string | undefined;
+  const stockStatus = (product.stockStatus ?? rawProduct.stock_status) as
+    | string
+    | undefined;
   const mpn = (product.mpn ?? rawProduct.mpn) as string | null | undefined;
   const gtin = (product.gtin ?? rawProduct.gtin) as string | null | undefined;
   const hasGtin = typeof gtin === "string" && gtin.trim().length > 0;
   const firstSku = product.sku ? product.sku.split(/[\s/]+/)[0] : "";
-  
+
   // Reuse the smart metadata logic to get the same description
   const metadata = generateProductMetadata(product);
 
-  const brandLogo = product.brand?.logoUrl || (product.brand as unknown as Record<string, unknown> | undefined)?.logo_url;
+  const brandLogo =
+    product.brand?.logoUrl ||
+    (product.brand as unknown as Record<string, unknown> | undefined)?.logo_url;
 
   return {
     "@context": "https://schema.org/",
     "@type": "Product",
     name: product.name,
-    image: Array.isArray(product.images) && product.images.length > 0 
-      ? product.images 
-      : [],
+    image:
+      Array.isArray(product.images) && product.images.length > 0
+        ? product.images
+        : [],
     mainEntityOfPage: {
       "@type": "WebPage",
       "@id": `${BASE_URL}/san-pham/${product.slug}`,
-      "primaryImageOfPage": Array.isArray(product.images) && product.images.length > 0 
-        ? product.images[0] 
-        : undefined
+      primaryImageOfPage:
+        Array.isArray(product.images) && product.images.length > 0
+          ? product.images[0]
+          : undefined,
     },
     description: metadata.description || "",
     sku: firstSku,
     mpn: mpn || undefined,
     gtin: hasGtin ? gtin : undefined,
-    "identifier_exists": hasGtin,
+    identifier_exists: hasGtin,
     brand: {
       "@type": "Brand",
       name: product.brand?.name || SHOP_NAME,
@@ -330,13 +389,15 @@ export function generateProductSchema(product: ProductWithRelations) {
         stockStatus === "in_stock"
           ? "https://schema.org/InStock"
           : "https://schema.org/OutOfStock",
-      "identifier_exists": hasGtin,
-      priceSpecification: hasDiscount ? {
-        "@type": "UnitPriceSpecification",
-        priceType: "https://schema.org/ListPrice",
-        price: originalPrice,
-        priceCurrency: "VND",
-      } : undefined,
+      identifier_exists: hasGtin,
+      priceSpecification: hasDiscount
+        ? {
+            "@type": "UnitPriceSpecification",
+            priceType: "https://schema.org/ListPrice",
+            price: originalPrice,
+            priceCurrency: "VND",
+          }
+        : undefined,
       shippingDetails: {
         "@type": "OfferShippingDetails",
         shippingRate: {
