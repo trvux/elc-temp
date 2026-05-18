@@ -350,6 +350,12 @@ export function generateProductSchema(product: ProductWithRelations) {
         },
         deliveryTime: {
           "@type": "ShippingDeliveryTime",
+          handlingTime: {
+            "@type": "QuantitativeValue",
+            minValue: 0,
+            maxValue: 1,
+            unitCode: "d",
+          },
           transitTime: {
             "@type": "QuantitativeValue",
             minValue: 1,
