@@ -8,6 +8,7 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/shared/components/ui/breadcrumb";
+import { usePathname } from "next/navigation";
 import React from "react";
 
 export interface BreadcrumbStep {
@@ -22,6 +23,7 @@ interface BreadcrumbsProps {
 }
 
 export function Breadcrumbs({ items, className }: BreadcrumbsProps) {
+  const pathname = usePathname();
   const baseUrl =
     process.env.NEXT_PUBLIC_APP_URL || "https://dienmayelc.com.vn";
 
@@ -44,7 +46,7 @@ export function Breadcrumbs({ items, className }: BreadcrumbsProps) {
           ? item.href.startsWith("http")
             ? item.href
             : `${baseUrl}${item.href}`
-          : undefined,
+          : `${baseUrl}${pathname}`,
       })),
     ],
   };
