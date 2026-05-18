@@ -275,11 +275,20 @@ export function generateProductSchema(product: ProductWithRelations) {
   const salePrice = (product.salePrice ?? rawProduct.sale_price ?? 0) as number;
   const originalPrice = (product.originalPrice ?? rawProduct.original_price ?? 0) as number;
   const price = salePrice || originalPrice || 0;
+  const hasPrice = price > 0;
+
+  const hasDiscount = hasPrice && 
+                      typeof salePrice === "number" && 
+                      typeof originalPrice === "number" && 
+                      salePrice > 0 && 
+                      originalPrice > 0 && 
+                      salePrice < originalPrice;
 
   const stockStatus = (product.stockStatus ?? rawProduct.stock_status) as string | undefined;
   const mpn = (product.mpn ?? rawProduct.mpn) as string | null | undefined;
   const gtin = (product.gtin ?? rawProduct.gtin) as string | null | undefined;
   const hasGtin = typeof gtin === "string" && gtin.trim().length > 0;
+  const firstSku = product.sku ? product.sku.split(/[\s/]+/)[0] : "";
   
   // Reuse the smart metadata logic to get the same description
   const metadata = generateProductMetadata(product);
@@ -301,7 +310,7 @@ export function generateProductSchema(product: ProductWithRelations) {
         : undefined
     },
     description: metadata.description || "",
-    sku: product.sku,
+    sku: firstSku,
     mpn: mpn || undefined,
     gtin: hasGtin ? gtin : undefined,
     "identifier_exists": hasGtin,
@@ -313,8 +322,8 @@ export function generateProductSchema(product: ProductWithRelations) {
     offers: {
       "@type": "Offer",
       url: `${BASE_URL}/san-pham/${product.slug}`,
-      priceCurrency: "VND",
-      price: price,
+      priceCurrency: hasPrice ? "VND" : undefined,
+      price: hasPrice ? price : undefined,
       priceValidUntil: "2026-12-31",
       itemCondition: "https://schema.org/NewCondition",
       availability:
@@ -322,6 +331,38 @@ export function generateProductSchema(product: ProductWithRelations) {
           ? "https://schema.org/InStock"
           : "https://schema.org/OutOfStock",
       "identifier_exists": hasGtin,
+      priceSpecification: hasDiscount ? {
+        "@type": "UnitPriceSpecification",
+        priceType: "https://schema.org/ListPrice",
+        price: originalPrice,
+        priceCurrency: "VND",
+      } : undefined,
+      shippingDetails: {
+        "@type": "OfferShippingDetails",
+        shippingRate: {
+          "@type": "MonetaryAmount",
+          value: 0,
+          currency: "VND",
+        },
+        shippingDestination: {
+          "@type": "DefinedRegion",
+          addressCountry: "VN",
+        },
+        deliveryTime: {
+          "@type": "ShippingDeliveryTime",
+          transitTime: {
+            "@type": "QuantitativeValue",
+            minValue: 1,
+            maxValue: 3,
+            unitCode: "d",
+          },
+        },
+      },
+      hasMerchantReturnPolicy: {
+        "@type": "MerchantReturnPolicy",
+        applicableCountry: "VN",
+        returnPolicyCategory: "https://schema.org/MerchantReturnNotPermitted",
+      },
       seller: {
         "@type": "Organization",
         name: SHOP_NAME,
