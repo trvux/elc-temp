@@ -82,6 +82,8 @@ export class SupabaseBrandRepository implements BrandRepository {
       slug: input.slug,
       logo_url: input.logoUrl,
       description: input.description,
+      meta_title: input.metaTitle,
+      meta_description: input.metaDescription,
     };
 
     const { data, error } = await supabase
@@ -101,6 +103,8 @@ export class SupabaseBrandRepository implements BrandRepository {
       slug: input.slug,
       logo_url: input.logoUrl,
       description: input.description,
+      meta_title: input.metaTitle,
+      meta_description: input.metaDescription,
     };
     
     const { data, error } = await supabase
@@ -142,6 +146,8 @@ export class SupabaseBrandRepository implements BrandRepository {
       slug: row.slug,
       logoUrl: row.logo_url || "",
       description: row.description || "",
+      metaTitle: row.meta_title || null,
+      metaDescription: row.meta_description || null,
       createdAt: row.created_at || new Date().toISOString(),
       updatedAt: row.created_at || new Date().toISOString(), // brands table might not have updated_at
       deletedAt: null,

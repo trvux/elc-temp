@@ -52,6 +52,8 @@ export type Database = {
           is_published: boolean
           maps_embed: string
           maps_url: string
+          meta_description: string | null
+          meta_title: string | null
           name: string
           order_index: number
           phone: string
@@ -68,6 +70,8 @@ export type Database = {
           is_published?: boolean
           maps_embed?: string
           maps_url?: string
+          meta_description?: string | null
+          meta_title?: string | null
           name: string
           order_index?: number
           phone?: string
@@ -84,6 +88,8 @@ export type Database = {
           is_published?: boolean
           maps_embed?: string
           maps_url?: string
+          meta_description?: string | null
+          meta_title?: string | null
           name?: string
           order_index?: number
           phone?: string
@@ -219,6 +225,8 @@ export type Database = {
           id: string
           image: string
           is_published: boolean
+          meta_description: string | null
+          meta_title: string | null
           order_index: number
           slug: string
           title: string
@@ -231,6 +239,8 @@ export type Database = {
           id?: string
           image?: string
           is_published?: boolean
+          meta_description?: string | null
+          meta_title?: string | null
           order_index?: number
           slug: string
           title: string
@@ -243,6 +253,8 @@ export type Database = {
           id?: string
           image?: string
           is_published?: boolean
+          meta_description?: string | null
+          meta_title?: string | null
           order_index?: number
           slug?: string
           title?: string
@@ -257,6 +269,8 @@ export type Database = {
           deleted_at: string | null
           id: string
           is_published: boolean
+          meta_description: string | null
+          meta_title: string | null
           slug: string
           title: string
           updated_at: string | null
@@ -267,6 +281,8 @@ export type Database = {
           deleted_at?: string | null
           id?: string
           is_published?: boolean
+          meta_description?: string | null
+          meta_title?: string | null
           slug: string
           title: string
           updated_at?: string | null
@@ -277,6 +293,8 @@ export type Database = {
           deleted_at?: string | null
           id?: string
           is_published?: boolean
+          meta_description?: string | null
+          meta_title?: string | null
           slug?: string
           title?: string
           updated_at?: string | null
@@ -291,12 +309,14 @@ export type Database = {
           deleted_at: string | null
           description: Json
           discount_percent: number | null
+          gtin: string | null
           id: string
           images: string[] | null
           is_featured: boolean | null
           is_published: boolean | null
           meta_description: string | null
           meta_title: string | null
+          mpn: string | null
           name: string
           order_index: number | null
           original_price: number | null
@@ -314,12 +334,14 @@ export type Database = {
           deleted_at?: string | null
           description?: Json
           discount_percent?: number | null
+          gtin?: string | null
           id?: string
           images?: string[] | null
           is_featured?: boolean | null
           is_published?: boolean | null
           meta_description?: string | null
           meta_title?: string | null
+          mpn?: string | null
           name: string
           order_index?: number | null
           original_price?: number | null
@@ -337,12 +359,14 @@ export type Database = {
           deleted_at?: string | null
           description?: Json
           discount_percent?: number | null
+          gtin?: string | null
           id?: string
           images?: string[] | null
           is_featured?: boolean | null
           is_published?: boolean | null
           meta_description?: string | null
           meta_title?: string | null
+          mpn?: string | null
           name?: string
           order_index?: number | null
           original_price?: number | null
@@ -380,6 +404,8 @@ export type Database = {
           images: string[]
           is_featured: boolean | null
           is_published: boolean | null
+          meta_description: string | null
+          meta_title: string | null
           order_index: number | null
           slug: string
           title: string
@@ -394,6 +420,8 @@ export type Database = {
           images?: string[]
           is_featured?: boolean | null
           is_published?: boolean | null
+          meta_description?: string | null
+          meta_title?: string | null
           order_index?: number | null
           slug: string
           title: string
@@ -408,6 +436,8 @@ export type Database = {
           images?: string[]
           is_featured?: boolean | null
           is_published?: boolean | null
+          meta_description?: string | null
+          meta_title?: string | null
           order_index?: number | null
           slug?: string
           title?: string
@@ -431,6 +461,8 @@ export type Database = {
           id: string
           image: string
           is_published: boolean
+          meta_description: string | null
+          meta_title: string | null
           order_index: number
           slug: string
           title: string
@@ -443,6 +475,8 @@ export type Database = {
           id?: string
           image?: string
           is_published?: boolean
+          meta_description?: string | null
+          meta_title?: string | null
           order_index?: number
           slug: string
           title: string
@@ -455,6 +489,8 @@ export type Database = {
           id?: string
           image?: string
           is_published?: boolean
+          meta_description?: string | null
+          meta_title?: string | null
           order_index?: number
           slug?: string
           title?: string

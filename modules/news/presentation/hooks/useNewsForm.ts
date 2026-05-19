@@ -17,6 +17,8 @@ export type NewsFormValues = {
   image: string;
   content: unknown;
   isPublished: boolean;
+  metaTitle: string;
+  metaDescription: string;
   orderIndex: number;
 };
 
@@ -35,6 +37,8 @@ export function useNewsForm(
       image: "",
       content: "",
       isPublished: true,
+      metaTitle: "",
+      metaDescription: "",
       orderIndex: 0,
     },
   });

@@ -21,6 +21,8 @@ export type ProjectFormValues = {
   images: string[];
   isFeatured: boolean;
   isPublished: boolean;
+  metaTitle: string;
+  metaDescription: string;
   orderIndex: number;
   categoryId: string;
 };
@@ -44,6 +46,8 @@ export function useProjectForm(
       images: [],
       isPublished: true,
       isFeatured: false,
+      metaTitle: "",
+      metaDescription: "",
       orderIndex: 0,
     },
   });

@@ -30,6 +30,8 @@ export function useBranchForm(
       mapsEmbed: "",
       description: "",
       isPublished: true,
+      metaTitle: "",
+      metaDescription: "",
       orderIndex: 0,
     },
   });

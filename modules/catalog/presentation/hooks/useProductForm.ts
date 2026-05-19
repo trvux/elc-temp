@@ -83,6 +83,8 @@ export function useProductForm(
       stockStatus: STOCK_STATUS.IN_STOCK,
       mpn: "",
       gtin: "",
+      metaTitle: "",
+      metaDescription: "",
       specs: AC_TEMPLATE as any,
     },
   });

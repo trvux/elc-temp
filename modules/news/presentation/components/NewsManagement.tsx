@@ -19,6 +19,7 @@ import {
   FieldLabel,
 } from "@/shared/components/ui/field";
 import { Input } from "@/shared/components/ui/input";
+import { Textarea } from "@/shared/components/ui/textarea";
 import {
   Select,
   SelectContent,
@@ -102,6 +103,8 @@ export function NewsManagement() {
             image: n.image,
             content: n.content as any,
             isPublished: n.isPublished,
+            metaTitle: n.metaTitle || "",
+            metaDescription: n.metaDescription || "",
             orderIndex: n.orderIndex,
           });
           setIsDialogOpen(true);
@@ -119,6 +122,8 @@ export function NewsManagement() {
       image: "",
       content: "",
       isPublished: true,
+      metaTitle: "",
+      metaDescription: "",
       orderIndex: 0,
     });
     setIsDialogOpen(true);
@@ -282,6 +287,39 @@ export function NewsManagement() {
                         <FieldDescription>
                           Đường dẫn: <span className="text-primary font-medium">/tin-tuc/{field.value || "..."}</span>
                         </FieldDescription>
+                        <FieldError errors={[fieldState.error]} />
+                      </Field>
+                    )}
+                  />
+                </div>
+              </div>
+
+              {/* SEO Section */}
+              <div className="space-y-6 border p-6 rounded-2xl bg-muted/10">
+                <div className="border-b pb-2">
+                  <h3 className="text-sm font-semibold tracking-tight">Cấu hình SEO</h3>
+                  <p className="text-[11px] text-muted-foreground">Tối ưu hóa hiển thị trên các công cụ tìm kiếm (Google, Bing,...).</p>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <Controller
+                    control={form.control}
+                    name="metaTitle"
+                    render={({ field, fieldState }) => (
+                      <Field>
+                        <FieldLabel>Tiêu đề SEO</FieldLabel>
+                        <Input {...field} value={field.value || ""} placeholder="Để trống sẽ tự động dùng tiêu đề..." />
+                        <FieldError errors={[fieldState.error]} />
+                      </Field>
+                    )}
+                  />
+
+                  <Controller
+                    control={form.control}
+                    name="metaDescription"
+                    render={({ field, fieldState }) => (
+                      <Field>
+                        <FieldLabel>Mô tả SEO</FieldLabel>
+                        <Textarea {...field} value={field.value || ""} placeholder="Mô tả tóm tắt bài viết để hiển thị trên Google..." className="min-h-[80px]" />
                         <FieldError errors={[fieldState.error]} />
                       </Field>
                     )}

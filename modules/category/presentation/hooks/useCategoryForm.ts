@@ -29,6 +29,8 @@ export function useCategoryForm(
       slug: "",
       type: "PRODUCT",
       parentId: null,
+      metaTitle: "",
+      metaDescription: "",
     },
   });
 

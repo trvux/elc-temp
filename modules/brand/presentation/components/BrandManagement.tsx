@@ -18,6 +18,7 @@ import {
   FieldLabel,
 } from "@/shared/components/ui/field";
 import { Input } from "@/shared/components/ui/input";
+import { Textarea } from "@/shared/components/ui/textarea";
 
 import { Brand } from "../../domain";
 import { deleteBrandAction, getBrandsAction } from "../actions";
@@ -67,6 +68,8 @@ export function BrandManagement() {
             slug: b.slug,
             logoUrl: b.logoUrl || "",
             description: b.description || "",
+            metaTitle: b.metaTitle || "",
+            metaDescription: b.metaDescription || "",
           });
         },
         onDelete: setDeletingId,
@@ -81,6 +84,8 @@ export function BrandManagement() {
       slug: "",
       logoUrl: "",
       description: "",
+      metaTitle: "",
+      metaDescription: "",
     });
   }
 
@@ -218,6 +223,39 @@ export function BrandManagement() {
               )}
             />
           </FieldGroup>
+
+          {/* SEO Section */}
+          <div className="space-y-5 border p-5 rounded-2xl bg-muted/10">
+            <div className="border-b pb-2">
+              <h3 className="text-sm font-semibold tracking-tight">Cấu hình SEO</h3>
+              <p className="text-[11px] text-muted-foreground">Tối ưu hóa hiển thị trên các công cụ tìm kiếm.</p>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+              <Controller
+                control={form.control}
+                name="metaTitle"
+                render={({ field, fieldState }) => (
+                  <Field>
+                    <FieldLabel>Tiêu đề SEO</FieldLabel>
+                    <Input {...field} value={field.value || ""} placeholder="Để trống sẽ tự động dùng tên thương hiệu..." />
+                    <FieldError errors={[fieldState.error]} />
+                  </Field>
+                )}
+              />
+
+              <Controller
+                control={form.control}
+                name="metaDescription"
+                render={({ field, fieldState }) => (
+                  <Field>
+                    <FieldLabel>Mô tả SEO</FieldLabel>
+                    <Textarea {...field} value={field.value || ""} placeholder="Mô tả tóm tắt thương hiệu hiển thị trên Google..." className="min-h-[80px]" />
+                    <FieldError errors={[fieldState.error]} />
+                  </Field>
+                )}
+              />
+            </div>
+          </div>
 
           <div className="flex justify-end gap-3 pt-6 border-t mt-4">
             <Button

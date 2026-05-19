@@ -21,8 +21,8 @@ export const branchSchema = z.object({
     description: z.unknown(),
     isPublished: z.boolean(),
     orderIndex: z.number().int(),
-    metaTitle: z.string().max(100).optional(),
-    metaDescription: z.string().max(200).optional(),
+    metaTitle: z.string().max(70, { message: "Tiêu đề SEO không nên quá 70 ký tự" }).nullable().optional(),
+    metaDescription: z.string().max(160, { message: "Mô tả SEO không nên quá 160 ký tự" }).nullable().optional(),
     createdAt: z.iso.datetime({
         message: "Thời gian tạo không đúng định dạng ISO",
     }),

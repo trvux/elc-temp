@@ -18,6 +18,8 @@ export const brandSchema = z.object({
     .or(z.literal(""))
     .optional(),
   description: z.string().optional(),
+  metaTitle: z.string().max(70, { message: "Tiêu đề SEO không nên quá 70 ký tự" }).nullable().optional(),
+  metaDescription: z.string().max(160, { message: "Mô tả SEO không nên quá 160 ký tự" }).nullable().optional(),
   createdAt: z.iso.datetime({
     message: "Thời gian tạo không đúng định dạng ISO",
   }),

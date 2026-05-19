@@ -24,6 +24,8 @@ export interface Branch {
   mapsEmbed: string;
   description: Json;
   isPublished: boolean;
+  metaTitle?: string | null;
+  metaDescription?: string | null;
   orderIndex: number;
   createdAt: string;
   updatedAt: string;
@@ -40,6 +42,8 @@ export interface CreateBranchInput {
   mapsEmbed: string;
   description: Json;
   isPublished: boolean;
+  metaTitle?: string | null;
+  metaDescription?: string | null;
   orderIndex: number;
 }
 

@@ -77,6 +77,8 @@ export class SupabasePageRepository implements PageRepository {
       slug: input.slug,
       content: input.content || {},
       is_published: input.isPublished ?? true,
+      meta_title: input.metaTitle,
+      meta_description: input.metaDescription,
     };
 
     const { data, error } = await supabase
@@ -97,6 +99,8 @@ export class SupabasePageRepository implements PageRepository {
       slug: input.slug,
       content: input.content,
       is_published: input.isPublished,
+      meta_title: input.metaTitle,
+      meta_description: input.metaDescription,
       updated_at: new Date().toISOString(),
     };
 
@@ -144,6 +148,8 @@ export class SupabasePageRepository implements PageRepository {
       slug: row.slug,
       content: row.content,
       isPublished: row.is_published,
+      metaTitle: row.meta_title || null,
+      metaDescription: row.meta_description || null,
       createdAt: row.created_at || new Date().toISOString(),
       updatedAt: row.updated_at || new Date().toISOString(),
       deletedAt: row.deleted_at,
