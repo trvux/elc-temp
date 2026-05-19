@@ -13,6 +13,8 @@ export interface News {
   image: string;
   content: Json;
   isPublished: boolean;
+  metaTitle?: string | null;
+  metaDescription?: string | null;
   orderIndex: number;
   createdAt: string;
   updatedAt: string;
@@ -25,6 +27,8 @@ export interface CreateNewsInput {
   image?: string;
   content?: Json;
   isPublished?: boolean;
+  metaTitle?: string | null;
+  metaDescription?: string | null;
   orderIndex?: number;
 }
 

@@ -15,6 +15,8 @@ export type PageFormValues = {
   slug: string;
   content: unknown;
   isPublished: boolean;
+  metaTitle: string;
+  metaDescription: string;
 };
 
 export function usePageForm(
@@ -31,6 +33,8 @@ export function usePageForm(
       slug: "",
       content: "",
       isPublished: true,
+      metaTitle: "",
+      metaDescription: "",
     },
   });
 

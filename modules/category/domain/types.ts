@@ -28,6 +28,8 @@ export interface CreateCategoryInput {
   slug: string;
   parentId?: string | null;
   type: CategoryType;
+  metaTitle?: string | null;
+  metaDescription?: string | null;
 }
 
 export interface UpdateCategoryInput extends Partial<CreateCategoryInput> {

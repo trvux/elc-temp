@@ -14,6 +14,8 @@ export interface Page {
   slug: string;
   content: Json;
   isPublished: boolean;
+  metaTitle?: string | null;
+  metaDescription?: string | null;
   createdAt: string;
   updatedAt: string;
   deletedAt: string | null;
@@ -33,6 +35,8 @@ export interface CreatePageInput {
   slug: string;
   content?: Json;
   isPublished?: boolean;
+  metaTitle?: string | null;
+  metaDescription?: string | null;
 }
 
 export interface UpdatePageInput extends Partial<CreatePageInput> {

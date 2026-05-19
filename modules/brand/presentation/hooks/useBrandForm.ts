@@ -29,6 +29,8 @@ export function useBrandForm(
       slug: "",
       logoUrl: "",
       description: "",
+      metaTitle: "",
+      metaDescription: "",
     },
   });
 

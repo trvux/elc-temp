@@ -247,7 +247,6 @@ export default function SettingsPage() {
                           handleChange(field.key, e.target.value)
                         }
                         rows={4}
-                        className="resize-none"
                       />
                     ) : (
                       <Input

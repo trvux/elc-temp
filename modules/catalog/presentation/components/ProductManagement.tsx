@@ -149,6 +149,8 @@ export function ProductManagement() {
             discountPercent: p.discountPercent || 0,
             mpn: p.mpn || "",
             gtin: p.gtin || "",
+            metaTitle: p.metaTitle || "",
+            metaDescription: p.metaDescription || "",
             specs: Array.isArray(p.specs) ? p.specs : [],
           });
         },
@@ -177,6 +179,8 @@ export function ProductManagement() {
       discountPercent: 0,
       mpn: "",
       gtin: "",
+      metaTitle: "",
+      metaDescription: "",
       specs: AC_TEMPLATE,
     });
   }

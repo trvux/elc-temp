@@ -152,6 +152,8 @@ export class SupabaseBranchRepository implements BranchRepository {
       maps_embed: "mapsEmbed" in input ? input.mapsEmbed : undefined,
       description: input.description as Json,
       is_published: input.isPublished,
+      meta_title: "metaTitle" in input ? input.metaTitle : undefined,
+      meta_description: "metaDescription" in input ? input.metaDescription : undefined,
       order_index: input.orderIndex,
     };
 
@@ -172,6 +174,8 @@ export class SupabaseBranchRepository implements BranchRepository {
       mapsEmbed: row.maps_embed || "",
       description: row.description as Json,
       isPublished: row.is_published ?? false,
+      metaTitle: row.meta_title || null,
+      metaDescription: row.meta_description || null,
       orderIndex: row.order_index ?? 0,
       createdAt: row.created_at || new Date().toISOString(),
       updatedAt: row.updated_at || new Date().toISOString(),

@@ -83,6 +83,8 @@ export function BranchManagement() {
             mapsEmbed: b.mapsEmbed || "",
             description,
             isPublished: b.isPublished,
+            metaTitle: b.metaTitle || "",
+            metaDescription: b.metaDescription || "",
             orderIndex: b.orderIndex,
           });
         },
@@ -103,6 +105,8 @@ export function BranchManagement() {
       mapsEmbed: "",
       description: "",
       isPublished: true,
+      metaTitle: "",
+      metaDescription: "",
       orderIndex: 0,
     });
   }
@@ -330,6 +334,39 @@ export function BranchManagement() {
                       )}
                     />
                   </div>
+                </div>
+              </div>
+
+              {/* SEO Section */}
+              <div className="space-y-6 border p-6 rounded-2xl bg-muted/10">
+                <div className="border-b pb-2">
+                  <h3 className="text-sm font-semibold tracking-tight">Cấu hình SEO</h3>
+                  <p className="text-[11px] text-muted-foreground">Tối ưu hóa hiển thị trên các công cụ tìm kiếm (Google, Bing,...).</p>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <Controller
+                    control={form.control}
+                    name="metaTitle"
+                    render={({ field, fieldState }) => (
+                      <Field>
+                        <FieldLabel>Tiêu đề SEO</FieldLabel>
+                        <Input {...field} value={field.value || ""} placeholder="Để trống sẽ tự động dùng tiêu đề..." />
+                        <FieldError errors={[fieldState.error]} />
+                      </Field>
+                    )}
+                  />
+
+                  <Controller
+                    control={form.control}
+                    name="metaDescription"
+                    render={({ field, fieldState }) => (
+                      <Field>
+                        <FieldLabel>Mô tả SEO</FieldLabel>
+                        <Textarea {...field} value={field.value || ""} placeholder="Mô tả tóm tắt chi nhánh để hiển thị trên Google..." className="min-h-[80px]" />
+                        <FieldError errors={[fieldState.error]} />
+                      </Field>
+                    )}
+                  />
                 </div>
               </div>
 

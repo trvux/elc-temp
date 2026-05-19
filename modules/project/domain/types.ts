@@ -14,6 +14,8 @@ export interface Project {
   images: string[];
   isFeatured: boolean;
   isPublished: boolean;
+  metaTitle?: string | null;
+  metaDescription?: string | null;
   orderIndex: number;
   categoryId: string;
   createdAt: string;
@@ -37,6 +39,8 @@ export interface CreateProjectInput {
   images?: string[];
   isFeatured?: boolean;
   isPublished?: boolean;
+  metaTitle?: string | null;
+  metaDescription?: string | null;
   orderIndex?: number;
   categoryId: string;
 }

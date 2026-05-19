@@ -20,6 +20,8 @@ export const projectSchema = z.object({
     .default([]),
   isFeatured: z.boolean().default(false),
   isPublished: z.boolean().default(false),
+  metaTitle: z.string().max(70, { message: "Tiêu đề SEO không nên quá 70 ký tự" }).nullable().optional(),
+  metaDescription: z.string().max(160, { message: "Mô tả SEO không nên quá 160 ký tự" }).nullable().optional(),
   orderIndex: z.number().int().default(0),
   categoryId: z.uuid({ message: "ID danh mục không đúng định dạng UUID" }),
   createdAt: z.iso.datetime({

@@ -16,6 +16,8 @@ export interface CreateBrandInput {
   slug: string;
   logoUrl?: string;
   description?: string;
+  metaTitle?: string | null;
+  metaDescription?: string | null;
 }
 
 export interface UpdateBrandInput extends Partial<CreateBrandInput> {

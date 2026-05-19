@@ -12,6 +12,7 @@ import {
   FieldError,
 } from "@/shared/components/ui/field";
 import { Input } from "@/shared/components/ui/input";
+import { Textarea } from "@/shared/components/ui/textarea";
 import {
   Select,
   SelectContent,
@@ -402,6 +403,43 @@ export function ProductGeneralTab({
           </FieldGroup>
         </FieldSet>
       </div>
+      <FieldSeparator />
+
+      {/* SEO Section */}
+      <FieldSet>
+        <FieldLegend>Cấu hình SEO</FieldLegend>
+        <div className="space-y-6 border p-6 rounded-2xl bg-muted/10">
+          <div className="border-b pb-2">
+            <h3 className="text-sm font-semibold tracking-tight">Tối ưu hóa tìm kiếm</h3>
+            <p className="text-[11px] text-muted-foreground">Cấu hình hiển thị sản phẩm trên các công cụ tìm kiếm.</p>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <Controller
+              control={form.control}
+              name="metaTitle"
+              render={({ field, fieldState }) => (
+                <Field>
+                  <FieldLabel>Tiêu đề SEO</FieldLabel>
+                  <Input {...field} value={field.value || ""} placeholder="Để trống sẽ tự động dùng tên sản phẩm..." />
+                  <FieldError errors={[fieldState.error]} />
+                </Field>
+              )}
+            />
+
+            <Controller
+              control={form.control}
+              name="metaDescription"
+              render={({ field, fieldState }) => (
+                <Field>
+                  <FieldLabel>Mô tả SEO</FieldLabel>
+                  <Textarea {...field} value={field.value || ""} placeholder="Mô tả tóm tắt sản phẩm để hiển thị trên Google..." className="min-h-[80px]" />
+                  <FieldError errors={[fieldState.error]} />
+                </Field>
+              )}
+            />
+          </div>
+        </div>
+      </FieldSet>
     </FieldGroup>
   );
 }

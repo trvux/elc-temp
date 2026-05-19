@@ -86,6 +86,8 @@ export class SupabaseServiceRepository implements ServiceRepository {
       image: input.image || "",
       content: input.content || {},
       is_published: input.isPublished ?? true,
+      meta_title: input.metaTitle,
+      meta_description: input.metaDescription,
       order_index: input.orderIndex ?? 0,
     };
 
@@ -108,6 +110,8 @@ export class SupabaseServiceRepository implements ServiceRepository {
       image: input.image,
       content: input.content,
       is_published: input.isPublished,
+      meta_title: input.metaTitle,
+      meta_description: input.metaDescription,
       order_index: input.orderIndex,
       updated_at: new Date().toISOString(),
     };
@@ -169,6 +173,8 @@ export class SupabaseServiceRepository implements ServiceRepository {
       image: row.image,
       content: row.content,
       isPublished: row.is_published,
+      metaTitle: row.meta_title || null,
+      metaDescription: row.meta_description || null,
       orderIndex: row.order_index,
       createdAt: row.created_at || new Date().toISOString(),
       updatedAt: row.updated_at || new Date().toISOString(),

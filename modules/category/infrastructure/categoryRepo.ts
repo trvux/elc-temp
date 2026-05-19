@@ -213,6 +213,8 @@ export class SupabaseCategoryRepository implements CategoryRepository {
       name: input.name,
       slug: input.slug,
       parent_id: input.parentId !== undefined ? input.parentId : undefined,
+      meta_title: "metaTitle" in input ? input.metaTitle : undefined,
+      meta_description: "metaDescription" in input ? input.metaDescription : undefined,
     };
 
     if (input.type) {
@@ -236,6 +238,8 @@ export class SupabaseCategoryRepository implements CategoryRepository {
       slug: row.slug || "",
       parentId: row.parent_id,
       type: domainType,
+      metaTitle: row.meta_title || null,
+      metaDescription: row.meta_description || null,
       createdAt: row.created_at || new Date().toISOString(),
       updatedAt: row.updated_at || new Date().toISOString(),
       deletedAt: null,
