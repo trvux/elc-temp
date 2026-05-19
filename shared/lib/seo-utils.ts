@@ -378,11 +378,11 @@ export function generateProductSchema(product: ProductWithRelations) {
       name: product.brand?.name || SHOP_NAME,
       logo: (brandLogo || undefined) as string | undefined,
     },
-    offers: {
+    offers: hasPrice ? {
       "@type": "Offer",
       url: `${BASE_URL}/san-pham/${product.slug}`,
-      priceCurrency: hasPrice ? "VND" : undefined,
-      price: hasPrice ? price : undefined,
+      priceCurrency: "VND",
+      price: price,
       priceValidUntil: "2026-12-31",
       itemCondition: "https://schema.org/NewCondition",
       availability:
@@ -434,6 +434,6 @@ export function generateProductSchema(product: ProductWithRelations) {
         "@type": "Organization",
         name: SHOP_NAME,
       },
-    },
+    } : undefined,
   };
 }
