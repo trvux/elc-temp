@@ -72,30 +72,29 @@ export async function proxy(request: NextRequest) {
   // --- 2. Dọn dẹp URL rác & Redirect 301 cho cấu trúc URL mới ---
   const parts = pathname.split("/").filter(Boolean);
   
-    // Case: /san-pham/.../[productSlug] (Cấu trúc cũ nhiều cấp từ WordPress hoặc phiên bản trước)
-    if (parts.length >= 3 && parts[0] === "san-pham") {
-      const productSlug = parts[parts.length - 1];
-      const originalCategorySlug = parts[1]; // Use first category folder as a fallback
+    // Case: /san-pham/[categorySlug]/[productSlug] (Cấu trúc cũ 2 cấp)
+    if (parts.length === 3 && parts[0] === "san-pham") {
+      const [_, categorySlug, productSlug] = parts;
       
       const { createClient } = await import("@/shared/lib/supabase/server");
       const supabase = await createClient();
       
-      type ProductWithBrandAndCat = {
+      // Define the exact shape expected from Supabase
+      type ProductWithBrand = {
         slug: string;
         brands: { slug: string } | { slug: string }[] | null;
-        categories: { slug: string } | { slug: string }[] | null;
       };
 
       // 1. Try exact match
       const { data: exactMatch } = await supabase
         .from("products")
-        .select("slug, brands(slug), categories(slug)")
+        .select("slug, brands(slug)")
         .eq("slug", productSlug)
         .single();
         
-      let product: ProductWithBrandAndCat | null = exactMatch as any;
+      let product: ProductWithBrand | null = exactMatch as ProductWithBrand | null;
 
-      // 2. If not found, check if it has brand prefix (e.g. "menred-s5-cls40e")
+      // 2. If not found, it might be an old slug that still has the brand prefix
       if (!product) {
         const { data: brands } = await supabase.from("brands").select("slug");
         for (const b of (brands || [])) {
@@ -103,47 +102,21 @@ export async function proxy(request: NextRequest) {
             const strippedSlug = productSlug.replace(b.slug + "-", "");
             const { data: p } = await supabase
               .from("products")
-              .select("slug, brands(slug), categories(slug)")
+              .select("slug, brands(slug)")
               .eq("slug", strippedSlug)
               .single();
             if (p) {
-              product = p as any;
+              product = p as ProductWithBrand;
               break;
             }
           }
         }
       }
 
-      // 3. Fallback: Search all products to see if the target ends with the product slug or SKU
-      if (!product) {
-        const { data: allProds } = await supabase
-          .from("products")
-          .select("slug, brands(slug), categories(slug)")
-          .is("deleted_at", null);
-          
-        const target = productSlug.toLowerCase();
-        for (const p of (allProds || [])) {
-          const s = p.slug.toLowerCase();
-          if (target.endsWith("-" + s) || target.endsWith("_" + s)) {
-            product = p as any;
-            break;
-          }
-        }
-      }
-
-      if (product) {
+      if (product && product.brands) {
         const brandsData = product.brands;
-        const brandSlug = Array.isArray(brandsData) 
-          ? brandsData[0]?.slug 
-          : brandsData?.slug || "all";
-          
-        const catsData = product.categories;
-        const categorySlug = Array.isArray(catsData) 
-          ? catsData[0]?.slug 
-          : catsData?.slug || originalCategorySlug || "unknown";
-          
+        const brandSlug = Array.isArray(brandsData) ? brandsData[0].slug : brandsData.slug;
         const finalProductSlug = product.slug;
-        
         return NextResponse.redirect(
           new URL(`/san-pham/${categorySlug}/${brandSlug}/${finalProductSlug}${search}`, request.url),
           301
