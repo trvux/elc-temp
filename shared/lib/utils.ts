@@ -10,15 +10,22 @@ export function capitalize(str: string) {
   return str.charAt(0).toUpperCase() + str.slice(1);
 }
 
+export function roundPrice(price: number | null | undefined): number {
+  if (!price || price <= 0) return 0;
+  return Math.round(price / 1000) * 1000;
+}
+
 export function formatPrice(price: number | null | undefined): string {
   if (!price || price <= 0) {
     return "Liên hệ";
   }
 
+  const rounded = roundPrice(price);
+
   return new Intl.NumberFormat("vi-VN", {
     style: "currency",
     currency: "VND",
-  }).format(price);
+  }).format(rounded);
 }
 
 export function generateSlug(text: string): string {

@@ -274,7 +274,8 @@ export function generateCollectionSchema(
     .map((p) => {
       const salePrice = p.salePrice ?? p.sale_price ?? 0;
       const originalPrice = p.originalPrice ?? p.original_price ?? 0;
-      return salePrice || originalPrice || 0;
+      const rawPrice = salePrice || originalPrice || 0;
+      return Math.round(rawPrice / 1000) * 1000;
     })
     .filter((p) => p > 0);
 
@@ -322,10 +323,12 @@ export function generateCollectionSchema(
  */
 export function generateProductSchema(product: ProductWithRelations) {
   const rawProduct = product as unknown as Record<string, unknown>;
-  const salePrice = (product.salePrice ?? rawProduct.sale_price ?? 0) as number;
-  const originalPrice = (product.originalPrice ??
+  const rawSalePrice = (product.salePrice ?? rawProduct.sale_price ?? 0) as number;
+  const rawOriginalPrice = (product.originalPrice ??
     rawProduct.original_price ??
     0) as number;
+  const salePrice = Math.round(rawSalePrice / 1000) * 1000;
+  const originalPrice = Math.round(rawOriginalPrice / 1000) * 1000;
   const price = salePrice || originalPrice || 0;
   const hasPrice = price > 0;
 
