@@ -25,6 +25,15 @@ const WP_PATTERNS = [
 export async function proxy(request: NextRequest) {
   const { pathname, search } = request.nextUrl;
 
+  // --- Xử lý các đường dẫn chứa "chua-phan-loai" (Uncategorized) ---
+  if (pathname.includes("/chua-phan-loai")) {
+    const redirectTarget = pathname.split("/chua-phan-loai")[0] || "/";
+    return NextResponse.redirect(
+      new URL(redirectTarget + search, request.url),
+      301
+    );
+  }
+
   // --- 1. Xử lý SEO Redirects ---
   let path = pathname.startsWith("/") ? pathname.slice(1) : pathname;
   if (path.endsWith("/") && path.length > 1) {
