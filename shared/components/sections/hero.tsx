@@ -28,7 +28,7 @@ export function HeroSection({
   contacts = [],
 }: HeroSectionProps) {
   // Đảm bảo luôn có ảnh mặc định và luôn là đường dẫn tuyệt đối (có dấu / ở đầu)
-  let heroImage = image || "/images/hero-hvac.jpg";
+  let heroImage = image || "/images/img-hero.jpg";
   if (
     heroImage &&
     !heroImage.startsWith("/") &&
