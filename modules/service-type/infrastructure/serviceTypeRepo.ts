@@ -19,7 +19,7 @@ export class SupabaseServiceTypeRepository implements ServiceTypeRepository {
       .select(`
         *,
         service_type_category(
-          category(
+          categories(
             *,
             group_categories(*)
           )
@@ -73,7 +73,7 @@ export class SupabaseServiceTypeRepository implements ServiceTypeRepository {
       .select(`
         *,
         service_type_category(
-          category(
+          categories(
             *,
             group_categories(*)
           )
@@ -220,7 +220,7 @@ export class SupabaseServiceTypeRepository implements ServiceTypeRepository {
     
     const categories = (row.service_type_category || [])
       .map((stc: any) => {
-        const cat = stc.category;
+        const cat = stc.categories;
         if (!cat || cat.deleted_at) return null;
         return {
           id: cat.id,
