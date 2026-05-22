@@ -101,28 +101,77 @@ export class SupabaseProjectRepository implements ProjectRepository {
 
   async create(input: CreateProjectInput): Promise<Project> {
     const supabase = await createClient();
-    const row: ProjectInsert = {
-      title: input.title,
-      slug: input.slug,
-      description: input.description,
-      images: input.images,
-      is_featured: input.isFeatured,
-      is_published: input.isPublished,
-      meta_title: input.metaTitle,
-      meta_description: input.metaDescription,
-      order_index: input.orderIndex,
-      category_id: input.categoryId,
-      service_type_id: input.serviceTypeId,
-    };
 
-    const { data, error } = await supabase
+    // Check if there is an existing soft-deleted project with the same slug
+    const { data: existing, error: findError } = await supabase
       .from(this.TABLE_NAME)
-      .insert(row)
-      .select()
-      .single();
+      .select("*")
+      .eq("slug", input.slug)
+      .not("deleted_at", "is", null)
+      .maybeSingle();
 
-    if (error) this.handleError(error, "create");
-    const newProject = this.mapToDomain(data);
+    if (findError) this.handleError(findError, "create [find soft-deleted]");
+
+    let newProject: Project;
+
+    if (existing) {
+      const updateRow: ProjectUpdate = {
+        title: input.title,
+        slug: input.slug,
+        description: input.description,
+        images: input.images,
+        is_featured: input.isFeatured,
+        is_published: input.isPublished,
+        meta_title: input.metaTitle,
+        meta_description: input.metaDescription,
+        order_index: input.orderIndex,
+        category_id: input.categoryId,
+        service_type_id: input.serviceTypeId,
+        deleted_at: null,
+        updated_at: new Date().toISOString(),
+      };
+
+      const { data, error } = await supabase
+        .from(this.TABLE_NAME)
+        .update(updateRow)
+        .eq("id", existing.id)
+        .select()
+        .single();
+
+      if (error) this.handleError(error, "create [restore]");
+      newProject = this.mapToDomain(data);
+
+      // Delete existing relations in join table for this restored project to start fresh
+      const { error: delError } = await supabase
+        .from("project_category")
+        .delete()
+        .eq("project_id", existing.id);
+
+      if (delError) this.handleError(delError, "create [clear relations]");
+    } else {
+      const row: ProjectInsert = {
+        title: input.title,
+        slug: input.slug,
+        description: input.description,
+        images: input.images,
+        is_featured: input.isFeatured,
+        is_published: input.isPublished,
+        meta_title: input.metaTitle,
+        meta_description: input.metaDescription,
+        order_index: input.orderIndex,
+        category_id: input.categoryId,
+        service_type_id: input.serviceTypeId,
+      };
+
+      const { data, error } = await supabase
+        .from(this.TABLE_NAME)
+        .insert(row)
+        .select()
+        .single();
+
+      if (error) this.handleError(error, "create");
+      newProject = this.mapToDomain(data);
+    }
 
     // Save project categories if provided
     if (input.categoryIds && input.categoryIds.length > 0) {

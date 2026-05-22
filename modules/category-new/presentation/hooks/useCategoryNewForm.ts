@@ -80,6 +80,8 @@ export function useCategoryNewForm(
       );
       onClose();
       queryClient.invalidateQueries({ queryKey: ["categories-new"] });
+      queryClient.invalidateQueries({ queryKey: ["service-types"] });
+      queryClient.invalidateQueries({ queryKey: ["projects"] });
     },
   });
 

@@ -89,26 +89,69 @@ export class SupabaseServiceTypeRepository implements ServiceTypeRepository {
 
   async create(input: CreateServiceTypeInput): Promise<ServiceType> {
     const supabase = await createClient();
-    
-    // 1. Create service type
-    const row: any = {
-      name: input.name,
-      slug: input.slug,
-      image: input.image || null,
-      meta_title: input.metaTitle || null,
-      meta_description: input.metaDescription || null,
-      is_featured: input.isFeatured || false,
-      order_index: input.orderIndex || 0,
-    };
 
-    const { data, error } = await supabase
+    // Check if there is an existing soft-deleted service type with the same slug
+    const { data: existing, error: findError } = await supabase
       .from(this.TABLE_NAME)
-      .insert(row)
-      .select()
-      .single();
+      .select("*")
+      .eq("slug", input.slug)
+      .not("deleted_at", "is", null)
+      .maybeSingle();
 
-    if (error) this.handleError(error, "create");
-    const newServiceType = this.mapToDomain(data);
+    if (findError) this.handleError(findError, "create [find soft-deleted]");
+
+    let newServiceType: ServiceType;
+
+    if (existing) {
+      const updateRow: ServiceTypeUpdate = {
+        name: input.name,
+        slug: input.slug,
+        image: input.image || null,
+        meta_title: input.metaTitle || null,
+        meta_description: input.metaDescription || null,
+        is_featured: input.isFeatured || false,
+        order_index: input.orderIndex || 0,
+        deleted_at: null,
+        updated_at: new Date().toISOString(),
+      };
+
+      const { data, error } = await supabase
+        .from(this.TABLE_NAME)
+        .update(updateRow)
+        .eq("id", existing.id)
+        .select()
+        .single();
+
+      if (error) this.handleError(error, "create [restore]");
+      newServiceType = this.mapToDomain(data);
+
+      // Delete existing relations in join table for this restored service type to start fresh
+      const { error: delError } = await supabase
+        .from(this.JOIN_TABLE_NAME)
+        .delete()
+        .eq("service_type_id", existing.id);
+
+      if (delError) this.handleError(delError, "create [clear relations]");
+    } else {
+      const row: ServiceTypeInsert = {
+        name: input.name,
+        slug: input.slug,
+        image: input.image || null,
+        meta_title: input.metaTitle || null,
+        meta_description: input.metaDescription || null,
+        is_featured: input.isFeatured || false,
+        order_index: input.orderIndex || 0,
+      };
+
+      const { data, error } = await supabase
+        .from(this.TABLE_NAME)
+        .insert(row)
+        .select()
+        .single();
+
+      if (error) this.handleError(error, "create");
+      newServiceType = this.mapToDomain(data);
+    }
 
     // 2. Insert relations if provided
     if (input.categoryIds && input.categoryIds.length > 0) {
@@ -188,15 +231,33 @@ export class SupabaseServiceTypeRepository implements ServiceTypeRepository {
   async delete(id: string): Promise<void> {
     const supabase = await createClient();
     
-    // Soft delete the service type
-    const { error } = await supabase
+    // 1. Soft delete the service type itself
+    const { error: serviceTypeError } = await supabase
       .from(this.TABLE_NAME)
       .update({
         deleted_at: new Date().toISOString(),
       } as ServiceTypeUpdate)
       .eq("id", id);
 
-    if (error) this.handleError(error, "delete");
+    if (serviceTypeError) this.handleError(serviceTypeError, "delete");
+
+    // 2. Set service_type_id = null for referencing projects
+    const { error: projectError } = await supabase
+      .from("projects")
+      .update({
+        service_type_id: null,
+      })
+      .eq("service_type_id", id);
+
+    if (projectError) this.handleError(projectError, "delete");
+
+    // 3. Clean up associations in service_type_category join table
+    const { error: relError } = await supabase
+      .from(this.JOIN_TABLE_NAME)
+      .delete()
+      .eq("service_type_id", id);
+
+    if (relError) this.handleError(relError, "delete");
   }
 
   private mapToDomain(row: any): ServiceType {

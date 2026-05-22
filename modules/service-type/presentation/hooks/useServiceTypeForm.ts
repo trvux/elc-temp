@@ -81,6 +81,7 @@ export function useServiceTypeForm(
       );
       onClose();
       queryClient.invalidateQueries({ queryKey: ["service-types"] });
+      queryClient.invalidateQueries({ queryKey: ["projects"] });
     },
   });
 
