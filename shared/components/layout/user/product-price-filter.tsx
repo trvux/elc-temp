@@ -1,6 +1,6 @@
 "use client";
 
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 
 import { formatPrice } from "@/shared/lib/utils";
@@ -20,6 +20,7 @@ export function ProductPriceFilter({
 }: ProductPriceFilterProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const pathname = usePathname();
 
   const rawMin = searchParams.get("minPrice");
   const rawMax = searchParams.get("maxPrice");
@@ -68,11 +69,11 @@ export function ProductPriceFilter({
       }
       
       params.delete("page");
-      router.push(`?${params.toString()}`, { scroll: false });
+      router.push(`${pathname}?${params.toString()}`, { scroll: false });
       router.refresh();
     }, 300);
     return () => clearTimeout(timer);
-  }, [priceRange, router, minPriceLimit, maxPriceLimit]);
+  }, [priceRange, router, minPriceLimit, maxPriceLimit, pathname]);
 
   // Price range label shown next to the "Khoảng giá" heading
   const [minP, maxP] = priceRange;

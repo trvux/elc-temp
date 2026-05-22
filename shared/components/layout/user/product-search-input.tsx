@@ -1,7 +1,7 @@
 "use client";
 
 import { Search, X } from "lucide-react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 
 import {
@@ -15,6 +15,7 @@ import {
 export function ProductSearchInput() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const pathname = usePathname();
 
   const [inputValue, setInputValue] = useState(searchParams.get("search") ?? "");
   const isFirstRender = useRef(true);
@@ -49,11 +50,11 @@ export function ProductSearchInput() {
         params.delete("search");
       }
       params.delete("page");
-      router.push(`?${params.toString()}`, { scroll: false });
+      router.push(`${pathname}?${params.toString()}`, { scroll: false });
       router.refresh();
     }, 500); // Tăng delay lên 500ms để tránh bắn quá nhiều event khi đang gõ
     return () => clearTimeout(timer);
-  }, [inputValue, router]);
+  }, [inputValue, router, pathname]);
 
   function clearSearch() {
     setInputValue("");
