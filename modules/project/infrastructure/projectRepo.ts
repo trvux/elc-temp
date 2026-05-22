@@ -19,7 +19,7 @@ export class SupabaseProjectRepository implements ProjectRepository {
     *,
     serviceType:service_type(id, name),
     project_category(
-      categoryNew:category(
+      categoryNew:categories(
         *,
         group_categories(*)
       )

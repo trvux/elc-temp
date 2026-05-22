@@ -40,9 +40,10 @@ export async function resolveProductPath(slug: string): Promise<ResolvedEntity> 
       return data ? { type: "group", data: data as unknown as Group } : null;
     }
     
-    case "category": {
+    case "category":
+    case "categories": {
       const { data } = await supabase
-        .from("category")
+        .from("categories")
         .select("*")
         .eq("id", registryItem.entity_id)
         .is("deleted_at", null)

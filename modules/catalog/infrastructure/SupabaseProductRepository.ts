@@ -28,7 +28,7 @@ export class SupabaseProductRepository implements ProductRepository {
             .from(this.TABLE_NAME)
             .select(`
         *,
-        category:category(id, name, slug, meta_title, meta_description),
+        category:categories(id, name, slug, meta_title, meta_description),
         brand:brands(*)
       `);
 
@@ -89,7 +89,7 @@ export class SupabaseProductRepository implements ProductRepository {
             .from(this.TABLE_NAME)
             .select(`
         *,
-        category:category(id, name, slug, meta_title, meta_description),
+        category:categories(id, name, slug, meta_title, meta_description),
         brand:brands(*)
       `)
             .eq("id", id)
@@ -105,7 +105,7 @@ export class SupabaseProductRepository implements ProductRepository {
             .from(this.TABLE_NAME)
             .select(`
         *,
-        category:category(id, name, slug, meta_title, meta_description),
+        category:categories(id, name, slug, meta_title, meta_description),
         brand:brands(*)
       `)
             .eq("slug", slug)
