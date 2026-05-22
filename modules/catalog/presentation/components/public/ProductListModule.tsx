@@ -99,11 +99,13 @@ export async function ProductListModule({ entity, searchParams }: ProductListMod
     // Fetch all categories belonging to this group
     const supabase = await createClient();
     const { data: groupCategories } = await supabase
-      .from("category")
-      .select("id")
+      .from("categories")
+      .select("id, name")
       .eq("group_id", entity.data.id)
       .is("deleted_at", null);
-    categoryIds = (groupCategories || []).map((c) => c.id);
+    categoryIds = (groupCategories || [])
+      .filter((c) => !c.name.toLowerCase().includes("chưa phân loại"))
+      .map((c) => c.id);
     pageTitle = entity.data.name;
     subTitlePrefix = "nhóm danh mục";
   }

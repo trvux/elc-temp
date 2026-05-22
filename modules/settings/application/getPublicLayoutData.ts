@@ -22,14 +22,18 @@ export async function getPublicLayoutData() {
     supabase.from("projects").select("id, title, slug").eq("is_published", true).is("deleted_at", null).limit(5),
     supabase.from("pages").select("id, title, slug").eq("is_published", true).is("deleted_at", null),
     supabase.from("group_categories").select("id, name, slug").is("deleted_at", null).order("name", { ascending: true }),
-    supabase.from("category").select("id, name, slug, group_id").is("deleted_at", null).order("name", { ascending: true }),
+    supabase.from("categories").select("id, name, slug, group_id").is("deleted_at", null).order("name", { ascending: true }),
     supabase.from("products").select("price").eq("is_published", true).is("deleted_at", null).gt("price", 0).order("price", { ascending: true }).limit(1).maybeSingle(),
     supabase.from("products").select("price").eq("is_published", true).is("deleted_at", null).gt("price", 0).order("price", { ascending: false }).limit(1).maybeSingle()
   ]);
 
   const categories = [
-    ...(groupsData || []).map(g => ({ id: g.id, name: g.name, slug: g.slug || "", parent_id: null })),
-    ...(catsData || []).map(c => ({ id: c.id, name: c.name, slug: c.slug || "", parent_id: c.group_id }))
+    ...(groupsData || [])
+      .filter(g => !g.name.toLowerCase().includes("chưa phân loại"))
+      .map(g => ({ id: g.id, name: g.name, slug: g.slug || "", parent_id: null })),
+    ...(catsData || [])
+      .filter(c => !c.name.toLowerCase().includes("chưa phân loại"))
+      .map(c => ({ id: c.id, name: c.name, slug: c.slug || "", parent_id: c.group_id }))
   ];
 
   const settings: Record<string, string> = {};

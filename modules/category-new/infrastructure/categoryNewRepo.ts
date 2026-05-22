@@ -3,7 +3,7 @@ import { CategoryNew, CategoryNewWithGroup, CreateCategoryNewInput, UpdateCatego
 import { CategoryNewFilter, CategoryNewRepository } from "../domain/repository";
 
 export class SupabaseCategoryNewRepository implements CategoryNewRepository {
-  private readonly TABLE_NAME = "category" as any;
+  private readonly TABLE_NAME = "categories";
 
   async getAll(options?: CategoryNewFilter): Promise<CategoryNewWithGroup[]> {
     const supabase = await createClient();

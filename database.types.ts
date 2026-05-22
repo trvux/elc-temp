@@ -140,7 +140,7 @@ export type Database = {
         }
         Relationships: []
       }
-      category: {
+      categories: {
         Row: {
           created_at: string | null
           deleted_at: string | null
@@ -434,7 +434,7 @@ export type Database = {
             foreignKeyName: "products_category_id_fkey"
             columns: ["category_id"]
             isOneToOne: false
-            referencedRelation: "category"
+            referencedRelation: "categories"
             referencedColumns: ["id"]
           },
         ]
@@ -460,7 +460,7 @@ export type Database = {
             foreignKeyName: "project_category_category_id_fkey"
             columns: ["category_id"]
             isOneToOne: false
-            referencedRelation: "category"
+            referencedRelation: "categories"
             referencedColumns: ["id"]
           },
           {
@@ -597,7 +597,7 @@ export type Database = {
             foreignKeyName: "service_type_category_category_id_fkey"
             columns: ["category_id"]
             isOneToOne: false
-            referencedRelation: "category"
+            referencedRelation: "categories"
             referencedColumns: ["id"]
           },
           {

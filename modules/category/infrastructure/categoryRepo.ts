@@ -25,7 +25,7 @@ export class SupabaseCategoryRepository implements CategoryRepository {
     if (groupsErr) this.handleError(groupsErr, "getAllGroups");
 
     // 2. Fetch Categories
-    let categoryQuery = supabase.from("category" as any).select("*");
+    let categoryQuery = supabase.from("categories").select("*");
     if (!options?.includeDeleted) {
       categoryQuery = categoryQuery.is("deleted_at", null);
     }
@@ -66,7 +66,9 @@ export class SupabaseCategoryRepository implements CategoryRepository {
       deletedAt: row.deleted_at || null,
     }));
 
-    let result = [...groups, ...cats];
+    let result = [...groups, ...cats].filter(
+      (c) => !c.name.toLowerCase().includes("chưa phân loại")
+    );
 
     // Filter in-memory if parentId is explicitly filtered
     if (options?.parentId !== undefined) {
@@ -122,7 +124,7 @@ export class SupabaseCategoryRepository implements CategoryRepository {
 
     // Check category
     const { data: cat } = await supabase
-      .from("category" as any)
+      .from("categories")
       .select("*")
       .eq("id", id)
       .maybeSingle();
@@ -174,7 +176,7 @@ export class SupabaseCategoryRepository implements CategoryRepository {
 
     // Check category
     const { data: cat } = await supabase
-      .from("category" as any)
+      .from("categories")
       .select("*")
       .ilike("slug", slug)
       .maybeSingle();
