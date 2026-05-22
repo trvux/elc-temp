@@ -22,6 +22,7 @@ describe("updateProject Use Case", () => {
     isPublished: true,
     orderIndex: 0,
     categoryId: "cat1",
+    serviceTypeId: null,
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
     deletedAt: null,

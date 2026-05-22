@@ -11,12 +11,17 @@ import {
   SheetTrigger,
 } from "@/shared/components/ui/sheet";
 import { Filter } from "lucide-react";
-import { useSearchParams } from "next/navigation";
+import { useParams, useSearchParams } from "next/navigation";
 import { useMemo } from "react";
 import { ProductFilters } from "./ProductFilters";
 
 interface ProductFilterMobileProps {
-  categories?: { id: string; name: string; slug: string; parentId?: string | null }[];
+  categories?: {
+    id: string;
+    name: string;
+    slug: string;
+    parentId?: string | null;
+  }[];
   availableFilters: {
     brands: { id: string; name: string; slug: string }[];
     specs: { label: string; values: string[] }[];
@@ -30,17 +35,18 @@ export function ProductFilterMobile({
   availableFilters,
 }: ProductFilterMobileProps) {
   const searchParams = useSearchParams();
+  const params = useParams();
+  const slugFromPath = params.slug as string;
 
   const activeFilterCount = useMemo(() => {
     let count = 0;
 
-    // Check category
-    const category = searchParams.get("category");
-    if (category && category !== "all") count++;
+    // Check category from flat path slug
+    const hasCategoryInPath = slugFromPath && categories.some((c) => c.slug === slugFromPath);
+    if (hasCategoryInPath) count++;
 
     // Check brands
-    const brands =
-      searchParams.getAll("brands") || searchParams.getAll("brandIds");
+    const brands = searchParams.getAll("brands");
     if (brands.length > 0) count++;
 
     // Check price
@@ -53,7 +59,7 @@ export function ProductFilterMobile({
     count += specKeys.length;
 
     return count;
-  }, [searchParams]);
+  }, [searchParams, slugFromPath, categories]);
 
   return (
     <div className="lg:hidden shrink-0">
@@ -72,8 +78,8 @@ export function ProductFilterMobile({
         </SheetTrigger>
         <SheetContent
           side="right"
-          // className="w-[300px] sm:w-[400px] p-0"
-          showCloseButton={false}
+          className="!z-[300] !w-screen !max-w-none"
+          showCloseButton={true}
         >
           <SheetHeader className="hidden p-6">
             <SheetTitle className="sr-only">Bộ lọc sản phẩm</SheetTitle>

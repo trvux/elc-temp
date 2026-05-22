@@ -17,17 +17,17 @@ export const brandSchema = z.object({
     .url({ message: "URL logo không hợp lệ" })
     .or(z.literal(""))
     .optional(),
-  description: z.string().optional(),
+  isFeatured: z.boolean().optional(),
+  orderIndex: z.number().int().min(0, { message: "Thứ tự phải là số nguyên không âm" }).optional(),
   metaTitle: z.string().max(70, { message: "Tiêu đề SEO không nên quá 70 ký tự" }).nullable().optional(),
   metaDescription: z.string().max(160, { message: "Mô tả SEO không nên quá 160 ký tự" }).nullable().optional(),
-  createdAt: z.iso.datetime({
-    message: "Thời gian tạo không đúng định dạng ISO",
+  createdAt: z.string({
+    message: "Thời gian tạo không hợp lệ",
   }),
-  updatedAt: z.iso.datetime({
-    message: "Thời gian cập nhật không đúng định dạng ISO",
+  updatedAt: z.string({
+    message: "Thời gian cập nhật không hợp lệ",
   }),
-  deletedAt: z.iso
-    .datetime({ message: "Thời gian xóa không đúng định dạng ISO" })
+  deletedAt: z.string()
     .nullable(),
 });
 

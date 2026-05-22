@@ -10,16 +10,22 @@ import { toast } from "sonner";
 import { AdminDialog } from "@/shared/components/layout/admin/admin-dialog";
 import { DeleteDialog } from "@/shared/components/layout/admin/delete-dialog";
 import { Button } from "@/shared/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/shared/components/ui/card";
 import { DataTable } from "@/shared/components/ui/data-table";
+import { ImageUpload } from "@/shared/components/ui/image-upload";
 import {
   Field,
   FieldDescription,
   FieldError,
-  FieldGroup,
   FieldLabel,
 } from "@/shared/components/ui/field";
 import { Input } from "@/shared/components/ui/input";
-import { Textarea } from "@/shared/components/ui/textarea";
 import { ScrollArea } from "@/shared/components/ui/scroll-area";
 import {
   Select,
@@ -31,43 +37,89 @@ import {
   SelectValue,
 } from "@/shared/components/ui/select";
 import { Switch } from "@/shared/components/ui/switch";
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "@/shared/components/ui/tabs";
+import { Textarea } from "@/shared/components/ui/textarea";
 import { TiptapEditor } from "@/shared/components/ui/tiptap-editor";
 import { generateSlug } from "@/shared/lib/utils";
 
-import { Category } from "@/modules/category/domain/types";
-import { getCategoriesAction } from "@/modules/category/presentation/actions";
+import { getCategoriesNewAction } from "@/modules/category-new/presentation/actions";
+import { getServiceTypesAction } from "@/modules/service-type/presentation/actions";
+import { getGroupsAction } from "@/modules/group/presentation/actions";
 import { ProjectWithCategory } from "../../domain";
 import { deleteProjectAction, getProjectsAction } from "../actions";
-import { getColumns } from "./ProjectColumns";
 import { useProjectForm } from "../hooks/useProjectForm";
+import { getColumns } from "./ProjectColumns";
 
 export function ProjectManagement() {
   const queryClient = useQueryClient();
-  const [activeProject, setActiveProject] = useState<ProjectWithCategory | "new" | null>(null);
+  const [activeProject, setActiveProject] = useState<
+    ProjectWithCategory | "new" | null
+  >(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
   // Filters
-  const [filterCategoryId, setFilterCategoryId] = useState<string>("all");
   const [filterIsPublished, setFilterIsPublished] = useState<string>("all");
+  const [filterIsFeatured, setFilterIsFeatured] = useState<string>("all");
+  const [filterGroupId, setFilterGroupId] = useState<string>("all");
+  const [filterCategoryId, setFilterCategoryId] = useState<string>("all");
+  const [filterServiceTypeId, setFilterServiceTypeId] = useState<string>("all");
 
   // Fetch Data
   const { data: projects = [], isLoading: isProjectsLoading } = useQuery({
     queryKey: ["projects"],
     queryFn: async () => {
-      const { data, error } = await getProjectsAction({ includeDeleted: false });
+      const { data, error } = await getProjectsAction({
+        includeDeleted: false,
+      });
       if (error) throw new Error(error);
       return data;
     },
   });
 
-  const { data: categories = [] } = useQuery({
-    queryKey: ["categories", "PROJECT"],
+  const { data: serviceTypes = [] } = useQuery({
+    queryKey: ["service-types"],
     queryFn: async () => {
-      const { data, error } = await getCategoriesAction("PROJECT");
+      const { data, error } = await getServiceTypesAction();
       if (error) throw new Error(error);
       return data;
     },
   });
+
+  const { data: groups = [] } = useQuery({
+    queryKey: ["groups"],
+    queryFn: async () => {
+      const { data, error } = await getGroupsAction();
+      if (error) throw new Error(error);
+      return data;
+    },
+  });
+
+  const { data: categoriesNew = [] } = useQuery({
+    queryKey: ["categories-new"],
+    queryFn: async () => {
+      const { data, error } = await getCategoriesNewAction();
+      if (error) throw new Error(error);
+      return data;
+    },
+  });
+
+  // Group custom categories for checkbox display
+  const groupedCategoriesNew = useMemo(() => {
+    const grouped: Record<string, typeof categoriesNew> = {};
+    categoriesNew.forEach((cat) => {
+      const groupName = cat.group?.name || "Khác";
+      if (!grouped[groupName]) {
+        grouped[groupName] = [];
+      }
+      grouped[groupName].push(cat);
+    });
+    return grouped;
+  }, [categoriesNew]);
 
   // Custom Form Hook
   const {
@@ -77,7 +129,7 @@ export function ProjectManagement() {
     handleContentChange,
     uploading,
     supabase,
-  } = useProjectForm(activeProject, () => setActiveProject(null), categories);
+  } = useProjectForm(activeProject, () => setActiveProject(null));
 
   // Delete Mutation
   const deleteMutation = useMutation({
@@ -93,58 +145,50 @@ export function ProjectManagement() {
     },
   });
 
-  const enrichedProjects = useMemo(() => {
-    return projects.map((p) => {
-      if (!p.categoryId) return p;
-      const cat = categories.find((c) => c.id === p.categoryId);
-      if (!cat) return p;
-      if (cat.parentId) {
-        const parent = categories.find((c) => c.id === cat.parentId);
-        if (parent) {
-          return {
-            ...p,
-            category: {
-              ...p.category,
-              id: cat.id,
-              name: `${parent.name} / ${cat.name}`,
-              slug: cat.slug,
-            },
-          } as ProjectWithCategory;
-        }
-      }
-      return p;
-    });
-  }, [projects, categories]);
+  const handleGroupIdChange = (val: string) => {
+    setFilterGroupId(val);
+    setFilterCategoryId("all");
+  };
+
+  const filteredCategoriesNewForFilter = useMemo(() => {
+    if (filterGroupId === "all") {
+      return categoriesNew;
+    }
+    return categoriesNew.filter((c) => c.groupId === filterGroupId);
+  }, [categoriesNew, filterGroupId]);
 
   const filteredProjects = useMemo(() => {
-    return enrichedProjects.filter((p) => {
-      const matchCategory = filterCategoryId === "all" || p.categoryId === filterCategoryId;
-      const matchPublished = filterIsPublished === "all" || (filterIsPublished === "true" ? p.isPublished : !p.isPublished);
-      return matchCategory && matchPublished;
+    return projects.filter((p) => {
+      const matchGroup =
+        filterGroupId === "all" ||
+        (p.categoriesNew &&
+          p.categoriesNew.some((c) => c.groupId === filterGroupId));
+      
+      const matchCategory =
+        filterCategoryId === "all" ||
+        (p.categoriesNew && p.categoriesNew.some((c) => c.id === filterCategoryId));
+
+      const matchServiceType =
+        filterServiceTypeId === "all" || p.serviceTypeId === filterServiceTypeId;
+
+      const matchFeatured =
+        filterIsFeatured === "all" ||
+        (filterIsFeatured === "true" ? p.isFeatured : !p.isFeatured);
+
+      const matchPublished =
+        filterIsPublished === "all" ||
+        (filterIsPublished === "true" ? p.isPublished : !p.isPublished);
+
+      return matchGroup && matchCategory && matchServiceType && matchFeatured && matchPublished;
     });
-  }, [enrichedProjects, filterCategoryId, filterIsPublished]);
-
-  const flattenedCategories = useMemo(() => {
-    const result: (Category & { displayName: string; isParent: boolean })[] = [];
-    const rootCategories = categories.filter(
-      (c) => !c.parentId || !categories.find((p) => p.id === c.parentId)
-    );
-
-    const processCategory = (cat: Category, level: number) => {
-      result.push({
-        ...cat,
-        displayName: level > 0 ? `${"↳ ".repeat(level)}${cat.name}` : cat.name,
-        isParent: level === 0,
-      });
-      const children = categories.filter((c) => c.parentId === cat.id);
-      children.sort((a, b) => a.name.localeCompare(b.name));
-      children.forEach((child) => processCategory(child, level + 1));
-    };
-
-    rootCategories.sort((a, b) => a.name.localeCompare(b.name));
-    rootCategories.forEach((root) => processCategory(root, 0));
-    return result;
-  }, [categories]);
+  }, [
+    projects,
+    filterGroupId,
+    filterCategoryId,
+    filterServiceTypeId,
+    filterIsFeatured,
+    filterIsPublished,
+  ]);
 
   const columns = useMemo(
     () =>
@@ -155,7 +199,9 @@ export function ProjectManagement() {
             title: p.title,
             slug: p.slug || "",
             description: p.description,
-            categoryId: p.categoryId || "",
+            categoryId: "00000000-0000-0000-0000-000000000000",
+            serviceTypeId: p.serviceTypeId || "",
+            categoryIds: (p.categoriesNew || []).map((c) => c.id),
             images: p.images || [],
             isPublished: p.isPublished,
             isFeatured: p.isFeatured || false,
@@ -166,7 +212,7 @@ export function ProjectManagement() {
         },
         onDelete: setDeletingId,
       }),
-    [form]
+    [form],
   );
 
   function openCreate() {
@@ -175,7 +221,9 @@ export function ProjectManagement() {
       title: "",
       slug: "",
       description: null,
-      categoryId: "",
+      categoryId: "00000000-0000-0000-0000-000000000000",
+      serviceTypeId: "",
+      categoryIds: [],
       images: [],
       isPublished: true,
       isFeatured: false,
@@ -200,26 +248,66 @@ export function ProjectManagement() {
       </div>
 
       <div className="flex flex-wrap items-center gap-4 mb-4">
-        <Select value={filterCategoryId} onValueChange={setFilterCategoryId}>
-          <SelectTrigger className="w-full md:w-[200px]">
-            <SelectValue placeholder="Tất cả danh mục" />
+        {/* Service Type Filter */}
+        <Select value={filterServiceTypeId} onValueChange={setFilterServiceTypeId}>
+          <SelectTrigger className="w-full md:w-[180px]">
+            <SelectValue placeholder="Loại hình dịch vụ" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">Tất cả danh mục</SelectItem>
-            {flattenedCategories.map((c) => (
-              <SelectItem
-                key={c.id}
-                value={c.id}
-                className={c.isParent ? "font-bold" : "pl-6"}
-              >
-                {c.displayName}
+            <SelectItem value="all">Tất cả loại hình</SelectItem>
+            {serviceTypes.map((st) => (
+              <SelectItem key={st.id} value={st.id}>
+                {st.name}
               </SelectItem>
             ))}
           </SelectContent>
         </Select>
 
-        <Select value={filterIsPublished} onValueChange={setFilterIsPublished}>
+        {/* Group Filter */}
+        <Select value={filterGroupId} onValueChange={handleGroupIdChange}>
+          <SelectTrigger className="w-full md:w-[180px]">
+            <SelectValue placeholder="Nhóm danh mục" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">Tất cả nhóm danh mục</SelectItem>
+            {groups.map((g) => (
+              <SelectItem key={g.id} value={g.id}>
+                {g.name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+
+        {/* Category Filter */}
+        <Select value={filterCategoryId} onValueChange={setFilterCategoryId}>
+          <SelectTrigger className="w-full md:w-[180px]">
+            <SelectValue placeholder="Danh mục" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">Tất cả danh mục</SelectItem>
+            {filteredCategoriesNewForFilter.map((c) => (
+              <SelectItem key={c.id} value={c.id}>
+                {c.name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+
+        {/* Featured Filter (Mức độ) */}
+        <Select value={filterIsFeatured} onValueChange={setFilterIsFeatured}>
           <SelectTrigger className="w-full md:w-[150px]">
+            <SelectValue placeholder="Mức độ" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">Tất cả mức độ</SelectItem>
+            <SelectItem value="true">Nổi bật</SelectItem>
+            <SelectItem value="false">Thường</SelectItem>
+          </SelectContent>
+        </Select>
+
+        {/* Published Filter */}
+        <Select value={filterIsPublished} onValueChange={setFilterIsPublished}>
+          <SelectTrigger className="w-full md:w-[170px]">
             <SelectValue placeholder="Trạng thái" />
           </SelectTrigger>
           <SelectContent>
@@ -229,14 +317,21 @@ export function ProjectManagement() {
           </SelectContent>
         </Select>
 
-        {(filterCategoryId !== "all" || filterIsPublished !== "all") && (
+        {(filterIsPublished !== "all" ||
+          filterIsFeatured !== "all" ||
+          filterGroupId !== "all" ||
+          filterCategoryId !== "all" ||
+          filterServiceTypeId !== "all") && (
           <Button
             variant="ghost"
             onClick={() => {
-              setFilterCategoryId("all");
               setFilterIsPublished("all");
+              setFilterIsFeatured("all");
+              setFilterGroupId("all");
+              setFilterCategoryId("all");
+              setFilterServiceTypeId("all");
             }}
-            className="h-10 text-muted-foreground"
+            className="h-9 px-3 text-muted-foreground hover:text-foreground"
           >
             Xóa lọc
           </Button>
@@ -258,233 +353,432 @@ export function ProjectManagement() {
         title={activeProject === "new" ? "Thêm dự án" : "Sửa dự án"}
         description="Quản lý chi tiết dự án, hình ảnh và hiển thị."
       >
-        <form
-          onSubmit={form.handleSubmit((v) => saveMutation.mutate(v))}
-          className="flex flex-col flex-1 min-h-0"
+        <Tabs
+          defaultValue="info"
+          className="flex flex-col flex-1 min-h-0 relative w-full"
         >
-          <div className="flex-1 overflow-y-auto p-6 lg:p-10">
-            <div className="max-w-5xl mx-auto space-y-12">
-              {/* Common Info Section */}
-              <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-                <div className="lg:col-span-4 space-y-6">
-                  <Controller
-                    control={form.control}
-                    name="categoryId"
-                    render={({ field }) => (
-                      <Field>
-                        <FieldLabel>Danh mục dự án</FieldLabel>
-                        <Select value={field.value} onValueChange={field.onChange}>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Chọn danh mục" />
-                          </SelectTrigger>
-                          <SelectContent position="popper" className="max-h-80">
-                            <ScrollArea className="h-full">
-                              {categories
-                                .filter((c) => !c.parentId)
-                                .map((parent) => (
-                                  <SelectGroup key={parent.id}>
-                                    <SelectItem value={parent.id} className="font-bold">
-                                      {parent.name}
-                                    </SelectItem>
-                                    {categories
-                                      .filter((c) => c.parentId === parent.id)
-                                      .map((child) => (
-                                        <SelectItem key={child.id} value={child.id} className="pl-6">
-                                          {child.name}
-                                        </SelectItem>
-                                      ))}
-                                    <SelectSeparator />
-                                  </SelectGroup>
-                                ))}
-                            </ScrollArea>
-                          </SelectContent>
-                        </Select>
-                      </Field>
-                    )}
-                  />
+          {/* Centered Sticky Header Tabs */}
+          <div className="flex sticky top-0 z-20 w-full items-center justify-center border-b bg-background/95 py-4 backdrop-blur">
+            <TabsList>
+              <TabsTrigger value="info">Thông tin chung</TabsTrigger>
+              <TabsTrigger value="content">Nội dung dự án</TabsTrigger>
+            </TabsList>
+          </div>
 
-                  <div className="grid grid-cols-2 gap-4">
+          <div className="w-full max-w-5xl mx-auto flex-1 flex flex-col min-h-0">
+            <form
+              onSubmit={form.handleSubmit((v) => saveMutation.mutate(v))}
+              className="flex-1 flex flex-col min-h-0 w-full"
+            >
+              <div className="flex-1 overflow-y-auto p-6 lg:p-10">
+                {/* Tab 1: Configuration Form */}
+                <TabsContent
+                  value="info"
+                  className="mt-0 focus-visible:outline-none space-y-12 pb-8"
+                >
+                  <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                    {/* Left side parameters */}
+                    <div className="lg:col-span-4 space-y-6">
+
+                      <Controller
+                        control={form.control}
+                        name="title"
+                        render={({ field, fieldState }) => (
+                          <Field>
+                            <FieldLabel>Tên dự án *</FieldLabel>
+                            <Input
+                              {...field}
+                              placeholder="VD: Lắp máy lạnh nhà anh Tuấn"
+                              onChange={(e) => {
+                                field.onChange(e);
+                                form.setValue("slug", generateSlug(e.target.value));
+                              }}
+                            />
+                            <FieldError errors={[fieldState.error]} />
+                          </Field>
+                        )}
+                      />
+
+                      <Controller
+                        control={form.control}
+                        name="serviceTypeId"
+                        render={({ field }) => (
+                          <Field>
+                            <FieldLabel>Loại hình dịch vụ</FieldLabel>
+                            <Select
+                              value={field.value || "none"}
+                              onValueChange={(v) => {
+                                const val = v === "none" ? "" : v;
+                                field.onChange(val);
+                                // Pre-populate categoryIds based on selected serviceType template!
+                                if (val) {
+                                  const sType = serviceTypes.find(
+                                    (s) => s.id === val,
+                                  );
+                                  if (sType && sType.categories) {
+                                    const templateIds = sType.categories.map(
+                                      (c) => c.id,
+                                    );
+                                    form.setValue("categoryIds", templateIds);
+                                  }
+                                } else {
+                                  form.setValue("categoryIds", []);
+                                }
+                              }}
+                            >
+                              <SelectTrigger>
+                                <SelectValue placeholder="Chọn loại hình (nếu có)" />
+                              </SelectTrigger>
+                              <SelectContent
+                                position="popper"
+                                className="max-h-60"
+                              >
+                                <ScrollArea className="h-full">
+                                  <SelectItem value="none">
+                                    Không chọn loại hình
+                                  </SelectItem>
+                                  {serviceTypes.map((s) => (
+                                    <SelectItem key={s.id} value={s.id}>
+                                      {s.name}
+                                    </SelectItem>
+                                  ))}
+                                </ScrollArea>
+                              </SelectContent>
+                            </Select>
+                          </Field>
+                        )}
+                      />
+
+                      <div className="grid grid-cols-2 gap-4">
+                        <Controller
+                          control={form.control}
+                          name="isPublished"
+                          render={({ field }) => (
+                            <Field
+                              orientation="horizontal"
+                              className="justify-between border p-3 rounded-xl"
+                            >
+                              <FieldLabel className="font-normal mb-0">
+                                Hiển thị
+                              </FieldLabel>
+                              <Switch
+                                checked={field.value}
+                                onCheckedChange={field.onChange}
+                              />
+                            </Field>
+                          )}
+                        />
+                        <Controller
+                          control={form.control}
+                          name="isFeatured"
+                          render={({ field }) => (
+                            <Field
+                              orientation="horizontal"
+                              className="justify-between border p-3 rounded-xl"
+                            >
+                              <FieldLabel className="font-normal mb-0">
+                                Nổi bật
+                              </FieldLabel>
+                              <Switch
+                                checked={field.value}
+                                onCheckedChange={field.onChange}
+                              />
+                            </Field>
+                          )}
+                        />
+                      </div>
+
+                      <Controller
+                        control={form.control}
+                        name="orderIndex"
+                        render={({ field }) => (
+                          <Field>
+                            <FieldLabel>Thứ tự hiển thị</FieldLabel>
+                            <Input
+                              type="number"
+                              {...field}
+                              onChange={(e) =>
+                                field.onChange(Number(e.target.value))
+                              }
+                            />
+                          </Field>
+                        )}
+                      />
+                    </div>
+
+                    {/* Right side parameters (Slug & Images) */}
+                    <div className="lg:col-span-8 space-y-6">
+                      <Controller
+                        control={form.control}
+                        name="slug"
+                        render={({ field, fieldState }) => (
+                          <Field>
+                            <FieldLabel>Slug / URL Preview</FieldLabel>
+                            <Input
+                              {...field}
+                              placeholder="vd: lap-may-lanh-nha-anh-tuan"
+                            />
+                            <FieldDescription className="flex items-center gap-2">
+                              <ExternalLink size={12} />
+                              /du-an/{field.value || "..."}
+                            </FieldDescription>
+                            <FieldError errors={[fieldState.error]} />
+                          </Field>
+                        )}
+                      />
+
+                      <Controller
+                        control={form.control}
+                        name="images"
+                        render={({ field }) => (
+                          <Field>
+                            <FieldLabel>
+                              Upload ảnh ({field.value?.length || 0})
+                            </FieldLabel>
+                            <div className="space-y-4">
+                              <ImageUpload
+                                value=""
+                                onChange={(url) => {
+                                  if (url) {
+                                    field.onChange([...(field.value || []), url]);
+                                  }
+                                }}
+                                aspectRatio={2.5}
+                                folderPath="projects"
+                              />
+
+                              {field.value && field.value.length > 0 && (
+                                <div className="grid grid-cols-4 sm:grid-cols-6 lg:grid-cols-8 gap-3 mt-3">
+                                  {field.value.map((url: string, i: number) => (
+                                    <div
+                                      key={i}
+                                      className="relative aspect-square rounded-xl overflow-hidden group border bg-muted/20"
+                                    >
+                                      <Image
+                                        src={url}
+                                        alt=""
+                                        fill
+                                        className="object-cover"
+                                        sizes="(max-width: 640px) 25vw, (max-width: 1024px) 16vw, 100px"
+                                      />
+                                      <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                        <Button
+                                          size="icon"
+                                          variant="destructive"
+                                          type="button"
+                                          className="h-7 w-7 rounded-full shadow-lg"
+                                          onClick={() => {
+                                            const next = [...field.value];
+                                            next.splice(i, 1);
+                                            field.onChange(next);
+                                          }}
+                                        >
+                                          <X size={14} />
+                                        </Button>
+                                      </div>
+                                    </div>
+                                  ))}
+                                </div>
+                              )}
+                            </div>
+                          </Field>
+                        )}
+                      />
+                    </div>
+
+                    {/* Dòng sản phẩm thực tế selection ALWAYS visible using standard Shadcn Card components */}
+                    <div className="lg:col-span-12 space-y-4">
+                      <Card>
+                        <CardHeader className="pb-4">
+                          <CardTitle className="text-sm font-semibold tracking-tight text-foreground">
+                            Dòng sản phẩm thực tế
+                          </CardTitle>
+                          <CardDescription className="text-xs text-muted-foreground">
+                            Tích chọn các dòng sản phẩm lắp đặt thực tế cho dự
+                            án này (Tự động điền theo loại hình dịch vụ ở trên,
+                            bạn có thể tự chỉnh thêm).
+                          </CardDescription>
+                        </CardHeader>
+                        <CardContent className="pt-0">
+                          <Controller
+                            control={form.control}
+                            name="categoryIds"
+                            render={({ field }) => {
+                              const checkedIds = field.value || [];
+                              const handleToggle = (
+                                id: string,
+                                checked: boolean,
+                              ) => {
+                                if (checked) {
+                                  field.onChange([...checkedIds, id]);
+                                } else {
+                                  field.onChange(
+                                    checkedIds.filter((x) => x !== id),
+                                  );
+                                }
+                              };
+
+                              return (
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
+                                  {Object.entries(groupedCategoriesNew).map(
+                                    ([groupName, items]) => (
+                                      <Card key={groupName}>
+                                        <CardHeader>
+                                          <span className="font-semibold text-md text-primary w-fit">
+                                            {groupName}
+                                          </span>
+                                        </CardHeader>
+                                        <CardContent className="grid grid-cols-1 sm:grid-cols-2 gap-3 ">
+                                          {items.map((cat) => {
+                                            const isChecked =
+                                              checkedIds.includes(cat.id);
+                                            return (
+                                              <label
+                                                key={cat.id}
+                                                className="flex items-center gap-3 text-xs font-medium text-foreground/80 cursor-pointer hover:text-primary transition-colors select-none hover:bg-muted/30"
+                                              >
+                                                <input
+                                                  type="checkbox"
+                                                  className="h-4.5 w-4.5  border-input text-primary cursor-pointer accent-primary shrink-0"
+                                                  checked={isChecked}
+                                                  onChange={(e) =>
+                                                    handleToggle(
+                                                      cat.id,
+                                                      e.target.checked,
+                                                    )
+                                                  }
+                                                />
+                                                <span className="leading-tight">
+                                                  {cat.name}
+                                                </span>
+                                              </label>
+                                            );
+                                          })}
+                                        </CardContent>
+                                      </Card>
+                                    ),
+                                  )}
+                                </div>
+                              );
+                            }}
+                          />
+                        </CardContent>
+                      </Card>
+                    </div>
+                  </div>
+
+                  {/* SEO Section */}
+                  <div className="space-y-6 border p-6 rounded-2xl bg-muted/10">
+                    <div className="border-b pb-2">
+                      <h3 className="text-sm font-semibold tracking-tight">
+                        Cấu hình SEO
+                      </h3>
+                      <p className="text-[11px] text-muted-foreground">
+                        Tối ưu hóa hiển thị trên các công cụ tìm kiếm (Google,
+                        Bing,...).
+                      </p>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <Controller
+                        control={form.control}
+                        name="metaTitle"
+                        render={({ field, fieldState }) => (
+                          <Field>
+                            <FieldLabel>Tiêu đề SEO</FieldLabel>
+                            <Input
+                              {...field}
+                              value={field.value || ""}
+                              placeholder="Để trống sẽ tự động dùng tiêu đề..."
+                            />
+                            <FieldError errors={[fieldState.error]} />
+                          </Field>
+                        )}
+                      />
+
+                      <Controller
+                        control={form.control}
+                        name="metaDescription"
+                        render={({ field, fieldState }) => (
+                          <Field>
+                            <FieldLabel>Mô tả SEO</FieldLabel>
+                            <Textarea
+                              {...field}
+                              value={field.value || ""}
+                              placeholder="Mô tả tóm tắt nội dung để hiển thị trên Google..."
+                              className="min-h-[80px]"
+                            />
+                            <FieldError errors={[fieldState.error]} />
+                          </Field>
+                        )}
+                      />
+                    </div>
+                  </div>
+                </TabsContent>
+
+                {/* Tab 2: Editor Section */}
+                <TabsContent
+                  value="content"
+                  className="mt-0 focus-visible:outline-none space-y-6"
+                >
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between border-b pb-2">
+                      <h3 className="text-sm font-semibold tracking-tight">
+                        Nội dung chi tiết dự án
+                      </h3>
+                      <span className="text-[10px] text-muted-foreground uppercase tracking-widest">
+                        Tiptap Editor
+                      </span>
+                    </div>
                     <Controller
                       control={form.control}
-                      name="isPublished"
+                      name="description"
                       render={({ field }) => (
-                        <Field orientation="horizontal" className="justify-between border p-3 rounded-xl">
-                          <FieldLabel className="font-normal">Hiển thị</FieldLabel>
-                          <Switch checked={field.value} onCheckedChange={field.onChange} />
-                        </Field>
-                      )}
-                    />
-                    <Controller
-                      control={form.control}
-                      name="isFeatured"
-                      render={({ field }) => (
-                        <Field orientation="horizontal" className="justify-between border p-3 rounded-xl">
-                          <FieldLabel className="font-normal">Nổi bật</FieldLabel>
-                          <Switch checked={field.value} onCheckedChange={field.onChange} />
-                        </Field>
+                        <TiptapEditor
+                          key={
+                            activeProject === "new" ? "new" : activeProject?.id
+                          }
+                          value={field.value}
+                          onChange={handleContentChange}
+                          placeholder="Viết nội dung chi tiết dự án ở đây..."
+                          uploadImage={async (file) => {
+                            const fileName = `projects/${Date.now()}-${Math.random().toString(36).slice(2)}.webp`;
+                            const { error } = await supabase.storage
+                              .from("images")
+                              .upload(fileName, file, {
+                                contentType: "image/webp",
+                              });
+                            if (error) throw error;
+                            const { data } = supabase.storage
+                              .from("images")
+                              .getPublicUrl(fileName);
+                            return data.publicUrl;
+                          }}
+                        />
                       )}
                     />
                   </div>
-
-                  <Controller
-                    control={form.control}
-                    name="orderIndex"
-                    render={({ field }) => (
-                      <Field>
-                        <FieldLabel>Thứ tự hiển thị</FieldLabel>
-                        <Input
-                          type="number"
-                          {...field}
-                          onChange={(e) => field.onChange(Number(e.target.value))}
-                        />
-                      </Field>
-                    )}
-                  />
-                </div>
-
-                <div className="lg:col-span-8 space-y-6">
-
-
-                  <Controller
-                    control={form.control}
-                    name="slug"
-                    render={({ field, fieldState }) => (
-                      <Field>
-                        <FieldLabel>Slug / URL Preview</FieldLabel>
-                        <Input {...field} placeholder="vd: lap-may-lanh-nha-anh-tuan" />
-                        <FieldDescription className="flex items-center gap-2">
-                          <ExternalLink size={12} />
-                          /du-an/{field.value || "..."}
-                        </FieldDescription>
-                        <FieldError errors={[fieldState.error]} />
-                      </Field>
-                    )}
-                  />
-
-                  <Controller
-                    control={form.control}
-                    name="images"
-                    render={({ field }) => (
-                      <Field>
-                        <FieldLabel>Hình ảnh dự án ({field.value?.length || 0})</FieldLabel>
-                        <div className="grid grid-cols-3 sm:grid-cols-4 gap-3">
-                          <label className="aspect-square border-2 border-dashed rounded-xl flex flex-col items-center justify-center gap-2 cursor-pointer hover:bg-muted/50 transition-colors border-muted-foreground/20">
-                            <Upload size={20} className="text-muted-foreground" />
-                            <span className="text-[10px] font-medium uppercase text-muted-foreground">Tải lên</span>
-                            <input
-                              type="file"
-                              accept="image/*"
-                              multiple
-                              className="hidden"
-                              onChange={handleUpload}
-                              disabled={uploading}
-                            />
-                          </label>
-                          {field.value?.map((url: string, i: number) => (
-                            <div key={i} className="relative aspect-square rounded-xl overflow-hidden group border bg-muted/20">
-                              <Image
-                                src={url}
-                                alt=""
-                                fill
-                                className="object-cover"
-                                sizes="(max-width: 640px) 33vw, (max-width: 1024px) 25vw, 150px"
-                              />
-                              <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                                <Button
-                                  size="icon"
-                                  variant="destructive"
-                                  className="h-7 w-7 rounded-full"
-                                  onClick={() => {
-                                    const next = [...field.value];
-                                    next.splice(i, 1);
-                                    field.onChange(next);
-                                  }}
-                                >
-                                  <X size={14} />
-                                </Button>
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      </Field>
-                    )}
-                  />
-                </div>
+                </TabsContent>
               </div>
 
-              {/* SEO Section */}
-              <div className="space-y-6 border p-6 rounded-2xl bg-muted/10">
-                <div className="border-b pb-2">
-                  <h3 className="text-sm font-semibold tracking-tight">Cấu hình SEO</h3>
-                  <p className="text-[11px] text-muted-foreground">Tối ưu hóa hiển thị trên các công cụ tìm kiếm (Google, Bing,...).</p>
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <Controller
-                    control={form.control}
-                    name="metaTitle"
-                    render={({ field, fieldState }) => (
-                      <Field>
-                        <FieldLabel>Tiêu đề SEO</FieldLabel>
-                        <Input {...field} value={field.value || ""} placeholder="Để trống sẽ tự động dùng tiêu đề..." />
-                        <FieldError errors={[fieldState.error]} />
-                      </Field>
-                    )}
-                  />
-
-                  <Controller
-                    control={form.control}
-                    name="metaDescription"
-                    render={({ field, fieldState }) => (
-                      <Field>
-                        <FieldLabel>Mô tả SEO</FieldLabel>
-                        <Textarea {...field} value={field.value || ""} placeholder="Mô tả tóm tắt nội dung để hiển thị trên Google..." className="min-h-[80px]" />
-                        <FieldError errors={[fieldState.error]} />
-                      </Field>
-                    )}
-                  />
-                </div>
+              <div className="flex justify-end gap-3 p-6 border-t bg-background sticky bottom-0 z-20">
+                <Button
+                  variant="outline"
+                  type="button"
+                  onClick={() => setActiveProject(null)}
+                >
+                  Hủy
+                </Button>
+                <Button type="submit" disabled={saveMutation.isPending}>
+                  {saveMutation.isPending
+                    ? "Đang lưu..."
+                    : activeProject === "new"
+                      ? "Tạo dự án"
+                      : "Lưu thay đổi"}
+                </Button>
               </div>
-
-              {/* Editor Section */}
-              <div className="space-y-4">
-                <div className="flex items-center justify-between border-b pb-2">
-                  <h3 className="text-sm font-semibold tracking-tight">Nội dung dự án</h3>
-                  <span className="text-[10px] text-muted-foreground uppercase tracking-widest">Tiptap Editor</span>
-                </div>
-                <Controller
-                  control={form.control}
-                  name="description"
-                  render={({ field }) => (
-                    <TiptapEditor
-                      key={activeProject === "new" ? "new" : activeProject?.id}
-                      value={field.value}
-                      onChange={handleContentChange}
-                      placeholder="Viết nội dung chi tiết dự án ở đây..."
-                      uploadImage={async (file) => {
-                        const fileName = `projects/${Date.now()}-${Math.random().toString(36).slice(2)}.webp`;
-                        const { error } = await supabase.storage
-                          .from("images")
-                          .upload(fileName, file, { contentType: "image/webp" });
-                        if (error) throw error;
-                        const { data } = supabase.storage.from("images").getPublicUrl(fileName);
-                        return data.publicUrl;
-                      }}
-                    />
-                  )}
-                />
-              </div>
-            </div>
+            </form>
           </div>
-
-          <div className="flex justify-end gap-3 p-6 border-t bg-background sticky bottom-0 z-20">
-            <Button variant="outline" type="button" onClick={() => setActiveProject(null)}>
-              Hủy
-            </Button>
-            <Button type="submit" disabled={saveMutation.isPending}>
-              {saveMutation.isPending ? "Đang lưu..." : activeProject === "new" ? "Tạo dự án" : "Lưu thay đổi"}
-            </Button>
-          </div>
-        </form>
+        </Tabs>
       </AdminDialog>
 
       <DeleteDialog

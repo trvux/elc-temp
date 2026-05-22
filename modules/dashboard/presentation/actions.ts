@@ -5,7 +5,7 @@ import { serviceRepo } from "@/modules/service/infrastructure";
 import { pageRepo } from "@/modules/page/infrastructure";
 import { contactRepo } from "@/modules/contact/infrastructure";
 import { productRepo } from "@/modules/catalog/infrastructure";
-import { categoryRepo } from "@/modules/category/infrastructure";
+import { categoryNewRepo } from "@/modules/category-new/infrastructure/categoryNewRepo";
 import { brandRepo } from "@/modules/brand/infrastructure";
 import { branchRepo } from "@/modules/branch/infrastructure";
 import { projectRepo } from "@/modules/project/infrastructure";
@@ -29,7 +29,7 @@ export async function getDashboardStatsAction() {
       allProducts
     ] = await Promise.all([
       productRepo.count(),
-      categoryRepo.count(),
+      categoryNewRepo.count(),
       brandRepo.count(),
       projectRepo.count(),
       serviceRepo.count(),
@@ -40,7 +40,7 @@ export async function getDashboardStatsAction() {
       productRepo.getAll({ limit: 5, sortBy: "newest" }),
       projectRepo.getAll({ limit: 5, orderBy: "createdAt", orderDirection: "desc" }),
       newsRepo.getAll({ limit: 5 }),
-      categoryRepo.getAll(),
+      categoryNewRepo.getAll(),
       productRepo.getAll()
     ]);
 
@@ -51,7 +51,7 @@ export async function getDashboardStatsAction() {
         return { 
           name: cat.name, 
           count,
-          level: cat.parentId === null ? 1 : 2 
+          level: cat.groupId === null ? 1 : 2 
         };
       })
       .filter(c => c.count > 0)

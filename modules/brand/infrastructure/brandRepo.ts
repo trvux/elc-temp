@@ -12,6 +12,10 @@ type BrandRow = Tables<"brands">;
 type BrandInsert = Insert<"brands">;
 type BrandUpdate = Update<"brands">;
 
+type ExtendedBrandRow = BrandRow & { is_featured?: boolean; order_index?: number };
+type ExtendedBrandInsert = BrandInsert & { is_featured?: boolean; order_index?: number };
+type ExtendedBrandUpdate = BrandUpdate & { is_featured?: boolean; order_index?: number };
+
 export class SupabaseBrandRepository implements BrandRepository {
   private readonly TABLE_NAME = "brands";
 
@@ -23,7 +27,13 @@ export class SupabaseBrandRepository implements BrandRepository {
       query = query.ilike("name", `%${options.search}%`);
     }
 
-    query = query.order("name", { ascending: true });
+    if (!options?.includeDeleted) {
+      query = query.is("deleted_at", null);
+    }
+
+    query = query
+      .order("order_index", { ascending: true })
+      .order("name", { ascending: true });
 
     if (options?.limit) {
       const from = options.offset || 0;
@@ -34,7 +44,7 @@ export class SupabaseBrandRepository implements BrandRepository {
     const { data, error } = await query;
     if (error) this.handleError(error, "getAll");
 
-    return (data || []).map(this.mapToDomain);
+    return (data || []).map((row) => this.mapToDomain(row as ExtendedBrandRow));
   }
 
   async count(options?: Pick<BrandFilter, "search" | "includeDeleted">): Promise<number> {
@@ -60,7 +70,7 @@ export class SupabaseBrandRepository implements BrandRepository {
       .maybeSingle();
 
     if (error) this.handleError(error, "getById");
-    return data ? this.mapToDomain(data) : null;
+    return data ? this.mapToDomain(data as ExtendedBrandRow) : null;
   }
 
   async getBySlug(slug: string): Promise<Brand | null> {
@@ -72,57 +82,59 @@ export class SupabaseBrandRepository implements BrandRepository {
       .maybeSingle();
 
     if (error) this.handleError(error, "getBySlug");
-    return data ? this.mapToDomain(data) : null;
+    return data ? this.mapToDomain(data as ExtendedBrandRow) : null;
   }
 
   async create(input: CreateBrandInput): Promise<Brand> {
     const supabase = await createClient();
-    const row: BrandInsert = {
+    const row: ExtendedBrandInsert = {
       name: input.name,
       slug: input.slug,
       logo_url: input.logoUrl,
-      description: input.description,
+      is_featured: input.isFeatured,
+      order_index: input.orderIndex,
       meta_title: input.metaTitle,
       meta_description: input.metaDescription,
     };
 
     const { data, error } = await supabase
       .from(this.TABLE_NAME)
-      .insert(row)
+      .insert(row as BrandInsert)
       .select()
       .single();
 
     if (error) this.handleError(error, "create");
-    return this.mapToDomain(data);
+    return this.mapToDomain(data as ExtendedBrandRow);
   }
 
   async update(input: UpdateBrandInput): Promise<Brand> {
     const supabase = await createClient();
-    const row: BrandUpdate = {
+    const row: ExtendedBrandUpdate = {
       name: input.name,
       slug: input.slug,
       logo_url: input.logoUrl,
-      description: input.description,
+      is_featured: input.isFeatured,
+      order_index: input.orderIndex,
       meta_title: input.metaTitle,
       meta_description: input.metaDescription,
     };
     
     const { data, error } = await supabase
       .from(this.TABLE_NAME)
-      .update(row)
+      .update(row as BrandUpdate)
       .eq("id", input.id)
       .select()
       .single();
 
     if (error) this.handleError(error, "update");
-    return this.mapToDomain(data);
+    return this.mapToDomain(data as ExtendedBrandRow);
   }
 
   async delete(id: string): Promise<void> {
     const supabase = await createClient();
     const { error } = await supabase
       .from(this.TABLE_NAME)
-      .delete()
+      .update({ deleted_at: new Date().toISOString() })
       .eq("id", id);
 
     if (error) this.handleError(error, "delete");
@@ -136,21 +148,22 @@ export class SupabaseBrandRepository implements BrandRepository {
       .in("id", ids);
 
     if (error) this.handleError(error, "getByIds");
-    return (data || []).map(this.mapToDomain);
+    return (data || []).map((row) => this.mapToDomain(row as ExtendedBrandRow));
   }
 
-  private mapToDomain(row: BrandRow): Brand {
+  private mapToDomain(row: ExtendedBrandRow): Brand {
     return {
       id: row.id,
       name: row.name,
       slug: row.slug,
       logoUrl: row.logo_url || "",
-      description: row.description || "",
+      isFeatured: row.is_featured || false,
+      orderIndex: row.order_index || 0,
       metaTitle: row.meta_title || null,
       metaDescription: row.meta_description || null,
       createdAt: row.created_at || new Date().toISOString(),
-      updatedAt: row.created_at || new Date().toISOString(), // brands table might not have updated_at
-      deletedAt: null,
+      updatedAt: row.created_at || new Date().toISOString(),
+      deletedAt: row.deleted_at || null,
     };
   }
 

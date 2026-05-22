@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { Controller, UseFormReturn } from "react-hook-form";
 import {
   Field,
@@ -16,32 +17,53 @@ import { Textarea } from "@/shared/components/ui/textarea";
 import {
   Select,
   SelectContent,
-  SelectGroup,
   SelectItem,
-  SelectLabel,
-  SelectSeparator,
   SelectTrigger,
   SelectValue,
 } from "@/shared/components/ui/select";
 import { Switch } from "@/shared/components/ui/switch";
-import { Category } from "@/modules/category/domain/types";
+import { Group } from "@/modules/group/domain/types";
+import { CategoryNewWithGroup } from "@/modules/category-new/domain/types";
 import { Brand } from "@/modules/catalog/domain/types";
 import { ProductFormValues } from "../../hooks/useProductForm";
 import { formatPrice } from "@/shared/lib/utils";
 
 interface ProductGeneralTabProps {
   form: UseFormReturn<ProductFormValues>;
-  categories: Category[];
+  groups: Group[];
+  categoriesNew: CategoryNewWithGroup[];
   brands: Brand[];
-  updateAutoSlug: (name: string, sku: string, catId: string, brdId: string, specs: any[]) => void;
+  updateAutoSlug: (name: string, mpn: string) => void;
 }
 
 export function ProductGeneralTab({
   form,
-  categories,
+  groups,
+  categoriesNew,
   brands,
   updateAutoSlug,
 }: ProductGeneralTabProps) {
+  const currentCategoryId = form.watch("categoryId");
+  const [selectedGroupId, setSelectedGroupId] = useState<string>(() => {
+    if (currentCategoryId) {
+      const cat = categoriesNew.find((c) => c.id === currentCategoryId);
+      return cat?.groupId || "";
+    }
+    return "";
+  });
+
+  // Sync selected group if categoryId changes (e.g. on form reset/load)
+  useEffect(() => {
+    if (currentCategoryId) {
+      const cat = categoriesNew.find((c) => c.id === currentCategoryId);
+      if (cat && cat.groupId !== selectedGroupId) {
+        setSelectedGroupId(cat.groupId || "");
+      }
+    } else {
+      setSelectedGroupId("");
+    }
+  }, [currentCategoryId, categoriesNew]);
+
   return (
     <FieldGroup className="gap-8">
       <FieldSet>
@@ -60,10 +82,7 @@ export function ProductGeneralTab({
                     field.onChange(e);
                     updateAutoSlug(
                       e.target.value,
-                      form.getValues("sku"),
-                      form.getValues("categoryId"),
-                      form.getValues("brandId"),
-                      form.getValues("specs")
+                      form.getValues("mpn") || ""
                     );
                   }}
                 />
@@ -83,13 +102,6 @@ export function ProductGeneralTab({
                   placeholder="VD: DAIKIN-15HP"
                   onChange={(e) => {
                     field.onChange(e);
-                    updateAutoSlug(
-                      form.getValues("name"),
-                      e.target.value,
-                      form.getValues("categoryId"),
-                      form.getValues("brandId"),
-                      form.getValues("specs")
-                    );
                   }}
                 />
                 <FieldError errors={[fieldState.error]} />
@@ -117,51 +129,67 @@ export function ProductGeneralTab({
             )}
           />
 
+          {/* Nhóm danh mục (Cascading Level 1) */}
+          <Field>
+            <FieldLabel>Nhóm danh mục *</FieldLabel>
+            <Select
+              value={selectedGroupId || "none"}
+              onValueChange={(val) => {
+                const actualVal = val === "none" ? "" : val;
+                setSelectedGroupId(actualVal);
+                form.setValue("categoryId", ""); // Reset category when group changes
+              }}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Chọn nhóm danh mục" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="none">Không chọn nhóm danh mục</SelectItem>
+                {groups.map((g) => (
+                  <SelectItem key={g.id} value={g.id}>
+                    {g.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </Field>
+
+          {/* Danh mục mới (Cascading Level 2) */}
           <Controller
             control={form.control}
             name="categoryId"
-            render={({ field, fieldState }) => (
-              <Field>
-                <FieldLabel>Danh mục</FieldLabel>
-                <Select
-                  value={field.value}
-                  onValueChange={(val) => {
-                    field.onChange(val);
-                    updateAutoSlug(
-                      form.getValues("name"),
-                      form.getValues("sku"),
-                      val,
-                      form.getValues("brandId"),
-                      form.getValues("specs")
-                    );
-                  }}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Chọn danh mục" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {categories
-                      .filter((c) => !c.parentId)
-                      .map((parent) => (
-                        <SelectGroup key={parent.id}>
-                          <SelectLabel className="opacity-50">
-                            {parent.name}
-                          </SelectLabel>
-                          {categories
-                            .filter((c) => c.parentId === parent.id)
-                            .map((child) => (
-                              <SelectItem key={child.id} value={child.id}>
-                                {child.name}
-                              </SelectItem>
-                            ))}
-                          <SelectSeparator />
-                        </SelectGroup>
+            render={({ field, fieldState }) => {
+              const filteredCategories = categoriesNew.filter(
+                (c) => c.groupId === selectedGroupId
+              );
+
+              return (
+                <Field>
+                  <FieldLabel>Danh mục mới *</FieldLabel>
+                  <Select
+                    value={field.value || "none"}
+                    disabled={!selectedGroupId}
+                    onValueChange={(val) => {
+                      const actualVal = val === "none" ? "" : val;
+                      field.onChange(actualVal);
+                    }}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder={selectedGroupId ? "Chọn danh mục mới" : "Vui lòng chọn nhóm danh mục trước"} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="none">Không chọn danh mục</SelectItem>
+                      {filteredCategories.map((c) => (
+                        <SelectItem key={c.id} value={c.id}>
+                          {c.name}
+                        </SelectItem>
                       ))}
-                  </SelectContent>
-                </Select>
-                <FieldError errors={[fieldState.error]} />
-              </Field>
-            )}
+                    </SelectContent>
+                  </Select>
+                  <FieldError errors={[fieldState.error]} />
+                </Field>
+              );
+            }}
           />
 
           <Controller
@@ -174,13 +202,6 @@ export function ProductGeneralTab({
                   value={field.value}
                   onValueChange={(val) => {
                     field.onChange(val);
-                    updateAutoSlug(
-                      form.getValues("name"),
-                      form.getValues("sku"),
-                      form.getValues("categoryId"),
-                      val,
-                      form.getValues("specs")
-                    );
                   }}
                 >
                   <SelectTrigger>
@@ -209,6 +230,13 @@ export function ProductGeneralTab({
                   {...field}
                   value={field.value ?? ""}
                   placeholder="VD: MPN-123"
+                  onChange={(e) => {
+                    field.onChange(e);
+                    updateAutoSlug(
+                      form.getValues("name"),
+                      e.target.value
+                    );
+                  }}
                 />
                 <FieldError errors={[fieldState.error]} />
               </Field>
@@ -235,11 +263,7 @@ export function ProductGeneralTab({
             control={form.control}
             name="slug"
             render={({ field, fieldState }) => {
-              const catId = form.watch("categoryId");
-              const brdId = form.watch("brandId");
-              const catSlug = categories.find((c) => c.id === catId)?.slug || "all";
-              const brdSlug = brands.find((b) => b.id === brdId)?.slug || "all";
-              const fullUrl = `/san-pham/${catSlug}/${brdSlug}/${field.value}`;
+              const fullUrl = `/san-pham/${field.value}`;
 
               return (
                 <Field className="md:col-span-2">
@@ -370,7 +394,7 @@ export function ProductGeneralTab({
                     orientation="horizontal"
                     className="justify-between border p-3 rounded-lg"
                   >
-                    <FieldLabel className="font-normal">
+                    <FieldLabel className="font-normal mb-0">
                       Sản phẩm nổi bật
                     </FieldLabel>
                     <Switch
@@ -389,7 +413,7 @@ export function ProductGeneralTab({
                     orientation="horizontal"
                     className="justify-between border p-3 rounded-lg"
                   >
-                    <FieldLabel className="font-normal">
+                    <FieldLabel className="font-normal mb-0">
                       Trạng thái hiển thị
                     </FieldLabel>
                     <Switch

@@ -23,12 +23,13 @@ export function useBrandForm(
   const supabase = createClient();
 
   const form = useForm<BrandFormValues>({
-    resolver: standardSchemaResolver(createBrandSchema as any) as any,
+    resolver: standardSchemaResolver(createBrandSchema),
     defaultValues: {
       name: "",
       slug: "",
       logoUrl: "",
-      description: "",
+      isFeatured: false,
+      orderIndex: 0,
       metaTitle: "",
       metaDescription: "",
     },
@@ -84,8 +85,14 @@ export function useBrandForm(
   };
 
   const onNameChange = (name: string) => {
+    const currentSlug = form.getValues("slug");
+    const oldName = form.getValues("name");
     form.setValue("name", name);
-    if (activeBrand === "new") {
+    // Auto-gen slug nếu:
+    // 1. Đang tạo mới, hoặc
+    // 2. Đang sửa và slug hiện tại vẫn match với slug được gen từ name cũ
+    //    (tức là user chưa tự sửa slug thủ công)
+    if (activeBrand === "new" || currentSlug === generateSlug(oldName)) {
       form.setValue("slug", generateSlug(name));
     }
   };

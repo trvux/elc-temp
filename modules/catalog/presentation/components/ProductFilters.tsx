@@ -13,14 +13,18 @@ import { Button } from "@/shared/components/ui/button";
 import { Checkbox } from "@/shared/components/ui/checkbox";
 import { Input } from "@/shared/components/ui/input";
 import { Separator } from "@/shared/components/ui/separator";
+import { cn } from "@/shared/lib/utils";
 import { Check, Search, X } from "lucide-react";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { cn } from "@/shared/lib/utils";
-import { ProductSortBy } from "../../domain/types";
 
 interface ProductFiltersProps {
-  categories?: { id: string; name: string; slug: string; parentId?: string | null }[];
+  categories?: {
+    id: string;
+    name: string;
+    slug: string;
+    parentId?: string | null;
+  }[];
   availableFilters: {
     brands: { id: string; name: string; slug: string }[];
     specs: { label: string; values: string[] }[];
@@ -31,88 +35,29 @@ interface ProductFiltersProps {
   onFilterChange?: () => void;
 }
 
-const CATEGORY_PRIORITY_ORDER = [
-  "may-lanh",
-  "may-lanh-treo-tuong",
-  "may-loc-khong-khi",
-  "may-loc-khong-khi-may-loc-nuoc",
-  "may-lanh-dieu-hoa-tu-dung",
-  "may-lanh-am-tran",
-  "may-lanh-giau-tran-noi-ong-gio",
-  "may-lanh-ap-tran",
-  "may-loc-khong-khi-may-cap-khi-tuoi-loc-khong-khi",
-  "may-loc-khong-khi-phu-kien-dong-bo-cua-he-thong-cap-gio-tuoi",
-];
-
-function getCategoryPriority(slug: string): number {
-  const index = CATEGORY_PRIORITY_ORDER.indexOf(slug);
-  return index === -1 ? 999 : index;
-}
-
 export function ProductFilters({
   categories = [],
   availableFilters,
-  isMobile,
   onFilterChange,
 }: ProductFiltersProps) {
-  const sortedCategories = useMemo(() => {
-    const activeCategories = categories.filter(
-      (c) => !c.name.toLowerCase().includes("chưa phân loại")
-    );
-    const roots = activeCategories
-      .filter((c) => !c.parentId)
-      .sort((a, b) => a.name.localeCompare(b.name));
-    
-    const result: (typeof categories[0] & { displayName: string; isChild: boolean; hasCheckbox: boolean })[] = [];
-
-    roots.forEach((root) => {
-      // Add parent (no checkbox)
-      result.push({
-        ...root,
-        displayName: getCategoryDisplayName(root),
-        isChild: false,
-        hasCheckbox: false,
-      });
-
-      // Add immediate children (with checkbox)
-      const children = activeCategories
-        .filter((c) => c.parentId === root.id)
-        .sort((a, b) => a.name.localeCompare(b.name))
-        .map((c) => ({
-          ...c,
-          displayName: getCategoryDisplayName(c),
-          isChild: true,
-          hasCheckbox: true,
-        }));
-      
-      result.push(...children);
-    });
-
-    return result;
-  }, [categories]);
-
   const router = useRouter();
   const searchParams = useSearchParams();
-
-  const currentSort =
-    (searchParams.get("sortBy") as ProductSortBy) || "price_asc";
   const params = useParams();
-  const categorySlugFromPath = params.categorySlug as string;
-  const brandSlugFromPath = params.brandSlug as string;
 
-  // We need to know if the first segment is a brand or category
-  const currentCategory = categories.find(c => c.slug === categorySlugFromPath) ? categorySlugFromPath : "all";
-  const brandInFirstSegment = !categories.find(c => c.slug === categorySlugFromPath) ? categorySlugFromPath : null;
-  const currentBrandFromPath = brandInFirstSegment || brandSlugFromPath;
+  // Current entity slug from Flat URL path (/san-pham/[slug])
+  const slugFromPath = params.slug as string;
 
+  // Determine if current path belongs to a category (for sidebar highlight)
+  const currentCategory = useMemo(() => {
+    return categories.find((c) => c.slug === slugFromPath)
+      ? slugFromPath
+      : "all";
+  }, [categories, slugFromPath]);
+
+  // Read selected brands and specs from query parameters
   const currentBrands = useMemo(() => {
-    const fromQuery = searchParams.getAll("brands");
-    if (currentBrandFromPath) {
-      // If the brand is in the path, it should be the primary brand
-      return [currentBrandFromPath, ...fromQuery.filter(b => b !== currentBrandFromPath)];
-    }
-    return fromQuery;
-  }, [searchParams, currentBrandFromPath]);
+    return searchParams.getAll("brands");
+  }, [searchParams]);
 
   const currentSpecs = useMemo(() => {
     const specs: Record<string, string[]> = {};
@@ -126,66 +71,6 @@ export function ProductFilters({
     return specs;
   }, [searchParams]);
 
-  const updateFilters = useCallback(
-    (updates: Record<string, string | string[] | null>) => {
-      const params = new URLSearchParams(searchParams.toString());
-
-      Object.entries(updates).forEach(([key, value]) => {
-        if (value === null) {
-          params.delete(key);
-        } else if (Array.isArray(value)) {
-          params.delete(key);
-          value.forEach((v) => params.append(key, v));
-        } else {
-          params.set(key, value);
-        }
-      });
-
-      params.delete("page");
-      router.push(`?${params.toString()}`, { scroll: false });
-    },
-    [router, searchParams],
-  );
-
-  const handleSortChange = (value: string) => updateFilters({ sortBy: value });
-
-  const handleCategoryChange = (slug: string, checked: boolean) => {
-    if (checked) {
-      // Navigate to the new clean category URL
-      router.push(`/san-pham/${slug}`);
-    } else {
-      // If unchecked, go back to the main products page
-      router.push("/san-pham");
-    }
-  };
-
-  const handleBrandChange = (brandSlug: string, checked: boolean) => {
-    const sParams = new URLSearchParams(searchParams.toString());
-    sParams.delete("brands");
-    sParams.delete("page");
-    const queryString = sParams.toString();
-    const suffix = queryString ? `?${queryString}` : "";
-
-    if (checked) {
-      if (currentCategory && currentCategory !== "all") {
-        router.push(`/san-pham/${currentCategory}/${brandSlug}${suffix}`);
-      } else {
-        router.push(`/san-pham/${brandSlug}${suffix}`);
-      }
-    } else {
-      if (currentCategory && currentCategory !== "all") {
-        router.push(`/san-pham/${currentCategory}${suffix}`);
-      } else {
-        router.push(`/san-pham${suffix}`);
-      }
-    }
-  };
-
-  const handleSpecChange = (label: string, value: string, checked: boolean) => {
-    const key = `spec_${label}`;
-    updateFilters({ [key]: checked ? value : null });
-  };
-
   const hasPriceFilter = useMemo(() => {
     return !!(searchParams.get("minPrice") || searchParams.get("maxPrice"));
   }, [searchParams]);
@@ -195,38 +80,160 @@ export function ProductFilters({
       currentBrands.length > 0 ||
       (currentCategory !== "all" && currentCategory !== "") ||
       Object.keys(currentSpecs).length > 0 ||
-      searchParams.get("minPrice") ||
-      searchParams.get("maxPrice")
+      hasPriceFilter
     );
-  }, [currentBrands, currentCategory, currentSpecs, searchParams]);
+  }, [currentBrands, currentCategory, currentSpecs, hasPriceFilter]);
+
+  // Group categories by parent group
+  const groups = useMemo(() => {
+    const activeCategories = categories.filter(
+      (c) => !c.name.toLowerCase().includes("chưa phân loại"),
+    );
+    const roots = activeCategories
+      .filter((c) => !c.parentId)
+      .sort((a, b) => a.name.localeCompare(b.name));
+
+    return roots.map((root) => {
+      const children = activeCategories
+        .filter((c) => c.parentId === root.id)
+        .sort((a, b) => a.name.localeCompare(b.name))
+        .map((c) => ({
+          ...c,
+          displayName: getCategoryDisplayName(c),
+        }));
+
+      return {
+        id: root.id,
+        slug: root.slug,
+        displayName: getCategoryDisplayName(root),
+        children,
+      };
+    });
+  }, [categories]);
+
+  // Helper function to push filter updates to query parameters
+  const updateFilters = useCallback(
+    (updates: Record<string, string | string[] | null>) => {
+      const sParams = new URLSearchParams(searchParams.toString());
+      sParams.delete("page");
+
+      Object.entries(updates).forEach(([key, value]) => {
+        if (value === null) {
+          sParams.delete(key);
+        } else if (Array.isArray(value)) {
+          sParams.delete(key);
+          value.forEach((v) => sParams.append(key, v));
+        } else {
+          sParams.set(key, value);
+        }
+      });
+
+      router.push(`?${sParams.toString()}`, { scroll: false });
+      router.refresh();
+    },
+    [router, searchParams],
+  );
+
+  const handleCategoryChange = (slug: string, checked: boolean) => {
+    const sParams = new URLSearchParams(searchParams.toString());
+    sParams.delete("page");
+
+    // Find parent group of new and currently active categories
+    const newCategoryObj = categories.find((c) => c.slug === slug);
+    const activeCategoryObj = categories.find((c) => c.slug === slugFromPath);
+
+    const newParentGroupId = newCategoryObj?.parentId;
+    const activeParentGroupId = activeCategoryObj?.parentId;
+
+    // If changing to a category in a different parent group, clear ALL spec/brand query filters
+    if (newParentGroupId !== activeParentGroupId) {
+      sParams.delete("brands");
+      sParams.delete("minPrice");
+      sParams.delete("maxPrice");
+      Array.from(sParams.keys()).forEach((key) => {
+        if (key.startsWith("spec_")) {
+          sParams.delete(key);
+        }
+      });
+    }
+
+    // Check if the current page is actually a Brand page (slug from path is a brand slug)
+    const isCurrentPageABrand =
+      slugFromPath && !categories.some((c) => c.slug === slugFromPath);
+
+    if (checked) {
+      if (isCurrentPageABrand) {
+        // Safe-transition: convert brand path parameter to query parameter
+        sParams.delete("brands");
+        sParams.append("brands", slugFromPath);
+      }
+      const queryString = sParams.toString();
+      const suffix = queryString ? `?${queryString}` : "";
+      router.push(`/san-pham/${slug}${suffix}`);
+    } else {
+      const queryString = sParams.toString();
+      const suffix = queryString ? `?${queryString}` : "";
+      router.push(`/san-pham${suffix}`);
+    }
+    router.refresh();
+    if (onFilterChange) onFilterChange();
+  };
+
+  const handleBrandChange = (brandSlug: string, checked: boolean) => {
+    const sParams = new URLSearchParams(searchParams.toString());
+    sParams.delete("page");
+
+    const existing = sParams.getAll("brands").filter((b) => b !== brandSlug);
+    sParams.delete("brands");
+
+    if (checked) {
+      [...existing, brandSlug].forEach((b) => sParams.append("brands", b));
+    } else {
+      existing.forEach((b) => sParams.append("brands", b));
+    }
+
+    const queryString = sParams.toString();
+    const suffix = queryString ? `?${queryString}` : "";
+    router.push(`${window.location.pathname}${suffix}`, { scroll: false });
+    router.refresh();
+    if (onFilterChange) onFilterChange();
+  };
+
+  const handleSpecChange = (label: string, value: string, checked: boolean) => {
+    const key = `spec_${label}`;
+    updateFilters({ [key]: checked ? value : null });
+    if (onFilterChange) onFilterChange();
+  };
 
   const clearAllFilters = () => {
-    // Navigate to the main products hub to clear both the category path and all search filters
     router.push("/san-pham");
+    router.refresh();
     if (onFilterChange) onFilterChange();
   };
 
   const [isMounted, setIsMounted] = useState(false);
-
   useEffect(() => {
     setIsMounted(true);
   }, []);
 
   const activeAccordionValues = useMemo(() => {
-    const values = ["Danh mục", "Công suất"];
+    const values: string[] = [];
     if (currentBrands.length > 0) values.push("Thương hiệu");
     if (hasPriceFilter) values.push("Khoảng giá");
-    Object.keys(currentSpecs).forEach(label => {
+    Object.keys(currentSpecs).forEach((label) => {
       if (currentSpecs[label].length > 0) values.push(label);
     });
+
     return values;
   }, [currentBrands, hasPriceFilter, currentSpecs]);
 
   if (!isMounted) {
-    return <div className="animate-pulse space-y-4">
-      <div className="h-10 bg-muted rounded w-1/2" />
-      <div className="h-40 bg-muted rounded" />
-    </div>;
+    return (
+      <div className="animate-pulse space-y-4">
+        <div className="h-10 bg-muted rounded w-1/2" />
+        <div className="h-40 bg-muted rounded" />
+      </div>
+    );
   }
 
   return (
@@ -234,7 +241,12 @@ export function ProductFilters({
       <div className="flex items-center justify-between h-10">
         <h3 className="font-bold">Bộ lọc</h3>
         {hasAnyFilter && (
-          <Button variant="secondary" size="sm" onClick={clearAllFilters}>
+          <Button
+            variant="secondary"
+            size="sm"
+            onClick={clearAllFilters}
+            className="hidden lg:inline-flex"
+          >
             <X data-icon="inline-start" />
             Xóa tất cả
           </Button>
@@ -248,26 +260,28 @@ export function ProductFilters({
         key={activeAccordionValues.join(",")}
         className="w-full"
       >
-        {/* Unified Category Filter */}
-        {sortedCategories.length > 0 && (
-          <FilterGroup
-            label="Danh mục"
-            items={sortedCategories.map((c) => ({
-              id: c.slug,
-              name: c.displayName,
-              className: !c.isChild ? "font-bold text-foreground py-3" : "text-muted-foreground",
-              rowClassName: !c.isChild ? "pl-4" : "pl-10",
-              hideCheckbox: !c.hasCheckbox,
-            }))}
-            selectedValues={[currentCategory]}
-            selectionCount={
-              currentCategory !== "all" && currentCategory !== "" ? 1 : 0
-            }
-            onToggle={handleCategoryChange}
-          />
-        )}
+        {/* Category Group Accordions */}
+        {groups.map((g) => {
+          if (g.children.length === 0) return null;
+          const hasSelectedChild = g.children.some(
+            (c) => c.slug === currentCategory,
+          );
+          return (
+            <FilterGroup
+              key={g.id}
+              label={g.displayName}
+              items={g.children.map((c) => ({
+                id: c.slug,
+                name: c.displayName,
+              }))}
+              selectedValues={[currentCategory]}
+              selectionCount={hasSelectedChild ? 1 : 0}
+              onToggle={handleCategoryChange}
+            />
+          );
+        })}
 
-        {/* Unified Brand Filter */}
+        {/* Brands Filter List */}
         {availableFilters.brands.length > 0 && (
           <FilterGroup
             label="Thương hiệu"
@@ -281,19 +295,7 @@ export function ProductFilters({
           />
         )}
 
-        {/* Price Filter */}
-        <AccordionFilterWrapper
-          label="Khoảng giá"
-          selectionCount={hasPriceFilter ? 1 : 0}
-        >
-          <ProductPriceFilter
-            hideLabel
-            minPriceLimit={availableFilters.minPrice}
-            maxPriceLimit={availableFilters.maxPrice}
-          />
-        </AccordionFilterWrapper>
-
-        {/* Unified Specs Filters */}
+        {/* Specs Filters */}
         {availableFilters.specs.map((spec) => (
           <FilterGroup
             key={spec.label}
@@ -307,7 +309,32 @@ export function ProductFilters({
             showSearch={spec.label !== "Công suất" && spec.values.length > 8}
           />
         ))}
+
+        {/* Price Range Slider */}
+        <AccordionFilterWrapper
+          label="Khoảng giá"
+          selectionCount={hasPriceFilter ? 1 : 0}
+        >
+          <ProductPriceFilter
+            hideLabel
+            minPriceLimit={availableFilters.minPrice}
+            maxPriceLimit={availableFilters.maxPrice}
+          />
+        </AccordionFilterWrapper>
       </Accordion>
+
+      {hasAnyFilter && (
+        <div className="mt-4 pt-4 border-t lg:hidden">
+          <Button
+            variant="secondary"
+            className="w-full justify-center gap-2"
+            onClick={clearAllFilters}
+          >
+            <X className="size-4" />
+            Xóa tất cả
+          </Button>
+        </div>
+      )}
     </div>
   );
 }
@@ -335,7 +362,7 @@ function AccordionFilterWrapper({
           )}
         </div>
       </AccordionTrigger>
-      <AccordionContent className="px-2">{children}</AccordionContent>
+      <AccordionContent className="px-2 h-auto!">{children}</AccordionContent>
     </AccordionItem>
   );
 }
@@ -349,7 +376,13 @@ function FilterGroup({
   showSearch = false,
 }: {
   label: string;
-  items: { id: string; name: string; className?: string; rowClassName?: string; hideCheckbox?: boolean }[];
+  items: {
+    id: string;
+    name: string;
+    className?: string;
+    rowClassName?: string;
+    hideCheckbox?: boolean;
+  }[];
   selectedValues: string[];
   selectionCount?: number;
   onToggle: (id: string, checked: boolean) => void;
@@ -388,7 +421,7 @@ function FilterGroup({
                 className={cn(
                   "flex items-center gap-2 pr-4 py-2 rounded-md transition-colors group",
                   !item.hideCheckbox && "hover:bg-muted/50 cursor-pointer",
-                  item.rowClassName || "pl-6"
+                  item.rowClassName || "pl-6",
                 )}
               >
                 {!item.hideCheckbox && (
@@ -398,10 +431,12 @@ function FilterGroup({
                     onCheckedChange={(checked) => onToggle(item.id, checked)}
                   />
                 )}
-                <span className={cn(
-                  "text-sm font-medium leading-snug group-hover:text-foreground transition-colors",
-                  item.className
-                )}>
+                <span
+                  className={cn(
+                    "text-sm font-medium leading-snug group-hover:text-foreground transition-colors",
+                    item.className,
+                  )}
+                >
                   {item.name}
                 </span>
               </label>
@@ -426,7 +461,6 @@ function ImmediateCheckbox({
 }) {
   const [internalChecked, setInternalChecked] = useState(checked);
 
-  // Sync with props when server/router state changes
   useEffect(() => {
     setInternalChecked(checked);
   }, [checked]);

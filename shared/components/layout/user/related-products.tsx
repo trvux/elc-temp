@@ -60,8 +60,6 @@ export default async function RelatedProducts({
           <ProductCard
             key={product.id}
             product={product}
-            categorySlug={product.category?.slug || "all"}
-            brandSlug={product.brand?.slug || "all"}
             priority={false}
           />
         ))}

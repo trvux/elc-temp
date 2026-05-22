@@ -13,22 +13,16 @@ import Link from "next/link";
 
 interface ProductCardProps {
   product: any;
-  categorySlug?: string;
-  brandSlug?: string;
   queryTokens?: string[];
   priority?: boolean;
 }
 
 export function ProductCard({
   product,
-  categorySlug,
-  brandSlug,
   queryTokens = [],
   priority = false,
 }: ProductCardProps) {
-  const finalCategorySlug = categorySlug || (product.category?.slug || "unknown");
-  const finalBrandSlug = brandSlug || (product.brand?.slug || "all");
-  const productUrl = `/san-pham/${finalCategorySlug}/${finalBrandSlug}/${product.slug}`;
+  const productUrl = `/san-pham/${product.slug}`;
 
   const hasDiscount = product.discountPercent > 0;
   const currentPrice = product.salePrice || product.originalPrice || 0;

@@ -1,13 +1,20 @@
 "use client";
 
-import { ColumnDef } from "@tanstack/react-table";
+import { AspectRatio } from "@/shared/components/ui/aspect-ratio";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
 import { ButtonGroup } from "@/shared/components/ui/button-group";
-import { Pencil, Trash2, Star, Check, X, Minus, ExternalLink } from "lucide-react";
-import { AspectRatio } from "@/shared/components/ui/aspect-ratio";
+import { ColumnDef } from "@tanstack/react-table";
+import {
+  Check,
+  ExternalLink,
+  Minus,
+  Edit2,
+  Star,
+  Trash2,
+  X,
+} from "lucide-react";
 import Image from "next/image";
-import Link from "next/link";
 import { ProjectWithCategory } from "../../domain";
 
 interface ColumnProps {
@@ -52,8 +59,8 @@ export const getColumns = ({
         <span className="font-medium text-foreground">
           {row.original.title}
         </span>
-        <a 
-          href={`/du-an/${row.original.slug}`} 
+        <a
+          href={`/du-an/${row.original.slug}`}
           target="_blank"
           rel="noopener noreferrer"
           className="text-xs text-primary hover:underline flex items-center gap-1 w-fit"
@@ -64,14 +71,38 @@ export const getColumns = ({
       </div>
     ),
   },
+
   {
-    accessorKey: "category.name",
-    header: "Danh mục",
-    cell: ({ row }) => (
-      <span>
-        {row.original.category?.name || "—"}
-      </span>
-    ),
+    accessorKey: "serviceType.name",
+    header: "Loại hình & Sản phẩm lắp đặt",
+    cell: ({ row }) => {
+      const sType = row.original.serviceType;
+      const cats = row.original.categoriesNew || [];
+      if (!sType) return <span className="text-muted-foreground">—</span>;
+      return (
+        <div className="flex flex-col gap-1.5 max-w-[280px]">
+          <span className="font-semibold text-xs text-foreground  w-fit px-2 py-0.5">
+            {sType.name}
+          </span>
+          {cats.length > 0 ? (
+            <div className="flex flex-wrap gap-1">
+              {cats.map((c) => (
+                <span
+                  key={c.id}
+                  className="text-[10px] bg-muted text-muted-foreground px-1.5 py-0.5 rounded"
+                >
+                  {c.name}
+                </span>
+              ))}
+            </div>
+          ) : (
+            <span className="text-[10px] text-muted-foreground italic">
+              Chưa chọn sản phẩm
+            </span>
+          )}
+        </div>
+      );
+    },
   },
   {
     accessorKey: "isFeatured",
@@ -123,18 +154,18 @@ export const getColumns = ({
       return (
         <ButtonGroup>
           <Button
+            variant="ghost"
             size="icon"
-            variant="outline"
-            className="h-8 w-8"
             onClick={() => onEdit(project)}
+            className="h-8 w-8 text-muted-foreground hover:text-primary"
           >
-            <Pencil size={14} />
+            <Edit2 size={14} />
           </Button>
           <Button
+            variant="ghost"
             size="icon"
-            variant="outline"
-            className="h-8 w-8 text-destructive hover:text-destructive hover:bg-destructive/10"
             onClick={() => onDelete(project.id)}
+            className="h-8 w-8 text-muted-foreground hover:text-destructive"
           >
             <Trash2 size={14} />
           </Button>

@@ -69,6 +69,7 @@ export function ProductPriceFilter({
       
       params.delete("page");
       router.push(`?${params.toString()}`, { scroll: false });
+      router.refresh();
     }, 300);
     return () => clearTimeout(timer);
   }, [priceRange, router, minPriceLimit, maxPriceLimit]);

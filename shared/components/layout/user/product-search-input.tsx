@@ -24,6 +24,12 @@ export function ProductSearchInput() {
     searchParamsRef.current = searchParams;
   }, [searchParams]);
 
+  // Synchronize input value with URL search parameter 'q' (e.g. when filters are cleared)
+  const qParam = searchParams.get("q") ?? "";
+  useEffect(() => {
+    setInputValue(qParam);
+  }, [qParam]);
+
   useEffect(() => {
     if (isFirstRender.current) {
       isFirstRender.current = false;
@@ -31,13 +37,20 @@ export function ProductSearchInput() {
     }
     const timer = setTimeout(() => {
       const params = new URLSearchParams(searchParamsRef.current.toString());
-      if (inputValue.trim()) {
-        params.set("q", inputValue.trim());
+      const currentQ = params.get("q") ?? "";
+      const trimmedValue = inputValue.trim();
+
+      // Avoid redundant routing if the search term hasn't actually changed
+      if (trimmedValue === currentQ) return;
+
+      if (trimmedValue) {
+        params.set("q", trimmedValue);
       } else {
         params.delete("q");
       }
       params.delete("page");
       router.push(`?${params.toString()}`, { scroll: false });
+      router.refresh();
     }, 500); // Tăng delay lên 500ms để tránh bắn quá nhiều event khi đang gõ
     return () => clearTimeout(timer);
   }, [inputValue, router]);

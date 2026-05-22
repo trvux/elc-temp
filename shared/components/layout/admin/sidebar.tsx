@@ -39,13 +39,18 @@ import {
   Settings,
   ShieldCheck,
   Tag,
+  Grid,
+  List,
+  Layers,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 
 const navItems = [
   { href: "/admin", label: "Tổng quan", icon: LayoutDashboard },
-  { href: "/admin/categories", label: "Danh mục", icon: Tag },
+  { href: "/admin/group-categories", label: "Nhóm danh mục", icon: Grid },
+  { href: "/admin/categories", label: "Danh mục", icon: List },
+  { href: "/admin/service-types", label: "Loại hình dịch vụ", icon: Layers },
   { href: "/admin/brands", label: "Thương hiệu", icon: Award },
   { href: "/admin/projects", label: "Dự án", icon: FolderKanban },
   { href: "/admin/products", label: "Sản phẩm", icon: Package },

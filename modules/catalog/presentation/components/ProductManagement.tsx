@@ -12,14 +12,16 @@ import { DataTable } from "@/shared/components/ui/data-table";
 import {
   Select,
   SelectContent,
+  SelectGroup,
   SelectItem,
+  SelectLabel,
+  SelectSeparator,
   SelectTrigger,
   SelectValue,
 } from "@/shared/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/shared/components/ui/tabs";
+import { ScrollArea } from "@/shared/components/ui/scroll-area";
 
-import { Category } from "@/modules/category/domain/types";
-import { getCategoriesAction } from "@/modules/category/presentation/actions";
 import { STOCK_STATUS, ProductWithRelations } from "../../domain";
 import {
   deleteProductAction,
@@ -32,6 +34,8 @@ import { ProductGeneralTab } from "./form/ProductGeneralTab";
 import { ProductSpecsTab } from "./form/ProductSpecsTab";
 import { ProductGalleryTab } from "./form/ProductGalleryTab";
 import { ProductDescriptionTab } from "./form/ProductDescriptionTab";
+import { getGroupsAction } from "@/modules/group/presentation/actions";
+import { getCategoriesNewAction } from "@/modules/category-new/presentation/actions";
 
 export function ProductManagement() {
   const queryClient = useQueryClient();
@@ -39,6 +43,7 @@ export function ProductManagement() {
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
   // Filters
+  const [filterGroupId, setFilterGroupId] = useState<string>("all");
   const [filterCategoryId, setFilterCategoryId] = useState<string>("all");
   const [filterIsFeatured, setFilterIsFeatured] = useState<string>("all");
   const [filterIsPublished, setFilterIsPublished] = useState<string>("all");
@@ -53,10 +58,19 @@ export function ProductManagement() {
     },
   });
 
-  const { data: categories = [] } = useQuery({
-    queryKey: ["categories", "PRODUCT"],
+  const { data: groups = [] } = useQuery({
+    queryKey: ["groups"],
     queryFn: async () => {
-      const { data, error } = await getCategoriesAction("PRODUCT");
+      const { data, error } = await getGroupsAction();
+      if (error) throw new Error(error);
+      return data;
+    },
+  });
+
+  const { data: categoriesNew = [] } = useQuery({
+    queryKey: ["categories-new"],
+    queryFn: async () => {
+      const { data, error } = await getCategoriesNewAction();
       if (error) throw new Error(error);
       return data;
     },
@@ -98,33 +112,28 @@ export function ProductManagement() {
     },
   });
 
+  const handleGroupIdChange = (val: string) => {
+    setFilterGroupId(val);
+    setFilterCategoryId("all");
+  };
+
+  const filteredCategoriesNewForFilter = useMemo(() => {
+    if (filterGroupId === "all") {
+      return categoriesNew;
+    }
+    return categoriesNew.filter((c) => c.groupId === filterGroupId);
+  }, [categoriesNew, filterGroupId]);
+
   const filteredProducts = useMemo(() => {
     return products.filter((p) => {
+      const cat = categoriesNew.find((c) => c.id === p.categoryId);
+      const matchGroup = filterGroupId === "all" || (cat && cat.groupId === filterGroupId);
       const matchCategory = filterCategoryId === "all" || p.categoryId === filterCategoryId;
       const matchFeatured = filterIsFeatured === "all" || (filterIsFeatured === "true" ? p.isFeatured : !p.isFeatured);
       const matchPublished = filterIsPublished === "all" || (filterIsPublished === "true" ? p.isPublished : !p.isPublished);
-      return matchCategory && matchFeatured && matchPublished;
+      return matchGroup && matchCategory && matchFeatured && matchPublished;
     });
-  }, [products, filterCategoryId, filterIsFeatured, filterIsPublished]);
-
-  const flattenedCategories = useMemo(() => {
-    const result: (Category & { displayName: string; isParent: boolean })[] = [];
-    const parents = categories.filter((c) => !c.parentId);
-
-    parents.forEach((parent) => {
-      result.push({ ...parent, displayName: parent.name, isParent: true });
-      const children = categories.filter((c) => c.parentId === parent.id);
-      children.forEach((child) => {
-        result.push({
-          ...child,
-          displayName: `↳ ${child.name}`,
-          isParent: false,
-        });
-      });
-    });
-
-    return result;
-  }, [categories]);
+  }, [products, filterGroupId, filterCategoryId, filterIsFeatured, filterIsPublished, categoriesNew]);
 
   const columns = useMemo(
     () =>
@@ -200,19 +209,29 @@ export function ProductManagement() {
       </div>
 
       <div className="flex flex-wrap items-center gap-4 mb-4">
-        <Select value={filterCategoryId} onValueChange={setFilterCategoryId}>
+        <Select value={filterGroupId} onValueChange={handleGroupIdChange}>
           <SelectTrigger className="w-full md:w-[200px]">
-            <SelectValue placeholder="Tất cả danh mục" />
+            <SelectValue placeholder="Nhóm danh mục" />
           </SelectTrigger>
           <SelectContent>
+            <SelectItem value="all">Tất cả nhóm danh mục</SelectItem>
+            {groups.map((g) => (
+              <SelectItem key={g.id} value={g.id}>
+                {g.name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+
+        <Select value={filterCategoryId} onValueChange={setFilterCategoryId}>
+          <SelectTrigger className="w-full md:w-[220px]">
+            <SelectValue placeholder="Tất cả danh mục" />
+          </SelectTrigger>
+          <SelectContent position="popper" className="max-h-80 overflow-y-auto">
             <SelectItem value="all">Tất cả danh mục</SelectItem>
-            {flattenedCategories.map((c) => (
-              <SelectItem
-                key={c.id}
-                value={c.id}
-                className={c.isParent ? "font-bold" : "pl-6"}
-              >
-                {c.displayName}
+            {filteredCategoriesNewForFilter.map((c) => (
+              <SelectItem key={c.id} value={c.id}>
+                {c.name}
               </SelectItem>
             ))}
           </SelectContent>
@@ -240,12 +259,14 @@ export function ProductManagement() {
           </SelectContent>
         </Select>
 
-        {(filterCategoryId !== "all" ||
+        {(filterGroupId !== "all" ||
+          filterCategoryId !== "all" ||
           filterIsFeatured !== "all" ||
           filterIsPublished !== "all") && (
           <Button
             variant="ghost"
             onClick={() => {
+              setFilterGroupId("all");
               setFilterCategoryId("all");
               setFilterIsFeatured("all");
               setFilterIsPublished("all");
@@ -290,7 +311,8 @@ export function ProductManagement() {
                 <TabsContent value="general" className="mt-0 focus-visible:outline-none pb-8">
                   <ProductGeneralTab
                     form={form}
-                    categories={categories}
+                    groups={groups}
+                    categoriesNew={categoriesNew}
                     brands={brands}
                     updateAutoSlug={updateAutoSlug}
                   />
@@ -313,8 +335,6 @@ export function ProductManagement() {
                   <div className="mt-12">
                     <ProductGalleryTab
                       form={form}
-                      uploading={uploading}
-                      handleUpload={handleUpload}
                     />
                   </div>
                 </TabsContent>
