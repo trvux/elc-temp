@@ -102,90 +102,93 @@ export type Database = {
         Row: {
           created_at: string | null
           deleted_at: string | null
-          description: string
           id: string
+          is_featured: boolean | null
           logo_url: string
           meta_description: string | null
           meta_title: string | null
           name: string
+          order_index: number | null
           slug: string
           updated_at: string | null
         }
         Insert: {
           created_at?: string | null
           deleted_at?: string | null
-          description?: string
           id?: string
+          is_featured?: boolean | null
           logo_url?: string
           meta_description?: string | null
           meta_title?: string | null
           name: string
+          order_index?: number | null
           slug: string
           updated_at?: string | null
         }
         Update: {
           created_at?: string | null
           deleted_at?: string | null
-          description?: string
           id?: string
+          is_featured?: boolean | null
           logo_url?: string
           meta_description?: string | null
           meta_title?: string | null
           name?: string
+          order_index?: number | null
           slug?: string
           updated_at?: string | null
         }
         Relationships: []
       }
-      categories: {
+      category: {
         Row: {
           created_at: string | null
           deleted_at: string | null
-          description: string | null
+          group_id: string | null
           id: string
           image_url: string | null
+          is_featured: boolean
           meta_description: string | null
           meta_title: string | null
           name: string
-          parent_id: string | null
+          order_index: number
           slug: string
-          type: string
           updated_at: string | null
         }
         Insert: {
           created_at?: string | null
           deleted_at?: string | null
-          description?: string | null
+          group_id?: string | null
           id?: string
           image_url?: string | null
+          is_featured?: boolean
           meta_description?: string | null
           meta_title?: string | null
           name: string
-          parent_id?: string | null
+          order_index?: number
           slug: string
-          type: string
           updated_at?: string | null
         }
         Update: {
           created_at?: string | null
           deleted_at?: string | null
-          description?: string | null
+          group_id?: string | null
           id?: string
           image_url?: string | null
+          is_featured?: boolean
           meta_description?: string | null
           meta_title?: string | null
           name?: string
-          parent_id?: string | null
+          order_index?: number
           slug?: string
-          type?: string
           updated_at?: string | null
         }
         Relationships: [
           {
-            foreignKeyName: "categories_parent_id_fkey"
-            columns: ["parent_id"]
+            foreignKeyName: "category_group_id_fkey"
+            columns: ["group_id"]
             isOneToOne: false
-            referencedRelation: "categories"
+            referencedRelation: "group_categories"
             referencedColumns: ["id"]
           },
         ]
@@ -214,6 +217,48 @@ export type Database = {
           order_index?: number | null
           type?: string
           value?: string
+        }
+        Relationships: []
+      }
+      group_categories: {
+        Row: {
+          created_at: string | null
+          deleted_at: string | null
+          id: string
+          image_url: string | null
+          is_featured: boolean
+          meta_description: string | null
+          meta_title: string | null
+          name: string
+          order_index: number
+          slug: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          deleted_at?: string | null
+          id?: string
+          image_url?: string | null
+          is_featured?: boolean
+          meta_description?: string | null
+          meta_title?: string | null
+          name: string
+          order_index?: number
+          slug: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          deleted_at?: string | null
+          id?: string
+          image_url?: string | null
+          is_featured?: boolean
+          meta_description?: string | null
+          meta_title?: string | null
+          name?: string
+          order_index?: number
+          slug?: string
+          updated_at?: string | null
         }
         Relationships: []
       }
@@ -389,7 +434,40 @@ export type Database = {
             foreignKeyName: "products_category_id_fkey"
             columns: ["category_id"]
             isOneToOne: false
-            referencedRelation: "categories"
+            referencedRelation: "category"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      project_category: {
+        Row: {
+          category_id: string
+          created_at: string
+          project_id: string
+        }
+        Insert: {
+          category_id: string
+          created_at?: string
+          project_id: string
+        }
+        Update: {
+          category_id?: string
+          created_at?: string
+          project_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "project_category_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "category"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "project_category_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
             referencedColumns: ["id"]
           },
         ]
@@ -407,6 +485,7 @@ export type Database = {
           meta_description: string | null
           meta_title: string | null
           order_index: number | null
+          service_type_id: string | null
           slug: string
           title: string
           updated_at: string | null
@@ -423,6 +502,7 @@ export type Database = {
           meta_description?: string | null
           meta_title?: string | null
           order_index?: number | null
+          service_type_id?: string | null
           slug: string
           title: string
           updated_at?: string | null
@@ -439,16 +519,92 @@ export type Database = {
           meta_description?: string | null
           meta_title?: string | null
           order_index?: number | null
+          service_type_id?: string | null
           slug?: string
           title?: string
           updated_at?: string | null
         }
         Relationships: [
           {
-            foreignKeyName: "projects_category_id_fkey"
+            foreignKeyName: "projects_service_type_id_fkey"
+            columns: ["service_type_id"]
+            isOneToOne: false
+            referencedRelation: "service_type"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      service_type: {
+        Row: {
+          created_at: string
+          deleted_at: string | null
+          id: string
+          image: string | null
+          is_featured: boolean | null
+          meta_description: string | null
+          meta_title: string | null
+          name: string
+          order_index: number | null
+          slug: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          deleted_at?: string | null
+          id?: string
+          image?: string | null
+          is_featured?: boolean | null
+          meta_description?: string | null
+          meta_title?: string | null
+          name: string
+          order_index?: number | null
+          slug: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          deleted_at?: string | null
+          id?: string
+          image?: string | null
+          is_featured?: boolean | null
+          meta_description?: string | null
+          meta_title?: string | null
+          name?: string
+          order_index?: number | null
+          slug?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      service_type_category: {
+        Row: {
+          category_id: string
+          created_at: string
+          service_type_id: string
+        }
+        Insert: {
+          category_id: string
+          created_at?: string
+          service_type_id: string
+        }
+        Update: {
+          category_id?: string
+          created_at?: string
+          service_type_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "service_type_category_category_id_fkey"
             columns: ["category_id"]
             isOneToOne: false
-            referencedRelation: "categories"
+            referencedRelation: "category"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "service_type_category_service_type_id_fkey"
+            columns: ["service_type_id"]
+            isOneToOne: false
+            referencedRelation: "service_type"
             referencedColumns: ["id"]
           },
         ]
@@ -513,6 +669,33 @@ export type Database = {
         }
         Relationships: []
       }
+      slug_registry: {
+        Row: {
+          created_at: string | null
+          deleted_at: string | null
+          entity_id: string
+          entity_type: string
+          slug: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          deleted_at?: string | null
+          entity_id: string
+          entity_type: string
+          slug: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          deleted_at?: string | null
+          entity_id?: string
+          entity_type?: string
+          slug?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       tracking_events: {
         Row: {
           created_at: string
@@ -553,6 +736,7 @@ export type Database = {
     Functions: {
       show_limit: { Args: never; Returns: number }
       show_trgm: { Args: { "": string }; Returns: string[] }
+      slugify: { Args: { value: string }; Returns: string }
       unaccent: { Args: { "": string }; Returns: string }
     }
     Enums: {

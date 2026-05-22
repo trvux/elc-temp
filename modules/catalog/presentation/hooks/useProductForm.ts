@@ -137,59 +137,17 @@ export function useProductForm(
 
   const updateAutoSlug = (
     name: string,
-    sku: string,
-    catId: string,
-    brdId: string,
-    specs: any[] = []
+    mpn: string,
   ) => {
-    // Extract HP from specs or name
-    let hpValue = "";
+    // Formula: slug(name) + "-" + slug(mpn)
+    const parts: string[] = [];
+    if (name) parts.push(generateSlug(name));
+    if (mpn) parts.push(generateSlug(mpn));
 
-    // 1. Try to find in specs
-    if (Array.isArray(specs)) {
-      for (const spec of specs) {
-        if (spec.items && Array.isArray(spec.items)) {
-          for (const item of spec.items) {
-            const valStr = item.value?.toString() || "";
-            const unitStr = item.unit?.toString() || "";
-            if (
-              unitStr.toUpperCase() === "HP" ||
-              valStr.toUpperCase().includes("HP")
-            ) {
-              const match = valStr.match(/(\d+(\.\d+)?)/);
-              if (match) {
-                const num = parseFloat(match[1]);
-                hpValue = num.toString().replace(".", "").replace(",", "");
-                break;
-              }
-            }
-          }
-        }
-        if (hpValue) break;
-      }
-    }
+    const finalSlug = parts.join("-").trim();
 
-    // 2. Fallback to product name if still not found
-    if (!hpValue) {
-      const nameMatch = name.match(/(\d+(\.\d+)?)\s*HP/i);
-      if (nameMatch) {
-        const num = parseFloat(nameMatch[1]);
-        hpValue = num.toString().replace(".", "").replace(",", "");
-      }
-    }
-
-    // Clean SKU: only take the first part if it's a set (contains / or +)
-    const cleanedSku = sku.split(/[\/\+]/)[0].trim();
-
-    // Formula: [hp]hp-[sku]
-    let parts = [];
-    if (hpValue) parts.push(`${hpValue}hp`);
-    if (cleanedSku) parts.push(cleanedSku);
-
-    const finalPart = parts.join("-").trim();
-
-    if (finalPart) {
-      form.setValue("slug", generateSlug(finalPart));
+    if (finalSlug) {
+      form.setValue("slug", finalSlug);
     }
   };
 

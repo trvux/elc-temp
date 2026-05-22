@@ -6,7 +6,7 @@ import { Button } from "@/shared/components/ui/button";
 import { ButtonGroup } from "@/shared/components/ui/button-group";
 import { formatPrice } from "@/shared/lib/utils";
 import { ColumnDef } from "@tanstack/react-table";
-import { Check, Minus, Pencil, Star, Trash2, X } from "lucide-react";
+import { Check, Minus, Edit2, Star, Trash2, X } from "lucide-react";
 import Image from "next/image";
 import { ProductWithRelations } from "../../domain";
 
@@ -170,18 +170,18 @@ export const getProductColumns = ({
       return (
         <ButtonGroup>
           <Button
+            variant="ghost"
             size="icon"
-            variant="outline"
-            className="h-8 w-8"
             onClick={() => onEdit(product)}
+            className="h-8 w-8 text-muted-foreground hover:text-primary"
           >
-            <Pencil size={14} />
+            <Edit2 size={14} />
           </Button>
           <Button
+            variant="ghost"
             size="icon"
-            variant="outline"
-            className="h-8 w-8 text-destructive hover:text-destructive hover:bg-destructive/10"
             onClick={() => onDelete(product.id)}
+            className="h-8 w-8 text-muted-foreground hover:text-destructive"
           >
             <Trash2 size={14} />
           </Button>

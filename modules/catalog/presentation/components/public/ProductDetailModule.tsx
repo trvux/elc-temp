@@ -49,79 +49,7 @@ interface SpecItem {
   items?: SpecSubItem[];
 }
 
-type Props = {
-  params: Promise<{
-    categorySlug: string;
-    brandSlug: string;
-    productSlug: string;
-  }>;
-};
 
-export async function generateStaticParams() {
-  const supabase = createStaticClient();
-  const { data: products } = await supabase
-    .from("products")
-    .select("slug, categories!inner(slug), brands!inner(slug)")
-    .eq("is_published", true);
-
-  return (products ?? []).map((p) => {
-    const category = Array.isArray(p.categories)
-      ? p.categories[0]
-      : p.categories;
-    const brand = Array.isArray(p.brands) ? p.brands[0] : p.brands;
-    return {
-      categorySlug: category?.slug || "unknown",
-      brandSlug: brand?.slug || "all",
-      productSlug: p.slug,
-    };
-  });
-}
-
-export async function generateMetadata(
-  { params }: Props,
-  parent: ResolvingMetadata,
-): Promise<Metadata> {
-  const { productSlug } = await params;
-  const supabase = await createClient();
-
-  const { data: product } = await supabase
-    .from("products")
-    .select("*, categories(id, name, slug), brands(id, name, slug)")
-    .eq("slug", productSlug)
-    .single();
-
-  if (!product) return {};
-
-  // Map brands/categories for SEO and layout
-  const category = Array.isArray(product.categories) ? product.categories[0] : product.categories;
-  const brand = Array.isArray(product.brands) ? product.brands[0] : product.brands;
-
-  // Use our smart SEO module to catch all keywords
-  const seoMetadata = generateProductMetadata({
-    ...product,
-    category,
-    brand,
-  } as unknown as ProductWithRelations);
-  const previousImages = (await parent).openGraph?.images || [];
-
-  const baseUrl = (
-    process.env.NEXT_PUBLIC_APP_URL || "https://dienmayelc.com.vn"
-  ).replace(/\/$/, "");
-
-  // New 3-level Canonical URL
-  const canonicalUrl = `${baseUrl}/san-pham/${category?.slug || "unknown"}/${brand?.slug || "all"}/${product.slug}`;
-
-  return {
-    ...seoMetadata,
-    alternates: {
-      canonical: canonicalUrl,
-    },
-    openGraph: {
-      ...seoMetadata.openGraph,
-      images: [...(seoMetadata.openGraph?.images || []), ...previousImages],
-    },
-  } as Metadata;
-}
 
 const STYLES = {
   main: cn("min-h-screen w-full px-4 py-12 md:px-8"),
@@ -175,18 +103,8 @@ const STYLES = {
   ),
 };
 
-export default async function ProductDetail({ params }: Props) {
-  const { categorySlug, brandSlug, productSlug } = await params;
+export async function ProductDetailModule({ product }: { product: ProductWithRelations }) {
   const supabase = await createClient();
-  // Fetch the product first by its unique slug, ensuring it is not deleted
-  const { data: product, error: productError } = await supabase
-    .from("products")
-    .select("*, categories(id, name, slug, parent_id), brands(id, name, slug)")
-    .eq("slug", productSlug)
-    .is("deleted_at", null)
-    .single();
-
-  if (!product) notFound();
 
   const [allCategories, { data: rawContacts }] = await Promise.all([
     getCategories({ type: "PRODUCT" }),
@@ -195,17 +113,13 @@ export default async function ProductDetail({ params }: Props) {
 
   const contacts = (rawContacts || []).map(mapContactRowToDomain);
 
-  const category = Array.isArray(product.categories)
-    ? product.categories[0]
-    : product.categories;
+  const category = product.category;
   if (!category) notFound();
 
-  const brand = Array.isArray(product.brands)
-    ? product.brands[0]
-    : product.brands;
+  const brand = product.brand;
 
-  const parentCat = (category as any)?.parent_id
-    ? allCategories?.find((c) => c.id === (category as any).parent_id)
+  const parentCat = (category as any)?.parentId
+    ? allCategories?.find((c) => c.id === (category as any).parentId)
     : null;
 
   const normalizedSpecs: SpecItem[] = Array.isArray(product.specs)
@@ -217,7 +131,7 @@ export default async function ProductDetail({ params }: Props) {
         }),
       );
 
-  const finalPrice = product.sale_price || product.original_price;
+  const finalPrice = product.salePrice || product.originalPrice;
   const images = (product.images as string[]) || [];
 
   const isSectionHeader = (spec: SpecItem) =>
@@ -226,11 +140,7 @@ export default async function ProductDetail({ params }: Props) {
     !spec.value &&
     !spec.items;
 
-  const productWithRelations = {
-    ...product,
-    category,
-    brand,
-  } as unknown as ProductWithRelations;
+  const productWithRelations = product;
   const jsonLd = generateProductSchema(productWithRelations);
 
   return (
@@ -243,21 +153,12 @@ export default async function ProductDetail({ params }: Props) {
         <div className="flex flex-col gap-4">
           <Breadcrumbs
             items={[
-              // Merge parent and leaf categories for a cleaner look (e.g., "Máy lạnh" + "Treo tường" = "Máy lạnh treo tường")
               {
                 label: parentCat
                   ? `${parentCat.name} ${category.name}`
                   : category.name,
                 href: `/san-pham/${category.slug}`,
               },
-              ...(brand
-                ? [
-                    {
-                      label: brand.name,
-                      href: `/san-pham/${category.slug}?brands=${brand.slug}`,
-                    },
-                  ]
-                : []),
               { label: product.name, active: true },
             ]}
           />
@@ -272,7 +173,7 @@ export default async function ProductDetail({ params }: Props) {
                         <AspectRatio ratio={16 / 9}>
                           <Image
                             src={img}
-                            alt={`${product.name} ${product.sku ? `(${product.sku})` : ""} - ${product.brands?.name || "ELC"} - Điện máy ELC`}
+                            alt={`${product.name} ${product.sku ? `(${product.sku})` : ""} - ${product.brand?.name || "ELC"} - Điện máy ELC`}
                             fill
                             className={STYLES.carouselImage}
                             priority={i === 0}
@@ -301,8 +202,8 @@ export default async function ProductDetail({ params }: Props) {
 
           <div className={STYLES.infoArea}>
             <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
-              {product.brands?.name && (
-                <Badge variant="secondary">{product.brands.name}</Badge>
+              {product.brand?.name && (
+                <Badge variant="secondary">{product.brand.name}</Badge>
               )}
               <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-muted-foreground/70">
                 {parentCat?.name && (
@@ -333,13 +234,13 @@ export default async function ProductDetail({ params }: Props) {
 
             <div className={STYLES.priceArea}>
               <p className={STYLES.price}>{formatPrice(finalPrice || 0)}</p>
-              {(product.discount_percent || 0) > 0 && (
+              {(product.discountPercent || 0) > 0 && (
                 <div className={STYLES.originalPriceWrapper}>
                   <span className={STYLES.originalPrice}>
-                    {formatPrice(product.original_price || 0)}
+                    {formatPrice(product.originalPrice || 0)}
                   </span>
                   <Badge variant="destructive" className="rounded-sm">
-                    Giảm giá: {product.discount_percent}%
+                    Giảm giá: {product.discountPercent}%
                   </Badge>
                 </div>
               )}
@@ -432,9 +333,9 @@ export default async function ProductDetail({ params }: Props) {
         </div>
 
         <RelatedProducts
-          categoryId={product.category_id}
+          categoryId={product.categoryId}
           currentProductId={product.id}
-          brandId={product.brand_id}
+          brandId={product.brandId}
         />
 
         <footer className={STYLES.footer}>

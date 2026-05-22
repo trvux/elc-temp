@@ -199,8 +199,6 @@ export default async function ProductsPage({
                     <ProductCard
                       key={product.id}
                       product={product}
-                      categorySlug={product.category?.slug || "all"}
-                      brandSlug={product.brand?.slug || "all"}
                       queryTokens={queryTokens}
                       priority={index < 8}
                     />

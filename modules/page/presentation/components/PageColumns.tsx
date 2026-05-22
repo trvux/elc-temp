@@ -4,7 +4,7 @@ import { ColumnDef } from "@tanstack/react-table";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
 import { ButtonGroup } from "@/shared/components/ui/button-group";
-import { Pencil, Trash2, ExternalLink, Check, X } from "lucide-react";
+import { Edit2, Trash2, ExternalLink, Check, X } from "lucide-react";
 import { Page } from "../../domain";
 
 interface ColumnProps {
@@ -76,18 +76,18 @@ export const getPageColumns = ({
       return (
         <ButtonGroup>
           <Button
+            variant="ghost"
             size="icon"
-            variant="outline"
-            className="h-8 w-8"
             onClick={() => onEdit(page)}
+            className="h-8 w-8 text-muted-foreground hover:text-primary"
           >
-            <Pencil size={14} />
+            <Edit2 size={14} />
           </Button>
           <Button
+            variant="ghost"
             size="icon"
-            variant="outline"
-            className="h-8 w-8 text-destructive hover:text-destructive hover:bg-destructive/10"
             onClick={() => onDelete(page.id)}
+            className="h-8 w-8 text-muted-foreground hover:text-destructive"
           >
             <Trash2 size={14} />
           </Button>

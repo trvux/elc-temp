@@ -81,81 +81,29 @@ export async function proxy(request: NextRequest) {
   // --- 2. Dọn dẹp URL rác & Redirect 301 cho cấu trúc URL mới ---
   const parts = pathname.split("/").filter(Boolean);
   
-    // Case: /san-pham/[categorySlug]/[productSlug] (Cấu trúc cũ 2 cấp)
-    if (parts.length === 3 && parts[0] === "san-pham") {
-      const [_, categorySlug, productSlug] = parts;
-      
-      const { createClient } = await import("@/shared/lib/supabase/server");
-      const supabase = await createClient();
-      
-      // Define the exact shape expected from Supabase
-      type ProductWithBrand = {
-        slug: string;
-        brands: { slug: string } | { slug: string }[] | null;
-      };
+  // Xử lý tất cả các đường dẫn lồng ghép cũ (ví dụ: /san-pham/cat/product hoặc /san-pham/cat/brand/product hoặc /san-pham/cat/brand)
+  if (parts.length >= 3 && parts[0] === "san-pham") {
+    const lastSegment = parts[parts.length - 1];
+    
+    const { createClient } = await import("@/shared/lib/supabase/server");
+    const supabase = await createClient();
+    
+    // Tra cứu slug_registry để xác nhận slug này có tồn tại hợp lệ không
+    const { data: registryItem } = await supabase
+      .from("slug_registry" as any)
+      .select("slug")
+      .eq("slug", lastSegment)
+      .is("deleted_at", null)
+      .maybeSingle();
 
-      // 1. Try exact match
-      const { data: exactMatch } = await supabase
-        .from("products")
-        .select("slug, brands(slug)")
-        .eq("slug", productSlug)
-        .single();
-        
-      let product: ProductWithBrand | null = exactMatch as ProductWithBrand | null;
-
-      // 2. If not found, it might be an old slug that still has the brand prefix
-      if (!product) {
-        const { data: brands } = await supabase.from("brands").select("slug");
-        for (const b of (brands || [])) {
-          if (productSlug.startsWith(b.slug + "-")) {
-            const strippedSlug = productSlug.replace(b.slug + "-", "");
-            const { data: p } = await supabase
-              .from("products")
-              .select("slug, brands(slug)")
-              .eq("slug", strippedSlug)
-              .single();
-            if (p) {
-              product = p as ProductWithBrand;
-              break;
-            }
-          }
-        }
-      }
-
-      if (product && product.brands) {
-        const brandsData = product.brands;
-        const brandSlug = Array.isArray(brandsData) ? brandsData[0].slug : brandsData.slug;
-        const finalProductSlug = product.slug;
-        return NextResponse.redirect(
-          new URL(`/san-pham/${categorySlug}/${brandSlug}/${finalProductSlug}${search}`, request.url),
-          301
-        );
-      }
+    if (registryItem) {
+      console.log(`[Proxy] Redirecting legacy nested path ${pathname} -> /san-pham/${lastSegment}`);
+      return NextResponse.redirect(
+        new URL(`/san-pham/${lastSegment}${search}`, request.url),
+        301
+      );
     }
-
-    // --- 3. Redirect Brand Query to Path (e.g. ?brands=daikin -> /daikin) ---
-    const brandQuery = request.nextUrl.searchParams.get("brands");
-    if (brandQuery && !brandQuery.includes(",")) {
-      // Only redirect if there is one brand selected
-      const brandSlug = brandQuery.toLowerCase();
-      const currentPath = request.nextUrl.pathname;
-      
-      // Case: /san-pham?brands=daikin -> /san-pham/daikin
-      if (currentPath === "/san-pham") {
-        const newUrl = new URL(`/san-pham/${brandSlug}`, request.url);
-        // Remove brands from search params
-        newUrl.searchParams.delete("brands");
-        return NextResponse.redirect(newUrl, 301);
-      }
-      
-      // Case: /san-pham/[categorySlug]?brands=daikin -> /san-pham/[categorySlug]/[brandSlug]
-      if (parts.length === 2 && parts[0] === "san-pham") {
-        const categorySlug = parts[1];
-        const newUrl = new URL(`/san-pham/${categorySlug}/${brandSlug}`, request.url);
-        newUrl.searchParams.delete("brands");
-        return NextResponse.redirect(newUrl, 301);
-      }
-    }
+  }
 
   const hasTripleDash = pathname.includes("---") || pathname.includes("--");
   const hasOldCategory = pathname.includes("/may-lanh/treo-tuong/");

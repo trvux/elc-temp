@@ -2,9 +2,11 @@
 
 import { ColumnDef } from "@tanstack/react-table";
 import { Brand } from "../../domain";
-import { Button } from "@/shared/components/ui/button";
-import { Pencil, Trash2 } from "lucide-react";
+import { Edit2, Trash2, ExternalLink, Star, Minus } from "lucide-react";
 import Image from "next/image";
+import { Button } from "@/shared/components/ui/button";
+import { ButtonGroup } from "@/shared/components/ui/button-group";
+import { Badge } from "@/shared/components/ui/badge";
 
 interface BrandColumnsProps {
   onEdit: (brand: Brand) => void;
@@ -36,33 +38,68 @@ export const getBrandColumns = ({
   {
     accessorKey: "name",
     header: "Tên thương hiệu",
+    cell: ({ row }) => (
+      <div className="flex flex-col gap-0.5">
+        <span className="font-semibold text-sm text-foreground">{row.original.name}</span>
+        {row.original.slug && (
+          <a
+            href={`/san-pham/all/${row.original.slug}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-[11px] text-primary hover:underline flex items-center gap-1 w-fit"
+          >
+            /{row.original.slug}
+            <ExternalLink size={11} />
+          </a>
+        )}
+      </div>
+    ),
   },
   {
-    accessorKey: "slug",
-    header: "Slug",
+    accessorKey: "isFeatured",
+    header: "Nổi bật",
+    cell: ({ row }) => (
+      <Badge variant={row.original.isFeatured ? "secondary" : "outline"}>
+        {row.original.isFeatured ? (
+          <>
+            <Star size={12} className="fill-amber-400 text-amber-400 mr-1" />
+            <span>Nổi bật</span>
+          </>
+        ) : (
+          <>
+            <Minus size={12} className="mr-1" />
+            <span>Thường</span>
+          </>
+        )}
+      </Badge>
+    ),
+  },
+  {
+    accessorKey: "orderIndex",
+    header: "Thứ tự",
   },
   {
     id: "actions",
     header: "Thao tác",
     cell: ({ row }) => (
-      <div className="flex items-center gap-2">
+      <ButtonGroup>
         <Button
-          size="icon"
           variant="ghost"
-          className="h-8 w-8"
+          size="icon"
           onClick={() => onEdit(row.original)}
+          className="h-8 w-8 text-muted-foreground hover:text-primary"
         >
-          <Pencil size={14} />
+          <Edit2 size={14} />
         </Button>
         <Button
-          size="icon"
           variant="ghost"
-          className="h-8 w-8 text-destructive hover:text-destructive hover:bg-destructive/10"
+          size="icon"
           onClick={() => onDelete(row.original.id)}
+          className="h-8 w-8 text-muted-foreground hover:text-destructive"
         >
           <Trash2 size={14} />
         </Button>
-      </div>
+      </ButtonGroup>
     ),
   },
 ];

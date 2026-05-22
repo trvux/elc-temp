@@ -29,6 +29,7 @@ import {
 } from "@/shared/components/ui/select";
 import { Switch } from "@/shared/components/ui/switch";
 import { TiptapEditor } from "@/shared/components/ui/tiptap-editor";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/shared/components/ui/tabs";
 
 import { Service } from "../../domain";
 import {
@@ -39,6 +40,7 @@ import { getServiceColumns } from "./ServiceColumns";
 import { useServiceForm } from "../hooks/useServiceForm";
 import { convertToWebP } from "@/shared/lib/image";
 import { generateSlug } from "@/shared/lib/utils";
+import { ImageUpload } from "@/shared/components/ui/image-upload";
 
 export function ServiceManagement() {
   const queryClient = useQueryClient();
@@ -186,190 +188,193 @@ export function ServiceManagement() {
         title={editing ? `Sửa dịch vụ` : "Thêm dịch vụ"}
         description="Cấu hình nội dung chi tiết cho dịch vụ."
       >
-        <form
-          onSubmit={form.handleSubmit((v) => saveMutation.mutate(v))}
-          className="flex flex-col flex-1 min-h-0"
-        >
-          <div className="flex-1 overflow-y-auto p-6 lg:p-10">
-            <div className="max-w-5xl mx-auto space-y-12">
-              <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
-                <div className="lg:col-span-4 space-y-8">
-                  <Controller
-                    control={form.control}
-                    name="image"
-                    render={({ field }) => (
-                      <Field>
-                        <FieldLabel>Ảnh đại diện dịch vụ</FieldLabel>
-                        <div className="flex flex-col gap-4">
-                          <div className="relative w-full aspect-video rounded-2xl overflow-hidden border-2 border-dashed bg-muted/5 group transition-colors hover:bg-muted/10">
-                            {field.value ? (
-                              <>
-                                <Image
-                                  src={field.value}
-                                  alt="Thumbnail"
-                                  fill
-                                  className="object-cover"
-                                  sizes="(max-width: 1024px) 100vw, 350px"
-                                />
-                                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                                  <Button
-                                    size="icon"
-                                    variant="destructive"
-                                    className="h-8 w-8 rounded-full"
-                                    onClick={() => field.onChange("")}
-                                  >
-                                    <X size={16} />
-                                  </Button>
-                                </div>
-                              </>
-                            ) : (
-                              <label className="flex flex-col items-center justify-center h-full w-full cursor-pointer">
-                                <Upload size={24} className="text-muted-foreground mb-2" />
-                                <span className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
-                                  {uploading ? "Đang tải..." : "Tải ảnh lên"}
-                                </span>
-                                <input
-                                  type="file"
-                                  className="hidden"
-                                  accept="image/*"
-                                  onChange={handleImageUpload}
-                                  disabled={uploading}
-                                />
-                              </label>
-                            )}
-                          </div>
-                        </div>
-                      </Field>
-                    )}
-                  />
+        <Tabs defaultValue="info" className="flex flex-col flex-1 min-h-0 relative">
+          <div className="flex sticky top-0 z-20 w-full items-center justify-center border-b bg-background/95 py-4 backdrop-blur">
+            <TabsList>
+              <TabsTrigger value="info">Thông tin chung</TabsTrigger>
+              <TabsTrigger value="content">Nội dung dịch vụ</TabsTrigger>
+            </TabsList>
+          </div>
 
-                  <div className="space-y-5">
+          <form
+            onSubmit={form.handleSubmit((v) => saveMutation.mutate(v))}
+            className="flex flex-col flex-1 min-h-0 w-full"
+          >
+            <div className="flex-1 overflow-y-auto p-6 lg:p-10">
+              <div className="max-w-5xl mx-auto">
+                <TabsContent
+                  value="info"
+                  className="mt-0 focus-visible:outline-none space-y-12 pb-8"
+                >
+                  <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
+                    <div className="lg:col-span-4 space-y-8">
+                      <Controller
+                        control={form.control}
+                        name="image"
+                        render={({ field }) => (
+                          <Field className="max-w-[280px] w-full">
+                            <FieldLabel>Upload ảnh</FieldLabel>
+                            <ImageUpload
+                              value={field.value}
+                              onChange={field.onChange}
+                              aspectRatio="16:9"
+                              folderPath="services"
+                            />
+                          </Field>
+                        )}
+                      />
+
+                      <div className="space-y-5">
+                        <Controller
+                          control={form.control}
+                          name="isPublished"
+                          render={({ field }) => (
+                            <Field orientation="horizontal" className="justify-between border p-3 rounded-xl">
+                              <FieldLabel className="font-normal">Hiển thị dịch vụ</FieldLabel>
+                              <Switch checked={field.value} onCheckedChange={field.onChange} />
+                            </Field>
+                          )}
+                        />
+
+                        <Controller
+                          control={form.control}
+                          name="orderIndex"
+                          render={({ field }) => (
+                            <Field>
+                              <FieldLabel>Thứ tự sắp xếp</FieldLabel>
+                              <Input
+                                type="number"
+                                {...field}
+                                onChange={(e) => field.onChange(Number(e.target.value))}
+                              />
+                            </Field>
+                          )}
+                        />
+                      </div>
+                    </div>
+
+                    <div className="lg:col-span-8 space-y-6">
+                      <Controller
+                        control={form.control}
+                        name="title"
+                        render={({ field, fieldState }) => (
+                          <Field>
+                            <FieldLabel>Tên dịch vụ *</FieldLabel>
+                            <Input
+                              {...field}
+                              placeholder="VD: Lắp đặt kho lạnh"
+                              onChange={(e) => {
+                                field.onChange(e);
+                                form.setValue("slug", generateSlug(e.target.value));
+                              }}
+                            />
+                            <FieldError errors={[fieldState.error]} />
+                          </Field>
+                        )}
+                      />
+
+                      <Controller
+                        control={form.control}
+                        name="slug"
+                        render={({ field, fieldState }) => (
+                          <Field>
+                            <FieldLabel>Slug / URL</FieldLabel>
+                            <Input
+                              {...field}
+                              placeholder="vd: lap-dat-kho-lanh"
+                              onChange={(e) => field.onChange(generateSlug(e.target.value))}
+                            />
+                            <FieldDescription>
+                              Đường dẫn: <span className="text-primary font-medium">/dich-vu/{field.value || "..."}</span>
+                            </FieldDescription>
+                            <FieldError errors={[fieldState.error]} />
+                          </Field>
+                        )}
+                      />
+                    </div>
+                  </div>
+
+                  {/* SEO Section */}
+                  <div className="space-y-6 border p-6 rounded-2xl bg-muted/10">
+                    <div className="border-b pb-2">
+                      <h3 className="text-sm font-semibold tracking-tight">Cấu hình SEO</h3>
+                      <p className="text-[11px] text-muted-foreground">Tối ưu hóa hiển thị trên các công cụ tìm kiếm (Google, Bing,...).</p>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <Controller
+                        control={form.control}
+                        name="metaTitle"
+                        render={({ field, fieldState }) => (
+                          <Field>
+                            <FieldLabel>Tiêu đề SEO</FieldLabel>
+                            <Input {...field} value={field.value || ""} placeholder="Để trống sẽ tự động dùng tiêu đề..." />
+                            <FieldError errors={[fieldState.error]} />
+                          </Field>
+                        )}
+                      />
+
+                      <Controller
+                        control={form.control}
+                        name="metaDescription"
+                        render={({ field, fieldState }) => (
+                          <Field>
+                            <FieldLabel>Mô tả SEO</FieldLabel>
+                            <Textarea {...field} value={field.value || ""} placeholder="Mô tả tóm tắt dịch vụ để hiển thị trên Google..." className="min-h-[80px]" />
+                            <FieldError errors={[fieldState.error]} />
+                          </Field>
+                        )}
+                      />
+                    </div>
+                  </div>
+                </TabsContent>
+
+                <TabsContent
+                  value="content"
+                  className="mt-0 focus-visible:outline-none space-y-6"
+                >
+                  {/* Editor Section */}
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between border-b pb-2">
+                      <h3 className="text-sm font-semibold tracking-tight">Nội dung dịch vụ</h3>
+                      <span className="text-[10px] text-muted-foreground uppercase tracking-widest">Tiptap Editor</span>
+                    </div>
                     <Controller
                       control={form.control}
-                      name="isPublished"
+                      name="content"
                       render={({ field }) => (
-                        <Field orientation="horizontal" className="justify-between border p-3 rounded-xl">
-                          <FieldLabel className="font-normal">Hiển thị dịch vụ</FieldLabel>
-                          <Switch checked={field.value} onCheckedChange={field.onChange} />
-                        </Field>
-                      )}
-                    />
-
-                    <Controller
-                      control={form.control}
-                      name="orderIndex"
-                      render={({ field }) => (
-                        <Field>
-                          <FieldLabel>Thứ tự sắp xếp</FieldLabel>
-                          <Input
-                            type="number"
-                            {...field}
-                            onChange={(e) => field.onChange(Number(e.target.value))}
-                          />
-                        </Field>
+                        <TiptapEditor
+                          key={editing?.id ?? "new"}
+                          value={field.value}
+                          onChange={handleContentChange}
+                          placeholder="Bắt đầu viết nội dung bài viết dịch vụ..."
+                          uploadImage={async (file) => {
+                            const webpFile = await convertToWebP(file);
+                            const fileName = `services/${Date.now()}-${Math.random().toString(36).slice(2)}.webp`;
+                            const { error } = await supabase.storage
+                              .from("images")
+                              .upload(fileName, webpFile, { contentType: "image/webp" });
+                            if (error) throw error;
+                            const { data } = supabase.storage.from("images").getPublicUrl(fileName);
+                            return data.publicUrl;
+                          }}
+                        />
                       )}
                     />
                   </div>
-                </div>
-
-                <div className="lg:col-span-8 space-y-8">
-
-
-                  <Controller
-                    control={form.control}
-                    name="slug"
-                    render={({ field, fieldState }) => (
-                      <Field>
-                        <FieldLabel>Slug / URL</FieldLabel>
-                        <Input
-                          {...field}
-                          placeholder="vd: lap-dat-kho-lanh"
-                          onChange={(e) => field.onChange(generateSlug(e.target.value))}
-                        />
-                        <FieldDescription>
-                          Đường dẫn: <span className="text-primary font-medium">/dich-vu/{field.value || "..."}</span>
-                        </FieldDescription>
-                        <FieldError errors={[fieldState.error]} />
-                      </Field>
-                    )}
-                  />
-                </div>
-              </div>
-
-              {/* SEO Section */}
-              <div className="space-y-6 border p-6 rounded-2xl bg-muted/10">
-                <div className="border-b pb-2">
-                  <h3 className="text-sm font-semibold tracking-tight">Cấu hình SEO</h3>
-                  <p className="text-[11px] text-muted-foreground">Tối ưu hóa hiển thị trên các công cụ tìm kiếm (Google, Bing,...).</p>
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <Controller
-                    control={form.control}
-                    name="metaTitle"
-                    render={({ field, fieldState }) => (
-                      <Field>
-                        <FieldLabel>Tiêu đề SEO</FieldLabel>
-                        <Input {...field} value={field.value || ""} placeholder="Để trống sẽ tự động dùng tiêu đề..." />
-                        <FieldError errors={[fieldState.error]} />
-                      </Field>
-                    )}
-                  />
-
-                  <Controller
-                    control={form.control}
-                    name="metaDescription"
-                    render={({ field, fieldState }) => (
-                      <Field>
-                        <FieldLabel>Mô tả SEO</FieldLabel>
-                        <Textarea {...field} value={field.value || ""} placeholder="Mô tả tóm tắt dịch vụ để hiển thị trên Google..." className="min-h-[80px]" />
-                        <FieldError errors={[fieldState.error]} />
-                      </Field>
-                    )}
-                  />
-                </div>
-              </div>
-
-              {/* Editor Section */}
-              <div className="space-y-4">
-                <div className="flex items-center justify-between border-b pb-2">
-                  <h3 className="text-sm font-semibold tracking-tight">Nội dung dịch vụ</h3>
-                  <span className="text-[10px] text-muted-foreground uppercase tracking-widest">Tiptap Editor</span>
-                </div>
-                <Controller
-                  control={form.control}
-                  name="content"
-                  render={({ field }) => (
-                    <TiptapEditor
-                      key={editing?.id ?? "new"}
-                      value={field.value}
-                      onChange={handleContentChange}
-                      placeholder="Bắt đầu viết nội dung bài viết dịch vụ..."
-                      uploadImage={async (file) => {
-                        const webpFile = await convertToWebP(file);
-                        const fileName = `services/${Date.now()}-${Math.random().toString(36).slice(2)}.webp`;
-                        const { error } = await supabase.storage
-                          .from("images")
-                          .upload(fileName, webpFile, { contentType: "image/webp" });
-                        if (error) throw error;
-                        const { data } = supabase.storage.from("images").getPublicUrl(fileName);
-                        return data.publicUrl;
-                      }}
-                    />
-                  )}
-                />
+                </TabsContent>
               </div>
             </div>
-          </div>
 
-          <div className="flex justify-end gap-3 p-6 border-t bg-background sticky bottom-0 z-20">
-            <Button variant="outline" type="button" onClick={() => setIsDialogOpen(false)}>
-              Hủy
-            </Button>
-            <Button type="submit" disabled={saveMutation.isPending}>
-              {saveMutation.isPending ? "Đang lưu..." : editing ? "Cập nhật dịch vụ" : "Tạo dịch vụ"}
-            </Button>
-          </div>
-        </form>
+            <div className="flex justify-end gap-3 p-6 border-t bg-background sticky bottom-0 z-20">
+              <Button variant="outline" type="button" onClick={() => setIsDialogOpen(false)}>
+                Hủy
+              </Button>
+              <Button type="submit" disabled={saveMutation.isPending}>
+                {saveMutation.isPending ? "Đang lưu..." : editing ? "Cập nhật dịch vụ" : "Tạo dịch vụ"}
+              </Button>
+            </div>
+          </form>
+        </Tabs>
       </AdminDialog>
 
       <DeleteDialog

@@ -17,7 +17,13 @@ export class SupabaseProjectRepository implements ProjectRepository {
   private readonly TABLE_NAME = "projects";
   private readonly SELECT_WITH_CATEGORY = `
     *,
-    category:categories(id, name, slug, parent:categories!parent_id(id, name, slug))
+    serviceType:service_type(id, name),
+    project_category(
+      categoryNew:category(
+        *,
+        group_categories(*)
+      )
+    )
   `;
 
   async getAll(options?: ProjectFilter): Promise<ProjectWithCategory[]> {
@@ -106,6 +112,7 @@ export class SupabaseProjectRepository implements ProjectRepository {
       meta_description: input.metaDescription,
       order_index: input.orderIndex,
       category_id: input.categoryId,
+      service_type_id: input.serviceTypeId,
     };
 
     const { data, error } = await supabase
@@ -115,7 +122,23 @@ export class SupabaseProjectRepository implements ProjectRepository {
       .single();
 
     if (error) this.handleError(error, "create");
-    return this.mapToDomain(data);
+    const newProject = this.mapToDomain(data);
+
+    // Save project categories if provided
+    if (input.categoryIds && input.categoryIds.length > 0) {
+      const relations = input.categoryIds.map(catId => ({
+        project_id: newProject.id,
+        category_id: catId,
+      }));
+
+      const { error: relError } = await supabase
+        .from("project_category")
+        .insert(relations);
+
+      if (relError) this.handleError(relError, "createRelations");
+    }
+
+    return newProject;
   }
 
   async update(input: UpdateProjectInput): Promise<Project> {
@@ -131,6 +154,7 @@ export class SupabaseProjectRepository implements ProjectRepository {
       meta_description: input.metaDescription,
       order_index: input.orderIndex,
       category_id: input.categoryId,
+      service_type_id: input.serviceTypeId,
       updated_at: new Date().toISOString(),
     };
 
@@ -142,7 +166,32 @@ export class SupabaseProjectRepository implements ProjectRepository {
       .single();
 
     if (error) this.handleError(error, "update");
-    return this.mapToDomain(data);
+    const updatedProject = this.mapToDomain(data);
+
+    // Update project categories
+    if (input.categoryIds !== undefined) {
+      const { error: delError } = await supabase
+        .from("project_category")
+        .delete()
+        .eq("project_id", input.id);
+
+      if (delError) this.handleError(delError, "deleteRelations");
+
+      if (input.categoryIds.length > 0) {
+        const relations = input.categoryIds.map(catId => ({
+          project_id: input.id,
+          category_id: catId,
+        }));
+
+        const { error: insError } = await supabase
+          .from("project_category")
+          .insert(relations);
+
+        if (insError) this.handleError(insError, "insertRelations");
+      }
+    }
+
+    return updatedProject;
   }
 
   async delete(id: string): Promise<void> {
@@ -239,6 +288,7 @@ export class SupabaseProjectRepository implements ProjectRepository {
       metaDescription: row.meta_description || null,
       orderIndex: row.order_index || 0,
       categoryId: row.category_id || "",
+      serviceTypeId: row.service_type_id || null,
       createdAt: row.created_at || new Date().toISOString(),
       updatedAt: row.updated_at || new Date().toISOString(),
       deletedAt: row.deleted_at || null,
@@ -247,18 +297,33 @@ export class SupabaseProjectRepository implements ProjectRepository {
 
   private mapToDomainWithCategory(row: any): ProjectWithCategory {
     const project = this.mapToDomain(row);
+    
+    const serviceType = row.serviceType ? {
+      id: row.serviceType.id,
+      name: row.serviceType.name,
+    } : null;
+
+    const categoriesNew = (row.project_category || [])
+      .map((pc: any) => {
+        const cat = pc.categoryNew;
+        if (!cat) return null;
+        return {
+          id: cat.id,
+          name: cat.name,
+          groupId: cat.group_id,
+          group: cat.group_categories ? {
+            id: cat.group_categories.id,
+            name: cat.group_categories.name,
+          } : null,
+        };
+      })
+      .filter(Boolean);
+
     return {
       ...project,
-      category: row.category ? {
-        id: row.category.id,
-        name: row.category.name,
-        slug: row.category.slug || "",
-        parent: row.category.parent ? {
-          id: row.category.parent.id,
-          name: row.category.parent.name,
-          slug: row.category.parent.slug || ""
-        } : null
-      } : null,
+      category: null,
+      serviceType,
+      categoriesNew,
     };
   }
 

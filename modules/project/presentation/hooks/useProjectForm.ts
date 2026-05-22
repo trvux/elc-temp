@@ -10,7 +10,6 @@ import { convertToWebP } from "@/shared/lib/image";
 import { useTiptapTitleSlugSync } from "@/shared/hooks/use-tiptap-title-slug-sync";
 
 
-import { Category } from "@/modules/category/domain/types";
 import { createProjectSchema, ProjectWithCategory, Json } from "../../domain";
 import { createProjectAction, updateProjectAction } from "../actions";
 
@@ -25,12 +24,13 @@ export type ProjectFormValues = {
   metaDescription: string;
   orderIndex: number;
   categoryId: string;
+  serviceTypeId: string;
+  categoryIds: string[];
 };
 
 export function useProjectForm(
   activeProject: ProjectWithCategory | "new" | null,
-  onClose: () => void,
-  categories: Category[] = []
+  onClose: () => void
 ) {
   const queryClient = useQueryClient();
   const [uploading, setUploading] = useState(false);
@@ -42,7 +42,9 @@ export function useProjectForm(
       title: "",
       slug: "",
       description: null,
-      categoryId: "",
+      categoryId: "00000000-0000-0000-0000-000000000000",
+      serviceTypeId: "",
+      categoryIds: [],
       images: [],
       isPublished: true,
       isFeatured: false,
@@ -66,6 +68,8 @@ export function useProjectForm(
       const payload = {
         ...values,
         description: JSON.parse(JSON.stringify(values.description)) as Json,
+        serviceTypeId: values.serviceTypeId || null,
+        categoryIds: values.categoryIds || [],
       };
       console.log("CLIENT-SIDE FORM SUBMITTING PAYLOAD:", JSON.stringify(payload.description, null, 2));
       if (activeProject && activeProject !== "new") {

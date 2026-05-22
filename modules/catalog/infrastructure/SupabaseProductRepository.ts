@@ -28,7 +28,7 @@ export class SupabaseProductRepository implements ProductRepository {
             .from(this.TABLE_NAME)
             .select(`
         *,
-        category:categories(id, name, slug, meta_title, meta_description),
+        category:category(id, name, slug, meta_title, meta_description),
         brand:brands(*)
       `);
 
@@ -68,7 +68,7 @@ export class SupabaseProductRepository implements ProductRepository {
 
         if (error) this.handleError(error, "getAll");
 
-        return (data || []).map((row) => this.mapToDomainWithRelations(row));
+        return (data || []).map((row) => this.mapToDomainWithRelations(row as unknown as ProductRowWithRelations));
     }
 
     async count(options?: ProductFilter): Promise<number> {
@@ -89,14 +89,14 @@ export class SupabaseProductRepository implements ProductRepository {
             .from(this.TABLE_NAME)
             .select(`
         *,
-        category:categories(id, name, slug, meta_title, meta_description),
+        category:category(id, name, slug, meta_title, meta_description),
         brand:brands(*)
       `)
             .eq("id", id)
             .maybeSingle();
 
         if (error) this.handleError(error, "getById");
-        return data ? this.mapToDomainWithRelations(data) : null;
+        return data ? this.mapToDomainWithRelations(data as unknown as ProductRowWithRelations) : null;
     }
 
     async getBySlug(slug: string): Promise<ProductWithRelations | null> {
@@ -105,14 +105,14 @@ export class SupabaseProductRepository implements ProductRepository {
             .from(this.TABLE_NAME)
             .select(`
         *,
-        category:categories(id, name, slug, meta_title, meta_description),
+        category:category(id, name, slug, meta_title, meta_description),
         brand:brands(*)
       `)
             .eq("slug", slug)
             .maybeSingle();
 
         if (error) this.handleError(error, "getBySlug");
-        return data ? this.mapToDomainWithRelations(data) : null;
+        return data ? this.mapToDomainWithRelations(data as unknown as ProductRowWithRelations) : null;
     }
 
     async create(input: CreateProductInput): Promise<Product> {
@@ -284,7 +284,8 @@ export class SupabaseProductRepository implements ProductRepository {
                 logoUrl: row.brand.logo_url || "",
                 metaTitle: row.brand.meta_title,
                 metaDescription: row.brand.meta_description,
-                description: row.brand.description || "",
+                isFeatured: (row.brand as unknown as { is_featured?: boolean }).is_featured || false,
+                orderIndex: (row.brand as unknown as { order_index?: number }).order_index || 0,
                 createdAt: row.brand.created_at || new Date().toISOString(),
                 updatedAt: row.brand.created_at || new Date().toISOString(),
                 deletedAt: null,

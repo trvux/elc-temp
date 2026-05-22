@@ -1,5 +1,5 @@
-import { CategoryManagement } from "@/modules/category";
+import { CategoryNewManagement } from "@/modules/category-new";
 
-export default function CategoriesPage() {
-  return <CategoryManagement />;
+export default function CategoryNewPage() {
+  return <CategoryNewManagement />;
 }

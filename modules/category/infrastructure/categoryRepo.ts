@@ -1,5 +1,4 @@
 import { createClient } from "@/shared/lib/supabase/server";
-import { Tables, Insert, Update } from "@/shared/types/supabase";
 import { 
   Category, 
   CategoryType, 
@@ -8,170 +7,218 @@ import {
   UpdateCategoryInput 
 } from "../domain/types";
 import { CategoryFilter, CategoryRepository } from "../domain/repository";
-import { CATEGORY_TYPES } from "../domain/constants";
-
-type CategoryRow = Tables<"categories">;
-type CategoryInsert = Insert<"categories">;
-type CategoryUpdate = Update<"categories">;
 
 export class SupabaseCategoryRepository implements CategoryRepository {
-  private readonly TABLE_NAME = "categories";
-
   async getAll(options?: CategoryFilter): Promise<Category[]> {
     const supabase = await createClient();
-    let query = supabase.from(this.TABLE_NAME).select("*");
-
+    
+    // Fetch from the new group_categories (parents) and category (children)
+    // 1. Fetch Group Categories
+    let groupQuery = supabase.from("group_categories" as any).select("*");
     if (!options?.includeDeleted) {
-      query = query.is("deleted_at", null);
-    }
-
-    if (options?.type) {
-      query = query.eq("type", CATEGORY_TYPES[options.type]);
-    }
-    if (options?.parentId !== undefined) {
-      if (options.parentId === null) {
-        query = query.is("parent_id", null);
-      } else {
-        query = query.eq("parent_id", options.parentId);
-      }
+      groupQuery = groupQuery.is("deleted_at", null);
     }
     if (options?.search) {
-      query = query.ilike("name", `%${options.search}%`);
+      groupQuery = groupQuery.ilike("name", `%${options.search}%`);
+    }
+    const { data: groupsData, error: groupsErr } = await groupQuery;
+    if (groupsErr) this.handleError(groupsErr, "getAllGroups");
+
+    // 2. Fetch Categories
+    let categoryQuery = supabase.from("category" as any).select("*");
+    if (!options?.includeDeleted) {
+      categoryQuery = categoryQuery.is("deleted_at", null);
+    }
+    if (options?.parentId) {
+      categoryQuery = categoryQuery.eq("group_id", options.parentId);
+    }
+    if (options?.search) {
+      categoryQuery = categoryQuery.ilike("name", `%${options.search}%`);
+    }
+    const { data: catsData, error: catsErr } = await categoryQuery;
+    if (catsErr) this.handleError(catsErr, "getAllCategories");
+
+    // Map Groups to Category domain model (parentId: null)
+    const groups: Category[] = (groupsData as any[] || []).map((row: any) => ({
+      id: row.id,
+      name: row.name,
+      slug: row.slug || "",
+      parentId: null,
+      type: "PRODUCT",
+      metaTitle: row.meta_title || null,
+      metaDescription: row.meta_description || null,
+      createdAt: row.created_at || new Date().toISOString(),
+      updatedAt: row.updated_at || new Date().toISOString(),
+      deletedAt: row.deleted_at || null,
+    }));
+
+    // Map Categories to Category domain model (parentId: group_id)
+    const cats: Category[] = (catsData as any[] || []).map((row: any) => ({
+      id: row.id,
+      name: row.name,
+      slug: row.slug || "",
+      parentId: row.group_id,
+      type: "PRODUCT",
+      metaTitle: row.meta_title || null,
+      metaDescription: row.meta_description || null,
+      createdAt: row.created_at || new Date().toISOString(),
+      updatedAt: row.updated_at || new Date().toISOString(),
+      deletedAt: row.deleted_at || null,
+    }));
+
+    let result = [...groups, ...cats];
+
+    // Filter in-memory if parentId is explicitly filtered
+    if (options?.parentId !== undefined) {
+      if (options.parentId === null) {
+        result = groups;
+      } else {
+        result = cats.filter((c) => c.parentId === options.parentId);
+      }
     }
 
-    query = query.order("name", { ascending: true });
-
+    // Limit & Offset in-memory
+    if (options?.offset) {
+      result = result.slice(options.offset);
+    }
     if (options?.limit) {
-      const from = options.offset || 0;
-      const to = from + options.limit - 1;
-      query = query.range(from, to);
-    } else if (options?.offset) {
-      query = query.range(options.offset, options.offset + 9);
+      result = result.slice(0, options.limit);
     }
 
-    const { data, error } = await query;
-    if (error) this.handleError(error, "getAll");
-
-    return (data || []).map(row => this.mapToDomain(row));
+    // Sort alphabetically by name
+    return result.sort((a, b) => a.name.localeCompare(b.name));
   }
 
   async count(options?: Pick<CategoryFilter, "type" | "parentId" | "search" | "includeDeleted">): Promise<number> {
-    const supabase = await createClient();
-    let query = supabase.from(this.TABLE_NAME).select("*", { count: "exact", head: true });
-
-    if (!options?.includeDeleted) {
-      query = query.is("deleted_at", null);
-    }
-
-    if (options?.type) {
-      query = query.eq("type", CATEGORY_TYPES[options.type]);
-    }
-    if (options?.parentId !== undefined) {
-      if (options.parentId === null) {
-        query = query.is("parent_id", null);
-      } else {
-        query = query.eq("parent_id", options.parentId);
-      }
-    }
-    if (options?.search) {
-      query = query.ilike("name", `%${options.search}%`);
-    }
-
-    const { count, error } = await query;
-    if (error) this.handleError(error, "count");
-
-    return count || 0;
+    const list = await this.getAll(options);
+    return list.length;
   }
 
   async getById(id: string): Promise<Category | null> {
     const supabase = await createClient();
-    const { data, error } = await supabase
-      .from(this.TABLE_NAME)
+    
+    // Check group_categories first
+    const { data: group } = await supabase
+      .from("group_categories" as any)
       .select("*")
       .eq("id", id)
-      .is("deleted_at", null)
       .maybeSingle();
 
-    if (error) this.handleError(error, "getById");
-    return data ? this.mapToDomain(data) : null;
+    const groupRow = group as any;
+    if (groupRow) {
+      return {
+        id: groupRow.id,
+        name: groupRow.name,
+        slug: groupRow.slug || "",
+        parentId: null,
+        type: "PRODUCT",
+        metaTitle: groupRow.meta_title || null,
+        metaDescription: groupRow.meta_description || null,
+        createdAt: groupRow.created_at || new Date().toISOString(),
+        updatedAt: groupRow.updated_at || new Date().toISOString(),
+        deletedAt: groupRow.deleted_at || null,
+      };
+    }
+
+    // Check category
+    const { data: cat } = await supabase
+      .from("category" as any)
+      .select("*")
+      .eq("id", id)
+      .maybeSingle();
+
+    const catRow = cat as any;
+    if (catRow) {
+      return {
+        id: catRow.id,
+        name: catRow.name,
+        slug: catRow.slug || "",
+        parentId: catRow.group_id,
+        type: "PRODUCT",
+        metaTitle: catRow.meta_title || null,
+        metaDescription: catRow.meta_description || null,
+        createdAt: catRow.created_at || new Date().toISOString(),
+        updatedAt: catRow.updated_at || new Date().toISOString(),
+        deletedAt: catRow.deleted_at || null,
+      };
+    }
+
+    return null;
   }
 
   async getBySlug(slug: string, type?: CategoryType): Promise<Category | null> {
     const supabase = await createClient();
-    let query = supabase
-      .from(this.TABLE_NAME)
+    
+    // Check group_categories first
+    const { data: group } = await supabase
+      .from("group_categories" as any)
       .select("*")
       .ilike("slug", slug)
-      .is("deleted_at", null);
-    
-    if (type) {
-      query = query.eq("type", CATEGORY_TYPES[type]);
+      .maybeSingle();
+
+    const groupRow = group as any;
+    if (groupRow) {
+      return {
+        id: groupRow.id,
+        name: groupRow.name,
+        slug: groupRow.slug || "",
+        parentId: null,
+        type: "PRODUCT",
+        metaTitle: groupRow.meta_title || null,
+        metaDescription: groupRow.meta_description || null,
+        createdAt: groupRow.created_at || new Date().toISOString(),
+        updatedAt: groupRow.updated_at || new Date().toISOString(),
+        deletedAt: groupRow.deleted_at || null,
+      };
     }
 
-    const { data, error } = await query.maybeSingle();
+    // Check category
+    const { data: cat } = await supabase
+      .from("category" as any)
+      .select("*")
+      .ilike("slug", slug)
+      .maybeSingle();
 
-    if (error) this.handleError(error, "getBySlug");
-    return data ? this.mapToDomain(data) : null;
+    const catRow = cat as any;
+    if (catRow) {
+      return {
+        id: catRow.id,
+        name: catRow.name,
+        slug: catRow.slug || "",
+        parentId: catRow.group_id,
+        type: "PRODUCT",
+        metaTitle: catRow.meta_title || null,
+        metaDescription: catRow.meta_description || null,
+        createdAt: catRow.created_at || new Date().toISOString(),
+        updatedAt: catRow.updated_at || new Date().toISOString(),
+        deletedAt: catRow.deleted_at || null,
+      };
+    }
+
+    return null;
   }
 
   async create(input: CreateCategoryInput): Promise<Category> {
-    const supabase = await createClient();
-    const row = this.mapToRow(input) as CategoryInsert;
-
-    const { data, error } = await supabase
-      .from(this.TABLE_NAME)
-      .insert(row)
-      .select()
-      .single();
-
-    if (error) this.handleError(error, "create");
-    return this.mapToDomain(data);
+    throw new Error("Writing is deprecated. Use category-new instead.");
   }
 
   async update(input: UpdateCategoryInput): Promise<Category> {
-    const supabase = await createClient();
-    const row = this.mapToRow(input) as CategoryUpdate;
-
-    const { data, error } = await supabase
-      .from(this.TABLE_NAME)
-      .update({
-        ...row,
-        updated_at: new Date().toISOString(),
-      })
-      .eq("id", input.id)
-      .select()
-      .single();
-
-    if (error) this.handleError(error, "update");
-    return this.mapToDomain(data);
+    throw new Error("Writing is deprecated. Use category-new instead.");
   }
 
   async delete(id: string): Promise<void> {
-    const supabase = await createClient();
-    const { error } = await supabase
-      .from(this.TABLE_NAME)
-      .update({
-        deleted_at: new Date().toISOString(),
-      } as CategoryUpdate)
-      .eq("id", id);
-
-    if (error) this.handleError(error, "delete");
+    throw new Error("Writing is deprecated. Use category-new instead.");
   }
 
   async getTree(type?: CategoryType): Promise<CategoryWithChildren[]> {
-    // Fetch all categories (filtered by type if provided)
-    const allCategories = await this.getAll(type ? { type } : undefined);
-    
-    // Build tree in memory
+    const allCategories = await this.getAll();
     const categoryMap = new Map<string, CategoryWithChildren>();
     const roots: CategoryWithChildren[] = [];
 
-    // Initialize map
     for (const cat of allCategories) {
       categoryMap.set(cat.id, { ...cat, children: [] });
     }
 
-    // Build hierarchy
     for (const cat of allCategories) {
       const node = categoryMap.get(cat.id)!;
       if (cat.parentId) {
@@ -179,7 +226,6 @@ export class SupabaseCategoryRepository implements CategoryRepository {
         if (parentNode) {
           parentNode.children!.push(node);
         } else {
-          // Parent not found in the current scope, push as a root (dangling node safeguard)
           roots.push(node); 
         }
       } else {
@@ -197,53 +243,9 @@ export class SupabaseCategoryRepository implements CategoryRepository {
   async getByIds(ids: string[]): Promise<Category[]> {
     if (!ids || ids.length === 0) return [];
     
-    const supabase = await createClient();
-    const { data, error } = await supabase
-      .from(this.TABLE_NAME)
-      .select("*")
-      .in("id", ids)
-      .is("deleted_at", null);
-
-    if (error) this.handleError(error, "getByIds");
-    return (data || []).map(row => this.mapToDomain(row));
-  }
-
-  private mapToRow(input: CreateCategoryInput | UpdateCategoryInput): Record<string, string | null | undefined> {
-    const row: Record<string, string | null | undefined> = {
-      name: input.name,
-      slug: input.slug,
-      parent_id: input.parentId !== undefined ? input.parentId : undefined,
-      meta_title: "metaTitle" in input ? input.metaTitle : undefined,
-      meta_description: "metaDescription" in input ? input.metaDescription : undefined,
-    };
-
-    if (input.type) {
-      row.type = CATEGORY_TYPES[input.type];
-    }
-
-    return Object.fromEntries(
-      Object.entries(row).filter(([_, value]) => value !== undefined)
-    );
-  }
-
-  private mapToDomain(row: CategoryRow): Category {
-    // Determine the type safely based on database string value
-    const domainType = (Object.keys(CATEGORY_TYPES).find(
-      (key) => CATEGORY_TYPES[key as CategoryType] === row.type
-    ) as CategoryType) || "PRODUCT";
-
-    return {
-      id: row.id,
-      name: row.name,
-      slug: row.slug || "",
-      parentId: row.parent_id,
-      type: domainType,
-      metaTitle: row.meta_title || null,
-      metaDescription: row.meta_description || null,
-      createdAt: row.created_at || new Date().toISOString(),
-      updatedAt: row.updated_at || new Date().toISOString(),
-      deletedAt: null,
-    };
+    // Fetch all and filter in memory
+    const all = await this.getAll({ includeDeleted: true });
+    return all.filter((c) => ids.includes(c.id));
   }
 
   private handleError(error: unknown, context: string): never {

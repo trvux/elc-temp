@@ -8,7 +8,7 @@ PROJECT_ID=$(shell echo $(NEXT_PUBLIC_SUPABASE_URL) | sed -e 's|https://||' -e '
 
 gen:
 	@echo "Generating types for project: $(PROJECT_ID)..."
-	npx supabase gen types typescript --project-id $(PROJECT_ID) > database.types.ts
+	SUPABASE_ACCESS_TOKEN=$(SUPABASE_ACCESS_TOKEN) npx supabase gen types typescript --project-id $(PROJECT_ID) > database.types.ts
 	@echo "Done! Check database.types.ts"
 
 

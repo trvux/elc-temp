@@ -70,8 +70,6 @@ export function FeaturesSection({ products }: FeaturesSectionProps) {
                   <CarouselItem key={product.id} className="px-2 basis-[80%]">
                     <ProductCard
                       product={product}
-                      categorySlug={product.category?.slug || "all"}
-                      brandSlug={product.brand?.slug || "all"}
                       priority={index === 0}
                     />
                   </CarouselItem>
@@ -86,8 +84,6 @@ export function FeaturesSection({ products }: FeaturesSectionProps) {
               <StaggerItem key={product.id}>
                 <ProductCard
                   product={product}
-                  categorySlug={product.category?.slug || "all"}
-                  brandSlug={product.brand?.slug || "all"}
                   priority={index < 4}
                 />
               </StaggerItem>
