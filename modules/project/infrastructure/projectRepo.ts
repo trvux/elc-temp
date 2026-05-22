@@ -32,6 +32,66 @@ export class SupabaseProjectRepository implements ProjectRepository {
 
     // Filters
     if (options?.categoryId) query = query.eq("category_id", options.categoryId);
+    if (options?.serviceTypeId) query = query.eq("service_type_id", options.serviceTypeId);
+    
+    if (options?.categoryNewSlug) {
+      const { data: catData, error: catError } = await supabase
+        .from("categories")
+        .select("id")
+        .eq("slug", options.categoryNewSlug)
+        .is("deleted_at", null)
+        .maybeSingle();
+
+      if (catData && !catError) {
+        const { data: relData, error: relError } = await supabase
+          .from("project_category")
+          .select("project_id")
+          .eq("category_id", catData.id);
+
+        if (relData && !relError) {
+          const projectIds = relData.map((r: { project_id: string }) => r.project_id);
+          if (projectIds.length > 0) {
+            query = query.in("id", projectIds);
+          } else {
+            query = query.in("id", ["00000000-0000-0000-0000-000000000000"]);
+          }
+        } else {
+          query = query.in("id", ["00000000-0000-0000-0000-000000000000"]);
+        }
+      } else {
+        query = query.in("id", ["00000000-0000-0000-0000-000000000000"]);
+      }
+    }
+
+    if (options?.categoryNewSlugs && options.categoryNewSlugs.length > 0) {
+      const { data: catsData, error: catsError } = await supabase
+        .from("categories")
+        .select("id")
+        .in("slug", options.categoryNewSlugs)
+        .is("deleted_at", null);
+
+      if (catsData && catsData.length > 0 && !catsError) {
+        const catIds = catsData.map((c) => c.id);
+        const { data: relData, error: relError } = await supabase
+          .from("project_category")
+          .select("project_id")
+          .in("category_id", catIds);
+
+        if (relData && !relError) {
+          const projectIds = relData.map((r: { project_id: string }) => r.project_id);
+          if (projectIds.length > 0) {
+            query = query.in("id", projectIds);
+          } else {
+            query = query.in("id", ["00000000-0000-0000-0000-000000000000"]);
+          }
+        } else {
+          query = query.in("id", ["00000000-0000-0000-0000-000000000000"]);
+        }
+      } else {
+        query = query.in("id", ["00000000-0000-0000-0000-000000000000"]);
+      }
+    }
+
     if (options?.isPublished !== undefined) query = query.eq("is_published", options.isPublished);
     if (options?.isFeatured !== undefined) query = query.eq("is_featured", options.isFeatured);
     if (options?.search) query = query.ilike("title", `%${options.search}%`);
@@ -59,11 +119,71 @@ export class SupabaseProjectRepository implements ProjectRepository {
     return (data || []).map((row) => this.mapToDomainWithCategory(row));
   }
 
-  async count(options?: Pick<ProjectFilter, "categoryId" | "isPublished" | "isFeatured" | "search" | "includeDeleted">): Promise<number> {
+  async count(options?: Pick<ProjectFilter, "categoryId" | "serviceTypeId" | "categoryNewSlug" | "categoryNewSlugs" | "isPublished" | "isFeatured" | "search" | "includeDeleted">): Promise<number> {
     const supabase = await createClient();
     let query = supabase.from(this.TABLE_NAME).select("*", { count: "exact", head: true });
 
     if (options?.categoryId) query = query.eq("category_id", options.categoryId);
+    if (options?.serviceTypeId) query = query.eq("service_type_id", options.serviceTypeId);
+
+    if (options?.categoryNewSlug) {
+      const { data: catData, error: catError } = await supabase
+        .from("categories")
+        .select("id")
+        .eq("slug", options.categoryNewSlug)
+        .is("deleted_at", null)
+        .maybeSingle();
+
+      if (catData && !catError) {
+        const { data: relData, error: relError } = await supabase
+          .from("project_category")
+          .select("project_id")
+          .eq("category_id", catData.id);
+
+        if (relData && !relError) {
+          const projectIds = relData.map((r: { project_id: string }) => r.project_id);
+          if (projectIds.length > 0) {
+            query = query.in("id", projectIds);
+          } else {
+            query = query.in("id", ["00000000-0000-0000-0000-000000000000"]);
+          }
+        } else {
+          query = query.in("id", ["00000000-0000-0000-0000-000000000000"]);
+        }
+      } else {
+        query = query.in("id", ["00000000-0000-0000-0000-000000000000"]);
+      }
+    }
+
+    if (options?.categoryNewSlugs && options.categoryNewSlugs.length > 0) {
+      const { data: catsData, error: catsError } = await supabase
+        .from("categories")
+        .select("id")
+        .in("slug", options.categoryNewSlugs)
+        .is("deleted_at", null);
+
+      if (catsData && catsData.length > 0 && !catsError) {
+        const catIds = catsData.map((c) => c.id);
+        const { data: relData, error: relError } = await supabase
+          .from("project_category")
+          .select("project_id")
+          .in("category_id", catIds);
+
+        if (relData && !relError) {
+          const projectIds = relData.map((r: { project_id: string }) => r.project_id);
+          if (projectIds.length > 0) {
+            query = query.in("id", projectIds);
+          } else {
+            query = query.in("id", ["00000000-0000-0000-0000-000000000000"]);
+          }
+        } else {
+          query = query.in("id", ["00000000-0000-0000-0000-000000000000"]);
+        }
+      } else {
+        query = query.in("id", ["00000000-0000-0000-0000-000000000000"]);
+      }
+    }
+
     if (options?.isPublished !== undefined) query = query.eq("is_published", options.isPublished);
     if (options?.isFeatured !== undefined) query = query.eq("is_featured", options.isFeatured);
     if (options?.search) query = query.ilike("title", `%${options.search}%`);

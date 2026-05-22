@@ -10,13 +10,13 @@ ADD COLUMN IF NOT EXISTS deleted_at TIMESTAMPTZ;
 -- ==========================================
 -- Xóa Policy cũ (nếu có) để tránh xung đột
 DROP POLICY IF EXISTS "Allow Soft Delete for Admin_group" ON group_categories;
-DROP POLICY IF EXISTS "Allow Soft Delete for Admin_cat" ON category;
+DROP POLICY IF EXISTS "Allow Soft Delete for Admin_cat" ON categories;
 DROP POLICY IF EXISTS "Allow Soft Delete for Admin_brand" ON brands;
 DROP POLICY IF EXISTS "Allow Soft Delete for Admin_prod" ON products;
 
 -- Thêm Policy cho phép UPDATE (Soft-delete)
 CREATE POLICY "Allow Soft Delete for Admin_group" ON group_categories FOR UPDATE TO authenticated USING (true) WITH CHECK (true);
-CREATE POLICY "Allow Soft Delete for Admin_cat" ON category FOR UPDATE TO authenticated USING (true) WITH CHECK (true);
+CREATE POLICY "Allow Soft Delete for Admin_cat" ON categories FOR UPDATE TO authenticated USING (true) WITH CHECK (true);
 CREATE POLICY "Allow Soft Delete for Admin_brand" ON brands FOR UPDATE TO authenticated USING (true) WITH CHECK (true);
 CREATE POLICY "Allow Soft Delete for Admin_prod" ON products FOR UPDATE TO authenticated USING (true) WITH CHECK (true);
 
