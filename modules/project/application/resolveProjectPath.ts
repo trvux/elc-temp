@@ -145,7 +145,7 @@ export async function resolveProjectPath(slug: string): Promise<ResolvedProjectE
       .from("projects")
       .select(`
         *,
-        serviceType:service_type(id, name),
+        serviceType:service_type(id, name, slug),
         project_category(
           categoryNew:categories(
             *,
@@ -180,6 +180,7 @@ export async function resolveProjectPath(slug: string): Promise<ResolvedProjectE
       serviceType: {
         id: string;
         name: string;
+        slug: string;
       } | null;
       project_category: {
         categoryNew: {
@@ -233,6 +234,7 @@ export async function resolveProjectPath(slug: string): Promise<ResolvedProjectE
         ? {
             id: row.serviceType.id,
             name: row.serviceType.name,
+            slug: row.serviceType.slug,
           }
         : null,
       categoriesNew,

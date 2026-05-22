@@ -17,7 +17,7 @@ export class SupabaseProjectRepository implements ProjectRepository {
   private readonly TABLE_NAME = "projects";
   private readonly SELECT_WITH_CATEGORY = `
     *,
-    serviceType:service_type(id, name),
+    serviceType:service_type(id, name, slug),
     project_category(
       categoryNew:categories(
         *,
@@ -470,6 +470,7 @@ export class SupabaseProjectRepository implements ProjectRepository {
     const serviceType = row.serviceType ? {
       id: row.serviceType.id,
       name: row.serviceType.name,
+      slug: row.serviceType.slug || "",
     } : null;
 
     const categoriesNew = (row.project_category || [])

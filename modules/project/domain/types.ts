@@ -34,6 +34,7 @@ export interface ProjectWithCategory extends Project {
   serviceType?: {
     id: string;
     name: string;
+    slug?: string;
   } | null;
   categoriesNew?: {
     id: string;
