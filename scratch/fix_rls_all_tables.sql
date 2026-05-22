@@ -14,18 +14,18 @@ CREATE POLICY "public_read" ON group_categories
 CREATE POLICY "admin_all" ON group_categories
   FOR ALL TO authenticated USING (true) WITH CHECK (true);
 
--- 2. category
-DROP POLICY IF EXISTS "Allow Soft Delete for Admin_cat" ON category;
-DROP POLICY IF EXISTS "Allow authenticated users to delete category" ON category;
-DROP POLICY IF EXISTS "Allow authenticated users to insert category" ON category;
-DROP POLICY IF EXISTS "Allow authenticated users to update category" ON category;
-DROP POLICY IF EXISTS "Allow public read-only access for category" ON category;
-DROP POLICY IF EXISTS "public_read" ON category;
-DROP POLICY IF EXISTS "admin_all" ON category;
+-- 2. categories (thay cho category)
+DROP POLICY IF EXISTS "Allow Soft Delete for Admin_cat" ON categories;
+DROP POLICY IF EXISTS "Allow authenticated users to delete category" ON categories;
+DROP POLICY IF EXISTS "Allow authenticated users to insert category" ON categories;
+DROP POLICY IF EXISTS "Allow authenticated users to update category" ON categories;
+DROP POLICY IF EXISTS "Allow public read-only access for category" ON categories;
+DROP POLICY IF EXISTS "public_read" ON categories;
+DROP POLICY IF EXISTS "admin_all" ON categories;
 
-CREATE POLICY "public_read" ON category
+CREATE POLICY "public_read" ON categories
   FOR SELECT USING (deleted_at IS NULL);
-CREATE POLICY "admin_all" ON category
+CREATE POLICY "admin_all" ON categories
   FOR ALL TO authenticated USING (true) WITH CHECK (true);
 
 -- 3. brands

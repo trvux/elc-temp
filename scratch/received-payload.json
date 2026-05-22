@@ -8,7 +8,7 @@
       },
       "content": [
         {
-          "text": "Lắp đặt hệ thống điều hoà không khí; hệ thống cấp khí tươi - biệt thự phố Thủ Dầu Một",
+          "text": "Hệ thống lọc không khí Trung tâm cao cấp tại The River Thủ Thiêm",
           "type": "text"
         }
       ]
@@ -17,28 +17,7 @@
       "type": "paragraph",
       "content": [
         {
-          "text": "Sự giao thoa giữa Điều hòa Mitsubishi & Giải pháp không khí sạch Menred Hagisu",
-          "type": "text",
-          "marks": [
-            {
-              "type": "bold"
-            },
-            {
-              "type": "italic"
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "type": "paragraph",
-      "content": [
-        {
-          "text": "Việc sở hữu một không gian sống đẳng cấp không chỉ dừng lại ở kiến trúc xa hoa mà còn nằm ở chất lượng môi trường sống bên trong. Dự án biệt thự tại ",
-          "type": "text"
-        },
-        {
-          "text": "Thành phố Thủ dầu Một",
+          "text": "The River Thủ Thiêm",
           "type": "text",
           "marks": [
             {
@@ -47,33 +26,7 @@
           ]
         },
         {
-          "text": " là minh chứng cho sự kết hợp hoàn hảo giữa công nghệ làm lạnh đỉnh cao từ ",
-          "type": "text"
-        },
-        {
-          "text": "Mitsubishi",
-          "type": "text",
-          "marks": [
-            {
-              "type": "bold"
-            }
-          ]
-        },
-        {
-          "text": " và giải pháp không khí sạch toàn diện ",
-          "type": "text"
-        },
-        {
-          "text": "Menred Hagisu",
-          "type": "text",
-          "marks": [
-            {
-              "type": "bold"
-            }
-          ]
-        },
-        {
-          "text": ", được tư vấn và thực thi trọn gói bởi ",
+          "text": " không chỉ sở hữu vị trí đắc địa bên dòng sông Sài Gòn mà còn là biểu tượng của không gian sống thượng lưu. Để duy trì chất lượng sống xứng tầm, gia chủ tại lầu 10 đã lựa chọn ",
           "type": "text"
         },
         {
@@ -86,7 +39,7 @@
           ]
         },
         {
-          "text": ".",
+          "text": " để triển khai giải pháp lọc không khí trung tâm, đảm bảo môi trường sống luôn thuần khiết và giàu oxy tươi.",
           "type": "text"
         }
       ]
@@ -98,124 +51,374 @@
       },
       "content": [
         {
-          "text": "THÔNG TIN TỔNG QUAN DỰ ÁN",
+          "text": "THÔNG TIN CHUNG DỰ ÁN",
           "type": "text"
         }
       ]
     },
     {
-      "type": "bulletList",
+      "type": "table",
       "content": [
         {
-          "type": "listItem",
+          "type": "tableRow",
           "content": [
             {
-              "type": "paragraph",
+              "type": "tableHeader",
+              "attrs": {
+                "align": null,
+                "colspan": 1,
+                "rowspan": 1,
+                "colwidth": null
+              },
               "content": [
                 {
-                  "text": "Tên dự án:",
-                  "type": "text",
-                  "marks": [
+                  "type": "paragraph",
+                  "content": [
                     {
-                      "type": "bold"
+                      "text": "Mục thông tin",
+                      "type": "text",
+                      "marks": [
+                        {
+                          "type": "bold"
+                        }
+                      ]
                     }
                   ]
-                },
+                }
+              ]
+            },
+            {
+              "type": "tableHeader",
+              "attrs": {
+                "align": null,
+                "colspan": 1,
+                "rowspan": 1,
+                "colwidth": null
+              },
+              "content": [
                 {
-                  "text": " Thiết kế & Thi công hệ thống HVAC Biệt thự cao cấp Thủ Dầu Một.",
-                  "type": "text"
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "text": "Chi tiết dự án",
+                      "type": "text"
+                    }
+                  ]
                 }
               ]
             }
           ]
         },
         {
-          "type": "listItem",
+          "type": "tableRow",
           "content": [
             {
-              "type": "paragraph",
+              "type": "tableCell",
+              "attrs": {
+                "align": null,
+                "colspan": 1,
+                "rowspan": 1,
+                "colwidth": null
+              },
               "content": [
                 {
-                  "text": "Địa điểm:",
-                  "type": "text",
-                  "marks": [
+                  "type": "paragraph",
+                  "content": [
                     {
-                      "type": "bold"
+                      "text": "📍 Tên dự án",
+                      "type": "text"
                     }
                   ]
-                },
+                }
+              ]
+            },
+            {
+              "type": "tableCell",
+              "attrs": {
+                "align": null,
+                "colspan": 1,
+                "rowspan": 1,
+                "colwidth": null
+              },
+              "content": [
                 {
-                  "text": " Thành phố Thủ Dầu Một.",
-                  "type": "text"
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "text": "Nghiệm thu hệ thống lọc không khí trung tâm - Căn hộ The River Thủ Thiêm",
+                      "type": "text"
+                    }
+                  ]
                 }
               ]
             }
           ]
         },
         {
-          "type": "listItem",
+          "type": "tableRow",
           "content": [
             {
-              "type": "paragraph",
+              "type": "tableCell",
+              "attrs": {
+                "align": null,
+                "colspan": 1,
+                "rowspan": 1,
+                "colwidth": null
+              },
               "content": [
                 {
-                  "text": "Hạng mục:",
-                  "type": "text",
-                  "marks": [
+                  "type": "paragraph",
+                  "content": [
                     {
-                      "type": "bold"
+                      "text": "🏢 Địa điểm",
+                      "type": "text"
                     }
                   ]
-                },
+                }
+              ]
+            },
+            {
+              "type": "tableCell",
+              "attrs": {
+                "align": null,
+                "colspan": 1,
+                "rowspan": 1,
+                "colwidth": null
+              },
+              "content": [
                 {
-                  "text": " Hệ thống điều hòa trung tâm giấu trần nối ống gió & Hệ thống lọc khí tươi trung tâm (Fresh Air).",
-                  "type": "text"
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "text": "Lầu 10, Khu The River Thủ Thiêm, TP. Thủ Đức, TP.HCM",
+                      "type": "text"
+                    }
+                  ]
                 }
               ]
             }
           ]
         },
         {
-          "type": "listItem",
+          "type": "tableRow",
           "content": [
             {
-              "type": "paragraph",
+              "type": "tableCell",
+              "attrs": {
+                "align": null,
+                "colspan": 1,
+                "rowspan": 1,
+                "colwidth": null
+              },
               "content": [
                 {
-                  "text": "Thiết bị:",
-                  "type": "text",
-                  "marks": [
+                  "type": "paragraph",
+                  "content": [
                     {
-                      "type": "bold"
+                      "text": "📐 Diện tích sàn",
+                      "type": "text"
                     }
                   ]
-                },
+                }
+              ]
+            },
+            {
+              "type": "tableCell",
+              "attrs": {
+                "align": null,
+                "colspan": 1,
+                "rowspan": 1,
+                "colwidth": null
+              },
+              "content": [
                 {
-                  "text": " Mitsubishi Electric (Inverter) & Menred Hagisu (P-Series).",
-                  "type": "text"
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "text": "200m2 (Bố cục: 4 Phòng ngủ, 1 Phòng khách & Bếp liên thông)",
+                      "type": "text"
+                    }
+                  ]
                 }
               ]
             }
           ]
         },
         {
-          "type": "listItem",
+          "type": "tableRow",
           "content": [
             {
-              "type": "paragraph",
+              "type": "tableCell",
+              "attrs": {
+                "align": null,
+                "colspan": 1,
+                "rowspan": 1,
+                "colwidth": null
+              },
               "content": [
                 {
-                  "text": "Đơn vị thực hiện:",
-                  "type": "text",
-                  "marks": [
+                  "type": "paragraph",
+                  "content": [
                     {
-                      "type": "bold"
+                      "text": "🛠️ Hạng mục thi công",
+                      "type": "text"
                     }
                   ]
-                },
+                }
+              ]
+            },
+            {
+              "type": "tableCell",
+              "attrs": {
+                "align": null,
+                "colspan": 1,
+                "rowspan": 1,
+                "colwidth": null
+              },
+              "content": [
                 {
-                  "text": " Công ty Cổ phần Giải pháp Công nghệ Thương mại Dịch vụ ELC.",
-                  "type": "text"
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "text": "Hệ thống lọc không khí trung tâm chuyên sâu Menred",
+                      "type": "text"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "tableRow",
+          "content": [
+            {
+              "type": "tableCell",
+              "attrs": {
+                "align": null,
+                "colspan": 1,
+                "rowspan": 1,
+                "colwidth": null
+              },
+              "content": [
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "text": "🏗️ Đơn vị thực hiện",
+                      "type": "text"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "tableCell",
+              "attrs": {
+                "align": null,
+                "colspan": 1,
+                "rowspan": 1,
+                "colwidth": null
+              },
+              "content": [
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "text": "Công ty Điện máy ELC",
+                      "type": "text"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "tableRow",
+          "content": [
+            {
+              "type": "tableCell",
+              "attrs": {
+                "align": null,
+                "colspan": 1,
+                "rowspan": 1,
+                "colwidth": null
+              },
+              "content": [
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "text": "📅 Ngày nghiệm thu",
+                      "type": "text"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "tableCell",
+              "attrs": {
+                "align": null,
+                "colspan": 1,
+                "rowspan": 1,
+                "colwidth": null
+              },
+              "content": [
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "text": "06/06/2024",
+                      "type": "text"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "tableRow",
+          "content": [
+            {
+              "type": "tableCell",
+              "attrs": {
+                "align": null,
+                "colspan": 1,
+                "rowspan": 1,
+                "colwidth": null
+              },
+              "content": [
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "text": "💎 Cấu hình thiết bị",
+                      "type": "text"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "tableCell",
+              "attrs": {
+                "align": null,
+                "colspan": 1,
+                "rowspan": 1,
+                "colwidth": null
+              },
+              "content": [
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "text": "02 Máy Menred S5 (Tổng công suất 800m3/h)",
+                      "type": "text"
+                    }
+                  ]
                 }
               ]
             }
@@ -233,7 +436,7 @@
       },
       "content": [
         {
-          "text": "Thách thức và yêu cầu khắt khe từ Chủ đầu tư",
+          "text": "GIẢI PHÁP KỸ THUẬT CAO CẤP TẠI CĂN HỘ 200M2",
           "type": "text"
         }
       ]
@@ -242,7 +445,93 @@
       "type": "paragraph",
       "content": [
         {
-          "text": "Với diện tích mặt sàn lớn và thiết kế trần giật cấp tinh tế theo phong cách hiện đại, chủ nhân biệt thự đặt ra 3 bài toán trọng tâm cho đội ngũ kỹ sư ELC:",
+          "text": "Với diện tích sàn rộng và yêu cầu khắt khe về độ tĩnh lặng, Điện máy ELC đã cấu hình hệ thống chuyên biệt:",
+          "type": "text"
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "content": [
+        {
+          "text": "Hệ thống máy Menred S5 công suất tối ưu",
+          "type": "text"
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "content": [
+        {
+          "text": "Dự án sử dụng ",
+          "type": "text"
+        },
+        {
+          "text": "02 máy lọc khí trung tâm model S5",
+          "type": "text",
+          "marks": [
+            {
+              "type": "bold"
+            }
+          ]
+        },
+        {
+          "text": " từ thương hiệu danh tiếng Menred. Với công suất ",
+          "type": "text"
+        },
+        {
+          "text": "400m3/h mỗi máy",
+          "type": "text",
+          "marks": [
+            {
+              "type": "bold"
+            }
+          ]
+        },
+        {
+          "text": ", tổng lưu lượng gió 800m3/h đảm bảo khả năng làm mới không khí toàn diện cho 4 phòng ngủ và khu vực sinh hoạt chung mà vẫn duy trì sự êm ái tuyệt đối.",
+          "type": "text"
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "content": [
+        {
+          "text": "Thiết kế giấu trần thẩm mỹ",
+          "type": "text"
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "content": [
+        {
+          "text": "Toàn bộ thiết bị Menred S5 và hệ thống ống gió được lắp đặt âm trần tinh tế. Các cửa gió được bố trí hài hòa với nội thất cao cấp của căn hộ, giúp lan tỏa oxy tươi đều khắp không gian mà không làm ảnh hưởng đến chiều cao trần hay vẻ đẹp kiến trúc của The River.",
+          "type": "text"
+        }
+      ]
+    },
+    {
+      "type": "horizontalRule"
+    },
+    {
+      "type": "heading",
+      "attrs": {
+        "level": 2
+      },
+      "content": [
+        {
+          "text": "QUY TRÌNH NGHIỆM THU NGHIÊM NGẶT",
+          "type": "text"
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "content": [
+        {
+          "text": "Sự hài lòng của khách hàng được khẳng định qua quy trình nghiệm thu 4 bước từ ELC:",
           "type": "text"
         }
       ]
@@ -261,7 +550,7 @@
               "type": "paragraph",
               "content": [
                 {
-                  "text": "Thẩm mỹ tuyệt đối:",
+                  "text": "Kiểm tra kỹ thuật đường ống:",
                   "type": "text",
                   "marks": [
                     {
@@ -270,7 +559,7 @@
                   ]
                 },
                 {
-                  "text": " Hệ thống máy lạnh phải hoàn toàn \"ẩn mình\", hòa hợp tuyệt đối vào ngôn ngữ thiết kế nội thất.",
+                  "text": " Đảm bảo toàn bộ hệ thống ống dẫn gió kín khít, mối nối chắc chắn và không có hiện tượng rung lắc khi máy vận hành ở công suất tối đa.",
                   "type": "text"
                 }
               ]
@@ -284,7 +573,7 @@
               "type": "paragraph",
               "content": [
                 {
-                  "text": "Chất lượng khí chuẩn sạch:",
+                  "text": "Đo đạc chất lượng khí sạch:",
                   "type": "text",
                   "marks": [
                     {
@@ -293,7 +582,7 @@
                   ]
                 },
                 {
-                  "text": " Đảm bảo không khí trong nhà luôn tươi mới, giàu Oxy, loại bỏ bụi mịn PM2.5 và cảm giác bí bách khi đóng kín cửa thường xuyên.",
+                  "text": " Sử dụng thiết bị cảm biến chuyên dụng để đo nồng độ bụi mịn PM2.5 tại các cửa cấp khí. Kết quả đo thực tế đạt tiêu chuẩn an toàn sức khỏe cao nhất cho môi trường căn hộ hạng sang.",
                   "type": "text"
                 }
               ]
@@ -307,7 +596,7 @@
               "type": "paragraph",
               "content": [
                 {
-                  "text": "Vận hành tĩnh lặng:",
+                  "text": "Hướng dẫn vận hành thông minh:",
                   "type": "text",
                   "marks": [
                     {
@@ -316,7 +605,30 @@
                   ]
                 },
                 {
-                  "text": " Hệ thống phải đạt độ ồn tiệm cận mức 0 để giữ gìn không gian nghỉ ngơi yên tĩnh.",
+                  "text": " Chuyên gia kỹ thuật trực tiếp bàn giao và hướng dẫn gia chủ cách theo dõi chỉ số không khí, điều chỉnh các chế độ lọc qua bảng điều khiển hiện đại.",
+                  "type": "text"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "listItem",
+          "content": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "text": "Thiết lập lịch bảo trì định kỳ:",
+                  "type": "text",
+                  "marks": [
+                    {
+                      "type": "bold"
+                    }
+                  ]
+                },
+                {
+                  "text": " Cam kết đồng hành cùng gia chủ với chế độ bảo trì hệ thống 6 tháng/lần, đảm bảo bộ lọc luôn ở trạng thái hoạt động tốt nhất.",
                   "type": "text"
                 }
               ]
@@ -335,7 +647,7 @@
       },
       "content": [
         {
-          "text": "Giải pháp Kỹ thuật từ Điện máy ELC",
+          "text": "ĐIỆN MÁY ELC – ĐỐI TÁC TIN CẬY TẠI THỦ THIÊM",
           "type": "text"
         }
       ]
@@ -344,7 +656,20 @@
       "type": "paragraph",
       "content": [
         {
-          "text": "Để giải quyết bài toán trên, ELC đã đưa ra phương án tích hợp kép – xu hướng của các căn siêu biệt thự năm 2026:",
+          "text": "Dự án tại ",
+          "type": "text"
+        },
+        {
+          "text": "The River Thủ Thiêm",
+          "type": "text",
+          "marks": [
+            {
+              "type": "bold"
+            }
+          ]
+        },
+        {
+          "text": " một lần nữa khẳng định năng lực của Điện máy ELC trong việc cung cấp giải pháp khí tươi chuyên sâu cho các căn hộ hạng sang. Chúng tôi cam kết:",
           "type": "text"
         }
       ]
@@ -359,40 +684,13 @@
               "type": "paragraph",
               "content": [
                 {
-                  "text": "Hệ thống Điều hòa giấu trần Mitsubishi:",
-                  "type": "text",
-                  "marks": [
-                    {
-                      "type": "bold"
-                    }
-                  ]
-                },
-                {
-                  "text": " Sử dụng dòng máy hạng sang Inverter với khả năng kiểm soát nhiệt độ thông minh. Dàn lạnh được giấu hoàn toàn trên trần, luồng gió được dẫn qua các miệng gió ",
-                  "type": "text"
-                },
-                {
-                  "text": "Linear/Slot",
-                  "type": "text",
-                  "marks": [
-                    {
-                      "type": "bold"
-                    }
-                  ]
-                },
-                {
-                  "text": " dài thẩm mỹ, tạo ra độ mát sâu và lan tỏa dịu nhẹ.",
+                  "text": "Thiết bị Menred chính hãng, đầy đủ CO/CQ.",
                   "type": "text"
                 }
               ]
             }
           ]
-        }
-      ]
-    },
-    {
-      "type": "bulletList",
-      "content": [
+        },
         {
           "type": "listItem",
           "content": [
@@ -400,16 +698,21 @@
               "type": "paragraph",
               "content": [
                 {
-                  "text": "Hệ thống cấp khí tươi trung tâm Menred Hagisu:",
-                  "type": "text",
-                  "marks": [
-                    {
-                      "type": "bold"
-                    }
-                  ]
-                },
+                  "text": "Kỹ thuật lắp đặt đạt chuẩn thẩm mỹ kiến trúc cao cấp.",
+                  "type": "text"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "listItem",
+          "content": [
+            {
+              "type": "paragraph",
+              "content": [
                 {
-                  "text": " Đóng vai trò là \"lá phổi\" của ngôi nhà. Hệ thống liên tục thu hồi nhiệt, hút khí thải và cấp khí tự nhiên vào trong. Qua bộ lọc hiệu suất cao, không khí được làm sạch khỏi bụi mịn PM2.5, vi khuẩn và tác nhân gây dị ứng trước khi đi vào không gian sống.",
+                  "text": "Hỗ trợ kỹ thuật nhanh chóng, tận tâm 24/7.",
                   "type": "text"
                 }
               ]
@@ -419,100 +722,10 @@
       ]
     },
     {
-      "type": "image",
-      "attrs": {
-        "alt": null,
-        "src": "https://gdzihzsjfczuggwpykjk.supabase.co/storage/v1/object/public/images/projects/1776788979718-kydlu81g8rt.webp",
-        "align": "center",
-        "ratio": "auto",
-        "title": null,
-        "width": null,
-        "height": null
-      }
-    },
-    {
-      "type": "image",
-      "attrs": {
-        "alt": null,
-        "src": "https://gdzihzsjfczuggwpykjk.supabase.co/storage/v1/object/public/images/projects/1776788987742-cz5l78khoye.webp",
-        "align": "center",
-        "ratio": "auto",
-        "title": null,
-        "width": null,
-        "height": null
-      }
-    },
-    {
-      "type": "image",
-      "attrs": {
-        "alt": null,
-        "src": "https://gdzihzsjfczuggwpykjk.supabase.co/storage/v1/object/public/images/projects/1776789005550-klnmvw03s2n.webp",
-        "align": "center",
-        "ratio": "auto",
-        "title": null,
-        "width": null,
-        "height": null
-      }
-    },
-    {
-      "type": "image",
-      "attrs": {
-        "alt": null,
-        "src": "https://gdzihzsjfczuggwpykjk.supabase.co/storage/v1/object/public/images/projects/1776789019145-89j5bbaqa6h.webp",
-        "align": "center",
-        "ratio": "auto",
-        "title": null,
-        "width": null,
-        "height": null
-      }
-    },
-    {
-      "type": "image",
-      "attrs": {
-        "alt": null,
-        "src": "https://gdzihzsjfczuggwpykjk.supabase.co/storage/v1/object/public/images/projects/1776789155343-dcoanay5m4o.webp",
-        "align": "center",
-        "ratio": "auto",
-        "title": null,
-        "width": null,
-        "height": null
-      }
-    },
-    {
-      "type": "image",
-      "attrs": {
-        "alt": null,
-        "src": "https://gdzihzsjfczuggwpykjk.supabase.co/storage/v1/object/public/images/projects/1776789174891-1wx5yvlolrh.webp",
-        "align": "center",
-        "ratio": "auto",
-        "title": null,
-        "width": null,
-        "height": null
-      }
-    },
-    {
       "type": "paragraph",
       "content": [
         {
-          "text": "Quy trình thực thi chuẩn Kỹ thuật",
-          "type": "text",
-          "marks": [
-            {
-              "type": "bold"
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "type": "paragraph",
-      "content": [
-        {
-          "text": "Quá trình triển khai tại ",
-          "type": "text"
-        },
-        {
-          "text": "Thành phố Thủ dầu Một",
+          "text": "Bạn đang cần giải pháp không khí chuẩn sạch cho căn hộ cao cấp?",
           "type": "text",
           "marks": [
             {
@@ -521,302 +734,29 @@
           ]
         },
         {
-          "text": " được kiểm soát nghiêm ngặt qua 4 giai đoạn:",
+          "text": " Liên hệ ngay với ",
           "type": "text"
-        }
-      ]
-    },
-    {
-      "type": "orderedList",
-      "attrs": {
-        "type": null,
-        "start": 1
-      },
-      "content": [
-        {
-          "type": "listItem",
-          "content": [
-            {
-              "type": "paragraph",
-              "content": [
-                {
-                  "text": "Khảo sát & Mô phỏng 3D:",
-                  "type": "text",
-                  "marks": [
-                    {
-                      "type": "bold"
-                    }
-                  ]
-                },
-                {
-                  "text": " Tính toán vị trí miệng gió chuẩn xác theo bản vẽ nội thất để không làm phá vỡ cấu trúc trần.",
-                  "type": "text"
-                }
-              ]
-            }
-          ]
         },
         {
-          "type": "listItem",
-          "content": [
-            {
-              "type": "paragraph",
-              "content": [
-                {
-                  "text": "Lắp đặt phần thô (Rough-in):",
-                  "type": "text",
-                  "marks": [
-                    {
-                      "type": "bold"
-                    }
-                  ]
-                },
-                {
-                  "text": " Đi đường ống đồng, ống thoát nước ngưng và hệ thống ống gió kháng khuẩn.",
-                  "type": "text"
-                }
-              ]
-            }
-          ]
-        },
-        {
-          "type": "listItem",
-          "content": [
-            {
-              "type": "paragraph",
-              "content": [
-                {
-                  "text": "Kết nối & Cấu hình:",
-                  "type": "text",
-                  "marks": [
-                    {
-                      "type": "bold"
-                    }
-                  ]
-                },
-                {
-                  "text": " Lắp đặt dàn nóng/lạnh và bộ lọc trung tâm. Cấu hình hệ thống điều khiển thông minh tập trung.",
-                  "type": "text"
-                }
-              ]
-            }
-          ]
-        },
-        {
-          "type": "listItem",
-          "content": [
-            {
-              "type": "paragraph",
-              "content": [
-                {
-                  "text": "Kiểm soát chất lượng (QC):",
-                  "type": "text",
-                  "marks": [
-                    {
-                      "type": "bold"
-                    }
-                  ]
-                },
-                {
-                  "text": " Sử dụng thiết bị chuyên dụng đo lưu lượng gió, áp suất gas và độ ồn vận hành thực tế trước khi bàn giao.",
-                  "type": "text"
-                }
-              ]
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "type": "image",
-      "attrs": {
-        "alt": null,
-        "src": "https://gdzihzsjfczuggwpykjk.supabase.co/storage/v1/object/public/images/projects/1776789251664-dg4seshe3dt.webp",
-        "align": "center",
-        "ratio": "auto",
-        "title": null,
-        "width": null,
-        "height": null
-      }
-    },
-    {
-      "type": "image",
-      "attrs": {
-        "alt": null,
-        "src": "https://gdzihzsjfczuggwpykjk.supabase.co/storage/v1/object/public/images/projects/1776789264197-65f2mtjisv.webp",
-        "align": "center",
-        "ratio": "auto",
-        "title": null,
-        "width": null,
-        "height": null
-      }
-    },
-    {
-      "type": "image",
-      "attrs": {
-        "alt": null,
-        "src": "https://gdzihzsjfczuggwpykjk.supabase.co/storage/v1/object/public/images/projects/1776789276421-i2kdzpp54lc.webp",
-        "align": "center",
-        "ratio": "auto",
-        "title": null,
-        "width": null,
-        "height": null
-      }
-    },
-    {
-      "type": "image",
-      "attrs": {
-        "alt": null,
-        "src": "https://gdzihzsjfczuggwpykjk.supabase.co/storage/v1/object/public/images/projects/1776789291999-60guumej11k.webp",
-        "align": "center",
-        "ratio": "auto",
-        "title": null,
-        "width": null,
-        "height": null
-      }
-    },
-    {
-      "type": "image",
-      "attrs": {
-        "alt": null,
-        "src": "https://gdzihzsjfczuggwpykjk.supabase.co/storage/v1/object/public/images/projects/1776789308643-m3m6xsc7t2f.webp",
-        "align": "center",
-        "ratio": "auto",
-        "title": null,
-        "width": null,
-        "height": null
-      }
-    },
-    {
-      "type": "image",
-      "attrs": {
-        "alt": null,
-        "src": "https://gdzihzsjfczuggwpykjk.supabase.co/storage/v1/object/public/images/projects/1776789327428-velb3u28aba.webp",
-        "align": "center",
-        "ratio": "auto",
-        "title": null,
-        "width": null,
-        "height": null
-      }
-    },
-    {
-      "type": "paragraph",
-      "content": [
-        {
-          "text": "Kết quả nghiệm thu & Đánh giá",
+          "text": "Điện máy ELC",
           "type": "text",
           "marks": [
             {
               "type": "bold"
             }
           ]
-        }
-      ]
-    },
-    {
-      "type": "paragraph",
-      "content": [
+        },
         {
-          "text": "Sau khi bàn giao vào tháng 1/2026, dự án đã nhận được sự hài lòng tuyệt đối từ chủ đầu tư:",
+          "text": " để nhận tư vấn và khảo sát hiện trạng miễn phí!",
           "type": "text"
         }
       ]
     },
     {
-      "type": "bulletList",
-      "content": [
-        {
-          "type": "listItem",
-          "content": [
-            {
-              "type": "paragraph",
-              "content": [
-                {
-                  "text": "Vẻ đẹp tinh tế:",
-                  "type": "text",
-                  "marks": [
-                    {
-                      "type": "bold"
-                    }
-                  ]
-                },
-                {
-                  "text": " Toàn bộ máy móc được xử lý giấu kín, chỉ để lại những đường nét cửa gió sang trọng trên trần nhà.",
-                  "type": "text"
-                }
-              ]
-            }
-          ]
-        },
-        {
-          "type": "listItem",
-          "content": [
-            {
-              "type": "paragraph",
-              "content": [
-                {
-                  "text": "Môi trường sống lý tưởng:",
-                  "type": "text",
-                  "marks": [
-                    {
-                      "type": "bold"
-                    }
-                  ]
-                },
-                {
-                  "text": " Không khí luôn trong lành, giàu Oxy, hoàn toàn không có mùi ẩm mốc hay bụi bặm.",
-                  "type": "text"
-                }
-              ]
-            }
-          ]
-        },
-        {
-          "type": "listItem",
-          "content": [
-            {
-              "type": "paragraph",
-              "content": [
-                {
-                  "text": "Hiệu suất xanh:",
-                  "type": "text",
-                  "marks": [
-                    {
-                      "type": "bold"
-                    }
-                  ]
-                },
-                {
-                  "text": " Hệ thống vận hành êm ái và tiết kiệm hơn ",
-                  "type": "text"
-                },
-                {
-                  "text": "30%",
-                  "type": "text",
-                  "marks": [
-                    {
-                      "type": "bold"
-                    }
-                  ]
-                },
-                {
-                  "text": " năng lượng nhờ công nghệ biến tần tối ưu.",
-                  "type": "text"
-                }
-              ]
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "type": "paragraph"
-    },
-    {
       "type": "image",
       "attrs": {
         "alt": null,
-        "src": "https://gdzihzsjfczuggwpykjk.supabase.co/storage/v1/object/public/images/projects/1776789404284-3b9h2b9vyag.webp",
+        "src": null,
         "align": "center",
         "ratio": "auto",
         "title": null,
@@ -828,7 +768,7 @@
       "type": "image",
       "attrs": {
         "alt": null,
-        "src": "https://gdzihzsjfczuggwpykjk.supabase.co/storage/v1/object/public/images/projects/1776789436714-t19ejjlq7cn.webp",
+        "src": null,
         "align": "center",
         "ratio": "auto",
         "title": null,
@@ -840,7 +780,91 @@
       "type": "image",
       "attrs": {
         "alt": null,
-        "src": "https://gdzihzsjfczuggwpykjk.supabase.co/storage/v1/object/public/images/projects/1776789446487-7vrua22wzwd.webp",
+        "src": null,
+        "align": "center",
+        "ratio": "auto",
+        "title": null,
+        "width": null,
+        "height": null
+      }
+    },
+    {
+      "type": "image",
+      "attrs": {
+        "alt": null,
+        "src": null,
+        "align": "center",
+        "ratio": "auto",
+        "title": null,
+        "width": null,
+        "height": null
+      }
+    },
+    {
+      "type": "image",
+      "attrs": {
+        "alt": null,
+        "src": null,
+        "align": "center",
+        "ratio": "auto",
+        "title": null,
+        "width": null,
+        "height": null
+      }
+    },
+    {
+      "type": "image",
+      "attrs": {
+        "alt": null,
+        "src": null,
+        "align": "center",
+        "ratio": "auto",
+        "title": null,
+        "width": null,
+        "height": null
+      }
+    },
+    {
+      "type": "image",
+      "attrs": {
+        "alt": null,
+        "src": null,
+        "align": "center",
+        "ratio": "auto",
+        "title": null,
+        "width": null,
+        "height": null
+      }
+    },
+    {
+      "type": "image",
+      "attrs": {
+        "alt": null,
+        "src": null,
+        "align": "center",
+        "ratio": "auto",
+        "title": null,
+        "width": null,
+        "height": null
+      }
+    },
+    {
+      "type": "image",
+      "attrs": {
+        "alt": null,
+        "src": null,
+        "align": "center",
+        "ratio": "auto",
+        "title": null,
+        "width": null,
+        "height": null
+      }
+    },
+    {
+      "type": "image",
+      "attrs": {
+        "alt": null,
+        "src": null,
         "align": "center",
         "ratio": "auto",
         "title": null,

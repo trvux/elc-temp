@@ -1,38 +1,115 @@
-import { getProjectBySlug, getProjects } from "@/modules/project";
+import { Metadata } from "next";
+import { notFound } from "next/navigation";
+import Image from "next/image";
+import React from "react";
+import { resolveProjectPath } from "@/modules/project/application/resolveProjectPath";
+import { getProjects } from "@/modules/project/application/getProjects";
+import { getServiceTypes } from "@/modules/service-type/application";
+import { ProjectListModule } from "@/modules/project/presentation/components/public/ProjectListModule";
+import { ProjectWithCategory } from "@/modules/project/domain/types";
 import { PreviewContent } from "@/shared/components/layout/user/preview-content";
 import { ScrollToTop } from "@/shared/components/layout/user/scroll-to-top";
 import { AspectRatio } from "@/shared/components/ui/aspect-ratio";
 import { Badge } from "@/shared/components/ui/badge";
 import { Sparkle } from "lucide-react";
-import Image from "next/image";
-import { notFound } from "next/navigation";
 
-export async function generateStaticParams() {
-  const projects = await getProjects({ isPublished: true });
-
-  return projects.map((p) => ({
-    slug: p.slug,
-  }));
-}
-
-export default async function ProjectDetail({
+// Generate dynamic SEO Metadata
+export async function generateMetadata({
   params,
 }: {
   params: Promise<{ slug: string }>;
-}) {
+}): Promise<Metadata> {
   const { slug } = await params;
+  const entity = await resolveProjectPath(slug);
 
-  // Fetch only the active project
-  const project = await getProjectBySlug(slug);
+  if (!entity) {
+    return {
+      title: "Không tìm thấy trang | ELC",
+    };
+  }
 
-  if (!project) {
+  if (entity.type === "service_type") {
+    const st = entity.data;
+    return {
+      title: `${st.metaTitle || `Dự án ${st.name}`} | ELC Cơ Điện`,
+      description: st.metaDescription || `Tổng hợp các dự án, công trình thiết kế thi công hệ thống cơ điện, điều hòa không khí cho ${st.name} tiêu biểu do ELC thực hiện.`,
+    };
+  }
+
+  if (entity.type === "project") {
+    const proj = entity.data;
+    return {
+      title: `${proj.metaTitle || proj.title} | ELC Cơ Điện`,
+      description: proj.metaDescription || `Chi tiết công trình ${proj.title} hoàn thiện lắp đặt hệ thống cơ điện chuyên nghiệp bởi ELC.`,
+    };
+  }
+
+  return {};
+}
+
+// Generate static parameters for high performance static pre-rendering
+export async function generateStaticParams() {
+  const serviceTypes = await getServiceTypes();
+  const projects = await getProjects({ isPublished: true });
+
+  const serviceTypeParams = serviceTypes
+    .filter((st) => st.slug && !st.deletedAt)
+    .map((st) => ({
+      slug: st.slug,
+    }));
+
+  const projectParams = projects
+    .filter((p) => p.slug && !p.deletedAt)
+    .map((p) => ({
+      slug: p.slug,
+    }));
+
+  return [...serviceTypeParams, ...projectParams];
+}
+
+interface ProjectDetailPageProps {
+  params: Promise<{ slug: string }>;
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+}
+
+export default async function ProjectDetailPage({
+  params,
+  searchParams,
+}: ProjectDetailPageProps) {
+  const { slug } = await params;
+  const resolvedSearchParams = await searchParams;
+
+  // Resolve the slug via the database slug registry
+  const entity = await resolveProjectPath(slug);
+
+  if (!entity) {
     notFound();
   }
 
+  // Branch depending on entity type
+  if (entity.type === "service_type") {
+    return (
+      <ProjectListModule
+        serviceType={entity.data}
+        searchParams={resolvedSearchParams}
+      />
+    );
+  }
+
+  if (entity.type === "project") {
+    return <ProjectDetailView project={entity.data} />;
+  }
+
+  notFound();
+}
+
+// Sub-component to render the Project Detail page view
+function ProjectDetailView({ project }: { project: ProjectWithCategory }) {
   const images = project.images || [];
+  const displayCategory = project.categoriesNew?.[0]?.name || project.serviceType?.name || "Dự án";
 
   return (
-    <main className="w-full pt-28 pb-24 px-4 md:px-6 min-h-screen">
+    <main className="w-full pt-28 pb-24 px-4 md:px-6 min-h-screen bg-background">
       <div className="max-w-3xl mx-auto flex flex-col gap-6">
         {/* Title */}
         <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight text-foreground leading-tight">
@@ -40,19 +117,16 @@ export default async function ProjectDetail({
         </h1>
 
         {/* Badge */}
-        <div className="flex items-center ">
-          <Badge variant="outline" className="h-8 w-50 rounded-md">
-            <Sparkle
-              data-icon="inline-start"
-              className="text-amber-500 fill-amber-500"
-            />
-            <span className="text-foreground/60">
-              Danh mục {project.category?.name || "Dự án"}
+        <div className="flex items-center">
+          <Badge variant="outline" className="h-8 rounded-md flex items-center gap-1.5 px-3 border-border bg-muted/20">
+            <Sparkle className="w-3.5 h-3.5 text-amber-500 fill-amber-500" />
+            <span className="text-xs font-medium text-muted-foreground">
+              Danh mục: {displayCategory}
             </span>
           </Badge>
         </div>
 
-        {/* Representative Cover Image */}
+        {/* Cover Cover Image */}
         {images[0] && (
           <div className="w-full mt-2 overflow-hidden rounded-sm border border-border/40">
             <AspectRatio ratio={16 / 9}>
@@ -68,14 +142,14 @@ export default async function ProjectDetail({
           </div>
         )}
 
-        {/* Article Content */}
+        {/* Article content */}
         <article className="mt-4">
           <PreviewContent
             content={project.description}
             hideFirstHeading={true}
           />
 
-          {/* Additional Images */}
+          {/* Subsequent gallery images */}
           {images.length > 1 && (
             <div className="mt-12 flex flex-col gap-8">
               {images.slice(1).map((img: string, i: number) => (
@@ -86,7 +160,7 @@ export default async function ProjectDetail({
                   <AspectRatio ratio={3 / 2}>
                     <Image
                       src={img}
-                      alt={`${project.title} - ảnh ${i + 1}`}
+                      alt={`${project.title} - ảnh ${i + 2}`}
                       fill
                       className="object-contain bg-muted/10"
                       sizes="(max-width: 768px) 100vw, 768px"

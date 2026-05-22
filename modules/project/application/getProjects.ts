@@ -11,6 +11,6 @@ export const getProjects = (options?: ProjectFilter) => {
 /**
  * Đếm tổng số dự án theo bộ lọc (phục vụ phân trang)
  */
-export const countProjects = (options?: Pick<ProjectFilter, "categoryId" | "isPublished" | "isFeatured" | "search" | "includeDeleted">) => {
+export const countProjects = (options?: Pick<ProjectFilter, "categoryId" | "serviceTypeId" | "categoryNewSlug" | "isPublished" | "isFeatured" | "search" | "includeDeleted">) => {
   return projectRepo.count(options);
 };
