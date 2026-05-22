@@ -1,14 +1,14 @@
-import { Metadata } from "next";
-import { notFound } from "next/navigation";
-import Image from "next/image";
-import React from "react";
-import { resolveProjectPath } from "@/modules/project/application/resolveProjectPath";
 import { getProjects } from "@/modules/project/application/getProjects";
-import { getServiceTypes } from "@/modules/service-type/application";
-import { ProjectListModule } from "@/modules/project/presentation/components/public/ProjectListModule";
+import { resolveProjectPath } from "@/modules/project/application/resolveProjectPath";
 import { ProjectWithCategory } from "@/modules/project/domain/types";
+import { ProjectListModule } from "@/modules/project/presentation/components/public/ProjectListModule";
+import { getServiceTypes } from "@/modules/service-type/application";
 import { PreviewContent } from "@/shared/components/layout/user/preview-content";
 import { ScrollToTop } from "@/shared/components/layout/user/scroll-to-top";
+import { Metadata } from "next";
+import Image from "next/image";
+import { notFound } from "next/navigation";
+// import { Breadcrumbs } from "@/shared/components/layout/user/breadcrumbs";
 import { AspectRatio } from "@/shared/components/ui/aspect-ratio";
 import { Badge } from "@/shared/components/ui/badge";
 import { Sparkle } from "lucide-react";
@@ -32,7 +32,9 @@ export async function generateMetadata({
     const st = entity.data;
     return {
       title: `${st.metaTitle || `Dự án ${st.name}`} | ELC Cơ Điện`,
-      description: st.metaDescription || `Tổng hợp các dự án, công trình thiết kế thi công hệ thống cơ điện, điều hòa không khí cho ${st.name} tiêu biểu do ELC thực hiện.`,
+      description:
+        st.metaDescription ||
+        `Tổng hợp các dự án, công trình thiết kế thi công hệ thống cơ điện, điều hòa không khí cho ${st.name} tiêu biểu do ELC thực hiện.`,
     };
   }
 
@@ -40,7 +42,9 @@ export async function generateMetadata({
     const proj = entity.data;
     return {
       title: `${proj.metaTitle || proj.title} | ELC Cơ Điện`,
-      description: proj.metaDescription || `Chi tiết công trình ${proj.title} hoàn thiện lắp đặt hệ thống cơ điện chuyên nghiệp bởi ELC.`,
+      description:
+        proj.metaDescription ||
+        `Chi tiết công trình ${proj.title} hoàn thiện lắp đặt hệ thống cơ điện chuyên nghiệp bởi ELC.`,
     };
   }
 
@@ -106,11 +110,28 @@ export default async function ProjectDetailPage({
 // Sub-component to render the Project Detail page view
 function ProjectDetailView({ project }: { project: ProjectWithCategory }) {
   const images = project.images || [];
-  const displayCategory = project.categoriesNew?.[0]?.name || project.serviceType?.name || "Dự án";
+  const displayCategory =
+    project.categoriesNew?.[0]?.name || project.serviceType?.name || "Dự án";
+
+  const breadcrumbItems = [
+    { label: "Dự án", href: "/du-an" },
+    ...(project.serviceType
+      ? [
+          {
+            label: project.serviceType.name,
+            href: `/du-an/${project.serviceType.slug || ""}`,
+          },
+        ]
+      : []),
+    { label: project.title, active: true },
+  ];
 
   return (
     <main className="w-full pt-28 pb-24 px-4 md:px-6 min-h-screen bg-background">
       <div className="max-w-3xl mx-auto flex flex-col gap-6">
+        {/* Breadcrumbs
+        <Breadcrumbs items={breadcrumbItems} /> */}
+
         {/* Title */}
         <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight text-foreground leading-tight">
           {project.title}
@@ -118,7 +139,10 @@ function ProjectDetailView({ project }: { project: ProjectWithCategory }) {
 
         {/* Badge */}
         <div className="flex items-center">
-          <Badge variant="outline" className="h-8 rounded-md flex items-center gap-1.5 px-3 border-border bg-muted/20">
+          <Badge
+            variant="outline"
+            className="h-8 rounded-md flex items-center gap-1.5 px-3 border-border bg-muted/20"
+          >
             <Sparkle className="w-3.5 h-3.5 text-amber-500 fill-amber-500" />
             <span className="text-xs font-medium text-muted-foreground">
               Danh mục: {displayCategory}
