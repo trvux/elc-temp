@@ -15,7 +15,7 @@ import { Input } from "@/shared/components/ui/input";
 import { Separator } from "@/shared/components/ui/separator";
 import { cn } from "@/shared/lib/utils";
 import { Check, Search, X } from "lucide-react";
-import { useParams, useRouter, useSearchParams } from "next/navigation";
+import { useParams, useRouter, useSearchParams, usePathname } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 interface ProductFiltersProps {
@@ -43,6 +43,7 @@ export function ProductFilters({
   const router = useRouter();
   const searchParams = useSearchParams();
   const params = useParams();
+  const pathname = usePathname();
 
   // Current entity slug from Flat URL path (/san-pham/[slug])
   const slugFromPath = params.slug as string;
@@ -128,10 +129,10 @@ export function ProductFilters({
         }
       });
 
-      router.push(`?${sParams.toString()}`, { scroll: false });
+      router.push(`${pathname}?${sParams.toString()}`, { scroll: false });
       router.refresh();
     },
-    [router, searchParams],
+    [router, searchParams, pathname],
   );
 
   const handleCategoryChange = (slug: string, checked: boolean) => {
