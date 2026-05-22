@@ -7,8 +7,17 @@ interface PublicLayoutProps {
 }
 
 export default async function PublicLayout({ children }: PublicLayoutProps) {
-  const { settings, contacts, branches, projects, pages, categories } =
-    await getPublicLayoutData();
+  const {
+    settings,
+    contacts,
+    branches,
+    projects,
+    pages,
+    categories,
+    brands,
+    groupCategories,
+    categoriesList,
+  } = await getPublicLayoutData();
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -21,6 +30,9 @@ export default async function PublicLayout({ children }: PublicLayoutProps) {
         settings={settings}
         contacts={contacts}
         categories={categories}
+        brands={brands}
+        groupCategories={groupCategories}
+        categoriesList={categoriesList}
       />
     </div>
   );

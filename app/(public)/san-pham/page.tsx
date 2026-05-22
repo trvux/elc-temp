@@ -27,7 +27,7 @@ export async function generateMetadata({
   searchParams,
 }: Props): Promise<Metadata> {
   const sParams = await searchParams;
-  const q = typeof sParams.q === "string" ? sParams.q.trim() : "";
+  const q = typeof sParams.search === "string" ? sParams.search.trim() : typeof sParams.q === "string" ? sParams.q.trim() : "";
   const brands =
     typeof sParams.brands === "string"
       ? [sParams.brands]
@@ -101,7 +101,7 @@ export default async function ProductsPage({
   searchParams,
 }: ProductsPageProps) {
   const params = await searchParams;
-  const q = typeof params.q === "string" ? params.q.trim() : "";
+  const q = typeof params.search === "string" ? params.search.trim() : typeof params.q === "string" ? params.q.trim() : "";
   const minPrice =
     typeof params.minPrice === "string" && params.minPrice
       ? Number(params.minPrice)

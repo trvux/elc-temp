@@ -14,6 +14,24 @@ import React, { useMemo } from "react";
 import { Contact, getDisplayContacts } from "@/modules/contact/domain";
 import { ContactLink } from "@/modules/contact/presentation/components/ContactLink";
 
+export interface BrandFooter {
+  id: string;
+  name: string;
+  slug: string;
+}
+
+export interface GroupCategoryFooter {
+  id: string;
+  name: string;
+  slug: string;
+}
+
+export interface CategoryFooter {
+  id: string;
+  name: string;
+  slug: string;
+}
+
 interface FooterProps {
   branches?: any[];
   projects?: any[];
@@ -21,6 +39,9 @@ interface FooterProps {
   settings?: Record<string, string>;
   contacts?: Contact[];
   categories?: any[];
+  brands?: BrandFooter[];
+  groupCategories?: GroupCategoryFooter[];
+  categoriesList?: CategoryFooter[];
 }
 
 export function Footer({
@@ -30,6 +51,9 @@ export function Footer({
   settings,
   contacts = [],
   categories,
+  brands = [],
+  groupCategories = [],
+  categoriesList = [],
 }: FooterProps) {
   const { address, currentYear } = getFooterLogic(contacts, settings as any);
 
@@ -46,7 +70,7 @@ export function Footer({
     logo: "text-2xl font-bold tracking-tighter text-primary-foreground",
     logoDesc:
       "text-sm leading-relaxed max-w-sm mt-4 text-primary-foreground/40",
-    grid: "grid grid-cols-2 lg:grid-cols-5 gap-y-12 gap-x-8",
+    grid: "grid grid-cols-2 md:grid-cols-3 lg:grid-cols-7 gap-y-12 gap-x-8",
     col: "flex flex-col gap-6",
     colTitle: "font-bold text-primary-foreground/80",
     nav: "flex flex-col gap-3.5",
@@ -94,35 +118,49 @@ export function Footer({
 
         {/* Navigation Grid */}
         <div className={styles.grid}>
-          <NavCol title="Sản phẩm">
-            {categories?.length ? (
-              (() => {
-                const parents = categories.filter((c) => !c.parent_id);
-                return parents.map((parent) => (
-                  <React.Fragment key={parent.slug}>
-                    <Link
-                      href={`/san-pham/${parent.slug}`}
-                      className={cn(
-                        styles.link,
-                        "font-bold text-primary-foreground/70",
-                      )}
-                    >
-                      {parent.name}
-                    </Link>
-                    {categories
-                      .filter((child) => child.parent_id === parent.id)
-                      .map((child) => (
-                        <Link
-                          key={child.slug}
-                          href={`/san-pham/${child.slug}`}
-                          className={cn(styles.link, "opacity-80")}
-                        >
-                          {child.name}
-                        </Link>
-                      ))}
-                  </React.Fragment>
-                ));
-              })()
+          <NavCol title="Thương hiệu">
+            {brands?.length ? (
+              brands.map((b) => (
+                <Link
+                  key={b.slug}
+                  href={`/san-pham/${b.slug}`}
+                  className={styles.link}
+                >
+                  {b.name}
+                </Link>
+              ))
+            ) : (
+              <span className={styles.empty}>Đang cập nhật</span>
+            )}
+          </NavCol>
+
+          <NavCol title="Nhóm sản phẩm">
+            {groupCategories?.length ? (
+              groupCategories.map((g) => (
+                <Link
+                  key={g.slug}
+                  href={`/san-pham/${g.slug}`}
+                  className={styles.link}
+                >
+                  {g.name}
+                </Link>
+              ))
+            ) : (
+              <span className={styles.empty}>Đang cập nhật</span>
+            )}
+          </NavCol>
+
+          <NavCol title="Danh mục">
+            {categoriesList?.length ? (
+              categoriesList.map((c) => (
+                <Link
+                  key={c.slug}
+                  href={`/san-pham/${c.slug}`}
+                  className={styles.link}
+                >
+                  {c.name}
+                </Link>
+              ))
             ) : (
               <span className={styles.empty}>Đang cập nhật</span>
             )}

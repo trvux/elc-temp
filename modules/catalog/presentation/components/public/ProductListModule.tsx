@@ -50,7 +50,7 @@ export async function ProductListModule({ entity, searchParams }: ProductListMod
   if (!entity || entity.type === "product") return notFound();
 
   const sParams = searchParams;
-  const q = typeof sParams.q === "string" ? sParams.q.trim() : "";
+  const q = typeof sParams.search === "string" ? sParams.search.trim() : typeof sParams.q === "string" ? sParams.q.trim() : "";
   const minPrice = typeof sParams.minPrice === "string" && sParams.minPrice ? Number(sParams.minPrice) : undefined;
   const maxPrice = typeof sParams.maxPrice === "string" && sParams.maxPrice ? Number(sParams.maxPrice) : undefined;
   const currentPage = Number(sParams.page) || 1;
