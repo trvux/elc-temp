@@ -69,6 +69,7 @@ export function ServiceTypeManagement() {
       toast.success("Đã xóa loại hình dịch vụ");
       setDeletingId(null);
       queryClient.invalidateQueries({ queryKey: ["service-types"] });
+      queryClient.invalidateQueries({ queryKey: ["projects"] });
     },
   });
 

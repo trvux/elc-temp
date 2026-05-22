@@ -75,6 +75,40 @@ export class SupabaseCategoryNewRepository implements CategoryNewRepository {
 
   async create(input: CreateCategoryNewInput): Promise<CategoryNew> {
     const supabase = await createClient();
+
+    // Check if there is an existing soft-deleted category with the same slug
+    const { data: existing, error: findError } = await supabase
+      .from(this.TABLE_NAME)
+      .select("*")
+      .eq("slug", input.slug)
+      .not("deleted_at", "is", null)
+      .maybeSingle();
+
+    if (findError) this.handleError(findError, "create [find soft-deleted]");
+
+    if (existing) {
+      const { data, error } = await supabase
+        .from(this.TABLE_NAME)
+        .update({
+          name: input.name,
+          group_id: input.groupId || null,
+          slug: input.slug,
+          image_url: input.imageUrl || null,
+          meta_title: input.metaTitle || null,
+          meta_description: input.metaDescription || null,
+          is_featured: !!input.isFeatured,
+          order_index: Number(input.orderIndex || 0),
+          deleted_at: null,
+          updated_at: new Date().toISOString(),
+        })
+        .eq("id", existing.id)
+        .select()
+        .single();
+
+      if (error) this.handleError(error, "create [restore]");
+      return this.mapToDomain(data);
+    }
+
     const row = {
       name: input.name,
       group_id: input.groupId || null,
@@ -123,14 +157,24 @@ export class SupabaseCategoryNewRepository implements CategoryNewRepository {
 
   async delete(id: string): Promise<void> {
     const supabase = await createClient();
-    const { error } = await supabase
+    
+    // 1. Soft delete the category
+    const { error: catError } = await supabase
       .from(this.TABLE_NAME)
       .update({
         deleted_at: new Date().toISOString(),
       })
       .eq("id", id);
 
-    if (error) this.handleError(error, "delete");
+    if (catError) this.handleError(catError, "delete");
+
+    // 2. Clean up associations in service_type_category join table
+    const { error: relError } = await supabase
+      .from("service_type_category")
+      .delete()
+      .eq("category_id", id);
+
+    if (relError) this.handleError(relError, "delete");
   }
 
   private mapToDomain(row: any): CategoryNew {

@@ -64,6 +64,39 @@ export class SupabaseGroupRepository implements GroupRepository {
 
   async create(input: CreateGroupInput): Promise<Group> {
     const supabase = await createClient();
+
+    // Check if there is an existing soft-deleted group category with the same slug
+    const { data: existing, error: findError } = await (supabase
+      .from(this.TABLE_NAME)
+      .select("*")
+      .eq("slug", input.slug)
+      .not("deleted_at", "is", null)
+      .maybeSingle() as unknown as Promise<{ data: Record<string, unknown> | null; error: unknown }>);
+
+    if (findError) this.handleError(findError, "create [find soft-deleted]");
+
+    if (existing) {
+      const { data, error } = await (supabase
+        .from(this.TABLE_NAME)
+        .update({
+          name: input.name,
+          slug: input.slug,
+          image_url: input.imageUrl,
+          meta_title: input.metaTitle,
+          meta_description: input.metaDescription,
+          is_featured: input.isFeatured,
+          order_index: input.orderIndex,
+          deleted_at: null,
+          updated_at: new Date().toISOString(),
+        })
+        .eq("id", existing.id as string)
+        .select()
+        .single() as unknown as Promise<{ data: Record<string, unknown> | null; error: unknown }>);
+
+      if (error) this.handleError(error, "create [restore]");
+      return this.mapToDomain(data);
+    }
+
     const row = {
       name: input.name,
       slug: input.slug,
@@ -74,11 +107,11 @@ export class SupabaseGroupRepository implements GroupRepository {
       order_index: input.orderIndex,
     };
 
-    const { data, error } = await supabase
+    const { data, error } = await (supabase
       .from(this.TABLE_NAME)
       .insert(row)
       .select()
-      .single();
+      .single() as unknown as Promise<{ data: Record<string, unknown> | null; error: unknown }>);
 
     if (error) this.handleError(error, "create");
     return this.mapToDomain(data);
@@ -110,14 +143,47 @@ export class SupabaseGroupRepository implements GroupRepository {
 
   async delete(id: string): Promise<void> {
     const supabase = await createClient();
-    const { error } = await supabase
+    
+    // 1. Soft delete the group category itself
+    const { error: groupError } = await supabase
       .from(this.TABLE_NAME)
       .update({
         deleted_at: new Date().toISOString(),
       })
       .eq("id", id);
 
-    if (error) this.handleError(error, "delete");
+    if (groupError) this.handleError(groupError, "delete");
+
+    // 2. Fetch all active categories under this group
+    const { data: categories, error: fetchError } = await supabase
+      .from("categories")
+      .select("id")
+      .eq("group_id", id)
+      .is("deleted_at", null);
+
+    if (fetchError) this.handleError(fetchError, "delete");
+
+    if (categories && categories.length > 0) {
+      const categoryIds = categories.map((cat) => cat.id);
+
+      // 3. Soft delete those categories
+      const { error: catError } = await supabase
+        .from("categories")
+        .update({
+          deleted_at: new Date().toISOString(),
+        })
+        .in("id", categoryIds);
+
+      if (catError) this.handleError(catError, "delete");
+
+      // 4. Clean up associations in service_type_category join table
+      const { error: relError } = await supabase
+        .from("service_type_category")
+        .delete()
+        .in("category_id", categoryIds);
+
+      if (relError) this.handleError(relError, "delete");
+    }
   }
 
   private mapToDomain(row: any): Group {

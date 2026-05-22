@@ -77,6 +77,7 @@ export function useGroupForm(
       );
       onClose();
       queryClient.invalidateQueries({ queryKey: ["groups"] });
+      queryClient.invalidateQueries({ queryKey: ["categories-new"] });
     },
   });
 

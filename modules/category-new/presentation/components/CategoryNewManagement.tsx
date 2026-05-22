@@ -77,6 +77,8 @@ export function CategoryNewManagement() {
       toast.success("Đã xóa danh mục mới");
       setDeletingId(null);
       queryClient.invalidateQueries({ queryKey: ["categories-new"] });
+      queryClient.invalidateQueries({ queryKey: ["service-types"] });
+      queryClient.invalidateQueries({ queryKey: ["projects"] });
     },
   });
 

@@ -60,6 +60,9 @@ export function GroupManagement() {
       toast.success("Đã xóa nhóm danh mục");
       setDeletingId(null);
       queryClient.invalidateQueries({ queryKey: ["groups"] });
+      queryClient.invalidateQueries({ queryKey: ["categories-new"] });
+      queryClient.invalidateQueries({ queryKey: ["service-types"] });
+      queryClient.invalidateQueries({ queryKey: ["projects"] });
     },
   });
 
