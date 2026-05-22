@@ -16,7 +16,7 @@ export function ProductSearchInput() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  const [inputValue, setInputValue] = useState(searchParams.get("q") ?? "");
+  const [inputValue, setInputValue] = useState(searchParams.get("search") ?? "");
   const isFirstRender = useRef(true);
   const searchParamsRef = useRef(searchParams);
 
@@ -24,8 +24,8 @@ export function ProductSearchInput() {
     searchParamsRef.current = searchParams;
   }, [searchParams]);
 
-  // Synchronize input value with URL search parameter 'q' (e.g. when filters are cleared)
-  const qParam = searchParams.get("q") ?? "";
+  // Synchronize input value with URL search parameter 'search' (e.g. when filters are cleared)
+  const qParam = searchParams.get("search") ?? "";
   useEffect(() => {
     setInputValue(qParam);
   }, [qParam]);
@@ -37,16 +37,16 @@ export function ProductSearchInput() {
     }
     const timer = setTimeout(() => {
       const params = new URLSearchParams(searchParamsRef.current.toString());
-      const currentQ = params.get("q") ?? "";
+      const currentQ = params.get("search") ?? "";
       const trimmedValue = inputValue.trim();
 
       // Avoid redundant routing if the search term hasn't actually changed
       if (trimmedValue === currentQ) return;
 
       if (trimmedValue) {
-        params.set("q", trimmedValue);
+        params.set("search", trimmedValue);
       } else {
-        params.delete("q");
+        params.delete("search");
       }
       params.delete("page");
       router.push(`?${params.toString()}`, { scroll: false });

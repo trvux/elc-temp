@@ -53,6 +53,26 @@ export async function proxy(request: NextRequest) {
   if (destination === "GONE" || isWpLegacy) {
     console.log(`[Proxy] Redirecting ${pathname} because GONE=${destination === "GONE"}, isWpLegacy=${isWpLegacy}`);
     const slug = pathname.split("/").filter(Boolean).pop() || "";
+
+    const { createClient } = await import("@/shared/lib/supabase/server");
+    const supabase = await createClient();
+    
+    // Tra cứu slug_registry để xác nhận slug này có tồn tại hợp lệ không
+    const { data: registryItem } = await supabase
+      .from("slug_registry")
+      .select("slug")
+      .eq("slug", slug)
+      .is("deleted_at", null)
+      .maybeSingle();
+
+    if (registryItem) {
+      console.log(`[Proxy] Slug exists in registry, redirecting to /san-pham/${slug}`);
+      return NextResponse.redirect(
+        new URL(`/san-pham/${slug}${search}`, request.url),
+        301
+      );
+    }
+
     const searchQuery = slug
       .replace(/-/g, " ")
       .replace(/\d+hp/gi, (match) => match.toUpperCase());
@@ -80,6 +100,44 @@ export async function proxy(request: NextRequest) {
 
   // --- 2. Dọn dẹp URL rác & Redirect 301 cho cấu trúc URL mới ---
   const parts = pathname.split("/").filter(Boolean);
+
+  // Nếu là 1 segment duy nhất (ví dụ: /may-lanh hoặc /may-loc-khong-khi)
+  if (parts.length === 1) {
+    const segment = parts[0];
+    const STATIC_PATHS = [
+      "du-an",
+      "dich-vu",
+      "chi-nhanh",
+      "tin-tuc",
+      "thong-tin",
+      "san-pham",
+      "gone",
+      "admin",
+      "api",
+      "login",
+      "register",
+    ];
+
+    if (!STATIC_PATHS.includes(segment)) {
+      const { createClient } = await import("@/shared/lib/supabase/server");
+      const supabase = await createClient();
+      
+      const { data: registryItem } = await supabase
+        .from("slug_registry")
+        .select("slug")
+        .eq("slug", segment)
+        .is("deleted_at", null)
+        .maybeSingle();
+
+      if (registryItem) {
+        console.log(`[Proxy] Root slug ${segment} exists in registry, redirecting to /san-pham/${segment}`);
+        return NextResponse.redirect(
+          new URL(`/san-pham/${segment}${search}`, request.url),
+          301
+        );
+      }
+    }
+  }
   
   // Xử lý tất cả các đường dẫn lồng ghép cũ (ví dụ: /san-pham/cat/product hoặc /san-pham/cat/brand/product hoặc /san-pham/cat/brand)
   if (parts.length >= 3 && parts[0] === "san-pham") {
@@ -90,7 +148,7 @@ export async function proxy(request: NextRequest) {
     
     // Tra cứu slug_registry để xác nhận slug này có tồn tại hợp lệ không
     const { data: registryItem } = await supabase
-      .from("slug_registry" as any)
+      .from("slug_registry")
       .select("slug")
       .eq("slug", lastSegment)
       .is("deleted_at", null)
