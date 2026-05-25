@@ -42,7 +42,7 @@ export function ProjectFilterBar({
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const [, startTransition] = useTransition();
+  const [isPending, startTransition] = useTransition();
 
   const [search, setSearch] = useState(initialSearch);
 
@@ -120,6 +120,7 @@ export function ProjectFilterBar({
   const handleServiceTypeSelect = (slug: string | null) => {
     const sParams = new URLSearchParams(searchParams.toString());
     sParams.delete("page"); // Reset pagination on filter change
+    sParams.delete("category"); // Reset categories when deselecting or changing service type
 
     // Construct the new path
     const newPathname = slug ? `/du-an/${slug}` : "/du-an";
@@ -186,6 +187,12 @@ export function ProjectFilterBar({
 
   return (
     <div className="flex flex-col gap-6 w-full">
+      {/* Premium Loading Progress Bar during transitions */}
+      {isPending && (
+        <div className="fixed top-0 left-0 right-0 h-[3px] bg-muted z-[9999] overflow-hidden">
+          <div className="h-full bg-linear-to-r from-primary via-primary/80 to-primary animate-loading-bar" />
+        </div>
+      )}
       {/* Search Input Box */}
       {/* <form
         onSubmit={handleSearchSubmit}
@@ -236,14 +243,15 @@ export function ProjectFilterBar({
                 variant={!currentServiceTypeSlug ? "default" : "secondary"}
                 size="sm"
                 className="cursor-pointer"
+                disabled={isPending}
                 onClick={() => handleServiceTypeSelect(null)}
               >
                 Tất cả loại hình
-                {totalServiceTypesCount !== undefined && (
+                {/* {totalServiceTypesCount !== undefined && (
                   <span className="border-l border-border/60 pl-2 ml-2 text-xs">
                     {totalServiceTypesCount}
                   </span>
-                )}
+                )} */}
               </Button>
               {serviceTypes.map((st) => {
                 if (st.count !== undefined && st.count <= 0) return null;
@@ -254,14 +262,15 @@ export function ProjectFilterBar({
                     variant={isActive ? "default" : "secondary"}
                     size="sm"
                     className="cursor-pointer"
+                    disabled={isPending}
                     onClick={() => handleServiceTypeSelect(st.slug)}
                   >
                     {st.name}
-                    {st.count !== undefined && (
+                    {/* {st.count !== undefined && (
                       <span className="border-l border-border pl-2 ml-2 text-xs">
                         {st.count}
                       </span>
-                    )}
+                    )} */}
                   </Button>
                 );
               })}
@@ -282,7 +291,7 @@ export function ProjectFilterBar({
         </div>
       )}
       {/* Row 2: Product Category Multi-Select Filter */}
-      {categories.length > 0 && (
+      {currentServiceTypeSlug && categories.length > 0 && (
         <div className="flex flex-col gap-2">
           <TypographyLarge>Thiết bị lắp đặt</TypographyLarge>
           <div className="relative w-full">
@@ -308,6 +317,7 @@ export function ProjectFilterBar({
                 }
                 size="sm"
                 className="cursor-pointer"
+                disabled={isPending}
                 onClick={() => handleCategoryToggle(null)}
               >
                 Tất cả sản phẩm
@@ -326,6 +336,7 @@ export function ProjectFilterBar({
                     variant={isActive ? "default" : "secondary"}
                     size="sm"
                     className="cursor-pointer"
+                    disabled={isPending}
                     onClick={() => handleCategoryToggle(cat.slug)}
                   >
                     {isActive && (
