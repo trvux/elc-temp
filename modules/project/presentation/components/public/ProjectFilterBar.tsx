@@ -221,7 +221,7 @@ export function ProjectFilterBar({
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="h-7 w-7 pointer-events-auto flex items-center justify-center"
+                  className="h-7 w-7 pointer-events-auto flex items-center justify-center cursor-pointer"
                   onClick={() => scroll(serviceTypesRef, "left")}
                 >
                   <ChevronLeft className="w-4 h-4 text-muted-foreground" />
@@ -230,11 +230,12 @@ export function ProjectFilterBar({
             )}
             <div
               ref={serviceTypesRef}
-              className="w-full overflow-x-auto no-scrollbar scroll-smooth flex items-center gap-2 py-2 pr-12"
+              className="w-full overflow-x-auto no-scrollbar scroll-smooth flex items-center gap-2 pr-12"
             >
               <Button
                 variant={!currentServiceTypeSlug ? "default" : "secondary"}
                 size="sm"
+                className="cursor-pointer"
                 onClick={() => handleServiceTypeSelect(null)}
               >
                 Tất cả loại hình
@@ -245,12 +246,14 @@ export function ProjectFilterBar({
                 )}
               </Button>
               {serviceTypes.map((st) => {
+                if (st.count !== undefined && st.count <= 0) return null;
                 const isActive = currentServiceTypeSlug === st.slug;
                 return (
                   <Button
                     key={st.id}
                     variant={isActive ? "default" : "secondary"}
                     size="sm"
+                    className="cursor-pointer"
                     onClick={() => handleServiceTypeSelect(st.slug)}
                   >
                     {st.name}
@@ -268,7 +271,7 @@ export function ProjectFilterBar({
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="h-7 w-7 pointer-events-auto flex items-center justify-center"
+                  className="h-7 w-7 pointer-events-auto flex items-center justify-center cursor-pointer"
                   onClick={() => scroll(serviceTypesRef, "right")}
                 >
                   <ChevronRight className="w-4 h-4 text-muted-foreground" />
@@ -288,7 +291,7 @@ export function ProjectFilterBar({
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="h-7 w-7 pointer-events-auto flex items-center justify-center"
+                  className="h-7 w-7 pointer-events-auto flex items-center justify-center cursor-pointer"
                   onClick={() => scroll(categoriesRef, "left")}
                 >
                   <ChevronLeft className="w-4 h-4 text-muted-foreground" />
@@ -297,13 +300,14 @@ export function ProjectFilterBar({
             )}
             <div
               ref={categoriesRef}
-              className="w-full overflow-x-auto no-scrollbar scroll-smooth flex items-center gap-2 py-2 pr-12"
+              className="w-full overflow-x-auto no-scrollbar scroll-smooth flex items-center gap-2 pr-12"
             >
               <Button
                 variant={
                   currentCategorySlugs.length === 0 ? "default" : "secondary"
                 }
                 size="sm"
+                className="cursor-pointer"
                 onClick={() => handleCategoryToggle(null)}
               >
                 Tất cả sản phẩm
@@ -314,12 +318,14 @@ export function ProjectFilterBar({
                 )} */}
               </Button>
               {categories.map((cat) => {
+                if (cat.count !== undefined && cat.count <= 0) return null;
                 const isActive = currentCategorySlugs.includes(cat.slug);
                 return (
                   <Button
                     key={cat.id}
                     variant={isActive ? "default" : "secondary"}
                     size="sm"
+                    className="cursor-pointer"
                     onClick={() => handleCategoryToggle(cat.slug)}
                   >
                     {isActive && (
@@ -340,7 +346,7 @@ export function ProjectFilterBar({
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="h-7 w-7 pointer-events-auto flex items-center justify-center"
+                  className="h-7 w-7 pointer-events-auto flex items-center justify-center cursor-pointer"
                   onClick={() => scroll(categoriesRef, "right")}
                 >
                   <ChevronRight className="w-4 h-4 text-muted-foreground" />
