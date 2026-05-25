@@ -1,21 +1,23 @@
 "use client";
 
-import React, { useEffect, useState, useTransition } from "react";
-import { useRouter, usePathname, useSearchParams } from "next/navigation";
-import { Input } from "@/shared/components/ui/input";
-import { cn } from "@/shared/lib/utils";
-import { Search, X, Check } from "lucide-react";
+import { Button } from "@/shared/components/ui/button";
+import { TypographyLarge } from "@/shared/components/ui/typography";
+import { Check, ChevronLeft, ChevronRight } from "lucide-react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import React, { useEffect, useRef, useState, useTransition } from "react";
 
 interface ServiceTypeItem {
   id: string;
   name: string;
   slug: string;
+  count?: number;
 }
 
 interface CategoryItem {
   id: string;
   name: string;
   slug: string;
+  count?: number;
 }
 
 interface ProjectFilterBarProps {
@@ -24,6 +26,8 @@ interface ProjectFilterBarProps {
   categories: CategoryItem[];
   currentCategorySlugs?: string[];
   initialSearch?: string;
+  totalServiceTypesCount?: number;
+  totalCategoriesCount?: number;
 }
 
 export function ProjectFilterBar({
@@ -32,6 +36,8 @@ export function ProjectFilterBar({
   categories,
   currentCategorySlugs = [],
   initialSearch = "",
+  totalServiceTypesCount,
+  totalCategoriesCount,
 }: ProjectFilterBarProps) {
   const router = useRouter();
   const pathname = usePathname();
@@ -39,6 +45,72 @@ export function ProjectFilterBar({
   const [, startTransition] = useTransition();
 
   const [search, setSearch] = useState(initialSearch);
+
+  const serviceTypesRef = useRef<HTMLDivElement>(null);
+  const categoriesRef = useRef<HTMLDivElement>(null);
+
+  const [showLeftST, setShowLeftST] = useState(false);
+  const [showRightST, setShowRightST] = useState(false);
+  const [showLeftCat, setShowLeftCat] = useState(false);
+  const [showRightCat, setShowRightCat] = useState(false);
+
+  const checkScroll = (
+    ref: React.RefObject<HTMLDivElement | null>,
+    setShowLeft: (show: boolean) => void,
+    setShowRight: (show: boolean) => void,
+  ) => {
+    const el = ref.current;
+    if (el) {
+      const { scrollLeft, scrollWidth, clientWidth } = el;
+      setShowLeft(scrollLeft > 5);
+      setShowRight(scrollLeft + clientWidth < scrollWidth - 5);
+    }
+  };
+
+  const scroll = (
+    ref: React.RefObject<HTMLDivElement | null>,
+    direction: "left" | "right",
+  ) => {
+    const el = ref.current;
+    if (el) {
+      const scrollAmount = el.clientWidth * 0.6;
+      el.scrollBy({
+        left: direction === "left" ? -scrollAmount : scrollAmount,
+        behavior: "smooth",
+      });
+    }
+  };
+
+  useEffect(() => {
+    const stEl = serviceTypesRef.current;
+    const catEl = categoriesRef.current;
+
+    const handleSTScroll = () =>
+      checkScroll(serviceTypesRef, setShowLeftST, setShowRightST);
+    const handleCatScroll = () =>
+      checkScroll(categoriesRef, setShowLeftCat, setShowRightCat);
+
+    // Initial check
+    checkScroll(serviceTypesRef, setShowLeftST, setShowRightST);
+    checkScroll(categoriesRef, setShowLeftCat, setShowRightCat);
+
+    stEl?.addEventListener("scroll", handleSTScroll);
+    catEl?.addEventListener("scroll", handleCatScroll);
+
+    const resizeObserver = new ResizeObserver(() => {
+      checkScroll(serviceTypesRef, setShowLeftST, setShowRightST);
+      checkScroll(categoriesRef, setShowLeftCat, setShowRightCat);
+    });
+
+    if (stEl) resizeObserver.observe(stEl);
+    if (catEl) resizeObserver.observe(catEl);
+
+    return () => {
+      stEl?.removeEventListener("scroll", handleSTScroll);
+      catEl?.removeEventListener("scroll", handleCatScroll);
+      resizeObserver.disconnect();
+    };
+  }, [serviceTypes, categories]);
 
   // Sync state with URL search param on external updates (e.g. browser back/forward)
   useEffect(() => {
@@ -115,7 +187,10 @@ export function ProjectFilterBar({
   return (
     <div className="flex flex-col gap-6 w-full">
       {/* Search Input Box */}
-      <form onSubmit={handleSearchSubmit} className="relative w-full max-w-md mx-auto sm:mx-0">
+      {/* <form
+        onSubmit={handleSearchSubmit}
+        className="relative w-full max-w-md mx-auto sm:mx-0"
+      >
         <div className="relative">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <Input
@@ -127,7 +202,6 @@ export function ProjectFilterBar({
           />
           {search && (
             <button
-              type="button"
               onClick={handleClearSearch}
               className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors p-1"
               aria-label="Xóa tìm kiếm"
@@ -136,87 +210,143 @@ export function ProjectFilterBar({
             </button>
           )}
         </div>
-      </form>
-
+      </form> */}
       {/* Row 1: Service Type Single-Select Filter */}
       {serviceTypes.length > 0 && (
         <div className="flex flex-col gap-2">
-          <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground/75">
-            Lọc theo loại hình dịch vụ
-          </span>
-          <div className="w-full overflow-x-auto no-scrollbar scroll-smooth flex items-center gap-2 py-2 border-b border-border/40">
-            <button
-              type="button"
-              onClick={() => handleServiceTypeSelect(null)}
-              className={cn(
-                "px-4 py-2 text-xs font-semibold rounded-full border transition-all shrink-0 select-none",
-                !currentServiceTypeSlug
-                  ? "bg-primary border-primary text-primary-foreground shadow-sm font-bold"
-                  : "bg-background border-border text-muted-foreground hover:text-foreground hover:border-foreground/20"
-              )}
-            >
-              Tất cả loại hình
-            </button>
-            {serviceTypes.map((st) => {
-              const isActive = currentServiceTypeSlug === st.slug;
-              return (
-                <button
-                  key={st.id}
-                  type="button"
-                  onClick={() => handleServiceTypeSelect(st.slug)}
-                  className={cn(
-                    "px-4 py-2 text-xs font-semibold rounded-full border transition-all shrink-0 select-none",
-                    isActive
-                      ? "bg-primary border-primary text-primary-foreground shadow-sm font-bold"
-                      : "bg-background border-border text-muted-foreground hover:text-foreground hover:border-foreground/20"
-                  )}
+          <TypographyLarge>Không gian kiến trúc</TypographyLarge>
+          <div className="relative w-full">
+            {showLeftST && (
+              <div className="absolute left-0 top-0 bottom-0 flex items-center justify-start bg-linear-to-r from-background via-background/90 to-transparent pr-10 pointer-events-none z-10">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-7 w-7 pointer-events-auto flex items-center justify-center"
+                  onClick={() => scroll(serviceTypesRef, "left")}
                 >
-                  {st.name}
-                </button>
-              );
-            })}
+                  <ChevronLeft className="w-4 h-4 text-muted-foreground" />
+                </Button>
+              </div>
+            )}
+            <div
+              ref={serviceTypesRef}
+              className="w-full overflow-x-auto no-scrollbar scroll-smooth flex items-center gap-2 py-2 pr-12"
+            >
+              <Button
+                variant={!currentServiceTypeSlug ? "default" : "secondary"}
+                size="sm"
+                onClick={() => handleServiceTypeSelect(null)}
+              >
+                Tất cả loại hình
+                {totalServiceTypesCount !== undefined && (
+                  <span className="border-l border-border/60 pl-2 ml-2 text-xs">
+                    {totalServiceTypesCount}
+                  </span>
+                )}
+              </Button>
+              {serviceTypes.map((st) => {
+                const isActive = currentServiceTypeSlug === st.slug;
+                return (
+                  <Button
+                    key={st.id}
+                    variant={isActive ? "default" : "secondary"}
+                    size="sm"
+                    onClick={() => handleServiceTypeSelect(st.slug)}
+                  >
+                    {st.name}
+                    {st.count !== undefined && (
+                      <span className="border-l border-border pl-2 ml-2 text-xs">
+                        {st.count}
+                      </span>
+                    )}
+                  </Button>
+                );
+              })}
+            </div>
+            {showRightST && (
+              <div className="absolute right-0 top-0 bottom-0 flex items-center justify-end bg-linear-to-l from-background via-background/90 to-transparent pl-10 pointer-events-none z-10">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-7 w-7 pointer-events-auto flex items-center justify-center"
+                  onClick={() => scroll(serviceTypesRef, "right")}
+                >
+                  <ChevronRight className="w-4 h-4 text-muted-foreground" />
+                </Button>
+              </div>
+            )}
           </div>
         </div>
       )}
-
       {/* Row 2: Product Category Multi-Select Filter */}
       {categories.length > 0 && (
         <div className="flex flex-col gap-2">
-          <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground/75">
-            Lọc theo dòng sản phẩm
-          </span>
-          <div className="w-full overflow-x-auto no-scrollbar scroll-smooth flex items-center gap-2 py-2 border-b border-border/40">
-            <button
-              type="button"
-              onClick={() => handleCategoryToggle(null)}
-              className={cn(
-                "px-4 py-2 text-xs font-semibold rounded-full border transition-all shrink-0 select-none",
-                currentCategorySlugs.length === 0
-                  ? "bg-primary border-primary text-primary-foreground shadow-sm font-bold"
-                  : "bg-background border-border text-muted-foreground hover:text-foreground hover:border-foreground/20"
-              )}
-            >
-              Tất cả sản phẩm
-            </button>
-            {categories.map((cat) => {
-              const isActive = currentCategorySlugs.includes(cat.slug);
-              return (
-                <button
-                  key={cat.id}
-                  type="button"
-                  onClick={() => handleCategoryToggle(cat.slug)}
-                  className={cn(
-                    "px-4 py-2 text-xs font-semibold rounded-full border transition-all shrink-0 select-none flex items-center gap-1.5",
-                    isActive
-                      ? "bg-primary/10 border-primary/30 text-primary font-bold shadow-sm"
-                      : "bg-background border-border text-muted-foreground hover:text-foreground hover:border-foreground/20"
-                  )}
+          <TypographyLarge>Thiết bị lắp đặt</TypographyLarge>
+          <div className="relative w-full">
+            {showLeftCat && (
+              <div className="absolute left-0 top-0 bottom-0 flex items-center justify-start bg-linear-to-r from-background via-background/90 to-transparent pr-10 pointer-events-none z-10">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-7 w-7 pointer-events-auto flex items-center justify-center"
+                  onClick={() => scroll(categoriesRef, "left")}
                 >
-                  {isActive && <Check className="w-3.5 h-3.5" />}
-                  {cat.name}
-                </button>
-              );
-            })}
+                  <ChevronLeft className="w-4 h-4 text-muted-foreground" />
+                </Button>
+              </div>
+            )}
+            <div
+              ref={categoriesRef}
+              className="w-full overflow-x-auto no-scrollbar scroll-smooth flex items-center gap-2 py-2 pr-12"
+            >
+              <Button
+                variant={
+                  currentCategorySlugs.length === 0 ? "default" : "secondary"
+                }
+                size="sm"
+                onClick={() => handleCategoryToggle(null)}
+              >
+                Tất cả sản phẩm
+                {totalCategoriesCount !== undefined && (
+                  <span className="border-l border-border/60 pl-2 ml-2 text-xs">
+                    {totalCategoriesCount}
+                  </span>
+                )}
+              </Button>
+              {categories.map((cat) => {
+                const isActive = currentCategorySlugs.includes(cat.slug);
+                return (
+                  <Button
+                    key={cat.id}
+                    variant={isActive ? "default" : "secondary"}
+                    size="sm"
+                    onClick={() => handleCategoryToggle(cat.slug)}
+                  >
+                    {isActive && (
+                      <Check icon-data="inline-start" className="w-3.5 h-3.5" />
+                    )}
+                    {cat.name}
+                    {cat.count !== undefined && (
+                      <span className="border-l border-border pl-2 ml-2 text-xs">
+                        {cat.count}
+                      </span>
+                    )}
+                  </Button>
+                );
+              })}
+            </div>
+            {showRightCat && (
+              <div className="absolute right-0 top-0 bottom-0 flex items-center justify-end bg-linear-to-l from-background via-background/90 to-transparent pl-10 pointer-events-none z-10">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-7 w-7 pointer-events-auto flex items-center justify-center"
+                  onClick={() => scroll(categoriesRef, "right")}
+                >
+                  <ChevronRight className="w-4 h-4 text-muted-foreground" />
+                </Button>
+              </div>
+            )}
           </div>
         </div>
       )}
