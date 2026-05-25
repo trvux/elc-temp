@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useTransition } from "react";
 
 import { formatPrice } from "@/shared/lib/utils";
 import { Badge } from "@/shared/components/ui/badge";
@@ -21,6 +21,7 @@ export function ProductPriceFilter({
   const router = useRouter();
   const searchParams = useSearchParams();
   const pathname = usePathname();
+  const [isPending, startTransition] = useTransition();
 
   const rawMin = searchParams.get("minPrice");
   const rawMax = searchParams.get("maxPrice");
@@ -69,8 +70,10 @@ export function ProductPriceFilter({
       }
       
       params.delete("page");
-      router.push(`${pathname}?${params.toString()}`, { scroll: false });
-      router.refresh();
+      startTransition(() => {
+        router.push(`${pathname}?${params.toString()}`, { scroll: false });
+        router.refresh();
+      });
     }, 300);
     return () => clearTimeout(timer);
   }, [priceRange, router, minPriceLimit, maxPriceLimit, pathname]);
@@ -108,6 +111,7 @@ export function ProductPriceFilter({
           step={100000} // 100k step
           value={priceRange}
           onValueChange={(v) => setPriceRange(v as [number, number])}
+          disabled={isPending}
         />
         <div className="flex justify-between text-xs text-muted-foreground">
           <span>{formatDisplayPrice(minPriceLimit)}</span>

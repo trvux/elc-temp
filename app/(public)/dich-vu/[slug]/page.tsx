@@ -29,7 +29,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
 const STYLES = {
   main: cn("w-full min-h-screen py-10 px-4 md:py-20"),
-  container: cn("max-w-3xl mx-auto flex flex-col gap-6"),
+  container: cn("max-w-3xl mx-auto flex flex-col gap-6 animate-fade-in-up"),
   title: cn("w-full max-w-none! text-wrap!"),
   footerNav: "mt-10",
   backLink: "group inline-flex items-center",

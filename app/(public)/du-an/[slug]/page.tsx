@@ -128,7 +128,7 @@ function ProjectDetailView({ project }: { project: ProjectWithCategory }) {
 
   return (
     <main className="w-full pt-28 pb-24 px-4 md:px-6 min-h-screen bg-background">
-      <div className="max-w-3xl mx-auto flex flex-col gap-6">
+      <div className="max-w-3xl mx-auto flex flex-col gap-6 animate-fade-in-up">
         {/* Breadcrumbs
         <Breadcrumbs items={breadcrumbItems} /> */}
 

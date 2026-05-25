@@ -53,7 +53,7 @@ interface SpecItem {
 
 const STYLES = {
   main: cn("min-h-screen w-full px-4 py-12 md:px-8"),
-  container: cn("mx-auto w-full max-w-7xl flex flex-col gap-16"),
+  container: cn("mx-auto w-full max-w-7xl flex flex-col gap-16 animate-fade-in-up"),
   topSection: cn(
     "grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-start",
   ),

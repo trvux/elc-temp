@@ -76,7 +76,7 @@ export default async function Home() {
   ];
 
   return (
-    <main className="max-w-7xl mx-auto px-4 md:px-6 lg:px-8">
+    <main className="max-w-7xl mx-auto px-4 md:px-6 lg:px-8 animate-fade-in-up">
       {sections.map((section) => (
         <div key={section.id} id={section.id} className="py-12 md:py-24">
           {section.component}

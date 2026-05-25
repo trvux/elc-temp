@@ -16,7 +16,7 @@ import { Separator } from "@/shared/components/ui/separator";
 import { cn } from "@/shared/lib/utils";
 import { Check, Search, X } from "lucide-react";
 import { useParams, useRouter, useSearchParams, usePathname } from "next/navigation";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState, useTransition } from "react";
 
 interface ProductFiltersProps {
   categories?: {
@@ -44,6 +44,7 @@ export function ProductFilters({
   const searchParams = useSearchParams();
   const params = useParams();
   const pathname = usePathname();
+  const [isPending, startTransition] = useTransition();
 
   // Current entity slug from Flat URL path (/san-pham/[slug])
   const slugFromPath = params.slug as string;
@@ -129,8 +130,10 @@ export function ProductFilters({
         }
       });
 
-      router.push(`${pathname}?${sParams.toString()}`, { scroll: false });
-      router.refresh();
+      startTransition(() => {
+        router.push(`${pathname}?${sParams.toString()}`, { scroll: false });
+        router.refresh();
+      });
     },
     [router, searchParams, pathname],
   );
@@ -162,21 +165,23 @@ export function ProductFilters({
     const isCurrentPageABrand =
       slugFromPath && !categories.some((c) => c.slug === slugFromPath);
 
-    if (checked) {
-      if (isCurrentPageABrand) {
-        // Safe-transition: convert brand path parameter to query parameter
-        sParams.delete("brands");
-        sParams.append("brands", slugFromPath);
+    startTransition(() => {
+      if (checked) {
+        if (isCurrentPageABrand) {
+          // Safe-transition: convert brand path parameter to query parameter
+          sParams.delete("brands");
+          sParams.append("brands", slugFromPath);
+        }
+        const queryString = sParams.toString();
+        const suffix = queryString ? `?${queryString}` : "";
+        router.push(`/san-pham/${slug}${suffix}`);
+      } else {
+        const queryString = sParams.toString();
+        const suffix = queryString ? `?${queryString}` : "";
+        router.push(`/san-pham${suffix}`);
       }
-      const queryString = sParams.toString();
-      const suffix = queryString ? `?${queryString}` : "";
-      router.push(`/san-pham/${slug}${suffix}`);
-    } else {
-      const queryString = sParams.toString();
-      const suffix = queryString ? `?${queryString}` : "";
-      router.push(`/san-pham${suffix}`);
-    }
-    router.refresh();
+      router.refresh();
+    });
     if (onFilterChange) onFilterChange();
   };
 
@@ -195,8 +200,10 @@ export function ProductFilters({
 
     const queryString = sParams.toString();
     const suffix = queryString ? `?${queryString}` : "";
-    router.push(`${window.location.pathname}${suffix}`, { scroll: false });
-    router.refresh();
+    startTransition(() => {
+      router.push(`${window.location.pathname}${suffix}`, { scroll: false });
+      router.refresh();
+    });
     if (onFilterChange) onFilterChange();
   };
 
@@ -207,8 +214,10 @@ export function ProductFilters({
   };
 
   const clearAllFilters = () => {
-    router.push("/san-pham");
-    router.refresh();
+    startTransition(() => {
+      router.push("/san-pham");
+      router.refresh();
+    });
     if (onFilterChange) onFilterChange();
   };
 
@@ -239,6 +248,12 @@ export function ProductFilters({
 
   return (
     <div className="flex flex-col gap-2">
+      {/* Premium Loading Progress Bar during transitions */}
+      {isPending && (
+        <div className="fixed top-0 left-0 right-0 h-[3px] bg-muted z-[9999] overflow-hidden">
+          <div className="h-full bg-linear-to-r from-primary via-primary/80 to-primary animate-loading-bar" />
+        </div>
+      )}
       <div className="flex items-center justify-between h-10">
         <h3 className="font-bold">Bộ lọc</h3>
         {hasAnyFilter && (
@@ -246,6 +261,7 @@ export function ProductFilters({
             variant="secondary"
             size="sm"
             onClick={clearAllFilters}
+            disabled={isPending}
             className="hidden lg:inline-flex"
           >
             <X data-icon="inline-start" />
@@ -278,6 +294,7 @@ export function ProductFilters({
               selectedValues={[currentCategory]}
               selectionCount={hasSelectedChild ? 1 : 0}
               onToggle={handleCategoryChange}
+              disabled={isPending}
             />
           );
         })}
@@ -293,6 +310,7 @@ export function ProductFilters({
             selectedValues={currentBrands}
             selectionCount={currentBrands.length}
             onToggle={handleBrandChange}
+            disabled={isPending}
           />
         )}
 
@@ -308,6 +326,7 @@ export function ProductFilters({
               handleSpecChange(spec.label, id, checked)
             }
             showSearch={spec.label !== "Công suất" && spec.values.length > 8}
+            disabled={isPending}
           />
         ))}
 
@@ -330,6 +349,7 @@ export function ProductFilters({
             variant="secondary"
             className="w-full justify-center gap-2"
             onClick={clearAllFilters}
+            disabled={isPending}
           >
             <X className="size-4" />
             Xóa tất cả
@@ -375,6 +395,7 @@ function FilterGroup({
   selectionCount = 0,
   onToggle,
   showSearch = false,
+  disabled = false,
 }: {
   label: string;
   items: {
@@ -388,6 +409,7 @@ function FilterGroup({
   selectionCount?: number;
   onToggle: (id: string, checked: boolean) => void;
   showSearch?: boolean;
+  disabled?: boolean;
 }) {
   const [search, setSearch] = useState("");
 
@@ -408,6 +430,7 @@ function FilterGroup({
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className="h-9 pl-9"
+              disabled={disabled}
             />
           </div>
         )}
@@ -429,6 +452,7 @@ function FilterGroup({
                   <ImmediateCheckbox
                     id={id}
                     checked={isSelected}
+                    disabled={disabled}
                     onCheckedChange={(checked) => onToggle(item.id, checked)}
                   />
                 )}
@@ -454,10 +478,12 @@ function FilterGroup({
 function ImmediateCheckbox({
   id,
   checked,
+  disabled = false,
   onCheckedChange,
 }: {
   id: string;
   checked: boolean;
+  disabled?: boolean;
   onCheckedChange: (checked: boolean) => void;
 }) {
   const [internalChecked, setInternalChecked] = useState(checked);
@@ -470,6 +496,7 @@ function ImmediateCheckbox({
     <Checkbox
       id={id}
       checked={internalChecked}
+      disabled={disabled}
       onCheckedChange={(v) => {
         const newValue = !!v;
         setInternalChecked(newValue);
