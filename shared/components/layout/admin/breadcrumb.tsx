@@ -17,7 +17,7 @@ const routeLabels: Record<string, string> = {
   "/admin/products": "Sản phẩm",
   "/admin/about": "Giới thiệu",
   "/admin/contacts": "Liên hệ",
-  "/admin/branches": "Chi nhánh",
+  "/admin/branches": "Cơ sở",
   "/admin/settings": "Cài đặt",
 };
 
