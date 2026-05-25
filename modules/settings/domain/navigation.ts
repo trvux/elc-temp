@@ -8,7 +8,7 @@ export const navLinks: NavLink[] = [
   { name: "Dự án", href: "/du-an" },
   { name: "Sản phẩm", href: "/san-pham" },
   { name: "Dịch vụ", href: "/dich-vu" },
-  { name: "Chi nhánh", href: "/chi-nhanh" },
+  { name: "Cơ sở", href: "/chi-nhanh" },
   { name: "Tin tức", href: "/tin-tuc" },
   { name: "Thông tin", href: "/thong-tin" },
 ];
