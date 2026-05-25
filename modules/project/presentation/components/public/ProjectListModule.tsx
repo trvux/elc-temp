@@ -15,6 +15,7 @@ import {
 } from "@/shared/components/ui/card";
 import {
   TypographyH1,
+  TypographyLead,
   TypographySmall,
 } from "@/shared/components/ui/typography";
 import { createClient } from "@/shared/lib/supabase/server";
@@ -33,13 +34,10 @@ const STYLES = {
   main: "w-full px-4 py-12 md:px-8 bg-background min-h-screen",
   container: "mx-auto w-full max-w-7xl flex flex-col gap-8 md:gap-12",
   header: "flex flex-col items-center text-center gap-4 max-w-3xl mx-auto",
-  title: "tracking-tight font-bold text-4xl md:text-5xl text-foreground",
-  subtitle:
-    "text-base md:text-lg text-muted-foreground leading-relaxed max-w-2xl",
   badgeWrapper: "flex items-center gap-2 mt-2",
-  grid: "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-10 md:gap-y-12",
+  grid: "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-10 md:gap-y-12 min-h-[450px] animate-fade-in-up",
   emptyState:
-    "py-24 text-center border border-dashed border-border rounded-xl bg-muted/20 flex flex-col items-center justify-center gap-4 max-w-lg mx-auto w-full",
+    "py-24 text-center border border-dashed border-border rounded-xl bg-muted/20 flex flex-col items-center justify-center gap-4 max-w-lg mx-auto w-full min-h-[300px] animate-fade-in-up",
   emptyText: "text-muted-foreground italic text-sm",
   footer:
     "border-t border-border/60 pt-8 mt-16 flex flex-col sm:flex-row justify-between items-center gap-6 text-muted-foreground",
@@ -218,7 +216,7 @@ export async function ProjectListModule({
 
         {/* Hero Header Section */}
         <header className={STYLES.header}>
-          <TypographyH1 className={STYLES.title}>
+          <TypographyH1>
             {pageTitle}
             {/* {projects.length > 0 && (
               <span className="text-xl font-medium text-muted-foreground align-super ml-1.5">
@@ -227,18 +225,18 @@ export async function ProjectListModule({
             )} */}
           </TypographyH1>
           {serviceType ? (
-            <p className={STYLES.subtitle}>
+            <TypographyLead>
               Các công trình thiết kế và thi công hệ thống cơ điện, điều hòa
-              không khí trong{" "}
+              không khí trong <br className="hidden sm:inline" />
               <span className="text-primary/90 font-semibold">
                 không gian kiến trúc {serviceType.name} do ELC thực hiện.
               </span>
-            </p>
+            </TypographyLead>
           ) : (
-            <p className={STYLES.subtitle}>
+            <TypographyLead>
               Tổng hợp các công trình tiêu biểu do đội ngũ ELC trực tiếp tư vấn,
               thiết kế và thi công lắp đặt cho khách hàng toàn quốc.
-            </p>
+            </TypographyLead>
           )}
           {/* <div className={STYLES.badgeWrapper}>
             <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-primary/10 text-primary">
