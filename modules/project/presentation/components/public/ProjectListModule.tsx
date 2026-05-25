@@ -34,7 +34,8 @@ const STYLES = {
   container: "mx-auto w-full max-w-7xl flex flex-col gap-8 md:gap-12",
   header: "flex flex-col items-center text-center gap-4 max-w-3xl mx-auto",
   title: "tracking-tight font-bold text-4xl md:text-5xl text-foreground",
-  subtitle: "text-base md:text-lg text-muted-foreground leading-relaxed",
+  subtitle:
+    "text-base md:text-lg text-muted-foreground leading-relaxed max-w-2xl",
   badgeWrapper: "flex items-center gap-2 mt-2",
   grid: "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-10 md:gap-y-12",
   emptyState:
@@ -204,8 +205,9 @@ export async function ProjectListModule({
   const pageTitle = serviceType
     ? `Dự án — ${serviceType.name}`
     : "Tất cả dự án tiêu biểu";
+
   const pageSubtitle = serviceType
-    ? `Các công trình thiết kế và thi công hệ thống cơ điện, điều hòa không khí thuộc loại hình ${serviceType.name} do ELC thực hiện.`
+    ? `Các công trình thiết kế và thi công hệ thống cơ điện, điều hòa không khí trong không gian kiến trúc ${serviceType.name} do ELC thực hiện.`
     : "Tổng hợp các công trình tiêu biểu do đội ngũ ELC trực tiếp tư vấn, thiết kế và thi công lắp đặt cho khách hàng toàn quốc.";
 
   return (
@@ -224,7 +226,20 @@ export async function ProjectListModule({
               </span>
             )} */}
           </TypographyH1>
-          <p className={STYLES.subtitle}>{pageSubtitle}</p>
+          {serviceType ? (
+            <p className={STYLES.subtitle}>
+              Các công trình thiết kế và thi công hệ thống cơ điện, điều hòa
+              không khí trong{" "}
+              <span className="text-primary/90 font-semibold">
+                không gian kiến trúc {serviceType.name} do ELC thực hiện.
+              </span>
+            </p>
+          ) : (
+            <p className={STYLES.subtitle}>
+              Tổng hợp các công trình tiêu biểu do đội ngũ ELC trực tiếp tư vấn,
+              thiết kế và thi công lắp đặt cho khách hàng toàn quốc.
+            </p>
+          )}
           {/* <div className={STYLES.badgeWrapper}>
             <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-primary/10 text-primary">
               {projects.length} {projects.length === 1 ? "dự án" : "dự án"} được

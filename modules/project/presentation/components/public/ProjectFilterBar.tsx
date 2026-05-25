@@ -307,11 +307,11 @@ export function ProjectFilterBar({
                 onClick={() => handleCategoryToggle(null)}
               >
                 Tất cả sản phẩm
-                {totalCategoriesCount !== undefined && (
+                {/* {totalCategoriesCount !== undefined && (
                   <span className="border-l border-border/60 pl-2 ml-2 text-xs">
                     {totalCategoriesCount}
                   </span>
-                )}
+                )} */}
               </Button>
               {categories.map((cat) => {
                 const isActive = currentCategorySlugs.includes(cat.slug);
@@ -326,11 +326,11 @@ export function ProjectFilterBar({
                       <Check icon-data="inline-start" className="w-3.5 h-3.5" />
                     )}
                     {cat.name}
-                    {cat.count !== undefined && (
+                    {/* {cat.count !== undefined && (
                       <span className="border-l border-border pl-2 ml-2 text-xs">
                         {cat.count}
                       </span>
-                    )}
+                    )} */}
                   </Button>
                 );
               })}
