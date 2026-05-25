@@ -26,7 +26,7 @@ const getZoomedUrl = (url: string, zoomLevel = "13.1") => {
 const STYLES = {
   main: cn("min-h-screen w-full px-4 py-12 md:px-8"),
   container: cn(
-    "mx-auto flex max-w-3xl flex-col items-center justify-center gap-6",
+    "mx-auto flex max-w-3xl flex-col items-center justify-center gap-6 animate-fade-in-up",
   ),
   title: cn("w-full max-w-none! text-wrap!"),
   section: cn("w-full"),

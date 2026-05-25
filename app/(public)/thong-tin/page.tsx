@@ -19,7 +19,7 @@ const STYLES = {
   ),
   title: cn(),
   description: cn(),
-  list: cn("grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-16"),
+  list: cn("grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-16 min-h-[400px] animate-fade-in-up"),
   article: cn(
     "group flex flex-col gap-6 no-underline transition-all duration-300",
   ),

@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import Link from "next/link"
 
 import { cn } from "@/shared/lib/utils"
 import { Button } from "@/shared/components/ui/button"
@@ -53,7 +54,7 @@ function PaginationLink({
       size={size}
       className={cn(className)}
     >
-      <a
+      <Link
         aria-current={isActive ? "page" : undefined}
         data-slot="pagination-link"
         data-active={isActive}
