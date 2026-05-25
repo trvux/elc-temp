@@ -79,7 +79,7 @@ export function MobileMenu({ links, isOpen, onOpenChange }: MobileMenuProps) {
       <Portal.Root>
         <div
           className={cn(
-            "fixed inset-x-0 top-16 h-[calc(100svh-64px)] bg-background z-[150]",
+            "fixed inset-x-0 top-16 h-[calc(100svh-64px)] z-150 bg-background/90 backdrop-blur-sm",
             "transition-all duration-300 ease-out",
             isOpen
               ? "translate-y-0 opacity-100 visible pointer-events-auto"

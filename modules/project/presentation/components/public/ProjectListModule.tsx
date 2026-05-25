@@ -1,25 +1,28 @@
-import React, { Suspense } from "react";
-import Link from "next/link";
-import Image from "next/image";
+import { getCategoriesNew } from "@/modules/category-new/application";
 import { getProjects } from "@/modules/project/application/getProjects";
 import { getServiceTypes } from "@/modules/service-type/application";
-import { getCategoriesNew } from "@/modules/category-new/application";
-import { createClient } from "@/shared/lib/supabase/server";
-import { ProjectFilterBar } from "./ProjectFilterBar";
+import { ServiceTypeWithCategories } from "@/modules/service-type/domain/types";
 import { Breadcrumbs } from "@/shared/components/layout/user/breadcrumbs";
 import { ScrollToTop } from "@/shared/components/layout/user/scroll-to-top";
-import {
-  TypographyH1,
-  TypographyLarge,
-  TypographySmall,
-} from "@/shared/components/ui/typography";
-import { AspectRatio } from "@/shared/components/ui/aspect-ratio";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
-import { Card, CardAction, CardDescription, CardFooter, CardHeader, CardTitle } from "@/shared/components/ui/card";
-import { Sparkles, ArrowRight } from "lucide-react";
-import { cn } from "@/shared/lib/utils";
-import { ServiceTypeWithCategories } from "@/modules/service-type/domain/types";
+import {
+  Card,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/shared/components/ui/card";
+import {
+  TypographyH1,
+  TypographySmall,
+} from "@/shared/components/ui/typography";
+import { createClient } from "@/shared/lib/supabase/server";
+import { ArrowRight, Sparkles } from "lucide-react";
+import Image from "next/image";
+import Link from "next/link";
+import { Suspense } from "react";
+import { ProjectFilterBar } from "./ProjectFilterBar";
 
 interface ProjectListModuleProps {
   serviceType?: ServiceTypeWithCategories | null;
@@ -34,10 +37,13 @@ const STYLES = {
   subtitle: "text-base md:text-lg text-muted-foreground leading-relaxed",
   badgeWrapper: "flex items-center gap-2 mt-2",
   grid: "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-10 md:gap-y-12",
-  emptyState: "py-24 text-center border border-dashed border-border rounded-xl bg-muted/20 flex flex-col items-center justify-center gap-4 max-w-lg mx-auto w-full",
+  emptyState:
+    "py-24 text-center border border-dashed border-border rounded-xl bg-muted/20 flex flex-col items-center justify-center gap-4 max-w-lg mx-auto w-full",
   emptyText: "text-muted-foreground italic text-sm",
-  footer: "border-t border-border/60 pt-8 mt-16 flex flex-col sm:flex-row justify-between items-center gap-6 text-muted-foreground",
-  scrollToTop: "flex items-center gap-2 cursor-pointer hover:text-foreground transition-colors text-xs font-semibold uppercase tracking-wider",
+  footer:
+    "border-t border-border/60 pt-8 mt-16 flex flex-col sm:flex-row justify-between items-center gap-6 text-muted-foreground",
+  scrollToTop:
+    "flex items-center gap-2 cursor-pointer hover:text-foreground transition-colors text-xs font-semibold uppercase tracking-wider",
 };
 
 export async function ProjectListModule({
@@ -45,12 +51,16 @@ export async function ProjectListModule({
   searchParams,
 }: ProjectListModuleProps) {
   const categoryParam = searchParams.category;
-  const categorySlugs = typeof categoryParam === "string"
-    ? categoryParam.split(",").filter(Boolean)
-    : Array.isArray(categoryParam)
-      ? categoryParam
-      : [];
-  const searchVal = typeof searchParams.search === "string" ? searchParams.search.trim() : undefined;
+  const categorySlugs =
+    typeof categoryParam === "string"
+      ? categoryParam.split(",").filter(Boolean)
+      : Array.isArray(categoryParam)
+        ? categoryParam
+        : [];
+  const searchVal =
+    typeof searchParams.search === "string"
+      ? searchParams.search.trim()
+      : undefined;
 
   // 1. Fetch filtered projects
   const projects = await getProjects({
@@ -70,14 +80,29 @@ export async function ProjectListModule({
   // 2. Fetch service types for filtering
   const allServiceTypes = await getServiceTypes();
   const activeServiceTypes = allServiceTypes.filter((st) => !st.deletedAt);
-  const serviceTypeItems = activeServiceTypes.map((st) => ({
-    id: st.id,
-    name: st.name,
-    slug: st.slug || "",
-  }));
+
+  // Fetch all published projects to compute counts
+  const allPublishedProjects = await getProjects({ isPublished: true });
+
+  const serviceTypeItems = activeServiceTypes.map((st) => {
+    const count = allPublishedProjects.filter(
+      (p) => p.serviceTypeId === st.id,
+    ).length;
+    return {
+      id: st.id,
+      name: st.name,
+      slug: st.slug || "",
+      count,
+    };
+  });
 
   // 3. Setup categories for the active service type or all active categories
-  let filterCategories: { id: string; name: string; slug: string }[] = [];
+  let filterCategories: {
+    id: string;
+    name: string;
+    slug: string;
+    count: number;
+  }[] = [];
   if (serviceType) {
     // 1. Get default categories defined on the service type
     const defaultCategories = (serviceType.categories || []).map((cat) => ({
@@ -90,17 +115,22 @@ export async function ProjectListModule({
     const supabase = await createClient();
     const { data: relData, error: relError } = await supabase
       .from("project_category")
-      .select(`
+      .select(
+        `
         category:categories(id, name, slug, deleted_at),
         projects!inner(id, service_type_id, is_published, deleted_at)
-      `)
+      `,
+      )
       .eq("projects.service_type_id", serviceType.id)
       .eq("projects.is_published", true)
       .is("projects.deleted_at", null)
       .is("categories.deleted_at", null);
 
     // Merge and deduplicate
-    const categoryMap = new Map<string, { id: string; name: string; slug: string }>();
+    const categoryMap = new Map<
+      string,
+      { id: string; name: string; slug: string }
+    >();
 
     // Add default ones first
     defaultCategories.forEach((cat) => {
@@ -110,10 +140,20 @@ export async function ProjectListModule({
     // Add project-specific ones
     if (relData && !relError) {
       const typedData = relData as unknown as {
-        category: { id: string; name: string; slug: string; deleted_at: string | null } | null;
-        projects: { id: string; service_type_id: string | null; is_published: boolean; deleted_at: string | null } | null;
+        category: {
+          id: string;
+          name: string;
+          slug: string;
+          deleted_at: string | null;
+        } | null;
+        projects: {
+          id: string;
+          service_type_id: string | null;
+          is_published: boolean;
+          deleted_at: string | null;
+        } | null;
       }[];
-      
+
       typedData.forEach((row) => {
         const cat = row.category;
         if (cat) {
@@ -126,24 +166,44 @@ export async function ProjectListModule({
       });
     }
 
-    filterCategories = Array.from(categoryMap.values());
+    filterCategories = Array.from(categoryMap.values()).map((cat) => {
+      // For category counts, we only count projects within the current serviceType
+      const count = allPublishedProjects.filter(
+        (p) =>
+          p.serviceTypeId === serviceType.id &&
+          p.categoriesNew?.some((c) => c.id === cat.id),
+      ).length;
+      return { ...cat, count };
+    });
   } else {
     const allCategories = await getCategoriesNew({ includeDeleted: false });
-    filterCategories = allCategories.map((cat) => ({
-      id: cat.id,
-      name: cat.name,
-      slug: cat.slug || "",
-    }));
+    filterCategories = allCategories.map((cat) => {
+      const count = allPublishedProjects.filter((p) =>
+        p.categoriesNew?.some((c) => c.id === cat.id),
+      ).length;
+      return {
+        id: cat.id,
+        name: cat.name,
+        slug: cat.slug || "",
+        count,
+      };
+    });
   }
 
   // Breadcrumbs items
   const breadcrumbItems = [
-    { label: "Dự án", href: serviceType ? "/du-an" : undefined, active: !serviceType },
+    {
+      label: "Dự án",
+      href: serviceType ? "/du-an" : undefined,
+      active: !serviceType,
+    },
     ...(serviceType ? [{ label: serviceType.name, active: true }] : []),
   ];
 
   // Dynamic header text
-  const pageTitle = serviceType ? `Dự án ${serviceType.name}` : "Dự án tiêu biểu";
+  const pageTitle = serviceType
+    ? `Dự án — ${serviceType.name}`
+    : "Tất cả dự án tiêu biểu";
   const pageSubtitle = serviceType
     ? `Các công trình thiết kế và thi công hệ thống cơ điện, điều hòa không khí thuộc loại hình ${serviceType.name} do ELC thực hiện.`
     : "Tổng hợp các công trình tiêu biểu do đội ngũ ELC trực tiếp tư vấn, thiết kế và thi công lắp đặt cho khách hàng toàn quốc.";
@@ -158,26 +218,42 @@ export async function ProjectListModule({
         <header className={STYLES.header}>
           <TypographyH1 className={STYLES.title}>
             {pageTitle}
+            {/* {projects.length > 0 && (
+              <span className="text-xl font-medium text-muted-foreground align-super ml-1.5">
+                {projects.length}
+              </span>
+            )} */}
           </TypographyH1>
-          <p className={STYLES.subtitle}>
-            {pageSubtitle}
-          </p>
-          <div className={STYLES.badgeWrapper}>
+          <p className={STYLES.subtitle}>{pageSubtitle}</p>
+          {/* <div className={STYLES.badgeWrapper}>
             <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-primary/10 text-primary">
-              {projects.length} {projects.length === 1 ? "dự án" : "dự án"} được tìm thấy
+              {projects.length} {projects.length === 1 ? "dự án" : "dự án"} được
+              tìm thấy
             </span>
-          </div>
+          </div> */}
         </header>
 
         {/* Dynamic Filters Section */}
         <div className="flex flex-col gap-6 w-full">
-          <Suspense fallback={<div className="h-28 w-full animate-pulse bg-muted rounded-md" />}>
+          <Suspense
+            fallback={
+              <div className="h-28 w-full animate-pulse bg-muted rounded-md" />
+            }
+          >
             <ProjectFilterBar
               serviceTypes={serviceTypeItems}
               currentServiceTypeSlug={serviceType?.slug || ""}
               categories={filterCategories}
               currentCategorySlugs={categorySlugs}
               initialSearch={searchVal || ""}
+              totalServiceTypesCount={allPublishedProjects.length}
+              totalCategoriesCount={
+                serviceType
+                  ? allPublishedProjects.filter(
+                      (p) => p.serviceTypeId === serviceType.id,
+                    ).length
+                  : allPublishedProjects.length
+              }
             />
           </Suspense>
         </div>
@@ -187,7 +263,10 @@ export async function ProjectListModule({
           <div className={STYLES.grid}>
             {sortedProjects.map((project, index) => {
               const detailUrl = `/du-an/${project.slug}`;
-              const displayCategory = project.categoriesNew?.[0]?.name || project.serviceType?.name || "Dự án ELC";
+              const displayCategory =
+                project.categoriesNew?.[0]?.name ||
+                project.serviceType?.name ||
+                "Dự án ELC";
               const isFeatured = project.isFeatured;
 
               return (
@@ -196,9 +275,7 @@ export async function ProjectListModule({
                   href={detailUrl}
                   className="w-full flex focus:outline-none"
                 >
-                  <Card
-                    className="w-full pt-0 flex flex-col group overflow-hidden border border-border/50 hover:border-primary/20 shadow-sm hover:shadow-md transition-all duration-300 rounded-lg"
-                  >
+                  <Card className="w-full pt-0 flex flex-col group overflow-hidden border border-border/50 hover:border-primary/20 shadow-sm hover:shadow-md transition-all duration-300 rounded-lg">
                     {/* Image wrapper */}
                     <div className="relative overflow-hidden aspect-[16/10]">
                       <div className="absolute inset-0 z-10 bg-black/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
@@ -238,13 +315,14 @@ export async function ProjectListModule({
                           </Badge>
                         )}
                       </div>
-                      
+
                       <CardTitle className="group-hover:text-primary transition-colors text-lg font-bold leading-snug line-clamp-2 mt-1">
                         {project.title}
                       </CardTitle>
-                      
+
                       <CardDescription className="text-xs text-muted-foreground/90 leading-relaxed line-clamp-3">
-                        {project.metaDescription || "Dự án thi công hoàn thiện hệ thống cơ điện bởi đội ngũ chuyên nghiệp ELC. Mang đến giải pháp tối ưu cho khách hàng."}
+                        {project.metaDescription ||
+                          "Dự án thi công hoàn thiện hệ thống cơ điện bởi đội ngũ chuyên nghiệp ELC. Mang đến giải pháp tối ưu cho khách hàng."}
                       </CardDescription>
                     </CardHeader>
 
@@ -277,7 +355,8 @@ export async function ProjectListModule({
         {/* Premium Footer */}
         <footer className={STYLES.footer}>
           <TypographySmall className="text-xs text-muted-foreground/75">
-            &copy; {new Date().getFullYear()} ELC Holdings. Mọi quyền được bảo lưu.
+            &copy; {new Date().getFullYear()} ELC Holdings. Mọi quyền được bảo
+            lưu.
           </TypographySmall>
           <ScrollToTop className={STYLES.scrollToTop}>
             <span>Quay lại đầu trang</span>
@@ -287,21 +366,24 @@ export async function ProjectListModule({
 
       {/* JSON-LD Schema markup for Google Rich Snippets */}
       {(() => {
-        const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "https://dienmayelc.com.vn";
+        const baseUrl =
+          process.env.NEXT_PUBLIC_APP_URL || "https://dienmayelc.com.vn";
         const schema = {
           "@context": "https://schema.org",
           "@type": "ItemList",
-          "name": pageTitle,
-          "description": pageSubtitle,
-          "url": serviceType ? `${baseUrl}/du-an/${serviceType.slug}` : `${baseUrl}/du-an`,
-          "numberOfItems": sortedProjects.length,
-          "itemListElement": sortedProjects.map((p, idx) => ({
+          name: pageTitle,
+          description: pageSubtitle,
+          url: serviceType
+            ? `${baseUrl}/du-an/${serviceType.slug}`
+            : `${baseUrl}/du-an`,
+          numberOfItems: sortedProjects.length,
+          itemListElement: sortedProjects.map((p, idx) => ({
             "@type": "ListItem",
-            "position": idx + 1,
-            "url": `${baseUrl}/du-an/${p.slug}`,
-            "name": p.title,
-            "image": p.images?.[0] || ""
-          }))
+            position: idx + 1,
+            url: `${baseUrl}/du-an/${p.slug}`,
+            name: p.title,
+            image: p.images?.[0] || "",
+          })),
         };
         return (
           <script
