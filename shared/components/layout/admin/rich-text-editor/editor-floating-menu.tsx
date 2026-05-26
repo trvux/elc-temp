@@ -38,24 +38,31 @@ export const EditorFloatingMenu = ({
   const addImage = useCallback(() => {
     const input = document.createElement("input");
     input.type = "file";
+    input.accept = "image/*";
+    input.multiple = true;
     input.onchange = async (e) => {
-      const file = (e.target as HTMLInputElement).files?.[0];
-      if (file) {
-        try {
-          const webpFile = await convertToWebP(file);
-          if (uploadImage) {
-            const url = await uploadImage(webpFile);
-            editor.chain().focus().setImage({ src: url }).run();
-          } else {
-            const reader = new FileReader();
-            reader.onload = (readerEvent) => {
-              const url = readerEvent.target?.result as string;
+      const files = Array.from((e.target as HTMLInputElement).files || []);
+      if (files.length > 0) {
+        for (const file of files) {
+          try {
+            const webpFile = await convertToWebP(file);
+            if (uploadImage) {
+              const url = await uploadImage(webpFile);
               editor.chain().focus().setImage({ src: url }).run();
-            };
-            reader.readAsDataURL(webpFile);
+            } else {
+              await new Promise<void>((resolve) => {
+                const reader = new FileReader();
+                reader.onload = (readerEvent) => {
+                  const url = readerEvent.target?.result as string;
+                  editor.chain().focus().setImage({ src: url }).run();
+                  resolve();
+                };
+                reader.readAsDataURL(webpFile);
+              });
+            }
+          } catch (error) {
+            console.error("Lỗi xử lý ảnh:", error);
           }
-        } catch (error) {
-          console.error("Lỗi xử lý ảnh:", error);
         }
       }
     };
@@ -65,7 +72,7 @@ export const EditorFloatingMenu = ({
   return (
     <FloatingMenu
       editor={editor}
-      // @ts-ignore
+      // @ts-expect-error: tippyOptions is not fully typed in Tiptap React wrapper
       tippyOptions={{
         duration: 100,
         offset: [0, 24],
