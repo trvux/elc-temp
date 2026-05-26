@@ -4,10 +4,13 @@ import BubbleMenuExtension from "@tiptap/extension-bubble-menu";
 import FloatingMenuExtension from "@tiptap/extension-floating-menu";
 import Placeholder from "@tiptap/extension-placeholder";
 import { EditorContent, useEditor } from "@tiptap/react";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { EditorView } from "@tiptap/pm/view";
+import { Slice } from "@tiptap/pm/model";
 
 import { getTiptapExtensions, normalizeTiptapJson } from "@/shared/lib/tiptap-shared";
 import { cn } from "@/shared/lib/utils";
+import { convertToWebP } from "@/shared/lib/image";
 
 import { EditorFloatingMenu } from "./rich-text-editor/editor-floating-menu";
 import { ImageBubbleMenu } from "./rich-text-editor/image-bubble-menu";
@@ -31,6 +34,11 @@ const RichTextEditor = ({
 }: RichTextEditorProps) => {
   const [, setTick] = useState(0);
   const forceUpdate = useCallback(() => setTick((tick) => tick + 1), []);
+
+  const uploadImageRef = useRef(uploadImage);
+  useEffect(() => {
+    uploadImageRef.current = uploadImage;
+  }, [uploadImage]);
 
   const extensions = useMemo(() => [
     ...getTiptapExtensions(),
@@ -85,6 +93,96 @@ const RichTextEditor = ({
           }
           return `<${tag}>`;
         });
+      },
+      handleDrop(view: EditorView, event: DragEvent, _slice: Slice, _moved: boolean) {
+        if (!_moved && event.dataTransfer && event.dataTransfer.files && event.dataTransfer.files.length > 0) {
+          const files = Array.from(event.dataTransfer.files);
+          const images = files.filter((file) => file.type.startsWith("image/"));
+          if (images.length > 0) {
+            event.preventDefault();
+            
+            const coordinates = view.posAtCoords({ left: event.clientX, top: event.clientY });
+            const position = coordinates ? coordinates.pos : view.state.selection.from;
+            
+            (async () => {
+              let currentPos = position;
+              for (const file of images) {
+                try {
+                  const webpFile = await convertToWebP(file);
+                  const currentUploadImage = uploadImageRef.current;
+                  if (currentUploadImage) {
+                    const url = await currentUploadImage(webpFile);
+                    const node = view.state.schema.nodes.image.create({ src: url });
+                    const transaction = view.state.tr.insert(currentPos, node);
+                    view.dispatch(transaction);
+                    currentPos += node.nodeSize;
+                  } else {
+                    await new Promise<void>((resolve) => {
+                      const reader = new FileReader();
+                      reader.onload = (readerEvent) => {
+                        const url = readerEvent.target?.result as string;
+                        const node = view.state.schema.nodes.image.create({ src: url });
+                        const transaction = view.state.tr.insert(currentPos, node);
+                        view.dispatch(transaction);
+                        currentPos += node.nodeSize;
+                        resolve();
+                      };
+                      reader.readAsDataURL(webpFile);
+                    });
+                  }
+                } catch (error) {
+                  console.error("Lỗi xử lý ảnh khi drop:", error);
+                }
+              }
+            })();
+            return true;
+          }
+        }
+        return false;
+      },
+      handlePaste(view: EditorView, event: ClipboardEvent) {
+        if (event.clipboardData && event.clipboardData.files && event.clipboardData.files.length > 0) {
+          const files = Array.from(event.clipboardData.files);
+          const images = files.filter((file) => file.type.startsWith("image/"));
+          if (images.length > 0) {
+            event.preventDefault();
+            
+            const position = view.state.selection.from;
+            (async () => {
+              let currentPos = position;
+              for (const file of images) {
+                try {
+                  const webpFile = await convertToWebP(file);
+                  const currentUploadImage = uploadImageRef.current;
+                  if (currentUploadImage) {
+                    const url = await currentUploadImage(webpFile);
+                    const node = view.state.schema.nodes.image.create({ src: url });
+                    const transaction = view.state.tr.insert(currentPos, node);
+                    view.dispatch(transaction);
+                    currentPos += node.nodeSize;
+                  } else {
+                    await new Promise<void>((resolve) => {
+                      const reader = new FileReader();
+                      reader.onload = (readerEvent) => {
+                        const url = readerEvent.target?.result as string;
+                        const node = view.state.schema.nodes.image.create({ src: url });
+                        const transaction = view.state.tr.insert(currentPos, node);
+                        view.dispatch(transaction);
+                        currentPos += node.nodeSize;
+                        resolve();
+                      };
+                      reader.readAsDataURL(webpFile);
+                    });
+                  }
+                } catch (error) {
+                  console.error("Lỗi xử lý ảnh khi paste:", error);
+                }
+              }
+            })();
+            return true;
+          }
+        }
+        return false;
       },
     },
   });
