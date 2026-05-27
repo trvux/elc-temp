@@ -72,11 +72,18 @@
   pointer-events: none;
 }
 
-/* Table wrapper within Tiptap editor is handled by the shared rule above */
-
 .tiptap.resize-cursor {
   cursor: ew-resize;
   cursor: col-resize;
+}
+
+/* Tiptap selected image styling */
+.tiptap img.ProseMirror-selectednode,
+.tiptap .ProseMirror-selectednode {
+  outline: 3px solid oklch(0.68 0.20 145) !important;
+  outline-offset: 2px;
+  box-shadow: 0 0 0 6px oklch(0.68 0.20 145 / 20%) !important;
+  transition: outline 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
 }
 
 @custom-variant dark (&:is(.dark *));

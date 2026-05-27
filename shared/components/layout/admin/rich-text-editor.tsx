@@ -7,6 +7,7 @@ import { EditorContent, useEditor } from "@tiptap/react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { EditorView } from "@tiptap/pm/view";
 import { Slice } from "@tiptap/pm/model";
+import { Selection } from "@tiptap/pm/state";
 
 import { getTiptapExtensions, normalizeTiptapJson } from "@/shared/lib/tiptap-shared";
 import { cn } from "@/shared/lib/utils";
@@ -105,34 +106,40 @@ const RichTextEditor = ({
             const position = coordinates ? coordinates.pos : view.state.selection.from;
             
             (async () => {
-              let currentPos = position;
+              const urls: string[] = [];
               for (const file of images) {
                 try {
                   const webpFile = await convertToWebP(file);
                   const currentUploadImage = uploadImageRef.current;
                   if (currentUploadImage) {
                     const url = await currentUploadImage(webpFile);
-                    const node = view.state.schema.nodes.image.create({ src: url });
-                    const transaction = view.state.tr.insert(currentPos, node);
-                    view.dispatch(transaction);
-                    currentPos += node.nodeSize;
+                    urls.push(url);
                   } else {
-                    await new Promise<void>((resolve) => {
+                    const dataUrl = await new Promise<string>((resolve) => {
                       const reader = new FileReader();
                       reader.onload = (readerEvent) => {
-                        const url = readerEvent.target?.result as string;
-                        const node = view.state.schema.nodes.image.create({ src: url });
-                        const transaction = view.state.tr.insert(currentPos, node);
-                        view.dispatch(transaction);
-                        currentPos += node.nodeSize;
-                        resolve();
+                        resolve(readerEvent.target?.result as string);
                       };
                       reader.readAsDataURL(webpFile);
                     });
+                    urls.push(dataUrl);
                   }
                 } catch (error) {
                   console.error("Lỗi xử lý ảnh khi drop:", error);
                 }
+              }
+              
+              if (urls.length > 0) {
+                let transaction = view.state.tr;
+                let currentPos = position;
+                for (const url of urls) {
+                  const node = view.state.schema.nodes.image.create({ src: url });
+                  transaction = transaction.insert(currentPos, node);
+                  currentPos += node.nodeSize;
+                }
+                const newSelection = Selection.near(transaction.doc.resolve(currentPos));
+                transaction = transaction.setSelection(newSelection);
+                view.dispatch(transaction);
               }
             })();
             return true;
@@ -149,34 +156,40 @@ const RichTextEditor = ({
             
             const position = view.state.selection.from;
             (async () => {
-              let currentPos = position;
+              const urls: string[] = [];
               for (const file of images) {
                 try {
                   const webpFile = await convertToWebP(file);
                   const currentUploadImage = uploadImageRef.current;
                   if (currentUploadImage) {
                     const url = await currentUploadImage(webpFile);
-                    const node = view.state.schema.nodes.image.create({ src: url });
-                    const transaction = view.state.tr.insert(currentPos, node);
-                    view.dispatch(transaction);
-                    currentPos += node.nodeSize;
+                    urls.push(url);
                   } else {
-                    await new Promise<void>((resolve) => {
+                    const dataUrl = await new Promise<string>((resolve) => {
                       const reader = new FileReader();
                       reader.onload = (readerEvent) => {
-                        const url = readerEvent.target?.result as string;
-                        const node = view.state.schema.nodes.image.create({ src: url });
-                        const transaction = view.state.tr.insert(currentPos, node);
-                        view.dispatch(transaction);
-                        currentPos += node.nodeSize;
-                        resolve();
+                        resolve(readerEvent.target?.result as string);
                       };
                       reader.readAsDataURL(webpFile);
                     });
+                    urls.push(dataUrl);
                   }
                 } catch (error) {
                   console.error("Lỗi xử lý ảnh khi paste:", error);
                 }
+              }
+              
+              if (urls.length > 0) {
+                let transaction = view.state.tr;
+                let currentPos = position;
+                for (const url of urls) {
+                  const node = view.state.schema.nodes.image.create({ src: url });
+                  transaction = transaction.insert(currentPos, node);
+                  currentPos += node.nodeSize;
+                }
+                const newSelection = Selection.near(transaction.doc.resolve(currentPos));
+                transaction = transaction.setSelection(newSelection);
+                view.dispatch(transaction);
               }
             })();
             return true;
