@@ -164,7 +164,7 @@ export function ShowcaseSection({ projects }: ShowcaseSectionProps) {
               className="w-full flex flex-col items-center gap-6"
             >
               <ScrollArea className="w-full no-scrollbar flex justify-center">
-                <div className="w-full flex justify-start md:justify-center pb-1">
+                <div className="min-w-full flex justify-start md:justify-center pb-1">
                   <TabsList className="flex flex-row flex-nowrap justify-start w-max md:w-fit">
                     {/* <TabsTrigger value="all" className="shrink-0 px-4 py-1.5 md:px-5 md:py-2">
                       Tất cả
