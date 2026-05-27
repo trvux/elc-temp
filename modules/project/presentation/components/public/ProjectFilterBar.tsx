@@ -1,6 +1,7 @@
 "use client";
 
 import { Button } from "@/shared/components/ui/button";
+import { ScrollArea } from "@/shared/components/ui/scroll-area";
 import { TypographyLarge } from "@/shared/components/ui/typography";
 import { Check, ChevronLeft, ChevronRight } from "lucide-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
@@ -235,46 +236,48 @@ export function ProjectFilterBar({
                 </Button>
               </div>
             )}
-            <div
-              ref={serviceTypesRef}
-              className="w-full overflow-x-auto no-scrollbar scroll-smooth flex items-center gap-2 pr-12"
+            <ScrollArea
+              viewportRef={serviceTypesRef}
+              className="w-full no-scrollbar"
             >
-              <Button
-                variant={!currentServiceTypeSlug ? "default" : "secondary"}
-                size="sm"
-                className="cursor-pointer"
-                disabled={isPending}
-                onClick={() => handleServiceTypeSelect(null)}
-              >
-                Tất cả loại hình
-                {/* {totalServiceTypesCount !== undefined && (
-                  <span className="border-l border-border/60 pl-2 ml-2 text-xs">
-                    {totalServiceTypesCount}
-                  </span>
-                )} */}
-              </Button>
-              {serviceTypes.map((st) => {
-                if (st.count !== undefined && st.count <= 0) return null;
-                const isActive = currentServiceTypeSlug === st.slug;
-                return (
-                  <Button
-                    key={st.id}
-                    variant={isActive ? "default" : "secondary"}
-                    size="sm"
-                    className="cursor-pointer"
-                    disabled={isPending}
-                    onClick={() => handleServiceTypeSelect(st.slug)}
-                  >
-                    {st.name}
-                    {/* {st.count !== undefined && (
-                      <span className="border-l border-border pl-2 ml-2 text-xs">
-                        {st.count}
-                      </span>
-                    )} */}
-                  </Button>
-                );
-              })}
-            </div>
+              <div className="flex items-center gap-2 pr-12 pb-1.5 w-max">
+                <Button
+                  variant={!currentServiceTypeSlug ? "default" : "secondary"}
+                  size="sm"
+                  className="cursor-pointer"
+                  disabled={isPending}
+                  onClick={() => handleServiceTypeSelect(null)}
+                >
+                  Tất cả loại hình
+                  {/* {totalServiceTypesCount !== undefined && (
+                    <span className="border-l border-border/60 pl-2 ml-2 text-xs">
+                      {totalServiceTypesCount}
+                    </span>
+                  )} */}
+                </Button>
+                {serviceTypes.map((st) => {
+                  if (st.count !== undefined && st.count <= 0) return null;
+                  const isActive = currentServiceTypeSlug === st.slug;
+                  return (
+                    <Button
+                      key={st.id}
+                      variant={isActive ? "default" : "secondary"}
+                      size="sm"
+                      className="cursor-pointer"
+                      disabled={isPending}
+                      onClick={() => handleServiceTypeSelect(st.slug)}
+                    >
+                      {st.name}
+                      {/* {st.count !== undefined && (
+                        <span className="border-l border-border pl-2 ml-2 text-xs">
+                          {st.count}
+                        </span>
+                      )} */}
+                    </Button>
+                  );
+                })}
+              </div>
+            </ScrollArea>
             {showRightST && (
               <div className="absolute right-0 top-0 bottom-0 flex items-center justify-end bg-linear-to-l from-background via-background/90 to-transparent pl-10 pointer-events-none z-10">
                 <Button
@@ -307,51 +310,53 @@ export function ProjectFilterBar({
                 </Button>
               </div>
             )}
-            <div
-              ref={categoriesRef}
-              className="w-full overflow-x-auto no-scrollbar scroll-smooth flex items-center gap-2 pr-12"
+            <ScrollArea
+              viewportRef={categoriesRef}
+              className="w-full no-scrollbar"
             >
-              <Button
-                variant={
-                  currentCategorySlugs.length === 0 ? "default" : "secondary"
-                }
-                size="sm"
-                className="cursor-pointer"
-                disabled={isPending}
-                onClick={() => handleCategoryToggle(null)}
-              >
-                Tất cả sản phẩm
-                {/* {totalCategoriesCount !== undefined && (
-                  <span className="border-l border-border/60 pl-2 ml-2 text-xs">
-                    {totalCategoriesCount}
-                  </span>
-                )} */}
-              </Button>
-              {categories.map((cat) => {
-                if (cat.count !== undefined && cat.count <= 0) return null;
-                const isActive = currentCategorySlugs.includes(cat.slug);
-                return (
-                  <Button
-                    key={cat.id}
-                    variant={isActive ? "default" : "secondary"}
-                    size="sm"
-                    className="cursor-pointer"
-                    disabled={isPending}
-                    onClick={() => handleCategoryToggle(cat.slug)}
-                  >
-                    {isActive && (
-                      <Check icon-data="inline-start" className="w-3.5 h-3.5" />
-                    )}
-                    {cat.name}
-                    {/* {cat.count !== undefined && (
-                      <span className="border-l border-border pl-2 ml-2 text-xs">
-                        {cat.count}
-                      </span>
-                    )} */}
-                  </Button>
-                );
-              })}
-            </div>
+              <div className="flex items-center gap-2 pr-12 pb-1.5 w-max">
+                <Button
+                  variant={
+                    currentCategorySlugs.length === 0 ? "default" : "secondary"
+                  }
+                  size="sm"
+                  className="cursor-pointer"
+                  disabled={isPending}
+                  onClick={() => handleCategoryToggle(null)}
+                >
+                  Tất cả sản phẩm
+                  {/* {totalCategoriesCount !== undefined && (
+                    <span className="border-l border-border/60 pl-2 ml-2 text-xs">
+                      {totalCategoriesCount}
+                    </span>
+                  )} */}
+                </Button>
+                {categories.map((cat) => {
+                  if (cat.count !== undefined && cat.count <= 0) return null;
+                  const isActive = currentCategorySlugs.includes(cat.slug);
+                  return (
+                    <Button
+                      key={cat.id}
+                      variant={isActive ? "default" : "secondary"}
+                      size="sm"
+                      className="cursor-pointer"
+                      disabled={isPending}
+                      onClick={() => handleCategoryToggle(cat.slug)}
+                    >
+                      {isActive && (
+                        <Check icon-data="inline-start" className="w-3.5 h-3.5" />
+                      )}
+                      {cat.name}
+                      {/* {cat.count !== undefined && (
+                        <span className="border-l border-border pl-2 ml-2 text-xs">
+                          {cat.count}
+                        </span>
+                      )} */}
+                    </Button>
+                  );
+                })}
+              </div>
+            </ScrollArea>
             {showRightCat && (
               <div className="absolute right-0 top-0 bottom-0 flex items-center justify-end bg-linear-to-l from-background via-background/90 to-transparent pl-10 pointer-events-none z-10">
                 <Button
