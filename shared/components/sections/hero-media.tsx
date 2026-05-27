@@ -10,7 +10,14 @@ import {
 } from "@/shared/components/ui/card";
 import { HeroSlideshow } from "./hero-slideshow";
 
-const IMAGE_EXTENSIONS = new Set([".jpg", ".jpeg", ".png", ".webp", ".avif", ".gif"]);
+const IMAGE_EXTENSIONS = new Set([
+  ".jpg",
+  ".jpeg",
+  ".png",
+  ".webp",
+  ".avif",
+  ".gif",
+]);
 
 /** Read all image files from public/images at server render time */
 function getLocalHeroImages(): string[] {
@@ -34,11 +41,12 @@ interface HeroMediaSectionProps {
 export function HeroMediaSection({
   image,
   title = "Trải nghiệm Không gian sống Lý tưởng",
-  description = "Khám phá hình ảnh thực tế của hệ thống điều khí thông minh và các giải pháp tối ưu từng nhịp thở cho ngôi nhà.",
+  description = "Khám phá hình ảnh của hệ thống điều khí thông minh và các giải pháp tối ưu từng nhịp thở cho ngôi nhà.",
 }: HeroMediaSectionProps) {
   const localImages = getLocalHeroImages();
 
-  const images = localImages.length > 0 ? localImages : ["/images/img-hero.jpg"];
+  const images =
+    localImages.length > 0 ? localImages : ["/images/img-hero.jpg"];
 
   return (
     <Card className="dark w-full bg-card text-card-foreground border shadow-sm flex flex-col gap-6 overflow-hidden">
@@ -63,4 +71,3 @@ export function HeroMediaSection({
     </Card>
   );
 }
-
