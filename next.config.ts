@@ -4,6 +4,7 @@ const nextConfig: NextConfig = {
   output: "standalone",
   allowedDevOrigins: ["192.168.1.238"],
   images: {
+    qualities: [75, 90],
     remotePatterns: [
       {
         protocol: "https",
