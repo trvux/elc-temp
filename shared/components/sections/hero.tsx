@@ -14,6 +14,8 @@ import Image from "next/image";
 import { Contact } from "@/modules/contact/domain";
 import { HeroContactActions } from "./hero-contact-actions";
 
+import { HeroSlideshow } from "./hero-slideshow";
+
 interface HeroSectionProps {
   title?: string;
   subtitle?: string;
@@ -41,8 +43,7 @@ export function HeroSection({
     section: "flex flex-col items-center gap-12 md:gap-16 w-full",
     content:
       " flex flex-col gap-6 md:gap-8 items-center justify-center text-center max-w-5xl w-full px-4 sm:px-6",
-    media:
-      "relative w-full md:mx-0 rounded-3xl overflow-hidden bg-background/5 backdrop-blur-md border-2 border-border/20 p-1.5 shadow-sm",
+
     image: "object-cover rounded-2xl border-2 border-border/20 shadow-sm",
   };
 
@@ -63,25 +64,11 @@ export function HeroSection({
         <HeroContactActions contacts={contacts} />
       </StaggerContainer>
       {/* Cụm Media */}
-      {/* <div className="relative w-full max-w-4xl flex justify-center">
-        <div className="absolute -inset-10 md:-inset-20 bg-linear-to-tr from-blue-500/20 via-indigo-500/20 to-blue-500/10 blur-[80px] md:blur-[120px] rounded-full pointer-events-none -z-10" /> */}
-
-      <div className={styles.media}>
-        <AspectRatio ratio={16 / 9} className="block">
-          <Image
-            src={getOptimizedImage(heroImage, 1600, 100, "cover")}
-            alt="ELC Space"
-            fill
-            priority
-            unoptimized
-            fetchPriority="high"
-            className={styles.image}
-            sizes="100vw"
-            loading="eager"
-          />
-        </AspectRatio>
-      </div>
-      {/* </div> */}
+      <HeroSlideshow
+        images={[heroImage, "/images/hero-hvac.jpg"]}
+        className="w-full rounded-2xl shadow-sm"
+        imageClassName={styles.image}
+      />
     </section>
   );
 }
