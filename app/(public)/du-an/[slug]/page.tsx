@@ -31,20 +31,20 @@ export async function generateMetadata({
   if (entity.type === "service_type") {
     const st = entity.data;
     return {
-      title: `${st.metaTitle || `Dự án ${st.name}`} | ELC Cơ Điện`,
+      title: `${st.metaTitle || `Dự án ${st.name}`} | Điện máy ELC`,
       description:
         st.metaDescription ||
-        `Tổng hợp các dự án, công trình thiết kế thi công hệ thống cơ điện, điều hòa không khí cho ${st.name} tiêu biểu do ELC thực hiện.`,
+        `Tổng hợp các dự án, công trình thiết kế thi công hệ thống, điều hòa không khí cho ${st.name} tiêu biểu do ELC thực hiện.`,
     };
   }
 
   if (entity.type === "project") {
     const proj = entity.data;
     return {
-      title: `${proj.metaTitle || proj.title} | ELC Cơ Điện`,
+      title: `${proj.metaTitle || proj.title} | Điện máy ELC`,
       description:
         proj.metaDescription ||
-        `Chi tiết công trình ${proj.title} hoàn thiện lắp đặt hệ thống cơ điện chuyên nghiệp bởi ELC.`,
+        `Chi tiết công trình ${proj.title} hoàn thiện lắp đặt hệ thống chuyên nghiệp bởi ELC.`,
     };
   }
 

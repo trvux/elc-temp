@@ -11,7 +11,7 @@ export function TypographyH1({ children, className }: Typography) {
   return (
     <h1
       className={cn(
-        "scroll-m-20 text-2xl font-extrabold tracking-tight sm:text-3xl md:text-4xl lg:text-5xl",
+        "scroll-m-20 text-2xl font-extrabold tracking-tight md:text-4sxl lg:text-5xl",
         className,
       )}
     >
@@ -135,7 +135,12 @@ export function TypographyInlineCode({ children, className }: Typography) {
 
 export function TypographyLead({ children, className }: Typography) {
   return (
-    <p className={cn("text-base text-muted-foreground md:text-lg lg:text-xl", className)}>
+    <p
+      className={cn(
+        "text-base text-muted-foreground md:text-lg lg:text-xl",
+        className,
+      )}
+    >
       {children}
     </p>
   );
@@ -152,10 +157,7 @@ export function TypographyLarge({ children, className }: Typography) {
 export function TypographySmall({ children, className }: Typography) {
   return (
     <small
-      className={cn(
-        "text-xs font-medium leading-none md:text-sm",
-        className,
-      )}
+      className={cn("text-xs font-medium leading-none md:text-sm", className)}
     >
       {children}
     </small>

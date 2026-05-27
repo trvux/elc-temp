@@ -2,55 +2,31 @@ import {
   StaggerContainer,
   StaggerItem,
 } from "@/shared/components/ui/animate-in";
-import { AspectRatio } from "@/shared/components/ui/aspect-ratio";
+import { Card } from "@/shared/components/ui/card";
 import { Separator } from "@/shared/components/ui/separator";
 import {
   TypographyH1,
   TypographyLead,
 } from "@/shared/components/ui/typography";
-import { getOptimizedImage } from "@/shared/lib/image";
-import Image from "next/image";
 
 import { Contact } from "@/modules/contact/domain";
 import { HeroContactActions } from "./hero-contact-actions";
 
-import { HeroSlideshow } from "./hero-slideshow";
-
 interface HeroSectionProps {
   title?: string;
   subtitle?: string;
-  image?: string;
   contacts?: Contact[];
 }
 
 export function HeroSection({
   title = "Giải pháp Không khí thuần khiết.",
   subtitle = "Xóa bỏ ranh giới giữa bên trong và thiên nhiên. Hệ thống điều khí thông minh từ ELC tự động tối ưu từng nhịp thở cho ngôi nhà của bạn.",
-  image,
   contacts = [],
 }: HeroSectionProps) {
-  // Đảm bảo luôn có ảnh mặc định và luôn là đường dẫn tuyệt đối (có dấu / ở đầu)
-  let heroImage = image || "/images/img-hero.jpg";
-  if (
-    heroImage &&
-    !heroImage.startsWith("/") &&
-    !heroImage.startsWith("http")
-  ) {
-    heroImage = "/" + heroImage;
-  }
-  // --- STYLES ---
-  const styles = {
-    section: "flex flex-col items-center gap-12 md:gap-16 w-full",
-    content:
-      " flex flex-col gap-6 md:gap-8 items-center justify-center text-center max-w-5xl w-full px-4 sm:px-6",
-
-    image: "object-cover rounded-2xl border-2 border-border/20 shadow-sm",
-  };
-
   return (
-    <section className={styles.section}>
+    <Card className="dark w-full bg-card text-card-foreground py-16 px-4 md:px-8 flex flex-col items-center justify-center gap-6">
       {/* Cụm Content */}
-      <StaggerContainer className={styles.content} staggerDelay={0.08}>
+      <StaggerContainer className="flex flex-col gap-4 items-center justify-center text-center max-w-4xl w-full" staggerDelay={0.08}>
         <StaggerItem duration={0.25}>
           <TypographyH1>{title}</TypographyH1>
         </StaggerItem>
@@ -63,12 +39,6 @@ export function HeroSection({
 
         <HeroContactActions contacts={contacts} />
       </StaggerContainer>
-      {/* Cụm Media */}
-      <HeroSlideshow
-        images={[heroImage, "/images/hero-hvac.jpg"]}
-        className="w-full rounded-2xl shadow-sm"
-        imageClassName={styles.image}
-      />
-    </section>
+    </Card>
   );
 }

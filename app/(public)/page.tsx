@@ -2,6 +2,7 @@ import { BrandShowcase } from "@/shared/components/sections/brand-showcase";
 import { CTASection } from "@/shared/components/sections/cta";
 import { FeaturesSection } from "@/shared/components/sections/features";
 import { HeroSection } from "@/shared/components/sections/hero";
+import { HeroMediaSection } from "@/shared/components/sections/hero-media";
 import { ShowcaseSection } from "@/shared/components/sections/showcase";
 import { StickyContactActions } from "@/shared/components/sections/sticky-contact-actions";
 
@@ -51,36 +52,52 @@ export default async function Home() {
   const sections = [
     {
       id: "hero",
+      className: "", // bg-background text-foreground dark
       component: (
         <HeroSection
           title={settings.hero_title}
           subtitle={settings.hero_subtitle}
-          image={settings.hero_image}
           contacts={contacts || []}
         />
       ),
     },
-    { id: "brand", component: <BrandShowcase /> },
+    {
+      id: "hero-media",
+      className: "",
+      component: (
+        <HeroMediaSection image={settings.hero_image} />
+      ),
+    },
+    { id: "brand", className: "", component: <BrandShowcase /> },
     {
       id: "showcase",
+      className: "", // bg-background text-foreground dark
       component: <ShowcaseSection projects={projects || []} />,
     },
     {
       id: "features",
+      className: "",
       component: <FeaturesSection products={featuredProducts || []} />,
     },
     {
       id: "cta",
+      className: "", // bg-background text-foreground dark
       component: <CTASection settings={settings} contacts={contacts || []} />,
     },
   ];
 
   return (
     <>
-      <main className="max-w-7xl mx-auto px-4 md:px-6 lg:px-8 animate-fade-in-up">
+      <main className="w-full flex flex-col gap-6 md:gap-8 lg:gap-10 xl:gap-12 py-8 md:py-12 lg:py-16 xl:py-20 animate-fade-in-up">
         {sections.map((section) => (
-          <div key={section.id} id={section.id} className="py-12 md:py-24">
-            {section.component}
+          <div
+            key={section.id}
+            id={section.id}
+            className={`w-full ${section.className || ""}`}
+          >
+            <div className="max-w-7xl mx-auto px-4 md:px-6 lg:px-8">
+              {section.component}
+            </div>
           </div>
         ))}
       </main>

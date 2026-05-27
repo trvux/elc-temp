@@ -11,7 +11,7 @@ interface HeroContactActionsProps {
 
 export function HeroContactActions({ contacts }: HeroContactActionsProps) {
   const displayContacts = getDisplayContacts(contacts, {
-    include: ["zalo", "phone"],
+    include: ["phone", "zalo"],
   });
 
   return (
@@ -20,23 +20,30 @@ export function HeroContactActions({ contacts }: HeroContactActionsProps) {
         <div key={contact.id} className="w-full sm:w-auto">
           <ContactLink
             contact={contact}
-            iconProps={{ size: 20, weight: "regular" }}
+            iconProps={
+              {
+                size: 16,
+                weight: "regular",
+                ...(contact.type === "zalo" ? { stroke: 4 } : {}),
+              } as any
+            }
+            iconClassName={contact.type === "phone" ? "" : undefined}
             showValue={contact.type !== "phone"}
             className={cn(
               buttonVariants({
                 variant: contact.type === "zalo" ? "default" : "outline",
                 size: "lg",
               }),
-              "w-full gap-2"
+              contact.type === "zalo" && "",
+              "w-full gap-2",
             )}
           >
             {contact.type === "phone"
-              ? `Gọi báo giá ngay - ${contact.value}`
-              : `Tư vấn miễn phí - ${contact.value}`}
+              ? `Gọi ngay \\ ${contact.value}`
+              : `Tư vấn \\ ${contact.value}`}
           </ContactLink>
         </div>
       ))}
     </div>
   );
 }
-
