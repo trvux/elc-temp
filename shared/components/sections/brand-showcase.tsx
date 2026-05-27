@@ -39,10 +39,7 @@ export function BrandShowcase() {
     <Card className={styles.section}>
       <StaggerContainer className={styles.container}>
         <StaggerItem className={styles.header}>
-          <TypographyH1>
-            Thương hiệu đồng hành cùng <br className="hidden md:block" /> Điện
-            máy ELC
-          </TypographyH1>
+          <TypographyH1 className="">Đối tác thương hiệu</TypographyH1>
         </StaggerItem>
 
         <StaggerItem>

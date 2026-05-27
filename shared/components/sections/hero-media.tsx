@@ -5,6 +5,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/shared/components/ui/card";
+import { TypographyH1 } from "@/shared/components/ui/typography";
 import { HeroSlideshow } from "./hero-slideshow";
 
 const HERO_IMAGES = [
@@ -26,16 +27,16 @@ interface HeroMediaSectionProps {
 
 export function HeroMediaSection({
   image,
-  title = "Trải nghiệm Không gian sống Lý tưởng",
+  title = "Trải nghiệm không gian sống lý tưởng",
   description = "Khám phá hình ảnh của hệ thống điều khí thông minh và các giải pháp tối ưu từng nhịp thở cho ngôi nhà.",
 }: HeroMediaSectionProps) {
   const images = HERO_IMAGES;
 
   return (
     <Card className="dark w-full bg-card text-card-foreground border shadow-sm flex flex-col gap-6 overflow-hidden">
-      <CardHeader className="flex flex-col gap-2 items-center text-center px-6 pt-8">
-        <CardTitle className="text-xl md:text-2xl lg:text-3xl font-extrabold tracking-tight text-foreground">
-          {title}
+      <CardHeader className="flex flex-col items-center text-center px-6 pt-8 gap-4">
+        <CardTitle>
+          <TypographyH1 className="">{title}</TypographyH1>
         </CardTitle>
         <CardDescription className="max-w-2xl text-sm md:text-base text-muted-foreground">
           {description}

@@ -135,23 +135,23 @@ export function ShowcaseSection({ projects }: ShowcaseSectionProps) {
 
   return (
     <Card className="dark w-full bg-card text-card-foreground py-16 px-4 md:px-8 flex flex-col items-center justify-center gap-6 shadow-sm border overflow-hidden">
-      <StaggerContainer className="flex flex-col gap-6 md:gap-10 w-full">
+      <StaggerContainer className="flex flex-col gap-2 md:gap-4 w-full">
         <div className="flex flex-col items-center text-center gap-3 mb-4 md:mb-10">
           <StaggerItem>
             <TypographyH1>
               <Link
                 href="/du-an"
-                className="group relative inline-flex items-center justify-center hover:text-blue-400 transition-colors"
+                className="group relative inline-flex items-center justify-center transition-colors"
               >
-                Dự án
+                Không gian kiến trúc đã thực hiện
                 <ArrowUpRight className="absolute left-full ml-2 opacity-0 group-hover:opacity-100 h-6 w-6 md:h-8 md:w-8 transition-all duration-300 group-hover:-translate-y-2 group-hover:translate-x-2" />
               </Link>
             </TypographyH1>
           </StaggerItem>
           <StaggerItem>
             <TypographyP className="text-muted-foreground max-w-2xl mx-auto">
-              Khám phá các dự án tiêu biểu mà chúng tôi đã thực hiện, mang lại
-              giải pháp tối ưu cho không gian sống và làm việc.
+              Khám phá các công trình tiêu biểu mà chúng tôi đã thực hiện, mang
+              lại giải pháp tối ưu cho không gian sống và làm việc.
             </TypographyP>
           </StaggerItem>
         </div>
