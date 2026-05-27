@@ -10,6 +10,7 @@ import {
 import { convertToWebP } from "@/shared/lib/image";
 import { type Editor } from "@tiptap/react";
 import { FloatingMenu } from "@tiptap/react/menus";
+import { Selection } from "@tiptap/pm/state";
 import {
   Image as ImageIcon,
   MoreHorizontal,
@@ -43,26 +44,45 @@ export const EditorFloatingMenu = ({
     input.onchange = async (e) => {
       const files = Array.from((e.target as HTMLInputElement).files || []);
       if (files.length > 0) {
+        const urls: string[] = [];
         for (const file of files) {
           try {
             const webpFile = await convertToWebP(file);
             if (uploadImage) {
               const url = await uploadImage(webpFile);
-              editor.chain().focus().setImage({ src: url }).run();
+              urls.push(url);
             } else {
-              await new Promise<void>((resolve) => {
+              const dataUrl = await new Promise<string>((resolve) => {
                 const reader = new FileReader();
                 reader.onload = (readerEvent) => {
-                  const url = readerEvent.target?.result as string;
-                  editor.chain().focus().setImage({ src: url }).run();
-                  resolve();
+                  resolve(readerEvent.target?.result as string);
                 };
                 reader.readAsDataURL(webpFile);
               });
+              urls.push(dataUrl);
             }
           } catch (error) {
             console.error("Lỗi xử lý ảnh:", error);
           }
+        }
+        if (urls.length > 0) {
+          const { view } = editor;
+          const { state } = view;
+          const position = state.selection.from;
+          
+          let transaction = state.tr;
+          let currentPos = position;
+          for (const url of urls) {
+            const node = state.schema.nodes.image.create({ src: url });
+            transaction = transaction.insert(currentPos, node);
+            currentPos += node.nodeSize;
+          }
+          
+          const newSelection = Selection.near(transaction.doc.resolve(currentPos));
+          transaction = transaction.setSelection(newSelection);
+          
+          view.dispatch(transaction);
+          editor.commands.focus();
         }
       }
     };
