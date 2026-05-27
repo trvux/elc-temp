@@ -366,6 +366,8 @@
 }
 .no-scrollbar,
 .no-scrollbar [data-slot="scroll-area-viewport"] {
+  overflow-x: auto !important;
+  -webkit-overflow-scrolling: touch !important; /* Smooth momentum scrolling on iOS */
   -ms-overflow-style: none !important;
   scrollbar-width: none !important;
   overscroll-behavior-x: contain !important; /* Prevents swipe-to-navigate page bounce */
