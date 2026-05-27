@@ -2,6 +2,7 @@ import {
   StaggerContainer,
   StaggerItem,
 } from "@/shared/components/ui/animate-in";
+import { Card } from "@/shared/components/ui/card";
 import { TypographyH2 } from "@/shared/components/ui/typography";
 import { cn } from "@/shared/lib/utils";
 
@@ -20,9 +21,10 @@ const brands = [
 
 export function BrandShowcase() {
   const styles = {
-    section: "",
+    section:
+      "dark w-full bg-card text-card-foreground py-16 px-4 md:px-8 flex flex-col items-center justify-center gap-6",
 
-    container: "grid grid-cols-1 gap-4 md:gap-20",
+    container: "grid grid-cols-1 gap-12 w-full",
     header: "flex flex-col items-center text-center px-6",
     marqueeArea:
       "relative w-full max-w-screen-xl mx-auto overflow-hidden pause-marquee",
@@ -32,7 +34,7 @@ export function BrandShowcase() {
   };
 
   return (
-    <section className={styles.section}>
+    <Card className={styles.section}>
       <StaggerContainer className={styles.container}>
         <StaggerItem className={styles.header}>
           <TypographyH2>
@@ -59,6 +61,6 @@ export function BrandShowcase() {
           </div>
         </StaggerItem>
       </StaggerContainer>
-    </section>
+    </Card>
   );
 }

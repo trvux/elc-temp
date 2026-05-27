@@ -28,13 +28,13 @@ export function ProductCard({
   const currentPrice = product.salePrice || product.originalPrice || 0;
 
   return (
-    <Card className="group flex flex-col overflow-hidden transition-all duration-300 hover:shadow-lg border-none shadow-none bg-background h-full">
+    <Card className="group flex flex-col overflow-hidden transition-all duration-300 hover:shadow-lg border-none shadow-none bg-background h-full pt-0">
       <Link
         href={productUrl}
         className="flex flex-col h-full"
       >
-        <CardHeader className="p-0">
-          <AspectRatio ratio={16 / 9} className="overflow-hidden">
+        <CardHeader className="p-0 py-2 bg-white rounded-t-xl overflow-hidden">
+          <AspectRatio ratio={16 / 9} className="overflow-hidden bg-white">
             {product.images?.[0] ? (
               <Image
                 src={product.images[0]}

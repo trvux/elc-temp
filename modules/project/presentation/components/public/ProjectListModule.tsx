@@ -205,7 +205,7 @@ export async function ProjectListModule({
     : "Tất cả dự án tiêu biểu";
 
   const pageSubtitle = serviceType
-    ? `Các công trình thiết kế và thi công hệ thống cơ điện, điều hòa không khí trong không gian kiến trúc ${serviceType.name} do ELC thực hiện.`
+    ? `Các công trình thiết kế và thi công hệ thống, điều hòa không khí trong không gian kiến trúc ${serviceType.name} do ELC thực hiện.`
     : "Tổng hợp các công trình tiêu biểu do đội ngũ ELC trực tiếp tư vấn, thiết kế và thi công lắp đặt cho khách hàng toàn quốc.";
 
   return (
@@ -226,8 +226,8 @@ export async function ProjectListModule({
           </TypographyH1>
           {serviceType ? (
             <TypographyLead>
-              Các công trình thiết kế và thi công hệ thống cơ điện, điều hòa
-              không khí trong <br className="hidden sm:inline" />
+              Các công trình thiết kế và thi công hệ thống, điều hòa không khí
+              trong <br className="hidden sm:inline" />
               <span className="text-primary/90 font-semibold">
                 không gian kiến trúc {serviceType.name} do ELC thực hiện.
               </span>
@@ -335,7 +335,7 @@ export async function ProjectListModule({
 
                       <CardDescription className="text-xs text-muted-foreground/90 leading-relaxed line-clamp-3">
                         {project.metaDescription ||
-                          "Dự án thi công hoàn thiện hệ thống cơ điện bởi đội ngũ chuyên nghiệp ELC. Mang đến giải pháp tối ưu cho khách hàng."}
+                          "Dự án thi công hoàn thiện hệ thống bởi đội ngũ chuyên nghiệp ELC. Mang đến giải pháp tối ưu cho khách hàng."}
                       </CardDescription>
                     </CardHeader>
 

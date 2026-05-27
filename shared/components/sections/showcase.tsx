@@ -39,12 +39,12 @@ export function ShowcaseSection({ projects }: ShowcaseSectionProps) {
   }) => (
     <Link
       href={getProjectUrl(project)}
-      className="group block transition-all duration-300"
+      className="group block transition-all duration-300 w-full"
     >
-      <Card className="relative overflow-hidden transition-all duration-300 hover:border-primary/50 hover:shadow-md group/card">
+      <Card className="relative overflow-hidden transition-all duration-300 hover:border-primary/50 hover:shadow-md group/card bg-background border-border/10">
         {/* Background Pattern: Diagonal Stripes */}
         <div className="absolute inset-0 opacity-5 pointer-events-none bg-[repeating-linear-gradient(45deg,currentColor,currentColor_2px,transparent_4px,transparent_24px)]" />
-        <CardContent className="relative">
+        <CardContent className="relative py-6">
           <div className="flex items-center gap-4 md:gap-12">
             {/* Left: Image */}
             <div className="w-32 md:w-56 lg:w-80 shrink-0">
@@ -86,7 +86,7 @@ export function ShowcaseSection({ projects }: ShowcaseSectionProps) {
                 )}
               </div>
 
-              <TypographyLarge className="line-clamp-2 w-full">
+              <TypographyLarge className="line-clamp-2 w-full text-foreground">
                 {project.title}
               </TypographyLarge>
             </div>
@@ -97,14 +97,14 @@ export function ShowcaseSection({ projects }: ShowcaseSectionProps) {
   );
 
   return (
-    <section>
-      <StaggerContainer className="flex flex-col gap-6 md:gap-10">
+    <Card className="dark w-full bg-card text-card-foreground py-16 px-4 md:px-8 flex flex-col items-center justify-center gap-6 shadow-sm border overflow-hidden">
+      <StaggerContainer className="flex flex-col gap-6 md:gap-10 w-full">
         <div className="flex flex-col items-center text-center gap-3 mb-4 md:mb-10">
           <StaggerItem>
             <TypographyH1>
               <Link
                 href="/du-an"
-                className="group relative inline-flex items-center justify-center hover:text-blue-700 transition-colors"
+                className="group relative inline-flex items-center justify-center hover:text-blue-700 dark:hover:text-blue-400 transition-colors"
               >
                 Dự án
                 <ArrowUpRight className="absolute left-full ml-2 opacity-0 group-hover:opacity-100 h-6 w-6 md:h-8 md:w-8 transition-all duration-300 group-hover:-translate-y-2 group-hover:translate-x-2" />
@@ -120,11 +120,11 @@ export function ShowcaseSection({ projects }: ShowcaseSectionProps) {
         </div>
 
         {featuredProjects.map((p, idx) => (
-          <StaggerItem key={p.id}>
+          <StaggerItem key={p.id} className="w-full">
             <ProjectMolecule project={p} priority={idx < 2} />
           </StaggerItem>
         ))}
       </StaggerContainer>
-    </section>
+    </Card>
   );
 }

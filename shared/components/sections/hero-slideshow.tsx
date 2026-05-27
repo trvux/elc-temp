@@ -9,9 +9,11 @@ import {
 } from "@/shared/components/ui/carousel";
 import { getOptimizedImage } from "@/shared/lib/image";
 import { cn } from "@/shared/lib/utils";
-import { Pause, Play } from "@phosphor-icons/react";
+import { CaretLeft, CaretRight, Pause, Play } from "@phosphor-icons/react";
 import Image from "next/image";
 import * as React from "react";
+
+import { Button } from "@/shared/components/ui/button";
 
 interface HeroSlideshowProps {
   images: string[];
@@ -115,22 +117,26 @@ export function HeroSlideshow({
       </Carousel>
 
       {/* Previous Button */}
-      {/* <button
+      {/* <Button
+        variant="ghost"
+        size="icon"
         onClick={goToPrev}
-        className="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 flex items-center justify-center rounded-full bg-black/40 text-white opacity-0 group-hover:opacity-100 transition-opacity hover:bg-black/60 z-10"
+        className="absolute left-4 top-1/2 -translate-y-1/2 rounded-full bg-black/40 text-white opacity-0 group-hover:opacity-100 transition-opacity hover:bg-black/60 hover:text-white z-10"
         aria-label="Previous slide"
       >
         <CaretLeft size={20} weight="bold" />
-      </button> */}
+      </Button> */}
 
       {/* Next Button */}
-      {/* <button
-          onClick={goToNext}
-          className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 flex items-center justify-center rounded-full bg-black/40 text-white opacity-0 group-hover:opacity-100 transition-opacity hover:bg-black/60 z-10"
-          aria-label="Next slide"
-        >
-          <CaretRight size={20} weight="bold" />
-        </button> */}
+      {/* <Button
+        variant="ghost"
+        size="icon"
+        onClick={goToNext}
+        className="absolute right-4 top-1/2 -translate-y-1/2 rounded-full bg-black/40 text-white opacity-0 group-hover:opacity-100 transition-opacity hover:bg-black/60 hover:text-white z-10"
+        aria-label="Next slide"
+      >
+        <CaretRight size={20} weight="bold" />
+      </Button> */}
 
       {/* Bottom Control Bar */}
       <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex items-center gap-3 bg-black/40 backdrop-blur-md rounded-full px-4 py-2 z-10">
@@ -163,9 +169,11 @@ export function HeroSlideshow({
 
         <div className="w-px h-4 bg-white/30 mx-1" />
 
-        <button
+        <Button
+          variant="ghost"
+          size="icon-xs"
           onClick={toggleAutoPlay}
-          className="text-white/80 hover:text-white transition-colors"
+          className="text-white/80 hover:text-white hover:bg-white/20 rounded-full transition-colors"
           aria-label={isAutoPlaying ? "Pause autoplay" : "Start autoplay"}
         >
           {isAutoPlaying ? (
@@ -173,7 +181,7 @@ export function HeroSlideshow({
           ) : (
             <Play size={16} weight="fill" />
           )}
-        </button>
+        </Button>
       </div>
     </div>
   );

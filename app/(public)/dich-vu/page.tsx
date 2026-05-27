@@ -1,3 +1,5 @@
+import { getServices } from "@/modules/service/application";
+import { ScrollToTop } from "@/shared/components/layout/user/scroll-to-top";
 import {
   TypographyH1,
   TypographyH4,
@@ -5,12 +7,10 @@ import {
   TypographyP,
   TypographySmall,
 } from "@/shared/components/ui/typography";
-import { ScrollToTop } from "@/shared/components/layout/user/scroll-to-top";
 import { cn } from "@/shared/lib/utils";
 import { ArrowUpRight } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { getServices } from "@/modules/service/application";
 
 const STYLES = {
   main: cn("w-full min-h-screen py-12 px-4 md:px-8"),
@@ -20,14 +20,22 @@ const STYLES = {
   ),
   title: cn(),
   description: cn(),
-  list: cn("grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-16 min-h-[400px] animate-fade-in-up"),
+  list: cn(
+    "grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-16 min-h-[400px] animate-fade-in-up",
+  ),
   article: cn(
     "group flex flex-col gap-6 no-underline transition-all duration-300",
   ),
-  imageWrapper: cn("relative aspect-video rounded-2xl overflow-hidden border bg-muted"),
-  image: cn("object-cover transition-transform duration-500 group-hover:scale-105"),
+  imageWrapper: cn(
+    "relative aspect-video rounded-2xl overflow-hidden border bg-muted",
+  ),
+  image: cn(
+    "object-cover transition-transform duration-500 group-hover:scale-105",
+  ),
   articleHeader: cn("flex justify-between items-start gap-4"),
-  articleTitle: cn("text-primary/70 group-hover:text-primary transition-colors"),
+  articleTitle: cn(
+    "text-primary/70 group-hover:text-primary transition-colors",
+  ),
   articleIcon: cn(
     "w-6 h-6 shrink-0 mt-2 text-muted-foreground/40 group-hover:text-primary group-hover:translate-x-1 group-hover:-translate-y-1 transition-all",
   ),
@@ -48,7 +56,7 @@ export default async function ServicesHub() {
     return (
       <main className={STYLES.main}>
         <div className={STYLES.container}>
-           <header className={STYLES.header}>
+          <header className={STYLES.header}>
             <TypographyH1 className={STYLES.title}>Dịch vụ</TypographyH1>
             <TypographyP className="text-muted-foreground">
               Hiện tại chưa có dịch vụ nào được đăng tải.
@@ -65,7 +73,8 @@ export default async function ServicesHub() {
         <header className={STYLES.header}>
           <TypographyH1 className={STYLES.title}>Dịch vụ</TypographyH1>
           <TypographyLead className={STYLES.description}>
-            Giải pháp chuyên nghiệp dành cho hệ thống lạnh công nghiệp, điều hòa trung tâm và bảo trì hệ thống cơ điện.
+            Giải pháp chuyên nghiệp dành cho hệ thống lạnh công nghiệp, điều hòa
+            trung tâm và bảo trì hệ thống.
           </TypographyLead>
         </header>
 
@@ -95,9 +104,10 @@ export default async function ServicesHub() {
                   </TypographyH4>
                   <ArrowUpRight className={STYLES.articleIcon} />
                 </div>
-                
+
                 <TypographySmall className="text-muted-foreground/40 font-medium">
-                  Cập nhật: {new Date(service.updatedAt).toLocaleDateString("vi-VN", {
+                  Cập nhật:{" "}
+                  {new Date(service.updatedAt).toLocaleDateString("vi-VN", {
                     day: "numeric",
                     month: "long",
                     year: "numeric",
