@@ -86,7 +86,7 @@ export function HeroSlideshow({
 
   return (
     <div
-      className={cn("relative group overflow-hidden select-none", className)}
+      className={cn("relative group overflow-hidden select-none flex flex-col", className)}
       onContextMenu={(e) => e.preventDefault()}
     >
       <Carousel
@@ -142,7 +142,7 @@ export function HeroSlideshow({
       </Button> */}
 
       {/* Bottom Control Bar */}
-      <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex items-center gap-3 bg-black/40 backdrop-blur-md rounded-full px-4 py-2 z-10">
+      <div className="relative md:absolute mt-4 md:mt-0 md:bottom-6 left-auto md:left-1/2 translate-x-0 md:-translate-x-1/2 mx-auto md:mx-0 flex items-center gap-3 bg-black/40 backdrop-blur-md rounded-full px-4 py-2 z-10 w-fit">
         <div className="flex items-center gap-2">
           {images.map((_, idx) => (
             <button
