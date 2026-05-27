@@ -3,7 +3,7 @@ import {
   StaggerItem,
 } from "@/shared/components/ui/animate-in";
 import { Card } from "@/shared/components/ui/card";
-import { TypographyH2 } from "@/shared/components/ui/typography";
+import { TypographyH1 } from "@/shared/components/ui/typography";
 import { cn } from "@/shared/lib/utils";
 
 const brands = [
@@ -37,10 +37,10 @@ export function BrandShowcase() {
     <Card className={styles.section}>
       <StaggerContainer className={styles.container}>
         <StaggerItem className={styles.header}>
-          <TypographyH2>
+          <TypographyH1>
             Thương hiệu đồng hành cùng <br className="hidden md:block" /> Điện
             máy ELC
-          </TypographyH2>
+          </TypographyH1>
         </StaggerItem>
 
         <StaggerItem>

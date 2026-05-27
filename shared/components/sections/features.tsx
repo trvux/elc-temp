@@ -19,7 +19,6 @@ import {
   TypographyMuted,
   TypographyP,
 } from "@/shared/components/ui/typography";
-import { cn } from "@/shared/lib/utils";
 import { ArrowUpRight } from "lucide-react";
 import Link from "next/link";
 
@@ -33,7 +32,8 @@ export function FeaturesSection({ products }: FeaturesSectionProps) {
 
   // --- STYLES ---
   const styles = {
-    productGrid: "grid gap-6 md:grid-cols-3 lg:grid-cols-4 hidden md:grid w-full",
+    productGrid:
+      "grid gap-6 md:grid-cols-3 lg:grid-cols-4 hidden md:grid w-full",
     emptyState:
       "flex flex-col items-center justify-center py-20 gap-4 text-muted-foreground border border-dashed rounded-xl bg-muted/30 w-full",
   };
@@ -70,10 +70,7 @@ export function FeaturesSection({ products }: FeaturesSectionProps) {
               <CarouselContent className="-ml-2 p-2">
                 {products.map((product, index) => (
                   <CarouselItem key={product.id} className="px-2 basis-[80%]">
-                    <ProductCard
-                      product={product}
-                      priority={index === 0}
-                    />
+                    <ProductCard product={product} priority={index === 0} />
                   </CarouselItem>
                 ))}
               </CarouselContent>
@@ -84,10 +81,7 @@ export function FeaturesSection({ products }: FeaturesSectionProps) {
           <StaggerContainer className={styles.productGrid}>
             {products.map((product, index) => (
               <StaggerItem key={product.id}>
-                <ProductCard
-                  product={product}
-                  priority={index < 4}
-                />
+                <ProductCard product={product} priority={index < 4} />
               </StaggerItem>
             ))}
           </StaggerContainer>

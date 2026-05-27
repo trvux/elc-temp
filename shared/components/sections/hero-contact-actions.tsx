@@ -35,7 +35,7 @@ export function HeroContactActions({ contacts }: HeroContactActionsProps) {
                 size: "lg",
               }),
               contact.type === "zalo" && "",
-              "w-full gap-2",
+              "w-full gap-4",
             )}
           >
             {contact.type === "phone"
