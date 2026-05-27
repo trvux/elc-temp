@@ -1,6 +1,3 @@
-import fs from "fs";
-import path from "path";
-
 import {
   Card,
   CardContent,
@@ -10,27 +7,16 @@ import {
 } from "@/shared/components/ui/card";
 import { HeroSlideshow } from "./hero-slideshow";
 
-const IMAGE_EXTENSIONS = new Set([
-  ".jpg",
-  ".jpeg",
-  ".png",
-  ".webp",
-  ".avif",
-  ".gif",
-]);
-
-/** Read all image files from public/images at server render time */
-function getLocalHeroImages(): string[] {
-  const dir = path.join(process.cwd(), "public", "images");
-  try {
-    return fs
-      .readdirSync(dir)
-      .filter((file) => IMAGE_EXTENSIONS.has(path.extname(file).toLowerCase()))
-      .map((file) => `/images/${file}`);
-  } catch {
-    return [];
-  }
-}
+const HERO_IMAGES = [
+  "/images/1.jpg",
+  "/images/2.jpg",
+  "/images/3.jpg",
+  "/images/4.jpg",
+  "/images/5.jpg",
+  "/images/6.jpg",
+  "/images/7.jpg",
+  "/images/8.jpg",
+];
 
 interface HeroMediaSectionProps {
   image?: string;
@@ -43,10 +29,7 @@ export function HeroMediaSection({
   title = "Trải nghiệm Không gian sống Lý tưởng",
   description = "Khám phá hình ảnh của hệ thống điều khí thông minh và các giải pháp tối ưu từng nhịp thở cho ngôi nhà.",
 }: HeroMediaSectionProps) {
-  const localImages = getLocalHeroImages();
-
-  const images =
-    localImages.length > 0 ? localImages : ["/images/img-hero.jpg"];
+  const images = HERO_IMAGES;
 
   return (
     <Card className="dark w-full bg-card text-card-foreground border shadow-sm flex flex-col gap-6 overflow-hidden">
