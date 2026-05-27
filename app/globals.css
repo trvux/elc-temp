@@ -360,13 +360,25 @@
 }
 
 /* Hide scrollbar utility */
-.no-scrollbar::-webkit-scrollbar {
+.no-scrollbar::-webkit-scrollbar,
+.no-scrollbar [data-slot="scroll-area-viewport"]::-webkit-scrollbar {
   display: none !important;
 }
-.no-scrollbar {
+.no-scrollbar,
+.no-scrollbar [data-slot="scroll-area-viewport"] {
   -ms-overflow-style: none !important;
   scrollbar-width: none !important;
+  overscroll-behavior-x: contain !important; /* Prevents swipe-to-navigate page bounce */
+  -webkit-user-select: none !important;      /* Prevents text selection callouts */
+  user-select: none !important;
 }
 .no-scrollbar [data-slot="scroll-area-scrollbar"] {
   display: none !important;
+}
+/* Prevent browser element dragging on touch */
+.no-scrollbar button, 
+.no-scrollbar a,
+.no-scrollbar [data-slot="scroll-area-viewport"] button {
+  -webkit-user-drag: none !important;
+  user-drag: none !important;
 }
