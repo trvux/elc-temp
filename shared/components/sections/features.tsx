@@ -39,7 +39,7 @@ export function FeaturesSection({ products }: FeaturesSectionProps) {
   };
 
   return (
-    <Card className="dark w-full bg-card text-card-foreground py-16 px-4 md:px-8 flex flex-col items-center justify-center gap-8 shadow-sm border overflow-hidden">
+    <Card className="w-full bg-card text-card-foreground py-16 px-4 md:px-8 flex flex-col items-center justify-center gap-8 shadow-sm border overflow-hidden">
       <StaggerContainer className="w-full">
         <div className="flex flex-col items-center text-center gap-3">
           <StaggerItem>
