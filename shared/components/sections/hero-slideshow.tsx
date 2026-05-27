@@ -7,7 +7,6 @@ import {
   CarouselItem,
   type CarouselApi,
 } from "@/shared/components/ui/carousel";
-import { getOptimizedImage } from "@/shared/lib/image";
 import { cn } from "@/shared/lib/utils";
 import { Pause, Play } from "@phosphor-icons/react";
 import Image from "next/image";
@@ -86,7 +85,10 @@ export function HeroSlideshow({
   if (!images || images.length === 0) return null;
 
   return (
-    <div className={cn("relative group overflow-hidden", className)}>
+    <div
+      className={cn("relative group overflow-hidden select-none", className)}
+      onContextMenu={(e) => e.preventDefault()}
+    >
       <Carousel
         setApi={setApi}
         opts={{ loop: true, align: "start" }}
@@ -100,15 +102,16 @@ export function HeroSlideshow({
                 className="block w-full h-full relative"
               >
                 <Image
-                  src={getOptimizedImage(src, 1600, 100, "cover")}
+                  src={src}
                   alt={`Slide ${index + 1}`}
                   fill
+                  quality={90}
                   priority={index === 0}
-                  unoptimized
+                  loading={index === 0 ? "eager" : "lazy"}
                   draggable={false}
                   fetchPriority={index === 0 ? "high" : "auto"}
                   className={cn("object-cover w-full h-full", imageClassName)}
-                  sizes="100vw"
+                  sizes="(max-width: 640px) 100vw, (max-width: 1024px) 95vw, 1600px"
                 />
               </AspectRatio>
             </CarouselItem>

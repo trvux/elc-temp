@@ -18,7 +18,7 @@ export function Header() {
           isMenuOpen
             ? "bg-background"
             : isScrolled
-              ? "bg-background/80 backdrop-blur-sm backdrop-brightness-150 backdrop-saturate-50"
+              ? "bg-background/90 backdrop-blur-md backdrop-brightness-50 backdrop-saturate-150"
               : "",
         )}
       >
