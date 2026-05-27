@@ -30,7 +30,7 @@ export function BrandShowcase() {
       "relative w-full max-w-screen-xl mx-auto overflow-hidden pause-marquee",
     marqueeTrack: "flex gap-6 md:gap-16 lg:gap-24 animate-marquee w-fit",
     brand:
-      "flex items-center justify-center text-foreground/30 hover:text-foreground/80 transition-colors duration-500 cursor-grab whitespace-nowrap text-sm font-medium tracking-tight sm:text-lg md:text-xl lg:text-2xl",
+      "flex items-center justify-center text-foreground/70 hover:text-foreground transition-colors duration-500 cursor-grab whitespace-nowrap text-sm font-medium tracking-tight sm:text-lg md:text-xl lg:text-2xl",
   };
 
   return (
@@ -38,8 +38,8 @@ export function BrandShowcase() {
       <StaggerContainer className={styles.container}>
         <StaggerItem className={styles.header}>
           <TypographyH2>
-            Hơn 10,000 dự án cao cấp <br className="hidden md:block" /> tin dùng
-            giải pháp từ ELC
+            Thương hiệu đồng hành cùng <br className="hidden md:block" /> Điện
+            máy ELC
           </TypographyH2>
         </StaggerItem>
 

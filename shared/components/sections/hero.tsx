@@ -31,7 +31,7 @@ export function HeroSection({
         staggerDelay={0.08}
       >
         <StaggerItem duration={0.25}>
-          <TypographyH1 className="text-4xl md:text-6xl lg:text-7xl">
+          <TypographyH1 className="text-3xl md:text-5xl lg:text-6xl">
             {title}
           </TypographyH1>
         </StaggerItem>
@@ -39,7 +39,12 @@ export function HeroSection({
           <Separator className="w-24" />
         </StaggerItem>
         <StaggerItem duration={0.25}>
-          <TypographyLead>{subtitle}</TypographyLead>
+          {/* <TypographyLead>{subtitle}</TypographyLead> */}
+          <TypographyLead>
+            ELC chuyên cung cấp, thi công lắp đặt và trao đổi trọn gói các dòng
+            máy lạnh, hệ thống lọc khí tươi thông minh cho cá nhân và doanh
+            nghiệp từ những thương hiệu uy tín hàng đầu.
+          </TypographyLead>
         </StaggerItem>
 
         <HeroContactActions contacts={contacts} />

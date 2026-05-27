@@ -14,13 +14,16 @@ import { getSiteSettings } from "@/modules/settings/application";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Điện máy ELC - Siêu thị máy lạnh & Giải pháp không khí chính hãng, giá tốt",
-  description: "Điện máy ELC - Hệ thống cung cấp máy lạnh chính hãng, máy lọc không khí và giải pháp điều hòa trung tâm VRV/VRF. Cam kết giá rẻ nhất thị trường, lắp đặt chuyên nghiệp, bảo hành dài hạn.",
+  title:
+    "Điện máy ELC - Siêu thị máy lạnh & Giải pháp không khí chính hãng, giá tốt",
+  description:
+    "Điện máy ELC - Hệ thống cung cấp máy lạnh chính hãng, máy lọc không khí và giải pháp điều hòa trung tâm VRV/VRF. Cam kết giá rẻ nhất thị trường, lắp đặt chuyên nghiệp, bảo hành dài hạn.",
   openGraph: {
     title: "Điện máy ELC - Máy lạnh chính hãng, giá tốt nhất",
-    description: "Hệ thống điện máy chuyên cung cấp máy lạnh, máy lọc khí và giải pháp không khí cho gia đình, dự án. Uy tín, chất lượng.",
+    description:
+      "Hệ thống điện máy chuyên cung cấp máy lạnh, máy lọc khí và giải pháp không khí cho gia đình, dự án. Uy tín, chất lượng.",
     images: ["/images/hero-bg.jpg"],
-  }
+  },
 };
 
 export const revalidate = 3600;
@@ -33,7 +36,7 @@ export default async function Home() {
       getProjects({
         isPublished: true,
         isFeatured: true,
-        limit: 5,
+        limit: 12,
       }),
       getProducts({
         isPublished: true,
@@ -64,9 +67,7 @@ export default async function Home() {
     {
       id: "hero-media",
       className: "",
-      component: (
-        <HeroMediaSection image={settings.hero_image} />
-      ),
+      component: <HeroMediaSection image={settings.hero_image} />,
     },
     { id: "brand", className: "", component: <BrandShowcase /> },
     {
