@@ -18,6 +18,7 @@ import { useMemo, useState } from "react";
 
 import { ProjectWithCategory as Project } from "@/modules/project/domain";
 import { Card, CardContent } from "@/shared/components/ui/card";
+import { ScrollArea } from "@/shared/components/ui/scroll-area";
 import { Tabs, TabsList, TabsTrigger } from "@/shared/components/ui/tabs";
 import { ArrowUpRight, Sparkle } from "lucide-react";
 
@@ -162,20 +163,24 @@ export function ShowcaseSection({ projects }: ShowcaseSectionProps) {
               onValueChange={setActiveTab}
               className="w-full flex flex-col items-center gap-6"
             >
-              <TabsList className="flex flex-row flex-nowrap justify-start md:justify-center w-full md:w-fit overflow-x-auto [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-                {/* <TabsTrigger value="all" className="shrink-0 px-4 py-1.5 md:px-5 md:py-2">
-                  Tất cả
-                </TabsTrigger> */}
-                {serviceTypes.map((st) => (
-                  <TabsTrigger
-                    key={st.id}
-                    value={st.id}
-                    className="shrink-0 px-4 py-1.5 md:px-5 md:py-2"
-                  >
-                    {st.name}
-                  </TabsTrigger>
-                ))}
-              </TabsList>
+              <ScrollArea className="w-full no-scrollbar flex justify-center">
+                <div className="w-full flex justify-start md:justify-center pb-1">
+                  <TabsList className="flex flex-row flex-nowrap justify-start w-max md:w-fit">
+                    {/* <TabsTrigger value="all" className="shrink-0 px-4 py-1.5 md:px-5 md:py-2">
+                      Tất cả
+                    </TabsTrigger> */}
+                    {serviceTypes.map((st) => (
+                      <TabsTrigger
+                        key={st.id}
+                        value={st.id}
+                        className="shrink-0 px-4 py-1.5 md:px-5 md:py-2"
+                      >
+                        {st.name}
+                      </TabsTrigger>
+                    ))}
+                  </TabsList>
+                </div>
+              </ScrollArea>
             </Tabs>
           </StaggerItem>
         )}
