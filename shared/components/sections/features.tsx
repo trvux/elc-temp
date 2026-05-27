@@ -39,7 +39,7 @@ export function FeaturesSection({ products }: FeaturesSectionProps) {
   };
 
   return (
-    <Card className="w-full bg-card text-card-foreground py-16 px-4 md:px-8 flex flex-col items-center justify-center gap-8 shadow-sm border overflow-hidden">
+    <Card className="dark w-full bg-card text-card-foreground py-16 px-4 md:px-8 flex flex-col items-center justify-center gap-8 shadow-sm border overflow-hidden">
       <StaggerContainer className="w-full">
         <div className="flex flex-col items-center text-center gap-3">
           <StaggerItem>
@@ -56,7 +56,7 @@ export function FeaturesSection({ products }: FeaturesSectionProps) {
           <StaggerItem>
             <TypographyP className="text-muted-foreground max-w-2xl mx-auto">
               Khám phá những giải pháp làm mát và lọc không khí tối ưu, được lựa
-              chọn kỹ lưỡng cho không gian sống của bạn.
+              chọn kỹ lượng cho không gian sống của bạn.
             </TypographyP>
           </StaggerItem>
         </div>
@@ -70,7 +70,9 @@ export function FeaturesSection({ products }: FeaturesSectionProps) {
               <CarouselContent className="-ml-2 p-2">
                 {products.map((product, index) => (
                   <CarouselItem key={product.id} className="px-2 basis-[80%]">
-                    <ProductCard product={product} priority={index === 0} />
+                    <div className="light text-foreground bg-background rounded-xl overflow-hidden shadow-sm h-full">
+                      <ProductCard product={product} priority={index === 0} />
+                    </div>
                   </CarouselItem>
                 ))}
               </CarouselContent>
@@ -81,7 +83,9 @@ export function FeaturesSection({ products }: FeaturesSectionProps) {
           <StaggerContainer className={styles.productGrid}>
             {products.map((product, index) => (
               <StaggerItem key={product.id}>
-                <ProductCard product={product} priority={index < 4} />
+                <div className="light text-foreground bg-background rounded-xl overflow-hidden shadow-sm h-full">
+                  <ProductCard product={product} priority={index < 4} />
+                </div>
               </StaggerItem>
             ))}
           </StaggerContainer>
