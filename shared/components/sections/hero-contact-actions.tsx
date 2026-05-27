@@ -39,8 +39,8 @@ export function HeroContactActions({ contacts }: HeroContactActionsProps) {
             )}
           >
             {contact.type === "phone"
-              ? `Gọi ngay \\ ${contact.value}`
-              : `Tư vấn \\ ${contact.value}`}
+              ? `Gọi ngay — ${contact.value}`
+              : `Tư vấn — ${contact.value}`}
           </ContactLink>
         </div>
       ))}
