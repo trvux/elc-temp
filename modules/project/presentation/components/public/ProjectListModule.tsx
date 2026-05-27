@@ -202,7 +202,7 @@ export async function ProjectListModule({
   // Dynamic header text
   const pageTitle = serviceType
     ? `Dự án — ${serviceType.name}`
-    : "Tất cả dự án tiêu biểu";
+    : "Tất cả công trình tiêu biểu";
 
   const pageSubtitle = serviceType
     ? `Các công trình thiết kế và thi công hệ thống, điều hòa không khí trong không gian kiến trúc ${serviceType.name} do ELC thực hiện.`
