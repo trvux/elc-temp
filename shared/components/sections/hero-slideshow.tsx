@@ -86,38 +86,40 @@ export function HeroSlideshow({
 
   return (
     <div
-      className={cn("relative group overflow-hidden select-none flex flex-col", className)}
+      className={cn("relative group select-none flex flex-col", className)}
       onContextMenu={(e) => e.preventDefault()}
     >
-      <Carousel
-        setApi={setApi}
-        opts={{ loop: true, align: "start" }}
-        className="w-full"
-      >
-        <CarouselContent className="ml-0">
-          {images.map((src, index) => (
-            <CarouselItem key={index} className="pl-0 w-full relative">
-              <AspectRatio
-                ratio={16 / 9}
-                className="block w-full h-full relative"
-              >
-                <Image
-                  src={src}
-                  alt={`Slide ${index + 1}`}
-                  fill
-                  quality={90}
-                  priority={index === 0}
-                  loading={index === 0 ? "eager" : "lazy"}
-                  draggable={false}
-                  fetchPriority={index === 0 ? "high" : "auto"}
-                  className={cn("object-cover w-full h-full", imageClassName)}
-                  sizes="(max-width: 640px) 100vw, (max-width: 1024px) 95vw, 1600px"
-                />
-              </AspectRatio>
-            </CarouselItem>
-          ))}
-        </CarouselContent>
-      </Carousel>
+      <div className="relative p-1 md:p-2 rounded-2xl bg-white/5 backdrop-blur-sm border border-white/20 shadow-2xl overflow-hidden">
+        <Carousel
+          setApi={setApi}
+          opts={{ loop: true, align: "start" }}
+          className="w-full rounded-xl overflow-hidden"
+        >
+          <CarouselContent className="ml-0">
+            {images.map((src, index) => (
+              <CarouselItem key={index} className="pl-0 w-full relative">
+                <AspectRatio
+                  ratio={16 / 9}
+                  className="block w-full h-full relative"
+                >
+                  <Image
+                    src={src}
+                    alt={`Slide ${index + 1}`}
+                    fill
+                    quality={90}
+                    priority={index === 0}
+                    loading={index === 0 ? "eager" : "lazy"}
+                    draggable={false}
+                    fetchPriority={index === 0 ? "high" : "auto"}
+                    className={cn("object-cover w-full h-full", imageClassName)}
+                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 95vw, 1600px"
+                  />
+                </AspectRatio>
+              </CarouselItem>
+            ))}
+          </CarouselContent>
+        </Carousel>
+      </div>
 
       {/* Previous Button */}
       {/* <Button
