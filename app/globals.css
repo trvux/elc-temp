@@ -281,6 +281,15 @@
     }
   }
 
+  @keyframes slide-progress {
+    from {
+      transform: scaleX(0);
+    }
+    to {
+      transform: scaleX(1);
+    }
+  }
+
   .animate-marquee {
     animation: marquee 40s linear infinite;
   }
