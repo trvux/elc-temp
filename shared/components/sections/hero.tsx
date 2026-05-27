@@ -26,9 +26,14 @@ export function HeroSection({
   return (
     <Card className="dark w-full bg-card text-card-foreground py-16 px-4 md:px-8 flex flex-col items-center justify-center gap-6">
       {/* Cụm Content */}
-      <StaggerContainer className="flex flex-col gap-4 items-center justify-center text-center max-w-4xl w-full" staggerDelay={0.08}>
+      <StaggerContainer
+        className="flex flex-col gap-4 items-center justify-center text-center max-w-4xl w-full"
+        staggerDelay={0.08}
+      >
         <StaggerItem duration={0.25}>
-          <TypographyH1>{title}</TypographyH1>
+          <TypographyH1 className="text-4xl md:text-6xl lg:text-7xl">
+            {title}
+          </TypographyH1>
         </StaggerItem>
         <StaggerItem duration={0.25}>
           <Separator className="w-24" />
