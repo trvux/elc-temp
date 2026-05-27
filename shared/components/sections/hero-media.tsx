@@ -60,13 +60,11 @@ export function HeroMediaSection({
       </CardHeader>
 
       <CardContent className="px-6 pb-6">
-        <div className="relative p-1 md:p-2 rounded-2xl bg-white/5 backdrop-blur-sm border border-white/20 shadow-2xl">
-          <HeroSlideshow
-            images={images}
-            className="w-full rounded-xl overflow-hidden"
-            imageClassName="object-cover"
-          />
-        </div>
+        <HeroSlideshow
+          images={images}
+          className="w-full"
+          imageClassName="object-cover"
+        />
       </CardContent>
     </Card>
   );
