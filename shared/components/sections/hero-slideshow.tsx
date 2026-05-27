@@ -9,7 +9,7 @@ import {
 } from "@/shared/components/ui/carousel";
 import { getOptimizedImage } from "@/shared/lib/image";
 import { cn } from "@/shared/lib/utils";
-import { CaretLeft, CaretRight, Pause, Play } from "@phosphor-icons/react";
+import { Pause, Play } from "@phosphor-icons/react";
 import Image from "next/image";
 import * as React from "react";
 

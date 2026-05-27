@@ -1,3 +1,5 @@
+"use client";
+
 import {
   StaggerContainer,
   StaggerItem,
@@ -12,9 +14,11 @@ import {
 import { getOptimizedImage } from "@/shared/lib/image";
 import Image from "next/image";
 import Link from "next/link";
+import { useMemo, useState } from "react";
 
 import { ProjectWithCategory as Project } from "@/modules/project/domain";
 import { Card, CardContent } from "@/shared/components/ui/card";
+import { Tabs, TabsList, TabsTrigger } from "@/shared/components/ui/tabs";
 import { ArrowUpRight, Sparkle } from "lucide-react";
 
 interface ShowcaseSectionProps {
@@ -22,7 +26,39 @@ interface ShowcaseSectionProps {
 }
 
 export function ShowcaseSection({ projects }: ShowcaseSectionProps) {
-  const featuredProjects = projects?.filter((p) => p.isFeatured) || [];
+  const featuredProjects = useMemo(
+    () => projects?.filter((p) => p.isFeatured) || [],
+    [projects],
+  );
+
+  const serviceTypes = useMemo(() => {
+    const map = new Map<string, { id: string; name: string; slug?: string }>();
+    featuredProjects.forEach((p) => {
+      if (p.serviceType) {
+        map.set(p.serviceType.id, p.serviceType);
+      }
+    });
+    return Array.from(map.values());
+  }, [featuredProjects]);
+
+  const [activeTab, setActiveTab] = useState<string>(() => {
+    const firstType = serviceTypes[0];
+    return firstType ? firstType.id : "all";
+  });
+
+  // Keep state in sync if serviceTypes load dynamically or change
+  const currentActiveTab = useMemo(() => {
+    if (activeTab === "all" && serviceTypes[0]) {
+      return serviceTypes[0].id;
+    }
+    return activeTab;
+  }, [activeTab, serviceTypes]);
+
+  const filteredProjects = useMemo(() => {
+    return featuredProjects.filter(
+      (p) => p.serviceType?.id === currentActiveTab,
+    );
+  }, [featuredProjects, currentActiveTab]);
 
   if (featuredProjects.length === 0) return null;
 
@@ -104,7 +140,7 @@ export function ShowcaseSection({ projects }: ShowcaseSectionProps) {
             <TypographyH1>
               <Link
                 href="/du-an"
-                className="group relative inline-flex items-center justify-center hover:text-blue-700 dark:hover:text-blue-400 transition-colors"
+                className="group relative inline-flex items-center justify-center hover:text-blue-400 transition-colors"
               >
                 Dự án
                 <ArrowUpRight className="absolute left-full ml-2 opacity-0 group-hover:opacity-100 h-6 w-6 md:h-8 md:w-8 transition-all duration-300 group-hover:-translate-y-2 group-hover:translate-x-2" />
@@ -119,11 +155,47 @@ export function ShowcaseSection({ projects }: ShowcaseSectionProps) {
           </StaggerItem>
         </div>
 
-        {featuredProjects.map((p, idx) => (
-          <StaggerItem key={p.id} className="w-full">
-            <ProjectMolecule project={p} priority={idx < 2} />
+        {serviceTypes.length > 0 && (
+          <StaggerItem className="w-full flex justify-center">
+            <Tabs
+              value={currentActiveTab}
+              onValueChange={setActiveTab}
+              className="w-full flex flex-col items-center gap-6"
+            >
+              <TabsList className="flex flex-row flex-nowrap justify-start md:justify-center w-full md:w-fit overflow-x-auto [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+                {/* <TabsTrigger value="all" className="shrink-0 px-4 py-1.5 md:px-5 md:py-2">
+                  Tất cả
+                </TabsTrigger> */}
+                {serviceTypes.map((st) => (
+                  <TabsTrigger
+                    key={st.id}
+                    value={st.id}
+                    className="shrink-0 px-4 py-1.5 md:px-5 md:py-2"
+                  >
+                    {st.name}
+                  </TabsTrigger>
+                ))}
+              </TabsList>
+            </Tabs>
           </StaggerItem>
-        ))}
+        )}
+
+        <div className="w-full min-h-[300px]" key={activeTab}>
+          <StaggerContainer className="flex flex-col gap-4 w-full">
+            {filteredProjects.map((p, idx) => (
+              <StaggerItem key={p.id} className="w-full">
+                <ProjectMolecule project={p} priority={idx < 2} />
+              </StaggerItem>
+            ))}
+            {filteredProjects.length === 0 && (
+              <StaggerItem className="w-full py-16 text-center border border-dashed border-border/10 rounded-xl bg-background/25">
+                <TypographyMuted>
+                  Chưa có dự án nào trong không gian này
+                </TypographyMuted>
+              </StaggerItem>
+            )}
+          </StaggerContainer>
+        </div>
       </StaggerContainer>
     </Card>
   );
