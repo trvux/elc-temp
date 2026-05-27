@@ -38,24 +38,7 @@ export function HeroMediaSection({
 }: HeroMediaSectionProps) {
   const localImages = getLocalHeroImages();
 
-  // Normalise the settings hero_image (may be an external URL or a relative path)
-  let heroImage = image ?? "";
-  if (heroImage && !heroImage.startsWith("/") && !heroImage.startsWith("http")) {
-    heroImage = "/" + heroImage;
-  }
-
-  // Build final image list:
-  // 1. settings hero_image (external CDN) goes first if it exists and is not already in the local list
-  // 2. followed by every file found in public/images
-  const images: string[] = [
-    ...(heroImage && !localImages.includes(heroImage) ? [heroImage] : []),
-    ...localImages,
-  ];
-
-  // Fallback so the slideshow always has at least one image
-  if (images.length === 0) {
-    images.push("/images/img-hero.jpg");
-  }
+  const images = localImages.length > 0 ? localImages : ["/images/img-hero.jpg"];
 
   return (
     <Card className="dark w-full bg-card text-card-foreground border shadow-sm flex flex-col gap-6 overflow-hidden">
