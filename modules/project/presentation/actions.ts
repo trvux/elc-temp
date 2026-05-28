@@ -35,11 +35,16 @@ export async function countProjectsAction(options?: Pick<ProjectFilter, "categor
 
 export async function createProjectAction(input: CreateProjectInput) {
   try {
+    console.log("createProjectAction - Payload received on server:", JSON.stringify(input, null, 2));
     const data = await createProject(input);
+    console.log("createProjectAction - Project created successfully:", JSON.stringify(data, null, 2));
     revalidatePaths();
     return { data, error: null };
   } catch (error) {
-    console.error("createProjectAction error:", error);
+    console.error("createProjectAction - SERVER-SIDE EXCEPTION OCCURRED:", error);
+    if (error && typeof error === "object") {
+      console.error("createProjectAction - Server error details:", JSON.stringify(error, null, 2));
+    }
     return {
       data: null,
       error: error instanceof Error ? error.message : "Failed to create project",
@@ -52,7 +57,7 @@ import path from "path";
 
 export async function updateProjectAction(input: UpdateProjectInput) {
   try {
-    console.log("SERVER-SIDE ACTION RECEIVED PAYLOAD DESCRIPTION:", JSON.stringify(input.description, null, 2));
+    console.log("updateProjectAction - Payload received on server:", JSON.stringify(input, null, 2));
     
     // Write received payload directly to scratch file
     try {
@@ -71,10 +76,14 @@ export async function updateProjectAction(input: UpdateProjectInput) {
     }
 
     const data = await updateProject(input);
+    console.log("updateProjectAction - Project updated successfully:", JSON.stringify(data, null, 2));
     revalidatePaths();
     return { data, error: null };
   } catch (error) {
-    console.error("updateProjectAction error:", error);
+    console.error("updateProjectAction - SERVER-SIDE EXCEPTION OCCURRED:", error);
+    if (error && typeof error === "object") {
+      console.error("updateProjectAction - Server error details:", JSON.stringify(error, null, 2));
+    }
     return {
       data: null,
       error: error instanceof Error ? error.message : "Failed to update project",

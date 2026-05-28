@@ -367,7 +367,16 @@ export function ProjectManagement() {
 
           <div className="w-full max-w-5xl mx-auto flex-1 flex flex-col min-h-0">
             <form
-              onSubmit={form.handleSubmit((v) => saveMutation.mutate(v))}
+              onSubmit={form.handleSubmit(
+                (v) => {
+                  console.log("CLIENT-SIDE: Form validated successfully, submitting to Server Action:", v);
+                  saveMutation.mutate(v);
+                },
+                (errs) => {
+                  console.error("CLIENT-SIDE FORM VALIDATION ERRORS:", errs);
+                  toast.error("Vui lòng kiểm tra các trường thông tin bắt buộc (Tiêu đề, Slug, Danh mục, v.v...)");
+                }
+              )}
               className="flex-1 flex flex-col min-h-0 w-full"
             >
               <div className="flex-1 overflow-y-auto p-6 lg:p-10">
