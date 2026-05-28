@@ -9,6 +9,7 @@ import {
 } from "@/shared/components/ui/accordion";
 import { AspectRatio } from "@/shared/components/ui/aspect-ratio";
 import { Card, CardContent } from "@/shared/components/ui/card";
+import Image from "next/image";
 import {
   TypographyH1,
   TypographyH4,
@@ -115,8 +116,22 @@ export default async function BranchDetail({
   return (
     <main className={STYLES.main}>
       <div className={STYLES.container}>
-        <header>
+        <header className="w-full flex flex-col gap-6">
           <TypographyH1 className={STYLES.title}>{branch.name}</TypographyH1>
+          {branch.imageUrl && (
+            <div className="w-full mt-2 overflow-hidden rounded-sm border border-border/40">
+              <AspectRatio ratio={16 / 9}>
+                <Image
+                  src={branch.imageUrl}
+                  alt={branch.name}
+                  fill
+                  className="object-cover"
+                  priority
+                  sizes="(max-width: 768px) 100vw, 768px"
+                />
+              </AspectRatio>
+            </div>
+          )}
         </header>
         <section className={STYLES.section}>
           <Accordion
