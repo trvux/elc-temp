@@ -3,9 +3,9 @@ import { AspectRatio } from "@/shared/components/ui/aspect-ratio";
 import { Badge } from "@/shared/components/ui/badge";
 import { Card, CardContent, CardHeader } from "@/shared/components/ui/card";
 import {
-  TypographyH3,
   TypographyH4,
   TypographyMuted,
+  TypographySmall,
 } from "@/shared/components/ui/typography";
 import { formatPrice } from "@/shared/lib/utils";
 import Image from "next/image";
@@ -71,20 +71,20 @@ export function ProductCard({
           <div className="flex flex-col items-start gap-2">
             {hasDiscount ? (
               <>
-                <TypographyH3 className="text-primary font-bold">
+                <TypographyH4 className="text-primary font-bold">
                   {formatPrice(currentPrice)}
-                </TypographyH3>
-                <TypographyH4 className="line-through text-muted-foreground">
-                  {formatPrice(product.originalPrice || 0)}
                 </TypographyH4>
+                <TypographySmall className="line-through text-muted-foreground">
+                  {formatPrice(product.originalPrice || 0)}
+                </TypographySmall>
                 <Badge variant="destructive" className="gap-1 rounded-sm">
                   Giảm giá: {product.discountPercent}%
                 </Badge>
               </>
             ) : (
-              <TypographyH3 className="text-primary font-bold">
+              <TypographyH4 className="text-primary font-bold">
                 {formatPrice(product.originalPrice || 0)}
-              </TypographyH3>
+              </TypographyH4>
             )}
           </div>
         </CardContent>
