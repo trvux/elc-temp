@@ -202,8 +202,21 @@ export class SupabaseGroupRepository implements GroupRepository {
     };
   }
 
-  private handleError(error: any, context: string): never {
-    const message = error?.message || (error instanceof Error ? error.message : "Unknown error");
+  private handleError(error: unknown, context: string): never {
+    let message = "Unknown error";
+    if (error) {
+      if (typeof error === "object") {
+        const errObj = error as Record<string, unknown>;
+        if (typeof errObj.message === "string") {
+          message = errObj.message;
+          if (typeof errObj.details === "string" && errObj.details) {
+            message += ` (${errObj.details})`;
+          }
+        }
+      } else if (error instanceof Error) {
+        message = error.message;
+      }
+    }
     console.error(`[SupabaseGroupRepository][${context}] Error:`, error);
     throw new Error(`Database error in ${context}: ${message}`);
   }

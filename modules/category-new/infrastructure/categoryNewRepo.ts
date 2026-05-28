@@ -217,7 +217,20 @@ export class SupabaseCategoryNewRepository implements CategoryNewRepository {
   }
 
   private handleError(error: unknown, context: string): never {
-    const message = error instanceof Error ? error.message : "Unknown error";
+    let message = "Unknown error";
+    if (error) {
+      if (typeof error === "object") {
+        const errObj = error as Record<string, unknown>;
+        if (typeof errObj.message === "string") {
+          message = errObj.message;
+          if (typeof errObj.details === "string" && errObj.details) {
+            message += ` (${errObj.details})`;
+          }
+        }
+      } else if (error instanceof Error) {
+        message = error.message;
+      }
+    }
     console.error(`[SupabaseCategoryNewRepository][${context}] Error:`, error);
     throw new Error(`Database error in ${context}: ${message}`);
   }
