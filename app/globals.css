@@ -77,21 +77,21 @@
   cursor: col-resize;
 }
 
-/* Tiptap base image transition */
-.tiptap img {
+/* Tiptap base image transition (only in editor mode) */
+.tiptap.ProseMirror img {
   transition: outline 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
 }
 
-/* Tiptap selected image styling */
-.tiptap img.ProseMirror-selectednode,
-.tiptap .ProseMirror-selectednode {
+/* Tiptap selected image styling (only in editor mode) */
+.tiptap.ProseMirror img.ProseMirror-selectednode,
+.tiptap.ProseMirror .ProseMirror-selectednode {
   outline: 3px solid oklch(0.68 0.20 145) !important;
   outline-offset: 2px;
   box-shadow: 0 0 0 6px oklch(0.68 0.20 145 / 20%) !important;
 }
 
-/* Tiptap image hover styling */
-.tiptap img:hover:not(.ProseMirror-selectednode) {
+/* Tiptap image hover styling (only in editor mode) */
+.tiptap.ProseMirror img:hover:not(.ProseMirror-selectednode) {
   outline: 2px solid oklch(0.78 0.15 145) !important;
   outline-offset: 2px;
   box-shadow: 0 0 0 4px oklch(0.78 0.15 145 / 15%) !important;
