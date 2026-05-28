@@ -1,11 +1,11 @@
+import { BranchList, getBranches } from "@/modules/branch";
+import { ScrollToTop } from "@/shared/components/layout/user/scroll-to-top";
 import {
   TypographyH1,
   TypographyLead,
   TypographySmall,
 } from "@/shared/components/ui/typography";
-import { ScrollToTop } from "@/shared/components/layout/user/scroll-to-top";
 import { cn } from "@/shared/lib/utils";
-import { getBranches, BranchList } from "@/modules/branch";
 const STYLES = {
   main: cn("w-full min-h-screen py-12 px-4 md:px-8"),
   container: cn("max-w-5xl mx-auto flex flex-col gap-24"),
@@ -29,7 +29,9 @@ export default async function BranchesHub() {
     <main className={STYLES.main}>
       <div className={STYLES.container}>
         <header className={STYLES.header}>
-          <TypographyH1 className={STYLES.title}>Cơ sở hạ tầng</TypographyH1>
+          <TypographyH1 className={STYLES.title}>
+            Chi nhánh Điện máy ELC
+          </TypographyH1>
           <TypographyLead className={STYLES.description}>
             Hệ thống không gian trưng bày và trạm dịch vụ của ELC được mở rộng
             trên toàn quốc với triết lý kiến tạo giá trị đồng nhất.
