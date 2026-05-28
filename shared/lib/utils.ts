@@ -31,19 +31,25 @@ export function formatPrice(price: number | null | undefined): string {
 export function normalizeProductPrice(
   originalPriceInput: number | null | undefined,
   salePriceInput: number | null | undefined,
-  discountPercentInput: number | null | undefined
+  discountPercentInput: number | null | undefined,
 ): { originalPrice: number; salePrice: number; discountPercent: number } {
   const originalPrice = originalPriceInput || 0;
   let salePrice = salePriceInput || 0;
   let discountPercent = discountPercentInput || 0;
 
   // Case 1: If salePrice is missing or equal to original, but we have a discountPercent
-  if ((salePrice === 0 || salePrice >= originalPrice) && discountPercent > 0 && originalPrice > 0) {
+  if (
+    (salePrice === 0 || salePrice >= originalPrice) &&
+    discountPercent > 0 &&
+    originalPrice > 0
+  ) {
     salePrice = Math.round(originalPrice * (1 - discountPercent / 100));
   }
   // Case 2: If we have a salePrice that is lower than original, calculate accurate percent
   else if (salePrice > 0 && originalPrice > salePrice) {
-    discountPercent = Math.round(((originalPrice - salePrice) / originalPrice) * 100);
+    discountPercent = Math.round(
+      ((originalPrice - salePrice) / originalPrice) * 100,
+    );
   }
   // Case 3: If they are equal and no discount, ensure percent is 0
   else if (salePrice === originalPrice || salePrice === 0) {
@@ -78,13 +84,14 @@ export function extractTitleFromHtml(content: unknown): string {
   if (typeof content === "object" && content !== null) {
     const obj = content as Record<string, unknown>;
     const nodes = (obj.content as unknown[]) || [];
-    
+
     // Tìm node đầu tiên là heading level 1 (mặc định level 1 khi thiếu level hoặc attrs)
     const h1Node = nodes.find((node) => {
       if (typeof node !== "object" || node === null) return false;
       const n = node as Record<string, unknown>;
       const attrs = n.attrs as Record<string, unknown> | undefined;
-      const level = attrs && attrs.level !== undefined ? Number(attrs.level) : 1;
+      const level =
+        attrs && attrs.level !== undefined ? Number(attrs.level) : 1;
       return n.type === "heading" && level === 1;
     }) as Record<string, unknown> | undefined;
 

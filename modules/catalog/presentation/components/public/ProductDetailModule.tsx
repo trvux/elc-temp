@@ -1,8 +1,8 @@
 import { ProductWithRelations } from "@/modules/catalog/domain";
 import { getCategories } from "@/modules/category";
+import { mapContactRowToDomain } from "@/modules/contact/domain";
 import { Breadcrumbs } from "@/shared/components/layout/user/breadcrumbs";
 import { OrderButton } from "@/shared/components/layout/user/order-button";
-import { mapContactRowToDomain } from "@/modules/contact/domain";
 import { ProductDescription } from "@/shared/components/layout/user/product-description";
 import RelatedProducts from "@/shared/components/layout/user/related-products";
 import { ScrollToTop } from "@/shared/components/layout/user/scroll-to-top";
@@ -24,16 +24,12 @@ import {
 import {
   TypographyH1,
   TypographyH3,
+  TypographyH4,
   TypographySmall,
 } from "@/shared/components/ui/typography";
-import {
-  generateProductMetadata,
-  generateProductSchema,
-} from "@/shared/lib/seo-utils";
+import { generateProductSchema } from "@/shared/lib/seo-utils";
 import { createClient } from "@/shared/lib/supabase/server";
-import { createStaticClient } from "@/shared/lib/supabase/static";
 import { cn, formatPrice } from "@/shared/lib/utils";
-import { Metadata, ResolvingMetadata } from "next";
 import Image from "next/image";
 import { notFound } from "next/navigation";
 
@@ -49,11 +45,11 @@ interface SpecItem {
   items?: SpecSubItem[];
 }
 
-
-
 const STYLES = {
   main: cn("min-h-screen w-full px-4 py-12 md:px-8"),
-  container: cn("mx-auto w-full max-w-7xl flex flex-col gap-16 animate-fade-in-up"),
+  container: cn(
+    "mx-auto w-full max-w-7xl flex flex-col gap-16 animate-fade-in-up",
+  ),
   topSection: cn(
     "grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-start",
   ),
@@ -103,12 +99,20 @@ const STYLES = {
   ),
 };
 
-export async function ProductDetailModule({ product }: { product: ProductWithRelations }) {
+export async function ProductDetailModule({
+  product,
+}: {
+  product: ProductWithRelations;
+}) {
   const supabase = await createClient();
 
   const [allCategories, { data: rawContacts }] = await Promise.all([
     getCategories({ type: "PRODUCT" }),
-    supabase.from("contacts").select("*").eq("is_active", true).order("order_index"),
+    supabase
+      .from("contacts")
+      .select("*")
+      .eq("is_active", true)
+      .order("order_index"),
   ]);
 
   const contacts = (rawContacts || []).map(mapContactRowToDomain);
@@ -163,92 +167,94 @@ export async function ProductDetailModule({ product }: { product: ProductWithRel
             ]}
           />
           <div className={STYLES.topSection}>
-          <div className={STYLES.imageArea}>
-            <div className={STYLES.carouselWrapper}>
-              <Carousel className="w-full">
-                <CarouselContent>
-                  {images.length > 0 ? (
-                    images.map((img: string, i: number) => (
-                      <CarouselItem key={i}>
-                        <AspectRatio ratio={16 / 9}>
-                          <Image
-                            src={img}
-                            alt={`${product.name} ${product.sku ? `(${product.sku})` : ""} - ${product.brand?.name || "ELC"} - Điện máy ELC`}
-                            fill
-                            className={STYLES.carouselImage}
-                            priority={i === 0}
-                            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 800px"
-                          />
+            <div className={STYLES.imageArea}>
+              <div className={STYLES.carouselWrapper}>
+                <Carousel className="w-full">
+                  <CarouselContent>
+                    {images.length > 0 ? (
+                      images.map((img: string, i: number) => (
+                        <CarouselItem key={i}>
+                          <AspectRatio ratio={16 / 9}>
+                            <Image
+                              src={img}
+                              alt={`${product.name} ${product.sku ? `(${product.sku})` : ""} - ${product.brand?.name || "ELC"} - Điện máy ELC`}
+                              fill
+                              className={STYLES.carouselImage}
+                              priority={i === 0}
+                              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 800px"
+                            />
+                          </AspectRatio>
+                        </CarouselItem>
+                      ))
+                    ) : (
+                      <CarouselItem>
+                        <AspectRatio ratio={4 / 3}>
+                          <div className={STYLES.noImage}>Chưa có ảnh</div>
                         </AspectRatio>
                       </CarouselItem>
-                    ))
-                  ) : (
-                    <CarouselItem>
-                      <AspectRatio ratio={4 / 3}>
-                        <div className={STYLES.noImage}>Chưa có ảnh</div>
-                      </AspectRatio>
-                    </CarouselItem>
+                    )}
+                  </CarouselContent>
+                  {images.length > 1 && (
+                    <>
+                      <CarouselPrevious className="left-4 opacity-50 hover:opacity-100 transition-opacity" />
+                      <CarouselNext className="right-4 opacity-50 hover:opacity-100 transition-opacity" />
+                    </>
                   )}
-                </CarouselContent>
-                {images.length > 1 && (
-                  <>
-                    <CarouselPrevious className="left-4 opacity-50 hover:opacity-100 transition-opacity" />
-                    <CarouselNext className="right-4 opacity-50 hover:opacity-100 transition-opacity" />
-                  </>
-                )}
-              </Carousel>
-            </div>
-          </div>
-
-          <div className={STYLES.infoArea}>
-            <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
-              {product.brand?.name && (
-                <Badge variant="secondary">{product.brand.name}</Badge>
-              )}
-              <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-muted-foreground/70">
-                {parentCat?.name && (
-                  <TypographySmall>{parentCat.name}</TypographySmall>
-                )}
-                {parentCat?.name && category?.name && (
-                  <span className="text-muted-foreground">/</span>
-                )}
-                {category?.name && (
-                  <TypographySmall className="text-muted-foreground">
-                    {category.name}
-                  </TypographySmall>
-                )}
+                </Carousel>
               </div>
             </div>
 
-            <TypographyH1 className={STYLES.productName}>
-              {product.name}
-            </TypographyH1>
-
-            <div className={STYLES.subInfo}>
-              {product.sku && (
-                <TypographySmall>
-                  Mã sản phẩm (SKU): {product.sku}
-                </TypographySmall>
-              )}
-            </div>
-
-            <div className={STYLES.priceArea}>
-              <p className={STYLES.price}>{formatPrice(finalPrice || 0)}</p>
-              {(product.discountPercent || 0) > 0 && (
-                <div className={STYLES.originalPriceWrapper}>
-                  <span className={STYLES.originalPrice}>
-                    {formatPrice(product.originalPrice || 0)}
-                  </span>
-                  <Badge variant="destructive" className="rounded-sm">
-                    Giảm giá: {product.discountPercent}%
-                  </Badge>
+            <div className={STYLES.infoArea}>
+              <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
+                {product.brand?.name && (
+                  <Badge variant="secondary">{product.brand.name}</Badge>
+                )}
+                <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-muted-foreground/70">
+                  {parentCat?.name && (
+                    <TypographySmall>{parentCat.name}</TypographySmall>
+                  )}
+                  {parentCat?.name && category?.name && (
+                    <span className="text-muted-foreground">/</span>
+                  )}
+                  {category?.name && (
+                    <TypographySmall className="text-muted-foreground">
+                      {category.name}
+                    </TypographySmall>
+                  )}
                 </div>
-              )}
+              </div>
+
+              <TypographyH1 className={STYLES.productName}>
+                {product.name}
+              </TypographyH1>
+
+              <div className={STYLES.subInfo}>
+                {product.sku && (
+                  <TypographySmall>
+                    Mã sản phẩm (SKU): {product.sku}
+                  </TypographySmall>
+                )}
+              </div>
+
+              <div className={STYLES.priceArea}>
+                <TypographyH3 className={STYLES.price}>
+                  {formatPrice(finalPrice || 0)}
+                </TypographyH3>
+                {(product.discountPercent || 0) > 0 && (
+                  <div className={STYLES.originalPriceWrapper}>
+                    <TypographyH4 className={STYLES.originalPrice}>
+                      {formatPrice(product.originalPrice || 0)}
+                    </TypographyH4>
+                    <Badge variant="destructive" className="rounded-sm">
+                      Giảm giá: {product.discountPercent}%
+                    </Badge>
+                  </div>
+                )}
+              </div>
+              <OrderButton contacts={contacts || []} />
             </div>
-            <OrderButton contacts={contacts || []} />
           </div>
         </div>
-      </div>
 
         <div className={STYLES.bottomSection}>
           <Tabs defaultValue="specs" className="w-full">
