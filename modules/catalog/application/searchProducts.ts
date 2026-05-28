@@ -2,6 +2,7 @@ import Fuse from "fuse.js";
 import { ProductFilter, ProductWithRelations } from "../domain";
 import { productRepo } from "../infrastructure/SupabaseProductRepository";
 import { getQueryTokens, normalize, tokenize } from "@/shared/lib/search-utils";
+import { normalizeProductPrice } from "@/shared/lib/utils";
 
 
 /**
@@ -415,23 +416,11 @@ export async function searchProducts(
   const offset = options.offset || 0;
 
   const products = matched.slice(offset, offset + limit).map((p) => {
-    const originalPrice = p.originalPrice || 0;
-    let salePrice = p.salePrice || 0;
-    let discountPercent = p.discountPercent || 0;
-
-    // Case 1: If salePrice is missing or equal to original, but we have a discountPercent
-    if ((salePrice === 0 || salePrice >= originalPrice) && discountPercent > 0 && originalPrice > 0) {
-      salePrice = Math.round(originalPrice * (1 - discountPercent / 100));
-    } 
-    // Case 2: If we have a salePrice that is lower than original, calculate accurate percent
-    else if (salePrice > 0 && originalPrice > salePrice) {
-      discountPercent = Math.round(((originalPrice - salePrice) / originalPrice) * 100);
-    }
-    // Case 3: If they are equal and no discount, ensure percent is 0
-    else if (salePrice === originalPrice || salePrice === 0) {
-      discountPercent = 0;
-      salePrice = originalPrice;
-    }
+    const { originalPrice, salePrice, discountPercent } = normalizeProductPrice(
+      p.originalPrice,
+      p.salePrice,
+      p.discountPercent
+    );
 
     return {
       ...p,
