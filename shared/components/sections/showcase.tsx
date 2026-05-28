@@ -143,7 +143,7 @@ export function ShowcaseSection({ projects }: ShowcaseSectionProps) {
                 href="/du-an"
                 className="group relative inline-flex items-center justify-center transition-colors"
               >
-                Không gian kiến trúc đã thực hiện
+                Dự án & công trình đã thực hiện
                 <ArrowUpRight className="absolute left-full ml-2 opacity-0 group-hover:opacity-100 h-6 w-6 md:h-8 md:w-8 transition-all duration-300 group-hover:-translate-y-2 group-hover:translate-x-2" />
               </Link>
             </TypographyH1>
