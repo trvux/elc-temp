@@ -15,41 +15,39 @@ if (!supabaseUrl || !supabaseKey) {
 const supabase = createClient(supabaseUrl, supabaseKey);
 
 async function run() {
-  console.log("Simulating a project insert to see the database error...");
-  const dummyProject = {
-    title: "Test Project Insert",
-    slug: `test-project-insert-${Date.now()}`,
-    description: {},
-    images: [],
-    is_featured: false,
-    is_published: false,
-    meta_title: "Test",
-    meta_description: "Test description",
-    order_index: 0,
-    category_id: "00000000-0000-0000-0000-000000000000",
-    service_type_id: null,
-  };
-
-  const { data, error } = await supabase
+  console.log("Querying all published, featured projects...");
+  const { data: projects, error } = await supabase
     .from("projects")
-    .insert(dummyProject)
-    .select()
-    .single();
+    .select(`
+      id,
+      title,
+      is_featured,
+      is_published,
+      order_index,
+      created_at,
+      service_type:service_type(id, name, slug)
+    `)
+    .eq("is_published", true)
+    .eq("is_featured", true)
+    .is("deleted_at", null)
+    .order("order_index", { ascending: true });
 
   if (error) {
-    console.log("\nDATABASE ERROR OCCURRED DURING INSERT:");
-    console.log("---------------------------------------");
-    console.log("Code:", error.code);
-    console.log("Message:", error.message);
-    console.log("Details:", error.details);
-    console.log("Hint:", error.hint);
-    console.log("---------------------------------------");
-  } else {
-    console.log("\nSUCCESSFULLY INSERTED PROJECT:", data);
-    // Cleanup
-    await supabase.from("projects").delete().eq("id", data.id);
-    console.log("Cleaned up test project successfully.");
+    console.error("Error querying projects:", error);
+    return;
   }
+
+  console.log(`Found ${projects?.length || 0} featured projects in total:`);
+  projects?.forEach((p, index) => {
+    console.log(`${index + 1}. [Order: ${p.order_index}] [ST: ${p.service_type?.name}] ${p.title}`);
+  });
+
+  console.log("\nQuerying first 12 featured projects (mimicking homepage query)...");
+  const homepageProjects = projects?.slice(0, 12) || [];
+  console.log(`Top 12 featured projects:`);
+  homepageProjects.forEach((p, index) => {
+    console.log(`${index + 1}. [Order: ${p.order_index}] [ST: ${p.service_type?.name}] ${p.title}`);
+  });
 }
 
 run();

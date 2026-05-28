@@ -36,7 +36,7 @@ export default async function Home() {
       getProjects({
         isPublished: true,
         isFeatured: true,
-        limit: 12,
+        limit: 100,
       }),
       getProducts({
         isPublished: true,
