@@ -1,7 +1,7 @@
 
 import { TypographyH2 } from "@/shared/components/ui/typography";
 import { createClient } from "@/shared/lib/supabase/server";
-import { cn } from "@/shared/lib/utils";
+import { cn, normalizeProductPrice } from "@/shared/lib/utils";
 import { ProductCard } from "@/modules/catalog/presentation/components/ProductCard";
 
 interface RelatedProductsProps {
@@ -39,18 +39,26 @@ export default async function RelatedProducts({
   if (!rawProducts || rawProducts.length === 0) return null;
 
   // Map snake_case to camelCase for ProductCard compatibility
-  const products = rawProducts.map((p: any) => ({
-    id: p.id,
-    name: p.name,
-    slug: p.slug,
-    sku: p.sku,
-    images: p.images,
-    originalPrice: p.original_price,
-    salePrice: p.sale_price,
-    discountPercent: p.discount_percent,
-    category: Array.isArray(p.categories) ? p.categories[0] : p.categories,
-    brand: Array.isArray(p.brands) ? p.brands[0] : p.brands,
-  }));
+  const products = rawProducts.map((p: any) => {
+    const { originalPrice, salePrice, discountPercent } = normalizeProductPrice(
+      p.original_price,
+      p.sale_price,
+      p.discount_percent
+    );
+
+    return {
+      id: p.id,
+      name: p.name,
+      slug: p.slug,
+      sku: p.sku,
+      images: p.images,
+      originalPrice,
+      salePrice,
+      discountPercent,
+      category: Array.isArray(p.categories) ? p.categories[0] : p.categories,
+      brand: Array.isArray(p.brands) ? p.brands[0] : p.brands,
+    };
+  });
 
   return (
     <section className={STYLES.section}>

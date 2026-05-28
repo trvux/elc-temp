@@ -1,5 +1,6 @@
 import { createClient } from "@/shared/lib/supabase/server";
 import { Tables, Insert, Update } from "@/shared/types/supabase";
+import { normalizeProductPrice } from "@/shared/lib/utils";
 import {
     CreateProductInput,
     Product,
@@ -238,6 +239,12 @@ export class SupabaseProductRepository implements ProductRepository {
     }
 
     private mapToDomain(row: ProductRow): Product {
+        const { originalPrice, salePrice, discountPercent } = normalizeProductPrice(
+            row.original_price,
+            row.sale_price,
+            row.discount_percent
+        );
+
         return {
             id: row.id,
             name: row.name,
@@ -248,9 +255,9 @@ export class SupabaseProductRepository implements ProductRepository {
             shortDescription: row.meta_description || "",
             description: row.description || null,
             specs: row.specs || null,
-            originalPrice: row.original_price || 0,
-            salePrice: row.sale_price || 0,
-            discountPercent: row.discount_percent || 0,
+            originalPrice,
+            salePrice,
+            discountPercent,
             images: row.images || [],
             isFeatured: row.is_featured || false,
             isPublished: row.is_published || false,
