@@ -56,9 +56,9 @@ export function ShowcaseSection({ projects }: ShowcaseSectionProps) {
   }, [activeTab, serviceTypes]);
 
   const filteredProjects = useMemo(() => {
-    return featuredProjects.filter(
-      (p) => p.serviceType?.id === currentActiveTab,
-    );
+    return featuredProjects
+      .filter((p) => p.serviceType?.id === currentActiveTab)
+      .slice(0, 6);
   }, [featuredProjects, currentActiveTab]);
 
   if (featuredProjects.length === 0) return null;
