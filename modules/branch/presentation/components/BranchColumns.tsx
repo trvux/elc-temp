@@ -17,6 +17,25 @@ export const getBranchColumns = ({
   onDelete,
 }: ColumnProps): ColumnDef<Branch>[] => [
   {
+    accessorKey: "imageUrl",
+    header: "Ảnh",
+    cell: ({ row }) => (
+      <div className="relative h-10 w-16 overflow-hidden rounded-md border bg-muted">
+        {row.original.imageUrl ? (
+          <img
+            src={row.original.imageUrl}
+            alt=""
+            className="h-full w-full object-cover"
+          />
+        ) : (
+          <div className="flex h-full w-full items-center justify-center text-[9px] uppercase tracking-wider text-muted-foreground/40">
+            No Image
+          </div>
+        )}
+      </div>
+    ),
+  },
+  {
     accessorKey: "name",
     header: "Tên chi nhánh",
     cell: ({ row }) => (

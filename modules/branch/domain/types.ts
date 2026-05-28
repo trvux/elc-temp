@@ -23,6 +23,7 @@ export interface Branch {
   mapsUrl: string;
   mapsEmbed: string;
   description: Json;
+  imageUrl?: string | null;
   isPublished: boolean;
   metaTitle?: string | null;
   metaDescription?: string | null;
@@ -41,6 +42,7 @@ export interface CreateBranchInput {
   mapsUrl: string;
   mapsEmbed: string;
   description: Json;
+  imageUrl?: string | null;
   isPublished: boolean;
   metaTitle?: string | null;
   metaDescription?: string | null;
