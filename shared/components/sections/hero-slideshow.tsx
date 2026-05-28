@@ -25,9 +25,38 @@ export function HeroSlideshow({
   className,
   imageClassName,
 }: HeroSlideshowProps) {
+  const containerRef = React.useRef<HTMLDivElement>(null);
   const [api, setApi] = React.useState<CarouselApi>();
   const [currentIndex, setCurrentIndex] = React.useState(0);
   const [isAutoPlaying, setIsAutoPlaying] = React.useState(true);
+  const [isVisible, setIsVisible] = React.useState(false);
+
+  // Intersection Observer to detect visibility
+  React.useEffect(() => {
+    const element = containerRef.current;
+    if (!element) return;
+
+    if (typeof window === "undefined" || !("IntersectionObserver" in window)) {
+      setIsVisible(true);
+      return;
+    }
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const [entry] = entries;
+        setIsVisible(entry.isIntersecting);
+      },
+      {
+        threshold: 0.1, // Trigger when 10% of the element is visible
+      }
+    );
+
+    observer.observe(element);
+
+    return () => {
+      observer.unobserve(element);
+    };
+  }, []);
 
   React.useEffect(() => {
     if (!api) return;
@@ -47,7 +76,7 @@ export function HeroSlideshow({
 
   // Auto play logic
   React.useEffect(() => {
-    if (!isAutoPlaying || !api) return;
+    if (!isAutoPlaying || !isVisible || !api) return;
 
     const interval = setInterval(() => {
       if (api.canScrollNext()) {
@@ -58,7 +87,7 @@ export function HeroSlideshow({
     }, 5000); // 5 seconds per slide
 
     return () => clearInterval(interval);
-  }, [isAutoPlaying, api]);
+  }, [isAutoPlaying, isVisible, api]);
 
   const goToNext = () => {
     if (!api) return;
@@ -86,6 +115,7 @@ export function HeroSlideshow({
 
   return (
     <div
+      ref={containerRef}
       className={cn("relative group select-none flex flex-col", className)}
       onContextMenu={(e) => e.preventDefault()}
     >
@@ -160,11 +190,11 @@ export function HeroSlideshow({
             >
               {currentIndex === idx && (
                 <div
-                  key={currentIndex}
+                  key={`${currentIndex}-${isVisible}`}
                   className="absolute top-0 left-0 h-full w-full bg-white origin-left"
                   style={{
                     animation: `slide-progress 5s linear forwards`,
-                    animationPlayState: isAutoPlaying ? "running" : "paused",
+                    animationPlayState: isAutoPlaying && isVisible ? "running" : "paused",
                   }}
                 />
               )}
