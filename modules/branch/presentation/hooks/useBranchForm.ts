@@ -29,6 +29,7 @@ export function useBranchForm(
       mapsUrl: "",
       mapsEmbed: "",
       description: "",
+      imageUrl: "",
       isPublished: true,
       metaTitle: "",
       metaDescription: "",

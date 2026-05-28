@@ -49,6 +49,7 @@ export type Database = {
           description: Json
           email: string
           id: string
+          image_url: string | null
           is_published: boolean
           maps_embed: string
           maps_url: string
@@ -67,6 +68,7 @@ export type Database = {
           description?: Json
           email?: string
           id?: string
+          image_url?: string | null
           is_published?: boolean
           maps_embed?: string
           maps_url?: string
@@ -85,6 +87,7 @@ export type Database = {
           description?: Json
           email?: string
           id?: string
+          image_url?: string | null
           is_published?: boolean
           maps_embed?: string
           maps_url?: string

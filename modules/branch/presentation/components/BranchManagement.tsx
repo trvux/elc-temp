@@ -16,6 +16,7 @@ import {
   FieldError,
   FieldLabel,
 } from "@/shared/components/ui/field";
+import { ImageUpload } from "@/shared/components/ui/image-upload";
 import { Input } from "@/shared/components/ui/input";
 import { Switch } from "@/shared/components/ui/switch";
 import { Textarea } from "@/shared/components/ui/textarea";
@@ -82,6 +83,7 @@ export function BranchManagement() {
             mapsUrl: b.mapsUrl || "",
             mapsEmbed: b.mapsEmbed || "",
             description,
+            imageUrl: b.imageUrl || "",
             isPublished: b.isPublished,
             metaTitle: b.metaTitle || "",
             metaDescription: b.metaDescription || "",
@@ -104,6 +106,7 @@ export function BranchManagement() {
       mapsUrl: "",
       mapsEmbed: "",
       description: "",
+      imageUrl: "",
       isPublished: true,
       metaTitle: "",
       metaDescription: "",
@@ -231,6 +234,22 @@ export function BranchManagement() {
                       )}
                     />
                   </div>
+
+                  <Controller
+                    control={form.control}
+                    name="imageUrl"
+                    render={({ field }) => (
+                      <Field>
+                        <FieldLabel>Ảnh đại diện chi nhánh</FieldLabel>
+                        <ImageUpload
+                          value={field.value || ""}
+                          onChange={field.onChange}
+                          aspectRatio={1.6}
+                          folderPath="branches"
+                        />
+                      </Field>
+                    )}
+                  />
                 </div>
 
                 {/* Right Column: Contact Info */}

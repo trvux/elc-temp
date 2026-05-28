@@ -19,6 +19,7 @@ export const branchSchema = z.object({
     mapsUrl: z.url({message: "URL bản đồ không hợp lệ"}),
     mapsEmbed: z.string().min(1, {message: "Mã nhúng bản đồ không được để trống"}),
     description: z.unknown(),
+    imageUrl: z.string().nullable().optional(),
     isPublished: z.boolean(),
     orderIndex: z.number().int(),
     metaTitle: z.string().max(70, { message: "Tiêu đề SEO không nên quá 70 ký tự" }).nullable().optional(),
