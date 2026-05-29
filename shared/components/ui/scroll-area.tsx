@@ -6,7 +6,7 @@ import { ScrollArea as ScrollAreaPrimitive } from "radix-ui"
 import { cn } from "@/shared/lib/utils"
 
 interface ScrollAreaProps extends React.ComponentProps<typeof ScrollAreaPrimitive.Root> {
-  viewportRef?: React.Ref<HTMLDivElement>;
+  viewportRef?: React.Ref<HTMLDivElement>
 }
 
 function ScrollArea({
@@ -33,6 +33,7 @@ function ScrollArea({
     </ScrollAreaPrimitive.Root>
   )
 }
+
 
 function ScrollBar({
   className,
