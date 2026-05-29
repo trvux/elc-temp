@@ -64,7 +64,7 @@ export function Footer({
 
   // --- STYLES ---
   const styles = {
-    footer: "w-full bg-primary text-primary-foreground/60 py-20 px-6",
+    footer: "w-full bg-foreground py-20 px-6",
     container: "mx-auto max-w-7xl",
     logoCol: "mb-12",
     logo: "text-2xl font-bold tracking-tighter text-primary-foreground",
@@ -80,7 +80,7 @@ export function Footer({
       "mt-20 pt-8 border-t border-primary-foreground/5 flex flex-col md:flex-row justify-between items-center gap-8",
     socials:
       "flex w-full md:w-auto items-center justify-evenly md:justify-end md:gap-4",
-    icon: "p-2 bg-primary-foreground/60 text-primary hover:bg-primary-foreground/90 hover:text-primary rounded-sm transition-colors duration-300 flex items-center justify-center",
+    icon: "p-2 bg-background/60 text-foreground hover:bg-background hover:text-foreground/80 rounded-sm transition-colors duration-300 flex items-center justify-center",
   };
 
   const NavCol = ({
