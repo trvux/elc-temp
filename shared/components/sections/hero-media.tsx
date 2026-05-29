@@ -9,8 +9,8 @@ import { TypographyH1 } from "@/shared/components/ui/typography";
 import { HeroSlideshow } from "./hero-slideshow";
 
 const HERO_IMAGES = [
-  "/images/1.jpg",
-  "/images/2.jpg",
+  "/images/1.jpg?v=2",
+  "/images/2.jpg?v=2",
   // "/images/3.jpg",
   // "/images/4.jpg",
   // "/images/5.jpg",
