@@ -196,8 +196,8 @@ export async function ProductDetailModule({
                   </CarouselContent>
                   {images.length > 1 && (
                     <>
-                      <CarouselPrevious className="left-4 opacity-50 hover:opacity-100 transition-opacity" />
-                      <CarouselNext className="right-4 opacity-50 hover:opacity-100 transition-opacity" />
+                      <CarouselPrevious className="hidden lg:flex left-4 opacity-50 hover:opacity-100 transition-opacity" />
+                      <CarouselNext className="hidden lg:flex right-4 opacity-50 hover:opacity-100 transition-opacity" />
                     </>
                   )}
                 </Carousel>
