@@ -15,6 +15,11 @@ const nextConfig: NextConfig = {
         hostname: "media.dienmayelc.com.vn",
       },
     ],
+    localPatterns: [
+      {
+        pathname: "/images/**",
+      },
+    ],
   },
 };
 
