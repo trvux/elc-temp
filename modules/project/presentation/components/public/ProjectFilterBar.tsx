@@ -344,7 +344,10 @@ export function ProjectFilterBar({
                       onClick={() => handleCategoryToggle(cat.slug)}
                     >
                       {isActive && (
-                        <Check icon-data="inline-start" className="w-3.5 h-3.5" />
+                        <Check
+                          icon-data="inline-start"
+                          className="w-3.5 h-3.5"
+                        />
                       )}
                       {cat.name}
                       {/* {cat.count !== undefined && (
