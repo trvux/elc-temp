@@ -64,23 +64,22 @@ export function Footer({
 
   // --- STYLES ---
   const styles = {
-    footer: "w-full bg-foreground py-20 px-6",
+    footer: "w-full bg-card-foreground py-20 px-6",
     container: "mx-auto max-w-7xl",
     logoCol: "mb-12",
-    logo: "text-2xl font-bold tracking-tighter text-primary-foreground",
-    logoDesc:
-      "text-sm leading-relaxed max-w-sm mt-4 text-primary-foreground/40",
+    logo: "text-2xl font-bold tracking-tighter text-white",
+    logoDesc: "text-sm leading-relaxed max-w-sm mt-4 text-white/40",
     grid: "grid grid-cols-2 md:grid-cols-3 lg:grid-cols-7 gap-y-12 gap-x-8",
     col: "flex flex-col gap-6",
-    colTitle: "font-bold text-primary-foreground/80",
+    colTitle: "font-bold text-white/80",
     nav: "flex flex-col gap-3.5",
-    link: "text-sm text-primary-foreground/50 hover:text-primary-foreground transition-all duration-300 ",
-    empty: "text-xs italic text-primary-foreground/20",
+    link: "text-sm text-white/50 hover:text-white transition-all duration-300 ",
+    empty: "text-xs italic text-white/20",
     bottom:
-      "mt-20 pt-8 border-t border-primary-foreground/5 flex flex-col md:flex-row justify-between items-center gap-8",
+      "mt-20 pt-8 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-8",
     socials:
       "flex w-full md:w-auto items-center justify-evenly md:justify-end md:gap-4",
-    icon: "p-2 bg-background/60 text-foreground hover:bg-background hover:text-foreground/80 rounded-sm transition-colors duration-300 flex items-center justify-center",
+    icon: "p-2 bg-white/60 text-foreground hover:bg-white hover:text-white/80 rounded-sm transition-colors duration-300 flex items-center justify-center",
   };
 
   const NavCol = ({

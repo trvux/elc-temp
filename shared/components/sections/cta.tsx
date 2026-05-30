@@ -5,6 +5,7 @@ import {
   StaggerItem,
 } from "@/shared/components/ui/animate-in";
 import { Button } from "@/shared/components/ui/button";
+import { Card } from "@/shared/components/ui/card";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -12,7 +13,6 @@ import {
   DropdownMenuLabel,
   DropdownMenuTrigger,
 } from "@/shared/components/ui/dropdown-menu";
-import { Card } from "@/shared/components/ui/card";
 import { Separator } from "@/shared/components/ui/separator";
 import {
   TypographyH1,
@@ -44,7 +44,7 @@ export function CTASection({ settings, contacts }: CTASectionProps) {
   );
 
   return (
-    <Card className="dark w-full bg-card text-card-foreground py-16 px-4 md:px-8 flex flex-col items-center justify-center gap-6 shadow-sm border overflow-hidden">
+    <Card className="w-full bg-card-foreground text-white py-16 px-4 md:px-8 flex flex-col items-center justify-center gap-6 shadow-sm border overflow-hidden">
       <StaggerContainer className="flex flex-col items-center text-center max-w-3xl mx-auto gap-10 md:gap-12 w-full">
         <div className="space-y-4">
           <StaggerItem>
@@ -89,7 +89,10 @@ export function CTASection({ settings, contacts }: CTASectionProps) {
         <StaggerItem>
           <div className="flex flex-col items-center gap-3">
             <TypographyMuted>Hoặc kết nối trực tiếp qua email</TypographyMuted>
-            <Link href={`mailto:${email}`} className="hover:opacity-80 transition-opacity">
+            <Link
+              href={`mailto:${email}`}
+              className="hover:opacity-80 transition-opacity"
+            >
               <TypographyLarge className="italic text-2xl">
                 {email}
               </TypographyLarge>

@@ -33,7 +33,7 @@ export function HeroMediaSection({
   const images = HERO_IMAGES;
 
   return (
-    <Card className="dark w-full bg-card text-card-foreground border shadow-sm flex flex-col gap-6 overflow-hidden">
+    <Card className="w-full bg-card-foreground text-white border shadow-sm flex flex-col gap-6 overflow-hidden">
       <CardHeader className="flex flex-col items-center text-center px-6 pt-8 gap-4">
         <CardTitle>
           <TypographyH1 className="">{title}</TypographyH1>
