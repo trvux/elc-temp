@@ -134,7 +134,7 @@ export function ShowcaseSection({ projects }: ShowcaseSectionProps) {
   );
 
   return (
-    <Card className="dark w-full bg-card text-card-foreground py-16 px-4 md:px-8 flex flex-col items-center justify-center gap-6 shadow-sm border overflow-hidden">
+    <Card className="w-full bg-card-foreground text-white py-16 px-4 md:px-8 flex flex-col items-center justify-center gap-6 shadow-sm border overflow-hidden">
       <StaggerContainer className="flex flex-col gap-2 md:gap-4 w-full">
         <div className="flex flex-col items-center text-center gap-3 mb-4 md:mb-10">
           <StaggerItem>

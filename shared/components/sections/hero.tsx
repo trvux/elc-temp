@@ -24,14 +24,14 @@ export function HeroSection({
   contacts = [],
 }: HeroSectionProps) {
   return (
-    <Card className="dark w-full bg-card text-card-foreground py-16 px-4 md:px-8 flex flex-col items-center justify-center gap-6">
+    <Card className="w-full bg-card-foreground py-16 px-4 md:px-8 flex flex-col items-center justify-center gap-6">
       {/* Cụm Content */}
       <StaggerContainer
         className="flex flex-col gap-4 items-center justify-center text-center max-w-4xl w-full"
         staggerDelay={0.08}
       >
         <StaggerItem duration={0.25}>
-          <TypographyH1 className="text-3xl md:text-5xl lg:text-6xl">
+          <TypographyH1 className="text-white text-3xl md:text-5xl lg:text-6xl">
             {title}
           </TypographyH1>
         </StaggerItem>

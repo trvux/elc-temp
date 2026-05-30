@@ -24,15 +24,15 @@ const brands = [
 export function BrandShowcase() {
   const styles = {
     section:
-      "dark w-full bg-card text-card-foreground py-16 px-4 md:px-8 flex flex-col items-center justify-center gap-6",
+      "w-full bg-card-foreground py-16 px-4 md:px-8 flex flex-col items-center justify-center gap-6",
 
     container: "grid grid-cols-1 gap-12 w-full",
-    header: "flex flex-col items-center text-center px-6",
+    header: "flex flex-col items-center text-center px-6 text-white",
     marqueeArea:
       "relative w-full max-w-screen-xl mx-auto overflow-hidden pause-marquee",
     marqueeTrack: "flex gap-6 md:gap-16 lg:gap-24 animate-marquee w-fit",
     brand:
-      "flex items-center justify-center text-foreground/70 hover:text-foreground transition-colors duration-500 cursor-grab whitespace-nowrap text-sm font-medium tracking-tight sm:text-lg md:text-xl lg:text-2xl",
+      "flex items-center justify-center text-white/70 hover:text-white transition-colors duration-500 cursor-grab whitespace-nowrap text-sm font-medium tracking-tight sm:text-lg md:text-xl lg:text-2xl",
   };
 
   return (

@@ -1,18 +1,22 @@
+import { ProductWithRelations } from "@/modules/catalog/domain";
 import { HighlightedText } from "@/shared/components/layout/user/highlighted-text";
-import { AspectRatio } from "@/shared/components/ui/aspect-ratio";
 import { Badge } from "@/shared/components/ui/badge";
-import { Card, CardContent, CardHeader } from "@/shared/components/ui/card";
 import {
-  TypographyH4,
-  TypographyMuted,
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/shared/components/ui/card";
+import {
+  TypographyH3,
   TypographySmall,
 } from "@/shared/components/ui/typography";
 import { formatPrice } from "@/shared/lib/utils";
-import Image from "next/image";
 import Link from "next/link";
 
 interface ProductCardProps {
-  product: any;
+  product: ProductWithRelations;
   queryTokens?: string[];
   priority?: boolean;
 }
@@ -26,69 +30,70 @@ export function ProductCard({
 
   const hasDiscount = product.discountPercent > 0;
   const currentPrice = product.salePrice || product.originalPrice || 0;
+  const displaySku = product.sku ? product.sku.split("/")[0].trim() : "";
 
   return (
-    <Card className="group flex flex-col overflow-hidden transition-all duration-300 hover:shadow-lg border-none shadow-none bg-background h-full pt-0">
-      <Link href={productUrl} className="flex flex-col h-full">
-        <CardHeader className="p-0 py-6 bg-white rounded-t-xl overflow-hidden">
-          <AspectRatio ratio={16 / 9} className="overflow-hidden bg-white">
-            {product.images?.[0] ? (
-              <Image
-                src={product.images[0]}
-                alt={`${product.name} - Chính hãng giá tốt tại Điện máy ELC`}
-                title={`${product.name} - Điện máy ELC`}
-                fill
-                className="object-contain p-4 transition-transform duration-500 group-hover:scale-105"
-                sizes="(max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
-                priority={priority}
-                loading={priority ? "eager" : "lazy"}
-                {...(priority ? { fetchPriority: "high" } : {})}
-              />
-            ) : (
-              <div className="w-full h-full flex items-center justify-center">
-                <TypographyMuted>Chưa có ảnh</TypographyMuted>
-              </div>
-            )}
-          </AspectRatio>
-        </CardHeader>
+    <Link href={productUrl} className="block group h-full">
+      <Card className="relative mx-auto w-full max-w-sm pt-0 h-full transition-all duration-300 hover:shadow-md cursor-pointer gap-3 md:gap-6">
+        <div className="absolute inset-0 z-30 aspect-video" />
+        {product.images?.[0] ? (
+          <img
+            src={product.images[0]}
+            alt={`${product.name} - Chính hãng giá tốt tại Điện máy ELC`}
+            title={`${product.name} - Điện máy ELC`}
+            className="relative z-30 aspect-video w-full object-contain"
+          />
+        ) : (
+          <span>kh co san pham</span>
+        )}
 
-        <CardContent className="p-4 flex flex-col gap-3">
-          <div className="flex flex-col gap-2">
-            <h3 className="font-semibold text-sm lg:text-base line-clamp-2 lg:line-clamp-3 min-h-10 lg:min-h-18 leading-snug group-hover:text-primary transition-colors text-balance">
-              <HighlightedText text={product.name} queryTokens={queryTokens} />
-            </h3>
-            {product.sku && (
-              <TypographyMuted className="uppercase">
+        <CardHeader className="px-3 md:px-6">
+          <CardTitle className="line-clamp-2 h-12">
+            <HighlightedText text={product.name} queryTokens={queryTokens} />
+          </CardTitle>
+          <CardDescription className="flex flex-col gap-1 text-xs">
+            {displaySku && (
+              <span>
                 SKU:{" "}
-                <HighlightedText
-                  text={product.sku.split(/[ \/\+]/)[0].trim()}
-                  queryTokens={queryTokens}
-                />
-              </TypographyMuted>
+                <span className="text-foreground">
+                  <HighlightedText
+                    text={displaySku}
+                    queryTokens={queryTokens}
+                  />
+                </span>
+                <br />
+              </span>
             )}
-          </div>
-
-          <div className="flex flex-col items-start gap-2">
-            {hasDiscount ? (
-              <>
-                <TypographyH4 className="text-primary font-bold">
-                  {formatPrice(currentPrice)}
-                </TypographyH4>
-                <TypographySmall className="line-through text-muted-foreground">
-                  {formatPrice(product.originalPrice || 0)}
-                </TypographySmall>
-                <Badge variant="destructive" className="gap-1 rounded-sm">
-                  Giảm giá: {product.discountPercent}%
-                </Badge>
-              </>
-            ) : (
-              <TypographyH4 className="text-primary font-bold">
-                {formatPrice(product.originalPrice || 0)}
-              </TypographyH4>
+            {product.brand?.name && (
+              <span>
+                Thương hiệu:{" "}
+                <span className="uppercase text-foreground">
+                  <HighlightedText
+                    text={product.brand.name.toLowerCase()}
+                    queryTokens={queryTokens}
+                  />
+                </span>
+              </span>
             )}
-          </div>
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="flex flex-col gap-2 px-3 md:px-6">
+          <TypographyH3>{formatPrice(currentPrice)}</TypographyH3>
+          {hasDiscount && (
+            <TypographySmall className="line-through text-muted-foreground">
+              {formatPrice(product.originalPrice)}
+            </TypographySmall>
+          )}
+          {hasDiscount && (
+            <Badge
+              variant="destructive"
+              className="rounded-sm w-full justify-start"
+            >
+              Ưu đãi tới {product.discountPercent}%
+            </Badge>
+          )}
         </CardContent>
-      </Link>
-    </Card>
+      </Card>
+    </Link>
   );
 }
