@@ -4,26 +4,17 @@ import { getServiceTypes } from "@/modules/service-type/application";
 import { ServiceTypeWithCategories } from "@/modules/service-type/domain/types";
 import { Breadcrumbs } from "@/shared/components/layout/user/breadcrumbs";
 import { ScrollToTop } from "@/shared/components/layout/user/scroll-to-top";
-import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
-import {
-  Card,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/shared/components/ui/card";
 import {
   TypographyH1,
   TypographyLead,
   TypographySmall,
 } from "@/shared/components/ui/typography";
 import { createClient } from "@/shared/lib/supabase/server";
-import { ArrowRight, Sparkles } from "lucide-react";
-import Image from "next/image";
 import Link from "next/link";
 import { Suspense } from "react";
 import { ProjectFilterBar } from "./ProjectFilterBar";
+import { ProjectCard } from "@/modules/project/presentation/components/ProjectCard";
 
 interface ProjectListModuleProps {
   serviceType?: ServiceTypeWithCategories | null;
@@ -218,11 +209,6 @@ export async function ProjectListModule({
         <header className={STYLES.header}>
           <TypographyH1>
             {pageTitle}
-            {/* {projects.length > 0 && (
-              <span className="text-xl font-medium text-muted-foreground align-super ml-1.5">
-                {projects.length}
-              </span>
-            )} */}
           </TypographyH1>
           {serviceType ? (
             <TypographyLead>
@@ -238,12 +224,6 @@ export async function ProjectListModule({
               thiết kế và thi công lắp đặt cho khách hàng toàn quốc.
             </TypographyLead>
           )}
-          {/* <div className={STYLES.badgeWrapper}>
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-primary/10 text-primary">
-              {projects.length} {projects.length === 1 ? "dự án" : "dự án"} được
-              tìm thấy
-            </span>
-          </div> */}
         </header>
 
         {/* Dynamic Filters Section */}
@@ -274,82 +254,9 @@ export async function ProjectListModule({
         {/* Project Cards Grid */}
         {sortedProjects.length > 0 ? (
           <div className={STYLES.grid}>
-            {sortedProjects.map((project, index) => {
-              const detailUrl = `/du-an/${project.slug}`;
-              const displayCategory =
-                project.categoriesNew?.[0]?.name ||
-                project.serviceType?.name ||
-                "Dự án ELC";
-              const isFeatured = project.isFeatured;
-
-              return (
-                <Link
-                  key={project.id}
-                  href={detailUrl}
-                  className="w-full flex focus:outline-none"
-                >
-                  <Card className="w-full pt-0 flex flex-col group overflow-hidden border border-border/50 hover:border-primary/20 shadow-sm hover:shadow-md transition-all duration-300 rounded-lg">
-                    {/* Image wrapper */}
-                    <div className="relative overflow-hidden aspect-[16/10]">
-                      <div className="absolute inset-0 z-10 bg-black/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                      {project.images?.[0] ? (
-                        <Image
-                          src={project.images[0]}
-                          alt={project.title}
-                          fill
-                          className="relative z-0 object-cover transition-transform duration-700 group-hover:scale-105"
-                          sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 400px"
-                          priority={index < 3}
-                        />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center text-[10px] tracking-widest uppercase text-muted-foreground/40 bg-muted">
-                          Chưa có ảnh dự án
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Card Header & Content */}
-                    <CardHeader className="flex-1 p-5 gap-2">
-                      <div>
-                        {isFeatured ? (
-                          <Badge
-                            variant="secondary"
-                            className="text-amber-700 bg-amber-50 border-amber-100/50 flex items-center gap-1 font-semibold text-[10px] uppercase tracking-wider"
-                          >
-                            <Sparkles className="w-3 h-3 fill-amber-700 text-amber-700" />
-                            Tiêu biểu
-                          </Badge>
-                        ) : (
-                          <Badge
-                            variant="secondary"
-                            className="text-primary bg-primary/5 border-primary/10 font-semibold text-[10px] uppercase tracking-wider"
-                          >
-                            {displayCategory}
-                          </Badge>
-                        )}
-                      </div>
-
-                      <CardTitle className="group-hover:text-primary transition-colors text-lg font-bold leading-snug line-clamp-2 mt-1">
-                        {project.title}
-                      </CardTitle>
-
-                      <CardDescription className="text-xs text-muted-foreground/90 leading-relaxed line-clamp-3">
-                        {project.metaDescription ||
-                          "Dự án thi công hoàn thiện hệ thống bởi đội ngũ chuyên nghiệp ELC. Mang đến giải pháp tối ưu cho khách hàng."}
-                      </CardDescription>
-                    </CardHeader>
-
-                    {/* Card Footer */}
-                    <CardFooter className="p-5 pt-0 mt-auto">
-                      <div className="w-full inline-flex items-center justify-center gap-2 px-4 py-2 rounded-md bg-secondary group-hover:bg-primary group-hover:text-primary-foreground text-xs font-semibold transition-all duration-300">
-                        <span>Xem chi tiết dự án</span>
-                        <ArrowRight className="w-3 h-3 transition-transform duration-300 group-hover:translate-x-1" />
-                      </div>
-                    </CardFooter>
-                  </Card>
-                </Link>
-              );
-            })}
+            {sortedProjects.map((project) => (
+              <ProjectCard key={project.id} project={project} />
+            ))}
           </div>
         ) : (
           /* Empty State */
@@ -364,6 +271,7 @@ export async function ProjectListModule({
             </Link>
           </div>
         )}
+
 
         {/* Premium Footer */}
         <footer className={STYLES.footer}>
