@@ -16,7 +16,6 @@ import { getQueryTokens } from "@/shared/lib/search-utils";
 import { generateCollectionSchema, SHOP_NAME } from "@/shared/lib/seo-utils";
 import { cn } from "@/shared/lib/utils";
 import { Metadata } from "next";
-import Link from "next/link";
 import { Suspense } from "react";
 
 interface Props {
@@ -27,7 +26,12 @@ export async function generateMetadata({
   searchParams,
 }: Props): Promise<Metadata> {
   const sParams = await searchParams;
-  const q = typeof sParams.search === "string" ? sParams.search.trim() : typeof sParams.q === "string" ? sParams.q.trim() : "";
+  const q =
+    typeof sParams.search === "string"
+      ? sParams.search.trim()
+      : typeof sParams.q === "string"
+        ? sParams.q.trim()
+        : "";
   const brands =
     typeof sParams.brands === "string"
       ? [sParams.brands]
@@ -79,7 +83,7 @@ const STYLES = {
   title: cn("w-full max-w-none! text-wrap!"),
   searchWrapper: cn("w-full"),
   grid: cn(
-    "grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-6 gap-y-12 md:gap-y-16 min-h-[450px] animate-fade-in-up",
+    "grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-6 gap-y-6 md:gap-y-16 min-h-[450px] animate-fade-in-up",
   ),
   productCard: cn("group flex flex-col"),
   emptyState: cn("py-24 text-center min-h-[300px] animate-fade-in-up"),
@@ -101,7 +105,12 @@ export default async function ProductsPage({
   searchParams,
 }: ProductsPageProps) {
   const params = await searchParams;
-  const q = typeof params.search === "string" ? params.search.trim() : typeof params.q === "string" ? params.q.trim() : "";
+  const q =
+    typeof params.search === "string"
+      ? params.search.trim()
+      : typeof params.q === "string"
+        ? params.q.trim()
+        : "";
   const minPrice =
     typeof params.minPrice === "string" && params.minPrice
       ? Number(params.minPrice)
@@ -224,7 +233,6 @@ export default async function ProductsPage({
             </div>
           </div>
         </div>
-
 
         <footer className={STYLES.footer}>
           <TypographySmall>

@@ -1,8 +1,8 @@
 import { searchProducts } from "@/modules/catalog/application";
+import { ResolvedEntity } from "@/modules/catalog/application/resolveProductPath";
 import { ProductCard } from "@/modules/catalog/presentation/components/ProductCard";
 import { ProductFilterMobile } from "@/modules/catalog/presentation/components/ProductFilterMobile";
 import { ProductFilters } from "@/modules/catalog/presentation/components/ProductFilters";
-import { ResolvedEntity } from "@/modules/catalog/application/resolveProductPath";
 import { getCategories } from "@/modules/category/application";
 import { Breadcrumbs } from "@/shared/components/layout/user/breadcrumbs";
 import { ProductPagination } from "@/shared/components/layout/user/product-pagination";
@@ -14,11 +14,11 @@ import {
   TypographySmall,
 } from "@/shared/components/ui/typography";
 import { getQueryTokens } from "@/shared/lib/search-utils";
+import { generateCollectionSchema } from "@/shared/lib/seo-utils";
 import { createClient } from "@/shared/lib/supabase/server";
 import { cn } from "@/shared/lib/utils";
-import { generateCollectionSchema } from "@/shared/lib/seo-utils";
-import { Suspense } from "react";
 import { notFound } from "next/navigation";
+import { Suspense } from "react";
 
 interface ProductListModuleProps {
   entity: ResolvedEntity;
@@ -33,7 +33,7 @@ const STYLES = {
   header: cn("flex flex-col items-center text-center gap-3"),
   title: cn("w-full max-w-none! text-wrap!"),
   grid: cn(
-    "grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-6 gap-y-12 md:gap-y-16 min-h-[450px] animate-fade-in-up",
+    "grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-6 gap-y-6 md:gap-y-16 min-h-[450px] animate-fade-in-up",
   ),
   emptyState: cn("py-24 text-center min-h-[300px] animate-fade-in-up"),
   emptyText: cn("text-muted-foreground/60 italic text-sm"),
@@ -46,24 +46,44 @@ const STYLES = {
   ),
 };
 
-export async function ProductListModule({ entity, searchParams }: ProductListModuleProps) {
+export async function ProductListModule({
+  entity,
+  searchParams,
+}: ProductListModuleProps) {
   if (!entity || entity.type === "product") return notFound();
 
   const sParams = searchParams;
-  const q = typeof sParams.search === "string" ? sParams.search.trim() : typeof sParams.q === "string" ? sParams.q.trim() : "";
-  const minPrice = typeof sParams.minPrice === "string" && sParams.minPrice ? Number(sParams.minPrice) : undefined;
-  const maxPrice = typeof sParams.maxPrice === "string" && sParams.maxPrice ? Number(sParams.maxPrice) : undefined;
+  const q =
+    typeof sParams.search === "string"
+      ? sParams.search.trim()
+      : typeof sParams.q === "string"
+        ? sParams.q.trim()
+        : "";
+  const minPrice =
+    typeof sParams.minPrice === "string" && sParams.minPrice
+      ? Number(sParams.minPrice)
+      : undefined;
+  const maxPrice =
+    typeof sParams.maxPrice === "string" && sParams.maxPrice
+      ? Number(sParams.maxPrice)
+      : undefined;
   const currentPage = Number(sParams.page) || 1;
   const pageSize = 12;
   const brandSlugs = Array.isArray(sParams.brands)
     ? sParams.brands
-    : typeof sParams.brands === "string" ? [sParams.brands] : [];
+    : typeof sParams.brands === "string"
+      ? [sParams.brands]
+      : [];
   const specs: Record<string, string[]> = {};
   Object.keys(sParams).forEach((key) => {
     if (key.startsWith("spec_")) {
       const label = key.replace("spec_", "");
       const val = sParams[key];
-      specs[label] = Array.isArray(val) ? val : typeof val === "string" ? [val] : [];
+      specs[label] = Array.isArray(val)
+        ? val
+        : typeof val === "string"
+          ? [val]
+          : [];
     }
   });
 
@@ -92,7 +112,10 @@ export async function ProductListModule({ entity, searchParams }: ProductListMod
         .is("deleted_at", null)
         .single();
       if (parentGroup) {
-        breadcrumbParent = { label: parentGroup.name, href: `/san-pham/${parentGroup.slug}` };
+        breadcrumbParent = {
+          label: parentGroup.name,
+          href: `/san-pham/${parentGroup.slug}`,
+        };
       }
     }
   } else if (entity.type === "group") {
@@ -138,9 +161,7 @@ export async function ProductListModule({ entity, searchParams }: ProductListMod
         />
 
         <header className={STYLES.header}>
-          <TypographyH1 className={STYLES.title}>
-            {pageTitle}
-          </TypographyH1>
+          <TypographyH1 className={STYLES.title}>{pageTitle}</TypographyH1>
           <TypographyLarge className="flex items-center gap-x-1 text-sm! md:text-md! lg:text-lg! text-muted-foreground">
             Danh sách{" "}
             <span className="flex gap-x-1 bg-blue-100 text-blue-800 px-2 rounded-sm items-center">

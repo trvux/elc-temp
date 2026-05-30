@@ -70,7 +70,7 @@ export function FeaturesSection({ products }: FeaturesSectionProps) {
               <CarouselContent className="-ml-2 p-2">
                 {products.map((product, index) => (
                   <CarouselItem key={product.id} className="px-2 basis-[80%]">
-                    <div className="light text-foreground bg-background rounded-xl overflow-hidden shadow-sm h-full">
+                    <div className="text-foreground h-full">
                       <ProductCard product={product} priority={index === 0} />
                     </div>
                   </CarouselItem>
@@ -83,7 +83,7 @@ export function FeaturesSection({ products }: FeaturesSectionProps) {
           <StaggerContainer className={styles.productGrid}>
             {products.map((product, index) => (
               <StaggerItem key={product.id}>
-                <div className="light text-foreground bg-background rounded-xl overflow-hidden shadow-sm h-full">
+                <div className="text-foreground h-full">
                   <ProductCard product={product} priority={index < 4} />
                 </div>
               </StaggerItem>
