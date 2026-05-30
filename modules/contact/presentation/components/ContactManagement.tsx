@@ -29,7 +29,7 @@ import {
 import { Switch } from "@/shared/components/ui/switch";
 import { ZaloIcon } from "@/shared/components/ui/social-icons";
 
-import { capitalize } from "@/shared/lib/utils";
+import { capitalize } from "@/shared/lib/helpers";
 
 import {
   Contact,

@@ -39,7 +39,7 @@ import {
 import { getServiceColumns } from "./ServiceColumns";
 import { useServiceForm } from "../hooks/useServiceForm";
 import { convertToWebP } from "@/shared/lib/image";
-import { generateSlug } from "@/shared/lib/utils";
+import { generateSlug } from "@/shared/lib/helpers";
 import { ImageUpload } from "@/shared/components/ui/image-upload";
 
 export function ServiceManagement() {

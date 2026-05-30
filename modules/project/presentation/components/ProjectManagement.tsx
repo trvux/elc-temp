@@ -45,7 +45,7 @@ import {
 } from "@/shared/components/ui/tabs";
 import { Textarea } from "@/shared/components/ui/textarea";
 import { TiptapEditor } from "@/shared/components/ui/tiptap-editor";
-import { generateSlug } from "@/shared/lib/utils";
+import { generateSlug } from "@/shared/lib/helpers";
 
 import { getCategoriesNewAction } from "@/modules/category-new/presentation/actions";
 import { getServiceTypesAction } from "@/modules/service-type/presentation/actions";

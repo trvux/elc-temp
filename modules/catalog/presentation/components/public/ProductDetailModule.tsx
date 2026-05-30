@@ -1,4 +1,4 @@
-import { ProductWithRelations } from "@/modules/catalog/domain";
+import { ProductWithRelations, formatPrice } from "@/modules/catalog/domain";
 import { getCategories } from "@/modules/category";
 import { mapContactRowToDomain } from "@/modules/contact/domain";
 import { Breadcrumbs } from "@/shared/components/layout/user/breadcrumbs";
@@ -29,7 +29,7 @@ import {
 } from "@/shared/components/ui/typography";
 import { generateProductSchema } from "@/shared/lib/seo-utils";
 import { createClient } from "@/shared/lib/supabase/server";
-import { cn, formatPrice } from "@/shared/lib/utils";
+import { cn } from "@/shared/lib/utils";
 import Image from "next/image";
 import { notFound } from "next/navigation";
 

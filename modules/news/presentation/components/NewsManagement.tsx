@@ -38,7 +38,7 @@ import {
 import { getNewsColumns } from "./NewsColumns";
 import { useNewsForm, NewsFormValues } from "../hooks/useNewsForm";
 import { convertToWebP } from "@/shared/lib/image";
-import { generateSlug } from "@/shared/lib/utils";
+import { generateSlug } from "@/shared/lib/helpers";
 
 export function NewsManagement() {
   const queryClient = useQueryClient();

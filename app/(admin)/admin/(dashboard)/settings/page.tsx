@@ -16,7 +16,7 @@ import {
 import { Field, FieldLabel, FieldContent } from "@/shared/components/ui/field";
 import { Separator } from "@/shared/components/ui/separator";
 import { toast } from "sonner";
-import { capitalize } from "@/shared/lib/utils";
+import { capitalize } from "@/shared/lib/helpers";
 
 type Settings = Record<string, string>;
 

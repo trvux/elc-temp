@@ -3,7 +3,7 @@
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { useEffect, useRef, useState, useTransition } from "react";
 
-import { formatPrice } from "@/shared/lib/utils";
+import { formatPrice } from "@/modules/catalog/domain";
 import { Badge } from "@/shared/components/ui/badge";
 import { Slider } from "@/shared/components/ui/slider";
 
