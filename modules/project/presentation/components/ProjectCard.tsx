@@ -1,34 +1,73 @@
-import React from "react";
+import { Badge } from "@/shared/components/ui/badge";
+import { Button } from "@/shared/components/ui/button";
+import {
+  Card,
+  CardAction,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/shared/components/ui/card";
+import { Sparkle } from "lucide-react";
 import Link from "next/link";
-import Image from "next/image";
 import { ProjectWithCategory } from "../../domain/types";
-import { Card, CardContent } from "@/shared/components/ui/card";
 
 interface ProjectCardProps {
   project: ProjectWithCategory;
 }
 
-export const ProjectCard: React.FC<ProjectCardProps> = ({ project }) => {
+export function ProjectCard({ project }: ProjectCardProps) {
+  const firstImage = project.images?.[0] || "/placeholder.png";
+
+  // Smartly extract the project name/location for a premium short title
+  const match =
+    project.title.match(/(?:tại|Tại|cho|Cho)\s+(.+)$/) ||
+    project.title.match(/-\s+([^-]+)$/);
+  const displayTitle =
+    match && match[1]
+      ? match[1].trim().charAt(0).toUpperCase() + match[1].trim().slice(1)
+      : project.title;
+
+  // If a short title was extracted, show the full details in description. Otherwise, use metaDescription.
+  const displayDescription =
+    displayTitle !== project.title
+      ? project.title
+      : project.metaDescription ||
+        "Dự án thi công hoàn thiện hệ thống bởi đội ngũ ELC.";
+
   return (
-    <Card className="overflow-hidden h-full flex flex-col group hover:shadow-lg transition-all duration-300">
-      <Link href={`/du-an/${project.slug}`} className="relative aspect-[4/3] block overflow-hidden">
-        <Image
-          src={project.images?.[0] || "/placeholder.png"}
-          alt={project.title}
-          fill
-          className="object-cover group-hover:scale-105 transition-transform duration-500"
-        />
-      </Link>
-      <CardContent className="p-4">
-        <div className="text-xs text-primary font-medium mb-1 uppercase tracking-wider">
-          {project.category?.name || "Dự án"}
-        </div>
-        <Link href={`/du-an/${project.slug}`}>
-          <h3 className="font-bold text-xl line-clamp-2 group-hover:text-primary transition-colors">
-            {project.title}
-          </h3>
-        </Link>
-      </CardContent>
+    <Card className="relative mx-auto w-full max-w-sm pt-0">
+      <div className="absolute inset-0 z-30 aspect-video " />
+      <img
+        src={firstImage}
+        alt={project.title}
+        className="relative z-20 aspect-video w-full object-cover "
+      />
+      <CardHeader>
+        {project.isFeatured && (
+          <CardAction>
+            <Badge variant="secondary">
+              <Sparkle
+                data-icon="inline-start"
+                className="fill-amber-500 text-amber-500"
+              />
+              Nổi bật
+            </Badge>
+          </CardAction>
+        )}
+
+        <CardTitle className="line-clamp-1">{displayTitle}</CardTitle>
+        <CardDescription className="line-clamp-3">
+          {displayDescription}
+        </CardDescription>
+      </CardHeader>
+      <CardFooter>
+        <Button className="w-full bg-foreground" asChild>
+          <Link href={`/du-an/${project.slug}`}>Đọc bài viết</Link>
+        </Button>
+      </CardFooter>
     </Card>
   );
-};
+}
+
+export default ProjectCard;
