@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  AnimateIn,
   StaggerContainer,
   StaggerItem,
 } from "@/shared/components/ui/animate-in";
@@ -62,7 +63,7 @@ export function ShowcaseSection({ projects }: ShowcaseSectionProps) {
 
   return (
     <Card className="w-full bg-card-foreground text-white py-16 px-4 md:px-8 flex flex-col items-center justify-center gap-6 shadow-sm border overflow-hidden">
-      <StaggerContainer className="flex flex-col gap-2 md:gap-4 w-full">
+      <StaggerContainer className="flex flex-col gap-2 md:gap-4 w-full" amount={0.1}>
         <div className="flex flex-col items-center text-center gap-3 mb-4 md:mb-10">
           <StaggerItem>
             <TypographyH1>
@@ -111,24 +112,28 @@ export function ShowcaseSection({ projects }: ShowcaseSectionProps) {
             </Tabs>
           </StaggerItem>
         )}
-
-        <div className="w-full min-h-[300px]" key={activeTab}>
-          <StaggerContainer className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 w-full justify-items-center">
-            {filteredProjects.map((p) => (
-              <StaggerItem key={p.id} className="w-full flex justify-center">
-                <ProjectCard project={p} />
-              </StaggerItem>
-            ))}
-            {filteredProjects.length === 0 && (
-              <StaggerItem className="w-full py-16 text-center border border-dashed border-border/10 rounded-xl bg-background/25">
-                <TypographyMuted>
-                  Chưa có dự án nào trong không gian này
-                </TypographyMuted>
-              </StaggerItem>
-            )}
-          </StaggerContainer>
-        </div>
       </StaggerContainer>
+
+      <div className="w-full min-h-[300px]" key={activeTab}>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 w-full justify-items-center">
+          {filteredProjects.map((p, index) => (
+            <AnimateIn
+              key={p.id}
+              className="w-full flex justify-center"
+              delay={(index % 3) * 0.1}
+            >
+              <ProjectCard project={p} />
+            </AnimateIn>
+          ))}
+          {filteredProjects.length === 0 && (
+            <AnimateIn className="w-full py-16 text-center border border-dashed border-border/10 rounded-xl bg-background/25">
+              <TypographyMuted>
+                Chưa có dự án nào trong không gian này
+              </TypographyMuted>
+            </AnimateIn>
+          )}
+        </div>
+      </div>
     </Card>
   );
 }
