@@ -80,17 +80,14 @@ export function ProductCard({
         <CardContent className="flex flex-col gap-2 px-3 md:px-6">
           <TypographyH3>{formatPrice(currentPrice)}</TypographyH3>
           {hasDiscount && (
-            <TypographySmall className="line-through text-muted-foreground">
-              {formatPrice(product.originalPrice)}
-            </TypographySmall>
-          )}
-          {hasDiscount && (
-            <Badge
-              variant="destructive"
-              className="rounded-sm w-full justify-start"
-            >
-              Ưu đãi tới {product.discountPercent}%
-            </Badge>
+            <div className="flex items-center gap-2">
+              <TypographySmall className="line-through text-muted-foreground">
+                {formatPrice(product.originalPrice)}
+              </TypographySmall>
+              <Badge variant="destructive" className="rounded-sm">
+                Ưu đãi tới {product.discountPercent}%
+              </Badge>
+            </div>
           )}
         </CardContent>
       </Card>
