@@ -1,3 +1,4 @@
+import { HighlightedText } from "@/shared/components/layout/user/highlighted-text";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
 import {
@@ -14,9 +15,10 @@ import { ProjectWithCategory } from "../../domain/types";
 
 interface ProjectCardProps {
   project: ProjectWithCategory;
+  queryTokens?: string[];
 }
 
-export function ProjectCard({ project }: ProjectCardProps) {
+export function ProjectCard({ project, queryTokens = [] }: ProjectCardProps) {
   const firstImage = project.images?.[0] || "/placeholder.png";
 
   // Smartly extract the project name/location for a premium short title
@@ -36,14 +38,14 @@ export function ProjectCard({ project }: ProjectCardProps) {
         "Dự án thi công hoàn thiện hệ thống bởi đội ngũ ELC.";
 
   return (
-    <Card className="relative mx-auto w-full max-w-sm pt-0">
+    <Card className="relative mx-auto w-full max-w-sm pt-0 h-fit">
       <div className="absolute inset-0 z-30 aspect-video " />
       <img
         src={firstImage}
         alt={project.title}
         className="relative z-20 aspect-video w-full object-cover "
       />
-      <CardHeader>
+      <CardHeader className="flex-1">
         {project.isFeatured && (
           <CardAction>
             <Badge variant="secondary">
@@ -56,9 +58,14 @@ export function ProjectCard({ project }: ProjectCardProps) {
           </CardAction>
         )}
 
-        <CardTitle className="line-clamp-1">{displayTitle}</CardTitle>
-        <CardDescription className="line-clamp-3 h-[60px]">
-          {displayDescription}
+        <CardTitle className="line-clamp-1">
+          <HighlightedText text={displayTitle} queryTokens={queryTokens} />
+        </CardTitle>
+        <CardDescription className="line-clamp-3">
+          <HighlightedText
+            text={displayDescription}
+            queryTokens={queryTokens}
+          />
         </CardDescription>
       </CardHeader>
       <CardFooter>
