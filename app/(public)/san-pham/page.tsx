@@ -83,7 +83,7 @@ const STYLES = {
   title: cn("w-full max-w-none! text-wrap!"),
   searchWrapper: cn("w-full"),
   grid: cn(
-    "grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-6 gap-y-6 md:gap-y-16 min-h-[450px] animate-fade-in-up",
+    "grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-6 gap-y-6 md:gap-y-16 min-h-[450px] content-start animate-fade-in-up",
   ),
   productCard: cn("group flex flex-col"),
   emptyState: cn("py-24 text-center min-h-[300px] animate-fade-in-up"),

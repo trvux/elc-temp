@@ -3,6 +3,7 @@
 import { m, type Variants } from "framer-motion";
 import type { ReactNode } from "react";
 
+// --- ANIMATION VARIANTS ---
 const fadeUp: Variants = {
   hidden: { opacity: 0, y: 10 },
   visible: {
@@ -20,11 +21,7 @@ const fadeIn: Variants = {
   },
 };
 
-const stagger: Variants = {
-  hidden: {},
-  visible: { transition: { staggerChildren: 0.1, delayChildren: 0.02 } },
-};
-
+// --- ANIMATE IN COMPONENT ---
 interface AnimateInProps {
   children: ReactNode;
   className?: string;
@@ -33,6 +30,8 @@ interface AnimateInProps {
   duration?: number;
   as?: "div" | "section" | "li";
   immediate?: boolean;
+  amount?: number;
+  margin?: string;
 }
 
 export function AnimateIn({
@@ -43,6 +42,8 @@ export function AnimateIn({
   duration,
   as = "div",
   immediate = false,
+  amount = 0.1,
+  margin = "0px 0px -10% 0px",
 }: AnimateInProps) {
   const base = variant === "fadeIn" ? fadeIn : fadeUp;
   const variants: Variants = {
@@ -65,7 +66,7 @@ export function AnimateIn({
       initial="hidden"
       animate={immediate ? "visible" : undefined}
       whileInView={immediate ? undefined : "visible"}
-      viewport={{ once: true, margin: "0px 0px -10% 0px", amount: 0.1 }}
+      viewport={{ once: true, margin, amount }}
       variants={variants}
     >
       {children}
@@ -73,17 +74,24 @@ export function AnimateIn({
   );
 }
 
+// --- STAGGER CONTAINER COMPONENT ---
+interface StaggerContainerProps {
+  children: ReactNode;
+  className?: string;
+  immediate?: boolean;
+  staggerDelay?: number;
+  amount?: number;
+  margin?: string;
+}
+
 export function StaggerContainer({
   children,
   className,
   immediate = false,
   staggerDelay = 0.1,
-}: {
-  children: ReactNode;
-  className?: string;
-  immediate?: boolean;
-  staggerDelay?: number;
-}) {
+  amount = 0.1,
+  margin = "0px 0px -10% 0px",
+}: StaggerContainerProps) {
   const variants: Variants = {
     hidden: {},
     visible: { transition: { staggerChildren: staggerDelay, delayChildren: 0.02 } },
@@ -95,7 +103,7 @@ export function StaggerContainer({
       initial="hidden"
       animate={immediate ? "visible" : undefined}
       whileInView={immediate ? undefined : "visible"}
-      viewport={{ once: true, margin: "0px 0px -10% 0px", amount: 0.3 }}
+      viewport={{ once: true, margin, amount }}
       variants={variants}
     >
       {children}
@@ -103,16 +111,18 @@ export function StaggerContainer({
   );
 }
 
-/** Dùng bên trong StaggerContainer */
+// --- STAGGER ITEM COMPONENT ---
+interface StaggerItemProps {
+  children: ReactNode;
+  className?: string;
+  duration?: number;
+}
+
 export function StaggerItem({
   children,
   className,
   duration = 0.5,
-}: {
-  children: ReactNode;
-  className?: string;
-  duration?: number;
-}) {
+}: StaggerItemProps) {
   const variants: Variants = {
     hidden: fadeUp.hidden,
     visible: {
