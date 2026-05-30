@@ -34,7 +34,7 @@ export function ProductCard({
 
   return (
     <Link href={productUrl} className="block group h-full">
-      <Card className="relative mx-auto w-full max-w-sm pt-0 h-full transition-all duration-300 hover:shadow-md cursor-pointer gap-3 md:gap-6">
+      <Card className="relative mx-auto w-full h-fit max-w-sm pt-0 transition-all duration-300 hover:shadow-md cursor-pointer gap-3 md:gap-6">
         <div className="absolute inset-0 z-30 aspect-video" />
         {product.images?.[0] ? (
           <img
@@ -80,7 +80,7 @@ export function ProductCard({
         <CardContent className="flex flex-col gap-2 px-3 md:px-6">
           <TypographyH3>{formatPrice(currentPrice)}</TypographyH3>
           {hasDiscount && (
-            <div className="flex items-center gap-2">
+            <div className="flex flex-col gap-1">
               <TypographySmall className="line-through text-muted-foreground">
                 {formatPrice(product.originalPrice)}
               </TypographySmall>
