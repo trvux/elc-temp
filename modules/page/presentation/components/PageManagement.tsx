@@ -37,7 +37,7 @@ import {
 import { getPageColumns } from "./PageColumns";
 import { usePageForm } from "../hooks/usePageForm";
 import { convertToWebP } from "@/shared/lib/image";
-import { generateSlug } from "@/shared/lib/utils";
+import { generateSlug } from "@/shared/lib/helpers";
 
 export function PageManagement() {
   const queryClient = useQueryClient();

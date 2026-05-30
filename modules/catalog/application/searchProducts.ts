@@ -1,8 +1,7 @@
 import Fuse from "fuse.js";
-import { ProductFilter, ProductWithRelations } from "../domain";
+import { ProductFilter, ProductWithRelations, normalizeProductPrice } from "../domain";
 import { productRepo } from "../infrastructure/SupabaseProductRepository";
 import { getQueryTokens, normalize, tokenize } from "@/shared/lib/search-utils";
-import { normalizeProductPrice } from "@/shared/lib/utils";
 
 
 /**

@@ -6,7 +6,7 @@ import type { z } from "zod";
 import { useState } from "react";
 import { createClient } from "@/shared/lib/supabase/client";
 import { convertToWebP } from "@/shared/lib/image";
-import { generateSlug } from "@/shared/lib/utils";
+import { generateSlug } from "@/shared/lib/helpers";
 
 import { createServiceTypeSchema, ServiceTypeWithCategories } from "../../domain";
 import { createServiceTypeAction, updateServiceTypeAction } from "../actions";

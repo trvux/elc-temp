@@ -1,4 +1,4 @@
-import { ProductWithRelations } from "@/modules/catalog/domain";
+import { ProductWithRelations, formatPrice } from "@/modules/catalog/domain";
 import { HighlightedText } from "@/shared/components/layout/user/highlighted-text";
 import { Badge } from "@/shared/components/ui/badge";
 import {
@@ -12,7 +12,6 @@ import {
   TypographyH3,
   TypographySmall,
 } from "@/shared/components/ui/typography";
-import { formatPrice } from "@/shared/lib/utils";
 import Link from "next/link";
 
 interface ProductCardProps {

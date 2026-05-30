@@ -4,11 +4,10 @@ import { AspectRatio } from "@/shared/components/ui/aspect-ratio";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
 import { ButtonGroup } from "@/shared/components/ui/button-group";
-import { formatPrice } from "@/shared/lib/utils";
 import { ColumnDef } from "@tanstack/react-table";
 import { Check, Minus, Edit2, Star, Trash2, X } from "lucide-react";
 import Image from "next/image";
-import { ProductWithRelations } from "../../domain";
+import { ProductWithRelations, formatPrice } from "../../domain";
 
 interface ColumnProps {
   onEdit: (product: ProductWithRelations) => void;

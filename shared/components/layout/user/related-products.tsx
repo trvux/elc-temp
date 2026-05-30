@@ -1,9 +1,9 @@
 
 import { TypographyH2 } from "@/shared/components/ui/typography";
 import { createClient } from "@/shared/lib/supabase/server";
-import { cn, normalizeProductPrice } from "@/shared/lib/utils";
+import { cn } from "@/shared/lib/utils";
 import { ProductCard } from "@/modules/catalog/presentation/components/ProductCard";
-import { ProductWithRelations, StockStatus } from "@/modules/catalog/domain";
+import { ProductWithRelations, StockStatus, normalizeProductPrice } from "@/modules/catalog/domain";
 
 interface RelatedProductsProps {
   categoryId: string;

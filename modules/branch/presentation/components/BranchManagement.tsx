@@ -21,7 +21,7 @@ import { Input } from "@/shared/components/ui/input";
 import { Switch } from "@/shared/components/ui/switch";
 import { Textarea } from "@/shared/components/ui/textarea";
 import { TiptapEditor } from "@/shared/components/ui/tiptap-editor";
-import { capitalize, generateSlug } from "@/shared/lib/utils";
+import { capitalize, generateSlug } from "@/shared/lib/helpers";
 
 import { Branch } from "../../domain";
 import { deleteBranchAction, getBranchesAction } from "../actions";

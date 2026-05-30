@@ -1,6 +1,6 @@
 import { useCallback } from "react";
 import { UseFormSetValue, UseFormGetValues, FieldValues, Path, PathValue } from "react-hook-form";
-import { extractTitleFromHtml, generateSlug } from "@/shared/lib/utils";
+import { extractTitleFromHtml, generateSlug } from "@/shared/lib/helpers";
 
 interface UseTiptapTitleSlugSyncProps<TFieldValues extends FieldValues> {
   setValue: UseFormSetValue<TFieldValues>;

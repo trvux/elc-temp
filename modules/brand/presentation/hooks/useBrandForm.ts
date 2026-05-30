@@ -7,7 +7,7 @@ import type { z } from "zod";
 
 import { convertToWebP } from "@/shared/lib/image";
 import { createClient } from "@/shared/lib/supabase/client";
-import { generateSlug } from "@/shared/lib/utils";
+import { generateSlug } from "@/shared/lib/helpers";
 
 import { createBrandSchema, Brand, CreateBrandInput, UpdateBrandInput } from "../../domain";
 import { createBrandAction, updateBrandAction } from "../actions";

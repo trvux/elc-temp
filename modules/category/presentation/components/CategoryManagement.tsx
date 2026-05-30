@@ -26,7 +26,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/shared/components/ui/select";
-import { capitalize, generateSlug } from "@/shared/lib/utils";
+import { capitalize, generateSlug } from "@/shared/lib/helpers";
 
 import { Category } from "../../domain";
 import { deleteCategoryAction, getCategoriesAction } from "../actions";

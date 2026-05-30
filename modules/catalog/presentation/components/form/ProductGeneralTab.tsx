@@ -24,9 +24,8 @@ import {
 import { Switch } from "@/shared/components/ui/switch";
 import { Group } from "@/modules/group/domain/types";
 import { CategoryNewWithGroup } from "@/modules/category-new/domain/types";
-import { Brand } from "@/modules/catalog/domain/types";
+import { Brand, formatPrice } from "@/modules/catalog/domain";
 import { ProductFormValues } from "../../hooks/useProductForm";
-import { formatPrice } from "@/shared/lib/utils";
 
 interface ProductGeneralTabProps {
   form: UseFormReturn<ProductFormValues>;

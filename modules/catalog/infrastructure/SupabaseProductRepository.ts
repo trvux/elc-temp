@@ -1,6 +1,5 @@
 import { createClient } from "@/shared/lib/supabase/server";
 import { Tables, Insert, Update } from "@/shared/types/supabase";
-import { normalizeProductPrice } from "@/shared/lib/utils";
 import {
     CreateProductInput,
     Product,
@@ -9,7 +8,8 @@ import {
     ProductRepository,
     ProductFilter,
     STOCK_STATUS,
-    StockStatus
+    StockStatus,
+    normalizeProductPrice
 } from "../domain";
 
 type ProductRow = Tables<"products">;
