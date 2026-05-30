@@ -57,7 +57,7 @@ export function ProjectCard({ project }: ProjectCardProps) {
         )}
 
         <CardTitle className="line-clamp-1">{displayTitle}</CardTitle>
-        <CardDescription className="line-clamp-3">
+        <CardDescription className="line-clamp-3 h-[60px]">
           {displayDescription}
         </CardDescription>
       </CardHeader>
