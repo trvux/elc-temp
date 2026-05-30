@@ -6,6 +6,8 @@ import { TypographyLarge } from "@/shared/components/ui/typography";
 import { Check, ChevronLeft, ChevronRight } from "lucide-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import React, { useEffect, useRef, useState, useTransition } from "react";
+import { cn } from "@/shared/lib/utils";
+
 
 interface ServiceTypeItem {
   id: string;
@@ -244,16 +246,14 @@ export function ProjectFilterBar({
                 <Button
                   variant={!currentServiceTypeSlug ? "default" : "secondary"}
                   size="sm"
-                  className="cursor-pointer"
+                  className={cn(
+                    "cursor-pointer",
+                    !currentServiceTypeSlug && "bg-foreground text-background hover:bg-foreground/90"
+                  )}
                   disabled={isPending}
                   onClick={() => handleServiceTypeSelect(null)}
                 >
                   Tất cả loại hình
-                  {/* {totalServiceTypesCount !== undefined && (
-                    <span className="border-l border-border/60 pl-2 ml-2 text-xs">
-                      {totalServiceTypesCount}
-                    </span>
-                  )} */}
                 </Button>
                 {serviceTypes.map((st) => {
                   if (st.count !== undefined && st.count <= 0) return null;
@@ -263,16 +263,14 @@ export function ProjectFilterBar({
                       key={st.id}
                       variant={isActive ? "default" : "secondary"}
                       size="sm"
-                      className="cursor-pointer"
+                      className={cn(
+                        "cursor-pointer",
+                        isActive && "bg-foreground text-background hover:bg-foreground/90"
+                      )}
                       disabled={isPending}
                       onClick={() => handleServiceTypeSelect(st.slug)}
                     >
                       {st.name}
-                      {/* {st.count !== undefined && (
-                        <span className="border-l border-border pl-2 ml-2 text-xs">
-                          {st.count}
-                        </span>
-                      )} */}
                     </Button>
                   );
                 })}
@@ -320,16 +318,14 @@ export function ProjectFilterBar({
                     currentCategorySlugs.length === 0 ? "default" : "secondary"
                   }
                   size="sm"
-                  className="cursor-pointer"
+                  className={cn(
+                    "cursor-pointer",
+                    currentCategorySlugs.length === 0 && "bg-foreground text-background hover:bg-foreground/90"
+                  )}
                   disabled={isPending}
                   onClick={() => handleCategoryToggle(null)}
                 >
                   Tất cả sản phẩm
-                  {/* {totalCategoriesCount !== undefined && (
-                    <span className="border-l border-border/60 pl-2 ml-2 text-xs">
-                      {totalCategoriesCount}
-                    </span>
-                  )} */}
                 </Button>
                 {categories.map((cat) => {
                   if (cat.count !== undefined && cat.count <= 0) return null;
@@ -339,7 +335,10 @@ export function ProjectFilterBar({
                       key={cat.id}
                       variant={isActive ? "default" : "secondary"}
                       size="sm"
-                      className="cursor-pointer"
+                      className={cn(
+                        "cursor-pointer",
+                        isActive && "bg-foreground text-background hover:bg-foreground/90"
+                      )}
                       disabled={isPending}
                       onClick={() => handleCategoryToggle(cat.slug)}
                     >
@@ -350,11 +349,6 @@ export function ProjectFilterBar({
                         />
                       )}
                       {cat.name}
-                      {/* {cat.count !== undefined && (
-                        <span className="border-l border-border pl-2 ml-2 text-xs">
-                          {cat.count}
-                        </span>
-                      )} */}
                     </Button>
                   );
                 })}
