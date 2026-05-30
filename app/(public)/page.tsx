@@ -70,15 +70,16 @@ export default async function Home() {
       component: <HeroMediaSection image={settings.hero_image} />,
     },
     { id: "brand", className: "", component: <BrandShowcase /> },
-    {
-      id: "showcase",
-      className: "", // bg-background text-foreground dark
-      component: <ShowcaseSection projects={projects || []} />,
-    },
+
     {
       id: "features",
       className: "",
       component: <FeaturesSection products={featuredProducts || []} />,
+    },
+    {
+      id: "showcase",
+      className: "", // bg-background text-foreground dark
+      component: <ShowcaseSection projects={projects || []} />,
     },
     {
       id: "cta",

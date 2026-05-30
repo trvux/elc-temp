@@ -12,7 +12,7 @@ const HERO_IMAGES = [
   "/images/1.jpg?v=2",
   "/images/2.jpg?v=2",
   "/images/3.jpg?v=2",
-  // "/images/4.jpg",
+  "/images/4.jpg?v=2",
   // "/images/5.jpg",
   // "/images/6.jpg",
   // "/images/7.jpg",
