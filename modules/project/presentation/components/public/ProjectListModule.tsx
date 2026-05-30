@@ -7,14 +7,18 @@ import { ScrollToTop } from "@/shared/components/layout/user/scroll-to-top";
 import { Button } from "@/shared/components/ui/button";
 import {
   TypographyH1,
+  TypographyLarge,
   TypographyLead,
   TypographySmall,
 } from "@/shared/components/ui/typography";
 import { createClient } from "@/shared/lib/supabase/server";
 import Link from "next/link";
 import { Suspense } from "react";
-import { ProjectFilterBar } from "./ProjectFilterBar";
+import { ProjectFilters } from "./ProjectFilters";
+import { ProjectFilterMobile } from "./ProjectFilterMobile";
+import { ProjectSearchInput } from "./ProjectSearchInput";
 import { ProjectCard } from "@/modules/project/presentation/components/ProjectCard";
+import { getQueryTokens } from "@/shared/lib/search-utils";
 
 interface ProjectListModuleProps {
   serviceType?: ServiceTypeWithCategories | null;
@@ -51,6 +55,8 @@ export async function ProjectListModule({
     typeof searchParams.search === "string"
       ? searchParams.search.trim()
       : undefined;
+
+  const queryTokens = getQueryTokens(searchVal || "");
 
   // 1. Fetch filtered projects
   const projects = await getProjects({
@@ -191,9 +197,11 @@ export async function ProjectListModule({
   ];
 
   // Dynamic header text
-  const pageTitle = serviceType
-    ? `Dự án — ${serviceType.name}`
-    : "Tất cả công trình tiêu biểu";
+  const pageTitle = searchVal
+    ? `Kết quả tìm kiếm cho "${searchVal}"`
+    : serviceType
+      ? `Dự án — ${serviceType.name}`
+      : "Tất cả công trình tiêu biểu";
 
   const pageSubtitle = serviceType
     ? `Các công trình thiết kế và thi công hệ thống, điều hòa không khí trong không gian kiến trúc ${serviceType.name} do ELC thực hiện.`
@@ -210,67 +218,71 @@ export async function ProjectListModule({
           <TypographyH1>
             {pageTitle}
           </TypographyH1>
-          {serviceType ? (
-            <TypographyLead>
-              Các công trình thiết kế và thi công hệ thống, điều hòa không khí
-              trong <br className="hidden sm:inline" />
-              <span className="text-primary/90 font-semibold">
-                không gian kiến trúc {serviceType.name} do ELC thực hiện.
-              </span>
-            </TypographyLead>
-          ) : (
-            <TypographyLead>
-              Tổng hợp các công trình tiêu biểu do đội ngũ ELC trực tiếp tư vấn,
-              thiết kế và thi công lắp đặt cho khách hàng toàn quốc.
-            </TypographyLead>
-          )}
+          <TypographyLarge className="flex items-center justify-center gap-x-1 text-sm! md:text-md! lg:text-lg! text-muted-foreground mt-2">
+            Danh sách{" "}
+            <span className="flex gap-x-1 bg-blue-100 text-blue-800 px-2 rounded-sm items-center dark:bg-blue-900/30 dark:text-blue-400 font-semibold">
+              {sortedProjects.length} dự án
+            </span>{" "}
+            đáp ứng tiêu chí
+          </TypographyLarge>
         </header>
 
-        {/* Dynamic Filters Section */}
-        <div className="flex flex-col gap-6 w-full">
-          <Suspense
-            fallback={
-              <div className="h-28 w-full animate-pulse bg-muted rounded-md" />
-            }
-          >
-            <ProjectFilterBar
+        {/* Filters and Grid Section */}
+        <div className="flex flex-col gap-4">
+          {/* Mobile view search & filter toggle */}
+          <div className="flex items-center gap-3 w-full">
+            <div className="flex-1">
+              <Suspense fallback={null}>
+                <ProjectSearchInput />
+              </Suspense>
+            </div>
+            <ProjectFilterMobile
               serviceTypes={serviceTypeItems}
               currentServiceTypeSlug={serviceType?.slug || ""}
               categories={filterCategories}
               currentCategorySlugs={categorySlugs}
-              initialSearch={searchVal || ""}
-              totalServiceTypesCount={allPublishedProjects.length}
-              totalCategoriesCount={
-                serviceType
-                  ? allPublishedProjects.filter(
-                      (p) => p.serviceTypeId === serviceType.id,
-                    ).length
-                  : allPublishedProjects.length
-              }
             />
-          </Suspense>
-        </div>
+          </div>
 
-        {/* Project Cards Grid */}
-        {sortedProjects.length > 0 ? (
-          <div className={STYLES.grid}>
-            {sortedProjects.map((project) => (
-              <ProjectCard key={project.id} project={project} />
-            ))}
+          <div className="flex flex-col lg:flex-row gap-12">
+            {/* Desktop filter sidebar */}
+            <aside className="hidden lg:block w-64 shrink-0">
+              <ProjectFilters
+                serviceTypes={serviceTypeItems}
+                currentServiceTypeSlug={serviceType?.slug || ""}
+                categories={filterCategories}
+                currentCategorySlugs={categorySlugs}
+              />
+            </aside>
+
+            {/* Project List Area */}
+            <div className="flex-1">
+              {sortedProjects.length > 0 ? (
+                <div className={STYLES.grid}>
+                  {sortedProjects.map((project) => (
+                    <ProjectCard
+                      key={project.id}
+                      project={project}
+                      queryTokens={queryTokens}
+                    />
+                  ))}
+                </div>
+              ) : (
+                /* Empty State */
+                <div className={STYLES.emptyState}>
+                  <p className={STYLES.emptyText}>
+                    Không tìm thấy dự án nào khớp với bộ lọc hoặc tìm kiếm của bạn.
+                  </p>
+                  <Link href={serviceType ? `/du-an/${serviceType.slug}` : "/du-an"}>
+                    <Button size="sm" variant="outline">
+                      Xóa tất cả bộ lọc
+                    </Button>
+                  </Link>
+                </div>
+              )}
+            </div>
           </div>
-        ) : (
-          /* Empty State */
-          <div className={STYLES.emptyState}>
-            <p className={STYLES.emptyText}>
-              Không tìm thấy dự án nào khớp với bộ lọc hoặc tìm kiếm của bạn.
-            </p>
-            <Link href={serviceType ? `/du-an/${serviceType.slug}` : "/du-an"}>
-              <Button size="sm" variant="outline">
-                Xóa tất cả bộ lọc
-              </Button>
-            </Link>
-          </div>
-        )}
+        </div>
 
 
         {/* Premium Footer */}
