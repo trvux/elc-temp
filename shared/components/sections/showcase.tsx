@@ -4,23 +4,20 @@ import {
   StaggerContainer,
   StaggerItem,
 } from "@/shared/components/ui/animate-in";
-import { Badge } from "@/shared/components/ui/badge";
 import {
   TypographyH1,
-  TypographyLarge,
   TypographyMuted,
   TypographyP,
 } from "@/shared/components/ui/typography";
-import { getOptimizedImage } from "@/shared/lib/image";
-import Image from "next/image";
 import Link from "next/link";
 import { useMemo, useState } from "react";
 
 import { ProjectWithCategory as Project } from "@/modules/project/domain";
-import { Card, CardContent } from "@/shared/components/ui/card";
+import { ProjectCard } from "@/modules/project/presentation/components/ProjectCard";
+import { Card } from "@/shared/components/ui/card";
 import { ScrollArea } from "@/shared/components/ui/scroll-area";
 import { Tabs, TabsList, TabsTrigger } from "@/shared/components/ui/tabs";
-import { ArrowUpRight, Sparkle } from "lucide-react";
+import { ArrowUpRight } from "lucide-react";
 
 interface ShowcaseSectionProps {
   projects: Project[];
@@ -63,76 +60,6 @@ export function ShowcaseSection({ projects }: ShowcaseSectionProps) {
 
   if (featuredProjects.length === 0) return null;
 
-  const getProjectUrl = (p: Project) => {
-    return `/du-an/${p.slug}`;
-  };
-
-  const ProjectMolecule = ({
-    project,
-    priority,
-  }: {
-    project: Project;
-    priority?: boolean;
-  }) => (
-    <Link
-      href={getProjectUrl(project)}
-      className="group block transition-all duration-300 w-full"
-    >
-      <Card className="relative overflow-hidden transition-all duration-300 hover:border-primary/50 hover:shadow-md group/card bg-background border-border/10">
-        {/* Background Pattern: Diagonal Stripes */}
-        <div className="absolute inset-0 opacity-5 pointer-events-none bg-[repeating-linear-gradient(45deg,currentColor,currentColor_2px,transparent_4px,transparent_24px)]" />
-        <CardContent className="relative py-6">
-          <div className="flex items-center gap-4 md:gap-12">
-            {/* Left: Image */}
-            <div className="w-32 md:w-56 lg:w-80 shrink-0">
-              <div className="relative aspect-video overflow-hidden rounded-sm bg-muted">
-                {project.images?.[0] ? (
-                  <Image
-                    src={getOptimizedImage(project.images[0], 800)}
-                    alt={project.title}
-                    fill
-                    className="object-cover border border-border p-2 bg-muted"
-                    sizes="(max-width: 768px) 128px, (max-width: 1200px) 224px, 320px"
-                    priority={priority}
-                  />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center">
-                    <TypographyMuted>No Image</TypographyMuted>
-                  </div>
-                )}
-              </div>
-            </div>
-            {/* Middle: Content */}
-            <div className="flex-1 min-w-0 flex flex-col gap-1 md:gap-2 items-start">
-              <div className="flex flex-wrap items-center gap-2">
-                <Badge variant="secondary">
-                  <Sparkle
-                    data-icon="inline-start"
-                    className="fill-foreground text-foreground "
-                  />
-                  Nổi bật
-                </Badge>
-                {project.category && (
-                  <Badge variant="secondary" className="max-w-full truncate">
-                    Danh mục{" "}
-                    {project.category.parent?.name
-                      ? `${project.category.parent.name} / `
-                      : ""}
-                    {project.category.name}
-                  </Badge>
-                )}
-              </div>
-
-              <TypographyLarge className="line-clamp-2 w-full text-foreground">
-                {project.title}
-              </TypographyLarge>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-    </Link>
-  );
-
   return (
     <Card className="w-full bg-card-foreground text-white py-16 px-4 md:px-8 flex flex-col items-center justify-center gap-6 shadow-sm border overflow-hidden">
       <StaggerContainer className="flex flex-col gap-2 md:gap-4 w-full">
@@ -165,9 +92,9 @@ export function ShowcaseSection({ projects }: ShowcaseSectionProps) {
             >
               <ScrollArea className="w-full no-scrollbar flex justify-center">
                 <div className="min-w-full flex justify-start md:justify-center pb-1">
-                  <TabsList className="flex flex-row flex-nowrap justify-start w-max md:w-fit">
+                  <TabsList className="dark flex flex-row flex-nowrap justify-start w-max md:w-fit">
                     {/* <TabsTrigger value="all" className="shrink-0 px-4 py-1.5 md:px-5 md:py-2">
-                      Tất cả
+                       Tất cả
                     </TabsTrigger> */}
                     {serviceTypes.map((st) => (
                       <TabsTrigger
@@ -186,10 +113,10 @@ export function ShowcaseSection({ projects }: ShowcaseSectionProps) {
         )}
 
         <div className="w-full min-h-[300px]" key={activeTab}>
-          <StaggerContainer className="flex flex-col gap-4 w-full">
-            {filteredProjects.map((p, idx) => (
-              <StaggerItem key={p.id} className="w-full">
-                <ProjectMolecule project={p} priority={idx < 2} />
+          <StaggerContainer className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 w-full justify-items-center">
+            {filteredProjects.map((p) => (
+              <StaggerItem key={p.id} className="w-full flex justify-center">
+                <ProjectCard project={p} />
               </StaggerItem>
             ))}
             {filteredProjects.length === 0 && (
