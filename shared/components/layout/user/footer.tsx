@@ -13,9 +13,9 @@ import { ArrowRightIcon, MapPinIcon } from "@phosphor-icons/react";
 import Link from "next/link";
 import { useMemo } from "react";
 
+import { BRAND_WEBSITES } from "@/modules/brand/domain";
 import { Contact, getDisplayContacts } from "@/modules/contact/domain";
 import { ContactLink } from "@/modules/contact/presentation/components/ContactLink";
-import { BRAND_WEBSITES } from "@/modules/brand/domain";
 
 export interface BrandFooter {
   id: string;
@@ -237,9 +237,15 @@ export function Footer({
                   href="/san-pham"
                   className="text-sm font-medium text-muted-foreground hover:text-foreground transition-all flex items-center gap-1 group"
                 >
-                  <span>Xem tất cả sản phẩm thuộc thương hiệu</span>
-                  <span className="transition-transform group-hover:translate-x-0.5">
-                    →
+                  <span className="hidden lg:block">
+                    Xem tất cả sản phẩm thuộc thương hiệu
+                  </span>
+                  <span className="hidden lg:block transition-transform group-hover:translate-x-0.5">
+                    <ArrowRightIcon />
+                  </span>
+                  <span className="lg:hidden">Xem tất cả</span>
+                  <span className="lg:hidden transition-transform group-hover:translate-x-0.5">
+                    <ArrowRightIcon />
                   </span>
                 </Link>
               </div>
