@@ -55,7 +55,7 @@ export function getColumns({
               href={`/${row.original.slug}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-[11px] text-primary hover:underline flex items-center gap-1 w-fit"
+              className="text-[11px] text-foreground/75 hover:text-foreground hover:underline flex items-center gap-1 w-fit"
             >
               /{row.original.slug}
               <ExternalLink size={11} />

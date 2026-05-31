@@ -17,12 +17,13 @@ export default async function PublicLayout({ children }: PublicLayoutProps) {
     brands,
     groupCategories,
     categoriesList,
+    serviceTypes,
   } = await getPublicLayoutData();
 
   return (
-    <div className="flex flex-col min-h-screen bg-background">
-      <Header />
-      <div className="flex-1">{children}</div>
+    <div className="flex flex-col min-h-screen">
+      <Header contacts={contacts} />
+      <div className="flex-1 ">{children}</div>
       <Footer
         branches={branches}
         projects={projects}
@@ -33,6 +34,7 @@ export default async function PublicLayout({ children }: PublicLayoutProps) {
         brands={brands}
         groupCategories={groupCategories}
         categoriesList={categoriesList}
+        serviceTypes={serviceTypes}
       />
     </div>
   );

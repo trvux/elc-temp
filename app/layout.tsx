@@ -2,23 +2,11 @@ import { Toaster } from "@/shared/components/ui/sonner";
 import { TooltipProvider } from "@/shared/components/ui/tooltip";
 import { cn } from "@/shared/lib/utils";
 import { QueryProvider } from "@/shared/providers/query-provider";
+import { ThemeProvider } from "@/shared/components/theme-provider";
 import type { Metadata, Viewport } from "next";
-import { Inter, Noto_Serif } from "next/font/google";
 import "./globals.css";
 
-const notoSerifHeading = Noto_Serif({
-  subsets: ["latin"],
-  variable: "--font-heading",
-});
 
-const inter = Inter({subsets:['latin'],variable:'--font-sans'});
-
-// const inter = Inter({
-//   subsets: ["latin", "vietnamese"],
-//   style: ["normal", "italic"],
-//   variable: "--font-inter",
-//   display: "optional",
-// });
 
 export const metadata: Metadata = {
   metadataBase: new URL(
@@ -62,23 +50,13 @@ export default function RootLayout({
     <html
       lang="vi"
       suppressHydrationWarning
-      className={cn(
-        "h-full antialiased",
-        inter.variable,
-        "font-sans",
-        notoSerifHeading.variable,
-      )}
+      className={cn("h-full antialiased font-sans")}
     >
       <head>
         <link
           rel="preconnect"
           href="https://gdzihzsjfczuggwpykjk.supabase.co"
         />
-      </head>
-      <body
-        suppressHydrationWarning
-        className={cn("min-h-full flex flex-col text-foreground")}
-      >
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
@@ -102,11 +80,23 @@ export default function RootLayout({
             }),
           }}
         />
+      </head>
+      <body
+        suppressHydrationWarning
+        className={cn("min-h-full flex flex-col text-foreground")}
+      >
         <TooltipProvider>
-          <QueryProvider>
-            {children}
-            <Toaster position="top-center" richColors />
-          </QueryProvider>
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="system"
+            enableSystem
+            disableTransitionOnChange
+          >
+            <QueryProvider>
+              {children}
+              <Toaster position="top-center" richColors />
+            </QueryProvider>
+          </ThemeProvider>
         </TooltipProvider>
       </body>
     </html>

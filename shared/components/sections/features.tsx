@@ -7,7 +7,6 @@ import {
   StaggerContainer,
   StaggerItem,
 } from "@/shared/components/ui/animate-in";
-import { Card } from "@/shared/components/ui/card";
 import {
   Carousel,
   CarouselContent,
@@ -39,8 +38,8 @@ export function FeaturesSection({ products }: FeaturesSectionProps) {
   };
 
   return (
-    <Card className="w-full bg-card-foreground  text-white py-16 px-4 md:px-8 flex flex-col items-center justify-center gap-8 shadow-sm border overflow-hidden">
-      <StaggerContainer className="w-full">
+    <div className="w-full flex flex-col items-center justify-center gap-8">
+      <StaggerContainer className="w-full" immediate>
         <div className="flex flex-col items-center text-center gap-3">
           <StaggerItem>
             <TypographyH1>
@@ -80,7 +79,7 @@ export function FeaturesSection({ products }: FeaturesSectionProps) {
           </div>
 
           {/* Desktop Grid */}
-          <StaggerContainer className={styles.productGrid}>
+          <StaggerContainer className={styles.productGrid} immediate>
             {products.map((product, index) => (
               <StaggerItem key={product.id}>
                 <div className="text-foreground h-full">
@@ -96,6 +95,6 @@ export function FeaturesSection({ products }: FeaturesSectionProps) {
           <TypographyMuted>Đang tải sản phẩm nổi bật...</TypographyMuted>
         </AnimateIn>
       )}
-    </Card>
+    </div>
   );
 }

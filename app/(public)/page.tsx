@@ -3,13 +3,16 @@ import { CTASection } from "@/shared/components/sections/cta";
 import { FeaturesSection } from "@/shared/components/sections/features";
 import { HeroSection } from "@/shared/components/sections/hero";
 import { HeroMediaSection } from "@/shared/components/sections/hero-media";
+import { ProjectMarqueeSection } from "@/shared/components/sections/project-marquee";
 import { ShowcaseSection } from "@/shared/components/sections/showcase";
+import { GridSection } from "@/shared/components/sections/grid-section";
 import { StickyContactActions } from "@/shared/components/sections/sticky-contact-actions";
 
 import { getProducts } from "@/modules/catalog/application";
 import { getContacts } from "@/modules/contact/application";
 import { getProjects } from "@/modules/project/application";
 import { getSiteSettings } from "@/modules/settings/application";
+import { getBrands } from "@/modules/brand/application";
 
 import { Metadata } from "next";
 
@@ -30,7 +33,7 @@ export const revalidate = 3600;
 
 export default async function Home() {
   // Fetch all necessary data for the homepage using the application layer
-  const [settingsData, projects, featuredProducts, contacts] =
+  const [settingsData, projects, featuredProducts, contacts, brands] =
     await Promise.all([
       getSiteSettings(),
       getProjects({
@@ -44,6 +47,7 @@ export default async function Home() {
         limit: 12,
       }),
       getContacts(),
+      getBrands({ limit: 100 }),
     ]);
 
   // Convert settings array to a more usable object
@@ -56,6 +60,7 @@ export default async function Home() {
     {
       id: "hero",
       className: "", // bg-background text-foreground dark
+      showDiamond: true,
       component: (
         <HeroSection
           title={settings.hero_title}
@@ -65,42 +70,63 @@ export default async function Home() {
       ),
     },
     {
+      id: "project-marquee",
+      className: "",
+      showDiamond: true,
+      component: (
+        <ProjectMarqueeSection
+          projects={projects || []}
+          title="Dự án tiêu biểu nổi bật"
+          description="Xem qua các dự án điều hòa trung tâm và lọc khí tươi tiêu biểu đã được ELC thi công hoàn thiện."
+        />
+      ),
+    },
+    {
       id: "hero-media",
       className: "",
-      component: <HeroMediaSection image={settings.hero_image} />,
+      showDiamond: true,
+      component: (
+        <HeroMediaSection
+          title="Trải nghiệm không gian sống lý tưởng"
+          description="Khám phá hình ảnh của hệ thống điều khí thông minh và các giải pháp tối ưu từng nhịp thở cho ngôi nhà."
+        />
+      ),
     },
-    { id: "brand", className: "", component: <BrandShowcase /> },
+    { id: "brand", className: "", showDiamond: true, component: <BrandShowcase brands={brands || []} /> },
 
     {
       id: "features",
       className: "",
+      showDiamond: true,
       component: <FeaturesSection products={featuredProducts || []} />,
     },
     {
       id: "showcase",
       className: "", // bg-background text-foreground dark
+      showDiamond: true,
       component: <ShowcaseSection projects={projects || []} />,
     },
     {
       id: "cta",
       className: "", // bg-background text-foreground dark
+      showDiamond: true,
       component: <CTASection settings={settings} contacts={contacts || []} />,
     },
   ];
 
   return (
     <>
-      <main className="w-full flex flex-col gap-6 md:gap-8 lg:gap-10 xl:gap-12 py-8 md:py-12 lg:py-16 xl:py-20 animate-fade-in-up">
-        {sections.map((section) => (
-          <div
+      <main className="w-full flex flex-col animate-fade-in-up mt-0 mb-0">
+        {sections.map((section, index) => (
+          <GridSection
             key={section.id}
             id={section.id}
-            className={`w-full ${section.className || ""}`}
+            className={section.className}
+            isFirst={index === 0}
+            showDiamond={section.showDiamond}
           >
-            <div className="max-w-7xl mx-auto px-4 md:px-6 lg:px-8">
-              {section.component}
-            </div>
-          </div>
+            {section.component}
+          </GridSection>
         ))}
       </main>
       <StickyContactActions contacts={contacts || []} />

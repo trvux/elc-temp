@@ -34,13 +34,12 @@ export function HeroContactActions({ contacts }: HeroContactActionsProps) {
                 variant: contact.type === "zalo" ? "default" : "outline",
                 size: "lg",
               }),
-              contact.type === "zalo" && "",
-              "w-full gap-4",
+              "w-full gap-3",
             )}
           >
             {contact.type === "phone"
-              ? `Gọi ngay — ${contact.value}`
-              : `Tư vấn — ${contact.value}`}
+              ? `Gọi ngay - ${contact.value}`
+              : `Tư vấn - ${contact.value}`}
           </ContactLink>
         </div>
       ))}

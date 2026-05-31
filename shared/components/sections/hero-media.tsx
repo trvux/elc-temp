@@ -1,11 +1,10 @@
+"use client";
+
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/shared/components/ui/card";
-import { TypographyH1 } from "@/shared/components/ui/typography";
+  StaggerContainer,
+  StaggerItem,
+} from "@/shared/components/ui/animate-in";
+import { TypographyH1, TypographyP } from "@/shared/components/ui/typography";
 import { HeroSlideshow } from "./hero-slideshow";
 
 const HERO_IMAGES = [
@@ -13,10 +12,6 @@ const HERO_IMAGES = [
   "/images/2.jpg?v=2",
   "/images/3.jpg?v=2",
   "/images/4.jpg?v=2",
-  // "/images/5.jpg",
-  // "/images/6.jpg",
-  // "/images/7.jpg",
-  // "/images/8.jpg",
 ];
 
 interface HeroMediaSectionProps {
@@ -33,23 +28,31 @@ export function HeroMediaSection({
   const images = HERO_IMAGES;
 
   return (
-    <Card className="w-full bg-card-foreground text-white border shadow-sm flex flex-col gap-6 overflow-hidden">
-      <CardHeader className="flex flex-col items-center text-center px-6 pt-8 gap-4">
-        <CardTitle>
-          <TypographyH1 className="">{title}</TypographyH1>
-        </CardTitle>
-        <CardDescription className="max-w-2xl text-sm md:text-base text-muted-foreground">
-          {description}
-        </CardDescription>
-      </CardHeader>
+    <div className="w-full flex flex-col items-center justify-center gap-6">
+      <StaggerContainer
+        className="flex flex-col gap-4 w-full"
+        immediate
+      >
+        {/* Title */}
+        <div className="flex flex-col items-center text-center gap-3 mb-4 md:mb-10">
+          <StaggerItem duration={0.25}>
+            <TypographyH1>{title}</TypographyH1>
+          </StaggerItem>
+          <StaggerItem duration={0.25}>
+            <TypographyP className="text-muted-foreground max-w-2xl mx-auto leading-relaxed">
+              {description}
+            </TypographyP>
+          </StaggerItem>
+        </div>
 
-      <CardContent className="px-6 pb-6">
-        <HeroSlideshow
-          images={images}
-          className="w-full"
-          imageClassName="object-fill"
-        />
-      </CardContent>
-    </Card>
+        <StaggerItem duration={0.25} className="w-full">
+          <HeroSlideshow
+            images={images}
+            className="w-full"
+            imageClassName="object-fill"
+          />
+        </StaggerItem>
+      </StaggerContainer>
+    </div>
   );
 }

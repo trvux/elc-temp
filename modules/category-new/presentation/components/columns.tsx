@@ -53,7 +53,7 @@ export function getColumns({ onEdit, onDelete }: ColumnsProps): ColumnDef<Catego
               href={`/san-pham/${row.original.slug}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-[11px] text-primary hover:underline flex items-center gap-1 w-fit"
+              className="text-[11px] text-foreground/75 hover:text-foreground hover:underline flex items-center gap-1 w-fit"
             >
               /{row.original.slug}
               <ExternalLink size={11} />
@@ -68,7 +68,7 @@ export function getColumns({ onEdit, onDelete }: ColumnsProps): ColumnDef<Catego
       cell: ({ row }) => {
         const groupName = row.original.group?.name;
         return (
-          <span className={groupName ? "text-primary font-medium text-xs bg-primary/5 px-2 py-1 rounded-md border border-primary/10" : "text-muted-foreground italic text-xs"}>
+          <span className={groupName ? "text-foreground/90 font-medium text-xs bg-muted/80 dark:bg-muted/30 px-2 py-1 rounded-md border border-border" : "text-muted-foreground italic text-xs"}>
             {groupName || "Không thuộc nhóm nào"}
           </span>
         );

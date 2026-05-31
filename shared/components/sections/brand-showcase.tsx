@@ -1,45 +1,37 @@
 "use client";
 
+import { Brand, BRAND_WEBSITES } from "@/modules/brand/domain";
 import {
   StaggerContainer,
   StaggerItem,
 } from "@/shared/components/ui/animate-in";
-import { Card } from "@/shared/components/ui/card";
 import { TypographyH1 } from "@/shared/components/ui/typography";
 import { cn } from "@/shared/lib/utils";
+import Link from "next/link";
 
-const brands = [
-  { name: "Carrier", domain: "carrier.com" },
-  { name: "Daikin", domain: "daikin.com.vn" },
-  { name: "Gree", domain: "gree.com.vn" },
-  { name: "LG", domain: "lg.com" },
-  { name: "Menred", domain: "menred.com" },
-  { name: "Midea", domain: "midea.com" },
-  { name: "Mitsubishi", domain: "mitsubishi-electric.vn" },
-  { name: "Panasonic", domain: "panasonic.com" },
-  { name: "Samsung", domain: "samsung.com" },
-  { name: "Toshiba", domain: "toshiba-lifestyle.com" },
-];
+interface BrandShowcaseProps {
+  brands: Brand[];
+}
 
-export function BrandShowcase() {
+export function BrandShowcase({ brands = [] }: BrandShowcaseProps) {
   const styles = {
-    section:
-      "w-full bg-card-foreground py-16 px-4 md:px-8 flex flex-col items-center justify-center gap-6",
+    section: "w-full flex flex-col items-center justify-center gap-6",
 
     container: "grid grid-cols-1 gap-12 w-full",
-    header: "flex flex-col items-center text-center px-6 text-white",
-    marqueeArea:
-      "relative w-full max-w-screen-xl mx-auto overflow-hidden pause-marquee",
-    marqueeTrack: "flex gap-6 md:gap-16 lg:gap-24 animate-marquee w-fit",
-    brand:
-      "flex items-center justify-center text-white/70 hover:text-white transition-colors duration-500 cursor-grab whitespace-nowrap text-sm font-medium tracking-tight sm:text-lg md:text-xl lg:text-2xl",
+    header: "flex flex-col items-center text-center px-6",
+    marqueeArea: "relative w-full max-w-screen-xl mx-auto overflow-hidden",
+    marqueeTrack:
+      "flex gap-8 md:gap-16 lg:gap-20 animate-marquee w-fit items-center py-2",
   };
 
+  // If no brands, return null
+  if (brands.length === 0) return null;
+
   return (
-    <Card className={styles.section}>
-      <StaggerContainer className={styles.container}>
+    <div className={styles.section}>
+      <StaggerContainer className={styles.container} immediate>
         <StaggerItem className={styles.header}>
-          <TypographyH1 className="">Đối tác thương hiệu</TypographyH1>
+          <TypographyH1>Đối tác thương hiệu</TypographyH1>
         </StaggerItem>
 
         <StaggerItem>
@@ -50,16 +42,44 @@ export function BrandShowcase() {
             )}
           >
             <div className={styles.marqueeTrack}>
-              {/* Render 2 times for seamless loop */}
-              {[...brands, ...brands].map((brand, i) => (
-                <span key={`${brand.name}-${i}`} className={styles.brand}>
-                  {brand.name}
-                </span>
-              ))}
+              {/* Render multiple times for a seamless loop */}
+              {[...brands, ...brands, ...brands].map((brand, i) => {
+                const externalUrl =
+                  BRAND_WEBSITES[brand.slug.toLowerCase().trim()];
+                const isExternal = !!externalUrl;
+                const url = externalUrl || `/san-pham?brand=${brand.slug}`;
+
+                return (
+                  <Link
+                    key={`${brand.id}-${i}`}
+                    href={url}
+                    target={isExternal ? "_blank" : undefined}
+                    rel={isExternal ? "noopener noreferrer" : undefined}
+                    className="flex items-center justify-center h-12 md:h-16 px-6 shrink-0 select-none group transition-all duration-300"
+                    title={
+                      isExternal
+                        ? `Ghé thăm website chính thức của ${brand.name}`
+                        : `Xem sản phẩm từ thương hiệu ${brand.name}`
+                    }
+                  >
+                    {brand.logoUrl ? (
+                      <img
+                        src={brand.logoUrl}
+                        alt={brand.name}
+                        className="h-8 md:h-9 lg:h-10 w-auto object-contain opacity-50 group-hover:opacity-100 transition-all duration-300 grayscale group-hover:grayscale-0 dark:brightness-0 dark:invert dark:group-hover:brightness-100 dark:group-hover:invert-0"
+                      />
+                    ) : (
+                      <span className="text-sm md:text-base font-semibold text-muted-foreground group-hover:text-foreground transition-colors duration-300">
+                        {brand.name}
+                      </span>
+                    )}
+                  </Link>
+                );
+              })}
             </div>
           </div>
         </StaggerItem>
       </StaggerContainer>
-    </Card>
+    </div>
   );
 }

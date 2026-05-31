@@ -5,7 +5,6 @@ import {
   StaggerItem,
 } from "@/shared/components/ui/animate-in";
 import { Button } from "@/shared/components/ui/button";
-import { Card } from "@/shared/components/ui/card";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -44,14 +43,17 @@ export function CTASection({ settings, contacts }: CTASectionProps) {
   );
 
   return (
-    <Card className="w-full bg-card-foreground text-white py-16 px-4 md:px-8 flex flex-col items-center justify-center gap-6 shadow-sm border overflow-hidden">
-      <StaggerContainer className="flex flex-col items-center text-center max-w-3xl mx-auto gap-10 md:gap-12 w-full">
+    <div className="w-full flex flex-col items-center justify-center gap-6">
+      <StaggerContainer
+        className="flex flex-col items-center text-center max-w-3xl mx-auto gap-10 md:gap-12 w-full"
+        immediate
+      >
         <div className="space-y-4">
           <StaggerItem>
             <TypographyH1>{title}</TypographyH1>
           </StaggerItem>
           <StaggerItem>
-            <TypographyP className="text-muted-foreground">
+            <TypographyP className="text-muted-foreground max-w-2xl mx-auto">
               {description}
             </TypographyP>
           </StaggerItem>
@@ -100,6 +102,6 @@ export function CTASection({ settings, contacts }: CTASectionProps) {
           </div>
         </StaggerItem>
       </StaggerContainer>
-    </Card>
+    </div>
   );
 }

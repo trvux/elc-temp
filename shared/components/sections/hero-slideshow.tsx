@@ -48,7 +48,7 @@ export function HeroSlideshow({
       },
       {
         threshold: 0.1, // Trigger when 10% of the element is visible
-      }
+      },
     );
 
     observer.observe(element);
@@ -119,7 +119,7 @@ export function HeroSlideshow({
       className={cn("relative group select-none flex flex-col", className)}
       onContextMenu={(e) => e.preventDefault()}
     >
-      <div className="relative p-1 md:p-2 rounded-2xl bg-white/5 backdrop-blur-sm border border-white/20 shadow-2xl overflow-hidden">
+      <div className="relative p-1 md:p-2 rounded-2xl bg-muted backdrop-blur-sm border border-border overflow-hidden">
         <Carousel
           setApi={setApi}
           opts={{ loop: true, align: "start" }}
@@ -194,7 +194,8 @@ export function HeroSlideshow({
                   className="absolute top-0 left-0 h-full w-full bg-white origin-left"
                   style={{
                     animation: `slide-progress 5s linear forwards`,
-                    animationPlayState: isAutoPlaying && isVisible ? "running" : "paused",
+                    animationPlayState:
+                      isAutoPlaying && isVisible ? "running" : "paused",
                   }}
                 />
               )}

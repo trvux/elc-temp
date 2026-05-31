@@ -3,40 +3,82 @@
 import { navLinks } from "@/modules/settings/domain/navigation";
 import { cn } from "@/shared/lib/utils";
 import Link from "next/link";
+import { useMemo } from "react";
 import { DesktopMenu } from "./desktop-menu";
 import { MobileMenu } from "./mobile-menu";
+import { ThemeToggle } from "./theme-toggle";
 import { useHeader } from "./use-header";
 
-export function Header() {
+import { Contact, getDisplayContacts } from "@/modules/contact/domain";
+import { ContactLink } from "@/modules/contact/presentation/components/ContactLink";
+
+interface HeaderProps {
+  contacts?: Contact[];
+}
+
+export function Header({ contacts = [] }: HeaderProps) {
   const { isMenuOpen, handleMenuToggle, isScrolled } = useHeader();
+
+  const socialContacts = useMemo(() => {
+    return getDisplayContacts(contacts, {
+      include: ["phone", "zalo", "facebook"],
+    });
+  }, [contacts]);
 
   return (
     <div className="sticky top-0 z-200 w-full">
       <header
         className={cn(
-          "h-16 border-b border-dashed border-muted-foreground/40 transition-all duration-500",
+          "h-16 bg-background/80 backdrop-blur-sm backdrop-saturate-150 border-b border-dashed border-muted-foreground/35 transition-all duration-500",
           isMenuOpen
-            ? "bg-background"
+            ? ""
             : isScrolled
               ? "bg-background/80 backdrop-blur-sm backdrop-saturate-150"
               : "",
         )}
       >
-        <div className="flex h-full items-center justify-between px-6 md:px-7 lg:px-8">
+        <div className="max-w-7xl mx-auto px-4 md:px-6 lg:px-8 relative border-x border-dashed border-muted-foreground/35 h-full flex items-center justify-between">
+          {/* Logo + Bold Name */}
           <Link
             href="/"
-            className="flex items-center shrink-0 transition-opacity hover:opacity-80"
+            className="flex items-center gap-2 shrink-0 transition-opacity hover:opacity-80"
           >
             <img
               src="/logo/logo.svg"
               alt="Điện máy ELC"
-              className="h-8 md:h-9 lg:h-10 w-auto"
+              className="h-8 md:h-9 w-auto dark:brightness-0 dark:invert"
             />
+            {/* <span className="text-xl font-bold text-primary/80">elc</span> */}
           </Link>
 
+          {/* Centered Desktop Menu */}
           <DesktopMenu links={navLinks} />
 
-          <div className="flex items-center gap-3">
+          {/* Right Actions */}
+          <div className="flex items-center gap-4 lg:pl-3">
+            <ThemeToggle />
+
+            {/* Separator line */}
+            {socialContacts.length > 0 && (
+              <div className="hidden lg:block w-px h-9 bg-muted" />
+            )}
+
+            {/* Social Icons */}
+            <div className="hidden lg:flex items-center gap-1">
+              {socialContacts.map((contact) => (
+                <ContactLink
+                  key={contact.id}
+                  contact={contact}
+                  showLabel={false}
+                  showValue={false}
+                  iconProps={{ size: 24, weight: "bold" }}
+                  className="h-9 w-9 text-foreground transition-colors flex items-center justify-center p-0 gap-0 cursor-pointer"
+                  iconClassName="size-4.5 flex items-center justify-center"
+                  title={contact.label || contact.type}
+                />
+              ))}
+            </div>
+
             <MobileMenu
               links={navLinks}
               isOpen={isMenuOpen}

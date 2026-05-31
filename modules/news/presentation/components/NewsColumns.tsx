@@ -59,7 +59,7 @@ export const getNewsColumns = ({
         href={`/tin-tuc/${row.original.slug}`}
         target="_blank"
         rel="noopener noreferrer"
-        className="text-xs text-primary font-medium hover:underline flex items-center gap-1 transition-colors"
+        className="text-xs text-foreground/75 font-medium hover:text-foreground hover:underline flex items-center gap-1 transition-colors"
       >
         /tin-tuc/{row.original.slug}
         <ExternalLink size={12} className="shrink-0" />
