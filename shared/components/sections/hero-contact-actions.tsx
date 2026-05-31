@@ -31,7 +31,7 @@ export function HeroContactActions({ contacts }: HeroContactActionsProps) {
             showValue={contact.type !== "phone"}
             className={cn(
               buttonVariants({
-                variant: contact.type === "zalo" ? "default" : "outline",
+                variant: contact.type === "zalo" ? "default" : "secondary",
                 size: "lg",
               }),
               "w-full gap-3",

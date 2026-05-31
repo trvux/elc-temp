@@ -38,7 +38,7 @@ export function BrandShowcase({ brands = [] }: BrandShowcaseProps) {
           <div
             className={cn(
               styles.marqueeArea,
-              "mask-[linear-gradient(to_right,transparent,black_15%,black_85%,transparent)]",
+              "pause-marquee mask-[linear-gradient(to_right,transparent,black_15%,black_85%,transparent)]",
             )}
           >
             <div className={styles.marqueeTrack}>
