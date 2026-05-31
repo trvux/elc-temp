@@ -15,7 +15,6 @@ import { useMemo, useState } from "react";
 
 import { ProjectWithCategory as Project } from "@/modules/project/domain";
 import { ProjectCard } from "@/modules/project/presentation/components/ProjectCard";
-import { Card } from "@/shared/components/ui/card";
 import { ScrollArea } from "@/shared/components/ui/scroll-area";
 import { Tabs, TabsList, TabsTrigger } from "@/shared/components/ui/tabs";
 import { ArrowUpRight } from "lucide-react";
@@ -62,8 +61,12 @@ export function ShowcaseSection({ projects }: ShowcaseSectionProps) {
   if (featuredProjects.length === 0) return null;
 
   return (
-    <Card className="w-full bg-card-foreground text-white py-16 px-4 md:px-8 flex flex-col items-center justify-center gap-6 shadow-sm border overflow-hidden">
-      <StaggerContainer className="flex flex-col gap-2 md:gap-4 w-full" amount={0.1}>
+    <div className="w-full flex flex-col items-center justify-center gap-6">
+      <StaggerContainer
+        className="flex flex-col gap-2 md:gap-4 w-full"
+        amount={0.1}
+        immediate
+      >
         <div className="flex flex-col items-center text-center gap-3 mb-4 md:mb-10">
           <StaggerItem>
             <TypographyH1>
@@ -93,7 +96,7 @@ export function ShowcaseSection({ projects }: ShowcaseSectionProps) {
             >
               <ScrollArea className="w-full no-scrollbar flex justify-center">
                 <div className="min-w-full flex justify-start md:justify-center pb-1">
-                  <TabsList className="dark flex flex-row flex-nowrap justify-start w-max md:w-fit">
+                  <TabsList className="flex flex-row flex-nowrap justify-start w-max md:w-fit">
                     {/* <TabsTrigger value="all" className="shrink-0 px-4 py-1.5 md:px-5 md:py-2">
                        Tất cả
                     </TabsTrigger> */}
@@ -134,6 +137,6 @@ export function ShowcaseSection({ projects }: ShowcaseSectionProps) {
           )}
         </div>
       </div>
-    </Card>
+    </div>
   );
 }

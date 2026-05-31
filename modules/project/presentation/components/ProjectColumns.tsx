@@ -63,7 +63,7 @@ export const getColumns = ({
           href={`/du-an/${row.original.slug}`}
           target="_blank"
           rel="noopener noreferrer"
-          className="text-xs text-primary hover:underline flex items-center gap-1 w-fit"
+          className="text-xs text-foreground/75 hover:text-foreground hover:underline flex items-center gap-1 w-fit"
         >
           /du-an/{row.original.slug}
           <ExternalLink size={12} />

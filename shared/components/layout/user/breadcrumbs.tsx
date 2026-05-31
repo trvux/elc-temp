@@ -9,7 +9,7 @@ import {
   BreadcrumbSeparator,
 } from "@/shared/components/ui/breadcrumb";
 import { usePathname } from "next/navigation";
-import React from "react";
+import React, { useEffect } from "react";
 
 export interface BreadcrumbStep {
   label: string;
@@ -27,7 +27,6 @@ export function Breadcrumbs({ items, className }: BreadcrumbsProps) {
   const baseUrl =
     process.env.NEXT_PUBLIC_APP_URL || "https://dienmayelc.com.vn";
 
-  // Generate JSON-LD for Google SEO
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
@@ -51,14 +50,25 @@ export function Breadcrumbs({ items, className }: BreadcrumbsProps) {
     ],
   };
 
+  // Inject JSON-LD imperatively to avoid React's script-in-client-component warning.
+  // Scripts mutated via the DOM are outside React's render tree and never trigger the warning.
+  useEffect(() => {
+    const script = document.createElement("script");
+    script.type = "application/ld+json";
+    script.textContent = JSON.stringify(jsonLd);
+    script.setAttribute("data-breadcrumb-jsonld", "true");
+    document.head.appendChild(script);
+
+    return () => {
+      script.remove();
+    };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pathname, JSON.stringify(items)]);
+
   return (
-    <nav aria-label="Breadcrumb">
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-      />
+    <nav aria-label="Breadcrumb" className={className}>
       <Breadcrumb>
-        <BreadcrumbList className="flex gap-2 rounded-md border p-3 text-sm truncate ">
+        <BreadcrumbList className="flex gap-2 rounded-md border p-3 text-sm truncate">
           <BreadcrumbItem>
             <BreadcrumbLink href="/">Trang chủ</BreadcrumbLink>
           </BreadcrumbItem>

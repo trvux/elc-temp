@@ -110,16 +110,16 @@ export function DataTable<TData, TValue>({
           />
         </div>
       )}
-      <div className="rounded-md border bg-white overflow-hidden">
+      <div className="rounded-md border bg-card overflow-hidden">
         <div className="w-full h-[calc(100vh-300px)] min-h-[400px] overflow-auto relative">
           <table className="w-full min-w-[1000px] caption-bottom text-sm border-separate border-spacing-0">
             <thead className="[&_tr]:border-b">
               {table.getHeaderGroups().map((headerGroup) => (
-                <tr key={headerGroup.id} className="border-b bg-white">
+                <tr key={headerGroup.id} className="border-b bg-card">
                   {headerGroup.headers.map((header) => (
                     <th
                       key={header.id}
-                      className="sticky top-0 z-20 bg-white h-10 px-2 text-left align-middle text-sm font-medium whitespace-nowrap text-foreground border-b shadow-[0_1px_0_0_rgba(0,0,0,0.08)]"
+                      className="sticky top-0 z-20 bg-card h-10 px-2 text-left align-middle text-sm font-medium whitespace-nowrap text-foreground border-b shadow-[0_1px_0_0_rgba(0,0,0,0.08)]"
                     >
                       {header.isPlaceholder
                         ? null

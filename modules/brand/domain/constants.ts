@@ -1,0 +1,15 @@
+export const BRAND_WEBSITES: Record<string, string> = {
+  daikin: "https://www.daikin.com.vn",
+  panasonic: "https://www.panasonic.com/vn/",
+  lg: "https://www.lg.com/vn",
+  samsung: "https://www.samsung.com/vn",
+  toshiba: "https://www.toshiba-lifestyle.com/vn",
+  mitsubishi: "https://www.mitsubishi-electric.vn",
+  midea: "https://www.midea.com/vn",
+  carrier: "https://www.carrier.com/commercial/vi/vn/",
+  gree: "https://gree.com.vn",
+  menred: "https://www.menred.com",
+  acis: "https://acis.com.vn",
+  hagisu: "https://hagisu.com",
+  hasigu: "https://hagisu.com",
+};

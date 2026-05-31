@@ -56,7 +56,7 @@ export const getProductColumns = ({
             href={url}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-[10px] text-primary hover:underline font-mono"
+            className="text-[10px] text-foreground/75 hover:text-foreground hover:underline font-mono"
           >
             {url}
           </a>

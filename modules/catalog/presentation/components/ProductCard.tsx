@@ -34,7 +34,7 @@ export function ProductCard({
   return (
     <Link href={productUrl} className="block group h-full">
       <Card className="relative mx-auto w-full h-full max-w-sm pt-0 transition-all duration-300 hover:shadow-md cursor-pointer gap-3 md:gap-6">
-        <div className="absolute inset-0 z-30 aspect-video" />
+        <div className="absolute inset-0 z-30 aspect-video bg-white" />
         {product.images?.[0] ? (
           <img
             src={product.images[0]}
@@ -43,7 +43,7 @@ export function ProductCard({
             className="relative z-30 aspect-video w-full object-contain"
           />
         ) : (
-          <span>kh co san pham</span>
+          <div className="relative z-30 aspect-video w-full object-contain bg-white" />
         )}
 
         <CardHeader className="px-3 md:px-6">

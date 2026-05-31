@@ -37,6 +37,19 @@ interface ContactIconProps extends IconProps {
 
 export function ContactIcon({ type, className, ...props }: ContactIconProps) {
   const Icon = getContactIcon(type);
+
+  // Safeguard props to avoid passing incompatible props (like weight) to Tabler icons
+  const finalProps: Record<string, string | number | undefined> = {};
+  if (props.size !== undefined) finalProps.size = props.size;
+  if (props.color !== undefined) finalProps.color = props.color;
+
+  if (type === "zalo") {
+    finalProps.stroke = 3;
+  } else {
+    if (props.weight !== undefined) finalProps.weight = props.weight;
+    if (props.mirrored !== undefined) finalProps.mirrored = props.mirrored ? "true" : undefined;
+  }
+
   return (
     <span
       className={cn(
@@ -44,7 +57,9 @@ export function ContactIcon({ type, className, ...props }: ContactIconProps) {
         className
       )}
     >
-      <Icon className="size-full" {...props} />
+      {/* @ts-ignore */}
+      <Icon className="size-full" {...finalProps} />
     </span>
   );
 }
+
