@@ -71,7 +71,7 @@ export function GridContainer({
       {/* Content Wrapper */}
       <div
         className={cn(
-          "relative mx-auto max-w-7xl",
+          "relative mx-auto h-full w-full max-w-350 border-dashed min-[87.5rem]:border-x min-[112.5rem]:max-w-384",
           withPadding && "px-4 md:px-8 py-16 md:py-24",
         )}
       >

@@ -37,7 +37,7 @@ export function Header({ contacts = [] }: HeaderProps) {
               : "",
         )}
       >
-        <div className="max-w-7xl mx-auto px-4 md:px-6 lg:px-8 relative border-x border-dashed border-muted-foreground/35 h-full flex items-center justify-between">
+        <div className="mx-auto h-full w-full max-w-350 border-dashed min-[87.5rem]:border-x min-[112.5rem]:max-w-384 px-4 md:px-6 lg:px-8 relative border-muted-foreground/35 flex items-center justify-between">
           {/* Logo + Bold Name */}
           <Link
             href="/"
