@@ -1,4 +1,4 @@
-import { ProductWithRelations, formatPrice } from "@/modules/catalog/domain";
+import { formatPrice, ProductWithRelations } from "@/modules/catalog/domain";
 import { HighlightedText } from "@/shared/components/layout/user/highlighted-text";
 import { Badge } from "@/shared/components/ui/badge";
 import {
@@ -8,6 +8,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/shared/components/ui/card";
+import { StockBadge } from "@/shared/components/ui/stock-badge";
 import {
   TypographyH3,
   TypographySmall,
@@ -52,8 +53,8 @@ export function ProductCard({
         ) : (
           <div className="relative z-30 aspect-video w-full bg-white" />
         )}
-
-        <CardHeader className="px-3 md:px-6">
+        {/* px-3 md:px-6 */}
+        <CardHeader className="px-2">
           <CardTitle className="line-clamp-2 h-12">
             <HighlightedText text={product.name} queryTokens={queryTokens} />
           </CardTitle>
@@ -81,9 +82,14 @@ export function ProductCard({
                 </span>
               </span>
             )}
+            <StockBadge
+              status={product.stockStatus || undefined}
+              // className="text-sm"
+            />
           </CardDescription>
         </CardHeader>
-        <CardContent className="flex flex-col gap-2 px-3 md:px-6">
+        {/* px-3 md:px-6 */}
+        <CardContent className="flex flex-col gap-2 px-2">
           <TypographyH3>{formatPrice(currentPrice)}</TypographyH3>
           {hasDiscount && (
             <>

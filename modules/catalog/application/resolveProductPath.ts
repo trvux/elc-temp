@@ -3,7 +3,7 @@ import { Group } from "@/modules/group/domain/types";
 import { CategoryNew } from "@/modules/category-new/domain/types";
 import { Brand, ProductWithRelations } from "@/modules/catalog/domain/types";
 import { productRepo } from "@/modules/catalog/infrastructure/SupabaseProductRepository";
-import { cacheLife } from "next/cache";
+import { cacheLife, cacheTag } from "next/cache";
 
 export type ResolvedEntity =
   | { type: "group"; data: Group }
@@ -14,7 +14,8 @@ export type ResolvedEntity =
 
 export async function resolveProductPath(slug: string): Promise<ResolvedEntity> {
   "use cache";
-  cacheLife("hours");
+  cacheLife({ stale: 0, revalidate: 300, expire: 86400 });
+  cacheTag("products", `slug:${slug}`);
   setUseStaticClient(true);
 
   const supabase = await createClient();

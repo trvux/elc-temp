@@ -1,6 +1,6 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
 import {
   createBrand,
   getBrands,
@@ -61,7 +61,9 @@ export async function createProductAction(input: CreateProductInput) {
   try {
     const data = await createProduct(input);
     revalidatePath("/admin/products");
-    revalidatePath("/san-pham");
+    revalidatePath("/san-pham", "layout");
+    revalidatePath("/", "layout");
+    revalidateTag("products");
     return { data, error: null };
   } catch (error) {
     console.error("createProductAction error:", error);
@@ -76,7 +78,9 @@ export async function updateProductAction(input: UpdateProductInput) {
   try {
     const data = await updateProduct(input);
     revalidatePath("/admin/products");
-    revalidatePath("/san-pham");
+    revalidatePath("/san-pham", "layout");
+    revalidatePath("/", "layout");
+    revalidateTag("products");
     return { data, error: null };
   } catch (error) {
     console.error("updateProductAction error:", error);
@@ -90,7 +94,9 @@ export async function deleteProductAction(id: string) {
   try {
     await deleteProduct(id);
     revalidatePath("/admin/products");
-    revalidatePath("/san-pham");
+    revalidatePath("/san-pham", "layout");
+    revalidatePath("/", "layout");
+    revalidateTag("products");
     return { data: true, error: null };
   } catch (error) {
     console.error("deleteProductAction error:", error);

@@ -18,7 +18,7 @@ import { cn } from "@/shared/lib/utils";
 import { Metadata } from "next";
 import { Suspense } from "react";
 import { setUseStaticClient } from "@/shared/lib/supabase/server";
-import { cacheLife } from "next/cache";
+import { cacheLife, cacheTag } from "next/cache";
 import { Skeleton } from "@/shared/components/ui/skeleton";
 
 
@@ -130,9 +130,10 @@ async function CachedProductsView({
   params: { [key: string]: string | string[] | undefined };
 }) {
   "use cache";
-  // Serve stale content for up to 1 hour while revalidating in background every 5 minutes.
-  // This prevents blank page caused by cache cold-start race condition.
-  cacheLife({ stale: 3600, revalidate: 300, expire: 86400 });
+  // Set stale: 0 so the browser always asks the server on reload,
+  // but keep revalidate/expire so the server itself caches it.
+  cacheLife({ stale: 0, revalidate: 300, expire: 86400 });
+  cacheTag("products");
   setUseStaticClient(true);
 
   const q =

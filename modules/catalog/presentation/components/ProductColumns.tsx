@@ -7,7 +7,9 @@ import { ButtonGroup } from "@/shared/components/ui/button-group";
 import { ColumnDef } from "@tanstack/react-table";
 import { Check, Minus, Edit2, Star, Trash2, X } from "lucide-react";
 import Image from "next/image";
-import { ProductWithRelations, formatPrice, PRODUCT_LABELS } from "../../domain";
+import { ProductWithRelations, formatPrice, PRODUCT_LABELS, STOCK_STATUS_MAP, STOCK_STATUS } from "../../domain";
+import { StockBadge } from "@/shared/components/ui/stock-badge";
+import { cn } from "@/shared/lib/utils";
 
 const LABEL_MAP: Record<string, string> = {
   [PRODUCT_LABELS.NEW]: "Mới về",
@@ -144,6 +146,18 @@ export const getProductColumns = ({
             </Badge>
           ))}
         </div>
+      );
+    },
+  },
+  {
+    accessorKey: "stockStatus",
+    header: "Kho",
+    cell: ({ row }) => {
+      const status = row.original.stockStatus;
+      if (!status) return <span className="text-muted-foreground">—</span>;
+      
+      return (
+        <StockBadge status={status || undefined} className="whitespace-nowrap px-2 py-0 h-5 text-[10px]" />
       );
     },
   },

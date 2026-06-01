@@ -22,7 +22,7 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/shared/components/ui/tabs";
 import { ScrollArea } from "@/shared/components/ui/scroll-area";
 
-import { STOCK_STATUS, ProductWithRelations, PRODUCT_LABELS } from "../../domain";
+import { STOCK_STATUS, STOCK_STATUS_MAP, ProductWithRelations, PRODUCT_LABELS } from "../../domain";
 import {
   deleteProductAction,
   getBrandsAction,
@@ -48,6 +48,7 @@ export function ProductManagement() {
   const [filterIsFeatured, setFilterIsFeatured] = useState<string>("all");
   const [filterIsPublished, setFilterIsPublished] = useState<string>("all");
   const [filterLabel, setFilterLabel] = useState<string>("all");
+  const [filterStockStatus, setFilterStockStatus] = useState<string>("all");
 
   // Fetch Data
   const { data: products = [], isLoading: isLoadingProducts } = useQuery({
@@ -133,9 +134,10 @@ export function ProductManagement() {
       const matchFeatured = filterIsFeatured === "all" || (filterIsFeatured === "true" ? p.isFeatured : !p.isFeatured);
       const matchPublished = filterIsPublished === "all" || (filterIsPublished === "true" ? p.isPublished : !p.isPublished);
       const matchLabel = filterLabel === "all" || (p.labels && p.labels.includes(filterLabel));
-      return matchGroup && matchCategory && matchFeatured && matchPublished && matchLabel;
+      const matchStockStatus = filterStockStatus === "all" || p.stockStatus === filterStockStatus;
+      return matchGroup && matchCategory && matchFeatured && matchPublished && matchLabel && matchStockStatus;
     });
-  }, [products, filterGroupId, filterCategoryId, filterIsFeatured, filterIsPublished, filterLabel, categoriesNew]);
+  }, [products, filterGroupId, filterCategoryId, filterIsFeatured, filterIsPublished, filterLabel, filterStockStatus, categoriesNew]);
 
   const columns = useMemo(
     () =>
@@ -276,11 +278,25 @@ export function ProductManagement() {
           </SelectContent>
         </Select>
 
+        <Select value={filterStockStatus} onValueChange={setFilterStockStatus}>
+          <SelectTrigger className="w-full md:w-[160px]">
+            <SelectValue placeholder="Tình trạng kho" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">Tất cả tình trạng</SelectItem>
+            <SelectItem value={STOCK_STATUS.IN_STOCK}>{STOCK_STATUS_MAP[STOCK_STATUS.IN_STOCK]}</SelectItem>
+            <SelectItem value={STOCK_STATUS.OUT_OF_STOCK}>{STOCK_STATUS_MAP[STOCK_STATUS.OUT_OF_STOCK]}</SelectItem>
+            <SelectItem value={STOCK_STATUS.PRE_ORDER}>{STOCK_STATUS_MAP[STOCK_STATUS.PRE_ORDER]}</SelectItem>
+            <SelectItem value={STOCK_STATUS.DISCONTINUED}>{STOCK_STATUS_MAP[STOCK_STATUS.DISCONTINUED]}</SelectItem>
+          </SelectContent>
+        </Select>
+
         {(filterGroupId !== "all" ||
           filterCategoryId !== "all" ||
           filterIsFeatured !== "all" ||
           filterIsPublished !== "all" ||
-          filterLabel !== "all") && (
+          filterLabel !== "all" ||
+          filterStockStatus !== "all") && (
           <Button
             variant="ghost"
             onClick={() => {
@@ -289,6 +305,7 @@ export function ProductManagement() {
               setFilterIsFeatured("all");
               setFilterIsPublished("all");
               setFilterLabel("all");
+              setFilterStockStatus("all");
             }}
             className="h-10 text-muted-foreground"
           >

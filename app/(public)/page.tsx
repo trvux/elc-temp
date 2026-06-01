@@ -30,11 +30,12 @@ export const metadata: Metadata = {
 };
 
 import { setUseStaticClient } from "@/shared/lib/supabase/server";
-import { cacheLife } from "next/cache";
+import { cacheLife, cacheTag } from "next/cache";
 
 export default async function Home() {
   "use cache";
-  cacheLife("hours");
+  cacheLife({ stale: 0, revalidate: 300, expire: 86400 });
+  cacheTag("products", "projects", "brands");
   setUseStaticClient(true);
 
   // Fetch all necessary data for the homepage using the application layer
