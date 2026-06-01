@@ -35,7 +35,7 @@ export function ProductCard({
 
   return (
     <Link href={productUrl} className="w-full block group h-full">
-      <Card className="relative mx-auto w-full h-full max-w-sm pt-0 transition-all duration-300 hover:shadow-md cursor-pointer gap-3 md:gap-6 overflow-hidden">
+      <Card className="relative mx-auto w-full h-full max-w-sm pt-0 transition-all duration-300 hover:shadow-md cursor-pointer gap-2 md:gap-3 overflow-hidden">
         <div className="absolute inset-0 z-30 aspect-video bg-white" />
         {product.images?.[0] ? (
           <div className="relative z-30 aspect-video w-full bg-white">
