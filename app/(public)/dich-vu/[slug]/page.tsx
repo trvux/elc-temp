@@ -30,6 +30,7 @@ async function getCachedService(slug: string) {
     .select("*")
     .eq("slug", slug)
     .eq("is_published", true)
+    .is("deleted_at", null)
     .maybeSingle();
 
   return service;
@@ -57,7 +58,8 @@ export async function generateStaticParams() {
   const { data: services } = await supabase
     .from("services")
     .select("slug")
-    .eq("is_published", true);
+    .eq("is_published", true)
+    .is("deleted_at", null);
   return (services ?? []).map((s) => ({ slug: s.slug }));
 }
 
