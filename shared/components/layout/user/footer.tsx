@@ -125,7 +125,7 @@ export function Footer({
       <div className="absolute top-0 left-0 w-full h-px z-10 pointer-events-none">
         <div className="absolute left-1/2 h-px w-screen -translate-x-1/2">
           <hr className={`-mt-px w-full border-dashed ${borderColor}`} />
-          <div className="relative mx-auto h-px w-full max-w-7xl px-4 md:px-6 lg:px-8">
+          <div className="relative mx-auto h-px w-full max-w-350 min-[112.5rem]:max-w-384 px-4 md:px-6 lg:px-8">
             <span
               className={`border ${borderColor} bg-background absolute top-1/2 left-0 z-20 w-2.5 h-2.5 -translate-x-1/2 -translate-y-1/2 rotate-45 rounded-[1px] hidden lg:block`}
             />
@@ -137,7 +137,7 @@ export function Footer({
       </div>
 
       <div
-        className={`max-w-7xl mx-auto px-4 md:px-6 lg:px-8 relative border-x border-dashed ${borderColor} py-10 md:py-16 lg:py-20`}
+        className={`mx-auto h-full w-full max-w-350 border-dashed min-[87.5rem]:border-x min-[112.5rem]:max-w-384 px-4 md:px-6 lg:px-8 relative ${borderColor} py-10 md:py-16 lg:py-20`}
       >
         {/* ===== SECTION 1: Logo + Navigation ===== */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-y-12 gap-x-8 pb-16">
