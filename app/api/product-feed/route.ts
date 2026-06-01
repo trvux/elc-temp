@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { createStaticClient } from "@/shared/lib/supabase/static";
 
-export const revalidate = 0; // Dynamic feed, always fetch fresh prices/stock
+
 
 interface FeedProduct {
   id: string;

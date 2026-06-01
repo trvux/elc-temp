@@ -1,6 +1,6 @@
 import { Metadata } from "next";
-
-export const dynamic = "force-dynamic";
+import { connection } from "next/server";
+import { Suspense } from "react";
 
 export const metadata: Metadata = {
   title: {
@@ -10,10 +10,11 @@ export const metadata: Metadata = {
   description: "Hệ thống quản trị nội dung ELC",
 };
 
-export default function AdminRootLayout({
+export default async function AdminRootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  return <>{children}</>;
+  await connection();
+  return <Suspense fallback={null}>{children}</Suspense>;
 }

@@ -75,6 +75,7 @@ interface FooterProps {
   groupCategories?: GroupCategoryFooter[];
   categoriesList?: CategoryFooter[];
   serviceTypes?: ServiceTypeFooter[];
+  currentYear?: number;
 }
 
 export function Footer({
@@ -87,10 +88,12 @@ export function Footer({
   groupCategories = [],
   categoriesList = [],
   serviceTypes = [],
+  currentYear = 2026,
 }: FooterProps) {
-  const { address, currentYear } = getFooterLogic(
+  const { address, currentYear: year } = getFooterLogic(
     contacts,
     settings as FooterSettings,
+    currentYear
   );
 
   const displayContacts = useMemo(
@@ -147,6 +150,7 @@ export function Footer({
               <img
                 src="/logo/logo.svg"
                 alt="Điện máy ELC"
+                loading="lazy"
                 className="h-8 md:h-9 w-auto dark:brightness-0 dark:invert"
               />
             </Link>
@@ -275,7 +279,8 @@ export function Footer({
                         <img
                           src={brand.logoUrl}
                           alt={brand.name}
-                          className="max-h-8 w-auto max-w-[85%] object-contain opacity-55 group-hover:opacity-100 transition-all duration-300 dark:brightness-0 dark:invert"
+                          loading="lazy"
+                          className="max-h-8 w-auto max-w-[85%] object-contain opacity-90"
                         />
                       ) : (
                         <span className="text-sm font-semibold text-muted-foreground group-hover:text-foreground transition-colors duration-300">

@@ -8,6 +8,7 @@ import {
   CardTitle,
 } from "@/shared/components/ui/card";
 import { Sparkle } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
 import { ProjectWithCategory } from "../../domain/types";
 
@@ -38,14 +39,19 @@ export function ProjectCard({ project, queryTokens = [] }: ProjectCardProps) {
   const projectUrl = `/du-an/${project.slug}`;
 
   return (
-    <Link href={projectUrl} className="block group h-full">
-      <Card className="relative mx-auto w-full max-w-sm pt-0 h-full">
-        <div className="absolute inset-0 z-30 aspect-video " />
-        <img
-          src={firstImage}
-          alt={project.title}
-          className="relative z-20 aspect-video w-full object-cover "
-        />
+    <Link href={projectUrl} className="w-full block group h-full">
+      <Card className="relative mx-auto w-full max-w-sm pt-0 h-full overflow-hidden">
+        <div className="relative z-20 aspect-video w-full">
+          <Image
+            src={firstImage}
+            alt={project.title}
+            fill
+            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+            className="object-cover"
+            loading="lazy"
+          />
+          <div className="absolute inset-0 z-30" />
+        </div>
         <CardHeader className="flex-1">
           {project.isFeatured && (
             <CardAction>

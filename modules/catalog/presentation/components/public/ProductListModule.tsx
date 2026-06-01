@@ -15,10 +15,11 @@ import {
 } from "@/shared/components/ui/typography";
 import { getQueryTokens } from "@/shared/lib/search-utils";
 import { generateCollectionSchema } from "@/shared/lib/seo-utils";
-import { createClient } from "@/shared/lib/supabase/server";
+import { createClient, setUseStaticClient } from "@/shared/lib/supabase/server";
 import { cn } from "@/shared/lib/utils";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
+import { cacheLife } from "next/cache";
 
 interface ProductListModuleProps {
   entity: ResolvedEntity;
@@ -50,6 +51,10 @@ export async function ProductListModule({
   entity,
   searchParams,
 }: ProductListModuleProps) {
+  "use cache";
+  cacheLife("minutes");
+  setUseStaticClient(true);
+
   if (!entity || entity.type === "product") return notFound();
 
   const sParams = searchParams;

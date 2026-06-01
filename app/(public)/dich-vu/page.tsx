@@ -11,6 +11,9 @@ import { cn } from "@/shared/lib/utils";
 import { ArrowUpRight } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { setUseStaticClient } from "@/shared/lib/supabase/server";
+import { cacheLife } from "next/cache";
+
 
 const STYLES = {
   main: cn("w-full min-h-screen py-12 px-4 md:px-8"),
@@ -49,6 +52,10 @@ const STYLES = {
 };
 
 export default async function ServicesHub() {
+  "use cache";
+  cacheLife("hours");
+  setUseStaticClient(true);
+
   // Fetch all published services using the application layer
   const allServices = await getServices({ isPublished: true });
 

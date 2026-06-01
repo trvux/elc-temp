@@ -7,6 +7,8 @@ import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getPageBySlug, getPages } from "@/modules/page/application";
+import { setUseStaticClient } from "@/shared/lib/supabase/server";
+import { cacheLife } from "next/cache";
 
 // Design System / Style Constants
 const STYLES = {
@@ -32,6 +34,10 @@ export async function generateStaticParams() {
 }
 
 export default async function StaticPage({ params }: PageProps) {
+  "use cache";
+  cacheLife("hours");
+  setUseStaticClient(true);
+  
   const { slug } = await params;
   
   // Fetch current page content using the application layer

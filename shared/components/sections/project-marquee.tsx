@@ -100,7 +100,7 @@ export function ProjectMarqueeSection({
                 fill
                 sizes="(max-width: 640px) 256px, (max-width: 768px) 288px, 320px"
                 className="object-cover"
-                priority={idx === 0}
+                loading="lazy"
               />
             </div>
           </CardContent>

@@ -11,6 +11,9 @@ import { ArrowUpRight as ArrowIcon } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { getNews } from "@/modules/news/application";
+import { setUseStaticClient } from "@/shared/lib/supabase/server";
+import { cacheLife } from "next/cache";
+
 
 const STYLES = {
   main: cn("w-full min-h-screen py-12 px-4 md:px-8"),
@@ -41,6 +44,10 @@ const STYLES = {
 };
 
 export default async function NewsHub() {
+  "use cache";
+  cacheLife("hours");
+  setUseStaticClient(true);
+
   // Fetch all published news using the application layer
   const allNews = await getNews({ isPublished: true });
 

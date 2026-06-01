@@ -29,9 +29,14 @@ export const metadata: Metadata = {
   },
 };
 
-export const revalidate = 3600;
+import { setUseStaticClient } from "@/shared/lib/supabase/server";
+import { cacheLife } from "next/cache";
 
 export default async function Home() {
+  "use cache";
+  cacheLife("hours");
+  setUseStaticClient(true);
+
   // Fetch all necessary data for the homepage using the application layer
   const [settingsData, projects, featuredProducts, contacts, brands] =
     await Promise.all([
