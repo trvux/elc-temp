@@ -8,10 +8,10 @@ import { TypographyH1, TypographyP } from "@/shared/components/ui/typography";
 import { HeroSlideshow } from "./hero-slideshow";
 
 const HERO_IMAGES = [
-  "/images/1.jpg?v=3",
-  "/images/2.jpg?v=3",
-  "/images/3.jpg?v=3",
-  "/images/4.jpg?v=3",
+  "/images/1.jpg?v=4",
+  "/images/2.jpg?v=4",
+  "/images/3.jpg?v=4",
+  "/images/4.jpg?v=4",
 ];
 
 interface HeroMediaSectionProps {
