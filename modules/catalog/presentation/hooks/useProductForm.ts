@@ -75,6 +75,7 @@ export function useProductForm(
       salePrice: 0,
       discountPercent: 0,
       images: [],
+      labels: [],
       isFeatured: false,
       isPublished: true,
       orderIndex: 0,

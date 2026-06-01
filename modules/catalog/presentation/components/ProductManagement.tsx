@@ -22,7 +22,7 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/shared/components/ui/tabs";
 import { ScrollArea } from "@/shared/components/ui/scroll-area";
 
-import { STOCK_STATUS, ProductWithRelations } from "../../domain";
+import { STOCK_STATUS, ProductWithRelations, PRODUCT_LABELS } from "../../domain";
 import {
   deleteProductAction,
   getBrandsAction,
@@ -47,6 +47,7 @@ export function ProductManagement() {
   const [filterCategoryId, setFilterCategoryId] = useState<string>("all");
   const [filterIsFeatured, setFilterIsFeatured] = useState<string>("all");
   const [filterIsPublished, setFilterIsPublished] = useState<string>("all");
+  const [filterLabel, setFilterLabel] = useState<string>("all");
 
   // Fetch Data
   const { data: products = [], isLoading: isLoadingProducts } = useQuery({
@@ -131,9 +132,10 @@ export function ProductManagement() {
       const matchCategory = filterCategoryId === "all" || p.categoryId === filterCategoryId;
       const matchFeatured = filterIsFeatured === "all" || (filterIsFeatured === "true" ? p.isFeatured : !p.isFeatured);
       const matchPublished = filterIsPublished === "all" || (filterIsPublished === "true" ? p.isPublished : !p.isPublished);
-      return matchGroup && matchCategory && matchFeatured && matchPublished;
+      const matchLabel = filterLabel === "all" || (p.labels && p.labels.includes(filterLabel));
+      return matchGroup && matchCategory && matchFeatured && matchPublished && matchLabel;
     });
-  }, [products, filterGroupId, filterCategoryId, filterIsFeatured, filterIsPublished, categoriesNew]);
+  }, [products, filterGroupId, filterCategoryId, filterIsFeatured, filterIsPublished, filterLabel, categoriesNew]);
 
   const columns = useMemo(
     () =>
@@ -161,6 +163,7 @@ export function ProductManagement() {
             metaTitle: p.metaTitle || "",
             metaDescription: p.metaDescription || "",
             specs: Array.isArray(p.specs) ? p.specs : [],
+            labels: p.labels || [],
           });
         },
         onDelete: setDeletingId,
@@ -191,6 +194,7 @@ export function ProductManagement() {
       metaTitle: "",
       metaDescription: "",
       specs: AC_TEMPLATE,
+      labels: [],
     });
   }
 
@@ -259,10 +263,24 @@ export function ProductManagement() {
           </SelectContent>
         </Select>
 
+        <Select value={filterLabel} onValueChange={setFilterLabel}>
+          <SelectTrigger className="w-full md:w-[160px]">
+            <SelectValue placeholder="Nhãn hiển thị" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">Tất cả nhãn</SelectItem>
+            <SelectItem value={PRODUCT_LABELS.NEW}>Mới về (New)</SelectItem>
+            <SelectItem value={PRODUCT_LABELS.HOT}>Nổi bật (Hot)</SelectItem>
+            <SelectItem value={PRODUCT_LABELS.BEST_SELLER}>Bán chạy (Best Seller)</SelectItem>
+            <SelectItem value={PRODUCT_LABELS.SALE}>Giảm giá (Sale)</SelectItem>
+          </SelectContent>
+        </Select>
+
         {(filterGroupId !== "all" ||
           filterCategoryId !== "all" ||
           filterIsFeatured !== "all" ||
-          filterIsPublished !== "all") && (
+          filterIsPublished !== "all" ||
+          filterLabel !== "all") && (
           <Button
             variant="ghost"
             onClick={() => {
@@ -270,6 +288,7 @@ export function ProductManagement() {
               setFilterCategoryId("all");
               setFilterIsFeatured("all");
               setFilterIsPublished("all");
+              setFilterLabel("all");
             }}
             className="h-10 text-muted-foreground"
           >

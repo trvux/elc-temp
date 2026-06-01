@@ -25,6 +25,7 @@ export const productSchema = z.object({
   salePrice: z.coerce.number().min(0, { message: "Giá bán không được nhỏ hơn 0" }).default(0),
   discountPercent: z.coerce.number().min(0).max(100).default(0),
   images: z.array(z.string()).default([]),
+  labels: z.array(z.string()).default([]),
   isFeatured: z.boolean().default(false),
   isPublished: z.boolean().default(false),
   orderIndex: z.coerce.number().int().default(0),

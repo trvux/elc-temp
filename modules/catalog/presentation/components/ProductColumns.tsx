@@ -7,7 +7,14 @@ import { ButtonGroup } from "@/shared/components/ui/button-group";
 import { ColumnDef } from "@tanstack/react-table";
 import { Check, Minus, Edit2, Star, Trash2, X } from "lucide-react";
 import Image from "next/image";
-import { ProductWithRelations, formatPrice } from "../../domain";
+import { ProductWithRelations, formatPrice, PRODUCT_LABELS } from "../../domain";
+
+const LABEL_MAP: Record<string, string> = {
+  [PRODUCT_LABELS.NEW]: "Mới về",
+  [PRODUCT_LABELS.HOT]: "Hot",
+  [PRODUCT_LABELS.BEST_SELLER]: "Bán chạy",
+  [PRODUCT_LABELS.SALE]: "Sale",
+};
 
 interface ColumnProps {
   onEdit: (product: ProductWithRelations) => void;
@@ -119,6 +126,23 @@ export const getProductColumns = ({
               -{p.discountPercent}%
             </Badge>
           )}
+        </div>
+      );
+    },
+  },
+  {
+    accessorKey: "labels",
+    header: "Nhãn",
+    cell: ({ row }) => {
+      const labels = row.original.labels || [];
+      if (labels.length === 0) return <span className="text-muted-foreground">—</span>;
+      return (
+        <div className="flex flex-wrap gap-1 max-w-[120px]">
+          {labels.map((l) => (
+            <Badge key={l} variant="outline" className="text-[10px] px-1 py-0 h-4 font-normal">
+              {LABEL_MAP[l] || l}
+            </Badge>
+          ))}
         </div>
       );
     },
