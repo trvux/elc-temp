@@ -8,6 +8,7 @@ import {
 } from "@/shared/components/ui/card";
 import { cn } from "@/shared/lib/utils";
 import { ArrowRight, Building2, Mail, MapPin, Phone } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
 import React from "react";
 
@@ -20,10 +21,13 @@ export const BranchCard: React.FC<BranchCardProps> = ({ branch }) => {
     <Card className="relative cursor-pointer overflow-hidden hover:shadow-md transition-shadow flex flex-col border-none bg-background/50 backdrop-blur-sm shadow-sm group/card h-full pt-0">
       {branch.imageUrl ? (
         <div className="relative w-full aspect-[16/10] overflow-hidden bg-muted border-b border-border/10">
-          <img
+          <Image
             src={branch.imageUrl}
             alt={branch.name}
-            className="w-full h-full object-cover transition-transform duration-500 group-hover/card:scale-105"
+            fill
+            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+            className="object-cover transition-transform duration-500 group-hover/card:scale-105"
+            loading="lazy"
           />
         </div>
       ) : (

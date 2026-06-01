@@ -8,10 +8,10 @@ import { TypographyH1, TypographyP } from "@/shared/components/ui/typography";
 import { HeroSlideshow } from "./hero-slideshow";
 
 const HERO_IMAGES = [
-  "/images/1.jpg?v=2",
-  "/images/2.jpg?v=2",
-  "/images/3.jpg?v=2",
-  "/images/4.jpg?v=2",
+  "/images/1.jpg?v=3",
+  "/images/2.jpg?v=3",
+  "/images/3.jpg?v=3",
+  "/images/4.jpg?v=3",
 ];
 
 interface HeroMediaSectionProps {
@@ -29,10 +29,7 @@ export function HeroMediaSection({
 
   return (
     <div className="w-full flex flex-col items-center justify-center gap-6">
-      <StaggerContainer
-        className="flex flex-col gap-4 w-full"
-        immediate
-      >
+      <StaggerContainer className="flex flex-col gap-4 w-full" immediate>
         {/* Title */}
         <div className="flex flex-col items-center text-center gap-3 mb-4 md:mb-10">
           <StaggerItem duration={0.25}>

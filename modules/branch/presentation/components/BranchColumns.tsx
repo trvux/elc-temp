@@ -25,6 +25,7 @@ export const getBranchColumns = ({
           <img
             src={row.original.imageUrl}
             alt=""
+            loading="lazy"
             className="h-full w-full object-cover"
           />
         ) : (

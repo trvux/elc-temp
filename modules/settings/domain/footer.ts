@@ -16,7 +16,8 @@ export interface FooterSettings {
 
 export function getFooterLogic(
   contacts: FooterContact[] = [],
-  settings: FooterSettings = {}
+  settings: FooterSettings = {},
+  year: number = 2026
 ) {
   const findContact = (type: string) => contacts.find((c) => c.type === type)?.value;
 
@@ -47,6 +48,6 @@ export function getFooterLogic(
     address,
     cleanPhone,
     getSocialUrl,
-    currentYear: new Date().getFullYear(),
+    currentYear: year,
   };
 }

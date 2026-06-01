@@ -18,6 +18,7 @@ export default async function PublicLayout({ children }: PublicLayoutProps) {
     groupCategories,
     categoriesList,
     serviceTypes,
+    currentYear,
   } = await getPublicLayoutData();
 
   return (
@@ -35,6 +36,7 @@ export default async function PublicLayout({ children }: PublicLayoutProps) {
         groupCategories={groupCategories}
         categoriesList={categoriesList}
         serviceTypes={serviceTypes}
+        currentYear={currentYear}
       />
     </div>
   );

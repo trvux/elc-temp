@@ -10,6 +10,9 @@ import { cn } from "@/shared/lib/utils";
 import { ArrowUpRight } from "lucide-react";
 import Link from "next/link";
 import { getPages } from "@/modules/page/application";
+import { setUseStaticClient } from "@/shared/lib/supabase/server";
+import { cacheLife } from "next/cache";
+
 
 const STYLES = {
   main: cn("w-full min-h-screen py-12 px-4 md:px-8"),
@@ -41,6 +44,10 @@ const STYLES = {
 };
 
 export default async function InformationHub() {
+  "use cache";
+  cacheLife("hours");
+  setUseStaticClient(true);
+
   // Fetch all published pages using the application layer
   const allPages = await getPages({ isPublished: true });
 

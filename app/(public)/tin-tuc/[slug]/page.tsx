@@ -2,6 +2,8 @@ import { Button } from "@/shared/components/ui/button";
 import { TypographyH1, TypographySmall } from "@/shared/components/ui/typography";
 import { ScrollToTop } from "@/shared/components/layout/user/scroll-to-top";
 import { cn } from "@/shared/lib/utils";
+import { setUseStaticClient } from "@/shared/lib/supabase/server";
+import { cacheLife } from "next/cache";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -32,6 +34,9 @@ export async function generateStaticParams() {
 }
 
 export default async function NewsDetailPage({ params }: PageProps) {
+  "use cache";
+  cacheLife("hours");
+  setUseStaticClient(true);
   const { slug } = await params;
   
   // Fetch current news detail using the application layer

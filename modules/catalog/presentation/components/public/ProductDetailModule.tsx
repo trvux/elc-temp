@@ -28,10 +28,11 @@ import {
   TypographySmall,
 } from "@/shared/components/ui/typography";
 import { generateProductSchema } from "@/shared/lib/seo-utils";
-import { createClient } from "@/shared/lib/supabase/server";
+import { createClient, setUseStaticClient } from "@/shared/lib/supabase/server";
 import { cn } from "@/shared/lib/utils";
 import Image from "next/image";
 import { notFound } from "next/navigation";
+import { cacheLife } from "next/cache";
 
 interface SpecSubItem {
   label: string;
@@ -104,6 +105,10 @@ export async function ProductDetailModule({
 }: {
   product: ProductWithRelations;
 }) {
+  "use cache";
+  cacheLife("hours");
+  setUseStaticClient(true);
+
   const supabase = await createClient();
 
   const [allCategories, { data: rawContacts }] = await Promise.all([

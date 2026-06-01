@@ -11,5 +11,4 @@ export const BRAND_WEBSITES: Record<string, string> = {
   menred: "https://www.menred.com",
   acis: "https://acis.com.vn",
   hagisu: "https://hagisu.com",
-  hasigu: "https://hagisu.com",
 };

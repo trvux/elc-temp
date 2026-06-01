@@ -8,12 +8,15 @@ import {
   SidebarProvider,
   SidebarTrigger,
 } from "@/shared/components/ui/sidebar";
+import { connection } from "next/server";
+import { Suspense } from "react";
 
 export default async function AdminLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  await connection();
   const user = await getCurrentUser();
 
   if (!user) redirect("/admin/login");
@@ -38,7 +41,11 @@ export default async function AdminLayout({
              <AdminBreadcrumb />
           </div>
         </header>
-        <div className="flex flex-1 flex-col gap-6 p-4 md:p-6 overflow-hidden min-w-0 w-full">{children}</div>
+        <div className="flex flex-1 flex-col gap-6 p-4 md:p-6 overflow-hidden min-w-0 w-full">
+          <Suspense fallback={null}>
+            {children}
+          </Suspense>
+        </div>
       </SidebarInset>
     </SidebarProvider>
   );

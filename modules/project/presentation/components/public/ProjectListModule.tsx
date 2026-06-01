@@ -11,7 +11,8 @@ import {
   TypographyLead,
   TypographySmall,
 } from "@/shared/components/ui/typography";
-import { createClient } from "@/shared/lib/supabase/server";
+import { createClient, setUseStaticClient } from "@/shared/lib/supabase/server";
+import { cacheLife } from "next/cache";
 import Link from "next/link";
 import { Suspense } from "react";
 import { ProjectFilters } from "./ProjectFilters";
@@ -44,6 +45,10 @@ export async function ProjectListModule({
   serviceType = null,
   searchParams,
 }: ProjectListModuleProps) {
+  "use cache";
+  cacheLife("minutes");
+  setUseStaticClient(true);
+
   const categoryParam = searchParams.category;
   const categorySlugs =
     typeof categoryParam === "string"

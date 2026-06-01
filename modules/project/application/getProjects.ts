@@ -1,10 +1,11 @@
 import { ProjectFilter } from "../domain";
 import { projectRepo } from "../infrastructure/projectRepo";
 
+
 /**
  * Lấy danh sách dự án với các bộ lọc và phân trang
  */
-export const getProjects = (options?: ProjectFilter) => {
+export const getProjects = async (options?: ProjectFilter) => {
   return projectRepo.getAll(options);
 };
 

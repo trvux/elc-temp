@@ -6,6 +6,9 @@ import {
   TypographySmall,
 } from "@/shared/components/ui/typography";
 import { cn } from "@/shared/lib/utils";
+import { setUseStaticClient } from "@/shared/lib/supabase/server";
+import { cacheLife } from "next/cache";
+
 const STYLES = {
   main: cn("w-full min-h-screen py-12 px-4 md:px-8"),
   container: cn("max-w-5xl mx-auto flex flex-col gap-24"),
@@ -23,6 +26,10 @@ const STYLES = {
 };
 
 export default async function BranchesHub() {
+  "use cache";
+  cacheLife("hours");
+  setUseStaticClient(true);
+
   const allBranches = await getBranches({ isPublished: true });
 
   return (

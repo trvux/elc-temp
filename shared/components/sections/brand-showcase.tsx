@@ -66,7 +66,8 @@ export function BrandShowcase({ brands = [] }: BrandShowcaseProps) {
                       <img
                         src={brand.logoUrl}
                         alt={brand.name}
-                        className="h-8 md:h-9 lg:h-10 w-auto object-contain opacity-50 group-hover:opacity-100 transition-all duration-300 grayscale group-hover:grayscale-0 dark:brightness-0 dark:invert dark:group-hover:brightness-100 dark:group-hover:invert-0"
+                        loading="lazy"
+                        className="h-8 md:h-9 lg:h-10 w-auto object-contain opacity-90 group-hover:opacity-100 transition-all duration-300"
                       />
                     ) : (
                       <span className="text-sm md:text-base font-semibold text-muted-foreground group-hover:text-foreground transition-colors duration-300">

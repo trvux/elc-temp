@@ -1,7 +1,12 @@
 import { createStaticClient } from "@/shared/lib/supabase/static";
 import { mapContactRowToDomain } from "@/modules/contact/domain";
+import { cacheLife, cacheTag } from "next/cache";
 
 export async function getPublicLayoutData() {
+  "use cache";
+  cacheLife("days");
+  cacheTag("layout");
+  
   const supabase = createStaticClient();
 
   const [
@@ -152,5 +157,6 @@ export async function getPublicLayoutData() {
     categoriesList: categoriesList || [],
     serviceTypes,
     priceRange,
+    currentYear: new Date().getFullYear(),
   };
 }

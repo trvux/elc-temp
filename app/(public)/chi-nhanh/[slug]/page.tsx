@@ -1,6 +1,8 @@
 import { getBranchBySlug, getBranches } from "@/modules/branch";
 import { PreviewContent } from "@/shared/components/layout/user/preview-content";
 import { ScrollToTop } from "@/shared/components/layout/user/scroll-to-top";
+import { setUseStaticClient } from "@/shared/lib/supabase/server";
+import { cacheLife } from "next/cache";
 import {
   Accordion,
   AccordionContent,
@@ -49,11 +51,17 @@ export async function generateStaticParams() {
   return branches.map((b) => ({ slug: b.slug }));
 }
 
+interface BranchDetailPageProps {
+  params: Promise<{ slug: string }>;
+}
+
 export default async function BranchDetail({
   params,
-}: {
-  params: Promise<{ slug: string }>;
-}) {
+}: BranchDetailPageProps) {
+  "use cache";
+  cacheLife("hours");
+  setUseStaticClient(true);
+
   const { slug } = await params;
   const branch = await getBranchBySlug(slug);
 

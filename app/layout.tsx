@@ -1,12 +1,18 @@
+import { ThemeProvider } from "@/shared/components/theme-provider";
 import { Toaster } from "@/shared/components/ui/sonner";
 import { TooltipProvider } from "@/shared/components/ui/tooltip";
 import { cn } from "@/shared/lib/utils";
 import { QueryProvider } from "@/shared/providers/query-provider";
-import { ThemeProvider } from "@/shared/components/theme-provider";
 import type { Metadata, Viewport } from "next";
+import { Inter } from "next/font/google";
+import { Suspense } from "react";
 import "./globals.css";
 
-
+const inter = Inter({
+  subsets: ["latin", "vietnamese"],
+  variable: "--font-sans",
+  display: "swap",
+});
 
 export const metadata: Metadata = {
   metadataBase: new URL(
@@ -50,7 +56,7 @@ export default function RootLayout({
     <html
       lang="vi"
       suppressHydrationWarning
-      className={cn("h-full antialiased font-sans")}
+      className={cn("h-full antialiased font-sans", inter.variable)}
     >
       <head>
         <link
@@ -93,7 +99,7 @@ export default function RootLayout({
             disableTransitionOnChange
           >
             <QueryProvider>
-              {children}
+              <Suspense fallback={null}>{children}</Suspense>
               <Toaster position="top-center" richColors />
             </QueryProvider>
           </ThemeProvider>

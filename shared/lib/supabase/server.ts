@@ -2,8 +2,18 @@ import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
 import { Database } from "@/database.types";
 import { createStaticClient } from "./static";
+import { cache } from "react";
+
+export const getUseStaticClient = cache(() => ({ value: false }));
+
+export const setUseStaticClient = (value: boolean) => {
+  getUseStaticClient().value = value;
+};
 
 export const createClient = async () => {
+  if (getUseStaticClient().value) {
+    return createStaticClient();
+  }
   try {
     const cookieStore = await cookies();
 

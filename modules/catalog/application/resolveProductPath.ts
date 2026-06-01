@@ -1,8 +1,9 @@
-import { createClient } from "@/shared/lib/supabase/server";
+import { createClient, setUseStaticClient } from "@/shared/lib/supabase/server";
 import { Group } from "@/modules/group/domain/types";
 import { CategoryNew } from "@/modules/category-new/domain/types";
 import { Brand, ProductWithRelations } from "@/modules/catalog/domain/types";
 import { productRepo } from "@/modules/catalog/infrastructure/SupabaseProductRepository";
+import { cacheLife } from "next/cache";
 
 export type ResolvedEntity =
   | { type: "group"; data: Group }
@@ -12,6 +13,10 @@ export type ResolvedEntity =
   | null;
 
 export async function resolveProductPath(slug: string): Promise<ResolvedEntity> {
+  "use cache";
+  cacheLife("hours");
+  setUseStaticClient(true);
+
   const supabase = await createClient();
 
   // 1. Tra cứu slug_registry để xem slug này thuộc về loại entity nào

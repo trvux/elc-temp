@@ -1,7 +1,6 @@
 import { Button } from "@/shared/components/ui/button";
 import { TypographyH1, TypographySmall } from "@/shared/components/ui/typography";
 import { ScrollToTop } from "@/shared/components/layout/user/scroll-to-top";
-import { createClient } from "@/shared/lib/supabase/server";
 import { createStaticClient } from "@/shared/lib/supabase/static";
 import { cn } from "@/shared/lib/utils";
 import { ArrowLeft } from "lucide-react";
@@ -10,12 +9,21 @@ import { notFound } from "next/navigation";
 import { PreviewContent } from "@/shared/components/layout/user/preview-content";
 import { generateServiceMetadata } from "@/shared/lib/seo-utils";
 import { Metadata } from "next";
+import { setUseStaticClient } from "@/shared/lib/supabase/server";
+import { cacheLife } from "next/cache";
 
-// Design System / Style Constants
-export const dynamic = "force-dynamic";
+interface PageProps {
+  params: Promise<{
+    slug: string;
+  }>;
+}
 
-export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
-  const { slug } = await params;
+// Cached service fetcher to share between generateMetadata and Page
+async function getCachedService(slug: string) {
+  "use cache";
+  cacheLife("hours");
+  setUseStaticClient(true);
+
   const supabase = createStaticClient();
   const { data: service } = await supabase
     .from("services")
@@ -24,6 +32,12 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     .eq("is_published", true)
     .maybeSingle();
 
+  return service;
+}
+
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+  const { slug } = await params;
+  const service = await getCachedService(slug);
   return generateServiceMetadata(service);
 }
 
@@ -38,12 +52,6 @@ const STYLES = {
     "mt-10 border-t border-border pt-8 flex flex-col md:flex-row justify-between items-center gap-10 text-muted-foreground",
 };
 
-interface PageProps {
-  params: Promise<{
-    slug: string;
-  }>;
-}
-
 export async function generateStaticParams() {
   const supabase = createStaticClient();
   const { data: services } = await supabase
@@ -54,18 +62,14 @@ export async function generateStaticParams() {
 }
 
 export default async function ServiceDetailPage({ params }: PageProps) {
+  "use cache";
+  cacheLife("hours");
+  setUseStaticClient(true);
+
   const { slug } = await params;
-  const supabase = createStaticClient();
+  const service = await getCachedService(slug);
 
-  // Fetch current service detail
-  const { data: service, error } = await supabase
-    .from("services")
-    .select("*")
-    .eq("slug", slug)
-    .eq("is_published", true)
-    .maybeSingle();
-
-  if (error || !service) {
+  if (!service) {
     notFound();
   }
 
@@ -73,7 +77,7 @@ export default async function ServiceDetailPage({ params }: PageProps) {
   let formattedDate = "";
   try {
     if (service.created_at) {
-      formattedDate = new Date(service.created_at || Date.now()).toLocaleDateString("vi-VN", {
+      formattedDate = new Date(service.created_at).toLocaleDateString("vi-VN", {
         day: "numeric",
         month: "long",
         year: "numeric",
