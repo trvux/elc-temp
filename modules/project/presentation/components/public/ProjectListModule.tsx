@@ -1,5 +1,6 @@
 import { getCategoriesNew } from "@/modules/category-new/application";
 import { getProjects } from "@/modules/project/application/getProjects";
+import { ProjectCard } from "@/modules/project/presentation/components/ProjectCard";
 import { getServiceTypes } from "@/modules/service-type/application";
 import { ServiceTypeWithCategories } from "@/modules/service-type/domain/types";
 import { Breadcrumbs } from "@/shared/components/layout/user/breadcrumbs";
@@ -8,18 +9,16 @@ import { Button } from "@/shared/components/ui/button";
 import {
   TypographyH1,
   TypographyLarge,
-  TypographyLead,
   TypographySmall,
 } from "@/shared/components/ui/typography";
+import { getQueryTokens } from "@/shared/lib/search-utils";
 import { createClient, setUseStaticClient } from "@/shared/lib/supabase/server";
 import { cacheLife } from "next/cache";
 import Link from "next/link";
 import { Suspense } from "react";
-import { ProjectFilters } from "./ProjectFilters";
 import { ProjectFilterMobile } from "./ProjectFilterMobile";
+import { ProjectFilters } from "./ProjectFilters";
 import { ProjectSearchInput } from "./ProjectSearchInput";
-import { ProjectCard } from "@/modules/project/presentation/components/ProjectCard";
-import { getQueryTokens } from "@/shared/lib/search-utils";
 
 interface ProjectListModuleProps {
   serviceType?: ServiceTypeWithCategories | null;
@@ -208,7 +207,7 @@ export async function ProjectListModule({
     ? `Kết quả tìm kiếm cho "${searchVal}"`
     : serviceType
       ? `Dự án — ${serviceType.name}`
-      : "Tất cả công trình tiêu biểu";
+      : "Các công trình dự án ELC đã thực hiện";
 
   const pageSubtitle = serviceType
     ? `Các công trình thiết kế và thi công hệ thống, điều hòa không khí trong không gian kiến trúc ${serviceType.name} do ELC thực hiện.`
@@ -222,9 +221,7 @@ export async function ProjectListModule({
 
         {/* Hero Header Section */}
         <header className={STYLES.header}>
-          <TypographyH1>
-            {pageTitle}
-          </TypographyH1>
+          <TypographyH1>{pageTitle}</TypographyH1>
           <TypographyLarge className="flex items-center justify-center gap-x-1 text-sm! md:text-md! lg:text-lg! text-muted-foreground mt-2">
             Danh sách{" "}
             <span className="flex gap-x-1 bg-blue-100 text-blue-800 px-2 rounded-sm items-center dark:bg-blue-900/30 dark:text-blue-400 font-semibold">
@@ -256,12 +253,14 @@ export async function ProjectListModule({
           <div className="flex flex-col lg:flex-row gap-12">
             {/* Desktop filter sidebar */}
             <aside className="hidden lg:block w-64 shrink-0 sticky top-28 self-start">
-              <Suspense fallback={
-                <div className="animate-pulse space-y-4">
-                  <div className="h-10 bg-muted rounded w-1/2" />
-                  <div className="h-40 bg-muted rounded" />
-                </div>
-              }>
+              <Suspense
+                fallback={
+                  <div className="animate-pulse space-y-4">
+                    <div className="h-10 bg-muted rounded w-1/2" />
+                    <div className="h-40 bg-muted rounded" />
+                  </div>
+                }
+              >
                 <ProjectFilters
                   serviceTypes={serviceTypeItems}
                   currentServiceTypeSlug={serviceType?.slug || ""}
@@ -287,9 +286,12 @@ export async function ProjectListModule({
                 /* Empty State */
                 <div className={STYLES.emptyState}>
                   <p className={STYLES.emptyText}>
-                    Không tìm thấy dự án nào khớp với bộ lọc hoặc tìm kiếm của bạn.
+                    Không tìm thấy dự án nào khớp với bộ lọc hoặc tìm kiếm của
+                    bạn.
                   </p>
-                  <Link href={serviceType ? `/du-an/${serviceType.slug}` : "/du-an"}>
+                  <Link
+                    href={serviceType ? `/du-an/${serviceType.slug}` : "/du-an"}
+                  >
                     <Button size="sm" variant="outline">
                       Xóa tất cả bộ lọc
                     </Button>
@@ -299,7 +301,6 @@ export async function ProjectListModule({
             </div>
           </div>
         </div>
-
 
         {/* Premium Footer */}
         <footer className={STYLES.footer}>
