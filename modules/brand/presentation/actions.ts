@@ -1,6 +1,6 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
 import {
   getBrands,
   getBrandById,
@@ -34,6 +34,7 @@ export async function createBrandAction(input: CreateBrandInput) {
   try {
     const data = await createBrand(input);
     revalidatePath("/admin/brands");
+    revalidateTag("layout", { expire: 0 });
     return { data, error: null };
   } catch (error) {
     console.error("createBrandAction error:", error);
@@ -48,6 +49,7 @@ export async function updateBrandAction(input: UpdateBrandInput) {
   try {
     const data = await updateBrand(input);
     revalidatePath("/admin/brands");
+    revalidateTag("layout", { expire: 0 });
     return { data, error: null };
   } catch (error) {
     console.error("updateBrandAction error:", error);
@@ -62,6 +64,7 @@ export async function deleteBrandAction(id: string) {
   try {
     await deleteBrand(id);
     revalidatePath("/admin/brands");
+    revalidateTag("layout", { expire: 0 });
     return { success: true, error: null };
   } catch (error) {
     console.error("deleteBrandAction error:", error);
@@ -71,3 +74,4 @@ export async function deleteBrandAction(id: string) {
     };
   }
 }
+
