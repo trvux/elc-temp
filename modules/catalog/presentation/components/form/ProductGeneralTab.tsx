@@ -123,6 +123,7 @@ export function ProductGeneralTab({
                     <SelectItem value="in_stock">Còn hàng</SelectItem>
                     <SelectItem value="out_of_stock">Hết hàng</SelectItem>
                     <SelectItem value="pre_order">Đặt trước</SelectItem>
+                    <SelectItem value="discontinued">Ngưng sản xuất</SelectItem>
                   </SelectContent>
                 </Select>
               </Field>
