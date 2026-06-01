@@ -183,17 +183,26 @@ export async function ProductListModule({
                 <ProductSearch />
               </Suspense>
             </div>
-            <ProductFilterMobile
-              categories={allCategories}
-              availableFilters={availableFilters}
-            />
-          </div>
-          <div className="flex flex-col lg:flex-row gap-12">
-            <aside className="hidden lg:block w-64 shrink-0">
-              <ProductFilters
+            <Suspense fallback={null}>
+              <ProductFilterMobile
                 categories={allCategories}
                 availableFilters={availableFilters}
               />
+            </Suspense>
+          </div>
+          <div className="flex flex-col lg:flex-row gap-12">
+            <aside className="hidden lg:block w-64 shrink-0">
+              <Suspense fallback={
+                <div className="animate-pulse space-y-4">
+                  <div className="h-10 bg-muted rounded w-1/2" />
+                  <div className="h-40 bg-muted rounded" />
+                </div>
+              }>
+                <ProductFilters
+                  categories={allCategories}
+                  availableFilters={availableFilters}
+                />
+              </Suspense>
             </aside>
 
             <div className="flex-1">

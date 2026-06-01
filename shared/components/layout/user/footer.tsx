@@ -93,7 +93,7 @@ export function Footer({
   const { address, currentYear: year } = getFooterLogic(
     contacts,
     settings as FooterSettings,
-    currentYear
+    currentYear,
   );
 
   const displayContacts = useMemo(

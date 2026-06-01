@@ -12,6 +12,7 @@ interface ProjectsPageProps {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }
 
+
 export default async function ProjectsPage({
   searchParams,
 }: ProjectsPageProps) {

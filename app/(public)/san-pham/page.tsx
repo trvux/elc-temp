@@ -130,7 +130,9 @@ async function CachedProductsView({
   params: { [key: string]: string | string[] | undefined };
 }) {
   "use cache";
-  cacheLife("minutes");
+  // Serve stale content for up to 1 hour while revalidating in background every 5 minutes.
+  // This prevents blank page caused by cache cold-start race condition.
+  cacheLife({ stale: 3600, revalidate: 300, expire: 86400 });
   setUseStaticClient(true);
 
   const q =
