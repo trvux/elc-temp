@@ -1,4 +1,9 @@
-import { ProductWithRelations, formatPrice } from "@/modules/catalog/domain";
+import {
+  formatPrice,
+  ProductWithRelations,
+  STOCK_STATUS,
+  STOCK_STATUS_MAP,
+} from "@/modules/catalog/domain";
 import { getCategories } from "@/modules/category";
 import { mapContactRowToDomain } from "@/modules/contact/domain";
 import { Breadcrumbs } from "@/shared/components/layout/user/breadcrumbs";
@@ -21,6 +26,7 @@ import {
   TabsList,
   TabsTrigger,
 } from "@/shared/components/ui/tabs";
+import { StockBadge } from "@/shared/components/ui/stock-badge";
 import {
   TypographyH1,
   TypographyH3,
@@ -30,9 +36,9 @@ import {
 import { generateProductSchema } from "@/shared/lib/seo-utils";
 import { createClient, setUseStaticClient } from "@/shared/lib/supabase/server";
 import { cn } from "@/shared/lib/utils";
+import { cacheLife, cacheTag } from "next/cache";
 import Image from "next/image";
 import { notFound } from "next/navigation";
-import { cacheLife } from "next/cache";
 
 interface SpecSubItem {
   label: string;
@@ -106,7 +112,8 @@ export async function ProductDetailModule({
   product: ProductWithRelations;
 }) {
   "use cache";
-  cacheLife("hours");
+  cacheLife({ stale: 0, revalidate: 300, expire: 86400 });
+  cacheTag("products", `product:${product.slug}`);
   setUseStaticClient(true);
 
   const supabase = await createClient();
@@ -239,6 +246,7 @@ export async function ProductDetailModule({
                     Mã sản phẩm (SKU): {product.sku}
                   </TypographySmall>
                 )}
+                <StockBadge status={product.stockStatus || undefined} className="text-sm" />
               </div>
 
               <div className={STYLES.priceArea}>

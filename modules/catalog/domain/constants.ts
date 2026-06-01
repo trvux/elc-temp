@@ -14,6 +14,13 @@ export const STOCK_STATUS = {
 
 export type StockStatus = typeof STOCK_STATUS[keyof typeof STOCK_STATUS];
 
+export const STOCK_STATUS_MAP: Record<string, string> = {
+  [STOCK_STATUS.IN_STOCK]: "Còn hàng",
+  [STOCK_STATUS.OUT_OF_STOCK]: "Hết hàng",
+  [STOCK_STATUS.PRE_ORDER]: "Đặt trước",
+  [STOCK_STATUS.DISCONTINUED]: "Ngưng sản xuất",
+};
+
 export const PRODUCT_LABELS = {
   NEW: "new",
   HOT: "hot",
