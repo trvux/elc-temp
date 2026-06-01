@@ -25,6 +25,7 @@ export interface Product {
     salePrice: number;
     discountPercent: number;
     images: string[];
+    labels: string[];
     isFeatured: boolean;
     isPublished: boolean;
     orderIndex: number;
@@ -61,6 +62,7 @@ export interface CreateProductInput {
     originalPrice: number;
     salePrice?: number;
     images?: string[];
+    labels?: string[];
     isFeatured?: boolean;
     isPublished?: boolean;
     orderIndex?: number;

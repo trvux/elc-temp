@@ -13,3 +13,12 @@ export const STOCK_STATUS = {
 
 export type StockStatus = typeof STOCK_STATUS[keyof typeof STOCK_STATUS];
 
+export const PRODUCT_LABELS = {
+  NEW: "new",
+  HOT: "hot",
+  BEST_SELLER: "best_seller",
+  SALE: "sale",
+} as const;
+
+export type ProductLabel = typeof PRODUCT_LABELS[keyof typeof PRODUCT_LABELS];
+

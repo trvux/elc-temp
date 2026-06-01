@@ -24,7 +24,8 @@ import {
 import { Switch } from "@/shared/components/ui/switch";
 import { Group } from "@/modules/group/domain/types";
 import { CategoryNewWithGroup } from "@/modules/category-new/domain/types";
-import { Brand, formatPrice } from "@/modules/catalog/domain";
+import { Checkbox } from "@/shared/components/ui/checkbox";
+import { Brand, formatPrice, PRODUCT_LABELS } from "@/modules/catalog/domain";
 import { ProductFormValues } from "../../hooks/useProductForm";
 
 interface ProductGeneralTabProps {
@@ -402,6 +403,56 @@ export function ProductGeneralTab({
                     />
                   </Field>
                 )}
+              />
+
+              <Controller
+                control={form.control}
+                name="labels"
+                render={({ field }) => {
+                  const currentLabels = field.value || [];
+                  const toggleLabel = (val: string) => {
+                    if (currentLabels.includes(val)) {
+                      field.onChange(currentLabels.filter((l) => l !== val));
+                    } else {
+                      field.onChange([...currentLabels, val]);
+                    }
+                  };
+                  return (
+                    <Field className="border p-3 rounded-lg">
+                      <FieldLabel className="font-normal">Nhãn hiển thị</FieldLabel>
+                      <div className="flex flex-wrap gap-4 mt-2">
+                        <label className="flex items-center space-x-2 text-sm cursor-pointer">
+                          <Checkbox 
+                            checked={currentLabels.includes(PRODUCT_LABELS.NEW)} 
+                            onCheckedChange={() => toggleLabel(PRODUCT_LABELS.NEW)} 
+                          />
+                          <span>Mới về (New)</span>
+                        </label>
+                        <label className="flex items-center space-x-2 text-sm cursor-pointer">
+                          <Checkbox 
+                            checked={currentLabels.includes(PRODUCT_LABELS.HOT)} 
+                            onCheckedChange={() => toggleLabel(PRODUCT_LABELS.HOT)} 
+                          />
+                          <span>Nổi bật (Hot)</span>
+                        </label>
+                        <label className="flex items-center space-x-2 text-sm cursor-pointer">
+                          <Checkbox 
+                            checked={currentLabels.includes(PRODUCT_LABELS.BEST_SELLER)} 
+                            onCheckedChange={() => toggleLabel(PRODUCT_LABELS.BEST_SELLER)} 
+                          />
+                          <span>Bán chạy (Best Seller)</span>
+                        </label>
+                        <label className="flex items-center space-x-2 text-sm cursor-pointer">
+                          <Checkbox 
+                            checked={currentLabels.includes(PRODUCT_LABELS.SALE)} 
+                            onCheckedChange={() => toggleLabel(PRODUCT_LABELS.SALE)} 
+                          />
+                          <span>Giảm giá (Sale)</span>
+                        </label>
+                      </div>
+                    </Field>
+                  );
+                }}
               />
 
               <Controller
