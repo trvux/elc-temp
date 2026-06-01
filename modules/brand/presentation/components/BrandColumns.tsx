@@ -21,7 +21,7 @@ export const getBrandColumns = ({
     accessorKey: "logoUrl",
     header: "Logo",
     cell: ({ row }) => (
-      <div className="w-12 h-12 relative border border-border/40 rounded bg-white flex items-center justify-center p-1">
+      <div className="w-12 h-12 relative border border-border/40 rounded flex items-center justify-center p-1">
         {row.original.logoUrl ? (
           <Image
             src={row.original.logoUrl}

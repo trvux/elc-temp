@@ -201,6 +201,7 @@ export class SupabaseProjectRepository implements ProjectRepository {
       .from(this.TABLE_NAME)
       .select(this.SELECT_WITH_CATEGORY)
       .eq("id", id)
+      .is("deleted_at", null)
       .maybeSingle();
 
     if (error) this.handleError(error, "getById");
@@ -213,6 +214,7 @@ export class SupabaseProjectRepository implements ProjectRepository {
       .from(this.TABLE_NAME)
       .select(this.SELECT_WITH_CATEGORY)
       .eq("slug", slug)
+      .is("deleted_at", null)
       .maybeSingle();
 
     if (error) this.handleError(error, "getBySlug");

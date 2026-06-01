@@ -46,7 +46,9 @@ export async function ProjectListModule({
   searchParams,
 }: ProjectListModuleProps) {
   "use cache";
-  cacheLife("minutes");
+  // Serve stale content for up to 1 hour while revalidating in background every 5 minutes.
+  // This prevents blank page caused by cache cold-start race condition.
+  cacheLife({ stale: 3600, revalidate: 300, expire: 86400 });
   setUseStaticClient(true);
 
   const categoryParam = searchParams.category;
@@ -241,23 +243,32 @@ export async function ProjectListModule({
                 <ProjectSearchInput />
               </Suspense>
             </div>
-            <ProjectFilterMobile
-              serviceTypes={serviceTypeItems}
-              currentServiceTypeSlug={serviceType?.slug || ""}
-              categories={filterCategories}
-              currentCategorySlugs={categorySlugs}
-            />
-          </div>
-
-          <div className="flex flex-col lg:flex-row gap-12">
-            {/* Desktop filter sidebar */}
-            <aside className="hidden lg:block w-64 shrink-0 sticky top-28 self-start">
-              <ProjectFilters
+            <Suspense fallback={null}>
+              <ProjectFilterMobile
                 serviceTypes={serviceTypeItems}
                 currentServiceTypeSlug={serviceType?.slug || ""}
                 categories={filterCategories}
                 currentCategorySlugs={categorySlugs}
               />
+            </Suspense>
+          </div>
+
+          <div className="flex flex-col lg:flex-row gap-12">
+            {/* Desktop filter sidebar */}
+            <aside className="hidden lg:block w-64 shrink-0 sticky top-28 self-start">
+              <Suspense fallback={
+                <div className="animate-pulse space-y-4">
+                  <div className="h-10 bg-muted rounded w-1/2" />
+                  <div className="h-40 bg-muted rounded" />
+                </div>
+              }>
+                <ProjectFilters
+                  serviceTypes={serviceTypeItems}
+                  currentServiceTypeSlug={serviceType?.slug || ""}
+                  categories={filterCategories}
+                  currentCategorySlugs={categorySlugs}
+                />
+              </Suspense>
             </aside>
 
             {/* Project List Area */}
