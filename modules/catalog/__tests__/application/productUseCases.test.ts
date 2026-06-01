@@ -1,9 +1,9 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { createProduct } from "../../application/createProduct";
-import { updateProduct } from "../../application/updateProduct";
-import { getProducts } from "../../application/getProducts";
-import { getProductBySlug } from "../../application/getProductBySlug";
 import { getFeaturedProducts } from "../../application/getFeaturedProducts";
+import { getProductBySlug } from "../../application/getProductBySlug";
+import { getProducts } from "../../application/getProducts";
+import { updateProduct } from "../../application/updateProduct";
 import { productRepo } from "../../infrastructure";
 
 vi.mock("../../infrastructure", () => ({
@@ -56,7 +56,10 @@ describe("Product Application Use Cases", () => {
         categoryId: "550e8400-e29b-411d-a716-446655440001",
         brandId: "550e8400-e29b-411d-a716-446655440002",
       };
-      vi.mocked(productRepo.create).mockResolvedValue({ ...mockProduct, ...input });
+      vi.mocked(productRepo.create).mockResolvedValue({
+        ...mockProduct,
+        ...input,
+      });
 
       const result = await createProduct(input as any);
 
@@ -73,7 +76,10 @@ describe("Product Application Use Cases", () => {
   describe("updateProduct", () => {
     it("should validate and update a product", async () => {
       const input = { id: VALID_ID, name: "Updated Name" };
-      vi.mocked(productRepo.update).mockResolvedValue({ ...mockProduct, ...input });
+      vi.mocked(productRepo.update).mockResolvedValue({
+        ...mockProduct,
+        ...input,
+      });
 
       const result = await updateProduct(input as any);
 
