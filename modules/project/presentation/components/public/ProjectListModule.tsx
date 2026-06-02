@@ -5,10 +5,10 @@ import { getServiceTypes } from "@/modules/service-type/application";
 import { ServiceTypeWithCategories } from "@/modules/service-type/domain/types";
 import { Breadcrumbs } from "@/shared/components/layout/user/breadcrumbs";
 import { ScrollToTop } from "@/shared/components/layout/user/scroll-to-top";
+import { GridSection } from "@/shared/components/sections/grid-section";
 import { Button } from "@/shared/components/ui/button";
 import {
   TypographyH1,
-  TypographyLarge,
   TypographySmall,
 } from "@/shared/components/ui/typography";
 import { getQueryTokens } from "@/shared/lib/search-utils";
@@ -26,18 +26,18 @@ interface ProjectListModuleProps {
 }
 
 const STYLES = {
-  main: "w-full px-4 py-12 md:px-8 bg-background min-h-screen",
-  container: "mx-auto w-full max-w-7xl flex flex-col gap-8 md:gap-12",
-  header: "flex flex-col items-center text-center gap-4 max-w-3xl mx-auto",
+  main: "w-full bg-background min-h-screen",
+  container: "mx-auto w-full max-w-350 flex flex-col",
+  header: "flex flex-col items-center text-center gap-4 max-w-4xl mx-auto",
   badgeWrapper: "flex items-center gap-2 mt-2",
   grid: "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-10 md:gap-y-12 min-h-[450px] animate-fade-in-up",
   emptyState:
     "py-24 text-center border border-dashed border-border rounded-xl bg-muted/20 flex flex-col items-center justify-center gap-4 max-w-lg mx-auto w-full min-h-[300px] animate-fade-in-up",
   emptyText: "text-muted-foreground italic text-sm",
   footer:
-    "border-t border-border/60 pt-8 mt-16 flex flex-col sm:flex-row justify-between items-center gap-6 text-muted-foreground",
+    "w-full flex flex-col md:flex-row justify-between items-center gap-6 text-muted-foreground",
   scrollToTop:
-    "flex items-center gap-2 cursor-pointer hover:text-foreground transition-colors text-xs font-semibold uppercase tracking-wider",
+    "flex items-center gap-2 cursor-pointer hover:text-foreground transition-colors",
 };
 
 export async function ProjectListModule({
@@ -215,22 +215,31 @@ export async function ProjectListModule({
 
   return (
     <main className={STYLES.main}>
-      <div className={STYLES.container}>
-        {/* Breadcrumbs */}
-        <Breadcrumbs items={breadcrumbItems} />
-
+      <GridSection
+        id="projects-header"
+        isFirst={true}
+        showDiamond={true}
+        contentClassName="py-6 md:py-8 lg:py-10"
+      >
         {/* Hero Header Section */}
         <header className={STYLES.header}>
           <TypographyH1>{pageTitle}</TypographyH1>
-          <TypographyLarge className="flex items-center justify-center gap-x-1 text-sm! md:text-md! lg:text-lg! text-muted-foreground mt-2">
-            Danh sách{" "}
-            <span className="flex gap-x-1 bg-blue-100 text-blue-800 px-2 rounded-sm items-center dark:bg-blue-900/30 dark:text-blue-400 font-semibold">
-              {sortedProjects.length} dự án
-            </span>{" "}
-            đáp ứng tiêu chí
-          </TypographyLarge>
+          {/* <TypographyLarge className="flex items-center justify-center gap-x-1 text-sm! md:text-md! lg:text-lg! text-muted-foreground mt-2">
+              Danh sách{" "}
+              <span className="flex gap-x-1 bg-blue-100 text-blue-800 px-2 rounded-sm items-center dark:bg-blue-900/30 dark:text-blue-400 font-semibold">
+                {sortedProjects.length} dự án
+              </span>{" "}
+              đáp ứng tiêu chí
+            </TypographyLarge> */}
         </header>
+      </GridSection>
 
+      <GridSection
+        id="projects-search"
+        isFirst={false}
+        showDiamond={true}
+        contentClassName="py-6 md:py-8 lg:py-10"
+      >
         {/* Filters and Grid Section */}
         <div className="flex flex-col gap-4">
           {/* Mobile view search & filter toggle */}
@@ -249,70 +258,93 @@ export async function ProjectListModule({
               />
             </Suspense>
           </div>
+        </div>
+      </GridSection>
 
-          <div className="flex flex-col lg:flex-row gap-12">
-            {/* Desktop filter sidebar */}
-            <aside className="hidden lg:block w-64 shrink-0 sticky top-28 self-start">
-              <Suspense
-                fallback={
-                  <div className="animate-pulse space-y-4">
-                    <div className="h-10 bg-muted rounded w-1/2" />
-                    <div className="h-40 bg-muted rounded" />
-                  </div>
-                }
-              >
-                <ProjectFilters
-                  serviceTypes={serviceTypeItems}
-                  currentServiceTypeSlug={serviceType?.slug || ""}
-                  categories={filterCategories}
-                  currentCategorySlugs={categorySlugs}
-                />
-              </Suspense>
-            </aside>
+      <GridSection
+        id="projects-content"
+        isFirst={false}
+        showDiamond={true}
+        contentClassName="py-6 md:py-8 lg:py-10"
+      >
+        <div className="flex flex-col lg:flex-row gap-12">
+          {/* Desktop filter sidebar */}
+          <aside className="hidden lg:block w-64 shrink-0 sticky top-28 self-start">
+            <Suspense
+              fallback={
+                <div className="animate-pulse space-y-4">
+                  <div className="h-10 bg-muted rounded w-1/2" />
+                  <div className="h-40 bg-muted rounded" />
+                </div>
+              }
+            >
+              <ProjectFilters
+                serviceTypes={serviceTypeItems}
+                currentServiceTypeSlug={serviceType?.slug || ""}
+                categories={filterCategories}
+                currentCategorySlugs={categorySlugs}
+              />
+            </Suspense>
+          </aside>
 
-            {/* Project List Area */}
-            <div className="flex-1">
-              {sortedProjects.length > 0 ? (
-                <div className={STYLES.grid}>
-                  {sortedProjects.map((project) => (
-                    <ProjectCard
-                      key={project.id}
-                      project={project}
-                      queryTokens={queryTokens}
-                    />
-                  ))}
-                </div>
-              ) : (
-                /* Empty State */
-                <div className={STYLES.emptyState}>
-                  <p className={STYLES.emptyText}>
-                    Không tìm thấy dự án nào khớp với bộ lọc hoặc tìm kiếm của
-                    bạn.
-                  </p>
-                  <Link
-                    href={serviceType ? `/du-an/${serviceType.slug}` : "/du-an"}
-                  >
-                    <Button size="sm" variant="outline">
-                      Xóa tất cả bộ lọc
-                    </Button>
-                  </Link>
-                </div>
-              )}
-            </div>
+          {/* Project List Area */}
+          <div className="flex-1">
+            {sortedProjects.length > 0 ? (
+              <div className={STYLES.grid}>
+                {sortedProjects.map((project) => (
+                  <ProjectCard
+                    key={project.id}
+                    project={project}
+                    queryTokens={queryTokens}
+                  />
+                ))}
+              </div>
+            ) : (
+              /* Empty State */
+              <div className={STYLES.emptyState}>
+                <p className={STYLES.emptyText}>
+                  Không tìm thấy dự án nào khớp với bộ lọc hoặc tìm kiếm của
+                  bạn.
+                </p>
+                <Link
+                  href={serviceType ? `/du-an/${serviceType.slug}` : "/du-an"}
+                >
+                  <Button size="sm" variant="outline">
+                    Xóa tất cả bộ lọc
+                  </Button>
+                </Link>
+              </div>
+            )}
           </div>
         </div>
+      </GridSection>
 
-        {/* Premium Footer */}
+      <GridSection
+        id="products-footer"
+        isFirst={false}
+        showDiamond={true}
+        contentClassName="py-6 md:py-8 lg:py-10"
+      >
         <footer className={STYLES.footer}>
           <TypographySmall className="text-xs text-muted-foreground/75">
             &copy; {new Date().getFullYear()} ELC Holdings. Mọi quyền được bảo
             lưu.
           </TypographySmall>
           <ScrollToTop className={STYLES.scrollToTop}>
-            <span>Quay lại đầu trang</span>
+            <TypographySmall>Quay lại đầu trang</TypographySmall>
           </ScrollToTop>
         </footer>
-      </div>
+      </GridSection>
+
+      <GridSection
+        id="projects-breadcrumbs"
+        isFirst={false}
+        showDiamond={false}
+        contentClassName="py-1"
+      >
+        {/* Breadcrumbs */}
+        <Breadcrumbs items={breadcrumbItems} />
+      </GridSection>
 
       {/* JSON-LD Schema markup for Google Rich Snippets */}
       {(() => {

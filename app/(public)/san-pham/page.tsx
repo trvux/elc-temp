@@ -599,7 +599,7 @@ async function CachedProductsView({
 
       {/* Thân trang */}
       <GridSection
-        id="products-list"
+        id="products-content"
         isFirst={false}
         showDiamond={true}
         contentClassName="py-6 md:py-8 lg:py-10"
