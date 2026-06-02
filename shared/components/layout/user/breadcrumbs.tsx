@@ -62,13 +62,13 @@ export function Breadcrumbs({ items, className }: BreadcrumbsProps) {
     return () => {
       script.remove();
     };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pathname, JSON.stringify(items)]);
 
   return (
     <nav aria-label="Breadcrumb" className={className}>
       <Breadcrumb>
-        <BreadcrumbList className="flex gap-2 rounded-md border p-3 text-sm truncate">
+        <BreadcrumbList className="flex gap-2 p-3 text-sm truncate">
           <BreadcrumbItem>
             <BreadcrumbLink href="/">Trang chủ</BreadcrumbLink>
           </BreadcrumbItem>

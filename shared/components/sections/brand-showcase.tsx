@@ -26,7 +26,7 @@ export function BrandShowcase({ brands = [] }: BrandShowcaseProps) {
 
   // If no brands, return null
   if (brands.length === 0) return null;
-  console.log("Danh sách brands nhận được từ cha:", brands); // <-- THÊM DÒNG NÀY
+
   return (
     <div className={styles.section}>
       <StaggerContainer className={styles.container} immediate>

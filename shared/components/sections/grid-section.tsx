@@ -5,6 +5,7 @@ interface GridSectionProps {
   children: React.ReactNode;
   id?: string;
   className?: string;
+  contentClassName?: string;
   isFirst?: boolean;
   showDiamond?: boolean;
 }
@@ -13,6 +14,7 @@ export function GridSection({
   children,
   id,
   className = "",
+  contentClassName = "py-10 md:py-16 lg:py-20",
   isFirst = false,
   showDiamond = true,
 }: GridSectionProps) {
@@ -43,14 +45,10 @@ export function GridSection({
       )}
 
       <div
-        className={`mx-auto h-full w-full max-w-350 border-dashed min-[87.5rem]:border-x min-[112.5rem]:max-w-384 px-4 md:px-6 lg:px-8 relative ${borderColor} py-10 md:py-16 lg:py-20`}
+        className={`mx-auto h-full w-full max-w-350 border-dashed min-[87.5rem]:border-x min-[112.5rem]:max-w-384 px-4 md:px-6 lg:px-8 relative ${borderColor} ${contentClassName}`}
       >
         {children}
       </div>
     </div>
   );
 }
-
-
-
-
