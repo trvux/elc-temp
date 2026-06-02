@@ -1,3 +1,4 @@
+import { ThemeWatcher } from "@/shared/components/layout/user/theme-theme-watcher";
 import { ThemeProvider } from "@/shared/components/theme-provider";
 import { Toaster } from "@/shared/components/ui/sonner";
 import { TooltipProvider } from "@/shared/components/ui/tooltip";
@@ -103,6 +104,7 @@ export default function RootLayout({
             disableTransitionOnChange
           >
             <QueryProvider>
+              <ThemeWatcher />
               <Suspense fallback={null}>{children}</Suspense>
               <Toaster position="top-center" richColors />
             </QueryProvider>
