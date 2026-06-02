@@ -306,13 +306,13 @@ export async function ProjectListModule({
                   Không tìm thấy dự án nào khớp với bộ lọc hoặc tìm kiếm của
                   bạn.
                 </p>
-                <Link
-                  href={serviceType ? `/du-an/${serviceType.slug}` : "/du-an"}
-                >
-                  <Button size="sm" variant="outline">
+                <Button asChild size="sm" variant="outline">
+                  <Link
+                    href={serviceType ? `/du-an/${serviceType.slug}` : "/du-an"}
+                  >
                     Xóa tất cả bộ lọc
-                  </Button>
-                </Link>
+                  </Link>
+                </Button>
               </div>
             )}
           </div>

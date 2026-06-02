@@ -67,14 +67,14 @@ export default async function StaticPage({ params }: PageProps) {
         </article>
 
         <nav className={STYLES.footerNav}>
-          <Link href="/thong-tin" className={STYLES.backLink}>
-            <Button>
+          <Button asChild>
+            <Link href="/thong-tin" className={STYLES.backLink}>
               <div className={STYLES.backLabel}>
                 <ArrowLeft className="w-3 h-3 transition-transform group-hover:-translate-x-1" />
                 <span>Quay lại danh mục</span>
               </div>
-            </Button>
-          </Link>
+            </Link>
+          </Button>
         </nav>
 
         <footer className={STYLES.footer}>
