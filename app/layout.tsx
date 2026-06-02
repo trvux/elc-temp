@@ -99,8 +99,8 @@ export default function RootLayout({
         <TooltipProvider>
           <ThemeProvider
             attribute="class"
-            defaultTheme="system"
-            enableSystem
+            defaultTheme="light"
+            enableSystem={true}
             disableTransitionOnChange
           >
             <QueryProvider>
