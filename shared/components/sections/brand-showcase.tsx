@@ -1,6 +1,6 @@
 "use client";
 
-import { Brand, BRAND_WEBSITES } from "@/modules/brand/domain";
+import { Brand } from "@/modules/brand/domain";
 import {
   StaggerContainer,
   StaggerItem,
@@ -44,23 +44,13 @@ export function BrandShowcase({ brands = [] }: BrandShowcaseProps) {
             <div className={styles.marqueeTrack}>
               {/* Render multiple times for a seamless loop */}
               {[...brands, ...brands, ...brands].map((brand, i) => {
-                const externalUrl =
-                  BRAND_WEBSITES[brand.slug.toLowerCase().trim()];
-                const isExternal = !!externalUrl;
-                const url = externalUrl || `/san-pham?brand=${brand.slug}`;
-
+                const url = `/san-pham?brands=${brand.slug}`;
                 return (
                   <Link
                     key={`${brand.id}-${i}`}
                     href={url}
-                    target={isExternal ? "_blank" : undefined}
-                    rel={isExternal ? "noopener noreferrer" : undefined}
                     className="flex items-center justify-center h-12 md:h-16 px-6 shrink-0 select-none group transition-all duration-300"
-                    title={
-                      isExternal
-                        ? `Ghé thăm website chính thức của ${brand.name}`
-                        : `Xem sản phẩm từ thương hiệu ${brand.name}`
-                    }
+                    title={`Xem sản phẩm từ thương hiệu ${brand.name}`}
                   >
                     {brand.logoUrl ? (
                       <img
