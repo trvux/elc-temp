@@ -78,7 +78,7 @@ export function ProductFilterMobile({
         </SheetTrigger>
         <SheetContent
           side="right"
-          className="!z-[300] !w-screen !max-w-none"
+          className="!z-[300] !w-full !max-w-none sm:!max-w-[400px]"
           showCloseButton={true}
         >
           <SheetHeader className="hidden p-6">

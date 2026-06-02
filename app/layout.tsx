@@ -61,7 +61,10 @@ export default function RootLayout({
     <html
       lang="vi"
       suppressHydrationWarning
-      className={cn("h-full antialiased font-sans", inter.variable)}
+      className={cn(
+        "h-full antialiased font-sans overflow-x-hidden",
+        inter.variable,
+      )}
     >
       <head>
         <link
@@ -94,7 +97,9 @@ export default function RootLayout({
       </head>
       <body
         suppressHydrationWarning
-        className={cn("min-h-full flex flex-col text-foreground")}
+        className={cn(
+          "min-h-full flex flex-col text-foreground overflow-x-hidden",
+        )}
       >
         <TooltipProvider>
           <ThemeProvider
