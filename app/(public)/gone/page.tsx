@@ -21,18 +21,18 @@ export default function GonePage() {
         </div>
 
         <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-4">
-          <Link href="/">
-            <Button className="w-full sm:w-auto gap-2">
+          <Button asChild className="w-full sm:w-auto gap-2">
+            <Link href="/">
               <Home size={18} />
               Về trang chủ
-            </Button>
-          </Link>
-          <Link href="/san-pham">
-            <Button variant="outline" className="w-full sm:w-auto gap-2">
+            </Link>
+          </Button>
+          <Button asChild variant="outline" className="w-full sm:w-auto gap-2">
+            <Link href="/san-pham">
               <ShoppingBag size={18} />
               Xem sản phẩm mới
-            </Button>
-          </Link>
+            </Link>
+          </Button>
         </div>
       </div>
     </div>

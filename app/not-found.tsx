@@ -22,18 +22,18 @@ export default function NotFound() {
         </div>
 
         <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-4">
-          <Link href="/">
-            <Button className="w-full sm:w-auto gap-2">
+          <Button asChild className="w-full sm:w-auto gap-2">
+            <Link href="/">
               <Home size={18} />
               Quay về trang chủ
-            </Button>
-          </Link>
-          <Link href="/tin-tuc">
-            <Button variant="outline" className="w-full sm:w-auto gap-2">
+            </Link>
+          </Button>
+          <Button asChild variant="outline" className="w-full sm:w-auto gap-2">
+            <Link href="/tin-tuc">
               <ArrowLeft size={18} />
               Xem tin tức mới nhất
-            </Button>
-          </Link>
+            </Link>
+          </Button>
         </div>
       </div>
     </div>

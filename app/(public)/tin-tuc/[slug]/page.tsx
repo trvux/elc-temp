@@ -72,14 +72,14 @@ export default async function NewsDetailPage({ params }: PageProps) {
         </article>
 
         <nav className={STYLES.footerNav}>
-          <Link href="/tin-tuc" className={STYLES.backLink}>
-            <Button>
+          <Button asChild>
+            <Link href="/tin-tuc" className={STYLES.backLink}>
               <div className={STYLES.backLabel}>
                 <ArrowLeft className="w-3 h-3 transition-transform group-hover:-translate-x-1" />
                 <span>Xem các bài viết khác</span>
               </div>
-            </Button>
-          </Link>
+            </Link>
+          </Button>
         </nav>
 
         <footer className={STYLES.footer}>
