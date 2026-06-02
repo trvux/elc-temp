@@ -12,7 +12,6 @@ interface ProjectsPageProps {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }
 
-
 export default async function ProjectsPage({
   searchParams,
 }: ProjectsPageProps) {
@@ -26,7 +25,9 @@ export default async function ProjectsPage({
 async function ProjectListModuleWrapper({
   searchParamsPromise,
 }: {
-  searchParamsPromise: Promise<{ [key: string]: string | string[] | undefined }>;
+  searchParamsPromise: Promise<{
+    [key: string]: string | string[] | undefined;
+  }>;
 }) {
   const resolvedSearchParams = await searchParamsPromise;
   return (
@@ -69,7 +70,10 @@ function ProjectListSkeleton() {
             <div className="flex-1">
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-10 md:gap-y-12 min-h-112.5">
                 {Array.from({ length: 6 }).map((_, i) => (
-                  <div key={i} className="flex flex-col gap-4 border border-border/40 rounded-xl p-0 overflow-hidden bg-white/50 shadow-sm h-87.5">
+                  <div
+                    key={i}
+                    className="flex flex-col gap-4 border border-border/40 rounded-xl p-0 overflow-hidden bg-white/50 shadow-sm h-87.5"
+                  >
                     <Skeleton className="aspect-video w-full" />
                     <div className="p-5 flex-1 space-y-3">
                       <Skeleton className="h-6 w-3/4 rounded" />

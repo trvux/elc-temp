@@ -10,7 +10,7 @@ import {
 } from "@/shared/components/ui/card";
 import { StockBadge } from "@/shared/components/ui/stock-badge";
 import {
-  TypographyH3,
+  TypographyH4,
   TypographySmall,
 } from "@/shared/components/ui/typography";
 import Image from "next/image";
@@ -90,7 +90,7 @@ export function ProductCard({
         </CardHeader>
         {/* px-3 md:px-6 */}
         <CardContent className="flex flex-col gap-2 px-2">
-          <TypographyH3>{formatPrice(currentPrice)}</TypographyH3>
+          <TypographyH4>{formatPrice(currentPrice)}</TypographyH4>
           {hasDiscount && (
             <>
               <TypographySmall className="line-through text-muted-foreground">
