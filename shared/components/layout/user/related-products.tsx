@@ -63,6 +63,7 @@ export default async function RelatedProducts({
       salePrice,
       discountPercent,
       images: p.images || [],
+      labels: (p as { labels?: string[] }).labels || [],
       isFeatured: p.is_featured ?? false,
       isPublished: p.is_published ?? false,
       orderIndex: p.order_index ?? 0,

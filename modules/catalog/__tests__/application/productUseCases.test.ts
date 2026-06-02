@@ -37,6 +37,7 @@ describe("Product Application Use Cases", () => {
     categoryId: "550e8400-e29b-411d-a716-446655440001",
     brandId: "550e8400-e29b-411d-a716-446655440002",
     stockStatus: "in_stock" as const,
+    labels: [],
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
     deletedAt: null,
