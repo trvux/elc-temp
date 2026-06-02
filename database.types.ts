@@ -362,6 +362,7 @@ export type Database = {
           images: string[] | null
           is_featured: boolean | null
           is_published: boolean | null
+          labels: string[] | null
           meta_description: string | null
           meta_title: string | null
           mpn: string | null
@@ -387,6 +388,7 @@ export type Database = {
           images?: string[] | null
           is_featured?: boolean | null
           is_published?: boolean | null
+          labels?: string[] | null
           meta_description?: string | null
           meta_title?: string | null
           mpn?: string | null
@@ -412,6 +414,7 @@ export type Database = {
           images?: string[] | null
           is_featured?: boolean | null
           is_published?: boolean | null
+          labels?: string[] | null
           meta_description?: string | null
           meta_title?: string | null
           mpn?: string | null
@@ -737,6 +740,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      check_slug_conflict: {
+        Args: { p_entity_id: string; p_entity_type: string; p_slug: string }
+        Returns: undefined
+      }
       show_limit: { Args: never; Returns: number }
       show_trgm: { Args: { "": string }; Returns: string[] }
       slugify: { Args: { value: string }; Returns: string }
