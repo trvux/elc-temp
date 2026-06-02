@@ -8,7 +8,7 @@ import {
   CardTitle,
 } from "@/shared/components/ui/card";
 import { Sparkle } from "lucide-react";
-import Image from "next/image";
+import { ImageWithSkeleton } from "@/shared/components/ui/image-with-skeleton";
 import Link from "next/link";
 import { ProjectWithCategory } from "../../domain/types";
 
@@ -42,7 +42,8 @@ export function ProjectCard({ project, queryTokens = [] }: ProjectCardProps) {
     <Link href={projectUrl} className="w-full block group h-full">
       <Card className="relative mx-auto w-full max-w-sm pt-0 h-full overflow-hidden">
         <div className="relative z-20 aspect-video w-full">
-          <Image
+          <ImageWithSkeleton
+            wrapperClassName="absolute inset-0"
             src={firstImage}
             alt={project.title}
             fill
