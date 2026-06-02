@@ -13,7 +13,6 @@ import { ArrowRightIcon, MapPinIcon } from "@phosphor-icons/react";
 import Link from "next/link";
 import { useMemo } from "react";
 
-import { BRAND_WEBSITES } from "@/modules/brand/domain";
 import { Contact, getDisplayContacts } from "@/modules/contact/domain";
 import { ContactLink } from "@/modules/contact/presentation/components/ContactLink";
 
@@ -257,23 +256,14 @@ export function Footer({
               {/* Grid of brand logos */}
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-4">
                 {brands.map((brand) => {
-                  const externalUrl =
-                    BRAND_WEBSITES[brand.slug.toLowerCase().trim()];
-                  const isExternal = !!externalUrl;
-                  const url = externalUrl || `/san-pham?brand=${brand.slug}`;
+                  const url = `/san-pham?brands=${brand.slug.toLowerCase().trim()}`;
 
                   return (
                     <Link
                       key={brand.id}
                       href={url}
-                      target={isExternal ? "_blank" : undefined}
-                      rel={isExternal ? "noopener noreferrer" : undefined}
                       className="group relative flex items-center justify-center p-4 rounded-xl transition-all duration-300 h-16 w-full overflow-hidden"
-                      title={
-                        isExternal
-                          ? `Ghé thăm website chính thức của ${brand.name}`
-                          : `Xem sản phẩm từ thương hiệu ${brand.name}`
-                      }
+                      title={`Xem sản phẩm từ thương hiệu ${brand.name}`}
                     >
                       {brand.logoUrl ? (
                         <img
