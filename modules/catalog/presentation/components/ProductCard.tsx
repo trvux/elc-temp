@@ -13,7 +13,7 @@ import {
   TypographyH4,
   TypographySmall,
 } from "@/shared/components/ui/typography";
-import Image from "next/image";
+import { ImageWithSkeleton } from "@/shared/components/ui/image-with-skeleton";
 import Link from "next/link";
 
 interface ProductCardProps {
@@ -38,18 +38,17 @@ export function ProductCard({
       <Card className="relative mx-auto w-full h-full max-w-sm pt-0 transition-all duration-300 hover:shadow-md cursor-pointer gap-2 md:gap-3 overflow-hidden">
         <div className="absolute inset-0 z-30 aspect-video bg-white" />
         {product.images?.[0] ? (
-          <div className="relative z-30 aspect-video w-full bg-white">
-            <Image
-              src={product.images[0]}
-              alt={`${product.name} - Chính hãng giá tốt tại Điện máy ELC`}
-              title={`${product.name} - Điện máy ELC`}
-              fill
-              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
-              className="object-contain"
-              loading={priority ? "eager" : "lazy"}
-              priority={priority}
-            />
-          </div>
+          <ImageWithSkeleton
+            wrapperClassName="relative z-30 aspect-video w-full bg-white"
+            src={product.images[0]}
+            alt={`${product.name} - Chính hãng giá tốt tại Điện máy ELC`}
+            title={`${product.name} - Điện máy ELC`}
+            fill
+            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+            className="object-contain"
+            loading={priority ? "eager" : "lazy"}
+            priority={priority}
+          />
         ) : (
           <div className="relative z-30 aspect-video w-full bg-white" />
         )}
