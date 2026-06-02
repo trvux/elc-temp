@@ -26,7 +26,7 @@ export function BrandShowcase({ brands = [] }: BrandShowcaseProps) {
 
   // If no brands, return null
   if (brands.length === 0) return null;
-
+  console.log("Danh sách brands nhận được từ cha:", brands); // <-- THÊM DÒNG NÀY
   return (
     <div className={styles.section}>
       <StaggerContainer className={styles.container} immediate>
@@ -38,7 +38,7 @@ export function BrandShowcase({ brands = [] }: BrandShowcaseProps) {
           <div
             className={cn(
               styles.marqueeArea,
-              "pause-marquee mask-[linear-gradient(to_right,transparent,black_15%,black_85%,transparent)]",
+              "hover:pause-marquee mask-[linear-gradient(to_right,transparent,black_15%,black_85%,transparent)]",
             )}
           >
             <div className={styles.marqueeTrack}>
