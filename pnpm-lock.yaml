@@ -4,6 +4,11 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
+patchedDependencies:
+  '@tailwindcss/node@4.2.2':
+    hash: 31c9febac083233effb6ba2c135e4b8c627c6d4ef159fbf25b57c4b45fbafa78
+    path: patches/@tailwindcss__node@4.2.2.patch
+
 importers:
 
   .:
@@ -6783,7 +6788,7 @@ snapshots:
 
   '@tabler/icons@3.44.0': {}
 
-  '@tailwindcss/node@4.2.2':
+  '@tailwindcss/node@4.2.2(patch_hash=31c9febac083233effb6ba2c135e4b8c627c6d4ef159fbf25b57c4b45fbafa78)':
     dependencies:
       '@jridgewell/remapping': 2.3.5
       enhanced-resolve: 5.20.1
@@ -6847,7 +6852,7 @@ snapshots:
   '@tailwindcss/postcss@4.2.2':
     dependencies:
       '@alloc/quick-lru': 5.2.0
-      '@tailwindcss/node': 4.2.2
+      '@tailwindcss/node': 4.2.2(patch_hash=31c9febac083233effb6ba2c135e4b8c627c6d4ef159fbf25b57c4b45fbafa78)
       '@tailwindcss/oxide': 4.2.2
       postcss: 8.5.8
       tailwindcss: 4.2.2
