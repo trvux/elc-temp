@@ -106,14 +106,10 @@ const STYLES = {
   ),
 };
 
-export async function ProductDetailModule({
-  product,
-}: {
-  product: ProductWithRelations;
-}) {
+async function getCachedProductDetailData(productSlug: string) {
   "use cache";
   cacheLife({ stale: 0, revalidate: 300, expire: 86400 });
-  cacheTag("products", `product:${product.slug}`);
+  cacheTag("products", `product:${productSlug}`);
   setUseStaticClient(true);
 
   const supabase = await createClient();
@@ -128,6 +124,20 @@ export async function ProductDetailModule({
   ]);
 
   const contacts = (rawContacts || []).map(mapContactRowToDomain);
+
+  return {
+    allCategories,
+    contacts,
+    currentYear: new Date().getFullYear(),
+  };
+}
+
+export async function ProductDetailModule({
+  product,
+}: {
+  product: ProductWithRelations;
+}) {
+  const { allCategories, contacts, currentYear } = await getCachedProductDetailData(product.slug);
 
   const category = product.category;
   if (!category) notFound();
@@ -359,7 +369,7 @@ export async function ProductDetailModule({
 
         <footer className={STYLES.footer}>
           <TypographySmall>
-            &copy; {new Date().getFullYear()} ELC Holdings. Đã đăng ký bản
+            &copy; {currentYear} ELC Holdings. Đã đăng ký bản
             quyền.
           </TypographySmall>
           <ScrollToTop className={STYLES.scrollToTop}>

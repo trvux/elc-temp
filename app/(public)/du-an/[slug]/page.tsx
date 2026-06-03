@@ -160,12 +160,13 @@ async function ProjectListModuleWrapper({
   );
 }
 
+async function getCachedCurrentYear() {
+  "use cache";
+  return new Date().getFullYear();
+}
+
 // Sub-component to render the Project Detail page view
 async function ProjectDetailView({ project }: { project: ProjectWithCategory }) {
-  "use cache";
-  cacheLife("hours");
-  setUseStaticClient(true);
-
   const images = project.images || [];
   const displayCategory =
     project.categoriesNew?.[0]?.name || project.serviceType?.name || "Dự án";
@@ -182,6 +183,8 @@ async function ProjectDetailView({ project }: { project: ProjectWithCategory }) 
       : []),
     { label: project.title, active: true },
   ];
+
+  const currentYear = await getCachedCurrentYear();
 
   return (
     <main className="w-full pt-28 pb-24 px-4 md:px-6 min-h-screen bg-background">
@@ -255,7 +258,7 @@ async function ProjectDetailView({ project }: { project: ProjectWithCategory }) 
 
         {/* Footer */}
         <footer className="mt-24 pt-8 border-t border-border flex items-center justify-between text-xs text-muted-foreground">
-          <span>© {new Date().getFullYear()} ELC</span>
+          <span>© {currentYear} ELC</span>
 
           <ScrollToTop className="hover:text-foreground transition-colors">
             Trở lên đầu trang

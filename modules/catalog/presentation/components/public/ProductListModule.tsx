@@ -120,6 +120,7 @@ async function getCachedListModuleData(
     availableFilters,
     allCategories,
     breadcrumbParent,
+    currentYear: new Date().getFullYear(),
   };
 }
 
@@ -184,6 +185,7 @@ export async function ProductListModule({
     availableFilters,
     allCategories,
     breadcrumbParent,
+    currentYear,
   } = await getCachedListModuleData(
     entity,
     q,
@@ -283,7 +285,7 @@ export async function ProductListModule({
 
         <footer className={STYLES.footer}>
           <TypographySmall>
-            &copy; {new Date().getFullYear()} ELC Holdings. Đã đăng ký bản
+            &copy; {currentYear} ELC Holdings. Đã đăng ký bản
             quyền.
           </TypographySmall>
           <ScrollToTop className={STYLES.scrollToTop}>
