@@ -51,13 +51,22 @@ const STYLES = {
   ),
 };
 
-export default async function ServicesHub() {
+async function getCachedServicesData() {
   "use cache";
   cacheLife("hours");
   setUseStaticClient(true);
 
-  // Fetch all published services using the application layer
   const allServices = await getServices({ isPublished: true });
+  const currentYear = new Date().getFullYear();
+
+  return {
+    allServices: allServices ?? [],
+    currentYear,
+  };
+}
+
+export default async function ServicesHub() {
+  const { allServices, currentYear } = await getCachedServicesData();
 
   if (!allServices || allServices.length === 0) {
     return (
@@ -127,7 +136,7 @@ export default async function ServicesHub() {
 
         <footer className={STYLES.footer}>
           <TypographySmall>
-            &copy; {new Date().getFullYear()} ELC Holdings. Đã đăng ký bản
+            &copy; {currentYear} ELC Holdings. Đã đăng ký bản
             quyền.
           </TypographySmall>
           <ScrollToTop className={STYLES.scrollToTop}>

@@ -43,13 +43,22 @@ const STYLES = {
   ),
 };
 
-export default async function InformationHub() {
+async function getCachedInformationData() {
   "use cache";
   cacheLife("hours");
   setUseStaticClient(true);
 
-  // Fetch all published pages using the application layer
   const allPages = await getPages({ isPublished: true });
+  const currentYear = new Date().getFullYear();
+
+  return {
+    allPages: allPages ?? [],
+    currentYear,
+  };
+}
+
+export default async function InformationHub() {
+  const { allPages, currentYear } = await getCachedInformationData();
 
   if (!allPages || allPages.length === 0) {
     return (
@@ -96,7 +105,7 @@ export default async function InformationHub() {
 
         <footer className={STYLES.footer}>
           <TypographySmall>
-            &copy; {new Date().getFullYear()} ELC Holdings. Đã đăng ký bản
+            &copy; {currentYear} ELC Holdings. Đã đăng ký bản
             quyền.
           </TypographySmall>
           <ScrollToTop className={STYLES.scrollToTop}>

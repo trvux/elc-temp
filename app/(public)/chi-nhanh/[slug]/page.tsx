@@ -55,15 +55,25 @@ interface BranchDetailPageProps {
   params: Promise<{ slug: string }>;
 }
 
-export default async function BranchDetail({
-  params,
-}: BranchDetailPageProps) {
+async function getCachedBranchDetailData(slug: string) {
   "use cache";
   cacheLife("hours");
   setUseStaticClient(true);
 
-  const { slug } = await params;
   const branch = await getBranchBySlug(slug);
+  const currentYear = new Date().getFullYear();
+
+  return {
+    branch,
+    currentYear,
+  };
+}
+
+export default async function BranchDetail({
+  params,
+}: BranchDetailPageProps) {
+  const { slug } = await params;
+  const { branch, currentYear } = await getCachedBranchDetailData(slug);
 
   if (!branch || !branch.isPublished) {
     notFound();
@@ -174,7 +184,7 @@ export default async function BranchDetail({
 
         <footer className={STYLES.footer}>
           <TypographySmall>
-            &copy; {new Date().getFullYear()} ELC Holdings. Đã đăng ký bản
+            &copy; {currentYear} ELC Holdings. Đã đăng ký bản
             quyền.
           </TypographySmall>
           <ScrollToTop className="flex items-center gap-2 cursor-pointer hover:text-foreground transition-colors">

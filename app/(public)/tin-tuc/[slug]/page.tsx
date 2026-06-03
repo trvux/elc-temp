@@ -33,14 +33,25 @@ export async function generateStaticParams() {
   return (newsList ?? []).map((n) => ({ slug: n.slug }));
 }
 
-export default async function NewsDetailPage({ params }: PageProps) {
+async function getCachedNewsDetailData(slug: string) {
   "use cache";
   cacheLife("hours");
   setUseStaticClient(true);
+
+  const newsItem = await getNewsBySlug(slug);
+  const currentYear = new Date().getFullYear();
+
+  return {
+    newsItem,
+    currentYear,
+  };
+}
+
+export default async function NewsDetailPage({ params }: PageProps) {
   const { slug } = await params;
   
-  // Fetch current news detail using the application layer
-  const newsItem = await getNewsBySlug(slug);
+  // Fetch current news detail using the cached helper
+  const { newsItem, currentYear } = await getCachedNewsDetailData(slug);
 
   if (!newsItem || !newsItem.isPublished) {
     notFound();
@@ -84,7 +95,7 @@ export default async function NewsDetailPage({ params }: PageProps) {
 
         <footer className={STYLES.footer}>
           <TypographySmall>
-            &copy; {new Date().getFullYear()} ELC Holdings. Đã đăng ký bản
+            &copy; {currentYear} ELC Holdings. Đã đăng ký bản
             quyền.
           </TypographySmall>
           <ScrollToTop className="flex items-center gap-2 cursor-pointer hover:text-foreground transition-colors">

@@ -63,11 +63,12 @@ export async function generateStaticParams() {
   return (services ?? []).map((s) => ({ slug: s.slug }));
 }
 
-export default async function ServiceDetailPage({ params }: PageProps) {
+async function getCachedCurrentYear() {
   "use cache";
-  cacheLife("hours");
-  setUseStaticClient(true);
+  return new Date().getFullYear();
+}
 
+export default async function ServiceDetailPage({ params }: PageProps) {
   const { slug } = await params;
   const service = await getCachedService(slug);
 
@@ -88,6 +89,8 @@ export default async function ServiceDetailPage({ params }: PageProps) {
   } catch (e) {
     console.error("Date formatting error:", e);
   }
+
+  const currentYear = await getCachedCurrentYear();
 
   return (
     <main className={STYLES.main}>
@@ -118,7 +121,7 @@ export default async function ServiceDetailPage({ params }: PageProps) {
 
         <footer className={STYLES.footer}>
           <TypographySmall>
-            &copy; {new Date().getFullYear()} ELC Holdings. Đã đăng ký bản
+            &copy; {currentYear} ELC Holdings. Đã đăng ký bản
             quyền.
           </TypographySmall>
           <ScrollToTop className="flex items-center gap-2 cursor-pointer hover:text-foreground transition-colors">

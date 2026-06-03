@@ -25,12 +25,22 @@ const STYLES = {
   ),
 };
 
-export default async function BranchesHub() {
+async function getCachedBranchesData() {
   "use cache";
   cacheLife("hours");
   setUseStaticClient(true);
 
   const allBranches = await getBranches({ isPublished: true });
+  const currentYear = new Date().getFullYear();
+
+  return {
+    allBranches: allBranches ?? [],
+    currentYear,
+  };
+}
+
+export default async function BranchesHub() {
+  const { allBranches, currentYear } = await getCachedBranchesData();
 
   return (
     <main className={STYLES.main}>
@@ -49,7 +59,7 @@ export default async function BranchesHub() {
 
         <footer className={STYLES.footer}>
           <TypographySmall>
-            &copy; {new Date().getFullYear()} ELC Holdings. Đã đăng ký bản
+            &copy; {currentYear} ELC Holdings. Đã đăng ký bản
             quyền.
           </TypographySmall>
           <ScrollToTop className={STYLES.scrollToTop}>
