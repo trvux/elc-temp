@@ -88,5 +88,10 @@
     "tailwindcss": "^4",
     "typescript": "^5",
     "vitest": "^4.1.5"
+  },
+  "pnpm": {
+    "patchedDependencies": {
+      "@tailwindcss/node@4.2.2": "patches/@tailwindcss__node@4.2.2.patch"
+    }
   }
 }

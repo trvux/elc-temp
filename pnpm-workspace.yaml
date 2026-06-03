@@ -1,4 +1,0 @@
-packages:
-  - '.'
-patchedDependencies:
-  '@tailwindcss/node@4.2.2': patches/@tailwindcss__node@4.2.2.patch
