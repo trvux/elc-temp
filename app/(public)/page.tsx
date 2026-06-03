@@ -32,7 +32,7 @@ export const metadata: Metadata = {
 import { setUseStaticClient } from "@/shared/lib/supabase/server";
 import { cacheLife, cacheTag } from "next/cache";
 
-export default async function Home() {
+async function getCachedHomeData() {
   "use cache";
   cacheLife({ stale: 0, revalidate: 300, expire: 86400 });
   cacheTag("products", "projects", "brands");
@@ -61,6 +61,19 @@ export default async function Home() {
   settingsData?.forEach((item) => {
     settings[item.key] = item.value || "";
   });
+
+  return {
+    settings,
+    projects,
+    featuredProducts,
+    contacts,
+    brands,
+  };
+}
+
+export default async function Home() {
+  const { settings, projects, featuredProducts, contacts, brands } =
+    await getCachedHomeData();
 
   const sections = [
     {

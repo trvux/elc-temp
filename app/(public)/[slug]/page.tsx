@@ -33,20 +33,30 @@ export async function generateStaticParams() {
   return (pages ?? []).map((p) => ({ slug: p.slug }));
 }
 
-export default async function StaticPage({ params }: PageProps) {
+async function getCachedPageData(slug: string) {
   "use cache";
   cacheLife("hours");
   setUseStaticClient(true);
-  
+  return getPageBySlug(slug);
+}
+
+async function getCachedCurrentYear() {
+  "use cache";
+  return new Date().getFullYear();
+}
+
+export default async function StaticPage({ params }: PageProps) {
   const { slug } = await params;
   
   // Fetch current page content using the application layer
-  const page = await getPageBySlug(slug);
+  const page = await getCachedPageData(slug);
 
   if (!page || !page.isPublished) {
     // Nếu không tìm thấy trang thông tin, tự động redirect sang Tin tức (cứu link WordPress cũ)
     redirect(`/tin-tuc/${slug}`);
   }
+
+  const currentYear = await getCachedCurrentYear();
 
   return (
     <main className={STYLES.main}>
@@ -79,7 +89,7 @@ export default async function StaticPage({ params }: PageProps) {
 
         <footer className={STYLES.footer}>
           <TypographySmall>
-            &copy; {new Date().getFullYear()} ELC Holdings. Đã đăng ký bản
+            &copy; {currentYear} ELC Holdings. Đã đăng ký bản
             quyền.
           </TypographySmall>
           <ScrollToTop className="flex items-center gap-2 cursor-pointer hover:text-foreground transition-colors">
