@@ -47,14 +47,86 @@ const STYLES = {
   ),
 };
 
-export async function ProductListModule({
-  entity,
-  searchParams,
-}: ProductListModuleProps) {
+async function getCachedListModuleData(
+  entity: ResolvedEntity,
+  q: string,
+  minPrice: number | undefined,
+  maxPrice: number | undefined,
+  brandSlugs: string[],
+  specs: Record<string, string[]>,
+  currentPage: number,
+  pageSize: number
+) {
   "use cache";
   cacheLife("minutes");
   setUseStaticClient(true);
 
+  if (!entity) {
+    throw new Error("Entity is required");
+  }
+
+  let categoryIds: string[] | undefined;
+  let brandIds: string[] | undefined;
+  let breadcrumbParent: { label: string; href: string } | null = null;
+
+  const supabase = await createClient();
+
+  if (entity.type === "brand") {
+    brandIds = [entity.data.id];
+  } else if (entity.type === "category") {
+    categoryIds = [entity.data.id];
+    if (entity.data.groupId) {
+      const { data: parentGroup } = await supabase
+        .from("group_categories")
+        .select("name, slug")
+        .eq("id", entity.data.groupId)
+        .is("deleted_at", null)
+        .single();
+      if (parentGroup) {
+        breadcrumbParent = {
+          label: parentGroup.name,
+          href: `/san-pham/${parentGroup.slug}`,
+        };
+      }
+    }
+  } else if (entity.type === "group") {
+    const { data: groupCategories } = await supabase
+      .from("categories")
+      .select("id, name")
+      .eq("group_id", entity.data.id)
+      .is("deleted_at", null);
+    categoryIds = (groupCategories || [])
+      .filter((c) => !c.name.toLowerCase().includes("chưa phân loại"))
+      .map((c) => c.id);
+  }
+
+  const allCategories = await getCategories({ type: "PRODUCT" });
+
+  const { products, totalCount, availableFilters } = await searchProducts(q, {
+    categoryIds,
+    brandIds,
+    brandSlugs,
+    isPublished: true,
+    minPrice,
+    maxPrice,
+    specs,
+    limit: pageSize,
+    offset: (currentPage - 1) * pageSize,
+  });
+
+  return {
+    products,
+    totalCount,
+    availableFilters,
+    allCategories,
+    breadcrumbParent,
+  };
+}
+
+export async function ProductListModule({
+  entity,
+  searchParams,
+}: ProductListModuleProps) {
   if (!entity || entity.type === "product") return notFound();
 
   const sParams = searchParams;
@@ -92,67 +164,38 @@ export async function ProductListModule({
     }
   });
 
-  // Build query options based on entity type
-  let categoryIds: string[] | undefined;
-  let brandIds: string[] | undefined;
   let pageTitle = "";
   let subTitlePrefix = "";
-  let breadcrumbParent: { label: string; href: string } | null = null;
 
   if (entity.type === "brand") {
-    brandIds = [entity.data.id];
     pageTitle = entity.data.name;
     subTitlePrefix = "thương hiệu";
   } else if (entity.type === "category") {
-    categoryIds = [entity.data.id];
     pageTitle = entity.data.name;
     subTitlePrefix = "danh mục";
-    // Find parent group for breadcrumb
-    if (entity.data.groupId) {
-      const supabase = await createClient();
-      const { data: parentGroup } = await supabase
-        .from("group_categories")
-        .select("name, slug")
-        .eq("id", entity.data.groupId)
-        .is("deleted_at", null)
-        .single();
-      if (parentGroup) {
-        breadcrumbParent = {
-          label: parentGroup.name,
-          href: `/san-pham/${parentGroup.slug}`,
-        };
-      }
-    }
   } else if (entity.type === "group") {
-    // Fetch all categories belonging to this group
-    const supabase = await createClient();
-    const { data: groupCategories } = await supabase
-      .from("categories")
-      .select("id, name")
-      .eq("group_id", entity.data.id)
-      .is("deleted_at", null);
-    categoryIds = (groupCategories || [])
-      .filter((c) => !c.name.toLowerCase().includes("chưa phân loại"))
-      .map((c) => c.id);
     pageTitle = entity.data.name;
     subTitlePrefix = "nhóm danh mục";
   }
 
-  const allCategories = await getCategories({ type: "PRODUCT" });
-  const queryTokens = getQueryTokens(q);
-
-  const { products, totalCount, availableFilters } = await searchProducts(q, {
-    categoryIds,
-    brandIds,
-    brandSlugs,
-    isPublished: true,
+  const {
+    products,
+    totalCount,
+    availableFilters,
+    allCategories,
+    breadcrumbParent,
+  } = await getCachedListModuleData(
+    entity,
+    q,
     minPrice,
     maxPrice,
+    brandSlugs,
     specs,
-    limit: pageSize,
-    offset: (currentPage - 1) * pageSize,
-  });
+    currentPage,
+    pageSize
+  );
 
+  const queryTokens = getQueryTokens(q);
   const totalPages = Math.ceil(totalCount / pageSize);
 
   return (
