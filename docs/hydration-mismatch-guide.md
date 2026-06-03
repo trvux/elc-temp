@@ -1,116 +1,102 @@
-# Next.js Hydration Mismatch and Whitescreen Prevention Guide
+# Hướng dẫn Khắc phục và Phòng ngừa Lỗi Trắng trang (Whitescreen) & Hydration Mismatch trong Next.js
 
-This document explains the root cause of the HierarchyRequestError whitescreen issue in Next.js applications using the "use cache" directive, and outlines the correct patterns to prevent and fix these issues.
+Tài liệu này giải thích nguyên nhân gốc rễ và hướng dẫn chi tiết cách khắc phục, phòng ngừa lỗi trắng trang liên quan đến chỉ thị "use cache" và cơ chế truyền luồng (Streaming/Suspense) của Next.js khi hoạt động qua CDN (như Cloudflare).
 
-## Problem Statement
+---
 
-When using Next.js with the experimental "use cache" directive, pages intermittently or consistently render as a blank whitescreen. In the browser console, the following error is thrown:
+## 1. Lỗi Xung đột Caching cấp Component (Component-level use cache)
 
+### Hiện tượng
+Trang web thỉnh thoảng bị trắng màn hình. Trong cửa sổ console của trình duyệt xuất hiện lỗi:
 Uncaught HierarchyRequestError: Failed to execute 'insertBefore' on 'Node': The new child element contains the parent.
 
-This error is often accompanied by React hydration mismatches, where the UI works on some reloads but fails on others, or crashes when users navigate between dynamic routes.
+### Nguyên nhân gốc rễ
+* Khi đặt chỉ thị "use cache" ở cấp độ Page Component hoặc UI Component, Next.js sẽ biên dịch và lưu trữ toàn bộ cây React Server Component (RSC) tĩnh cùng với chuỗi định danh thành phần (segment IDs như S:0, S:1, S:2...).
+* Khi kết hợp trang đã cache này với một Layout động hoặc Suspense, React trên client-side thực hiện đối chiếu (hydration).
+* Các định danh tĩnh bị trùng lặp với định danh động tạo ra từ layout (ví dụ: cả hai đều dùng ID "S:3"). Trình duyệt cố gắng chèn phần tử cha vào bên trong chính con của nó dẫn đến sập DOM và trắng trang.
 
-## Root Cause Analysis
+### Quy tắc khắc phục
+* **Không dùng Caching cấp Component**: Tuyệt đối không đặt "use cache" ở đầu Page Component hoặc UI Component. Hãy để các trang công khai làm Server Component động bình thường.
+* **Chuyển sang Caching cấp Dữ liệu (Data-level)**: Đưa chỉ thị "use cache" xuống các hàm helper lấy dữ liệu (ví dụ: getCachedHomeData, getCachedNewsHubData...). Các hàm này chỉ trả về dữ liệu thô (mảng, object, chuỗi, số...) đã được tuần tự hóa (serializable).
+* **Xử lý các giá trị động**: Các giá trị động như năm hiện tại (new Date().getFullYear()) dùng ở footer, nếu đặt trực tiếp trong render tĩnh của một trang không cache sẽ gây lỗi build prerender. Hãy đưa việc lấy năm hiện tại vào trong một hàm helper có "use cache" riêng.
 
-Next.js component-level caching via the "use cache" directive caches the rendered React Server Component (RSC) tree with its own local segment ID sequence (starting from S:0, S:1, etc.).
+---
 
-When "use cache" is placed at the page or component level, the entire layout or sub-component structure is compiled with static element IDs. When combined with dynamic elements, async layouts, or Suspense boundaries:
-1. The dynamic layout/parent component generates its own sequence of React segment IDs during execution.
-2. The cached page or component outputs the pre-compiled, static segment IDs from the cache.
-3. React segment ID sequences collide (e.g., both the dynamic layout and the cached page try to register under ID "S:3").
-4. During client-side hydration, React attempts to insert the layout/parent element inside its own child node due to the duplicate IDs, causing the browser DOM engine to crash with a HierarchyRequestError and display a whitescreen.
+## 2. Lỗi Xung đột Cơ chế Truyền luồng (Streaming/Suspense) với CDN (Cloudflare)
 
-## Best Practice Rules
+### Hiện tượng
+Mặc dù đã chuyển "use cache" xuống cấp dữ liệu nhưng trang vẫn bị lỗi HierarchyRequestError và trắng trang không liên tục (ví dụ: tải lại trang 4-5 lần thì có 1 lần hiển thị bình thường). Lỗi này chỉ xảy ra trên môi trường production chạy qua Cloudflare, không bị ở môi trường local.
 
-To prevent hydration mismatches and segment ID clashes, adhere to these rules:
+### Nguyên nhân gốc rễ
+* Khi trang sử dụng thẻ `<Suspense fallback={<ProductListSkeleton />}>` bao quanh phần hiển thị chính, Next.js sẽ kích hoạt cơ chế **Streaming**. Máy chủ gửi phần khung tĩnh trước, sau đó gửi tiếp các khối HTML sản phẩm kèm theo các thẻ script nội tuyến đặc biệt (như `$RC` và `$RV`) qua đường truyền để trình duyệt ghép nối vào DOM.
+* Nếu Cloudflare bật các tính năng tối ưu hóa như **Rocket Loader** hoặc **Auto Minify HTML** (kể cả khi tính năng Auto Minify đã bị ẩn/deprecated trên giao diện của Cloudflare đối với các tên miền cũ nhưng vẫn chạy ngầm ở backend), Cloudflare sẽ tạm giữ (buffer) luồng HTML để nén và gộp file script trước khi gửi về cho khách hàng.
+* Việc tạm giữ luồng dữ liệu làm đảo lộn thứ tự thực thi của các script ghép nối DOM của Next.js. Trình duyệt chạy script khi DOM chưa sẵn sàng, dẫn đến lỗi HierarchyRequestError.
 
-1. Do not use component-level caching. Never place the "use cache" directive inside a Page Component, Layout Component, or UI Component.
-2. Use data-level caching. Place the "use cache" directive only inside dedicated, standalone data-fetching helper functions.
-3. Ensure serializability. Helper functions using "use cache" must only return serializable data (objects, arrays, strings, numbers, booleans) to the UI components. Do not return components or functions.
-4. Avoid dynamic evaluations in static renders. Avoid calling dynamic functions like new Date() directly inside the render cycle of a page or component if component-level cache was removed. If static page rendering relies on dynamic calculations (like current copyright year), extract that evaluation to a cached helper function to prevent prerendering compilation errors.
+### Quy tắc khắc phục
+* **Tắt cơ chế truyền luồng (Disable Streaming)** cho các trang gặp lỗi bằng cách loại bỏ thẻ `<Suspense>` bao ngoài component hiển thị chính, và giải quyết tham số trực tiếp (ví dụ: sử dụng `const params = await searchParams` ngay trong Page component chính trước khi render view).
+* Khi không có `<Suspense>`, Next.js sẽ dựng toàn bộ trang HTML hoàn chỉnh trên máy chủ rồi gửi về trình duyệt trong một phản hồi duy nhất (single blocking HTML response). Cloudflare sẽ nhận được trang HTML hoàn chỉnh và không có luồng script ghép nối động nào để can thiệp, giúp trang web hiển thị ổn định 100%.
+* Vì dữ liệu đã được cache ở cấp độ dữ liệu (tốc độ đọc cache từ bộ nhớ chỉ dưới 10ms), thời gian dựng trang trên máy chủ cực kỳ nhanh nên việc tắt Suspense hoàn toàn không ảnh hưởng đến trải nghiệm tốc độ của người dùng.
 
-## Code Patterns
+---
 
-### Bad Pattern (Component-level Caching)
+## 3. Ví dụ minh họa mã nguồn
 
-In this pattern, the "use cache" directive is inside the page component. This caches the RSC tree structure and causes ID collisions.
-
+### Mô hình sai (Gây lỗi trắng trang do cache component & streaming):
 ```tsx
-// app/dich-vu/page.tsx
-import { getServices } from "@/modules/service/application";
-
-export default async function ServicesHub() {
-  "use cache"; // BAD: Component-level caching
+// app/san-pham/page.tsx
+export default async function ProductsPage() {
+  "use cache"; // SAI: Caching cấp component gây trùng ID
   
-  const allServices = await getServices({ isPublished: true });
-
+  const products = await getProducts();
   return (
-    <main>
-      <h1>Dịch vụ</h1>
-      <ul>
-        {allServices.map(service => (
-          <li key={service.id}>{service.title}</li>
-        ))}
-      </ul>
-      <footer>
-        &copy; {new Date().getFullYear()} ELC Holdings.
-      </footer>
-    </main>
+    <Suspense fallback={<Skeleton />}> {/* Gây lỗi streaming qua Cloudflare */}
+      <ProductList products={products} />
+    </Suspense>
   );
 }
 ```
 
-### Good Pattern (Data-level Caching)
-
-In this pattern, the page component is a standard, uncached Server Component. The "use cache" directive is encapsulated inside a separate helper function that returns only the raw data and the pre-computed copyright year.
-
+### Mô hình chuẩn (Hoạt động ổn định 100%):
 ```tsx
-// app/dich-vu/page.tsx
-import { getServices } from "@/modules/service/application";
+// app/san-pham/page.tsx
 import { cacheLife } from "next/cache";
 
-async function getCachedServicesData() {
-  "use cache"; // GOOD: Data-level caching
+// 1. Caching cấp dữ liệu
+async function getCachedProductsData() {
+  "use cache";
   cacheLife("hours");
-
-  const allServices = await getServices({ isPublished: true });
+  const products = await getProducts();
   const currentYear = new Date().getFullYear();
-
-  return {
-    allServices: allServices ?? [],
-    currentYear,
-  };
+  return { products, currentYear };
 }
 
-export default async function ServicesHub() {
-  // Page component is dynamic and receives cached data
-  const { allServices, currentYear } = await getCachedServicesData();
+// 2. Page Component động hoàn toàn, không streaming
+export default async function ProductsPage({ searchParams }: Props) {
+  // Await trực tiếp searchParams để bỏ qua streaming
+  const params = await searchParams;
+  const { products, currentYear } = await getCachedProductsData();
 
   return (
     <main>
-      <h1>Dịch vụ</h1>
-      <ul>
-        {allServices.map(service => (
-          <li key={service.id}>{service.title}</li>
-        ))}
-      </ul>
-      <footer>
-        &copy; {currentYear} ELC Holdings.
-      </footer>
+      <ProductList products={products} />
+      <footer>&copy; {currentYear} ELC.</footer>
     </main>
   );
 }
 ```
 
-## How to Debug Whitescreen Issues
+---
 
-If a page starts showing a whitescreen or throwing HierarchyRequestErrors, follow these steps to debug and resolve:
+## 4. Danh sách các trang đã được áp dụng trong dự án
 
-1. Search the workspace for "use cache" statements. Find files where "use cache" is declared directly inside components.
-2. Refactor components by moving "use cache" to helper functions (as shown in the Good Pattern above).
-3. Check for dynamic values (such as dates) that might cause static prerender errors when caching is removed. Wrap these in a cached helper function.
-4. Verify by running a local production compilation:
-   ```bash
-   pnpm build
-   ```
-5. Deploy to the server, purge all caches on the CDN (such as Cloudflare Purge Everything), and test the page with hard reloads (Command + Shift + R) and dynamic routes navigation.
+* Trang chủ: `app/(public)/page.tsx`
+* Trang thông tin tĩnh: `app/(public)/[slug]/page.tsx`
+* Trang danh sách dự án: `modules/project/presentation/components/public/ProjectListModule.tsx`
+* Chi tiết dự án: `app/(public)/du-an/[slug]/page.tsx`
+* Danh sách sản phẩm chính: `app/(public)/san-pham/page.tsx`
+* Chi tiết & danh mục sản phẩm: `app/(public)/san-pham/[slug]/page.tsx`
+* Chi tiết sản phẩm: `modules/catalog/presentation/components/public/ProductDetailModule.tsx`
+* Danh sách & Chi tiết dịch vụ: `app/(public)/dich-vu/page.tsx` và `app/(public)/dich-vu/[slug]/page.tsx`
+* Danh sách & Chi tiết tin tức: `app/(public)/tin-tuc/page.tsx` và `app/(public)/tin-tuc/[slug]/page.tsx`
+* Danh sách & Chi tiết chi nhánh: `app/(public)/chi-nhanh/page.tsx` và `app/(public)/chi-nhanh/[slug]/page.tsx`
+* Danh sách & Chi tiết trang thông tin: `app/(public)/thong-tin/page.tsx` và `app/(public)/thong-tin/[slug]/page.tsx`
