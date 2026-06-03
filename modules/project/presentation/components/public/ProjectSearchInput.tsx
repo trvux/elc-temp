@@ -65,11 +65,7 @@ export function ProjectSearchInput() {
 
   return (
     <div className="flex flex-col sm:flex-row gap-3">
-      {isPending && (
-        <div className="fixed top-0 left-0 right-0 h-[3px] bg-muted z-[9999] overflow-hidden">
-          <div className="h-full bg-linear-to-r from-primary via-primary/80 to-primary animate-loading-bar" />
-        </div>
-      )}
+
       <InputGroup>
         <InputGroupAddon align="inline-start">
           <InputGroupText>

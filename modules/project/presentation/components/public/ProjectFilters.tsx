@@ -128,11 +128,7 @@ export function ProjectFilters({
 
   return (
     <div className="flex flex-col gap-2">
-      {isPending && (
-        <div className="fixed top-0 left-0 right-0 h-[3px] bg-muted z-[9999] overflow-hidden">
-          <div className="h-full bg-linear-to-r from-primary via-primary/80 to-primary animate-loading-bar" />
-        </div>
-      )}
+
 
       <div className="flex items-center justify-between h-10">
         <h3 className="font-bold">Bộ lọc dự án</h3>
