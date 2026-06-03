@@ -62,7 +62,7 @@ export default function RootLayout({
       lang="vi"
       suppressHydrationWarning
       className={cn(
-        "h-full antialiased font-sans overflow-x-hidden",
+        "h-full antialiased font-sans",
         inter.variable,
       )}
     >
@@ -98,7 +98,7 @@ export default function RootLayout({
       <body
         suppressHydrationWarning
         className={cn(
-          "min-h-full flex flex-col text-foreground overflow-x-hidden",
+          "min-h-full flex flex-col text-foreground",
         )}
       >
         <TooltipProvider>

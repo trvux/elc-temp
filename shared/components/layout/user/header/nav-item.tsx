@@ -39,10 +39,12 @@ export const MobileNavItem = ({ link, isActive, onClick }: NavItemProps) => {
       }}
       className={cn(
         "flex items-center text-xl font-medium transition-colors",
-        isActive ? "text-foreground" : "text-muted-foreground hover:text-foreground",
+        isActive
+          ? "text-foreground"
+          : "text-muted-foreground hover:text-foreground",
       )}
     >
-      {link.name}
+      <h1 className="text-2xl font-semibold">{link.name}</h1>
     </Link>
   );
 };
