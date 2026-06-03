@@ -40,29 +40,27 @@ const STYLES = {
     "flex items-center gap-2 cursor-pointer hover:text-foreground transition-colors",
 };
 
-export async function ProjectListModule({
-  serviceType = null,
-  searchParams,
-}: ProjectListModuleProps) {
+interface CachedServiceType {
+  id: string;
+  name: string;
+  slug: string;
+  categories: {
+    id: string;
+    name: string;
+    slug: string;
+  }[];
+}
+
+async function getCachedProjectListData(
+  serviceType: CachedServiceType | null,
+  categorySlugs: string[],
+  searchVal: string | undefined,
+) {
   "use cache";
   // Serve stale content for up to 1 hour while revalidating in background every 5 minutes.
   // This prevents blank page caused by cache cold-start race condition.
   cacheLife({ stale: 3600, revalidate: 300, expire: 86400 });
   setUseStaticClient(true);
-
-  const categoryParam = searchParams.category;
-  const categorySlugs =
-    typeof categoryParam === "string"
-      ? categoryParam.split(",").filter(Boolean)
-      : Array.isArray(categoryParam)
-        ? categoryParam
-        : [];
-  const searchVal =
-    typeof searchParams.search === "string"
-      ? searchParams.search.trim()
-      : undefined;
-
-  const queryTokens = getQueryTokens(searchVal || "");
 
   // 1. Fetch filtered projects
   const projects = await getProjects({
@@ -191,6 +189,49 @@ export async function ProjectListModule({
       };
     });
   }
+
+  return {
+    sortedProjects,
+    serviceTypeItems,
+    filterCategories,
+    currentYear: new Date().getFullYear(),
+  };
+}
+
+export async function ProjectListModule({
+  serviceType = null,
+  searchParams,
+}: ProjectListModuleProps) {
+  const categoryParam = searchParams.category;
+  const categorySlugs =
+    typeof categoryParam === "string"
+      ? categoryParam.split(",").filter(Boolean)
+      : Array.isArray(categoryParam)
+        ? categoryParam
+        : [];
+  const searchVal =
+    typeof searchParams.search === "string"
+      ? searchParams.search.trim()
+      : undefined;
+
+  const queryTokens = getQueryTokens(searchVal || "");
+
+  // Prepare simplified serviceType for cache helper parameters
+  const serviceTypeData: CachedServiceType | null = serviceType
+    ? {
+        id: serviceType.id,
+        name: serviceType.name,
+        slug: serviceType.slug,
+        categories: (serviceType.categories || []).map((cat) => ({
+          id: cat.id,
+          name: cat.name,
+          slug: cat.slug || "",
+        })),
+      }
+    : null;
+
+  const { sortedProjects, serviceTypeItems, filterCategories, currentYear } =
+    await getCachedProjectListData(serviceTypeData, categorySlugs, searchVal);
 
   // Breadcrumbs items
   const breadcrumbItems = [
@@ -327,7 +368,7 @@ export async function ProjectListModule({
       >
         <footer className={STYLES.footer}>
           <TypographySmall className="text-xs text-muted-foreground/75">
-            &copy; {new Date().getFullYear()} ELC Holdings. Mọi quyền được bảo
+            &copy; {currentYear} ELC Holdings. Mọi quyền được bảo
             lưu.
           </TypographySmall>
           <ScrollToTop className={STYLES.scrollToTop}>
