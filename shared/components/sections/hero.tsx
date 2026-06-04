@@ -79,9 +79,10 @@ export function HeroSection({
         {/* Description */}
         <StaggerItem duration={0.25}>
           <TypographyP className="text-muted-foreground text-base sm:text-lg max-w-2xl mx-auto leading-relaxed">
-            ELC chuyên cung cấp, thi công lắp đặt và trao đổi trọn gói các dòng
-            máy lạnh, hệ thống lọc, cấp khí tươi cho công trình dân dụng đến
-            công nghiệp từ những thương hiệu uy tín hàng đầu.
+            Điện máy ELC chuyên cung cấp, thi công lắp đặt trọn gói các dòng
+            điều hòa không khí, hệ thống cấp khí tươi thu hồi nhiệt và lọc không
+            khí cho công trình dân dụng đến công nghiệp từ những thương hiệu uy
+            tín hàng đầu.
           </TypographyP>
         </StaggerItem>
 
