@@ -18,7 +18,7 @@ export interface Project {
   metaDescription?: string | null;
   orderIndex: number;
   categoryId: string;
-  serviceTypeId: string | null;
+  projectTypeId: string | null;
   createdAt: string;
   updatedAt: string;
   deletedAt: string | null;
@@ -31,7 +31,7 @@ export interface ProjectWithCategory extends Project {
     slug: string;
     parent?: { id: string; name: string; slug: string } | null;
   } | null;
-  serviceType?: {
+  projectType?: {
     id: string;
     name: string;
     slug?: string;
@@ -55,7 +55,7 @@ export interface CreateProjectInput {
   metaDescription?: string | null;
   orderIndex?: number;
   categoryId: string;
-  serviceTypeId?: string | null;
+  projectTypeId?: string | null;
   categoryIds?: string[];
 }
 

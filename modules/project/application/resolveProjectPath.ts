@@ -1,10 +1,10 @@
 import { createClient, setUseStaticClient } from "@/shared/lib/supabase/server";
 import { ProjectWithCategory, Json } from "@/modules/project/domain/types";
-import { ServiceTypeWithCategories } from "@/modules/service-type/domain/types";
+import { ProjectTypeWithCategories } from "@/modules/project-type/domain/types";
 import { cacheLife } from "next/cache";
 
 export type ResolvedProjectEntity =
-  | { type: "service_type"; data: ServiceTypeWithCategories }
+  | { type: "project_type"; data: ProjectTypeWithCategories }
   | { type: "project"; data: ProjectWithCategory }
   | null;
 
@@ -28,12 +28,12 @@ export async function resolveProjectPath(slug: string): Promise<ResolvedProjectE
     return null;
   }
 
-  if (registryItem.entity_type === "service_type") {
-    const { data: serviceTypeRow, error: serviceTypeError } = await supabase
-      .from("service_type")
+  if (registryItem.entity_type === "project_type") {
+    const { data: projectTypeRow, error: projectTypeError } = await supabase
+      .from("project_type")
       .select(`
         *,
-        service_type_category(
+        project_type_category(
           categories(
             *,
             group_categories(*)
@@ -44,11 +44,11 @@ export async function resolveProjectPath(slug: string): Promise<ResolvedProjectE
       .is("deleted_at", null)
       .maybeSingle();
 
-    if (serviceTypeError || !serviceTypeRow) {
+    if (projectTypeError || !projectTypeRow) {
       return null;
     }
 
-    const row = serviceTypeRow as {
+    const row = projectTypeRow as {
       id: string;
       name: string;
       slug: string;
@@ -60,7 +60,7 @@ export async function resolveProjectPath(slug: string): Promise<ResolvedProjectE
       created_at: string;
       updated_at: string;
       deleted_at: string | null;
-      service_type_category: {
+      project_type_category: {
         categories: {
           id: string;
           name: string;
@@ -91,7 +91,7 @@ export async function resolveProjectPath(slug: string): Promise<ResolvedProjectE
       }[] | null;
     };
 
-    const categories = (row.service_type_category || [])
+    const categories = (row.project_type_category || [])
       .map((stc) => {
         const cat = stc.categories;
         if (!cat || cat.deleted_at) return null;
@@ -127,7 +127,7 @@ export async function resolveProjectPath(slug: string): Promise<ResolvedProjectE
       })
       .filter((c): c is NonNullable<typeof c> => c !== null);
 
-    const serviceType: ServiceTypeWithCategories = {
+    const projectType: ProjectTypeWithCategories = {
       id: row.id,
       name: row.name,
       slug: row.slug || "",
@@ -142,7 +142,7 @@ export async function resolveProjectPath(slug: string): Promise<ResolvedProjectE
       categories,
     };
 
-    return { type: "service_type", data: serviceType };
+    return { type: "project_type", data: projectType };
   }
 
   if (registryItem.entity_type === "project") {
@@ -150,7 +150,7 @@ export async function resolveProjectPath(slug: string): Promise<ResolvedProjectE
       .from("projects")
       .select(`
         *,
-        serviceType:service_type(id, name, slug),
+        projectType:project_type(id, name, slug),
         project_category(
           categoryNew:categories(
             *,
@@ -178,11 +178,11 @@ export async function resolveProjectPath(slug: string): Promise<ResolvedProjectE
       meta_description: string | null;
       order_index: number;
       category_id: string;
-      service_type_id: string | null;
+      project_type_id: string | null;
       created_at: string;
       updated_at: string;
       deleted_at: string | null;
-      serviceType: {
+      projectType: {
         id: string;
         name: string;
         slug: string;
@@ -230,16 +230,16 @@ export async function resolveProjectPath(slug: string): Promise<ResolvedProjectE
       metaDescription: row.meta_description,
       orderIndex: row.order_index || 0,
       categoryId: row.category_id || "",
-      serviceTypeId: row.service_type_id,
+      projectTypeId: row.project_type_id,
       createdAt: row.created_at,
       updatedAt: row.updated_at,
       deletedAt: row.deleted_at,
       category: null,
-      serviceType: row.serviceType
+      projectType: row.projectType
         ? {
-            id: row.serviceType.id,
-            name: row.serviceType.name,
-            slug: row.serviceType.slug,
+            id: row.projectType.id,
+            name: row.projectType.name,
+            slug: row.projectType.slug,
           }
         : null,
       categoriesNew,

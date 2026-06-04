@@ -61,7 +61,7 @@ export function GroupManagement() {
       setDeletingId(null);
       queryClient.invalidateQueries({ queryKey: ["groups"] });
       queryClient.invalidateQueries({ queryKey: ["categories-new"] });
-      queryClient.invalidateQueries({ queryKey: ["service-types"] });
+      queryClient.invalidateQueries({ queryKey: ["project-types"] });
       queryClient.invalidateQueries({ queryKey: ["projects"] });
     },
   });

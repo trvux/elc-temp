@@ -29,32 +29,32 @@ export function ShowcaseSection({ projects }: ShowcaseSectionProps) {
     [projects],
   );
 
-  const serviceTypes = useMemo(() => {
+  const projectTypes = useMemo(() => {
     const map = new Map<string, { id: string; name: string; slug?: string }>();
     featuredProjects.forEach((p) => {
-      if (p.serviceType) {
-        map.set(p.serviceType.id, p.serviceType);
+      if (p.projectType) {
+        map.set(p.projectType.id, p.projectType);
       }
     });
     return Array.from(map.values());
   }, [featuredProjects]);
 
   const [activeTab, setActiveTab] = useState<string>(() => {
-    const firstType = serviceTypes[0];
+    const firstType = projectTypes[0];
     return firstType ? firstType.id : "all";
   });
 
-  // Keep state in sync if serviceTypes load dynamically or change
+  // Keep state in sync if projectTypes load dynamically or change
   const currentActiveTab = useMemo(() => {
-    if (activeTab === "all" && serviceTypes[0]) {
-      return serviceTypes[0].id;
+    if (activeTab === "all" && projectTypes[0]) {
+      return projectTypes[0].id;
     }
     return activeTab;
-  }, [activeTab, serviceTypes]);
+  }, [activeTab, projectTypes]);
 
   const filteredProjects = useMemo(() => {
     return featuredProjects
-      .filter((p) => p.serviceType?.id === currentActiveTab)
+      .filter((p) => p.projectType?.id === currentActiveTab)
       .slice(0, 6);
   }, [featuredProjects, currentActiveTab]);
 
@@ -87,7 +87,7 @@ export function ShowcaseSection({ projects }: ShowcaseSectionProps) {
           </StaggerItem>
         </div>
 
-        {serviceTypes.length > 0 && (
+        {projectTypes.length > 0 && (
           <StaggerItem className="w-full flex justify-center">
             <Tabs
               value={currentActiveTab}
@@ -100,7 +100,7 @@ export function ShowcaseSection({ projects }: ShowcaseSectionProps) {
                     {/* <TabsTrigger value="all" className="shrink-0 px-4 py-1.5 md:px-5 md:py-2">
                        Tất cả
                     </TabsTrigger> */}
-                    {serviceTypes.map((st) => (
+                    {projectTypes.map((st) => (
                       <TabsTrigger
                         key={st.id}
                         value={st.id}

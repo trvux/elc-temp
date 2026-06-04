@@ -15,7 +15,7 @@ import { useParams, useSearchParams } from "next/navigation";
 import { useMemo } from "react";
 import { ProjectFilters } from "./ProjectFilters";
 
-interface ServiceTypeItem {
+interface ProjectTypeItem {
   id: string;
   name: string;
   slug: string;
@@ -30,15 +30,15 @@ interface CategoryItem {
 }
 
 interface ProjectFilterMobileProps {
-  serviceTypes: ServiceTypeItem[];
-  currentServiceTypeSlug?: string;
+  projectTypes: ProjectTypeItem[];
+  currentProjectTypeSlug?: string;
   categories: CategoryItem[];
   currentCategorySlugs?: string[];
 }
 
 export function ProjectFilterMobile({
-  serviceTypes,
-  currentServiceTypeSlug = "",
+  projectTypes,
+  currentProjectTypeSlug = "",
   categories,
   currentCategorySlugs = [],
 }: ProjectFilterMobileProps) {
@@ -49,10 +49,10 @@ export function ProjectFilterMobile({
   const activeFilterCount = useMemo(() => {
     let count = 0;
 
-    // Check if serviceType is selected (either in flat URL slug or otherwise)
-    if (slugFromPath && serviceTypes.some((st) => st.slug === slugFromPath)) {
+    // Check if projectType is selected (either in flat URL slug or otherwise)
+    if (slugFromPath && projectTypes.some((st) => st.slug === slugFromPath)) {
       count++;
-    } else if (currentServiceTypeSlug) {
+    } else if (currentProjectTypeSlug) {
       count++;
     }
 
@@ -67,7 +67,7 @@ export function ProjectFilterMobile({
     }
 
     return count;
-  }, [searchParams, slugFromPath, serviceTypes, currentServiceTypeSlug, currentCategorySlugs]);
+  }, [searchParams, slugFromPath, projectTypes, currentProjectTypeSlug, currentCategorySlugs]);
 
   return (
     <div className="lg:hidden shrink-0">
@@ -97,8 +97,8 @@ export function ProjectFilterMobile({
           </SheetHeader>
           <div className="h-[calc(100vh-80px)] overflow-y-auto p-6">
             <ProjectFilters
-              serviceTypes={serviceTypes}
-              currentServiceTypeSlug={currentServiceTypeSlug}
+              projectTypes={projectTypes}
+              currentProjectTypeSlug={currentProjectTypeSlug}
               categories={categories}
               currentCategorySlugs={currentCategorySlugs}
             />

@@ -48,7 +48,7 @@ import { TiptapEditor } from "@/shared/components/ui/tiptap-editor";
 import { generateSlug } from "@/shared/lib/helpers";
 
 import { getCategoriesNewAction } from "@/modules/category-new/presentation/actions";
-import { getServiceTypesAction } from "@/modules/service-type/presentation/actions";
+import { getProjectTypesAction } from "@/modules/project-type/presentation/actions";
 import { getGroupsAction } from "@/modules/group/presentation/actions";
 import { ProjectWithCategory } from "../../domain";
 import { deleteProjectAction, getProjectsAction } from "../actions";
@@ -67,7 +67,7 @@ export function ProjectManagement() {
   const [filterIsFeatured, setFilterIsFeatured] = useState<string>("all");
   const [filterGroupId, setFilterGroupId] = useState<string>("all");
   const [filterCategoryId, setFilterCategoryId] = useState<string>("all");
-  const [filterServiceTypeId, setFilterServiceTypeId] = useState<string>("all");
+  const [filterProjectTypeId, setFilterProjectTypeId] = useState<string>("all");
 
   // Fetch Data
   const { data: projects = [], isLoading: isProjectsLoading } = useQuery({
@@ -81,10 +81,10 @@ export function ProjectManagement() {
     },
   });
 
-  const { data: serviceTypes = [] } = useQuery({
-    queryKey: ["service-types"],
+  const { data: projectTypes = [] } = useQuery({
+    queryKey: ["project-types"],
     queryFn: async () => {
-      const { data, error } = await getServiceTypesAction();
+      const { data, error } = await getProjectTypesAction();
       if (error) throw new Error(error);
       return data;
     },
@@ -168,8 +168,8 @@ export function ProjectManagement() {
         filterCategoryId === "all" ||
         (p.categoriesNew && p.categoriesNew.some((c) => c.id === filterCategoryId));
 
-      const matchServiceType =
-        filterServiceTypeId === "all" || p.serviceTypeId === filterServiceTypeId;
+      const matchProjectType =
+        filterProjectTypeId === "all" || p.projectTypeId === filterProjectTypeId;
 
       const matchFeatured =
         filterIsFeatured === "all" ||
@@ -179,13 +179,13 @@ export function ProjectManagement() {
         filterIsPublished === "all" ||
         (filterIsPublished === "true" ? p.isPublished : !p.isPublished);
 
-      return matchGroup && matchCategory && matchServiceType && matchFeatured && matchPublished;
+      return matchGroup && matchCategory && matchProjectType && matchFeatured && matchPublished;
     });
   }, [
     projects,
     filterGroupId,
     filterCategoryId,
-    filterServiceTypeId,
+    filterProjectTypeId,
     filterIsFeatured,
     filterIsPublished,
   ]);
@@ -200,7 +200,7 @@ export function ProjectManagement() {
             slug: p.slug || "",
             description: p.description,
             categoryId: "00000000-0000-0000-0000-000000000000",
-            serviceTypeId: p.serviceTypeId || "",
+            projectTypeId: p.projectTypeId || "",
             categoryIds: (p.categoriesNew || []).map((c) => c.id),
             images: p.images || [],
             isPublished: p.isPublished,
@@ -222,7 +222,7 @@ export function ProjectManagement() {
       slug: "",
       description: null,
       categoryId: "00000000-0000-0000-0000-000000000000",
-      serviceTypeId: "",
+      projectTypeId: "",
       categoryIds: [],
       images: [],
       isPublished: true,
@@ -249,13 +249,13 @@ export function ProjectManagement() {
 
       <div className="flex flex-wrap items-center gap-4 mb-4">
         {/* Service Type Filter */}
-        <Select value={filterServiceTypeId} onValueChange={setFilterServiceTypeId}>
+        <Select value={filterProjectTypeId} onValueChange={setFilterProjectTypeId}>
           <SelectTrigger className="w-full md:w-[180px]">
-            <SelectValue placeholder="Loại hình dịch vụ" />
+            <SelectValue placeholder="Loại hình công trình" />
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">Tất cả loại hình</SelectItem>
-            {serviceTypes.map((st) => (
+            {projectTypes.map((st) => (
               <SelectItem key={st.id} value={st.id}>
                 {st.name}
               </SelectItem>
@@ -321,7 +321,7 @@ export function ProjectManagement() {
           filterIsFeatured !== "all" ||
           filterGroupId !== "all" ||
           filterCategoryId !== "all" ||
-          filterServiceTypeId !== "all") && (
+          filterProjectTypeId !== "all") && (
           <Button
             variant="ghost"
             onClick={() => {
@@ -329,7 +329,7 @@ export function ProjectManagement() {
               setFilterIsFeatured("all");
               setFilterGroupId("all");
               setFilterCategoryId("all");
-              setFilterServiceTypeId("all");
+              setFilterProjectTypeId("all");
             }}
             className="h-9 px-3 text-muted-foreground hover:text-foreground"
           >
@@ -410,18 +410,18 @@ export function ProjectManagement() {
 
                       <Controller
                         control={form.control}
-                        name="serviceTypeId"
+                        name="projectTypeId"
                         render={({ field }) => (
                           <Field>
-                            <FieldLabel>Loại hình dịch vụ</FieldLabel>
+                            <FieldLabel>Loại hình công trình</FieldLabel>
                             <Select
                               value={field.value || "none"}
                               onValueChange={(v) => {
                                 const val = v === "none" ? "" : v;
                                 field.onChange(val);
-                                // Pre-populate categoryIds based on selected serviceType template!
+                                // Pre-populate categoryIds based on selected projectType template!
                                 if (val) {
-                                  const sType = serviceTypes.find(
+                                  const sType = projectTypes.find(
                                     (s) => s.id === val,
                                   );
                                   if (sType && sType.categories) {
@@ -446,7 +446,7 @@ export function ProjectManagement() {
                                   <SelectItem value="none">
                                     Không chọn loại hình
                                   </SelectItem>
-                                  {serviceTypes.map((s) => (
+                                  {projectTypes.map((s) => (
                                     <SelectItem key={s.id} value={s.id}>
                                       {s.name}
                                     </SelectItem>
@@ -604,7 +604,7 @@ export function ProjectManagement() {
                           </CardTitle>
                           <CardDescription className="text-xs text-muted-foreground">
                             Tích chọn các dòng sản phẩm lắp đặt thực tế cho dự
-                            án này (Tự động điền theo loại hình dịch vụ ở trên,
+                            án này (Tự động điền theo loại hình công trình ở trên,
                             bạn có thể tự chỉnh thêm).
                           </CardDescription>
                         </CardHeader>

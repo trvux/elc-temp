@@ -176,9 +176,9 @@ export class SupabaseGroupRepository implements GroupRepository {
 
       if (catError) this.handleError(catError, "delete");
 
-      // 4. Clean up associations in service_type_category join table
+      // 4. Clean up associations in project_type_category join table
       const { error: relError } = await supabase
-        .from("service_type_category")
+        .from("project_type_category")
         .delete()
         .in("category_id", categoryIds);
 

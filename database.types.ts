@@ -478,69 +478,7 @@ export type Database = {
           },
         ]
       }
-      projects: {
-        Row: {
-          category_id: string
-          created_at: string | null
-          deleted_at: string | null
-          description: Json
-          id: string
-          images: string[]
-          is_featured: boolean | null
-          is_published: boolean | null
-          meta_description: string | null
-          meta_title: string | null
-          order_index: number | null
-          service_type_id: string | null
-          slug: string
-          title: string
-          updated_at: string | null
-        }
-        Insert: {
-          category_id: string
-          created_at?: string | null
-          deleted_at?: string | null
-          description?: Json
-          id?: string
-          images?: string[]
-          is_featured?: boolean | null
-          is_published?: boolean | null
-          meta_description?: string | null
-          meta_title?: string | null
-          order_index?: number | null
-          service_type_id?: string | null
-          slug: string
-          title: string
-          updated_at?: string | null
-        }
-        Update: {
-          category_id?: string
-          created_at?: string | null
-          deleted_at?: string | null
-          description?: Json
-          id?: string
-          images?: string[]
-          is_featured?: boolean | null
-          is_published?: boolean | null
-          meta_description?: string | null
-          meta_title?: string | null
-          order_index?: number | null
-          service_type_id?: string | null
-          slug?: string
-          title?: string
-          updated_at?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "projects_service_type_id_fkey"
-            columns: ["service_type_id"]
-            isOneToOne: false
-            referencedRelation: "service_type"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      service_type: {
+      project_type: {
         Row: {
           created_at: string
           deleted_at: string | null
@@ -582,21 +520,21 @@ export type Database = {
         }
         Relationships: []
       }
-      service_type_category: {
+      project_type_category: {
         Row: {
           category_id: string
           created_at: string
-          service_type_id: string
+          project_type_id: string
         }
         Insert: {
           category_id: string
           created_at?: string
-          service_type_id: string
+          project_type_id: string
         }
         Update: {
           category_id?: string
           created_at?: string
-          service_type_id?: string
+          project_type_id?: string
         }
         Relationships: [
           {
@@ -608,9 +546,71 @@ export type Database = {
           },
           {
             foreignKeyName: "service_type_category_service_type_id_fkey"
-            columns: ["service_type_id"]
+            columns: ["project_type_id"]
             isOneToOne: false
-            referencedRelation: "service_type"
+            referencedRelation: "project_type"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      projects: {
+        Row: {
+          category_id: string
+          created_at: string | null
+          deleted_at: string | null
+          description: Json
+          id: string
+          images: string[]
+          is_featured: boolean | null
+          is_published: boolean | null
+          meta_description: string | null
+          meta_title: string | null
+          order_index: number | null
+          project_type_id: string | null
+          slug: string
+          title: string
+          updated_at: string | null
+        }
+        Insert: {
+          category_id: string
+          created_at?: string | null
+          deleted_at?: string | null
+          description?: Json
+          id?: string
+          images?: string[]
+          is_featured?: boolean | null
+          is_published?: boolean | null
+          meta_description?: string | null
+          meta_title?: string | null
+          order_index?: number | null
+          project_type_id?: string | null
+          slug: string
+          title: string
+          updated_at?: string | null
+        }
+        Update: {
+          category_id?: string
+          created_at?: string | null
+          deleted_at?: string | null
+          description?: Json
+          id?: string
+          images?: string[]
+          is_featured?: boolean | null
+          is_published?: boolean | null
+          meta_description?: string | null
+          meta_title?: string | null
+          order_index?: number | null
+          project_type_id?: string | null
+          slug?: string
+          title?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "projects_service_type_id_fkey"
+            columns: ["project_type_id"]
+            isOneToOne: false
+            referencedRelation: "project_type"
             referencedColumns: ["id"]
           },
         ]

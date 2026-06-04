@@ -40,9 +40,9 @@ export interface ProjectFooter {
   id: string;
   title: string;
   slug: string;
-  serviceTypeId: string | null;
-  serviceTypeName: string | null;
-  serviceTypeSlug: string | null;
+  projectTypeId: string | null;
+  projectTypeName: string | null;
+  projectTypeSlug: string | null;
 }
 
 export interface BranchFooter {
@@ -57,7 +57,7 @@ export interface PageFooter {
   slug: string;
 }
 
-export interface ServiceTypeFooter {
+export interface ProjectTypeFooter {
   id: string;
   name: string;
   slug: string;
@@ -73,7 +73,7 @@ interface FooterProps {
   brands?: BrandFooter[];
   groupCategories?: GroupCategoryFooter[];
   categoriesList?: CategoryFooter[];
-  serviceTypes?: ServiceTypeFooter[];
+  projectTypes?: ProjectTypeFooter[];
   currentYear?: number;
 }
 
@@ -86,7 +86,7 @@ export function Footer({
   brands = [],
   groupCategories = [],
   categoriesList = [],
-  serviceTypes = [],
+  projectTypes = [],
   currentYear = 2026,
 }: FooterProps) {
   const { address, currentYear: year } = getFooterLogic(
@@ -369,7 +369,7 @@ export function Footer({
 
               {(() => {
                 // Build columns: one per service type that has projects.
-                // Service types order comes from serviceTypes prop (ordered by order_index).
+                // Service types order comes from projectTypes prop (ordered by order_index).
                 // Projects without a service type fall into a "Khác" column.
                 const grouped = new Map<
                   string,
@@ -377,7 +377,7 @@ export function Footer({
                 >();
 
                 // Initialise buckets in order
-                serviceTypes.forEach((st) => {
+                projectTypes.forEach((st) => {
                   grouped.set(st.id, {
                     name: st.name,
                     slug: st.slug,
@@ -386,11 +386,11 @@ export function Footer({
                 });
 
                 projects.forEach((p) => {
-                  const key = p.serviceTypeId ?? "__other__";
+                  const key = p.projectTypeId ?? "__other__";
                   if (!grouped.has(key)) {
                     grouped.set(key, {
-                      name: p.serviceTypeName ?? "Khác",
-                      slug: p.serviceTypeSlug ?? "du-an",
+                      name: p.projectTypeName ?? "Khác",
+                      slug: p.projectTypeSlug ?? "du-an",
                       items: [],
                     });
                   }

@@ -20,7 +20,7 @@ export async function getPublicLayoutData() {
     { data: minPriceProd },
     { data: maxPriceProd },
     { data: brandsData },
-    { data: serviceTypesData },
+    { data: projectTypesData },
   ] = await Promise.all([
     supabase.from("site_settings").select("*"),
     supabase
@@ -31,7 +31,7 @@ export async function getPublicLayoutData() {
     supabase.from("branches").select("*").is("deleted_at", null),
     supabase
       .from("projects")
-      .select("id, title, slug, service_type_id, service_type(id, name, slug)")
+      .select("id, title, slug, project_type_id, project_type(id, name, slug)")
       .eq("is_published", true)
       .is("deleted_at", null)
       .limit(40),
@@ -76,7 +76,7 @@ export async function getPublicLayoutData() {
       .is("products.deleted_at", null)
       .order("name", { ascending: true }),
     supabase
-      .from("service_type")
+      .from("project_type")
       .select("id, name, slug")
       .is("deleted_at", null)
       .order("order_index", { ascending: true }),
@@ -127,19 +127,19 @@ export async function getPublicLayoutData() {
       : "10.000.000đ - 100.000.000đ";
 
   const mappedProjects = (projects || []).map((p) => {
-    const rawSt = p.service_type;
+    const rawSt = p.project_type;
     const st = (Array.isArray(rawSt) ? rawSt[0] : rawSt) as { id: string; name: string; slug: string } | null;
     return {
       id: p.id,
       title: p.title,
       slug: p.slug,
-      serviceTypeId: p.service_type_id as string | null,
-      serviceTypeName: st?.name ?? null,
-      serviceTypeSlug: st?.slug ?? null,
+      projectTypeId: p.project_type_id as string | null,
+      projectTypeName: st?.name ?? null,
+      projectTypeSlug: st?.slug ?? null,
     };
   });
 
-  const serviceTypes = (serviceTypesData || []).map((st) => ({
+  const projectTypes = (projectTypesData || []).map((st) => ({
     id: st.id,
     name: st.name,
     slug: st.slug || "",
@@ -155,7 +155,7 @@ export async function getPublicLayoutData() {
     brands: brands || [],
     groupCategories: groupCategories || [],
     categoriesList: categoriesList || [],
-    serviceTypes,
+    projectTypes,
     priceRange,
     currentYear: new Date().getFullYear(),
   };

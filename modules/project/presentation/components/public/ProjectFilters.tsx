@@ -15,7 +15,7 @@ import { Check, X } from "lucide-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState, useTransition } from "react";
 
-interface ServiceTypeItem {
+interface ProjectTypeItem {
   id: string;
   name: string;
   slug: string;
@@ -30,16 +30,16 @@ interface CategoryItem {
 }
 
 interface ProjectFiltersProps {
-  serviceTypes: ServiceTypeItem[];
-  currentServiceTypeSlug?: string;
+  projectTypes: ProjectTypeItem[];
+  currentProjectTypeSlug?: string;
   categories: CategoryItem[];
   currentCategorySlugs?: string[];
   onFilterChange?: () => void;
 }
 
 export function ProjectFilters({
-  serviceTypes,
-  currentServiceTypeSlug = "",
+  projectTypes,
+  currentProjectTypeSlug = "",
   categories,
   currentCategorySlugs = [],
   onFilterChange,
@@ -55,9 +55,9 @@ export function ProjectFilters({
     setIsMounted(true);
   }, []);
 
-  const hasAnyFilter = !!(currentServiceTypeSlug || currentCategorySlugs.length > 0);
+  const hasAnyFilter = !!(currentProjectTypeSlug || currentCategorySlugs.length > 0);
 
-  const handleServiceTypeSelect = (slug: string | null) => {
+  const handleProjectTypeSelect = (slug: string | null) => {
     const sParams = new URLSearchParams(searchParams.toString());
     sParams.delete("page"); // Reset pagination on filter change
     sParams.delete("category"); // Reset categories on service type change
@@ -153,12 +153,12 @@ export function ProjectFilters({
         className="w-full"
       >
         {/* Service Type (Không gian kiến trúc) - Single selection */}
-        {serviceTypes.length > 0 && (
+        {projectTypes.length > 0 && (
           <AccordionItem value="Không gian kiến trúc">
             <AccordionTrigger className="hover:no-underline">
               <div className="flex items-center gap-2">
                 <span>Không gian kiến trúc</span>
-                {currentServiceTypeSlug && (
+                {currentProjectTypeSlug && (
                   <Badge variant="secondary" className="rounded-sm">
                     <Check data-icon="inline-start" className="w-3 h-3" /> 1 được chọn
                   </Badge>
@@ -168,9 +168,9 @@ export function ProjectFilters({
             <AccordionContent className="px-2 h-auto!">
               <div className="flex flex-col gap-1 -mx-6">
                 {/* Specific Options */}
-                {serviceTypes.map((st) => {
+                {projectTypes.map((st) => {
                   if (st.count !== undefined && st.count <= 0) return null;
-                  const isActive = currentServiceTypeSlug === st.slug;
+                  const isActive = currentProjectTypeSlug === st.slug;
                   return (
                     <label
                       key={st.id}
@@ -179,11 +179,11 @@ export function ProjectFilters({
                       )}
                     >
                       <Checkbox
-                        id={`filter-serviceType-${st.slug}`}
+                        id={`filter-projectType-${st.slug}`}
                         checked={isActive}
                         disabled={isPending}
                         onCheckedChange={(checked) => {
-                          handleServiceTypeSelect(checked ? st.slug : null);
+                          handleProjectTypeSelect(checked ? st.slug : null);
                         }}
                       />
                       <span
@@ -203,7 +203,7 @@ export function ProjectFilters({
         )}
 
         {/* Categories (Thiết bị lắp đặt) - Multi selection */}
-        {currentServiceTypeSlug && categories.length > 0 && (
+        {currentProjectTypeSlug && categories.length > 0 && (
           <AccordionItem value="Thiết bị lắp đặt">
             <AccordionTrigger className="hover:no-underline">
               <div className="flex items-center gap-2">

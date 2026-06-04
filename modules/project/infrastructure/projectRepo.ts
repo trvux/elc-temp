@@ -17,7 +17,7 @@ export class SupabaseProjectRepository implements ProjectRepository {
   private readonly TABLE_NAME = "projects";
   private readonly SELECT_WITH_CATEGORY = `
     *,
-    serviceType:service_type(id, name, slug),
+    projectType:project_type(id, name, slug),
     project_category(
       categoryNew:categories(
         *,
@@ -32,7 +32,7 @@ export class SupabaseProjectRepository implements ProjectRepository {
 
     // Filters
     if (options?.categoryId) query = query.eq("category_id", options.categoryId);
-    if (options?.serviceTypeId) query = query.eq("service_type_id", options.serviceTypeId);
+    if (options?.projectTypeId) query = query.eq("project_type_id", options.projectTypeId);
     
     if (options?.categoryNewSlug) {
       const { data: catData, error: catError } = await supabase
@@ -119,12 +119,12 @@ export class SupabaseProjectRepository implements ProjectRepository {
     return (data || []).map((row) => this.mapToDomainWithCategory(row));
   }
 
-  async count(options?: Pick<ProjectFilter, "categoryId" | "serviceTypeId" | "categoryNewSlug" | "categoryNewSlugs" | "isPublished" | "isFeatured" | "search" | "includeDeleted">): Promise<number> {
+  async count(options?: Pick<ProjectFilter, "categoryId" | "projectTypeId" | "categoryNewSlug" | "categoryNewSlugs" | "isPublished" | "isFeatured" | "search" | "includeDeleted">): Promise<number> {
     const supabase = await createClient();
     let query = supabase.from(this.TABLE_NAME).select("*", { count: "exact", head: true });
 
     if (options?.categoryId) query = query.eq("category_id", options.categoryId);
-    if (options?.serviceTypeId) query = query.eq("service_type_id", options.serviceTypeId);
+    if (options?.projectTypeId) query = query.eq("project_type_id", options.projectTypeId);
 
     if (options?.categoryNewSlug) {
       const { data: catData, error: catError } = await supabase
@@ -248,7 +248,7 @@ export class SupabaseProjectRepository implements ProjectRepository {
         meta_description: input.metaDescription,
         order_index: input.orderIndex,
         category_id: input.categoryId,
-        service_type_id: input.serviceTypeId,
+        project_type_id: input.projectTypeId,
         deleted_at: null,
         updated_at: new Date().toISOString(),
       };
@@ -282,7 +282,7 @@ export class SupabaseProjectRepository implements ProjectRepository {
         meta_description: input.metaDescription,
         order_index: input.orderIndex,
         category_id: input.categoryId,
-        service_type_id: input.serviceTypeId,
+        project_type_id: input.projectTypeId,
       };
 
       const { data, error } = await supabase
@@ -325,7 +325,7 @@ export class SupabaseProjectRepository implements ProjectRepository {
       meta_description: input.metaDescription,
       order_index: input.orderIndex,
       category_id: input.categoryId,
-      service_type_id: input.serviceTypeId,
+      project_type_id: input.projectTypeId,
       updated_at: new Date().toISOString(),
     };
 
@@ -459,7 +459,7 @@ export class SupabaseProjectRepository implements ProjectRepository {
       metaDescription: row.meta_description || null,
       orderIndex: row.order_index || 0,
       categoryId: row.category_id || "",
-      serviceTypeId: row.service_type_id || null,
+      projectTypeId: row.project_type_id || null,
       createdAt: row.created_at || new Date().toISOString(),
       updatedAt: row.updated_at || new Date().toISOString(),
       deletedAt: row.deleted_at || null,
@@ -469,10 +469,10 @@ export class SupabaseProjectRepository implements ProjectRepository {
   private mapToDomainWithCategory(row: any): ProjectWithCategory {
     const project = this.mapToDomain(row);
     
-    const serviceType = row.serviceType ? {
-      id: row.serviceType.id,
-      name: row.serviceType.name,
-      slug: row.serviceType.slug || "",
+    const projectType = row.projectType ? {
+      id: row.projectType.id,
+      name: row.projectType.name,
+      slug: row.projectType.slug || "",
     } : null;
 
     const categoriesNew = (row.project_category || [])
@@ -494,7 +494,7 @@ export class SupabaseProjectRepository implements ProjectRepository {
     return {
       ...project,
       category: null,
-      serviceType,
+      projectType,
       categoriesNew,
     };
   }

@@ -8,10 +8,10 @@ import { createClient } from "@/shared/lib/supabase/client";
 import { convertToWebP } from "@/shared/lib/image";
 import { generateSlug } from "@/shared/lib/helpers";
 
-import { createServiceTypeSchema, ServiceTypeWithCategories } from "../../domain";
-import { createServiceTypeAction, updateServiceTypeAction } from "../actions";
+import { createProjectTypeSchema, ProjectTypeWithCategories } from "../../domain";
+import { createProjectTypeAction, updateProjectTypeAction } from "../actions";
 
-export type ServiceTypeFormValues = {
+export type ProjectTypeFormValues = {
   name: string;
   slug: string;
   image?: string | null;
@@ -22,16 +22,16 @@ export type ServiceTypeFormValues = {
   categoryIds?: string[];
 };
 
-export function useServiceTypeForm(
-  activeServiceType: ServiceTypeWithCategories | "new" | null,
+export function useProjectTypeForm(
+  activeProjectType: ProjectTypeWithCategories | "new" | null,
   onClose: () => void
 ) {
   const queryClient = useQueryClient();
   const [uploading, setUploading] = useState(false);
   const supabase = createClient();
 
-  const form = useForm<ServiceTypeFormValues>({
-    resolver: standardSchemaResolver(createServiceTypeSchema as any) as any,
+  const form = useForm<ProjectTypeFormValues>({
+    resolver: standardSchemaResolver(createProjectTypeSchema as any) as any,
     defaultValues: {
       name: "",
       slug: "",
@@ -45,7 +45,7 @@ export function useServiceTypeForm(
   });
 
   const saveMutation = useMutation({
-    mutationFn: async (values: ServiceTypeFormValues) => {
+    mutationFn: async (values: ProjectTypeFormValues) => {
       const trimmed = values.name.trim();
       const formattedName = trimmed ? trimmed.charAt(0).toUpperCase() + trimmed.slice(1) : "";
       const finalSlug = (values.slug || "").trim() || generateSlug(formattedName);
@@ -61,13 +61,13 @@ export function useServiceTypeForm(
         categoryIds: values.categoryIds || [],
       };
 
-      if (activeServiceType && activeServiceType !== "new") {
-        return updateServiceTypeAction({
-          id: activeServiceType.id,
+      if (activeProjectType && activeProjectType !== "new") {
+        return updateProjectTypeAction({
+          id: activeProjectType.id,
           ...payload,
         });
       }
-      return createServiceTypeAction(payload);
+      return createProjectTypeAction(payload);
     },
     onSuccess: (res) => {
       if (res.error) {
@@ -75,12 +75,12 @@ export function useServiceTypeForm(
         return;
       }
       toast.success(
-        activeServiceType === "new"
-          ? "Đã tạo loại hình dịch vụ"
-          : "Đã cập nhật loại hình dịch vụ"
+        activeProjectType === "new"
+          ? "Đã tạo loại hình công trình"
+          : "Đã cập nhật loại hình công trình"
       );
       onClose();
-      queryClient.invalidateQueries({ queryKey: ["service-types"] });
+      queryClient.invalidateQueries({ queryKey: ["project-types"] });
       queryClient.invalidateQueries({ queryKey: ["projects"] });
     },
   });
@@ -91,7 +91,7 @@ export function useServiceTypeForm(
     setUploading(true);
     try {
       const webpFile = await convertToWebP(file);
-      const fileName = `service-types/${Date.now()}-${Math.random().toString(36).slice(2)}.webp`;
+      const fileName = `project-types/${Date.now()}-${Math.random().toString(36).slice(2)}.webp`;
       const { error } = await supabase.storage
         .from("images")
         .upload(fileName, webpFile, { contentType: "image/webp" });

@@ -1,11 +1,11 @@
 import { z } from "zod";
 
-export const serviceTypeSchema = z.object({
+export const projectTypeSchema = z.object({
   id: z.uuid({ message: "ID không đúng định dạng UUID" }),
   name: z
     .string()
-    .min(1, { message: "Tên loại hình dịch vụ không được để trống" })
-    .max(100, { message: "Tên loại hình dịch vụ không được quá 100 ký tự" }),
+    .min(1, { message: "Tên loại hình công trình không được để trống" })
+    .max(100, { message: "Tên loại hình công trình không được quá 100 ký tự" }),
   slug: z
     .string()
     .min(1, { message: "Slug không được để trống" })
@@ -30,13 +30,13 @@ export const serviceTypeSchema = z.object({
     .nullable(),
 });
 
-export const createServiceTypeSchema = serviceTypeSchema.omit({
+export const createProjectTypeSchema = projectTypeSchema.omit({
   id: true,
   createdAt: true,
   updatedAt: true,
   deletedAt: true,
 });
 
-export const updateServiceTypeSchema = createServiceTypeSchema.partial().extend({
+export const updateProjectTypeSchema = createProjectTypeSchema.partial().extend({
   id: z.uuid({ message: "ID không đúng định dạng UUID" }),
 });
