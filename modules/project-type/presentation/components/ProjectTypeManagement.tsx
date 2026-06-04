@@ -23,21 +23,21 @@ import { Textarea } from "@/shared/components/ui/textarea";
 import { getCategoriesNewAction } from "@/modules/category-new/presentation/actions";
 import { ImageUpload } from "@/shared/components/ui/image-upload";
 
-import { ServiceTypeWithCategories } from "../../domain";
-import { deleteServiceTypeAction, getServiceTypesAction } from "../actions";
-import { useServiceTypeForm } from "../hooks/useServiceTypeForm";
+import { ProjectTypeWithCategories } from "../../domain";
+import { deleteProjectTypeAction, getProjectTypesAction } from "../actions";
+import { useProjectTypeForm } from "../hooks/useProjectTypeForm";
 import { getColumns } from "./columns";
 
-export function ServiceTypeManagement() {
+export function ProjectTypeManagement() {
   const queryClient = useQueryClient();
-  const [activeServiceType, setActiveServiceType] = useState<ServiceTypeWithCategories | "new" | null>(null);
+  const [activeProjectType, setActiveProjectType] = useState<ProjectTypeWithCategories | "new" | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
   // Fetch Service Types
-  const { data: serviceTypes = [], isLoading } = useQuery({
-    queryKey: ["service-types"],
+  const { data: projectTypes = [], isLoading } = useQuery({
+    queryKey: ["project-types"],
     queryFn: async () => {
-      const { data, error } = await getServiceTypesAction();
+      const { data, error } = await getProjectTypesAction();
       if (error) throw new Error(error);
       return data;
     },
@@ -54,21 +54,21 @@ export function ServiceTypeManagement() {
   });
 
   // Form Hook
-  const { form, saveMutation, handleUpload, uploading, onNameChange } = useServiceTypeForm(activeServiceType, () =>
-    setActiveServiceType(null)
+  const { form, saveMutation, handleUpload, uploading, onNameChange } = useProjectTypeForm(activeProjectType, () =>
+    setActiveProjectType(null)
   );
 
   // Delete Mutation
   const deleteMutation = useMutation({
-    mutationFn: deleteServiceTypeAction,
+    mutationFn: deleteProjectTypeAction,
     onSuccess: (res) => {
       if (res.error) {
         toast.error(res.error);
         return;
       }
-      toast.success("Đã xóa loại hình dịch vụ");
+      toast.success("Đã xóa loại hình công trình");
       setDeletingId(null);
-      queryClient.invalidateQueries({ queryKey: ["service-types"] });
+      queryClient.invalidateQueries({ queryKey: ["project-types"] });
       queryClient.invalidateQueries({ queryKey: ["projects"] });
     },
   });
@@ -77,7 +77,7 @@ export function ServiceTypeManagement() {
     () =>
       getColumns({
         onEdit: (st) => {
-          setActiveServiceType(st);
+          setActiveProjectType(st);
           form.reset({
             name: st.name,
             slug: st.slug || "",
@@ -97,7 +97,7 @@ export function ServiceTypeManagement() {
   );
 
   function openCreate() {
-    setActiveServiceType("new");
+    setActiveProjectType("new");
     form.reset({
       name: "",
       slug: "",
@@ -140,9 +140,9 @@ export function ServiceTypeManagement() {
     <div>
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 mb-8">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">Loại hình dịch vụ</h1>
+          <h1 className="text-2xl font-bold tracking-tight">Loại hình công trình</h1>
           <p className="text-sm text-muted-foreground">
-            Quản lý các loại hình dịch vụ (Villa, Biệt thự...) và liên kết các dòng sản phẩm phù hợp.
+            Quản lý các loại hình công trình (Villa, Biệt thự...) và liên kết các dòng sản phẩm phù hợp.
           </p>
         </div>
         <Button onClick={openCreate} className="h-9">
@@ -152,16 +152,16 @@ export function ServiceTypeManagement() {
 
       <DataTable
         columns={columns}
-        data={serviceTypes}
+        data={projectTypes}
         isLoading={isLoading}
         searchKey="name"
         searchPlaceholder="Tìm kiếm loại hình..."
       />
 
       <AdminDialog
-        open={!!activeServiceType}
-        onOpenChange={(open) => !open && setActiveServiceType(null)}
-        title={activeServiceType === "new" ? "Thêm loại hình dịch vụ" : "Sửa loại hình dịch vụ"}
+        open={!!activeProjectType}
+        onOpenChange={(open) => !open && setActiveProjectType(null)}
+        title={activeProjectType === "new" ? "Thêm loại hình công trình" : "Sửa loại hình công trình"}
         description="Nhập thông tin loại hình và chọn các dòng sản phẩm liên kết (nhiều - nhiều)."
         size="full"
       >
@@ -190,7 +190,7 @@ export function ServiceTypeManagement() {
                         name="name"
                         render={({ field, fieldState }) => (
                           <Field>
-                            <FieldLabel>Tên loại hình dịch vụ *</FieldLabel>
+                            <FieldLabel>Tên loại hình công trình *</FieldLabel>
                             <Input
                               {...field}
                               placeholder="VD: Biệt thự, Villa, Nhà xưởng"
@@ -256,7 +256,7 @@ export function ServiceTypeManagement() {
                               value={field.value || ""}
                               onChange={field.onChange}
                               aspectRatio="16:9"
-                              folderPath="service-types"
+                              folderPath="project-types"
                             />
                             <FieldError errors={[fieldState.error]} />
                           </Field>
@@ -343,14 +343,14 @@ export function ServiceTypeManagement() {
                 <Button
                   variant="outline"
                   type="button"
-                  onClick={() => setActiveServiceType(null)}
+                  onClick={() => setActiveProjectType(null)}
                 >
                   Hủy
                 </Button>
                 <Button type="submit" disabled={saveMutation.isPending}>
                   {saveMutation.isPending
                     ? "Đang lưu..."
-                    : activeServiceType === "new"
+                    : activeProjectType === "new"
                       ? "Tạo loại hình"
                       : "Lưu thay đổi"}
                 </Button>

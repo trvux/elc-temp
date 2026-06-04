@@ -2,8 +2,8 @@ import { getProjects } from "@/modules/project/application/getProjects";
 import { resolveProjectPath } from "@/modules/project/application/resolveProjectPath";
 import { ProjectWithCategory } from "@/modules/project/domain/types";
 import { ProjectListModule } from "@/modules/project/presentation/components/public/ProjectListModule";
-import { getServiceTypes } from "@/modules/service-type/application";
-import { ServiceTypeWithCategories } from "@/modules/service-type/domain/types";
+import { getProjectTypes } from "@/modules/project-type/application";
+import { ProjectTypeWithCategories } from "@/modules/project-type/domain/types";
 import { PreviewContent } from "@/shared/components/layout/user/preview-content";
 import { ScrollToTop } from "@/shared/components/layout/user/scroll-to-top";
 import { Metadata } from "next";
@@ -32,7 +32,7 @@ export async function generateMetadata({
     };
   }
 
-  if (entity.type === "service_type") {
+  if (entity.type === "project_type") {
     const st = entity.data;
     return {
       title: `${st.metaTitle || `Dự án ${st.name}`} | Điện máy ELC`,
@@ -57,10 +57,10 @@ export async function generateMetadata({
 
 // Generate static parameters for high performance static pre-rendering
 export async function generateStaticParams() {
-  const serviceTypes = await getServiceTypes();
+  const projectTypes = await getProjectTypes();
   const projects = await getProjects({ isPublished: true });
 
-  const serviceTypeParams = serviceTypes
+  const projectTypeParams = projectTypes
     .filter((st) => st.slug && !st.deletedAt)
     .map((st) => ({
       slug: st.slug,
@@ -72,7 +72,7 @@ export async function generateStaticParams() {
       slug: p.slug,
     }));
 
-  return [...serviceTypeParams, ...projectParams];
+  return [...projectTypeParams, ...projectParams];
 }
 
 interface ProjectDetailPageProps {
@@ -94,11 +94,11 @@ export default async function ProjectDetailPage({
   }
 
   // Branch depending on entity type
-  if (entity.type === "service_type") {
+  if (entity.type === "project_type") {
     return (
       <Suspense fallback={<ProjectListSkeleton />}>
         <ProjectListModuleWrapper
-          serviceType={entity.data}
+          projectType={entity.data}
           searchParamsPromise={searchParams}
         />
       </Suspense>
@@ -145,16 +145,16 @@ function ProjectDetailSkeleton() {
 }
 
 async function ProjectListModuleWrapper({
-  serviceType,
+  projectType,
   searchParamsPromise,
 }: {
-  serviceType: ServiceTypeWithCategories;
+  projectType: ProjectTypeWithCategories;
   searchParamsPromise: Promise<{ [key: string]: string | string[] | undefined }>;
 }) {
   const resolvedSearchParams = await searchParamsPromise;
   return (
     <ProjectListModule
-      serviceType={serviceType}
+      projectType={projectType}
       searchParams={resolvedSearchParams}
     />
   );
@@ -169,15 +169,15 @@ async function getCachedCurrentYear() {
 async function ProjectDetailView({ project }: { project: ProjectWithCategory }) {
   const images = project.images || [];
   const displayCategory =
-    project.categoriesNew?.[0]?.name || project.serviceType?.name || "Dự án";
+    project.categoriesNew?.[0]?.name || project.projectType?.name || "Dự án";
 
   const breadcrumbItems = [
     { label: "Dự án", href: "/du-an" },
-    ...(project.serviceType
+    ...(project.projectType
       ? [
           {
-            label: project.serviceType.name,
-            href: `/du-an/${project.serviceType.slug || ""}`,
+            label: project.projectType.name,
+            href: `/du-an/${project.projectType.slug || ""}`,
           },
         ]
       : []),

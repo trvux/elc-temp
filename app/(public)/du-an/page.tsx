@@ -32,7 +32,7 @@ async function ProjectListModuleWrapper({
 }) {
   const resolvedSearchParams = await searchParamsPromise;
   return (
-    <ProjectListModule serviceType={null} searchParams={resolvedSearchParams} />
+    <ProjectListModule projectType={null} searchParams={resolvedSearchParams} />
   );
 }
 

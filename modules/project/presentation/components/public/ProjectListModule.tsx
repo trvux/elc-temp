@@ -1,8 +1,8 @@
 import { getCategoriesNew } from "@/modules/category-new/application";
 import { getProjects } from "@/modules/project/application/getProjects";
 import { ProjectCard } from "@/modules/project/presentation/components/ProjectCard";
-import { getServiceTypes } from "@/modules/service-type/application";
-import { ServiceTypeWithCategories } from "@/modules/service-type/domain/types";
+import { getProjectTypes } from "@/modules/project-type/application";
+import { ProjectTypeWithCategories } from "@/modules/project-type/domain/types";
 import { Breadcrumbs } from "@/shared/components/layout/user/breadcrumbs";
 import { ScrollToTop } from "@/shared/components/layout/user/scroll-to-top";
 import { GridSection } from "@/shared/components/sections/grid-section";
@@ -21,7 +21,7 @@ import { ProjectFilters } from "./ProjectFilters";
 import { ProjectSearchInput } from "./ProjectSearchInput";
 
 interface ProjectListModuleProps {
-  serviceType?: ServiceTypeWithCategories | null;
+  projectType?: ProjectTypeWithCategories | null;
   searchParams: { [key: string]: string | string[] | undefined };
 }
 
@@ -40,7 +40,7 @@ const STYLES = {
     "flex items-center gap-2 cursor-pointer hover:text-foreground transition-colors",
 };
 
-interface CachedServiceType {
+interface CachedProjectType {
   id: string;
   name: string;
   slug: string;
@@ -52,7 +52,7 @@ interface CachedServiceType {
 }
 
 async function getCachedProjectListData(
-  serviceType: CachedServiceType | null,
+  projectType: CachedProjectType | null,
   categorySlugs: string[],
   searchVal: string | undefined,
 ) {
@@ -65,7 +65,7 @@ async function getCachedProjectListData(
   // 1. Fetch filtered projects
   const projects = await getProjects({
     isPublished: true,
-    serviceTypeId: serviceType?.id || undefined,
+    projectTypeId: projectType?.id || undefined,
     categoryNewSlugs: categorySlugs.length > 0 ? categorySlugs : undefined,
     search: searchVal,
   });
@@ -78,15 +78,15 @@ async function getCachedProjectListData(
   });
 
   // 2. Fetch service types for filtering
-  const allServiceTypes = await getServiceTypes();
-  const activeServiceTypes = allServiceTypes.filter((st) => !st.deletedAt);
+  const allProjectTypes = await getProjectTypes();
+  const activeProjectTypes = allProjectTypes.filter((st) => !st.deletedAt);
 
   // Fetch all published projects to compute counts
   const allPublishedProjects = await getProjects({ isPublished: true });
 
-  const serviceTypeItems = activeServiceTypes.map((st) => {
+  const projectTypeItems = activeProjectTypes.map((st) => {
     const count = allPublishedProjects.filter(
-      (p) => p.serviceTypeId === st.id,
+      (p) => p.projectTypeId === st.id,
     ).length;
     return {
       id: st.id,
@@ -103,9 +103,9 @@ async function getCachedProjectListData(
     slug: string;
     count: number;
   }[] = [];
-  if (serviceType) {
+  if (projectType) {
     // 1. Get default categories defined on the service type
-    const defaultCategories = (serviceType.categories || []).map((cat) => ({
+    const defaultCategories = (projectType.categories || []).map((cat) => ({
       id: cat.id,
       name: cat.name,
       slug: cat.slug || "",
@@ -118,10 +118,10 @@ async function getCachedProjectListData(
       .select(
         `
         category:categories(id, name, slug, deleted_at),
-        projects!inner(id, service_type_id, is_published, deleted_at)
+        projects!inner(id, project_type_id, is_published, deleted_at)
       `,
       )
-      .eq("projects.service_type_id", serviceType.id)
+      .eq("projects.project_type_id", projectType.id)
       .eq("projects.is_published", true)
       .is("projects.deleted_at", null)
       .is("categories.deleted_at", null);
@@ -148,7 +148,7 @@ async function getCachedProjectListData(
         } | null;
         projects: {
           id: string;
-          service_type_id: string | null;
+          project_type_id: string | null;
           is_published: boolean;
           deleted_at: string | null;
         } | null;
@@ -167,10 +167,10 @@ async function getCachedProjectListData(
     }
 
     filterCategories = Array.from(categoryMap.values()).map((cat) => {
-      // For category counts, we only count projects within the current serviceType
+      // For category counts, we only count projects within the current projectType
       const count = allPublishedProjects.filter(
         (p) =>
-          p.serviceTypeId === serviceType.id &&
+          p.projectTypeId === projectType.id &&
           p.categoriesNew?.some((c) => c.id === cat.id),
       ).length;
       return { ...cat, count };
@@ -192,14 +192,14 @@ async function getCachedProjectListData(
 
   return {
     sortedProjects,
-    serviceTypeItems,
+    projectTypeItems,
     filterCategories,
     currentYear: new Date().getFullYear(),
   };
 }
 
 export async function ProjectListModule({
-  serviceType = null,
+  projectType = null,
   searchParams,
 }: ProjectListModuleProps) {
   const categoryParam = searchParams.category;
@@ -216,13 +216,13 @@ export async function ProjectListModule({
 
   const queryTokens = getQueryTokens(searchVal || "");
 
-  // Prepare simplified serviceType for cache helper parameters
-  const serviceTypeData: CachedServiceType | null = serviceType
+  // Prepare simplified projectType for cache helper parameters
+  const projectTypeData: CachedProjectType | null = projectType
     ? {
-        id: serviceType.id,
-        name: serviceType.name,
-        slug: serviceType.slug,
-        categories: (serviceType.categories || []).map((cat) => ({
+        id: projectType.id,
+        name: projectType.name,
+        slug: projectType.slug,
+        categories: (projectType.categories || []).map((cat) => ({
           id: cat.id,
           name: cat.name,
           slug: cat.slug || "",
@@ -230,28 +230,28 @@ export async function ProjectListModule({
       }
     : null;
 
-  const { sortedProjects, serviceTypeItems, filterCategories, currentYear } =
-    await getCachedProjectListData(serviceTypeData, categorySlugs, searchVal);
+  const { sortedProjects, projectTypeItems, filterCategories, currentYear } =
+    await getCachedProjectListData(projectTypeData, categorySlugs, searchVal);
 
   // Breadcrumbs items
   const breadcrumbItems = [
     {
       label: "Dự án",
-      href: serviceType ? "/du-an" : undefined,
-      active: !serviceType,
+      href: projectType ? "/du-an" : undefined,
+      active: !projectType,
     },
-    ...(serviceType ? [{ label: serviceType.name, active: true }] : []),
+    ...(projectType ? [{ label: projectType.name, active: true }] : []),
   ];
 
   // Dynamic header text
   const pageTitle = searchVal
     ? `Kết quả tìm kiếm cho "${searchVal}"`
-    : serviceType
-      ? `Dự án — ${serviceType.name}`
+    : projectType
+      ? `Dự án — ${projectType.name}`
       : "Các công trình dự án ELC đã thực hiện";
 
-  const pageSubtitle = serviceType
-    ? `Các công trình thiết kế và thi công hệ thống, điều hòa không khí trong không gian kiến trúc ${serviceType.name} do ELC thực hiện.`
+  const pageSubtitle = projectType
+    ? `Các công trình thiết kế và thi công hệ thống, điều hòa không khí trong không gian kiến trúc ${projectType.name} do ELC thực hiện.`
     : "Tổng hợp các công trình tiêu biểu do đội ngũ ELC trực tiếp tư vấn, thiết kế và thi công lắp đặt cho khách hàng toàn quốc.";
 
   return (
@@ -292,8 +292,8 @@ export async function ProjectListModule({
             </div>
             <Suspense fallback={null}>
               <ProjectFilterMobile
-                serviceTypes={serviceTypeItems}
-                currentServiceTypeSlug={serviceType?.slug || ""}
+                projectTypes={projectTypeItems}
+                currentProjectTypeSlug={projectType?.slug || ""}
                 categories={filterCategories}
                 currentCategorySlugs={categorySlugs}
               />
@@ -320,8 +320,8 @@ export async function ProjectListModule({
               }
             >
               <ProjectFilters
-                serviceTypes={serviceTypeItems}
-                currentServiceTypeSlug={serviceType?.slug || ""}
+                projectTypes={projectTypeItems}
+                currentProjectTypeSlug={projectType?.slug || ""}
                 categories={filterCategories}
                 currentCategorySlugs={categorySlugs}
               />
@@ -349,7 +349,7 @@ export async function ProjectListModule({
                 </p>
                 <Button asChild size="sm" variant="outline">
                   <Link
-                    href={serviceType ? `/du-an/${serviceType.slug}` : "/du-an"}
+                    href={projectType ? `/du-an/${projectType.slug}` : "/du-an"}
                   >
                     Xóa tất cả bộ lọc
                   </Link>
@@ -396,8 +396,8 @@ export async function ProjectListModule({
           "@type": "ItemList",
           name: pageTitle,
           description: pageSubtitle,
-          url: serviceType
-            ? `${baseUrl}/du-an/${serviceType.slug}`
+          url: projectType
+            ? `${baseUrl}/du-an/${projectType.slug}`
             : `${baseUrl}/du-an`,
           numberOfItems: sortedProjects.length,
           itemListElement: sortedProjects.map((p, idx) => ({

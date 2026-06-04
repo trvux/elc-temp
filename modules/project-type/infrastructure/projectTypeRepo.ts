@@ -1,24 +1,24 @@
 import { createClient } from "@/shared/lib/supabase/server";
 import { Tables, Insert, Update } from "@/shared/types/supabase";
-import { ServiceType, ServiceTypeWithCategories, CreateServiceTypeInput, UpdateServiceTypeInput } from "../domain/types";
-import { ServiceTypeFilter, ServiceTypeRepository } from "../domain/repository";
+import { ProjectType, ProjectTypeWithCategories, CreateProjectTypeInput, UpdateProjectTypeInput } from "../domain/types";
+import { ProjectTypeFilter, ProjectTypeRepository } from "../domain/repository";
 
-type ServiceTypeRow = Tables<"service_type">;
-type ServiceTypeInsert = Insert<"service_type">;
-type ServiceTypeUpdate = Update<"service_type">;
+type ProjectTypeRow = Tables<"project_type">;
+type ProjectTypeInsert = Insert<"project_type">;
+type ProjectTypeUpdate = Update<"project_type">;
 
-export class SupabaseServiceTypeRepository implements ServiceTypeRepository {
-  private readonly TABLE_NAME = "service_type";
-  private readonly JOIN_TABLE_NAME = "service_type_category";
+export class SupabaseProjectTypeRepository implements ProjectTypeRepository {
+  private readonly TABLE_NAME = "project_type";
+  private readonly JOIN_TABLE_NAME = "project_type_category";
 
-  async getAll(options?: ServiceTypeFilter): Promise<ServiceTypeWithCategories[]> {
+  async getAll(options?: ProjectTypeFilter): Promise<ProjectTypeWithCategories[]> {
     const supabase = await createClient();
     
     let query = supabase
       .from(this.TABLE_NAME)
       .select(`
         *,
-        service_type_category(
+        project_type_category(
           categories(
             *,
             group_categories(*)
@@ -48,7 +48,7 @@ export class SupabaseServiceTypeRepository implements ServiceTypeRepository {
     return (data || []).map(row => this.mapToDomainWithCategories(row));
   }
 
-  async count(options?: Pick<ServiceTypeFilter, "search" | "includeDeleted">): Promise<number> {
+  async count(options?: Pick<ProjectTypeFilter, "search" | "includeDeleted">): Promise<number> {
     const supabase = await createClient();
     let query = supabase.from(this.TABLE_NAME).select("*", { count: "exact", head: true });
 
@@ -66,13 +66,13 @@ export class SupabaseServiceTypeRepository implements ServiceTypeRepository {
     return count || 0;
   }
 
-  async getById(id: string): Promise<ServiceTypeWithCategories | null> {
+  async getById(id: string): Promise<ProjectTypeWithCategories | null> {
     const supabase = await createClient();
     const { data, error } = await supabase
       .from(this.TABLE_NAME)
       .select(`
         *,
-        service_type_category(
+        project_type_category(
           categories(
             *,
             group_categories(*)
@@ -87,7 +87,7 @@ export class SupabaseServiceTypeRepository implements ServiceTypeRepository {
     return data ? this.mapToDomainWithCategories(data) : null;
   }
 
-  async create(input: CreateServiceTypeInput): Promise<ServiceType> {
+  async create(input: CreateProjectTypeInput): Promise<ProjectType> {
     const supabase = await createClient();
 
     // Check if there is an existing soft-deleted service type with the same slug
@@ -100,10 +100,10 @@ export class SupabaseServiceTypeRepository implements ServiceTypeRepository {
 
     if (findError) this.handleError(findError, "create [find soft-deleted]");
 
-    let newServiceType: ServiceType;
+    let newProjectType: ProjectType;
 
     if (existing) {
-      const updateRow: ServiceTypeUpdate = {
+      const updateRow: ProjectTypeUpdate = {
         name: input.name,
         slug: input.slug,
         image: input.image || null,
@@ -123,17 +123,17 @@ export class SupabaseServiceTypeRepository implements ServiceTypeRepository {
         .single();
 
       if (error) this.handleError(error, "create [restore]");
-      newServiceType = this.mapToDomain(data);
+      newProjectType = this.mapToDomain(data);
 
       // Delete existing relations in join table for this restored service type to start fresh
       const { error: delError } = await supabase
         .from(this.JOIN_TABLE_NAME)
         .delete()
-        .eq("service_type_id", existing.id);
+        .eq("project_type_id", existing.id);
 
       if (delError) this.handleError(delError, "create [clear relations]");
     } else {
-      const row: ServiceTypeInsert = {
+      const row: ProjectTypeInsert = {
         name: input.name,
         slug: input.slug,
         image: input.image || null,
@@ -150,13 +150,13 @@ export class SupabaseServiceTypeRepository implements ServiceTypeRepository {
         .single();
 
       if (error) this.handleError(error, "create");
-      newServiceType = this.mapToDomain(data);
+      newProjectType = this.mapToDomain(data);
     }
 
     // 2. Insert relations if provided
     if (input.categoryIds && input.categoryIds.length > 0) {
       const relations = input.categoryIds.map(catId => ({
-        service_type_id: newServiceType.id,
+        project_type_id: newProjectType.id,
         category_id: catId,
       }));
 
@@ -167,10 +167,10 @@ export class SupabaseServiceTypeRepository implements ServiceTypeRepository {
       if (relError) this.handleError(relError, "createRelations");
     }
 
-    return newServiceType;
+    return newProjectType;
   }
 
-  async update(input: UpdateServiceTypeInput): Promise<ServiceType> {
+  async update(input: UpdateProjectTypeInput): Promise<ProjectType> {
     const supabase = await createClient();
     
     // 1. Update service type
@@ -198,7 +198,7 @@ export class SupabaseServiceTypeRepository implements ServiceTypeRepository {
       .single();
 
     if (error) this.handleError(error, "update");
-    const updatedServiceType = this.mapToDomain(data);
+    const updatedProjectType = this.mapToDomain(data);
 
     // 2. Update relations if provided
     if (input.categoryIds !== undefined) {
@@ -206,14 +206,14 @@ export class SupabaseServiceTypeRepository implements ServiceTypeRepository {
       const { error: delError } = await supabase
         .from(this.JOIN_TABLE_NAME)
         .delete()
-        .eq("service_type_id", input.id);
+        .eq("project_type_id", input.id);
 
       if (delError) this.handleError(delError, "deleteRelations");
 
       // Insert new relations
       if (input.categoryIds.length > 0) {
         const relations = input.categoryIds.map(catId => ({
-          service_type_id: input.id,
+          project_type_id: input.id,
           category_id: catId,
         }));
 
@@ -225,42 +225,42 @@ export class SupabaseServiceTypeRepository implements ServiceTypeRepository {
       }
     }
 
-    return updatedServiceType;
+    return updatedProjectType;
   }
 
   async delete(id: string): Promise<void> {
     const supabase = await createClient();
     
     // 1. Soft delete the service type itself
-    const { error: serviceTypeError } = await supabase
+    const { error: projectTypeError } = await supabase
       .from(this.TABLE_NAME)
       .update({
         deleted_at: new Date().toISOString(),
-      } as ServiceTypeUpdate)
+      } as ProjectTypeUpdate)
       .eq("id", id);
 
-    if (serviceTypeError) this.handleError(serviceTypeError, "delete");
+    if (projectTypeError) this.handleError(projectTypeError, "delete");
 
-    // 2. Set service_type_id = null for referencing projects
+    // 2. Set project_type_id = null for referencing projects
     const { error: projectError } = await supabase
       .from("projects")
       .update({
-        service_type_id: null,
+        project_type_id: null,
       })
-      .eq("service_type_id", id);
+      .eq("project_type_id", id);
 
     if (projectError) this.handleError(projectError, "delete");
 
-    // 3. Clean up associations in service_type_category join table
+    // 3. Clean up associations in project_type_category join table
     const { error: relError } = await supabase
       .from(this.JOIN_TABLE_NAME)
       .delete()
-      .eq("service_type_id", id);
+      .eq("project_type_id", id);
 
     if (relError) this.handleError(relError, "delete");
   }
 
-  private mapToDomain(row: any): ServiceType {
+  private mapToDomain(row: any): ProjectType {
     return {
       id: row.id,
       name: row.name,
@@ -276,10 +276,10 @@ export class SupabaseServiceTypeRepository implements ServiceTypeRepository {
     };
   }
 
-  private mapToDomainWithCategories(row: any): ServiceTypeWithCategories {
-    const serviceType = this.mapToDomain(row);
+  private mapToDomainWithCategories(row: any): ProjectTypeWithCategories {
+    const projectType = this.mapToDomain(row);
     
-    const categories = (row.service_type_category || [])
+    const categories = (row.project_type_category || [])
       .map((stc: any) => {
         const cat = stc.categories;
         if (!cat || cat.deleted_at) return null;
@@ -302,7 +302,7 @@ export class SupabaseServiceTypeRepository implements ServiceTypeRepository {
       .filter(Boolean);
 
     return {
-      ...serviceType,
+      ...projectType,
       categories,
     };
   }
@@ -322,9 +322,9 @@ export class SupabaseServiceTypeRepository implements ServiceTypeRepository {
         message = error.message;
       }
     }
-    console.error(`[SupabaseServiceTypeRepository][${context}] Error:`, error);
+    console.error(`[SupabaseProjectTypeRepository][${context}] Error:`, error);
     throw new Error(`Database error in ${context}: ${message}`);
   }
 }
 
-export const serviceTypeRepo = new SupabaseServiceTypeRepository();
+export const projectTypeRepo = new SupabaseProjectTypeRepository();

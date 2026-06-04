@@ -73,10 +73,10 @@ export const getColumns = ({
   },
 
   {
-    accessorKey: "serviceType.name",
+    accessorKey: "projectType.name",
     header: "Loại hình & Sản phẩm lắp đặt",
     cell: ({ row }) => {
-      const sType = row.original.serviceType;
+      const sType = row.original.projectType;
       const cats = row.original.categoriesNew || [];
       if (!sType) return <span className="text-muted-foreground">—</span>;
       return (

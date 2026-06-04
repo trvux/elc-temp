@@ -24,7 +24,7 @@ export type ProjectFormValues = {
   metaDescription: string;
   orderIndex: number;
   categoryId: string;
-  serviceTypeId: string;
+  projectTypeId: string;
   categoryIds: string[];
 };
 
@@ -43,7 +43,7 @@ export function useProjectForm(
       slug: "",
       description: null,
       categoryId: "00000000-0000-0000-0000-000000000000",
-      serviceTypeId: "",
+      projectTypeId: "",
       categoryIds: [],
       images: [],
       isPublished: true,
@@ -68,7 +68,7 @@ export function useProjectForm(
       const payload = {
         ...values,
         description: JSON.parse(JSON.stringify(values.description)) as Json,
-        serviceTypeId: values.serviceTypeId || null,
+        projectTypeId: values.projectTypeId || null,
         categoryIds: values.categoryIds || [],
       };
       console.log("CLIENT-SIDE FORM SUBMITTING PAYLOAD:", JSON.stringify(payload.description, null, 2));

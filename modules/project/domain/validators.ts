@@ -24,9 +24,9 @@ export const projectSchema = z.object({
   metaDescription: z.string().max(160, { message: "Mô tả SEO không nên quá 160 ký tự" }).nullable().optional(),
   orderIndex: z.number().int().default(0),
   categoryId: z.uuid({ message: "ID danh mục không đúng định dạng UUID" }),
-  serviceTypeId: z.preprocess(
+  projectTypeId: z.preprocess(
     (val) => (val === "" ? null : val),
-    z.string().uuid({ message: "ID loại hình dịch vụ không đúng định dạng UUID" }).nullable().optional()
+    z.string().uuid({ message: "ID loại hình công trình không đúng định dạng UUID" }).nullable().optional()
   ),
   categoryIds: z.array(z.uuid({ message: "ID danh mục không đúng định dạng UUID" })).optional(),
   createdAt: z.iso.datetime({

@@ -1,6 +1,6 @@
 import { CategoryNewWithGroup } from "@/modules/category-new/domain/types";
 
-export interface ServiceType {
+export interface ProjectType {
   id: string;
   name: string;
   slug: string;
@@ -14,11 +14,11 @@ export interface ServiceType {
   deletedAt: string | null;
 }
 
-export interface ServiceTypeWithCategories extends ServiceType {
+export interface ProjectTypeWithCategories extends ProjectType {
   categories: CategoryNewWithGroup[];
 }
 
-export interface CreateServiceTypeInput {
+export interface CreateProjectTypeInput {
   name: string;
   slug: string;
   image?: string | null;
@@ -29,7 +29,7 @@ export interface CreateServiceTypeInput {
   categoryIds?: string[];
 }
 
-export interface UpdateServiceTypeInput {
+export interface UpdateProjectTypeInput {
   id: string;
   name?: string;
   slug?: string;

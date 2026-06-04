@@ -5,21 +5,21 @@ import { Button } from "@/shared/components/ui/button";
 import { ColumnDef } from "@tanstack/react-table";
 import { Edit2, ExternalLink, Minus, Star, Trash2 } from "lucide-react";
 import Image from "next/image";
-import { ServiceTypeWithCategories } from "../../domain";
+import { ProjectTypeWithCategories } from "../../domain";
 
 import { ButtonGroup } from "@/shared/components/ui/button-group";
 
-export type ServiceTypeRow = ServiceTypeWithCategories;
+export type ProjectTypeRow = ProjectTypeWithCategories;
 
 interface ColumnsProps {
-  onEdit: (st: ServiceTypeWithCategories) => void;
+  onEdit: (st: ProjectTypeWithCategories) => void;
   onDelete: (id: string) => void;
 }
 
 export function getColumns({
   onEdit,
   onDelete,
-}: ColumnsProps): ColumnDef<ServiceTypeRow>[] {
+}: ColumnsProps): ColumnDef<ProjectTypeRow>[] {
   return [
     {
       accessorKey: "image",

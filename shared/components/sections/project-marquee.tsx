@@ -72,7 +72,7 @@ export function ProjectMarqueeSection({
     const firstImage = project.images?.[0] || "/placeholder.png";
     const projectUrl = `/du-an/${project.slug}`;
     const categoryName =
-      project.category?.name || project.serviceType?.name || "Dự án";
+      project.category?.name || project.projectType?.name || "Dự án";
 
     return (
       <Link
