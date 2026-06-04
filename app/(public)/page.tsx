@@ -1,18 +1,18 @@
 import { BrandShowcase } from "@/shared/components/sections/brand-showcase";
 import { CTASection } from "@/shared/components/sections/cta";
 import { FeaturesSection } from "@/shared/components/sections/features";
+import { GridSection } from "@/shared/components/sections/grid-section";
 import { HeroSection } from "@/shared/components/sections/hero";
 import { HeroMediaSection } from "@/shared/components/sections/hero-media";
 import { ProjectMarqueeSection } from "@/shared/components/sections/project-marquee";
 import { ShowcaseSection } from "@/shared/components/sections/showcase";
-import { GridSection } from "@/shared/components/sections/grid-section";
 import { StickyContactActions } from "@/shared/components/sections/sticky-contact-actions";
 
+import { getBrands } from "@/modules/brand/application";
 import { getProducts } from "@/modules/catalog/application";
 import { getContacts } from "@/modules/contact/application";
 import { getProjects } from "@/modules/project/application";
 import { getSiteSettings } from "@/modules/settings/application";
-import { getBrands } from "@/modules/brand/application";
 
 import { Metadata } from "next";
 
@@ -96,7 +96,7 @@ export default async function Home() {
         <ProjectMarqueeSection
           projects={projects || []}
           title="Dự án tiêu biểu nổi bật"
-          description="Xem qua các dự án điều hòa trung tâm và lọc khí tươi tiêu biểu đã được ELC thi công hoàn thiện."
+          description="Khám phá sự đa dạng của các hệ thống điều hòa không khí do ELC thi công hoàn thiện, bao gồm từ hệ thống điều hòa trung tâm VRV, hệ thống điều hòa Multi, máy lạnh âm trần Cassette, máy lạnh tủ đứng, máy lạnh treo tường, cho đến hệ thống cấp khí tươi thu hồi nhiệt và lọc không khí chuyên nghiệp."
         />
       ),
     },
@@ -107,11 +107,16 @@ export default async function Home() {
       component: (
         <HeroMediaSection
           title="Trải nghiệm không gian sống lý tưởng"
-          description="Khám phá hình ảnh của hệ thống điều khí thông minh và các giải pháp tối ưu từng nhịp thở cho ngôi nhà."
+          description="Khám phá hệ sinh thái giải pháp toàn diện từ ELC, kết hợp hoàn hảo giữa hệ thống điều hòa không khí, hệ thống cấp khí tươi thu hồi nhiệt và lọc không khí cùng giải pháp nhà thông minh (Smart home) hiện đại, tối ưu hóa từng tiện ích và nhịp thở cho ngôi nhà của bạn."
         />
       ),
     },
-    { id: "brand", className: "", showDiamond: true, component: <BrandShowcase brands={brands || []} /> },
+    {
+      id: "brand",
+      className: "",
+      showDiamond: true,
+      component: <BrandShowcase brands={brands || []} />,
+    },
 
     {
       id: "features",

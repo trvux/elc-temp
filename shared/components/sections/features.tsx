@@ -54,8 +54,11 @@ export function FeaturesSection({ products }: FeaturesSectionProps) {
           </StaggerItem>
           <StaggerItem>
             <TypographyP className="text-muted-foreground max-w-2xl mx-auto">
-              Khám phá những giải pháp làm mát và lọc không khí tối ưu, được lựa
-              chọn kỹ lượng cho không gian sống của bạn.
+              Khám phá hệ sinh thái thiết bị cao cấp tại ELC, bao gồm các hệ
+              thống điều hòa không khí đa dạng, hệ thống cấp khí tươi thu hồi
+              nhiệt và lọc không khí chuyên nghiệp cùng các giải pháp nhà thông
+              minh (Smart home) toàn diện, được lựa chọn kỹ lưỡng cho không gian
+              sống của bạn.
             </TypographyP>
           </StaggerItem>
         </div>

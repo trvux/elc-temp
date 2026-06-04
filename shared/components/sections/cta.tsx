@@ -35,7 +35,7 @@ export function CTASection({ settings, contacts }: CTASectionProps) {
   const title = settings?.cta_title || "Nâng tầm chuẩn mực không gian.";
   const description =
     settings?.cta_description ||
-    "Đội ngũ chuyên gia của ELC sẵn sàng đồng hành tư vấn giải pháp không khí tối ưu nhất, phù hợp đặc tính từng không gian kiến trúc.";
+    "Đội ngũ chuyên gia của ELC sẵn sàng đồng hành tư vấn giải pháp điều hòa, hệ thống cấp khí tươi thu hồi nhiệt và lọc không khí kết hợp Smart home tối ưu, phù hợp với đặc tính của từng không gian kiến trúc.";
 
   const displayContacts = useMemo(
     () => getDisplayContacts(contacts),
