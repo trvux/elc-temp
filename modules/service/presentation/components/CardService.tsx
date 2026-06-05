@@ -21,7 +21,6 @@ import {
 } from "@/shared/components/ui/dialog";
 import { Field, FieldContent, FieldLabel } from "@/shared/components/ui/field";
 import { Input } from "@/shared/components/ui/input";
-import { ClockIcon, ShieldCheckIcon } from "@phosphor-icons/react";
 import Link from "next/link";
 import { toast } from "sonner";
 
@@ -35,11 +34,11 @@ export interface CardServiceProps {
 }
 
 export function CardService({
-  title = "Vệ sinh máy lạnh treo tường",
-  price = "199.000 đ",
-  image = "https://avatar.vercel.sh/shadcn1",
-  description = "Dịch vụ vệ sinh chuyên nghiệp, đảm bảo luồng khí trong lành và tăng tuổi thọ máy.",
-  badges = ["45 phút", "Bảo hành 6 tháng"],
+  title,
+  price,
+  image,
+  description,
+  badges,
   slug,
 }: CardServiceProps) {
   const [open, setOpen] = useState(false);
@@ -115,28 +114,14 @@ export function CardService({
         {/* Display badges if exists */}
         {badges && badges.length > 0 && (
           <div className="flex flex-wrap gap-1 mt-2">
-            {badges.map((badge, idx) => {
-              const badgeLower = badge.toLowerCase();
-              const isTime =
-                badgeLower.includes("phút") ||
-                badgeLower.includes("giờ") ||
-                badgeLower.includes("ngày") ||
-                badgeLower.includes("tính") ||
-                badgeLower.includes("hạn");
-              const isWarranty =
-                badgeLower.includes("bảo hành") || badgeLower.includes("bh");
-              return (
-                <Badge
-                  key={idx}
-                  variant="secondary"
-                  className="flex items-center gap-1"
-                >
-                  {isTime && <ClockIcon className="w-3 h-3" />}
-                  {isWarranty && <ShieldCheckIcon className="w-3 h-3" />}
-                  {badge}
-                </Badge>
-              );
-            })}
+            {badges.map((badge, idx) => (
+              <Badge
+                key={idx}
+                variant="secondary"
+              >
+                {badge}
+              </Badge>
+            ))}
           </div>
         )}
 

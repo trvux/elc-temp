@@ -18,3 +18,4 @@ export default async function AdminRootLayout({
   await connection();
   return <Suspense fallback={null}>{children}</Suspense>;
 }
+

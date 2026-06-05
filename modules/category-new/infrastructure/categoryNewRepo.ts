@@ -1,6 +1,7 @@
 import { createClient } from "@/shared/lib/supabase/server";
 import { CategoryNew, CategoryNewWithGroup, CreateCategoryNewInput, UpdateCategoryNewInput } from "../domain/types";
 import { CategoryNewFilter, CategoryNewRepository } from "../domain/repository";
+import { unstable_rethrow } from "next/navigation";
 
 export class SupabaseCategoryNewRepository implements CategoryNewRepository {
   private readonly TABLE_NAME = "categories";
@@ -217,6 +218,7 @@ export class SupabaseCategoryNewRepository implements CategoryNewRepository {
   }
 
   private handleError(error: unknown, context: string): never {
+    unstable_rethrow(error);
     let message = "Unknown error";
     if (error) {
       if (typeof error === "object") {

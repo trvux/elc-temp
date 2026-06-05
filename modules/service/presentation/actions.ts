@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath, revalidateTag } from "next/cache";
+import { unstable_rethrow } from "next/navigation";
 import {
   createService,
   deleteService,
@@ -14,6 +15,7 @@ export async function getServicesAction(options?: ServiceFilter) {
     const data = await getServices(options);
     return { data, error: null };
   } catch (error) {
+    unstable_rethrow(error);
     console.error("getServicesAction error:", error);
     return { data: [], error: "Failed to fetch services" };
   }

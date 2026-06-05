@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { unstable_rethrow } from "next/navigation";
 import {
   createCategoryNew,
   deleteCategoryNew,
@@ -14,6 +15,7 @@ export async function getCategoriesNewAction() {
     const data = await getCategoriesNew();
     return { data, error: null };
   } catch (error) {
+    unstable_rethrow(error);
     console.error("getCategoriesNewAction error:", error);
     return { data: [], error: "Failed to fetch custom categories" };
   }
