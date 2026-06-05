@@ -1,7 +1,6 @@
 import { Button } from "@/shared/components/ui/button";
 import { TypographyH1, TypographySmall } from "@/shared/components/ui/typography";
 import { ScrollToTop } from "@/shared/components/layout/user/scroll-to-top";
-import { createStaticClient } from "@/shared/lib/supabase/static";
 import { cn } from "@/shared/lib/utils";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
@@ -10,7 +9,8 @@ import { PreviewContent } from "@/shared/components/layout/user/preview-content"
 import { generateServiceMetadata } from "@/shared/lib/seo-utils";
 import { Metadata } from "next";
 import { setUseStaticClient } from "@/shared/lib/supabase/server";
-import { cacheLife } from "next/cache";
+import { cacheLife, cacheTag } from "next/cache";
+import { getServiceBySlug, getServices } from "@/modules/service/application";
 
 interface PageProps {
   params: Promise<{
@@ -22,24 +22,16 @@ interface PageProps {
 async function getCachedService(slug: string) {
   "use cache";
   cacheLife("hours");
+  cacheTag("services");
   setUseStaticClient(true);
 
-  const supabase = createStaticClient();
-  const { data: service } = await supabase
-    .from("services")
-    .select("*")
-    .eq("slug", slug)
-    .eq("is_published", true)
-    .is("deleted_at", null)
-    .maybeSingle();
-
-  return service;
+  return getServiceBySlug(slug);
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug } = await params;
   const service = await getCachedService(slug);
-  return generateServiceMetadata(service);
+  return generateServiceMetadata(service as unknown as Record<string, unknown>);
 }
 
 const STYLES = {
@@ -54,12 +46,7 @@ const STYLES = {
 };
 
 export async function generateStaticParams() {
-  const supabase = createStaticClient();
-  const { data: services } = await supabase
-    .from("services")
-    .select("slug")
-    .eq("is_published", true)
-    .is("deleted_at", null);
+  const services = await getServices({ isPublished: true });
   const params = (services ?? []).map((s) => ({ slug: s.slug }));
   if (params.length === 0) {
     return [{ slug: "preview-stub" }];
@@ -83,8 +70,8 @@ export default async function ServiceDetailPage({ params }: PageProps) {
   // Safe date formatting
   let formattedDate = "";
   try {
-    if (service.created_at) {
-      formattedDate = new Date(service.created_at).toLocaleDateString("vi-VN", {
+    if (service.createdAt) {
+      formattedDate = new Date(service.createdAt).toLocaleDateString("vi-VN", {
         day: "numeric",
         month: "long",
         year: "numeric",

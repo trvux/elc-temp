@@ -1,5 +1,6 @@
 import { ServiceGroup } from "@/modules/service-group/domain/types";
 import { CategoryNewWithGroup } from "@/modules/category-new/domain/types";
+import { Database } from "@/database.types";
 
 export interface Service {
   id: string;
@@ -13,7 +14,7 @@ export interface Service {
   priceDisplayText: string | null;
   labels: string[] | null;
   description: string | null;
-  content: any | null; // Json
+  content: Database["public"]["Tables"]["services"]["Row"]["content"]; // Json
   image: string | null;
   metaTitle: string | null;
   metaDescription: string | null;
@@ -41,7 +42,7 @@ export interface CreateServiceInput {
   priceDisplayText?: string | null;
   labels?: string[] | null;
   description?: string | null;
-  content?: any | null;
+  content?: Database["public"]["Tables"]["services"]["Row"]["content"];
   image?: string | null;
   metaTitle?: string | null;
   metaDescription?: string | null;

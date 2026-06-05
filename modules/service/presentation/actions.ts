@@ -1,6 +1,6 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
 import {
   createService,
   deleteService,
@@ -22,6 +22,8 @@ export async function getServicesAction(options?: ServiceFilter) {
 export async function createServiceAction(input: CreateServiceInput) {
   try {
     const data = await createService(input);
+    revalidateTag("services", "hours");
+    revalidatePath("/dich-vu", "layout");
     revalidatePath("/admin/services");
     return { data, error: null };
   } catch (error) {
@@ -36,6 +38,8 @@ export async function createServiceAction(input: CreateServiceInput) {
 export async function updateServiceAction(input: UpdateServiceInput) {
   try {
     const data = await updateService(input);
+    revalidateTag("services", "hours");
+    revalidatePath("/dich-vu", "layout");
     revalidatePath("/admin/services");
     return { data, error: null };
   } catch (error) {
@@ -50,6 +54,8 @@ export async function updateServiceAction(input: UpdateServiceInput) {
 export async function deleteServiceAction(id: string) {
   try {
     await deleteService(id);
+    revalidateTag("services", "hours");
+    revalidatePath("/dich-vu", "layout");
     revalidatePath("/admin/services");
     return { error: null };
   } catch (error) {

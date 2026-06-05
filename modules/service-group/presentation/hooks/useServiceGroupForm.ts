@@ -1,7 +1,7 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { CreateServiceGroupInput, ServiceGroup } from "../../domain/types";
 import { generateSlug } from "@/shared/lib/helpers";
 
@@ -33,6 +33,8 @@ export function useServiceGroupForm(initialData?: ServiceGroup | null) {
     },
   });
 
+  const prevNameRef = useRef(initialData?.name || "");
+
   useEffect(() => {
     if (initialData) {
       form.reset({
@@ -45,6 +47,7 @@ export function useServiceGroupForm(initialData?: ServiceGroup | null) {
         orderIndex: initialData.orderIndex,
         categoryIds: initialData.categoryIds || [],
       });
+      prevNameRef.current = initialData.name;
     } else {
       form.reset({
         name: "",
@@ -56,6 +59,7 @@ export function useServiceGroupForm(initialData?: ServiceGroup | null) {
         orderIndex: 0,
         categoryIds: [],
       });
+      prevNameRef.current = "";
     }
   }, [initialData, form]);
 
@@ -63,15 +67,21 @@ export function useServiceGroupForm(initialData?: ServiceGroup | null) {
   useEffect(() => {
     const subscription = form.watch((value, { name, type }) => {
       if (name === "name" && type === "change") {
-        if (!initialData) {
-          form.setValue("slug", generateSlug(value.name || ""), {
+        const newName = value.name || "";
+        const prevName = prevNameRef.current || "";
+        const currentSlug = form.getValues("slug") || "";
+        const expectedPrevSlug = generateSlug(prevName);
+
+        if (!currentSlug || currentSlug === expectedPrevSlug) {
+          form.setValue("slug", generateSlug(newName), {
             shouldValidate: true,
           });
         }
+        prevNameRef.current = newName;
       }
     });
     return () => subscription.unsubscribe();
-  }, [form, initialData]);
+  }, [form]);
 
   const getFormData = (): CreateServiceGroupInput => {
     return form.getValues();
