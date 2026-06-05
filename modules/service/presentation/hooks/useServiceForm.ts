@@ -1,7 +1,7 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { CreateServiceInput, ServiceWithRelations } from "../../domain/types";
 import { generateSlug } from "@/shared/lib/helpers";
 
@@ -56,6 +56,7 @@ export function useServiceForm(initialData?: ServiceWithRelations | null) {
   });
 
   const [labelInput, setLabelInput] = useState("");
+  const prevTitleRef = useRef(initialData?.title || "");
 
   useEffect(() => {
     if (initialData) {
@@ -79,6 +80,7 @@ export function useServiceForm(initialData?: ServiceWithRelations | null) {
         isPublished: initialData.isPublished,
         orderIndex: initialData.orderIndex,
       });
+      prevTitleRef.current = initialData.title;
     } else {
       form.reset({
         title: "",
@@ -99,6 +101,7 @@ export function useServiceForm(initialData?: ServiceWithRelations | null) {
         isPublished: true,
         orderIndex: 0,
       });
+      prevTitleRef.current = "";
     }
   }, [initialData, form]);
 
@@ -106,15 +109,21 @@ export function useServiceForm(initialData?: ServiceWithRelations | null) {
   useEffect(() => {
     const subscription = form.watch((value, { name, type }) => {
       if (name === "title" && type === "change") {
-        if (!initialData) {
-          form.setValue("slug", generateSlug(value.title || ""), {
+        const newTitle = value.title || "";
+        const prevTitle = prevTitleRef.current || "";
+        const currentSlug = form.getValues("slug") || "";
+        const expectedPrevSlug = generateSlug(prevTitle);
+
+        if (!currentSlug || currentSlug === expectedPrevSlug) {
+          form.setValue("slug", generateSlug(newTitle), {
             shouldValidate: true,
           });
         }
+        prevTitleRef.current = newTitle;
       }
     });
     return () => subscription.unsubscribe();
-  }, [form, initialData]);
+  }, [form]);
 
   const addLabel = () => {
     if (labelInput.trim() === "") return;

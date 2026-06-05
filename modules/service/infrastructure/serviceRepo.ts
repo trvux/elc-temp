@@ -15,6 +15,70 @@ type ServiceRow = Tables["services"]["Row"];
 type ServiceInsert = Tables["services"]["Insert"];
 type ServiceUpdate = Tables["services"]["Update"];
 
+interface ServiceQueryRow {
+  id: string;
+  title: string;
+  slug: string;
+  group_id: string | null;
+  category_id: string | null;
+  original_price: number | null;
+  sale_price: number | null;
+  discount_percent: number | null;
+  price_display_text: string | null;
+  labels: string[] | null;
+  description: string | null;
+  content: unknown;
+  image: string | null;
+  meta_title: string | null;
+  meta_description: string | null;
+  is_featured: boolean | null;
+  is_published: boolean | null;
+  order_index: number | null;
+  created_at: string | null;
+  updated_at: string | null;
+  deleted_at: string | null;
+  group: {
+    id: string;
+    name: string;
+    slug: string;
+    image_url: string | null;
+    meta_title: string | null;
+    meta_description: string | null;
+    is_featured: boolean | null;
+    order_index: number | null;
+    created_at: string | null;
+    updated_at: string | null;
+    deleted_at: string | null;
+  } | null;
+  category: {
+    id: string;
+    name: string;
+    group_id: string | null;
+    slug: string | null;
+    image_url: string | null;
+    meta_title: string | null;
+    meta_description: string | null;
+    is_featured: boolean | null;
+    order_index: number | null;
+    created_at: string | null;
+    updated_at: string | null;
+    deleted_at: string | null;
+    group: {
+      id: string;
+      name: string;
+      slug: string | null;
+      image_url: string | null;
+      meta_title: string | null;
+      meta_description: string | null;
+      is_featured: boolean | null;
+      order_index: number | null;
+      created_at: string | null;
+      updated_at: string | null;
+      deleted_at: string | null;
+    } | null;
+  } | null;
+}
+
 class ServiceRepository {
   private readonly TABLE_NAME = "services";
 
@@ -122,8 +186,8 @@ class ServiceRepository {
     if (error) throw error;
     if (!data) return [];
 
-    return data.map((row: any) => {
-      const entity = this.mapToEntity(row);
+    return (data as unknown as ServiceQueryRow[]).map((row) => {
+      const entity = this.mapToEntity(row as unknown as ServiceRow);
       
       let mappedGroup: ServiceGroup | null = null;
       if (row.group) {
@@ -199,8 +263,8 @@ class ServiceRepository {
 
     if (error || !data) return null;
     
-    const row = data as any;
-    const entity = this.mapToEntity(row);
+    const row = data as unknown as ServiceQueryRow;
+    const entity = this.mapToEntity(row as unknown as ServiceRow);
       
     let mappedGroup: ServiceGroup | null = null;
     if (row.group) {
@@ -275,8 +339,8 @@ class ServiceRepository {
 
     if (error || !data) return null;
     // ... we map same as getById, so we can extract mapping to a helper if we wanted
-    const row = data as any;
-    const entity = this.mapToEntity(row);
+    const row = data as unknown as ServiceQueryRow;
+    const entity = this.mapToEntity(row as unknown as ServiceRow);
       
     let mappedGroup: ServiceGroup | null = null;
     if (row.group) {
