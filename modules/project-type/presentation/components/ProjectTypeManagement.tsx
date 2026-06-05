@@ -52,7 +52,6 @@ export function ProjectTypeManagement() {
       return data;
     },
   });
-
   // Form Hook
   const { form, saveMutation, handleUpload, uploading, onNameChange } = useProjectTypeForm(activeProjectType, () =>
     setActiveProjectType(null)
@@ -279,7 +278,7 @@ export function ProjectTypeManagement() {
                             Object.entries(groupedCategories).map(([groupName, groupCats]) => (
                               <div key={groupName} className="border rounded-xl p-5 bg-muted/5 space-y-4">
                                 <div>
-                                  <h3 className="font-semibold text-xs text-primary bg-primary/10 border border-primary/20 px-2.5 py-1 rounded-md w-fit">
+                                  <h3 className="font-semibold text-xs text-foreground bg-muted border border-border px-2.5 py-1 rounded-md w-fit">
                                     {groupName}
                                   </h3>
                                 </div>
@@ -365,6 +364,8 @@ export function ProjectTypeManagement() {
         onOpenChange={(open) => !open && setDeletingId(null)}
         onConfirm={() => deletingId && deleteMutation.mutate(deletingId)}
         isLoading={deleteMutation.isPending}
+        entityType="project-type"
+        entityId={deletingId}
       />
     </div>
   );

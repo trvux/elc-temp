@@ -48,7 +48,11 @@ const STYLES = {
 
 export async function generateStaticParams() {
   const branches = await getBranches({ isPublished: true });
-  return branches.map((b) => ({ slug: b.slug }));
+  const params = (branches ?? []).map((b) => ({ slug: b.slug }));
+  if (params.length === 0) {
+    return [{ slug: "preview-stub" }];
+  }
+  return params;
 }
 
 interface BranchDetailPageProps {

@@ -105,6 +105,26 @@ export const getColumns = ({
     },
   },
   {
+    accessorKey: "service.title",
+    header: "Dịch vụ liên quan",
+    cell: ({ row }) => {
+      const service = row.original.service;
+      if (!service) return <span className="text-muted-foreground italic text-xs">Không có</span>;
+      return (
+        <div className="flex flex-col gap-1 max-w-[220px]">
+          {service.group && (
+            <span className="font-semibold text-xs text-foreground">
+              {service.group.name}
+            </span>
+          )}
+          <span className="text-xs text-muted-foreground">
+            {service.title}
+          </span>
+        </div>
+      );
+    },
+  },
+  {
     accessorKey: "isFeatured",
     header: "Nổi bật",
     cell: ({ row }) => (

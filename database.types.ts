@@ -310,6 +310,51 @@ export type Database = {
         }
         Relationships: []
       }
+      old_services: {
+        Row: {
+          content: Json
+          created_at: string | null
+          deleted_at: string | null
+          id: string
+          image: string
+          is_published: boolean
+          meta_description: string | null
+          meta_title: string | null
+          order_index: number
+          slug: string
+          title: string
+          updated_at: string | null
+        }
+        Insert: {
+          content?: Json
+          created_at?: string | null
+          deleted_at?: string | null
+          id?: string
+          image?: string
+          is_published?: boolean
+          meta_description?: string | null
+          meta_title?: string | null
+          order_index?: number
+          slug: string
+          title: string
+          updated_at?: string | null
+        }
+        Update: {
+          content?: Json
+          created_at?: string | null
+          deleted_at?: string | null
+          id?: string
+          image?: string
+          is_published?: boolean
+          meta_description?: string | null
+          meta_title?: string | null
+          order_index?: number
+          slug?: string
+          title?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       pages: {
         Row: {
           content: Json
@@ -567,6 +612,7 @@ export type Database = {
           meta_title: string | null
           order_index: number | null
           project_type_id: string | null
+          service_id: string | null
           slug: string
           title: string
           updated_at: string | null
@@ -584,6 +630,7 @@ export type Database = {
           meta_title?: string | null
           order_index?: number | null
           project_type_id?: string | null
+          service_id?: string | null
           slug: string
           title: string
           updated_at?: string | null
@@ -601,11 +648,19 @@ export type Database = {
           meta_title?: string | null
           order_index?: number | null
           project_type_id?: string | null
+          service_id?: string | null
           slug?: string
           title?: string
           updated_at?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "projects_service_id_fkey"
+            columns: ["service_id"]
+            isOneToOne: false
+            referencedRelation: "services"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "projects_service_type_id_fkey"
             columns: ["project_type_id"]
@@ -615,50 +670,137 @@ export type Database = {
           },
         ]
       }
-      services: {
+      service_groups: {
         Row: {
-          content: Json
+          category_ids: string[] | null
           created_at: string | null
           deleted_at: string | null
           id: string
-          image: string
-          is_published: boolean
+          image_url: string | null
+          is_featured: boolean | null
           meta_description: string | null
           meta_title: string | null
-          order_index: number
+          name: string
+          order_index: number | null
+          slug: string
+          updated_at: string | null
+        }
+        Insert: {
+          category_ids?: string[] | null
+          created_at?: string | null
+          deleted_at?: string | null
+          id?: string
+          image_url?: string | null
+          is_featured?: boolean | null
+          meta_description?: string | null
+          meta_title?: string | null
+          name: string
+          order_index?: number | null
+          slug: string
+          updated_at?: string | null
+        }
+        Update: {
+          category_ids?: string[] | null
+          created_at?: string | null
+          deleted_at?: string | null
+          id?: string
+          image_url?: string | null
+          is_featured?: boolean | null
+          meta_description?: string | null
+          meta_title?: string | null
+          name?: string
+          order_index?: number | null
+          slug?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      services: {
+        Row: {
+          category_id: string | null
+          content: Json | null
+          created_at: string | null
+          deleted_at: string | null
+          description: string | null
+          discount_percent: number | null
+          group_id: string | null
+          id: string
+          image: string | null
+          is_featured: boolean | null
+          is_published: boolean | null
+          labels: string[] | null
+          meta_description: string | null
+          meta_title: string | null
+          order_index: number | null
+          original_price: number | null
+          price_display_text: string | null
+          sale_price: number | null
           slug: string
           title: string
           updated_at: string | null
         }
         Insert: {
-          content?: Json
+          category_id?: string | null
+          content?: Json | null
           created_at?: string | null
           deleted_at?: string | null
+          description?: string | null
+          discount_percent?: number | null
+          group_id?: string | null
           id?: string
-          image?: string
-          is_published?: boolean
+          image?: string | null
+          is_featured?: boolean | null
+          is_published?: boolean | null
+          labels?: string[] | null
           meta_description?: string | null
           meta_title?: string | null
-          order_index?: number
+          order_index?: number | null
+          original_price?: number | null
+          price_display_text?: string | null
+          sale_price?: number | null
           slug: string
           title: string
           updated_at?: string | null
         }
         Update: {
-          content?: Json
+          category_id?: string | null
+          content?: Json | null
           created_at?: string | null
           deleted_at?: string | null
+          description?: string | null
+          discount_percent?: number | null
+          group_id?: string | null
           id?: string
-          image?: string
-          is_published?: boolean
+          image?: string | null
+          is_featured?: boolean | null
+          is_published?: boolean | null
+          labels?: string[] | null
           meta_description?: string | null
           meta_title?: string | null
-          order_index?: number
+          order_index?: number | null
+          original_price?: number | null
+          price_display_text?: string | null
+          sale_price?: number | null
           slug?: string
           title?: string
           updated_at?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "services_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "services_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "service_groups"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       site_settings: {
         Row: {

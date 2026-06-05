@@ -282,6 +282,8 @@ export function GroupManagement() {
         onOpenChange={(open) => !open && setDeletingId(null)}
         onConfirm={() => deletingId && deleteMutation.mutate(deletingId)}
         isLoading={deleteMutation.isPending}
+        entityType="group"
+        entityId={deletingId}
       />
     </div>
   );

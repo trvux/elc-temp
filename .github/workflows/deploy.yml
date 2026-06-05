@@ -24,6 +24,16 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Next.js build cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.npm
+            ${{ github.workspace }}/.next/cache
+          key: ${{ runner.os }}-nextjs-${{ hashFiles('**/pnpm-lock.yaml') }}-${{ hashFiles('**/*.js', '**/*.jsx', '**/*.ts', '**/*.tsx') }}
+          restore-keys: |
+            ${{ runner.os }}-nextjs-${{ hashFiles('**/pnpm-lock.yaml') }}-
+
       - name: Build project
         run: pnpm build
         env:
@@ -55,6 +65,8 @@ jobs:
           key: ${{ secrets.VPS_SSH_KEY }}
           script: |
             cd /var/www/elc-tem
+            # Xóa cache cũ của Next.js (Full Route Cache / Data Cache) để tránh kẹt cache
+            rm -rf .next/cache
             # Tạo hoặc cập nhật PM2 process
             pm2 delete elc-tem 2>/dev/null || true
             PORT=3000 pm2 start server.js --name elc-tem

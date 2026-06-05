@@ -42,6 +42,8 @@ import {
   Grid,
   List,
   Layers,
+  Briefcase,
+  LayoutGrid,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
@@ -54,7 +56,8 @@ const navItems = [
   { href: "/admin/brands", label: "Thương hiệu", icon: Award },
   { href: "/admin/projects", label: "Dự án", icon: FolderKanban },
   { href: "/admin/products", label: "Sản phẩm", icon: Package },
-  { href: "/admin/services", label: "Dịch vụ", icon: FileText },
+  { href: "/admin/service-groups", label: "Nhóm dịch vụ", icon: LayoutGrid },
+  { href: "/admin/services", label: "Dịch vụ", icon: Briefcase },
   { href: "/admin/news", label: "Tin tức", icon: FileText },
   { href: "/admin/pages", label: "Trang tĩnh", icon: FileText },
   { href: "/admin/contacts", label: "Liên hệ", icon: Phone },

@@ -60,7 +60,11 @@ export async function generateStaticParams() {
     .select("slug")
     .eq("is_published", true)
     .is("deleted_at", null);
-  return (services ?? []).map((s) => ({ slug: s.slug }));
+  const params = (services ?? []).map((s) => ({ slug: s.slug }));
+  if (params.length === 0) {
+    return [{ slug: "preview-stub" }];
+  }
+  return params;
 }
 
 async function getCachedCurrentYear() {

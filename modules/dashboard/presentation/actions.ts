@@ -1,7 +1,7 @@
 "use server";
 
 import { newsRepo } from "@/modules/news/infrastructure";
-import { serviceRepo } from "@/modules/service/infrastructure";
+import { serviceRepo } from "@/modules/service/infrastructure/serviceRepo";
 import { pageRepo } from "@/modules/page/infrastructure";
 import { contactRepo } from "@/modules/contact/infrastructure";
 import { productRepo } from "@/modules/catalog/infrastructure";

@@ -22,6 +22,19 @@ const WP_PATTERNS = [
   "/san-pham-cu/",
 ];
 
+function getRedirectPath(entityType: string, slug: string): string {
+  if (entityType === "service_group") {
+    return "dich-vu";
+  }
+  if (entityType === "service") {
+    return `dich-vu/${slug}`;
+  }
+  if (entityType === "project" || entityType === "project_type") {
+    return `du-an/${slug}`;
+  }
+  return `san-pham/${slug}`;
+}
+
 export async function proxy(request: NextRequest) {
   const { pathname, search } = request.nextUrl;
 
@@ -60,15 +73,16 @@ export async function proxy(request: NextRequest) {
     // Tra cứu slug_registry để xác nhận slug này có tồn tại hợp lệ không
     const { data: registryItem } = await supabase
       .from("slug_registry")
-      .select("slug")
+      .select("slug, entity_type")
       .eq("slug", slug)
       .is("deleted_at", null)
       .maybeSingle();
 
     if (registryItem) {
-      console.log(`[Proxy] Slug exists in registry, redirecting to /san-pham/${slug}`);
+      const targetPath = getRedirectPath(registryItem.entity_type, slug);
+      console.log(`[Proxy] Slug exists in registry, redirecting to /${targetPath}`);
       return NextResponse.redirect(
-        new URL(`/san-pham/${slug}${search}`, request.url),
+        new URL(`/${targetPath}${search}`, request.url),
         301
       );
     }
@@ -124,15 +138,16 @@ export async function proxy(request: NextRequest) {
       
       const { data: registryItem } = await supabase
         .from("slug_registry")
-        .select("slug")
+        .select("slug, entity_type")
         .eq("slug", segment)
         .is("deleted_at", null)
         .maybeSingle();
 
       if (registryItem) {
-        console.log(`[Proxy] Root slug ${segment} exists in registry, redirecting to /san-pham/${segment}`);
+        const targetPath = getRedirectPath(registryItem.entity_type, segment);
+        console.log(`[Proxy] Root slug ${segment} exists in registry, redirecting to /${targetPath}`);
         return NextResponse.redirect(
-          new URL(`/san-pham/${segment}${search}`, request.url),
+          new URL(`/${targetPath}${search}`, request.url),
           301
         );
       }
@@ -149,15 +164,16 @@ export async function proxy(request: NextRequest) {
     // Tra cứu slug_registry để xác nhận slug này có tồn tại hợp lệ không
     const { data: registryItem } = await supabase
       .from("slug_registry")
-      .select("slug")
+      .select("slug, entity_type")
       .eq("slug", lastSegment)
       .is("deleted_at", null)
       .maybeSingle();
 
     if (registryItem) {
-      console.log(`[Proxy] Redirecting legacy nested path ${pathname} -> /san-pham/${lastSegment}`);
+      const targetPath = getRedirectPath(registryItem.entity_type, lastSegment);
+      console.log(`[Proxy] Redirecting legacy nested path ${pathname} -> /${targetPath}`);
       return NextResponse.redirect(
-        new URL(`/san-pham/${lastSegment}${search}`, request.url),
+        new URL(`/${targetPath}${search}`, request.url),
         301
       );
     }

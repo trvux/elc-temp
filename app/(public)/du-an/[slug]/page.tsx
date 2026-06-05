@@ -72,7 +72,11 @@ export async function generateStaticParams() {
       slug: p.slug,
     }));
 
-  return [...projectTypeParams, ...projectParams];
+  const params = [...projectTypeParams, ...projectParams];
+  if (params.length === 0) {
+    return [{ slug: "preview-stub" }];
+  }
+  return params;
 }
 
 interface ProjectDetailPageProps {
