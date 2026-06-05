@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { unstable_rethrow } from "next/navigation";
 import {
   createServiceGroup,
   deleteServiceGroup,
@@ -14,6 +15,7 @@ export async function getServiceGroupsAction() {
     const data = await getServiceGroups();
     return { data, error: null };
   } catch (error) {
+    unstable_rethrow(error);
     console.error("getServiceGroupsAction error:", error);
     return { data: [], error: "Failed to fetch service groups" };
   }
