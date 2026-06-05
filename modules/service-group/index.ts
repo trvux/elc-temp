@@ -1,3 +1,3 @@
 export * from "./domain/types";
-export * from "./presentation/components/ServiceManagement";
+export * from "./presentation/components/ServiceGroupManagement";
 export * from "./presentation/actions";

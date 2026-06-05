@@ -23,7 +23,8 @@ export class SupabaseProjectRepository implements ProjectRepository {
         *,
         group_categories(*)
       )
-    )
+    ),
+    service:services(id, title, slug, group:service_groups(id, name, slug))
   `;
 
   async getAll(options?: ProjectFilter): Promise<ProjectWithCategory[]> {
@@ -249,6 +250,7 @@ export class SupabaseProjectRepository implements ProjectRepository {
         order_index: input.orderIndex,
         category_id: input.categoryId,
         project_type_id: input.projectTypeId,
+        service_id: input.serviceId,
         deleted_at: null,
         updated_at: new Date().toISOString(),
       };
@@ -283,6 +285,7 @@ export class SupabaseProjectRepository implements ProjectRepository {
         order_index: input.orderIndex,
         category_id: input.categoryId,
         project_type_id: input.projectTypeId,
+        service_id: input.serviceId,
       };
 
       const { data, error } = await supabase
@@ -326,6 +329,7 @@ export class SupabaseProjectRepository implements ProjectRepository {
       order_index: input.orderIndex,
       category_id: input.categoryId,
       project_type_id: input.projectTypeId,
+      service_id: input.serviceId,
       updated_at: new Date().toISOString(),
     };
 
@@ -460,6 +464,7 @@ export class SupabaseProjectRepository implements ProjectRepository {
       orderIndex: row.order_index || 0,
       categoryId: row.category_id || "",
       projectTypeId: row.project_type_id || null,
+      serviceId: row.service_id || null,
       createdAt: row.created_at || new Date().toISOString(),
       updatedAt: row.updated_at || new Date().toISOString(),
       deletedAt: row.deleted_at || null,
@@ -491,10 +496,22 @@ export class SupabaseProjectRepository implements ProjectRepository {
       })
       .filter(Boolean);
 
+    const service = row.service ? {
+      id: row.service.id,
+      title: row.service.title,
+      slug: row.service.slug || "",
+      group: row.service.group ? {
+        id: row.service.group.id,
+        name: row.service.group.name,
+        slug: row.service.group.slug || "",
+      } : null,
+    } : null;
+
     return {
       ...project,
       category: null,
       projectType,
+      service,
       categoriesNew,
     };
   }

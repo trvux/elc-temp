@@ -25,6 +25,8 @@ export type ProjectFormValues = {
   orderIndex: number;
   categoryId: string;
   projectTypeId: string;
+  serviceGroupId?: string;
+  serviceId: string;
   categoryIds: string[];
 };
 
@@ -44,6 +46,8 @@ export function useProjectForm(
       description: null,
       categoryId: "00000000-0000-0000-0000-000000000000",
       projectTypeId: "",
+      serviceGroupId: "",
+      serviceId: "",
       categoryIds: [],
       images: [],
       isPublished: true,
@@ -65,11 +69,13 @@ export function useProjectForm(
 
   const saveMutation = useMutation({
     mutationFn: async (values: ProjectFormValues) => {
+      const { serviceGroupId, ...payloadValues } = values;
       const payload = {
-        ...values,
-        description: JSON.parse(JSON.stringify(values.description)) as Json,
-        projectTypeId: values.projectTypeId || null,
-        categoryIds: values.categoryIds || [],
+        ...payloadValues,
+        description: JSON.parse(JSON.stringify(payloadValues.description)) as Json,
+        projectTypeId: payloadValues.projectTypeId || null,
+        serviceId: payloadValues.serviceId || null,
+        categoryIds: payloadValues.categoryIds || [],
       };
       console.log("CLIENT-SIDE FORM SUBMITTING PAYLOAD:", JSON.stringify(payload.description, null, 2));
       if (activeProject && activeProject !== "new") {

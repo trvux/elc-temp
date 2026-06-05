@@ -30,7 +30,11 @@ interface PageProps {
 
 export async function generateStaticParams() {
   const newsList = await getNews({ isPublished: true });
-  return (newsList ?? []).map((n) => ({ slug: n.slug }));
+  const params = (newsList ?? []).map((n) => ({ slug: n.slug }));
+  if (params.length === 0) {
+    return [{ slug: "preview-stub" }];
+  }
+  return params;
 }
 
 async function getCachedNewsDetailData(slug: string) {

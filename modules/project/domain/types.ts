@@ -19,6 +19,7 @@ export interface Project {
   orderIndex: number;
   categoryId: string;
   projectTypeId: string | null;
+  serviceId: string | null;
   createdAt: string;
   updatedAt: string;
   deletedAt: string | null;
@@ -35,6 +36,12 @@ export interface ProjectWithCategory extends Project {
     id: string;
     name: string;
     slug?: string;
+  } | null;
+  service?: {
+    id: string;
+    title: string;
+    slug: string;
+    group?: { id: string; name: string; slug: string } | null;
   } | null;
   categoriesNew?: {
     id: string;
@@ -56,6 +63,7 @@ export interface CreateProjectInput {
   orderIndex?: number;
   categoryId: string;
   projectTypeId?: string | null;
+  serviceId?: string | null;
   categoryIds?: string[];
 }
 
