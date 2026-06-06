@@ -268,7 +268,7 @@ export async function ProductDetailModule({
                     <TypographyH4 className={STYLES.originalPrice}>
                       {formatPrice(product.originalPrice || 0)}
                     </TypographyH4>
-                    <Badge variant="destructive" className="rounded-sm">
+                    <Badge variant="destructive">
                       Giảm giá: {product.discountPercent}%
                     </Badge>
                   </div>

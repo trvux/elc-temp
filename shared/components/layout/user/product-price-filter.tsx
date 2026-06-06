@@ -99,7 +99,7 @@ export function ProductPriceFilter({
     <div className="flex flex-col gap-4">
       <div className="flex justify-between">
         {!hideLabel && <span>Khoảng giá</span>}
-        <Badge variant="secondary" className="w-full rounded-sm">
+        <Badge variant="secondary" className="w-full">
           {priceLabel || "Tất cả mức giá"}
         </Badge>
       </div>

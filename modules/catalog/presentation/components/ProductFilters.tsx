@@ -372,7 +372,7 @@ function AccordionFilterWrapper({
             {label}
           </span>
           {selectionCount > 0 && (
-            <Badge variant="secondary" className="rounded-sm">
+            <Badge variant="secondary">
               <Check data-icon="inline-start" /> Được chọn
             </Badge>
           )}

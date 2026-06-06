@@ -94,7 +94,7 @@ export function ProjectFilterMobile({
             <span className="hidden sm:inline">Lọc dự án</span>
             <span className="sm:hidden">Lọc</span>
             {activeFilterCount > 0 && (
-              <Badge variant="secondary" className="rounded-sm">
+              <Badge variant="secondary">
                 Chọn {activeFilterCount}
               </Badge>
             )}

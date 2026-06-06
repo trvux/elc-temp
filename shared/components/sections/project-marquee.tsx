@@ -83,7 +83,7 @@ export function ProjectMarqueeSection({
         <Card size="sm" className="h-full gap-0 py-0">
           {/* Title on top */}
           <CardHeader className="px-3 pt-3 pb-2">
-            <Badge variant="secondary" className="w-fit rounded-sm rounded-sm">
+            <Badge variant="secondary" className="w-fit">
               {categoryName}
             </Badge>
             <CardTitle className="line-clamp-1 leading-snug">

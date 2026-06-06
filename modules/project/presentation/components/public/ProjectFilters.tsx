@@ -204,7 +204,7 @@ export function ProjectFilters({
               <div className="flex items-center gap-2">
                 <span>Không gian kiến trúc</span>
                 {currentProjectTypeSlug && (
-                  <Badge variant="secondary" className="rounded-sm">
+                  <Badge variant="secondary">
                     <Check data-icon="inline-start" className="w-3 h-3" /> 1 được chọn
                   </Badge>
                 )}
@@ -254,7 +254,7 @@ export function ProjectFilters({
               <div className="flex items-center gap-2">
                 <span>Thiết bị lắp đặt</span>
                 {currentCategorySlugs.length > 0 && (
-                  <Badge variant="secondary" className="rounded-sm">
+                  <Badge variant="secondary">
                     <Check data-icon="inline-start" className="w-3 h-3" /> {currentCategorySlugs.length} chọn
                   </Badge>
                 )}
@@ -302,7 +302,7 @@ export function ProjectFilters({
               <div className="flex items-center gap-2">
                 <span>Dịch vụ</span>
                 {currentServiceSlugs.length > 0 && (
-                  <Badge variant="secondary" className="rounded-sm">
+                  <Badge variant="secondary">
                     <Check data-icon="inline-start" className="w-3 h-3" /> {currentServiceSlugs.length} chọn
                   </Badge>
                 )}

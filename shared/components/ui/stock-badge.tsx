@@ -19,7 +19,7 @@ export function StockBadge({ status, className }: StockBadgeProps) {
   return (
     <Badge
       className={cn(
-        "w-fit rounded-sm ",
+        "w-fit",
         {
           "bg-green-50 text-green-700 hover:bg-green-50/80 dark:bg-green-950 dark:text-green-300 dark:hover:bg-green-950/80":
             status === STOCK_STATUS.IN_STOCK,
