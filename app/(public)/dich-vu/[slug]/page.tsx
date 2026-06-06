@@ -21,7 +21,7 @@ interface PageProps {
 // Cached service fetcher to share between generateMetadata and Page
 async function getCachedService(slug: string) {
   "use cache";
-  cacheLife("hours");
+  cacheLife({ stale: 0, revalidate: 3600, expire: 86400 });
   cacheTag("services");
   setUseStaticClient(true);
 

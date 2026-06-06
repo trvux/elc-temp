@@ -24,7 +24,7 @@ export async function getServicesAction(options?: ServiceFilter) {
 export async function createServiceAction(input: CreateServiceInput) {
   try {
     const data = await createService(input);
-    revalidateTag("services", "hours");
+    revalidateTag("services", { expire: 0 });
     revalidatePath("/dich-vu", "layout");
     revalidatePath("/admin/services");
     return { data, error: null };
@@ -40,7 +40,7 @@ export async function createServiceAction(input: CreateServiceInput) {
 export async function updateServiceAction(input: UpdateServiceInput) {
   try {
     const data = await updateService(input);
-    revalidateTag("services", "hours");
+    revalidateTag("services", { expire: 0 });
     revalidatePath("/dich-vu", "layout");
     revalidatePath("/admin/services");
     return { data, error: null };
@@ -56,7 +56,7 @@ export async function updateServiceAction(input: UpdateServiceInput) {
 export async function deleteServiceAction(id: string) {
   try {
     await deleteService(id);
-    revalidateTag("services", "hours");
+    revalidateTag("services", { expire: 0 });
     revalidatePath("/dich-vu", "layout");
     revalidatePath("/admin/services");
     return { error: null };

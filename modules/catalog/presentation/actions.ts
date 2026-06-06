@@ -63,7 +63,7 @@ export async function createProductAction(input: CreateProductInput) {
     revalidatePath("/admin/products");
     revalidatePath("/san-pham", "layout");
     revalidatePath("/", "layout");
-    revalidateTag("products", "hours");
+    revalidateTag("products", { expire: 0 });
     return { data, error: null };
   } catch (error) {
     console.error("createProductAction error:", error);
@@ -80,7 +80,7 @@ export async function updateProductAction(input: UpdateProductInput) {
     revalidatePath("/admin/products");
     revalidatePath("/san-pham", "layout");
     revalidatePath("/", "layout");
-    revalidateTag("products", "hours");
+    revalidateTag("products", { expire: 0 });
     return { data, error: null };
   } catch (error) {
     console.error("updateProductAction error:", error);
@@ -96,7 +96,7 @@ export async function deleteProductAction(id: string) {
     revalidatePath("/admin/products");
     revalidatePath("/san-pham", "layout");
     revalidatePath("/", "layout");
-    revalidateTag("products", "hours");
+    revalidateTag("products", { expire: 0 });
     return { data: true, error: null };
   } catch (error) {
     console.error("deleteProductAction error:", error);

@@ -1,6 +1,6 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
 import { 
   getProjects, 
   countProjects,
@@ -138,4 +138,5 @@ export async function updateProjectOrderAction(id: string, orderIndex: number) {
 function revalidatePaths() {
   revalidatePath("/admin/projects");
   revalidatePath("/du-an", "layout");
+  revalidateTag("projects", { expire: 0 });
 }

@@ -19,7 +19,7 @@ import { createClient, setUseStaticClient } from "@/shared/lib/supabase/server";
 import { cn } from "@/shared/lib/utils";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
-import { cacheLife } from "next/cache";
+import { cacheLife, cacheTag } from "next/cache";
 
 interface ProductListModuleProps {
   entity: ResolvedEntity;
@@ -58,7 +58,8 @@ async function getCachedListModuleData(
   pageSize: number
 ) {
   "use cache";
-  cacheLife("minutes");
+  cacheLife({ stale: 0, revalidate: 60, expire: 3600 });
+  cacheTag("products");
   setUseStaticClient(true);
 
   if (!entity) {
