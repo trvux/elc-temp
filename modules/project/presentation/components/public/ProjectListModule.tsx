@@ -31,7 +31,7 @@ const STYLES = {
   container: "mx-auto w-full max-w-350 flex flex-col",
   header: "flex flex-col items-center text-center gap-4 max-w-4xl mx-auto",
   badgeWrapper: "flex items-center gap-2 mt-2",
-  grid: "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-10 md:gap-y-12 min-h-[450px] animate-fade-in-up",
+  grid: "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-10 md:gap-y-12 min-h-[450px] content-start animate-fade-in-up",
   emptyState:
     "py-24 text-center border border-dashed border-border rounded-xl bg-muted/20 flex flex-col items-center justify-center gap-4 max-w-lg mx-auto w-full min-h-[300px] animate-fade-in-up",
   emptyText: "text-muted-foreground italic text-sm",

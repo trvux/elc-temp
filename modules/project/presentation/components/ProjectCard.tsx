@@ -40,7 +40,7 @@ export function ProjectCard({ project, queryTokens = [] }: ProjectCardProps) {
 
   return (
     <Link href={projectUrl} className="w-full block group h-full">
-      <Card className="relative mx-auto w-full max-w-sm pt-0 h-full overflow-hidden">
+      <Card className="relative mx-auto w-full h-full max-w-sm pt-0 overflow-hidden">
         <div className="relative z-20 aspect-video w-full">
           <ImageWithSkeleton
             wrapperClassName="absolute inset-0"

@@ -108,7 +108,7 @@ export function CardService({
       </div>
 
       {/* Info details */}
-      <CardHeader className="flex-1">
+      <CardHeader className="flex-1 px-2">
         <CardTitle className="text-lg leading-tight">{renderTitle()}</CardTitle>
 
         {/* Display badges if exists */}
@@ -133,7 +133,7 @@ export function CardService({
       </CardHeader>
 
       {/* Footer controls */}
-      <CardFooter className="mt-auto flex flex-col gap-2 w-full">
+      <CardFooter className="mt-auto flex flex-col gap-2 w-full px-2">
         {/* Price block designed as a secondary button-like element */}
         <div
           className="flex h-9 w-full items-center justify-center rounded-md bg-secondary px-3 text-sm font-semibold text-secondary-foreground truncate"
