@@ -3,6 +3,7 @@ import { getProjects } from "@/modules/project/application/getProjects";
 import { ProjectCard } from "@/modules/project/presentation/components/ProjectCard";
 import { getProjectTypes } from "@/modules/project-type/application";
 import { ProjectTypeWithCategories } from "@/modules/project-type/domain/types";
+import { getServices } from "@/modules/service/application";
 import { Breadcrumbs } from "@/shared/components/layout/user/breadcrumbs";
 import { ScrollToTop } from "@/shared/components/layout/user/scroll-to-top";
 import { GridSection } from "@/shared/components/sections/grid-section";
@@ -54,6 +55,7 @@ interface CachedProjectType {
 async function getCachedProjectListData(
   projectType: CachedProjectType | null,
   categorySlugs: string[],
+  serviceSlugs: string[],
   searchVal: string | undefined,
 ) {
   "use cache";
@@ -68,6 +70,7 @@ async function getCachedProjectListData(
     isPublished: true,
     projectTypeId: projectType?.id || undefined,
     categoryNewSlugs: categorySlugs.length > 0 ? categorySlugs : undefined,
+    serviceSlugs: serviceSlugs.length > 0 ? serviceSlugs : undefined,
     search: searchVal,
   });
 
@@ -191,10 +194,25 @@ async function getCachedProjectListData(
     });
   }
 
+  // 4. Fetch services for filtering
+  const allServices = await getServices({ isPublished: true });
+  const serviceItems = allServices.map((svc) => {
+    const count = allPublishedProjects.filter(
+      (p) => p.serviceId === svc.id,
+    ).length;
+    return {
+      id: svc.id,
+      name: svc.title,
+      slug: svc.slug || "",
+      count,
+    };
+  });
+
   return {
     sortedProjects,
     projectTypeItems,
     filterCategories,
+    serviceItems,
     currentYear: new Date().getFullYear(),
   };
 }
@@ -209,6 +227,13 @@ export async function ProjectListModule({
       ? categoryParam.split(",").filter(Boolean)
       : Array.isArray(categoryParam)
         ? categoryParam
+        : [];
+  const serviceParam = searchParams.service;
+  const serviceSlugs =
+    typeof serviceParam === "string"
+      ? serviceParam.split(",").filter(Boolean)
+      : Array.isArray(serviceParam)
+        ? serviceParam
         : [];
   const searchVal =
     typeof searchParams.search === "string"
@@ -231,8 +256,8 @@ export async function ProjectListModule({
       }
     : null;
 
-  const { sortedProjects, projectTypeItems, filterCategories, currentYear } =
-    await getCachedProjectListData(projectTypeData, categorySlugs, searchVal);
+  const { sortedProjects, projectTypeItems, filterCategories, serviceItems, currentYear } =
+    await getCachedProjectListData(projectTypeData, categorySlugs, serviceSlugs, searchVal);
 
   // Breadcrumbs items
   const breadcrumbItems = [
@@ -297,6 +322,8 @@ export async function ProjectListModule({
                 currentProjectTypeSlug={projectType?.slug || ""}
                 categories={filterCategories}
                 currentCategorySlugs={categorySlugs}
+                services={serviceItems}
+                currentServiceSlugs={serviceSlugs}
               />
             </Suspense>
           </div>
@@ -325,6 +352,8 @@ export async function ProjectListModule({
                 currentProjectTypeSlug={projectType?.slug || ""}
                 categories={filterCategories}
                 currentCategorySlugs={categorySlugs}
+                services={serviceItems}
+                currentServiceSlugs={serviceSlugs}
               />
             </Suspense>
           </aside>

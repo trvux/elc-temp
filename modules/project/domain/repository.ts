@@ -10,6 +10,8 @@ export interface ProjectFilter {
   projectTypeId?: string;
   categoryNewSlug?: string;
   categoryNewSlugs?: string[];
+  serviceSlug?: string;
+  serviceSlugs?: string[];
   isPublished?: boolean;
   isFeatured?: boolean;
   search?: string;
@@ -26,7 +28,7 @@ export interface ProjectRepository {
   count(
     options?: Pick<
       ProjectFilter,
-      "categoryId" | "projectTypeId" | "categoryNewSlug" | "categoryNewSlugs" | "isPublished" | "isFeatured" | "search" | "includeDeleted"
+      "categoryId" | "projectTypeId" | "categoryNewSlug" | "categoryNewSlugs" | "serviceSlug" | "serviceSlugs" | "isPublished" | "isFeatured" | "search" | "includeDeleted"
     >,
   ): Promise<number>;
 
