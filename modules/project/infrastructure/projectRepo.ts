@@ -34,6 +34,36 @@ export class SupabaseProjectRepository implements ProjectRepository {
     // Filters
     if (options?.categoryId) query = query.eq("category_id", options.categoryId);
     if (options?.projectTypeId) query = query.eq("project_type_id", options.projectTypeId);
+
+    if (options?.serviceSlug) {
+      const { data: svcData, error: svcError } = await supabase
+        .from("services")
+        .select("id")
+        .eq("slug", options.serviceSlug)
+        .is("deleted_at", null)
+        .maybeSingle();
+
+      if (svcData && !svcError) {
+        query = query.eq("service_id", svcData.id);
+      } else {
+        query = query.in("id", ["00000000-0000-0000-0000-000000000000"]);
+      }
+    }
+
+    if (options?.serviceSlugs && options.serviceSlugs.length > 0) {
+      const { data: svcsData, error: svcsError } = await supabase
+        .from("services")
+        .select("id")
+        .in("slug", options.serviceSlugs)
+        .is("deleted_at", null);
+
+      if (svcsData && svcsData.length > 0 && !svcsError) {
+        const svcIds = svcsData.map((s) => s.id);
+        query = query.in("service_id", svcIds);
+      } else {
+        query = query.in("id", ["00000000-0000-0000-0000-000000000000"]);
+      }
+    }
     
     if (options?.categoryNewSlug) {
       const { data: catData, error: catError } = await supabase
@@ -120,12 +150,42 @@ export class SupabaseProjectRepository implements ProjectRepository {
     return (data || []).map((row) => this.mapToDomainWithCategory(row));
   }
 
-  async count(options?: Pick<ProjectFilter, "categoryId" | "projectTypeId" | "categoryNewSlug" | "categoryNewSlugs" | "isPublished" | "isFeatured" | "search" | "includeDeleted">): Promise<number> {
+  async count(options?: Pick<ProjectFilter, "categoryId" | "projectTypeId" | "categoryNewSlug" | "categoryNewSlugs" | "serviceSlug" | "serviceSlugs" | "isPublished" | "isFeatured" | "search" | "includeDeleted">): Promise<number> {
     const supabase = await createClient();
     let query = supabase.from(this.TABLE_NAME).select("*", { count: "exact", head: true });
 
     if (options?.categoryId) query = query.eq("category_id", options.categoryId);
     if (options?.projectTypeId) query = query.eq("project_type_id", options.projectTypeId);
+
+    if (options?.serviceSlug) {
+      const { data: svcData, error: svcError } = await supabase
+        .from("services")
+        .select("id")
+        .eq("slug", options.serviceSlug)
+        .is("deleted_at", null)
+        .maybeSingle();
+
+      if (svcData && !svcError) {
+        query = query.eq("service_id", svcData.id);
+      } else {
+        query = query.in("id", ["00000000-0000-0000-0000-000000000000"]);
+      }
+    }
+
+    if (options?.serviceSlugs && options.serviceSlugs.length > 0) {
+      const { data: svcsData, error: svcsError } = await supabase
+        .from("services")
+        .select("id")
+        .in("slug", options.serviceSlugs)
+        .is("deleted_at", null);
+
+      if (svcsData && svcsData.length > 0 && !svcsError) {
+        const svcIds = svcsData.map((s) => s.id);
+        query = query.in("service_id", svcIds);
+      } else {
+        query = query.in("id", ["00000000-0000-0000-0000-000000000000"]);
+      }
+    }
 
     if (options?.categoryNewSlug) {
       const { data: catData, error: catError } = await supabase

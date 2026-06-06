@@ -29,11 +29,20 @@ interface CategoryItem {
   count?: number;
 }
 
+interface ServiceItem {
+  id: string;
+  name: string;
+  slug: string;
+  count?: number;
+}
+
 interface ProjectFilterMobileProps {
   projectTypes: ProjectTypeItem[];
   currentProjectTypeSlug?: string;
   categories: CategoryItem[];
   currentCategorySlugs?: string[];
+  services: ServiceItem[];
+  currentServiceSlugs?: string[];
 }
 
 export function ProjectFilterMobile({
@@ -41,6 +50,8 @@ export function ProjectFilterMobile({
   currentProjectTypeSlug = "",
   categories,
   currentCategorySlugs = [],
+  services = [],
+  currentServiceSlugs = [],
 }: ProjectFilterMobileProps) {
   const searchParams = useSearchParams();
   const params = useParams();
@@ -61,13 +72,18 @@ export function ProjectFilterMobile({
       count++;
     }
 
+    // Check service slugs in search parameters
+    if (currentServiceSlugs.length > 0) {
+      count++;
+    }
+
     // Check search queries
     if (searchParams.get("search")) {
       count++;
     }
 
     return count;
-  }, [searchParams, slugFromPath, projectTypes, currentProjectTypeSlug, currentCategorySlugs]);
+  }, [searchParams, slugFromPath, projectTypes, currentProjectTypeSlug, currentCategorySlugs, currentServiceSlugs]);
 
   return (
     <div className="lg:hidden shrink-0">
@@ -101,6 +117,8 @@ export function ProjectFilterMobile({
               currentProjectTypeSlug={currentProjectTypeSlug}
               categories={categories}
               currentCategorySlugs={currentCategorySlugs}
+              services={services}
+              currentServiceSlugs={currentServiceSlugs}
             />
           </div>
         </SheetContent>

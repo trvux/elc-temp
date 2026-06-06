@@ -29,11 +29,20 @@ interface CategoryItem {
   count?: number;
 }
 
+interface ServiceItem {
+  id: string;
+  name: string;
+  slug: string;
+  count?: number;
+}
+
 interface ProjectFiltersProps {
   projectTypes: ProjectTypeItem[];
   currentProjectTypeSlug?: string;
   categories: CategoryItem[];
   currentCategorySlugs?: string[];
+  services: ServiceItem[];
+  currentServiceSlugs?: string[];
   onFilterChange?: () => void;
 }
 
@@ -42,6 +51,8 @@ export function ProjectFilters({
   currentProjectTypeSlug = "",
   categories,
   currentCategorySlugs = [],
+  services = [],
+  currentServiceSlugs = [],
   onFilterChange,
 }: ProjectFiltersProps) {
   const router = useRouter();
@@ -55,7 +66,11 @@ export function ProjectFilters({
     setIsMounted(true);
   }, []);
 
-  const hasAnyFilter = !!(currentProjectTypeSlug || currentCategorySlugs.length > 0);
+  const hasAnyFilter = !!(
+    currentProjectTypeSlug ||
+    currentCategorySlugs.length > 0 ||
+    currentServiceSlugs.length > 0
+  );
 
   const handleProjectTypeSelect = (slug: string | null) => {
     const sParams = new URLSearchParams(searchParams.toString());
@@ -101,10 +116,40 @@ export function ProjectFilters({
     if (onFilterChange) onFilterChange();
   };
 
+  const handleServiceToggle = (slug: string | null) => {
+    const sParams = new URLSearchParams(searchParams.toString());
+    sParams.delete("page");
+
+    if (slug === null) {
+      sParams.delete("service");
+    } else {
+      let nextSlugs = [...currentServiceSlugs];
+      if (nextSlugs.includes(slug)) {
+        nextSlugs = nextSlugs.filter((s) => s !== slug);
+      } else {
+        nextSlugs.push(slug);
+      }
+
+      if (nextSlugs.length > 0) {
+        sParams.set("service", nextSlugs.join(","));
+      } else {
+        sParams.delete("service");
+      }
+    }
+
+    startTransition(() => {
+      router.push(`${pathname}?${sParams.toString()}`, { scroll: false });
+      router.refresh();
+    });
+
+    if (onFilterChange) onFilterChange();
+  };
+
   const clearAllFilters = () => {
     const sParams = new URLSearchParams(searchParams.toString());
     sParams.delete("page");
     sParams.delete("category");
+    sParams.delete("service");
     sParams.delete("search");
 
     startTransition(() => {
@@ -124,7 +169,7 @@ export function ProjectFilters({
     );
   }
 
-  const activeAccordionValues = ["Không gian kiến trúc", "Thiết bị lắp đặt"];
+  const activeAccordionValues = ["Không gian kiến trúc", "Thiết bị lắp đặt", "Dịch vụ"];
 
   return (
     <div className="flex flex-col gap-2">
@@ -241,6 +286,54 @@ export function ProjectFilters({
                         )}
                       >
                         {cat.name}
+                      </span>
+                    </label>
+                  );
+                })}
+              </div>
+            </AccordionContent>
+          </AccordionItem>
+        )}
+
+        {/* Services (Dịch vụ) - Multi selection */}
+        {services.length > 0 && (
+          <AccordionItem value="Dịch vụ">
+            <AccordionTrigger className="hover:no-underline">
+              <div className="flex items-center gap-2">
+                <span>Dịch vụ</span>
+                {currentServiceSlugs.length > 0 && (
+                  <Badge variant="secondary" className="rounded-sm">
+                    <Check data-icon="inline-start" className="w-3 h-3" /> {currentServiceSlugs.length} chọn
+                  </Badge>
+                )}
+              </div>
+            </AccordionTrigger>
+            <AccordionContent className="px-2 h-auto!">
+              <div className="flex flex-col gap-1 -mx-6">
+                {/* Specific Options */}
+                {services.map((svc) => {
+                  if (svc.count !== undefined && svc.count <= 0) return null;
+                  const isActive = currentServiceSlugs.includes(svc.slug);
+                  return (
+                    <label
+                      key={svc.id}
+                      className={cn(
+                        "flex items-center gap-2 pr-4 py-2 rounded-md transition-colors group pl-6 hover:bg-muted/50 cursor-pointer"
+                      )}
+                    >
+                      <Checkbox
+                        id={`filter-service-${svc.slug}`}
+                        checked={isActive}
+                        disabled={isPending}
+                        onCheckedChange={() => handleServiceToggle(svc.slug)}
+                      />
+                      <span
+                        className={cn(
+                          "text-sm font-medium leading-snug group-hover:text-foreground transition-colors",
+                          isActive && "text-foreground font-semibold"
+                        )}
+                      >
+                        {svc.name}
                       </span>
                     </label>
                   );
