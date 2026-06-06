@@ -13,7 +13,7 @@ import {
 } from "@/shared/components/ui/typography";
 import { getQueryTokens } from "@/shared/lib/search-utils";
 import { createClient, setUseStaticClient } from "@/shared/lib/supabase/server";
-import { cacheLife } from "next/cache";
+import { cacheLife, cacheTag } from "next/cache";
 import Link from "next/link";
 import { Suspense } from "react";
 import { ProjectFilterMobile } from "./ProjectFilterMobile";
@@ -59,7 +59,8 @@ async function getCachedProjectListData(
   "use cache";
   // Serve stale content for up to 1 hour while revalidating in background every 5 minutes.
   // This prevents blank page caused by cache cold-start race condition.
-  cacheLife({ stale: 3600, revalidate: 300, expire: 86400 });
+  cacheLife({ stale: 0, revalidate: 300, expire: 86400 });
+  cacheTag("projects");
   setUseStaticClient(true);
 
   // 1. Fetch filtered projects

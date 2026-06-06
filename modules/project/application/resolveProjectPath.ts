@@ -1,7 +1,7 @@
 import { createClient, setUseStaticClient } from "@/shared/lib/supabase/server";
 import { ProjectWithCategory, Json } from "@/modules/project/domain/types";
 import { ProjectTypeWithCategories } from "@/modules/project-type/domain/types";
-import { cacheLife } from "next/cache";
+import { cacheLife, cacheTag } from "next/cache";
 
 export type ResolvedProjectEntity =
   | { type: "project_type"; data: ProjectTypeWithCategories }
@@ -10,7 +10,8 @@ export type ResolvedProjectEntity =
 
 export async function resolveProjectPath(slug: string): Promise<ResolvedProjectEntity> {
   "use cache";
-  cacheLife("hours");
+  cacheLife({ stale: 0, revalidate: 3600, expire: 86400 });
+  cacheTag("projects", `slug:${slug}`);
   setUseStaticClient(true);
 
   const supabase = await createClient();

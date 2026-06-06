@@ -47,7 +47,7 @@ export const metadata = {
 
 async function getCachedServicesData() {
   "use cache";
-  cacheLife("hours");
+  cacheLife({ stale: 0, revalidate: 3600, expire: 86400 });
   cacheTag("services");
   setUseStaticClient(true);
 
