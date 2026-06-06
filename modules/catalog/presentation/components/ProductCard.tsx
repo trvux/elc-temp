@@ -95,7 +95,7 @@ export function ProductCard({
               <TypographySmall className="line-through text-muted-foreground">
                 {formatPrice(product.originalPrice)}
               </TypographySmall>
-              <Badge variant="destructive" className="rounded-sm">
+              <Badge variant="destructive">
                 Ưu đãi tới {product.discountPercent}%
               </Badge>
             </>

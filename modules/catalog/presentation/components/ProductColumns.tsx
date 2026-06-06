@@ -124,7 +124,7 @@ export const getProductColumns = ({
             {formatPrice(p.salePrice || p.originalPrice)}
           </span>
           {p.discountPercent > 0 && (
-            <Badge variant="destructive" className="rounded-sm">
+            <Badge variant="destructive">
               -{p.discountPercent}%
             </Badge>
           )}

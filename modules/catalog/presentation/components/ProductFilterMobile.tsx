@@ -70,7 +70,7 @@ export function ProductFilterMobile({
             <span className="hidden sm:inline">Lọc sản phẩm</span>
             <span className="sm:hidden">Lọc</span>
             {activeFilterCount > 0 && (
-              <Badge variant="secondary" className="rounded-sm">
+              <Badge variant="secondary">
                 Chọn {activeFilterCount}
               </Badge>
             )}
