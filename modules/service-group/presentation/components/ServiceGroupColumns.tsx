@@ -93,25 +93,20 @@ export const getServiceGroupColumns = ({
       });
 
       return (
-        <div className="flex flex-col gap-2 py-1 max-w-[650px]">
+        <div className="flex flex-col gap-2 py-1 max-w-[280px]">
           {Object.entries(grouped).map(([groupName, catNames]) => (
-            <div key={groupName} className="flex items-center gap-3 p-2">
-              {/* Group Column - Using standard Shadcn Badge */}
-              <div className="w-[140px] shrink-0">
-                <span className="w-full justify-center py-1 truncate text-xs font-semibold">
-                  {groupName}
-                </span>
-              </div>
-              {/* Categories Column - Standard Shadcn Badges */}
-              <div className="flex flex-wrap gap-1.5 flex-1 min-w-0">
+            <div key={groupName} className="flex flex-col gap-1">
+              <span className="font-semibold text-xs text-foreground w-fit">
+                {groupName}
+              </span>
+              <div className="flex flex-wrap gap-1">
                 {catNames.map((name) => (
-                  <Badge
+                  <span
                     key={name}
-                    variant="secondary"
-                    className="whitespace-nowrap font-normal"
+                    className="text-[10px] bg-muted text-muted-foreground px-1.5 py-0.5 rounded"
                   >
                     {name}
-                  </Badge>
+                  </span>
                 ))}
               </div>
             </div>
