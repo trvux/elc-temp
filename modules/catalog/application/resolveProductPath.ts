@@ -1,13 +1,13 @@
 import { createClient, setUseStaticClient } from "@/shared/lib/supabase/server";
 import { Group } from "@/modules/group/domain/types";
-import { CategoryNew } from "@/modules/category-new/domain/types";
+import { Category } from "@/modules/category/domain/types";
 import { Brand, ProductWithRelations } from "@/modules/catalog/domain/types";
 import { productRepo } from "@/modules/catalog/infrastructure/SupabaseProductRepository";
 import { cacheLife, cacheTag } from "next/cache";
 
 export type ResolvedEntity =
   | { type: "group"; data: Group }
-  | { type: "category"; data: CategoryNew }
+  | { type: "category"; data: Category }
   | { type: "brand"; data: Brand }
   | { type: "product"; data: ProductWithRelations }
   | null;
@@ -54,7 +54,7 @@ export async function resolveProductPath(slug: string): Promise<ResolvedEntity> 
         .eq("id", registryItem.entity_id)
         .is("deleted_at", null)
         .single();
-      return data ? { type: "category", data: data as unknown as CategoryNew } : null;
+      return data ? { type: "category", data: data as unknown as Category } : null;
     }
 
     case "brand": {

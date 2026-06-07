@@ -8,8 +8,8 @@ import {
 export interface ProjectFilter {
   categoryId?: string;
   projectTypeId?: string;
-  categoryNewSlug?: string;
-  categoryNewSlugs?: string[];
+  categorySlug?: string;
+  categorySlugs?: string[];
   serviceSlug?: string;
   serviceSlugs?: string[];
   isPublished?: boolean;
@@ -28,7 +28,7 @@ export interface ProjectRepository {
   count(
     options?: Pick<
       ProjectFilter,
-      "categoryId" | "projectTypeId" | "categoryNewSlug" | "categoryNewSlugs" | "serviceSlug" | "serviceSlugs" | "isPublished" | "isFeatured" | "search" | "includeDeleted"
+      "categoryId" | "projectTypeId" | "categorySlug" | "categorySlugs" | "serviceSlug" | "serviceSlugs" | "isPublished" | "isFeatured" | "search" | "includeDeleted"
     >,
   ): Promise<number>;
 

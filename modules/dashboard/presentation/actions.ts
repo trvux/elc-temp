@@ -5,7 +5,7 @@ import { serviceRepo } from "@/modules/service/infrastructure/serviceRepo";
 import { pageRepo } from "@/modules/page/infrastructure";
 import { contactRepo } from "@/modules/contact/infrastructure";
 import { productRepo } from "@/modules/catalog/infrastructure";
-import { categoryNewRepo } from "@/modules/category-new/infrastructure/categoryNewRepo";
+import { categoryRepo } from "@/modules/category/infrastructure/categoryRepo";
 import { brandRepo } from "@/modules/brand/infrastructure";
 import { branchRepo } from "@/modules/branch/infrastructure";
 import { projectRepo } from "@/modules/project/infrastructure";
@@ -29,7 +29,7 @@ export async function getDashboardStatsAction() {
       allProducts
     ] = await Promise.all([
       productRepo.count(),
-      categoryNewRepo.count(),
+      categoryRepo.count(),
       brandRepo.count(),
       projectRepo.count(),
       serviceRepo.count(),
@@ -40,7 +40,7 @@ export async function getDashboardStatsAction() {
       productRepo.getAll({ limit: 5, sortBy: "newest" }),
       projectRepo.getAll({ limit: 5, orderBy: "createdAt", orderDirection: "desc" }),
       newsRepo.getAll({ limit: 5 }),
-      categoryNewRepo.getAll(),
+      categoryRepo.getAll(),
       productRepo.getAll()
     ]);
 

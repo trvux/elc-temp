@@ -4,18 +4,18 @@ import { Button } from "@/shared/components/ui/button";
 import { Badge } from "@/shared/components/ui/badge";
 import { AspectRatio } from "@/shared/components/ui/aspect-ratio";
 import Image from "next/image";
-import { CategoryNewWithGroup } from "../../domain";
+import { CategoryWithGroup } from "../../domain";
 
 import { ButtonGroup } from "@/shared/components/ui/button-group";
 
-export type CategoryNewRow = CategoryNewWithGroup;
+export type CategoryRow = CategoryWithGroup;
 
 interface ColumnsProps {
-  onEdit: (cat: CategoryNewWithGroup) => void;
+  onEdit: (cat: CategoryWithGroup) => void;
   onDelete: (id: string) => void;
 }
 
-export function getColumns({ onEdit, onDelete }: ColumnsProps): ColumnDef<CategoryNewRow>[] {
+export function getColumns({ onEdit, onDelete }: ColumnsProps): ColumnDef<CategoryRow>[] {
   return [
     {
       accessorKey: "imageUrl",

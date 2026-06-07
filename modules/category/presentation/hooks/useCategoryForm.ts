@@ -8,10 +8,10 @@ import { createClient } from "@/shared/lib/supabase/client";
 import { convertToWebP } from "@/shared/lib/image";
 import { generateSlug } from "@/shared/lib/helpers";
 
-import { createCategoryNewSchema, CategoryNew } from "../../domain";
-import { createCategoryNewAction, updateCategoryNewAction } from "../actions";
+import { createCategorySchema, Category } from "../../domain";
+import { createCategoryAction, updateCategoryAction } from "../actions";
 
-export type CategoryNewFormValues = {
+export type CategoryFormValues = {
   name: string;
   groupId?: string | null;
   slug: string;
@@ -22,16 +22,16 @@ export type CategoryNewFormValues = {
   orderIndex?: number;
 };
 
-export function useCategoryNewForm(
-  activeCategory: CategoryNew | "new" | null,
+export function useCategoryForm(
+  activeCategory: Category | "new" | null,
   onClose: () => void
 ) {
   const queryClient = useQueryClient();
   const [uploading, setUploading] = useState(false);
   const supabase = createClient();
 
-  const form = useForm<CategoryNewFormValues>({
-    resolver: standardSchemaResolver(createCategoryNewSchema as any) as any,
+  const form = useForm<CategoryFormValues>({
+    resolver: standardSchemaResolver(createCategorySchema as any) as any,
     defaultValues: {
       name: "",
       groupId: null,
@@ -45,7 +45,7 @@ export function useCategoryNewForm(
   });
 
   const saveMutation = useMutation({
-    mutationFn: async (values: CategoryNewFormValues) => {
+    mutationFn: async (values: CategoryFormValues) => {
       const trimmed = values.name.trim();
       const formattedName = trimmed ? trimmed.charAt(0).toUpperCase() + trimmed.slice(1) : "";
       const finalSlug = (values.slug || "").trim() || generateSlug(formattedName);
@@ -63,12 +63,12 @@ export function useCategoryNewForm(
       };
 
       if (activeCategory && activeCategory !== "new") {
-        return updateCategoryNewAction({
+        return updateCategoryAction({
           id: activeCategory.id,
           ...payload,
         });
       }
-      return createCategoryNewAction(payload);
+      return createCategoryAction(payload);
     },
     onSuccess: (res) => {
       if (res.error) {

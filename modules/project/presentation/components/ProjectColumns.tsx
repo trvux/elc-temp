@@ -77,7 +77,7 @@ export const getColumns = ({
     header: "Loại hình & Sản phẩm lắp đặt",
     cell: ({ row }) => {
       const sType = row.original.projectType;
-      const cats = row.original.categoriesNew || [];
+      const cats = row.original.categories || [];
       if (!sType) return <span className="text-muted-foreground">—</span>;
       return (
         <div className="flex flex-col gap-1.5 max-w-[280px]">

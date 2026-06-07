@@ -47,7 +47,7 @@ import { Textarea } from "@/shared/components/ui/textarea";
 import { TiptapEditor } from "@/shared/components/ui/tiptap-editor";
 import { generateSlug } from "@/shared/lib/helpers";
 
-import { getCategoriesNewAction } from "@/modules/category-new/presentation/actions";
+import { getCategoriesAction } from "@/modules/category/presentation/actions";
 import { getServiceGroupsAction } from "@/modules/service-group/presentation/actions";
 import { getProjectTypesAction } from "@/modules/project-type/presentation/actions";
 import { getGroupsAction } from "@/modules/group/presentation/actions";
@@ -108,10 +108,10 @@ export function ProjectManagement() {
     },
   });
 
-  const { data: categoriesNew = [] } = useQuery({
+  const { data: categories = [] } = useQuery({
     queryKey: ["categories-new"],
     queryFn: async () => {
-      const { data, error } = await getCategoriesNewAction();
+      const { data, error } = await getCategoriesAction();
       if (error) throw new Error(error);
       return data;
     },
@@ -143,9 +143,9 @@ export function ProjectManagement() {
   }, [services, filterServiceGroupId]);
 
   // Group custom categories for checkbox display
-  const groupedCategoriesNew = useMemo(() => {
-    const grouped: Record<string, typeof categoriesNew> = {};
-    categoriesNew.forEach((cat) => {
+  const groupedCategories = useMemo(() => {
+    const grouped: Record<string, typeof categories> = {};
+    categories.forEach((cat) => {
       const groupName = cat.group?.name || "Khác";
       if (!grouped[groupName]) {
         grouped[groupName] = [];
@@ -153,7 +153,7 @@ export function ProjectManagement() {
       grouped[groupName].push(cat);
     });
     return grouped;
-  }, [categoriesNew]);
+  }, [categories]);
 
   // Custom Form Hook
   const {
@@ -184,23 +184,23 @@ export function ProjectManagement() {
     setFilterCategoryId("all");
   };
 
-  const filteredCategoriesNewForFilter = useMemo(() => {
+  const filteredCategoriesForFilter = useMemo(() => {
     if (filterGroupId === "all") {
-      return categoriesNew;
+      return categories;
     }
-    return categoriesNew.filter((c) => c.groupId === filterGroupId);
-  }, [categoriesNew, filterGroupId]);
+    return categories.filter((c) => c.groupId === filterGroupId);
+  }, [categories, filterGroupId]);
 
   const filteredProjects = useMemo(() => {
     return projects.filter((p) => {
       const matchGroup =
         filterGroupId === "all" ||
-        (p.categoriesNew &&
-          p.categoriesNew.some((c) => c.groupId === filterGroupId));
+        (p.categories &&
+          p.categories.some((c) => c.groupId === filterGroupId));
       
       const matchCategory =
         filterCategoryId === "all" ||
-        (p.categoriesNew && p.categoriesNew.some((c) => c.id === filterCategoryId));
+        (p.categories && p.categories.some((c) => c.id === filterCategoryId));
 
       const matchProjectType =
         filterProjectTypeId === "all" || p.projectTypeId === filterProjectTypeId;
@@ -254,7 +254,7 @@ export function ProjectManagement() {
             projectTypeId: p.projectTypeId || "",
             serviceGroupId: p.service?.group?.id || "",
             serviceId: p.serviceId || "",
-            categoryIds: (p.categoriesNew || []).map((c) => c.id),
+            categoryIds: (p.categories || []).map((c) => c.id),
             images: p.images || [],
             isPublished: p.isPublished,
             isFeatured: p.isFeatured || false,
@@ -340,7 +340,7 @@ export function ProjectManagement() {
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">Tất cả danh mục</SelectItem>
-            {filteredCategoriesNewForFilter.map((c) => (
+            {filteredCategoriesForFilter.map((c) => (
               <SelectItem key={c.id} value={c.id}>
                 {c.name}
               </SelectItem>
@@ -773,7 +773,7 @@ export function ProjectManagement() {
 
                             return (
                               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
-                                {Object.entries(groupedCategoriesNew).map(
+                                {Object.entries(groupedCategories).map(
                                   ([groupName, items]) => (
                                     <Card key={groupName}>
                                       <CardHeader>

@@ -25,7 +25,7 @@ import { Controller } from "react-hook-form";
 import { Field, FieldError, FieldLabel, FieldGroup, FieldSet, FieldLegend, FieldSeparator } from "@/shared/components/ui/field";
 import { ImageUpload } from "@/shared/components/ui/image-upload";
 import { Plus, ChevronDown } from "lucide-react";
-import { getCategoriesNewAction } from "@/modules/category-new/presentation/actions";
+import { getCategoriesAction } from "@/modules/category/presentation/actions";
 import {
   Select,
   SelectContent,
@@ -50,7 +50,7 @@ export function ServiceGroupManagement({ initialData }: ServiceGroupManagementPr
   const { data: categories = [] } = useQuery({
     queryKey: ["categories-new"],
     queryFn: async () => {
-      const { data, error } = await getCategoriesNewAction();
+      const { data, error } = await getCategoriesAction();
       if (error) throw new Error(error);
       return data;
     },

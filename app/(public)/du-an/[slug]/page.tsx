@@ -121,7 +121,7 @@ async function getCachedCurrentYear() {
 async function ProjectDetailView({ project }: { project: ProjectWithCategory }) {
   const images = project.images || [];
   const displayCategory =
-    project.categoriesNew?.[0]?.name || project.projectType?.name || "Dự án";
+    project.categories?.[0]?.name || project.projectType?.name || "Dự án";
 
   const currentYear = await getCachedCurrentYear();
 

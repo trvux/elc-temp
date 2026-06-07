@@ -23,7 +23,7 @@ import {
 } from "@/shared/components/ui/select";
 import { Switch } from "@/shared/components/ui/switch";
 import { Group } from "@/modules/group/domain/types";
-import { CategoryNewWithGroup } from "@/modules/category-new/domain/types";
+import { CategoryWithGroup } from "@/modules/category/domain/types";
 import { Checkbox } from "@/shared/components/ui/checkbox";
 import { Brand, formatPrice, PRODUCT_LABELS } from "@/modules/catalog/domain";
 import { ProductFormValues } from "../../hooks/useProductForm";
@@ -31,7 +31,7 @@ import { ProductFormValues } from "../../hooks/useProductForm";
 interface ProductGeneralTabProps {
   form: UseFormReturn<ProductFormValues>;
   groups: Group[];
-  categoriesNew: CategoryNewWithGroup[];
+  categories: CategoryWithGroup[];
   brands: Brand[];
   updateAutoSlug: (name: string, mpn: string) => void;
 }
@@ -39,14 +39,14 @@ interface ProductGeneralTabProps {
 export function ProductGeneralTab({
   form,
   groups,
-  categoriesNew,
+  categories,
   brands,
   updateAutoSlug,
 }: ProductGeneralTabProps) {
   const currentCategoryId = form.watch("categoryId");
   const [selectedGroupId, setSelectedGroupId] = useState<string>(() => {
     if (currentCategoryId) {
-      const cat = categoriesNew.find((c) => c.id === currentCategoryId);
+      const cat = categories.find((c) => c.id === currentCategoryId);
       return cat?.groupId || "";
     }
     return "";
@@ -55,14 +55,14 @@ export function ProductGeneralTab({
   // Sync selected group if categoryId changes (e.g. on form reset/load)
   useEffect(() => {
     if (currentCategoryId) {
-      const cat = categoriesNew.find((c) => c.id === currentCategoryId);
+      const cat = categories.find((c) => c.id === currentCategoryId);
       if (cat && cat.groupId !== selectedGroupId) {
         setSelectedGroupId(cat.groupId || "");
       }
     } else {
       setSelectedGroupId("");
     }
-  }, [currentCategoryId, categoriesNew]);
+  }, [currentCategoryId, categories]);
 
   return (
     <FieldGroup className="gap-8">
@@ -160,7 +160,7 @@ export function ProductGeneralTab({
             control={form.control}
             name="categoryId"
             render={({ field, fieldState }) => {
-              const filteredCategories = categoriesNew.filter(
+              const filteredCategories = categories.filter(
                 (c) => c.groupId === selectedGroupId
               );
 

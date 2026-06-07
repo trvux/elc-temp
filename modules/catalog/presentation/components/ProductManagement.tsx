@@ -35,7 +35,7 @@ import { ProductSpecsTab } from "./form/ProductSpecsTab";
 import { ProductGalleryTab } from "./form/ProductGalleryTab";
 import { ProductDescriptionTab } from "./form/ProductDescriptionTab";
 import { getGroupsAction } from "@/modules/group/presentation/actions";
-import { getCategoriesNewAction } from "@/modules/category-new/presentation/actions";
+import { getCategoriesAction } from "@/modules/category/presentation/actions";
 
 export function ProductManagement() {
   const queryClient = useQueryClient();
@@ -69,10 +69,10 @@ export function ProductManagement() {
     },
   });
 
-  const { data: categoriesNew = [] } = useQuery({
+  const { data: categories = [] } = useQuery({
     queryKey: ["categories-new"],
     queryFn: async () => {
-      const { data, error } = await getCategoriesNewAction();
+      const { data, error } = await getCategoriesAction();
       if (error) throw new Error(error);
       return data;
     },
@@ -119,16 +119,16 @@ export function ProductManagement() {
     setFilterCategoryId("all");
   };
 
-  const filteredCategoriesNewForFilter = useMemo(() => {
+  const filteredCategoriesForFilter = useMemo(() => {
     if (filterGroupId === "all") {
-      return categoriesNew;
+      return categories;
     }
-    return categoriesNew.filter((c) => c.groupId === filterGroupId);
-  }, [categoriesNew, filterGroupId]);
+    return categories.filter((c) => c.groupId === filterGroupId);
+  }, [categories, filterGroupId]);
 
   const filteredProducts = useMemo(() => {
     return products.filter((p) => {
-      const cat = categoriesNew.find((c) => c.id === p.categoryId);
+      const cat = categories.find((c) => c.id === p.categoryId);
       const matchGroup = filterGroupId === "all" || (cat && cat.groupId === filterGroupId);
       const matchCategory = filterCategoryId === "all" || p.categoryId === filterCategoryId;
       const matchFeatured = filterIsFeatured === "all" || (filterIsFeatured === "true" ? p.isFeatured : !p.isFeatured);
@@ -137,7 +137,7 @@ export function ProductManagement() {
       const matchStockStatus = filterStockStatus === "all" || p.stockStatus === filterStockStatus;
       return matchGroup && matchCategory && matchFeatured && matchPublished && matchLabel && matchStockStatus;
     });
-  }, [products, filterGroupId, filterCategoryId, filterIsFeatured, filterIsPublished, filterLabel, filterStockStatus, categoriesNew]);
+  }, [products, filterGroupId, filterCategoryId, filterIsFeatured, filterIsPublished, filterLabel, filterStockStatus, categories]);
 
   const columns = useMemo(
     () =>
@@ -235,7 +235,7 @@ export function ProductManagement() {
           </SelectTrigger>
           <SelectContent position="popper" className="max-h-80 overflow-y-auto">
             <SelectItem value="all">Tất cả danh mục</SelectItem>
-            {filteredCategoriesNewForFilter.map((c) => (
+            {filteredCategoriesForFilter.map((c) => (
               <SelectItem key={c.id} value={c.id}>
                 {c.name}
               </SelectItem>
@@ -348,7 +348,7 @@ export function ProductManagement() {
                   <ProductGeneralTab
                     form={form}
                     groups={groups}
-                    categoriesNew={categoriesNew}
+                    categories={categories}
                     brands={brands}
                     updateAutoSlug={updateAutoSlug}
                   />

@@ -1,6 +1,6 @@
 "use client";
 
-import { CategoryNewWithGroup } from "@/modules/category-new/domain/types";
+import { CategoryWithGroup } from "@/modules/category/domain/types";
 import { ServiceGroup } from "@/modules/service-group/domain/types";
 import { capitalize } from "@/shared/lib/helpers";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -51,7 +51,7 @@ import { Controller } from "react-hook-form";
 interface ServiceManagementProps {
   initialData: ServiceWithRelations[];
   groups: ServiceGroup[];
-  categories: CategoryNewWithGroup[];
+  categories: CategoryWithGroup[];
 }
 
 export function ServiceManagement({

@@ -1,6 +1,6 @@
 import { Group } from "@/modules/group/domain/types";
 
-export interface CategoryNew {
+export interface Category {
   id: string;
   name: string;
   groupId: string | null;
@@ -15,11 +15,11 @@ export interface CategoryNew {
   deletedAt: string | null;
 }
 
-export interface CategoryNewWithGroup extends CategoryNew {
+export interface CategoryWithGroup extends Category {
   group?: Group | null;
 }
 
-export interface CreateCategoryNewInput {
+export interface CreateCategoryInput {
   name: string;
   groupId?: string | null;
   slug: string;
@@ -30,7 +30,7 @@ export interface CreateCategoryNewInput {
   orderIndex?: number;
 }
 
-export interface UpdateCategoryNewInput {
+export interface UpdateCategoryInput {
   id: string;
   name?: string;
   groupId?: string | null;

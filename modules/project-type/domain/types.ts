@@ -1,4 +1,4 @@
-import { CategoryNewWithGroup } from "@/modules/category-new/domain/types";
+import { CategoryWithGroup } from "@/modules/category/domain/types";
 
 export interface ProjectType {
   id: string;
@@ -15,7 +15,7 @@ export interface ProjectType {
 }
 
 export interface ProjectTypeWithCategories extends ProjectType {
-  categories: CategoryNewWithGroup[];
+  categories: CategoryWithGroup[];
 }
 
 export interface CreateProjectTypeInput {

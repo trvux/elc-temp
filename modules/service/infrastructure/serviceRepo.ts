@@ -8,7 +8,7 @@ import {
   ServiceFilter,
 } from "../domain/types";
 import { ServiceGroup } from "@/modules/service-group/domain/types";
-import { CategoryNewWithGroup } from "@/modules/category-new/domain/types";
+import { CategoryWithGroup } from "@/modules/category/domain/types";
 
 type Tables = Database["public"]["Tables"];
 type ServiceRow = Tables["services"]["Row"];
@@ -206,7 +206,7 @@ class ServiceRepository {
         };
       }
 
-      let mappedCategory: CategoryNewWithGroup | null = null;
+      let mappedCategory: CategoryWithGroup | null = null;
       if (row.category) {
         mappedCategory = {
           id: row.category.id,
@@ -283,7 +283,7 @@ class ServiceRepository {
       };
     }
 
-    let mappedCategory: CategoryNewWithGroup | null = null;
+    let mappedCategory: CategoryWithGroup | null = null;
     if (row.category) {
       mappedCategory = {
         id: row.category.id,
@@ -359,7 +359,7 @@ class ServiceRepository {
       };
     }
 
-    let mappedCategory: CategoryNewWithGroup | null = null;
+    let mappedCategory: CategoryWithGroup | null = null;
     if (row.category) {
       mappedCategory = {
         id: row.category.id,
