@@ -31,21 +31,21 @@ import {
 } from "@/shared/components/ui/select";
 import { getGroupsAction } from "@/modules/group/presentation/actions";
 
-import { CategoryNewWithGroup } from "../../domain";
-import { deleteCategoryNewAction, getCategoriesNewAction } from "../actions";
-import { useCategoryNewForm } from "../hooks/useCategoryNewForm";
-import { getColumns, type CategoryNewRow } from "./columns";
+import { CategoryWithGroup } from "../../domain";
+import { deleteCategoryAction, getCategoriesAction } from "../actions";
+import { useCategoryForm } from "../hooks/useCategoryForm";
+import { getColumns, type CategoryRow } from "./columns";
 
-export function CategoryNewManagement() {
+export function CategoryManagement() {
   const queryClient = useQueryClient();
-  const [activeCategory, setActiveCategory] = useState<CategoryNewWithGroup | "new" | null>(null);
+  const [activeCategory, setActiveCategory] = useState<CategoryWithGroup | "new" | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
   // Fetch Data
   const { data: categories = [], isLoading } = useQuery({
     queryKey: ["categories-new"],
     queryFn: async () => {
-      const { data, error } = await getCategoriesNewAction();
+      const { data, error } = await getCategoriesAction();
       if (error) throw new Error(error);
       return data;
     },
@@ -61,14 +61,14 @@ export function CategoryNewManagement() {
   });
 
   // Form Hook
-  const { form, saveMutation, handleUpload, uploading, onNameChange } = useCategoryNewForm(
+  const { form, saveMutation, handleUpload, uploading, onNameChange } = useCategoryForm(
     activeCategory,
     () => setActiveCategory(null)
   );
 
   // Delete Mutation
   const deleteMutation = useMutation({
-    mutationFn: deleteCategoryNewAction,
+    mutationFn: deleteCategoryAction,
     onSuccess: (res) => {
       if (res.error) {
         toast.error(res.error);

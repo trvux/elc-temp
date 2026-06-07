@@ -43,7 +43,7 @@ export interface ProjectWithCategory extends Project {
     slug: string;
     group?: { id: string; name: string; slug: string } | null;
   } | null;
-  categoriesNew?: {
+  categories?: {
     id: string;
     name: string;
     groupId: string | null;

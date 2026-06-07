@@ -19,7 +19,7 @@ export class SupabaseProjectRepository implements ProjectRepository {
     *,
     projectType:project_type(id, name, slug),
     project_category(
-      categoryNew:categories(
+      category:categories(
         *,
         group_categories(*)
       )
@@ -65,11 +65,11 @@ export class SupabaseProjectRepository implements ProjectRepository {
       }
     }
     
-    if (options?.categoryNewSlug) {
+    if (options?.categorySlug) {
       const { data: catData, error: catError } = await supabase
         .from("categories")
         .select("id")
-        .eq("slug", options.categoryNewSlug)
+        .eq("slug", options.categorySlug)
         .is("deleted_at", null)
         .maybeSingle();
 
@@ -94,11 +94,11 @@ export class SupabaseProjectRepository implements ProjectRepository {
       }
     }
 
-    if (options?.categoryNewSlugs && options.categoryNewSlugs.length > 0) {
+    if (options?.categorySlugs && options.categorySlugs.length > 0) {
       const { data: catsData, error: catsError } = await supabase
         .from("categories")
         .select("id")
-        .in("slug", options.categoryNewSlugs)
+        .in("slug", options.categorySlugs)
         .is("deleted_at", null);
 
       if (catsData && catsData.length > 0 && !catsError) {
@@ -150,7 +150,7 @@ export class SupabaseProjectRepository implements ProjectRepository {
     return (data || []).map((row) => this.mapToDomainWithCategory(row));
   }
 
-  async count(options?: Pick<ProjectFilter, "categoryId" | "projectTypeId" | "categoryNewSlug" | "categoryNewSlugs" | "serviceSlug" | "serviceSlugs" | "isPublished" | "isFeatured" | "search" | "includeDeleted">): Promise<number> {
+  async count(options?: Pick<ProjectFilter, "categoryId" | "projectTypeId" | "categorySlug" | "categorySlugs" | "serviceSlug" | "serviceSlugs" | "isPublished" | "isFeatured" | "search" | "includeDeleted">): Promise<number> {
     const supabase = await createClient();
     let query = supabase.from(this.TABLE_NAME).select("*", { count: "exact", head: true });
 
@@ -187,11 +187,11 @@ export class SupabaseProjectRepository implements ProjectRepository {
       }
     }
 
-    if (options?.categoryNewSlug) {
+    if (options?.categorySlug) {
       const { data: catData, error: catError } = await supabase
         .from("categories")
         .select("id")
-        .eq("slug", options.categoryNewSlug)
+        .eq("slug", options.categorySlug)
         .is("deleted_at", null)
         .maybeSingle();
 
@@ -216,11 +216,11 @@ export class SupabaseProjectRepository implements ProjectRepository {
       }
     }
 
-    if (options?.categoryNewSlugs && options.categoryNewSlugs.length > 0) {
+    if (options?.categorySlugs && options.categorySlugs.length > 0) {
       const { data: catsData, error: catsError } = await supabase
         .from("categories")
         .select("id")
-        .in("slug", options.categoryNewSlugs)
+        .in("slug", options.categorySlugs)
         .is("deleted_at", null);
 
       if (catsData && catsData.length > 0 && !catsError) {
@@ -540,9 +540,9 @@ export class SupabaseProjectRepository implements ProjectRepository {
       slug: row.projectType.slug || "",
     } : null;
 
-    const categoriesNew = (row.project_category || [])
+    const categories = (row.project_category || [])
       .map((pc: any) => {
-        const cat = pc.categoryNew;
+        const cat = pc.category;
         if (!cat) return null;
         return {
           id: cat.id,
@@ -572,7 +572,7 @@ export class SupabaseProjectRepository implements ProjectRepository {
       category: null,
       projectType,
       service,
-      categoriesNew,
+      categories,
     };
   }
 

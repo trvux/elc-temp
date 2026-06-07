@@ -153,7 +153,7 @@ export async function resolveProjectPath(slug: string): Promise<ResolvedProjectE
         *,
         projectType:project_type(id, name, slug),
         project_category(
-          categoryNew:categories(
+          category:categories(
             *,
             group_categories(*)
           )
@@ -190,7 +190,7 @@ export async function resolveProjectPath(slug: string): Promise<ResolvedProjectE
         slug: string;
       } | null;
       project_category: {
-        categoryNew: {
+        category: {
           id: string;
           name: string;
           group_id: string | null;
@@ -202,9 +202,9 @@ export async function resolveProjectPath(slug: string): Promise<ResolvedProjectE
       }[] | null;
     };
 
-    const categoriesNew = (row.project_category || [])
+    const categories = (row.project_category || [])
       .map((pc) => {
-        const cat = pc.categoryNew;
+        const cat = pc.category;
         if (!cat) return null;
         return {
           id: cat.id,
@@ -246,7 +246,7 @@ export async function resolveProjectPath(slug: string): Promise<ResolvedProjectE
           }
         : null,
       service: null,
-      categoriesNew,
+      categories,
     };
 
     return { type: "project", data: project };

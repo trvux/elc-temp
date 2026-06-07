@@ -1,5 +1,5 @@
 import { ServiceGroup } from "@/modules/service-group/domain/types";
-import { CategoryNewWithGroup } from "@/modules/category-new/domain/types";
+import { CategoryWithGroup } from "@/modules/category/domain/types";
 import { Database } from "@/database.types";
 
 export interface Service {
@@ -28,7 +28,7 @@ export interface Service {
 
 export interface ServiceWithRelations extends Service {
   group: ServiceGroup | null;
-  category: CategoryNewWithGroup | null;
+  category: CategoryWithGroup | null;
 }
 
 export interface CreateServiceInput {

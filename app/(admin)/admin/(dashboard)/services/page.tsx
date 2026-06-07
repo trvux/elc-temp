@@ -2,7 +2,7 @@ import { Metadata } from "next";
 import { ServiceManagement } from "@/modules/service";
 import { getServicesAction } from "@/modules/service";
 import { getServiceGroupsAction } from "@/modules/service-group";
-import { getCategoriesNewAction } from "@/modules/category-new/presentation/actions";
+import { getCategoriesAction } from "@/modules/category/presentation/actions";
 import { connection } from "next/server";
 
 export const metadata: Metadata = {
@@ -14,7 +14,7 @@ export default async function ServicesPage() {
   const [{ data: services }, { data: groups }, { data: categories }] = await Promise.all([
     getServicesAction(),
     getServiceGroupsAction(),
-    getCategoriesNewAction()
+    getCategoriesAction()
   ]);
 
   return (

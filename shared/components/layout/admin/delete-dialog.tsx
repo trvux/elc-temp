@@ -12,11 +12,11 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/shared/components/ui/alert-dialog";
-import { getCategoriesNewAction } from "@/modules/category-new/presentation/actions";
+import { getCategoriesAction } from "@/modules/category/presentation/actions";
 import { getProductsAction } from "@/modules/catalog/presentation/actions";
 import { getProjectsAction } from "@/modules/project/presentation/actions";
 import { getServicesAction } from "@/modules/service/presentation/actions";
-import { CategoryNewWithGroup } from "@/modules/category-new/domain/types";
+import { CategoryWithGroup } from "@/modules/category/domain/types";
 import { Product } from "@/modules/catalog/domain/types";
 import { Project, ProjectWithCategory } from "@/modules/project/domain/types";
 import { Service } from "@/modules/service/domain/types";
@@ -62,13 +62,13 @@ export function DeleteDialog({
   const { data: categoriesData } = useQuery({
     queryKey: ["categories-new-list"],
     queryFn: async () => {
-      const { data, error } = await getCategoriesNewAction();
+      const { data, error } = await getCategoriesAction();
       if (error) throw new Error(error);
       return data || [];
     },
     enabled: isGroup,
   });
-  const categories = (categoriesData || []) as CategoryNewWithGroup[];
+  const categories = (categoriesData || []) as CategoryWithGroup[];
 
   // Fetch Category products and projects (for entityType === "category")
   const isCategory = entityType === "category" && !!entityId && open;
@@ -122,7 +122,7 @@ export function DeleteDialog({
   const affectedProjects = useMemo(() => {
     if (!isCategory || !entityId) return [];
     return projects
-      .filter((p) => p.categoriesNew?.some((cat: { id: string }) => cat.id === entityId))
+      .filter((p) => p.categories?.some((cat: { id: string }) => cat.id === entityId))
       .map((p) => ({ id: p.id, name: p.title }));
   }, [projects, isCategory, entityId]);
 

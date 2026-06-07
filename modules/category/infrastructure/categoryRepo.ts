@@ -1,12 +1,12 @@
 import { createClient } from "@/shared/lib/supabase/server";
-import { CategoryNew, CategoryNewWithGroup, CreateCategoryNewInput, UpdateCategoryNewInput } from "../domain/types";
-import { CategoryNewFilter, CategoryNewRepository } from "../domain/repository";
+import { Category, CategoryWithGroup, CreateCategoryInput, UpdateCategoryInput } from "../domain/types";
+import { CategoryFilter, CategoryRepository } from "../domain/repository";
 import { unstable_rethrow } from "next/navigation";
 
-export class SupabaseCategoryNewRepository implements CategoryNewRepository {
+export class SupabaseCategoryRepository implements CategoryRepository {
   private readonly TABLE_NAME = "categories";
 
-  async getAll(options?: CategoryNewFilter): Promise<CategoryNewWithGroup[]> {
+  async getAll(options?: CategoryFilter): Promise<CategoryWithGroup[]> {
     const supabase = await createClient();
     
     let query = supabase
@@ -39,7 +39,7 @@ export class SupabaseCategoryNewRepository implements CategoryNewRepository {
     return (data || []).map((row: any) => this.mapToDomainWithGroup(row));
   }
 
-  async count(options?: Pick<CategoryNewFilter, "groupId" | "search" | "includeDeleted">): Promise<number> {
+  async count(options?: Pick<CategoryFilter, "groupId" | "search" | "includeDeleted">): Promise<number> {
     const supabase = await createClient();
     let query = supabase.from(this.TABLE_NAME).select("*", { count: "exact", head: true });
 
@@ -61,7 +61,7 @@ export class SupabaseCategoryNewRepository implements CategoryNewRepository {
     return count || 0;
   }
 
-  async getById(id: string): Promise<CategoryNewWithGroup | null> {
+  async getById(id: string): Promise<CategoryWithGroup | null> {
     const supabase = await createClient();
     const { data, error } = await supabase
       .from(this.TABLE_NAME)
@@ -74,7 +74,7 @@ export class SupabaseCategoryNewRepository implements CategoryNewRepository {
     return data ? this.mapToDomainWithGroup(data as any) : null;
   }
 
-  async create(input: CreateCategoryNewInput): Promise<CategoryNew> {
+  async create(input: CreateCategoryInput): Promise<Category> {
     const supabase = await createClient();
 
     // Check if there is an existing soft-deleted category with the same slug
@@ -131,7 +131,7 @@ export class SupabaseCategoryNewRepository implements CategoryNewRepository {
     return this.mapToDomain(data);
   }
 
-  async update(input: UpdateCategoryNewInput): Promise<CategoryNew> {
+  async update(input: UpdateCategoryInput): Promise<Category> {
     const supabase = await createClient();
     const row = {
       name: input.name,
@@ -178,7 +178,7 @@ export class SupabaseCategoryNewRepository implements CategoryNewRepository {
     if (relError) this.handleError(relError, "delete");
   }
 
-  private mapToDomain(row: any): CategoryNew {
+  private mapToDomain(row: any): Category {
     return {
       id: row.id,
       name: row.name,
@@ -195,7 +195,7 @@ export class SupabaseCategoryNewRepository implements CategoryNewRepository {
     };
   }
 
-  private mapToDomainWithGroup(row: any): CategoryNewWithGroup {
+  private mapToDomainWithGroup(row: any): CategoryWithGroup {
     const category = this.mapToDomain(row);
     const groupRow = row.group_categories;
     
@@ -233,9 +233,9 @@ export class SupabaseCategoryNewRepository implements CategoryNewRepository {
         message = error.message;
       }
     }
-    console.error(`[SupabaseCategoryNewRepository][${context}] Error:`, error);
+    console.error(`[SupabaseCategoryRepository][${context}] Error:`, error);
     throw new Error(`Database error in ${context}: ${message}`);
   }
 }
 
-export const categoryNewRepo = new SupabaseCategoryNewRepository();
+export const categoryRepo = new SupabaseCategoryRepository();

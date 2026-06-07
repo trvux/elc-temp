@@ -20,7 +20,7 @@ import { Input } from "@/shared/components/ui/input";
 import { Switch } from "@/shared/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/shared/components/ui/tabs";
 import { Textarea } from "@/shared/components/ui/textarea";
-import { getCategoriesNewAction } from "@/modules/category-new/presentation/actions";
+import { getCategoriesAction } from "@/modules/category/presentation/actions";
 import { ImageUpload } from "@/shared/components/ui/image-upload";
 
 import { ProjectTypeWithCategories } from "../../domain";
@@ -47,7 +47,7 @@ export function ProjectTypeManagement() {
   const { data: categories = [] } = useQuery({
     queryKey: ["categories-new"],
     queryFn: async () => {
-      const { data, error } = await getCategoriesNewAction();
+      const { data, error } = await getCategoriesAction();
       if (error) throw new Error(error);
       return data;
     },

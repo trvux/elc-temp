@@ -6,10 +6,10 @@ import { Edit2, Minus, Star, Trash2 } from "lucide-react";
 import Image from "next/image";
 import { ServiceGroup } from "../../domain/types";
 
-import { CategoryNewWithGroup } from "@/modules/category-new/domain/types";
+import { CategoryWithGroup } from "@/modules/category/domain/types";
 
 interface ServiceGroupColumnsProps {
-  categories: CategoryNewWithGroup[];
+  categories: CategoryWithGroup[];
   onEdit: (group: ServiceGroup) => void;
   onDelete: (id: string) => void;
 }
@@ -72,7 +72,7 @@ export const getServiceGroupColumns = ({
       // Map categoryIds to actual category objects
       const linkedCats = categoryIds
         .map((id) => categories.find((c) => c.id === id))
-        .filter((c): c is CategoryNewWithGroup => !!c);
+        .filter((c): c is CategoryWithGroup => !!c);
 
       if (linkedCats.length === 0) {
         return (

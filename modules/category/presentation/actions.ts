@@ -3,31 +3,31 @@
 import { revalidatePath } from "next/cache";
 import { unstable_rethrow } from "next/navigation";
 import {
-  createCategoryNew,
-  deleteCategoryNew,
-  getCategoriesNew,
-  updateCategoryNew,
+  createCategory,
+  deleteCategory,
+  getCategories,
+  updateCategory,
 } from "../application/index";
-import { CreateCategoryNewInput, UpdateCategoryNewInput } from "../domain/types";
+import { CreateCategoryInput, UpdateCategoryInput } from "../domain/types";
 
-export async function getCategoriesNewAction() {
+export async function getCategoriesAction() {
   try {
-    const data = await getCategoriesNew();
+    const data = await getCategories();
     return { data, error: null };
   } catch (error) {
     unstable_rethrow(error);
-    console.error("getCategoriesNewAction error:", error);
+    console.error("getCategoriesAction error:", error);
     return { data: [], error: "Failed to fetch custom categories" };
   }
 }
 
-export async function createCategoryNewAction(input: CreateCategoryNewInput) {
+export async function createCategoryAction(input: CreateCategoryInput) {
   try {
-    const data = await createCategoryNew(input);
+    const data = await createCategory(input);
     revalidatePath("/admin/categories");
     return { data, error: null };
   } catch (error) {
-    console.error("createCategoryNewAction error:", error);
+    console.error("createCategoryAction error:", error);
     return {
       data: null,
       error: error instanceof Error ? error.message : "Failed to create custom category",
@@ -35,13 +35,13 @@ export async function createCategoryNewAction(input: CreateCategoryNewInput) {
   }
 }
 
-export async function updateCategoryNewAction(input: UpdateCategoryNewInput) {
+export async function updateCategoryAction(input: UpdateCategoryInput) {
   try {
-    const data = await updateCategoryNew(input);
+    const data = await updateCategory(input);
     revalidatePath("/admin/categories");
     return { data, error: null };
   } catch (error) {
-    console.error("updateCategoryNewAction error:", error);
+    console.error("updateCategoryAction error:", error);
     return {
       data: null,
       error: error instanceof Error ? error.message : "Failed to update custom category",
@@ -49,13 +49,13 @@ export async function updateCategoryNewAction(input: UpdateCategoryNewInput) {
   }
 }
 
-export async function deleteCategoryNewAction(id: string) {
+export async function deleteCategoryAction(id: string) {
   try {
-    await deleteCategoryNew(id);
+    await deleteCategory(id);
     revalidatePath("/admin/categories");
     return { error: null };
   } catch (error) {
-    console.error("deleteCategoryNewAction error:", error);
+    console.error("deleteCategoryAction error:", error);
     return {
       error: error instanceof Error ? error.message : "Failed to delete custom category",
     };

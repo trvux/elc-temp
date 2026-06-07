@@ -1,4 +1,4 @@
-import { getCategoriesNew } from "@/modules/category-new/application";
+import { getCategories } from "@/modules/category/application";
 import { getProjects } from "@/modules/project/application/getProjects";
 import { ProjectCard } from "@/modules/project/presentation/components/ProjectCard";
 import { getProjectTypes } from "@/modules/project-type/application";
@@ -69,7 +69,7 @@ async function getCachedProjectListData(
   const projects = await getProjects({
     isPublished: true,
     projectTypeId: projectType?.id || undefined,
-    categoryNewSlugs: categorySlugs.length > 0 ? categorySlugs : undefined,
+    categorySlugs: categorySlugs.length > 0 ? categorySlugs : undefined,
     serviceSlugs: serviceSlugs.length > 0 ? serviceSlugs : undefined,
     search: searchVal,
   });
@@ -175,15 +175,15 @@ async function getCachedProjectListData(
       const count = allPublishedProjects.filter(
         (p) =>
           p.projectTypeId === projectType.id &&
-          p.categoriesNew?.some((c) => c.id === cat.id),
+          p.categories?.some((c) => c.id === cat.id),
       ).length;
       return { ...cat, count };
     });
   } else {
-    const allCategories = await getCategoriesNew({ includeDeleted: false });
+    const allCategories = await getCategories({ includeDeleted: false });
     filterCategories = allCategories.map((cat) => {
       const count = allPublishedProjects.filter((p) =>
-        p.categoriesNew?.some((c) => c.id === cat.id),
+        p.categories?.some((c) => c.id === cat.id),
       ).length;
       return {
         id: cat.id,
