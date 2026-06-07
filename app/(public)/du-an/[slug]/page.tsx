@@ -3,7 +3,6 @@ import { resolveProjectPath } from "@/modules/project/application/resolveProject
 import { ProjectWithCategory } from "@/modules/project/domain/types";
 import { ProjectListModule } from "@/modules/project/presentation/components/public/ProjectListModule";
 import { getProjectTypes } from "@/modules/project-type/application";
-import { ProjectTypeWithCategories } from "@/modules/project-type/domain/types";
 import { PreviewContent } from "@/shared/components/layout/user/preview-content";
 import { ScrollToTop } from "@/shared/components/layout/user/scroll-to-top";
 import { Metadata } from "next";
@@ -14,8 +13,6 @@ import { Badge } from "@/shared/components/ui/badge";
 import { Sparkle } from "lucide-react";
 import { setUseStaticClient } from "@/shared/lib/supabase/server";
 import { cacheLife } from "next/cache";
-import { Suspense } from "react";
-import { Skeleton } from "@/shared/components/ui/skeleton";
 
 // Generate dynamic SEO Metadata
 export async function generateMetadata({
@@ -99,69 +96,20 @@ export default async function ProjectDetailPage({
 
   // Branch depending on entity type
   if (entity.type === "project_type") {
+    const resolvedSearchParams = await searchParams;
     return (
-      <Suspense fallback={<ProjectListSkeleton />}>
-        <ProjectListModuleWrapper
-          projectType={entity.data}
-          searchParamsPromise={searchParams}
-        />
-      </Suspense>
+      <ProjectListModule
+        projectType={entity.data}
+        searchParams={resolvedSearchParams}
+      />
     );
   }
 
   if (entity.type === "project") {
-    return (
-      <Suspense fallback={<ProjectDetailSkeleton />}>
-        <ProjectDetailView project={entity.data} />
-      </Suspense>
-    );
+    return <ProjectDetailView project={entity.data} />;
   }
 
   notFound();
-}
-
-function ProjectDetailSkeleton() {
-  return (
-    <main className="w-full pt-28 pb-24 px-4 md:px-6 min-h-screen bg-background animate-pulse">
-      <div className="max-w-3xl mx-auto flex flex-col gap-6">
-        {/* Title Skeleton */}
-        <Skeleton className="h-12 w-3/4 rounded-lg bg-muted/40" />
-        
-        {/* Category Badge Skeleton */}
-        <Skeleton className="h-8 w-40 rounded-md bg-muted/40" />
-
-        {/* Image Skeleton */}
-        <div className="w-full mt-2 overflow-hidden rounded-sm border border-border/40 aspect-[16/9] bg-muted/10" />
-
-        {/* Content Skeleton Lines */}
-        <div className="mt-8 space-y-4">
-          <Skeleton className="h-4 w-full rounded bg-muted/40" />
-          <Skeleton className="h-4 w-11/12 rounded bg-muted/40" />
-          <Skeleton className="h-4 w-5/6 rounded bg-muted/40" />
-          <div className="h-4" />
-          <Skeleton className="h-4 w-full rounded bg-muted/40" />
-          <Skeleton className="h-4 w-full rounded bg-muted/40" />
-          <Skeleton className="h-4 w-3/4 rounded bg-muted/40" />
-        </div>
-      </div>
-    </main>
-  );
-}
-
-async function ProjectListModuleWrapper({
-  projectType,
-  searchParamsPromise,
-}: {
-  projectType: ProjectTypeWithCategories;
-  searchParamsPromise: Promise<{ [key: string]: string | string[] | undefined }>;
-}) {
-  const resolvedSearchParams = await searchParamsPromise;
-  return (
-    <ProjectListModule
-      projectType={projectType}
-      searchParams={resolvedSearchParams}
-    />
-  );
 }
 
 async function getCachedCurrentYear() {
@@ -175,27 +123,11 @@ async function ProjectDetailView({ project }: { project: ProjectWithCategory }) 
   const displayCategory =
     project.categoriesNew?.[0]?.name || project.projectType?.name || "Dự án";
 
-  const breadcrumbItems = [
-    { label: "Dự án", href: "/du-an" },
-    ...(project.projectType
-      ? [
-          {
-            label: project.projectType.name,
-            href: `/du-an/${project.projectType.slug || ""}`,
-          },
-        ]
-      : []),
-    { label: project.title, active: true },
-  ];
-
   const currentYear = await getCachedCurrentYear();
 
   return (
     <main className="w-full pt-28 pb-24 px-4 md:px-6 min-h-screen bg-background">
       <div className="max-w-3xl mx-auto flex flex-col gap-6 animate-fade-in-up">
-        {/* Breadcrumbs
-        <Breadcrumbs items={breadcrumbItems} /> */}
-
         {/* Title */}
         <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight text-foreground leading-tight">
           {project.title}
@@ -214,7 +146,7 @@ async function ProjectDetailView({ project }: { project: ProjectWithCategory }) 
           </Badge>
         </div>
 
-        {/* Cover Cover Image */}
+        {/* Cover Image */}
         {images[0] && (
           <div className="w-full mt-2 overflow-hidden rounded-sm border border-border/40">
             <AspectRatio ratio={16 / 9}>
@@ -268,59 +200,6 @@ async function ProjectDetailView({ project }: { project: ProjectWithCategory }) 
             Trở lên đầu trang
           </ScrollToTop>
         </footer>
-      </div>
-    </main>
-  );
-}
-
-function ProjectListSkeleton() {
-  return (
-    <main className="w-full px-4 py-12 md:px-8 bg-background min-h-screen">
-      <div className="mx-auto w-full max-w-7xl flex flex-col gap-8 md:gap-12">
-        {/* Breadcrumbs Skeleton */}
-        <div className="h-4 w-32 bg-muted rounded animate-pulse" />
-
-        {/* Header Skeleton */}
-        <header className="flex flex-col items-center text-center gap-4 max-w-3xl mx-auto">
-          <Skeleton className="h-10 w-64 md:w-96 rounded-lg" />
-          <Skeleton className="h-6 w-48 rounded" />
-        </header>
-
-        {/* Filters and Grid Section Skeleton */}
-        <div className="flex flex-col gap-4">
-          <div className="flex items-center gap-3 w-full">
-            <Skeleton className="h-10 flex-1 rounded-lg" />
-            <Skeleton className="h-10 w-24 rounded-lg" />
-          </div>
-
-          <div className="flex flex-col lg:flex-row gap-12">
-            {/* Sidebar Filter Skeleton */}
-            <aside className="hidden lg:block w-64 shrink-0 space-y-6">
-              <Skeleton className="h-8 w-24 rounded" />
-              <div className="space-y-3">
-                <Skeleton className="h-6 w-full rounded" />
-                <Skeleton className="h-6 w-full rounded" />
-                <Skeleton className="h-6 w-full rounded" />
-              </div>
-            </aside>
-
-            {/* Project List Grid Skeleton */}
-            <div className="flex-1">
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-10 md:gap-y-12 min-h-112.5">
-                {Array.from({ length: 6 }).map((_, i) => (
-                  <div key={i} className="flex flex-col gap-4 border border-border/40 rounded-xl p-0 overflow-hidden bg-white/50 shadow-sm h-87.5">
-                    <Skeleton className="aspect-video w-full" />
-                    <div className="p-5 flex-1 space-y-3">
-                      <Skeleton className="h-6 w-3/4 rounded" />
-                      <Skeleton className="h-4 w-full rounded" />
-                      <Skeleton className="h-4 w-5/6 rounded" />
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
       </div>
     </main>
   );
