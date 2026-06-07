@@ -8,6 +8,7 @@ import { Breadcrumbs } from "@/shared/components/layout/user/breadcrumbs";
 import { ProductPagination } from "@/shared/components/layout/user/product-pagination";
 import { ProductSearch } from "@/shared/components/layout/user/product-search";
 import { ScrollToTop } from "@/shared/components/layout/user/scroll-to-top";
+import { GridSection } from "@/shared/components/sections/grid-section";
 import {
   TypographyH1,
   TypographyLarge,
@@ -27,20 +28,17 @@ interface ProductListModuleProps {
 }
 
 const STYLES = {
-  main: cn("w-full px-4 py-12 md:px-8"),
-  container: cn(
-    "mx-auto w-full px-4 md:px-6 max-w-7xl flex flex-col gap-6 md:gap-12",
-  ),
-  header: cn("flex flex-col items-center text-center gap-3"),
+  main: cn("w-full bg-background min-h-screen flex flex-col"),
+  header: cn("flex flex-col items-center text-center gap-3 w-full"),
   title: cn("w-full max-w-none! text-wrap!"),
   grid: cn(
     "grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-6 gap-y-6 md:gap-y-16 min-h-[450px] content-start animate-fade-in-up",
   ),
-  emptyState: cn("py-24 text-center min-h-[300px] animate-fade-in-up"),
+  emptyState: cn("py-24 text-center min-h-[300px] w-full animate-fade-in-up"),
   emptyText: cn("text-muted-foreground/60 italic text-sm"),
-  paginationWrapper: cn("mt-4"),
+  paginationWrapper: cn("mt-12"),
   footer: cn(
-    "border-t pt-12 flex flex-col md:flex-row justify-between items-center gap-8 text-muted-foreground",
+    "w-full flex flex-col md:flex-row justify-between items-center gap-6 text-muted-foreground",
   ),
   scrollToTop: cn(
     "flex items-center gap-2 cursor-pointer hover:text-foreground transition-colors",
@@ -203,97 +201,132 @@ export async function ProductListModule({
 
   return (
     <main className={STYLES.main}>
-      <div className={STYLES.container}>
-        <Breadcrumbs
-          items={[
-            ...(breadcrumbParent ? [breadcrumbParent] : []),
-            { label: pageTitle, active: true },
-          ]}
-        />
+      {/* ===== KHỐI 1: TIÊU ĐỀ TRANG ===== */}
+      <GridSection
+        id="products-header"
+        isFirst={true}
+        showDiamond={true}
+        contentClassName="py-6 md:py-8 lg:py-10"
+      >
+        <div className="flex flex-col gap-6 w-full">
+          <header className={STYLES.header}>
+            <TypographyH1 className={STYLES.title}>{pageTitle}</TypographyH1>
+            <TypographyLarge className="flex items-center gap-x-1 text-sm! md:text-md! lg:text-lg! text-muted-foreground">
+              Danh sách{" "}
+              <span className="flex gap-x-1 bg-primary text-primary-foreground px-2 rounded-sm items-center font-medium">
+                {totalCount} sản phẩm
+              </span>{" "}
+              thuộc {subTitlePrefix}
+            </TypographyLarge>
+          </header>
+        </div>
+      </GridSection>
 
-        <header className={STYLES.header}>
-          <TypographyH1 className={STYLES.title}>{pageTitle}</TypographyH1>
-          <TypographyLarge className="flex items-center gap-x-1 text-sm! md:text-md! lg:text-lg! text-muted-foreground">
-            Danh sách{" "}
-            <span className="flex gap-x-1 bg-blue-100 text-blue-800 px-2 rounded-sm items-center">
-              {totalCount} sản phẩm
-            </span>{" "}
-            thuộc {subTitlePrefix}
-          </TypographyLarge>
-        </header>
-
-        <div className="flex flex-col gap-4">
+      {/* ===== KHỐI 2: THANH TÌM KIẾM + BỘ LỌC MOBILE ===== */}
+      <GridSection
+        id="products-search"
+        isFirst={false}
+        showDiamond={true}
+        contentClassName="py-6 md:py-8 lg:py-10"
+      >
+        <div className="flex flex-col gap-8 w-full">
           <div className="flex items-center gap-3 w-full">
             <div className="flex-1">
               <Suspense fallback={null}>
                 <ProductSearch />
               </Suspense>
             </div>
-            <Suspense fallback={null}>
-              <ProductFilterMobile
-                categories={allCategories}
-                availableFilters={availableFilters}
-              />
-            </Suspense>
-          </div>
-          <div className="flex flex-col lg:flex-row gap-12">
-            <aside className="hidden lg:block w-64 shrink-0">
-              <Suspense fallback={
-                <div className="animate-pulse space-y-4">
-                  <div className="h-10 bg-muted rounded w-1/2" />
-                  <div className="h-40 bg-muted rounded" />
-                </div>
-              }>
-                <ProductFilters
-                  categories={allCategories}
-                  availableFilters={availableFilters}
-                />
-              </Suspense>
-            </aside>
-
-            <div className="flex-1">
-              {products.length > 0 ? (
-                <div className={STYLES.grid}>
-                  {products.map((product, index) => (
-                    <ProductCard
-                      key={product.id}
-                      product={product}
-                      queryTokens={queryTokens}
-                      priority={index < 8}
-                    />
-                  ))}
-                </div>
-              ) : (
-                <div className={STYLES.emptyState}>
-                  <p className={STYLES.emptyText}>
-                    Hiện chưa có sản phẩm nào trong {subTitlePrefix} này.
-                  </p>
-                </div>
-              )}
-
-              {totalPages > 1 && (
-                <div className={STYLES.paginationWrapper}>
-                  <ProductPagination
-                    currentPage={currentPage}
-                    totalPages={totalPages}
-                    searchParams={sParams}
-                  />
-                </div>
-              )}
-            </div>
+            <ProductFilterMobile
+              categories={allCategories}
+              availableFilters={availableFilters}
+            />
           </div>
         </div>
+      </GridSection>
 
+      {/* ===== KHỐI 3: BỘ LỌC + LƯỚI SẢN PHẨM ===== */}
+      <GridSection
+        id="products-content"
+        isFirst={false}
+        showDiamond={true}
+        contentClassName="py-6 md:py-8 lg:py-10"
+      >
+        <div className="flex flex-col lg:flex-row gap-12 w-full items-start">
+          <aside className="hidden lg:block w-64 shrink-0 sticky top-28 self-start">
+            <ProductFilters
+              categories={allCategories}
+              availableFilters={availableFilters}
+            />
+          </aside>
+
+          <div className="flex-1 w-full">
+            {products.length > 0 ? (
+              <div className={STYLES.grid}>
+                {products.map((product, index) => (
+                  <ProductCard
+                    key={product.id}
+                    product={product}
+                    queryTokens={queryTokens}
+                    priority={index < 8}
+                  />
+                ))}
+              </div>
+            ) : (
+              <div className={STYLES.emptyState}>
+                <p className={STYLES.emptyText}>
+                  Hiện chưa có sản phẩm nào trong {subTitlePrefix} này.
+                </p>
+              </div>
+            )}
+
+            {totalPages > 1 && (
+              <div className={STYLES.paginationWrapper}>
+                <ProductPagination
+                  currentPage={currentPage}
+                  totalPages={totalPages}
+                  searchParams={sParams}
+                />
+              </div>
+            )}
+          </div>
+        </div>
+      </GridSection>
+
+      {/* ===== KHỐI 4: FOOTER BẢN QUYỀN ===== */}
+      <GridSection
+        id="products-footer"
+        isFirst={false}
+        showDiamond={true}
+        contentClassName="py-6 md:py-8 lg:py-10"
+      >
         <footer className={STYLES.footer}>
           <TypographySmall>
-            &copy; {currentYear} ELC Holdings. Đã đăng ký bản
-            quyền.
+            &copy; {currentYear} ELC Holdings. Đã đăng ký bản quyền.
           </TypographySmall>
           <ScrollToTop className={STYLES.scrollToTop}>
             <TypographySmall>Quay lại đầu trang</TypographySmall>
           </ScrollToTop>
         </footer>
-      </div>
+      </GridSection>
+
+      {/* ===== KHỐI 5: BREADCRUMBS ===== */}
+      <GridSection
+        id="products-breadcrumbs"
+        isFirst={false}
+        showDiamond={false}
+        contentClassName="py-1"
+      >
+        <div className="w-full">
+          <Breadcrumbs
+            items={[
+              ...(breadcrumbParent ? [breadcrumbParent] : []),
+              { label: pageTitle, active: true },
+            ]}
+          />
+        </div>
+      </GridSection>
+
+      {/* Dữ liệu cấu trúc Schema SEO */}
       {(() => {
         const schema = generateCollectionSchema(entity.data, products);
         if (!schema) return null;
