@@ -15,9 +15,14 @@ import { ProjectWithCategory } from "../../domain/types";
 interface ProjectCardProps {
   project: ProjectWithCategory;
   queryTokens?: string[];
+  priority?: boolean;
 }
 
-export function ProjectCard({ project, queryTokens = [] }: ProjectCardProps) {
+export function ProjectCard({
+  project,
+  queryTokens = [],
+  priority = false,
+}: ProjectCardProps) {
   const firstImage = project.images?.[0] || "/placeholder.png";
 
   // Smartly extract the project name/location for a premium short title
@@ -49,7 +54,8 @@ export function ProjectCard({ project, queryTokens = [] }: ProjectCardProps) {
             fill
             sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
             className="object-cover"
-            loading="lazy"
+            priority={priority}
+            loading={priority ? "eager" : "lazy"}
           />
           <div className="absolute inset-0 z-30" />
         </div>

@@ -4,8 +4,10 @@ import {
   STOCK_STATUS,
   STOCK_STATUS_MAP,
 } from "@/modules/catalog/domain";
+import { getAdjacentProducts } from "@/modules/catalog/application/getAdjacentProducts";
 import { mapContactRowToDomain } from "@/modules/contact/domain";
 import { Breadcrumbs } from "@/shared/components/layout/user/breadcrumbs";
+import { DetailPager } from "@/shared/components/layout/user/detail-pager";
 import { OrderButton } from "@/shared/components/layout/user/order-button";
 import { ProductDescription } from "@/shared/components/layout/user/product-description";
 import RelatedProducts from "@/shared/components/layout/user/related-products";
@@ -130,6 +132,7 @@ export async function ProductDetailModule({
   product: ProductWithRelations;
 }) {
   const { contacts, currentYear } = await getCachedProductDetailData(product.slug);
+  const { prev, next } = await getAdjacentProducts(product);
 
   const category = product.category;
   if (!category) notFound();
@@ -347,7 +350,28 @@ export async function ProductDetailModule({
         </div>
       </GridSection>
 
-      {/* ===== KHỐI 3: SẢN PHẨM LIÊN QUAN ===== */}
+      {/* ===== KHỐI 3: ĐIỀU HƯỚNG SẢN PHẨM TRƯỚC / SAU (cùng loại) ===== */}
+      {(prev || next) && (
+        <GridSection
+          id="product-detail-pager"
+          isFirst={false}
+          showDiamond={true}
+          contentClassName="py-6 md:py-8 lg:py-10"
+        >
+          <DetailPager
+            prevLabel="Sản phẩm trước"
+            nextLabel="Sản phẩm tiếp theo"
+            prev={
+              prev ? { title: prev.name, href: `/san-pham/${prev.slug}` } : null
+            }
+            next={
+              next ? { title: next.name, href: `/san-pham/${next.slug}` } : null
+            }
+          />
+        </GridSection>
+      )}
+
+      {/* ===== KHỐI 4: SẢN PHẨM LIÊN QUAN ===== */}
       <GridSection
         id="product-detail-related"
         isFirst={false}
@@ -363,7 +387,7 @@ export async function ProductDetailModule({
         </div>
       </GridSection>
 
-      {/* ===== KHỐI 4: FOOTER BẢN QUYỀN ===== */}
+      {/* ===== KHỐI 5: FOOTER BẢN QUYỀN ===== */}
       <GridSection
         id="product-detail-footer"
         isFirst={false}
@@ -380,7 +404,7 @@ export async function ProductDetailModule({
         </footer>
       </GridSection>
 
-      {/* ===== KHỐI 5: BREADCRUMBS ===== */}
+      {/* ===== KHỐI 6: BREADCRUMBS ===== */}
       <GridSection
         id="product-detail-breadcrumbs"
         isFirst={false}

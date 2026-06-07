@@ -374,11 +374,12 @@ export async function ProjectListModule({
           <div className="flex-1">
             {paginatedProjects.length > 0 ? (
               <div className={STYLES.grid}>
-                {paginatedProjects.map((project) => (
+                {paginatedProjects.map((project, index) => (
                   <ProjectCard
                     key={project.id}
                     project={project}
                     queryTokens={queryTokens}
+                    priority={index < 6}
                   />
                 ))}
               </div>
