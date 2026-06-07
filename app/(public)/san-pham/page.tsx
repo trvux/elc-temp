@@ -2,7 +2,7 @@ import { searchProducts } from "@/modules/catalog/application";
 import { ProductCard } from "@/modules/catalog/presentation/components/ProductCard";
 import { ProductFilterMobile } from "@/modules/catalog/presentation/components/ProductFilterMobile";
 import { ProductFilters } from "@/modules/catalog/presentation/components/ProductFilters";
-import { getCategories } from "@/modules/category/application";
+import { getProductCategories } from "@/modules/category-new/application";
 import { Breadcrumbs } from "@/shared/components/layout/user/breadcrumbs";
 import { ProductPagination } from "@/shared/components/layout/user/product-pagination";
 import { ProductSearch } from "@/shared/components/layout/user/product-search";
@@ -110,7 +110,7 @@ async function getCachedCategories() {
   cacheLife({ stale: 0, revalidate: 300, expire: 86400 });
   cacheTag("products", "categories");
   setUseStaticClient(true);
-  return getCategories({ type: "PRODUCT" });
+  return getProductCategories();
 }
 
 async function getCachedProductsData(

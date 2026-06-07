@@ -4,7 +4,7 @@ import {
   STOCK_STATUS,
   STOCK_STATUS_MAP,
 } from "@/modules/catalog/domain";
-import { getCategories } from "@/modules/category";
+import { getProductCategories } from "@/modules/category-new/application";
 import { mapContactRowToDomain } from "@/modules/contact/domain";
 import { Breadcrumbs } from "@/shared/components/layout/user/breadcrumbs";
 import { OrderButton } from "@/shared/components/layout/user/order-button";
@@ -115,7 +115,7 @@ async function getCachedProductDetailData(productSlug: string) {
   const supabase = await createClient();
 
   const [allCategories, { data: rawContacts }] = await Promise.all([
-    getCategories({ type: "PRODUCT" }),
+    getProductCategories(),
     supabase
       .from("contacts")
       .select("*")

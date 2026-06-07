@@ -1,6 +1,5 @@
 "use client";
 
-import { getCategoryDisplayName } from "@/modules/category/application/getCategoryDisplayName";
 import { ProductPriceFilter } from "@/shared/components/layout/user/product-price-filter";
 import {
   Accordion,
@@ -101,13 +100,13 @@ export function ProductFilters({
         .sort((a, b) => a.name.localeCompare(b.name))
         .map((c) => ({
           ...c,
-          displayName: getCategoryDisplayName(c),
+          displayName: c.name,
         }));
 
       return {
         id: root.id,
         slug: root.slug,
-        displayName: getCategoryDisplayName(root),
+        displayName: root.name,
         children,
       };
     });
