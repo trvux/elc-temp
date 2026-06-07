@@ -8,24 +8,28 @@ import {
   PaginationPrevious,
 } from "@/shared/components/ui/pagination";
 
-interface ProductPaginationProps {
+interface PaginationNavProps {
   currentPage: number;
   totalPages: number;
   searchParams?: Record<string, string | string[] | undefined>;
 }
 
-export function ProductPagination({
+/**
+ * Điều hướng phân trang dùng chung cho mọi trang danh sách (sản phẩm, dự án, ...).
+ * Giữ nguyên toàn bộ query param hiện tại, chỉ thay đổi `page`.
+ */
+export function PaginationNav({
   currentPage,
   totalPages,
   searchParams = {},
-}: ProductPaginationProps) {
+}: PaginationNavProps) {
   const getPageUrl = (page: number): string => {
     const params = new URLSearchParams();
-    
+
     // Copy all current params
     Object.entries(searchParams).forEach(([key, value]) => {
       if (Array.isArray(value)) {
-        value.forEach(v => params.append(key, v));
+        value.forEach((v) => params.append(key, v));
       } else if (value !== undefined) {
         params.set(key, value);
       }

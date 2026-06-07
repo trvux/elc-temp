@@ -5,6 +5,7 @@ import { getProjectTypes } from "@/modules/project-type/application";
 import { ProjectTypeWithCategories } from "@/modules/project-type/domain/types";
 import { getServices } from "@/modules/service/application";
 import { Breadcrumbs } from "@/shared/components/layout/user/breadcrumbs";
+import { PaginationNav } from "@/shared/components/layout/user/pagination-nav";
 import { ScrollToTop } from "@/shared/components/layout/user/scroll-to-top";
 import { GridSection } from "@/shared/components/sections/grid-section";
 import { Button } from "@/shared/components/ui/button";
@@ -35,6 +36,7 @@ const STYLES = {
   emptyState:
     "py-24 text-center border border-dashed border-border rounded-xl bg-muted/20 flex flex-col items-center justify-center gap-4 max-w-lg mx-auto w-full min-h-[300px] animate-fade-in-up",
   emptyText: "text-muted-foreground italic text-sm",
+  paginationWrapper: "mt-12",
   footer:
     "w-full flex flex-col md:flex-row justify-between items-center gap-6 text-muted-foreground",
   scrollToTop:
@@ -259,6 +261,16 @@ export async function ProjectListModule({
   const { sortedProjects, projectTypeItems, filterCategories, serviceItems, currentYear } =
     await getCachedProjectListData(projectTypeData, categorySlugs, serviceSlugs, searchVal);
 
+  // Phân trang (giữ thứ tự featured-first toàn cục bằng cách cắt trang sau khi sắp xếp)
+  const currentPage = Number(searchParams.page) || 1;
+  const pageSize = 9;
+  const totalCount = sortedProjects.length;
+  const totalPages = Math.ceil(totalCount / pageSize);
+  const paginatedProjects = sortedProjects.slice(
+    (currentPage - 1) * pageSize,
+    currentPage * pageSize,
+  );
+
   // Breadcrumbs items
   const breadcrumbItems = [
     {
@@ -360,9 +372,9 @@ export async function ProjectListModule({
 
           {/* Project List Area */}
           <div className="flex-1">
-            {sortedProjects.length > 0 ? (
+            {paginatedProjects.length > 0 ? (
               <div className={STYLES.grid}>
-                {sortedProjects.map((project) => (
+                {paginatedProjects.map((project) => (
                   <ProjectCard
                     key={project.id}
                     project={project}
@@ -384,6 +396,16 @@ export async function ProjectListModule({
                     Xóa tất cả bộ lọc
                   </Link>
                 </Button>
+              </div>
+            )}
+
+            {totalPages > 1 && (
+              <div className={STYLES.paginationWrapper}>
+                <PaginationNav
+                  currentPage={currentPage}
+                  totalPages={totalPages}
+                  searchParams={searchParams}
+                />
               </div>
             )}
           </div>
