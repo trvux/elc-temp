@@ -4,7 +4,7 @@ import { ProductFilterMobile } from "@/modules/catalog/presentation/components/P
 import { ProductFilters } from "@/modules/catalog/presentation/components/ProductFilters";
 import { getCategories } from "@/modules/category/application";
 import { Breadcrumbs } from "@/shared/components/layout/user/breadcrumbs";
-import { ProductPagination } from "@/shared/components/layout/user/product-pagination";
+import { PaginationNav } from "@/shared/components/layout/user/pagination-nav";
 import { ProductSearch } from "@/shared/components/layout/user/product-search";
 import { ScrollToTop } from "@/shared/components/layout/user/scroll-to-top";
 import { GridSection } from "@/shared/components/sections/grid-section";
@@ -290,7 +290,7 @@ async function CachedProductsView({
 
             {totalPages > 1 && (
               <div className={STYLES.paginationWrapper}>
-                <ProductPagination
+                <PaginationNav
                   currentPage={currentPage}
                   totalPages={totalPages}
                   searchParams={params}
