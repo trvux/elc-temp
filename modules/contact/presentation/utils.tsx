@@ -2,11 +2,11 @@
 
 import {
   EnvelopeSimpleIcon,
+  FacebookLogoIcon,
   GlobeIcon,
   IconProps,
   LinkIcon,
   MessengerLogoIcon,
-  MetaLogoIcon,
   PhoneIcon,
   TiktokLogoIcon,
   YoutubeLogoIcon,
@@ -20,7 +20,7 @@ export const getContactIcon = (type: string) => {
   const icons: Record<string, React.ElementType> = {
     phone: PhoneIcon,
     email: EnvelopeSimpleIcon,
-    facebook: MetaLogoIcon,
+    facebook: FacebookLogoIcon,
     messenger: MessengerLogoIcon,
     zalo: IconLetterZ,
     tiktok: TiktokLogoIcon,
