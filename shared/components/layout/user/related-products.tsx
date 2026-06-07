@@ -12,7 +12,7 @@ interface RelatedProductsProps {
 }
 
 const STYLES = {
-  section: cn("mt-20 border-t pt-16"),
+  section: cn("w-full"),
   title: cn("mb-10"),
   grid: cn("grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"),
 };
