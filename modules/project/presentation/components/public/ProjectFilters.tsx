@@ -169,7 +169,7 @@ export function ProjectFilters({
     );
   }
 
-  const activeAccordionValues = ["Không gian kiến trúc", "Thiết bị lắp đặt", "Dịch vụ"];
+  const activeAccordionValues = ["Loại công trình", "Loại sản phẩm", "Dịch vụ"];
 
   return (
     <div className="flex flex-col gap-2">
@@ -197,12 +197,12 @@ export function ProjectFilters({
         defaultValue={activeAccordionValues}
         className="w-full"
       >
-        {/* Service Type (Không gian kiến trúc) - Single selection */}
+        {/* Service Type (Loại công trình) - Single selection */}
         {projectTypes.length > 0 && (
-          <AccordionItem value="Không gian kiến trúc">
+          <AccordionItem value="Loại công trình">
             <AccordionTrigger className="hover:no-underline">
               <div className="flex items-center gap-2">
-                <span>Không gian kiến trúc</span>
+                <span>Loại công trình</span>
                 {currentProjectTypeSlug && (
                   <Badge variant="secondary">
                     <Check data-icon="inline-start" className="w-3 h-3" /> 1 được chọn
@@ -247,12 +247,12 @@ export function ProjectFilters({
           </AccordionItem>
         )}
 
-        {/* Categories (Thiết bị lắp đặt) - Multi selection */}
+        {/* Categories (Loại sản phẩm) - Multi selection */}
         {currentProjectTypeSlug && categories.length > 0 && (
-          <AccordionItem value="Thiết bị lắp đặt">
+          <AccordionItem value="Loại sản phẩm">
             <AccordionTrigger className="hover:no-underline">
               <div className="flex items-center gap-2">
-                <span>Thiết bị lắp đặt</span>
+                <span>Loại sản phẩm</span>
                 {currentCategorySlugs.length > 0 && (
                   <Badge variant="secondary">
                     <Check data-icon="inline-start" className="w-3 h-3" /> {currentCategorySlugs.length} chọn
@@ -296,7 +296,7 @@ export function ProjectFilters({
         )}
 
         {/* Services (Dịch vụ) - Multi selection */}
-        {services.length > 0 && (
+        {currentProjectTypeSlug && services.length > 0 && (
           <AccordionItem value="Dịch vụ">
             <AccordionTrigger className="hover:no-underline">
               <div className="flex items-center gap-2">
