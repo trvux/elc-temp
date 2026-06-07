@@ -17,13 +17,16 @@ import { Check, Search, X } from "lucide-react";
 import { useParams, useRouter, useSearchParams, usePathname } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState, useTransition } from "react";
 
+export interface ProductFilterCategory {
+  id: string;
+  name: string;
+  slug: string;
+  groupId?: string | null;
+  group?: { id: string; name: string; slug: string } | null;
+}
+
 interface ProductFiltersProps {
-  categories?: {
-    id: string;
-    name: string;
-    slug: string;
-    parentId?: string | null;
-  }[];
+  categories?: ProductFilterCategory[];
   availableFilters: {
     brands: { id: string; name: string; slug: string }[];
     specs: { label: string; values: string[] }[];
@@ -48,12 +51,20 @@ export function ProductFilters({
   // Current entity slug from Flat URL path (/san-pham/[slug])
   const slugFromPath = params.slug as string;
 
-  // Determine if current path belongs to a category (for sidebar highlight)
+  // Mọi slug hợp lệ của danh mục con + nhóm danh mục (để nhận biết trang hiện tại)
+  const knownSlugs = useMemo(() => {
+    const slugs = new Set<string>();
+    categories.forEach((c) => {
+      slugs.add(c.slug);
+      if (c.group?.slug) slugs.add(c.group.slug);
+    });
+    return slugs;
+  }, [categories]);
+
+  // Determine if current path belongs to a category/group (for sidebar highlight)
   const currentCategory = useMemo(() => {
-    return categories.find((c) => c.slug === slugFromPath)
-      ? slugFromPath
-      : "all";
-  }, [categories, slugFromPath]);
+    return knownSlugs.has(slugFromPath) ? slugFromPath : "all";
+  }, [knownSlugs, slugFromPath]);
 
   // Read selected brands and specs from query parameters
   const currentBrands = useMemo(() => {
@@ -85,31 +96,36 @@ export function ProductFilters({
     );
   }, [currentBrands, currentCategory, currentSpecs, hasPriceFilter]);
 
-  // Group categories by parent group
+  // Gom danh mục theo nhóm cha (group): mỗi danh mục đã kèm sẵn `group`
   const groups = useMemo(() => {
     const activeCategories = categories.filter(
       (c) => !c.name.toLowerCase().includes("chưa phân loại"),
     );
-    const roots = activeCategories
-      .filter((c) => !c.parentId)
+
+    const byGroup = new Map<
+      string,
+      { id: string; name: string; slug: string; children: ProductFilterCategory[] }
+    >();
+
+    for (const c of activeCategories) {
+      if (!c.group) continue; // danh mục chưa gán nhóm thì không hiện trong bộ lọc
+      if (!byGroup.has(c.group.id)) {
+        byGroup.set(c.group.id, {
+          id: c.group.id,
+          name: c.group.name,
+          slug: c.group.slug,
+          children: [],
+        });
+      }
+      byGroup.get(c.group.id)!.children.push(c);
+    }
+
+    return Array.from(byGroup.values())
+      .map((g) => ({
+        ...g,
+        children: g.children.sort((a, b) => a.name.localeCompare(b.name)),
+      }))
       .sort((a, b) => a.name.localeCompare(b.name));
-
-    return roots.map((root) => {
-      const children = activeCategories
-        .filter((c) => c.parentId === root.id)
-        .sort((a, b) => a.name.localeCompare(b.name))
-        .map((c) => ({
-          ...c,
-          displayName: c.name,
-        }));
-
-      return {
-        id: root.id,
-        slug: root.slug,
-        displayName: root.name,
-        children,
-      };
-    });
   }, [categories]);
 
   // Helper function to push filter updates to query parameters
@@ -145,8 +161,9 @@ export function ProductFilters({
     const newCategoryObj = categories.find((c) => c.slug === slug);
     const activeCategoryObj = categories.find((c) => c.slug === slugFromPath);
 
-    const newParentGroupId = newCategoryObj?.parentId;
-    const activeParentGroupId = activeCategoryObj?.parentId;
+    const newParentGroupId = newCategoryObj?.group?.id ?? newCategoryObj?.groupId;
+    const activeParentGroupId =
+      activeCategoryObj?.group?.id ?? activeCategoryObj?.groupId;
 
     // If changing to a category in a different parent group, clear ALL spec/brand query filters
     if (newParentGroupId !== activeParentGroupId) {
@@ -160,9 +177,8 @@ export function ProductFilters({
       });
     }
 
-    // Check if the current page is actually a Brand page (slug from path is a brand slug)
-    const isCurrentPageABrand =
-      slugFromPath && !categories.some((c) => c.slug === slugFromPath);
+    // Check if the current page is actually a Brand page (slug not a category/group slug)
+    const isCurrentPageABrand = slugFromPath && !knownSlugs.has(slugFromPath);
 
     startTransition(() => {
       if (checked) {
@@ -280,10 +296,10 @@ export function ProductFilters({
           return (
             <FilterGroup
               key={g.id}
-              label={g.displayName}
+              label={g.name}
               items={g.children.map((c) => ({
                 id: c.slug,
-                name: c.displayName,
+                name: c.name,
               }))}
               selectedValues={[currentCategory]}
               selectionCount={hasSelectedChild ? 1 : 0}

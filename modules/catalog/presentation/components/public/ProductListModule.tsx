@@ -3,7 +3,7 @@ import { ResolvedEntity } from "@/modules/catalog/application/resolveProductPath
 import { ProductCard } from "@/modules/catalog/presentation/components/ProductCard";
 import { ProductFilterMobile } from "@/modules/catalog/presentation/components/ProductFilterMobile";
 import { ProductFilters } from "@/modules/catalog/presentation/components/ProductFilters";
-import { getProductCategories } from "@/modules/category-new/application";
+import { getCategoriesNew } from "@/modules/category-new/application";
 import { Breadcrumbs } from "@/shared/components/layout/user/breadcrumbs";
 import { ProductPagination } from "@/shared/components/layout/user/product-pagination";
 import { ProductSearch } from "@/shared/components/layout/user/product-search";
@@ -101,7 +101,7 @@ async function getCachedListModuleData(
       .map((c) => c.id);
   }
 
-  const allCategories = await getProductCategories();
+  const allCategories = await getCategoriesNew();
 
   const { products, totalCount, availableFilters } = await searchProducts(q, {
     categoryIds,

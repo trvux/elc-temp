@@ -13,15 +13,10 @@ import {
 import { Filter } from "lucide-react";
 import { useParams, useSearchParams } from "next/navigation";
 import { useMemo } from "react";
-import { ProductFilters } from "./ProductFilters";
+import { ProductFilters, type ProductFilterCategory } from "./ProductFilters";
 
 interface ProductFilterMobileProps {
-  categories?: {
-    id: string;
-    name: string;
-    slug: string;
-    parentId?: string | null;
-  }[];
+  categories?: ProductFilterCategory[];
   availableFilters: {
     brands: { id: string; name: string; slug: string }[];
     specs: { label: string; values: string[] }[];
