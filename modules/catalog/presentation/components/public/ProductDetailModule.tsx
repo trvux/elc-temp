@@ -10,6 +10,7 @@ import { OrderButton } from "@/shared/components/layout/user/order-button";
 import { ProductDescription } from "@/shared/components/layout/user/product-description";
 import RelatedProducts from "@/shared/components/layout/user/related-products";
 import { ScrollToTop } from "@/shared/components/layout/user/scroll-to-top";
+import { GridSection } from "@/shared/components/sections/grid-section";
 import { AspectRatio } from "@/shared/components/ui/aspect-ratio";
 import { Badge } from "@/shared/components/ui/badge";
 import {
@@ -52,10 +53,7 @@ interface SpecItem {
 }
 
 const STYLES = {
-  main: cn("min-h-screen w-full px-4 py-12 md:px-8"),
-  container: cn(
-    "mx-auto w-full max-w-7xl flex flex-col gap-16 animate-fade-in-up",
-  ),
+  main: cn("w-full bg-background min-h-screen flex flex-col"),
   topSection: cn(
     "grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-start",
   ),
@@ -77,7 +75,6 @@ const STYLES = {
   originalPriceWrapper: cn("flex items-center gap-2"),
   originalPrice: cn("text-md text-muted-foreground line-through"),
 
-  bottomSection: cn("mt-10"),
   tabsListWrapper: cn("mx-auto w-fit"),
   tabsContent: cn("pt-10 focus-visible:outline-none"),
   specsWrapper: cn("max-w-4xl mx-auto"),
@@ -98,7 +95,7 @@ const STYLES = {
   specUnit: cn("ml-1.5"),
   descriptionWrapper: cn("max-w-4xl mx-auto"),
   footer: cn(
-    "border-t pt-12 flex flex-col md:flex-row justify-between items-center gap-8 text-muted-foreground",
+    "w-full flex flex-col md:flex-row justify-between items-center gap-6 text-muted-foreground",
   ),
   scrollToTop: cn(
     "flex items-center gap-2 cursor-pointer hover:text-foreground transition-colors",
@@ -166,17 +163,14 @@ export async function ProductDetailModule({
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      <div className={STYLES.container}>
-        <div className="flex flex-col gap-4">
-          <Breadcrumbs
-            items={[
-              {
-                label: category.name,
-                href: `/san-pham/${category.slug}`,
-              },
-              { label: product.name, active: true },
-            ]}
-          />
+      {/* ===== KHỐI 1: ẢNH + THÔNG TIN SẢN PHẨM ===== */}
+      <GridSection
+        id="product-detail-top"
+        isFirst={true}
+        showDiamond={true}
+        contentClassName="py-6 md:py-8 lg:py-10"
+      >
+        <div className="w-full animate-fade-in-up">
           <div className={STYLES.topSection}>
             <div className={STYLES.imageArea}>
               <div className={STYLES.carouselWrapper}>
@@ -261,8 +255,16 @@ export async function ProductDetailModule({
             </div>
           </div>
         </div>
+      </GridSection>
 
-        <div className={STYLES.bottomSection}>
+      {/* ===== KHỐI 2: TABS THÔNG SỐ / MÔ TẢ ===== */}
+      <GridSection
+        id="product-detail-tabs"
+        isFirst={false}
+        showDiamond={true}
+        contentClassName="py-6 md:py-8 lg:py-10"
+      >
+        <div className="w-full">
           <Tabs defaultValue="specs" className="w-full">
             <TabsList className={STYLES.tabsListWrapper}>
               {normalizedSpecs.length > 0 && (
@@ -343,23 +345,60 @@ export async function ProductDetailModule({
             )}
           </Tabs>
         </div>
+      </GridSection>
 
-        <RelatedProducts
-          categoryId={product.categoryId}
-          currentProductId={product.id}
-          brandId={product.brandId}
-        />
+      {/* ===== KHỐI 3: SẢN PHẨM LIÊN QUAN ===== */}
+      <GridSection
+        id="product-detail-related"
+        isFirst={false}
+        showDiamond={true}
+        contentClassName="py-6 md:py-8 lg:py-10"
+      >
+        <div className="w-full">
+          <RelatedProducts
+            categoryId={product.categoryId}
+            currentProductId={product.id}
+            brandId={product.brandId}
+          />
+        </div>
+      </GridSection>
 
+      {/* ===== KHỐI 4: FOOTER BẢN QUYỀN ===== */}
+      <GridSection
+        id="product-detail-footer"
+        isFirst={false}
+        showDiamond={true}
+        contentClassName="py-6 md:py-8 lg:py-10"
+      >
         <footer className={STYLES.footer}>
           <TypographySmall>
-            &copy; {currentYear} ELC Holdings. Đã đăng ký bản
-            quyền.
+            &copy; {currentYear} ELC Holdings. Đã đăng ký bản quyền.
           </TypographySmall>
           <ScrollToTop className={STYLES.scrollToTop}>
             <TypographySmall>Quay lại đầu trang</TypographySmall>
           </ScrollToTop>
         </footer>
-      </div>
+      </GridSection>
+
+      {/* ===== KHỐI 5: BREADCRUMBS ===== */}
+      <GridSection
+        id="product-detail-breadcrumbs"
+        isFirst={false}
+        showDiamond={false}
+        contentClassName="py-1"
+      >
+        <div className="w-full">
+          <Breadcrumbs
+            items={[
+              {
+                label: category.name,
+                href: `/san-pham/${category.slug}`,
+              },
+              { label: product.name, active: true },
+            ]}
+          />
+        </div>
+      </GridSection>
     </main>
   );
 }
