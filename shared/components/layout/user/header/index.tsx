@@ -37,25 +37,27 @@ export function Header({ contacts = [] }: HeaderProps) {
               : "",
         )}
       >
-        <div className="mx-auto h-full w-full max-w-350 border-dashed min-[87.5rem]:border-x min-[112.5rem]:max-w-384 px-4 md:px-6 lg:px-8 relative border-muted-foreground/35 flex items-center justify-between">
-          {/* Logo + Bold Name */}
-          <Link
-            href="/"
-            className="flex items-center gap-2 shrink-0 transition-opacity hover:opacity-80"
-          >
-            <img
-              src="/logo/logo.svg"
-              alt="Điện máy ELC"
-              className="h-8 md:h-9 w-auto dark:brightness-0 dark:invert"
-            />
-            {/* <span className="text-xl font-bold text-primary/80">elc</span> */}
-          </Link>
+        <div className="mx-auto h-full w-full max-w-350 border-dashed min-[87.5rem]:border-x min-[112.5rem]:max-w-384 px-4 md:px-6 lg:px-8 relative border-muted-foreground/35 flex items-center">
+          {/* Left: Logo (flex-1 để cân với cụm bên phải) */}
+          <div className="flex flex-1 items-center">
+            <Link
+              href="/"
+              className="flex items-center gap-2 shrink-0 transition-opacity hover:opacity-80"
+            >
+              <img
+                src="/logo/logo.svg"
+                alt="Điện máy ELC"
+                className="h-8 md:h-9 w-auto dark:brightness-0 dark:invert"
+              />
+              {/* <span className="text-xl font-bold text-primary/80">elc</span> */}
+            </Link>
+          </div>
 
-          {/* Centered Desktop Menu */}
+          {/* Center: Desktop Menu (căn giữa thật nhờ 2 bên flex-1) */}
           <DesktopMenu links={navLinks} />
 
-          {/* Right Actions */}
-          <div className="flex items-center gap-4 lg:pl-3">
+          {/* Right: Actions (flex-1 để cân với logo bên trái) */}
+          <div className="flex flex-1 items-center justify-end gap-4 lg:pl-3">
             <ThemeToggle />
 
             {/* Separator line */}
