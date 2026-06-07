@@ -3,8 +3,6 @@ import { categoryNewRepo } from "../infrastructure/categoryNewRepo";
 import { CategoryNew, CategoryNewWithGroup, CreateCategoryNewInput, UpdateCategoryNewInput } from "../domain/types";
 import { CategoryNewFilter } from "../domain/repository";
 
-export * from "./getProductCategories";
-
 export async function getCategoriesNew(options?: CategoryNewFilter): Promise<CategoryNewWithGroup[]> {
   return categoryNewRepo.getAll(options);
 }

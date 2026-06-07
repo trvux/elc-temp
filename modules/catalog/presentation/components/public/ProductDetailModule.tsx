@@ -4,7 +4,6 @@ import {
   STOCK_STATUS,
   STOCK_STATUS_MAP,
 } from "@/modules/catalog/domain";
-import { getProductCategories } from "@/modules/category-new/application";
 import { mapContactRowToDomain } from "@/modules/contact/domain";
 import { Breadcrumbs } from "@/shared/components/layout/user/breadcrumbs";
 import { OrderButton } from "@/shared/components/layout/user/order-button";
@@ -114,19 +113,15 @@ async function getCachedProductDetailData(productSlug: string) {
 
   const supabase = await createClient();
 
-  const [allCategories, { data: rawContacts }] = await Promise.all([
-    getProductCategories(),
-    supabase
-      .from("contacts")
-      .select("*")
-      .eq("is_active", true)
-      .order("order_index"),
-  ]);
+  const { data: rawContacts } = await supabase
+    .from("contacts")
+    .select("*")
+    .eq("is_active", true)
+    .order("order_index");
 
   const contacts = (rawContacts || []).map(mapContactRowToDomain);
 
   return {
-    allCategories,
     contacts,
     currentYear: new Date().getFullYear(),
   };
@@ -137,16 +132,12 @@ export async function ProductDetailModule({
 }: {
   product: ProductWithRelations;
 }) {
-  const { allCategories, contacts, currentYear } = await getCachedProductDetailData(product.slug);
+  const { contacts, currentYear } = await getCachedProductDetailData(product.slug);
 
   const category = product.category;
   if (!category) notFound();
 
   const brand = product.brand;
-
-  const parentCat = (category as any)?.parentId
-    ? allCategories?.find((c) => c.id === (category as any).parentId)
-    : null;
 
   const normalizedSpecs: SpecItem[] = Array.isArray(product.specs)
     ? (product.specs as unknown as SpecItem[])
@@ -180,9 +171,7 @@ export async function ProductDetailModule({
           <Breadcrumbs
             items={[
               {
-                label: parentCat
-                  ? `${parentCat.name} ${category.name}`
-                  : category.name,
+                label: category.name,
                 href: `/san-pham/${category.slug}`,
               },
               { label: product.name, active: true },
@@ -232,12 +221,6 @@ export async function ProductDetailModule({
                   <Badge variant="secondary">{product.brand.name}</Badge>
                 )}
                 <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-muted-foreground/70">
-                  {parentCat?.name && (
-                    <TypographySmall>{parentCat.name}</TypographySmall>
-                  )}
-                  {parentCat?.name && category?.name && (
-                    <span className="text-muted-foreground">/</span>
-                  )}
                   {category?.name && (
                     <TypographySmall className="text-muted-foreground">
                       {category.name}
