@@ -8,7 +8,7 @@
       },
       "content": [
         {
-          "text": "Lắp đặt hệ thống điều hoà không khí; hệ thống cấp khí tươi - biệt thự phố Thủ Dầu Một",
+          "text": "Thi công lắp đặt máy lạnh âm trần Cassette Midea cho câu lạc bộ Lửng Billiards (Vĩnh Long)",
           "type": "text"
         }
       ]
@@ -17,16 +17,378 @@
       "type": "paragraph",
       "content": [
         {
-          "text": "Sự giao thoa giữa Điều hòa Mitsubishi & Giải pháp không khí sạch Menred Hagisu",
+          "text": "Đối với các mô hình kinh doanh dịch vụ giải trí như câu lạc bộ billiards (bida), không gian mát mẻ và thông thoáng chính là yếu tố cốt lõi để giữ chân khách hàng và tạo lợi thế cạnh tranh. Vừa qua, ",
+          "type": "text"
+        },
+        {
+          "text": "Công ty Điện máy ELC",
           "type": "text",
           "marks": [
             {
               "type": "bold"
+            }
+          ]
+        },
+        {
+          "text": " đã hoàn thành bàn giao dự án trọn gói: ",
+          "type": "text"
+        },
+        {
+          "text": "Thi công lắp đặt máy lạnh âm trần",
+          "type": "text",
+          "marks": [
+            {
+              "type": "bold"
+            }
+          ]
+        },
+        {
+          "text": " cho CLB Lửng Billiards tại Thành phố Vĩnh Long, Tỉnh Vĩnh Long.",
+          "type": "text"
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "content": [
+        {
+          "text": "Dự án mang đến một giải pháp làm lạnh tối ưu, kết hợp giữa khả năng vận hành mạnh mẽ của thiết bị và tính thẩm mỹ cao, phù hợp hoàn hảo với không gian thể thao hiện đại.",
+          "type": "text"
+        }
+      ]
+    },
+    {
+      "type": "table",
+      "content": [
+        {
+          "type": "tableRow",
+          "content": [
+            {
+              "type": "tableHeader",
+              "attrs": {
+                "align": null,
+                "colspan": 1,
+                "rowspan": 1,
+                "colwidth": null
+              },
+              "content": [
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "text": "Thông tin dự án",
+                      "type": "text"
+                    }
+                  ]
+                }
+              ]
             },
             {
-              "type": "italic"
+              "type": "tableHeader",
+              "attrs": {
+                "align": null,
+                "colspan": 1,
+                "rowspan": 1,
+                "colwidth": null
+              },
+              "content": [
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "text": "Chi tiết dự án",
+                      "type": "text"
+                    }
+                  ]
+                }
+              ]
             }
           ]
+        },
+        {
+          "type": "tableRow",
+          "content": [
+            {
+              "type": "tableCell",
+              "attrs": {
+                "align": null,
+                "colspan": 1,
+                "rowspan": 1,
+                "colwidth": null
+              },
+              "content": [
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "text": "📍 Tên dự án",
+                      "type": "text"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "tableCell",
+              "attrs": {
+                "align": null,
+                "colspan": 1,
+                "rowspan": 1,
+                "colwidth": null
+              },
+              "content": [
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "text": "Thi công lắp đặt máy lạnh âm trần Cassette Midea - CLB Lửng Billiards.",
+                      "type": "text"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "tableRow",
+          "content": [
+            {
+              "type": "tableCell",
+              "attrs": {
+                "align": null,
+                "colspan": 1,
+                "rowspan": 1,
+                "colwidth": null
+              },
+              "content": [
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "text": "🏢 Địa điểm",
+                      "type": "text"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "tableCell",
+              "attrs": {
+                "align": null,
+                "colspan": 1,
+                "rowspan": 1,
+                "colwidth": null
+              },
+              "content": [
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "text": "Thành phố Vĩnh Long, Tỉnh Vĩnh Long.",
+                      "type": "text"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "tableRow",
+          "content": [
+            {
+              "type": "tableCell",
+              "attrs": {
+                "align": null,
+                "colspan": 1,
+                "rowspan": 1,
+                "colwidth": null
+              },
+              "content": [
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "text": "🛠️ Hạng mục thi công",
+                      "type": "text"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "tableCell",
+              "attrs": {
+                "align": null,
+                "colspan": 1,
+                "rowspan": 1,
+                "colwidth": null
+              },
+              "content": [
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "text": "Cung cấp và lắp đặt trọn gói hệ thống máy lạnh âm trần.",
+                      "type": "text"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "tableRow",
+          "content": [
+            {
+              "type": "tableCell",
+              "attrs": {
+                "align": null,
+                "colspan": 1,
+                "rowspan": 1,
+                "colwidth": null
+              },
+              "content": [
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "text": "🛠️ Thiết bị sử dụng",
+                      "type": "text"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "tableCell",
+              "attrs": {
+                "align": null,
+                "colspan": 1,
+                "rowspan": 1,
+                "colwidth": null
+              },
+              "content": [
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "text": "Máy lạnh âm trần Cassette Midea (Tích hợp công nghệ luồng gió màng lưới 360°)",
+                      "type": "text"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "tableRow",
+          "content": [
+            {
+              "type": "tableCell",
+              "attrs": {
+                "align": null,
+                "colspan": 1,
+                "rowspan": 1,
+                "colwidth": null
+              },
+              "content": [
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "text": "🏗️ Đơn vị thực hiện",
+                      "type": "text"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "tableCell",
+              "attrs": {
+                "align": null,
+                "colspan": 1,
+                "rowspan": 1,
+                "colwidth": null
+              },
+              "content": [
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "text": "Công ty Điện máy ELC",
+                      "type": "text"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "tableRow",
+          "content": [
+            {
+              "type": "tableCell",
+              "attrs": {
+                "align": null,
+                "colspan": 1,
+                "rowspan": 1,
+                "colwidth": null
+              },
+              "content": [
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "text": "📅 Ngày hoàn thành",
+                      "type": "text"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "tableCell",
+              "attrs": {
+                "align": null,
+                "colspan": 1,
+                "rowspan": 1,
+                "colwidth": null
+              },
+              "content": [
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "text": "27/02/2026",
+                      "type": "text"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "horizontalRule"
+    },
+    {
+      "type": "heading",
+      "attrs": {
+        "level": 2
+      },
+      "content": [
+        {
+          "text": "Thách thức không gian thương mại bida và giải pháp từ Điện máy ELC",
+          "type": "text"
         }
       ]
     },
@@ -34,46 +396,7 @@
       "type": "paragraph",
       "content": [
         {
-          "text": "Việc sở hữu một không gian sống đẳng cấp không chỉ dừng lại ở kiến trúc xa hoa mà còn nằm ở chất lượng môi trường sống bên trong. Dự án biệt thự tại ",
-          "type": "text"
-        },
-        {
-          "text": "Thành phố Thủ dầu Một",
-          "type": "text",
-          "marks": [
-            {
-              "type": "bold"
-            }
-          ]
-        },
-        {
-          "text": " là minh chứng cho sự kết hợp hoàn hảo giữa công nghệ làm lạnh đỉnh cao từ ",
-          "type": "text"
-        },
-        {
-          "text": "Mitsubishi",
-          "type": "text",
-          "marks": [
-            {
-              "type": "bold"
-            }
-          ]
-        },
-        {
-          "text": " và giải pháp không khí sạch toàn diện ",
-          "type": "text"
-        },
-        {
-          "text": "Menred Hagisu",
-          "type": "text",
-          "marks": [
-            {
-              "type": "bold"
-            }
-          ]
-        },
-        {
-          "text": ", được tư vấn và thực thi trọn gói bởi ",
+          "text": "Mặt bằng câu lạc bộ Lửng Billiards tại Vĩnh Long có diện tích sàn tương đối lớn, bố trí nhiều bàn bida hoạt động liên tục dưới hệ thống đèn thả tỏa nhiệt cao. Khi khảo sát công trình, đội ngũ kỹ sư của ",
           "type": "text"
         },
         {
@@ -86,163 +409,7 @@
           ]
         },
         {
-          "text": ".",
-          "type": "text"
-        }
-      ]
-    },
-    {
-      "type": "heading",
-      "attrs": {
-        "level": 2
-      },
-      "content": [
-        {
-          "text": "THÔNG TIN TỔNG QUAN DỰ ÁN",
-          "type": "text"
-        }
-      ]
-    },
-    {
-      "type": "bulletList",
-      "content": [
-        {
-          "type": "listItem",
-          "content": [
-            {
-              "type": "paragraph",
-              "content": [
-                {
-                  "text": "Tên dự án:",
-                  "type": "text",
-                  "marks": [
-                    {
-                      "type": "bold"
-                    }
-                  ]
-                },
-                {
-                  "text": " Thiết kế & Thi công hệ thống HVAC Biệt thự cao cấp Thủ Dầu Một.",
-                  "type": "text"
-                }
-              ]
-            }
-          ]
-        },
-        {
-          "type": "listItem",
-          "content": [
-            {
-              "type": "paragraph",
-              "content": [
-                {
-                  "text": "Địa điểm:",
-                  "type": "text",
-                  "marks": [
-                    {
-                      "type": "bold"
-                    }
-                  ]
-                },
-                {
-                  "text": " Thành phố Thủ Dầu Một.",
-                  "type": "text"
-                }
-              ]
-            }
-          ]
-        },
-        {
-          "type": "listItem",
-          "content": [
-            {
-              "type": "paragraph",
-              "content": [
-                {
-                  "text": "Hạng mục:",
-                  "type": "text",
-                  "marks": [
-                    {
-                      "type": "bold"
-                    }
-                  ]
-                },
-                {
-                  "text": " Hệ thống điều hòa trung tâm giấu trần nối ống gió & Hệ thống lọc khí tươi trung tâm (Fresh Air).",
-                  "type": "text"
-                }
-              ]
-            }
-          ]
-        },
-        {
-          "type": "listItem",
-          "content": [
-            {
-              "type": "paragraph",
-              "content": [
-                {
-                  "text": "Thiết bị:",
-                  "type": "text",
-                  "marks": [
-                    {
-                      "type": "bold"
-                    }
-                  ]
-                },
-                {
-                  "text": " Mitsubishi Electric (Inverter) & Menred Hagisu (P-Series).",
-                  "type": "text"
-                }
-              ]
-            }
-          ]
-        },
-        {
-          "type": "listItem",
-          "content": [
-            {
-              "type": "paragraph",
-              "content": [
-                {
-                  "text": "Đơn vị thực hiện:",
-                  "type": "text",
-                  "marks": [
-                    {
-                      "type": "bold"
-                    }
-                  ]
-                },
-                {
-                  "text": " Công ty Cổ phần Giải pháp Công nghệ Thương mại Dịch vụ ELC.",
-                  "type": "text"
-                }
-              ]
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "type": "horizontalRule"
-    },
-    {
-      "type": "heading",
-      "attrs": {
-        "level": 2
-      },
-      "content": [
-        {
-          "text": "Thách thức và yêu cầu khắt khe từ Chủ đầu tư",
-          "type": "text"
-        }
-      ]
-    },
-    {
-      "type": "paragraph",
-      "content": [
-        {
-          "text": "Với diện tích mặt sàn lớn và thiết kế trần giật cấp tinh tế theo phong cách hiện đại, chủ nhân biệt thự đặt ra 3 bài toán trọng tâm cho đội ngũ kỹ sư ELC:",
+          "text": " đã nhận diện những bài toán thực tế cần giải quyết:",
           "type": "text"
         }
       ]
@@ -261,7 +428,7 @@
               "type": "paragraph",
               "content": [
                 {
-                  "text": "Thẩm mỹ tuyệt đối:",
+                  "text": "Làm lạnh đồng đều tại mọi vị trí:",
                   "type": "text",
                   "marks": [
                     {
@@ -270,7 +437,7 @@
                   ]
                 },
                 {
-                  "text": " Hệ thống máy lạnh phải hoàn toàn \"ẩn mình\", hòa hợp tuyệt đối vào ngôn ngữ thiết kế nội thất.",
+                  "text": " Khách chơi bida di chuyển liên tục xung quanh bàn. Do đó, nhiệt độ trong phòng phải được phân bổ đồng đều, không được có tình trạng góc này quá lạnh còn góc kia lại nóng bí.",
                   "type": "text"
                 }
               ]
@@ -284,7 +451,7 @@
               "type": "paragraph",
               "content": [
                 {
-                  "text": "Chất lượng khí chuẩn sạch:",
+                  "text": "Luồng gió dịu nhẹ, không thổi buốt:",
                   "type": "text",
                   "marks": [
                     {
@@ -293,7 +460,7 @@
                   ]
                 },
                 {
-                  "text": " Đảm bảo không khí trong nhà luôn tươi mới, giàu Oxy, loại bỏ bụi mịn PM2.5 và cảm giác bí bách khi đóng kín cửa thường xuyên.",
+                  "text": " Gió lạnh thổi trực diện và quá mạnh vào khu vực bàn chơi không chỉ gây khó chịu cho cơ thủ mà còn có thể làm ảnh hưởng đến độ ẩm mặt vải bàn bida, gián tiếp tác động đến đường lăn của bi.",
                   "type": "text"
                 }
               ]
@@ -307,7 +474,7 @@
               "type": "paragraph",
               "content": [
                 {
-                  "text": "Vận hành tĩnh lặng:",
+                  "text": "Tối ưu chi phí đầu tư và vận hành:",
                   "type": "text",
                   "marks": [
                     {
@@ -316,491 +483,7 @@
                   ]
                 },
                 {
-                  "text": " Hệ thống phải đạt độ ồn tiệm cận mức 0 để giữ gìn không gian nghỉ ngơi yên tĩnh.",
-                  "type": "text"
-                }
-              ]
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "type": "horizontalRule"
-    },
-    {
-      "type": "heading",
-      "attrs": {
-        "level": 2
-      },
-      "content": [
-        {
-          "text": "Giải pháp Kỹ thuật từ Điện máy ELC",
-          "type": "text"
-        }
-      ]
-    },
-    {
-      "type": "paragraph",
-      "content": [
-        {
-          "text": "Để giải quyết bài toán trên, ELC đã đưa ra phương án tích hợp kép – xu hướng của các căn siêu biệt thự năm 2026:",
-          "type": "text"
-        }
-      ]
-    },
-    {
-      "type": "bulletList",
-      "content": [
-        {
-          "type": "listItem",
-          "content": [
-            {
-              "type": "paragraph",
-              "content": [
-                {
-                  "text": "Hệ thống Điều hòa giấu trần Mitsubishi:",
-                  "type": "text",
-                  "marks": [
-                    {
-                      "type": "bold"
-                    }
-                  ]
-                },
-                {
-                  "text": " Sử dụng dòng máy hạng sang Inverter với khả năng kiểm soát nhiệt độ thông minh. Dàn lạnh được giấu hoàn toàn trên trần, luồng gió được dẫn qua các miệng gió ",
-                  "type": "text"
-                },
-                {
-                  "text": "Linear/Slot",
-                  "type": "text",
-                  "marks": [
-                    {
-                      "type": "bold"
-                    }
-                  ]
-                },
-                {
-                  "text": " dài thẩm mỹ, tạo ra độ mát sâu và lan tỏa dịu nhẹ.",
-                  "type": "text"
-                }
-              ]
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "type": "bulletList",
-      "content": [
-        {
-          "type": "listItem",
-          "content": [
-            {
-              "type": "paragraph",
-              "content": [
-                {
-                  "text": "Hệ thống cấp khí tươi trung tâm Menred Hagisu:",
-                  "type": "text",
-                  "marks": [
-                    {
-                      "type": "bold"
-                    }
-                  ]
-                },
-                {
-                  "text": " Đóng vai trò là \"lá phổi\" của ngôi nhà. Hệ thống liên tục thu hồi nhiệt, hút khí thải và cấp khí tự nhiên vào trong. Qua bộ lọc hiệu suất cao, không khí được làm sạch khỏi bụi mịn PM2.5, vi khuẩn và tác nhân gây dị ứng trước khi đi vào không gian sống.",
-                  "type": "text"
-                }
-              ]
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "type": "image",
-      "attrs": {
-        "alt": null,
-        "src": "https://gdzihzsjfczuggwpykjk.supabase.co/storage/v1/object/public/images/projects/1776788979718-kydlu81g8rt.webp",
-        "align": "center",
-        "ratio": "auto",
-        "title": null,
-        "width": null,
-        "height": null
-      }
-    },
-    {
-      "type": "image",
-      "attrs": {
-        "alt": null,
-        "src": "https://gdzihzsjfczuggwpykjk.supabase.co/storage/v1/object/public/images/projects/1776788987742-cz5l78khoye.webp",
-        "align": "center",
-        "ratio": "auto",
-        "title": null,
-        "width": null,
-        "height": null
-      }
-    },
-    {
-      "type": "image",
-      "attrs": {
-        "alt": null,
-        "src": "https://gdzihzsjfczuggwpykjk.supabase.co/storage/v1/object/public/images/projects/1776789005550-klnmvw03s2n.webp",
-        "align": "center",
-        "ratio": "auto",
-        "title": null,
-        "width": null,
-        "height": null
-      }
-    },
-    {
-      "type": "image",
-      "attrs": {
-        "alt": null,
-        "src": "https://gdzihzsjfczuggwpykjk.supabase.co/storage/v1/object/public/images/projects/1776789019145-89j5bbaqa6h.webp",
-        "align": "center",
-        "ratio": "auto",
-        "title": null,
-        "width": null,
-        "height": null
-      }
-    },
-    {
-      "type": "image",
-      "attrs": {
-        "alt": null,
-        "src": "https://gdzihzsjfczuggwpykjk.supabase.co/storage/v1/object/public/images/projects/1776789155343-dcoanay5m4o.webp",
-        "align": "center",
-        "ratio": "auto",
-        "title": null,
-        "width": null,
-        "height": null
-      }
-    },
-    {
-      "type": "image",
-      "attrs": {
-        "alt": null,
-        "src": "https://gdzihzsjfczuggwpykjk.supabase.co/storage/v1/object/public/images/projects/1776789174891-1wx5yvlolrh.webp",
-        "align": "center",
-        "ratio": "auto",
-        "title": null,
-        "width": null,
-        "height": null
-      }
-    },
-    {
-      "type": "paragraph",
-      "content": [
-        {
-          "text": "Quy trình thực thi chuẩn Kỹ thuật",
-          "type": "text",
-          "marks": [
-            {
-              "type": "bold"
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "type": "paragraph",
-      "content": [
-        {
-          "text": "Quá trình triển khai tại ",
-          "type": "text"
-        },
-        {
-          "text": "Thành phố Thủ dầu Một",
-          "type": "text",
-          "marks": [
-            {
-              "type": "bold"
-            }
-          ]
-        },
-        {
-          "text": " được kiểm soát nghiêm ngặt qua 4 giai đoạn:",
-          "type": "text"
-        }
-      ]
-    },
-    {
-      "type": "orderedList",
-      "attrs": {
-        "type": null,
-        "start": 1
-      },
-      "content": [
-        {
-          "type": "listItem",
-          "content": [
-            {
-              "type": "paragraph",
-              "content": [
-                {
-                  "text": "Khảo sát & Mô phỏng 3D:",
-                  "type": "text",
-                  "marks": [
-                    {
-                      "type": "bold"
-                    }
-                  ]
-                },
-                {
-                  "text": " Tính toán vị trí miệng gió chuẩn xác theo bản vẽ nội thất để không làm phá vỡ cấu trúc trần.",
-                  "type": "text"
-                }
-              ]
-            }
-          ]
-        },
-        {
-          "type": "listItem",
-          "content": [
-            {
-              "type": "paragraph",
-              "content": [
-                {
-                  "text": "Lắp đặt phần thô (Rough-in):",
-                  "type": "text",
-                  "marks": [
-                    {
-                      "type": "bold"
-                    }
-                  ]
-                },
-                {
-                  "text": " Đi đường ống đồng, ống thoát nước ngưng và hệ thống ống gió kháng khuẩn.",
-                  "type": "text"
-                }
-              ]
-            }
-          ]
-        },
-        {
-          "type": "listItem",
-          "content": [
-            {
-              "type": "paragraph",
-              "content": [
-                {
-                  "text": "Kết nối & Cấu hình:",
-                  "type": "text",
-                  "marks": [
-                    {
-                      "type": "bold"
-                    }
-                  ]
-                },
-                {
-                  "text": " Lắp đặt dàn nóng/lạnh và bộ lọc trung tâm. Cấu hình hệ thống điều khiển thông minh tập trung.",
-                  "type": "text"
-                }
-              ]
-            }
-          ]
-        },
-        {
-          "type": "listItem",
-          "content": [
-            {
-              "type": "paragraph",
-              "content": [
-                {
-                  "text": "Kiểm soát chất lượng (QC):",
-                  "type": "text",
-                  "marks": [
-                    {
-                      "type": "bold"
-                    }
-                  ]
-                },
-                {
-                  "text": " Sử dụng thiết bị chuyên dụng đo lưu lượng gió, áp suất gas và độ ồn vận hành thực tế trước khi bàn giao.",
-                  "type": "text"
-                }
-              ]
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "type": "image",
-      "attrs": {
-        "alt": null,
-        "src": "https://gdzihzsjfczuggwpykjk.supabase.co/storage/v1/object/public/images/projects/1776789251664-dg4seshe3dt.webp",
-        "align": "center",
-        "ratio": "auto",
-        "title": null,
-        "width": null,
-        "height": null
-      }
-    },
-    {
-      "type": "image",
-      "attrs": {
-        "alt": null,
-        "src": "https://gdzihzsjfczuggwpykjk.supabase.co/storage/v1/object/public/images/projects/1776789264197-65f2mtjisv.webp",
-        "align": "center",
-        "ratio": "auto",
-        "title": null,
-        "width": null,
-        "height": null
-      }
-    },
-    {
-      "type": "image",
-      "attrs": {
-        "alt": null,
-        "src": "https://gdzihzsjfczuggwpykjk.supabase.co/storage/v1/object/public/images/projects/1776789276421-i2kdzpp54lc.webp",
-        "align": "center",
-        "ratio": "auto",
-        "title": null,
-        "width": null,
-        "height": null
-      }
-    },
-    {
-      "type": "image",
-      "attrs": {
-        "alt": null,
-        "src": "https://gdzihzsjfczuggwpykjk.supabase.co/storage/v1/object/public/images/projects/1776789291999-60guumej11k.webp",
-        "align": "center",
-        "ratio": "auto",
-        "title": null,
-        "width": null,
-        "height": null
-      }
-    },
-    {
-      "type": "image",
-      "attrs": {
-        "alt": null,
-        "src": "https://gdzihzsjfczuggwpykjk.supabase.co/storage/v1/object/public/images/projects/1776789308643-m3m6xsc7t2f.webp",
-        "align": "center",
-        "ratio": "auto",
-        "title": null,
-        "width": null,
-        "height": null
-      }
-    },
-    {
-      "type": "image",
-      "attrs": {
-        "alt": null,
-        "src": "https://gdzihzsjfczuggwpykjk.supabase.co/storage/v1/object/public/images/projects/1776789327428-velb3u28aba.webp",
-        "align": "center",
-        "ratio": "auto",
-        "title": null,
-        "width": null,
-        "height": null
-      }
-    },
-    {
-      "type": "paragraph",
-      "content": [
-        {
-          "text": "Kết quả nghiệm thu & Đánh giá",
-          "type": "text",
-          "marks": [
-            {
-              "type": "bold"
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "type": "paragraph",
-      "content": [
-        {
-          "text": "Sau khi bàn giao vào tháng 1/2026, dự án đã nhận được sự hài lòng tuyệt đối từ chủ đầu tư:",
-          "type": "text"
-        }
-      ]
-    },
-    {
-      "type": "bulletList",
-      "content": [
-        {
-          "type": "listItem",
-          "content": [
-            {
-              "type": "paragraph",
-              "content": [
-                {
-                  "text": "Vẻ đẹp tinh tế:",
-                  "type": "text",
-                  "marks": [
-                    {
-                      "type": "bold"
-                    }
-                  ]
-                },
-                {
-                  "text": " Toàn bộ máy móc được xử lý giấu kín, chỉ để lại những đường nét cửa gió sang trọng trên trần nhà.",
-                  "type": "text"
-                }
-              ]
-            }
-          ]
-        },
-        {
-          "type": "listItem",
-          "content": [
-            {
-              "type": "paragraph",
-              "content": [
-                {
-                  "text": "Môi trường sống lý tưởng:",
-                  "type": "text",
-                  "marks": [
-                    {
-                      "type": "bold"
-                    }
-                  ]
-                },
-                {
-                  "text": " Không khí luôn trong lành, giàu Oxy, hoàn toàn không có mùi ẩm mốc hay bụi bặm.",
-                  "type": "text"
-                }
-              ]
-            }
-          ]
-        },
-        {
-          "type": "listItem",
-          "content": [
-            {
-              "type": "paragraph",
-              "content": [
-                {
-                  "text": "Hiệu suất xanh:",
-                  "type": "text",
-                  "marks": [
-                    {
-                      "type": "bold"
-                    }
-                  ]
-                },
-                {
-                  "text": " Hệ thống vận hành êm ái và tiết kiệm hơn ",
-                  "type": "text"
-                },
-                {
-                  "text": "30%",
-                  "type": "text",
-                  "marks": [
-                    {
-                      "type": "bold"
-                    }
-                  ]
-                },
-                {
-                  "text": " năng lượng nhờ công nghệ biến tần tối ưu.",
+                  "text": " Chủ đầu tư cần một hệ thống máy lạnh có độ bền cao, hoạt động ổn định với mức chi phí đầu tư ban đầu hợp lý và khả năng tiết kiệm điện tốt khi vận hành liên tục 12-14 tiếng mỗi ngày.",
                   "type": "text"
                 }
               ]
@@ -816,7 +499,211 @@
       "type": "image",
       "attrs": {
         "alt": null,
-        "src": "https://gdzihzsjfczuggwpykjk.supabase.co/storage/v1/object/public/images/projects/1776789404284-3b9h2b9vyag.webp",
+        "src": "https://gdzihzsjfczuggwpykjk.supabase.co/storage/v1/object/public/images/projects/1780739967788-qlosqhe7ur.webp",
+        "align": "center",
+        "ratio": "auto",
+        "title": null,
+        "width": null,
+        "height": null
+      }
+    },
+    {
+      "type": "paragraph",
+      "content": [
+        {
+          "text": "Để xử lý trọn vẹn các yêu cầu trên, ELC đã đưa vào sử dụng ",
+          "type": "text"
+        },
+        {
+          "text": "máy lạnh âm trần Cassette Midea",
+          "type": "text",
+          "marks": [
+            {
+              "type": "bold"
+            }
+          ]
+        },
+        {
+          "text": ":",
+          "type": "text"
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "content": [
+        {
+          "text": "1. Công nghệ luồng gió 360 độ xóa bỏ mọi góc chết về nhiệt",
+          "type": "text"
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "content": [
+        {
+          "text": "Dòng ",
+          "type": "text"
+        },
+        {
+          "text": "máy lạnh âm trần Cassette Midea",
+          "type": "text",
+          "marks": [
+            {
+              "type": "bold"
+            }
+          ]
+        },
+        {
+          "text": " thế hệ mới sở hữu thiết kế mặt nạ thổi gió tròn hoặc đa hướng, giúp luồng khí lạnh được khuếch tán đồng đều 360 độ ngay từ trên cao. Hơi lạnh nhẹ nhàng len lỏi khắp các khoảng không gian giữa các bàn bida, làm mát diện rộng một cách nhanh chóng mà không tập trung áp lực gió vào bất kỳ một điểm cố định nào.",
+          "type": "text"
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "content": [
+        {
+          "text": "2. Thiết kế âm trần sang trọng, giải phóng không gian kiến trúc",
+          "type": "text"
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "content": [
+        {
+          "text": "Toàn bộ thân máy được lắp giấu khéo léo phía trên trần thạch cao, chỉ để lộ phần mặt nạ vuông vắn, tinh tế. Giải pháp này giúp CLB Lửng Billiards giữ được cao độ trần tối ưu, tạo cảm giác không gian vô cùng thoáng đãng, bề thế và không làm ảnh hưởng đến hệ thống đèn thả trang trí chuyên dụng cho từng bàn bida.",
+          "type": "text"
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "attrs": {
+        "level": 2
+      },
+      "content": [
+        {
+          "text": "Quy trình triển khai thi công chuyên nghiệp của Điện máy ELC",
+          "type": "text"
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "content": [
+        {
+          "text": "Dự án được ELC tập trung triển khai đồng bộ và bàn giao hoàn thiện vào ngày 27/02/2026 tuân thủ nghiêm ngặt các tiêu chuẩn kỹ thuật:",
+          "type": "text"
+        }
+      ]
+    },
+    {
+      "type": "bulletList",
+      "content": [
+        {
+          "type": "listItem",
+          "content": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "text": "Bước 1 (Tính toán tải lạnh chuyên sâu):",
+                  "type": "text",
+                  "marks": [
+                    {
+                      "type": "bold"
+                    }
+                  ]
+                },
+                {
+                  "text": " Kỹ sư ELC tính toán chi tiết tổng nhiệt lượng thặng dư từ hệ thống đèn bàn bida, vách kính đón nắng và mật độ người tối đa vào giờ cao điểm để định lượng chính xác số lượng máy và công suất (HP) cần thiết.",
+                  "type": "text"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "listItem",
+          "content": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "text": "Bước 2 (Thi công hệ thống đường ống thô):",
+                  "type": "text",
+                  "marks": [
+                    {
+                      "type": "bold"
+                    }
+                  ]
+                },
+                {
+                  "text": " Triển khai đi mạng lưới ống đồng bảo ôn chất lượng cao và đường ống thoát nước ngưng. Toàn bộ đường ống đồng được thử áp lực bằng khí Nitơ nghiêm ngặt để đảm bảo độ kín tuyệt đối trước khi tiến hành đóng trần.",
+                  "type": "text"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "listItem",
+          "content": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "text": "Bước 3 (Lắp đặt thiết bị và kết nối hệ thống):",
+                  "type": "text",
+                  "marks": [
+                    {
+                      "type": "bold"
+                    }
+                  ]
+                },
+                {
+                  "text": " Tiến hành treo cố định các dàn lạnh âm trần Midea, kết nối đường ống và hệ thống điện động lực. Hệ thống dàn nóng ngoài trời được bố trí tại khu vực thông thoáng, đảm bảo giải nhiệt tốt nhất để máy đạt hiệu suất tối đa.",
+                  "type": "text"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "listItem",
+          "content": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "text": "Bước 4 (Vận hành chạy thử và cân chỉnh):",
+                  "type": "text",
+                  "marks": [
+                    {
+                      "type": "bold"
+                    }
+                  ]
+                },
+                {
+                  "text": " Kiểm tra dòng điện, áp suất ga và đo đạc tốc độ gió tại các vị trí bàn đánh bida (Testing & Balancing), đảm bảo máy vận hành siêu êm ái trước khi chính thức bàn giao bàn giao cho chủ đầu tư.",
+                  "type": "text"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "paragraph"
+    },
+    {
+      "type": "image",
+      "attrs": {
+        "alt": null,
+        "src": "https://gdzihzsjfczuggwpykjk.supabase.co/storage/v1/object/public/images/projects/1780740020775-m8mh5plxp1k.webp",
         "align": "center",
         "ratio": "auto",
         "title": null,
@@ -828,7 +715,7 @@
       "type": "image",
       "attrs": {
         "alt": null,
-        "src": "https://gdzihzsjfczuggwpykjk.supabase.co/storage/v1/object/public/images/projects/1776789436714-t19ejjlq7cn.webp",
+        "src": "https://gdzihzsjfczuggwpykjk.supabase.co/storage/v1/object/public/images/projects/1780740021908-9o0wvec5oie.webp",
         "align": "center",
         "ratio": "auto",
         "title": null,
@@ -840,13 +727,28 @@
       "type": "image",
       "attrs": {
         "alt": null,
-        "src": "https://gdzihzsjfczuggwpykjk.supabase.co/storage/v1/object/public/images/projects/1776789446487-7vrua22wzwd.webp",
+        "src": "https://gdzihzsjfczuggwpykjk.supabase.co/storage/v1/object/public/images/projects/1780740023272-dpqo9endm2.webp",
         "align": "center",
         "ratio": "auto",
         "title": null,
         "width": null,
         "height": null
       }
+    },
+    {
+      "type": "image",
+      "attrs": {
+        "alt": null,
+        "src": "https://gdzihzsjfczuggwpykjk.supabase.co/storage/v1/object/public/images/projects/1780740019067-1q62yedj57b.webp",
+        "align": "center",
+        "ratio": "auto",
+        "title": null,
+        "width": null,
+        "height": null
+      }
+    },
+    {
+      "type": "paragraph"
     },
     {
       "type": "paragraph"
