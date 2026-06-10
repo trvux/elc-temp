@@ -22,6 +22,7 @@ export const pageSchema = z.object({
     }),
   content: z.custom<Json>().default({}),
   isPublished: z.boolean().default(false),
+  orderIndex: z.number().int().default(0),
   metaTitle: z.string().max(70, { message: "Tiêu đề SEO không nên quá 70 ký tự" }).nullable().optional(),
   metaDescription: z.string().max(160, { message: "Mô tả SEO không nên quá 160 ký tự" }).nullable().optional(),
   createdAt: z.iso.datetime({

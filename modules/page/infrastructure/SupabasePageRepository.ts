@@ -77,6 +77,7 @@ export class SupabasePageRepository implements PageRepository {
       slug: input.slug,
       content: input.content || {},
       is_published: input.isPublished ?? true,
+      order_index: input.orderIndex ?? 0,
       meta_title: input.metaTitle,
       meta_description: input.metaDescription,
     };
@@ -99,6 +100,7 @@ export class SupabasePageRepository implements PageRepository {
       slug: input.slug,
       content: input.content,
       is_published: input.isPublished,
+      order_index: input.orderIndex,
       meta_title: input.metaTitle,
       meta_description: input.metaDescription,
       updated_at: new Date().toISOString(),
@@ -148,6 +150,7 @@ export class SupabasePageRepository implements PageRepository {
       slug: row.slug,
       content: row.content,
       isPublished: row.is_published,
+      orderIndex: (row as any).order_index ?? 0,
       metaTitle: row.meta_title || null,
       metaDescription: row.meta_description || null,
       createdAt: row.created_at || new Date().toISOString(),

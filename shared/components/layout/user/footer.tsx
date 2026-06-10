@@ -15,6 +15,7 @@ import { useMemo } from "react";
 
 import { Contact, getDisplayContacts } from "@/modules/contact/domain";
 import { ContactLink } from "@/modules/contact/presentation/components/ContactLink";
+import { sortByOrderIndex } from "@/shared/lib/helpers";
 
 export interface BrandFooter {
   id: string;
@@ -184,7 +185,7 @@ export function Footer({
             </h3>
             <nav className="flex flex-col gap-2.5">
               {branches.length ? (
-                branches.map((b) => (
+                sortByOrderIndex(branches).map((b) => (
                   <Link
                     key={b.slug}
                     href={`/chi-nhanh/${b.slug}`}
@@ -208,7 +209,7 @@ export function Footer({
             </h3>
             <nav className="flex flex-col gap-2.5">
               {pages.length ? (
-                pages.slice(0, 8).map((p) => (
+                sortByOrderIndex(pages).slice(0, 8).map((p) => (
                   <Link
                     key={p.slug}
                     href={`/${p.slug}`}

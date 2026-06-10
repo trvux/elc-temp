@@ -19,6 +19,7 @@ export interface Page {
   createdAt: string;
   updatedAt: string;
   deletedAt: string | null;
+  orderIndex: number;
 }
 
 export interface AboutBlock {
@@ -37,6 +38,7 @@ export interface CreatePageInput {
   isPublished?: boolean;
   metaTitle?: string | null;
   metaDescription?: string | null;
+  orderIndex?: number;
 }
 
 export interface UpdatePageInput extends Partial<CreatePageInput> {
