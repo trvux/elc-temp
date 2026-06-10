@@ -1,7 +1,7 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { ExternalLink, Plus, Upload, X } from "lucide-react";
+import { ExternalLink, Plus, X } from "lucide-react";
 import Image from "next/image";
 import { useMemo, useState } from "react";
 import { Controller } from "react-hook-form";
@@ -18,21 +18,19 @@ import {
   CardTitle,
 } from "@/shared/components/ui/card";
 import { DataTable } from "@/shared/components/ui/data-table";
-import { ImageUpload } from "@/shared/components/ui/image-upload";
 import {
   Field,
   FieldDescription,
   FieldError,
   FieldLabel,
 } from "@/shared/components/ui/field";
+import { ImageUpload } from "@/shared/components/ui/image-upload";
 import { Input } from "@/shared/components/ui/input";
 import { ScrollArea } from "@/shared/components/ui/scroll-area";
 import {
   Select,
   SelectContent,
-  SelectGroup,
   SelectItem,
-  SelectSeparator,
   SelectTrigger,
   SelectValue,
 } from "@/shared/components/ui/select";
@@ -48,9 +46,9 @@ import { TiptapEditor } from "@/shared/components/ui/tiptap-editor";
 import { generateSlug } from "@/shared/lib/helpers";
 
 import { getCategoriesAction } from "@/modules/category/presentation/actions";
-import { getServiceGroupsAction } from "@/modules/service-group/presentation/actions";
-import { getProjectTypesAction } from "@/modules/project-type/presentation/actions";
 import { getGroupsAction } from "@/modules/group/presentation/actions";
+import { getProjectTypesAction } from "@/modules/project-type/presentation/actions";
+import { getServiceGroupsAction } from "@/modules/service-group/presentation/actions";
 import { getServicesAction } from "@/modules/service/presentation/actions";
 import { ProjectWithCategory } from "../../domain";
 import { deleteProjectAction, getProjectsAction } from "../actions";
@@ -70,7 +68,8 @@ export function ProjectManagement() {
   const [filterGroupId, setFilterGroupId] = useState<string>("all");
   const [filterCategoryId, setFilterCategoryId] = useState<string>("all");
   const [filterProjectTypeId, setFilterProjectTypeId] = useState<string>("all");
-  const [filterServiceGroupId, setFilterServiceGroupId] = useState<string>("all");
+  const [filterServiceGroupId, setFilterServiceGroupId] =
+    useState<string>("all");
   const [filterServiceId, setFilterServiceId] = useState<string>("all");
 
   const handleServiceGroupIdChange = (val: string) => {
@@ -195,15 +194,15 @@ export function ProjectManagement() {
     return projects.filter((p) => {
       const matchGroup =
         filterGroupId === "all" ||
-        (p.categories &&
-          p.categories.some((c) => c.groupId === filterGroupId));
-      
+        (p.categories && p.categories.some((c) => c.groupId === filterGroupId));
+
       const matchCategory =
         filterCategoryId === "all" ||
         (p.categories && p.categories.some((c) => c.id === filterCategoryId));
 
       const matchProjectType =
-        filterProjectTypeId === "all" || p.projectTypeId === filterProjectTypeId;
+        filterProjectTypeId === "all" ||
+        p.projectTypeId === filterProjectTypeId;
 
       const matchFeatured =
         filterIsFeatured === "all" ||
@@ -215,10 +214,11 @@ export function ProjectManagement() {
 
       const matchServiceGroup =
         filterServiceGroupId === "all" ||
-        p.service?.group?.id === filterServiceGroupId;
+        (p.services || []).some((s) => s.group?.id === filterServiceGroupId);
 
       const matchService =
-        filterServiceId === "all" || p.serviceId === filterServiceId;
+        filterServiceId === "all" ||
+        (p.services || []).some((s) => s.id === filterServiceId);
 
       return (
         matchGroup &&
@@ -252,8 +252,8 @@ export function ProjectManagement() {
             description: p.description,
             categoryId: "00000000-0000-0000-0000-000000000000",
             projectTypeId: p.projectTypeId || "",
-            serviceGroupId: p.service?.group?.id || "",
-            serviceId: p.serviceId || "",
+            serviceGroupId: p.services?.[0]?.group?.id || "",
+            serviceIds: (p.services || []).map((s) => s.id),
             categoryIds: (p.categories || []).map((c) => c.id),
             images: p.images || [],
             isPublished: p.isPublished,
@@ -277,7 +277,7 @@ export function ProjectManagement() {
       categoryId: "00000000-0000-0000-0000-000000000000",
       projectTypeId: "",
       serviceGroupId: "",
-      serviceId: "",
+      serviceIds: [],
       categoryIds: [],
       images: [],
       isPublished: true,
@@ -304,7 +304,10 @@ export function ProjectManagement() {
 
       <div className="flex flex-wrap items-center gap-4 mb-4">
         {/* Service Type Filter */}
-        <Select value={filterProjectTypeId} onValueChange={setFilterProjectTypeId}>
+        <Select
+          value={filterProjectTypeId}
+          onValueChange={setFilterProjectTypeId}
+        >
           <SelectTrigger className="w-full md:w-[180px]">
             <SelectValue placeholder="Loại hình công trình" />
           </SelectTrigger>
@@ -373,7 +376,10 @@ export function ProjectManagement() {
         </Select>
 
         {/* Service Group Filter */}
-        <Select value={filterServiceGroupId} onValueChange={handleServiceGroupIdChange}>
+        <Select
+          value={filterServiceGroupId}
+          onValueChange={handleServiceGroupIdChange}
+        >
           <SelectTrigger className="w-full md:w-[180px]">
             <SelectValue placeholder="Nhóm dịch vụ" />
           </SelectTrigger>
@@ -450,7 +456,9 @@ export function ProjectManagement() {
           <div className="flex sticky top-0 z-20 w-full items-center justify-center border-b bg-background/95 py-4 backdrop-blur">
             <TabsList>
               <TabsTrigger value="info">Thông tin chung</TabsTrigger>
-              <TabsTrigger value="type-categories">Loại hình & Sản phẩm</TabsTrigger>
+              <TabsTrigger value="type-categories">
+                Loại hình & Sản phẩm
+              </TabsTrigger>
               <TabsTrigger value="service">Dịch vụ liên quan</TabsTrigger>
               <TabsTrigger value="content">Nội dung dự án</TabsTrigger>
             </TabsList>
@@ -460,13 +468,15 @@ export function ProjectManagement() {
             <form
               onSubmit={form.handleSubmit(
                 (v) => {
-                  console.log("CLIENT-SIDE: Form validated successfully, submitting to Server Action:", v);
+
                   saveMutation.mutate(v);
                 },
                 (errs) => {
                   console.error("CLIENT-SIDE FORM VALIDATION ERRORS:", errs);
-                  toast.error("Vui lòng kiểm tra các trường thông tin bắt buộc (Tiêu đề, Slug, Danh mục, v.v...)");
-                }
+                  toast.error(
+                    "Vui lòng kiểm tra các trường thông tin bắt buộc (Tiêu đề, Slug, Danh mục, v.v...)",
+                  );
+                },
               )}
               className="flex-1 flex flex-col min-h-0 w-full"
             >
@@ -490,7 +500,10 @@ export function ProjectManagement() {
                               placeholder="VD: Lắp máy lạnh nhà anh Tuấn"
                               onChange={(e) => {
                                 field.onChange(e);
-                                form.setValue("slug", generateSlug(e.target.value));
+                                form.setValue(
+                                  "slug",
+                                  generateSlug(e.target.value),
+                                );
                               }}
                             />
                             <FieldError errors={[fieldState.error]} />
@@ -589,7 +602,10 @@ export function ProjectManagement() {
                                 value=""
                                 onChange={(url) => {
                                   if (url) {
-                                    field.onChange([...(field.value || []), url]);
+                                    field.onChange([
+                                      ...(field.value || []),
+                                      url,
+                                    ]);
                                   }
                                 }}
                                 aspectRatio={2.5}
@@ -747,8 +763,8 @@ export function ProjectManagement() {
                           Dòng sản phẩm thực tế
                         </CardTitle>
                         <CardDescription className="text-xs text-muted-foreground">
-                          Tích chọn các dòng sản phẩm lắp đặt thực tế cho dự
-                          án này (Tự động điền theo loại hình công trình ở trên,
+                          Tích chọn các dòng sản phẩm lắp đặt thực tế cho dự án
+                          này (Tự động điền theo loại hình công trình ở trên,
                           bạn có thể tự chỉnh thêm).
                         </CardDescription>
                       </CardHeader>
@@ -783,8 +799,9 @@ export function ProjectManagement() {
                                       </CardHeader>
                                       <CardContent className="grid grid-cols-1 sm:grid-cols-2 gap-3 ">
                                         {items.map((cat) => {
-                                          const isChecked =
-                                            checkedIds.includes(cat.id);
+                                          const isChecked = checkedIds.includes(
+                                            cat.id,
+                                          );
                                           return (
                                             <label
                                               key={cat.id}
@@ -837,9 +854,9 @@ export function ProjectManagement() {
                             onValueChange={(v) => {
                               const val = v === "none" ? "" : v;
                               field.onChange(val);
-                              
-                              // Reset serviceId selection when group changes
-                              form.setValue("serviceId", "");
+
+                              // Reset serviceIds selection when group changes
+                              form.setValue("serviceIds", []);
 
                               // Pre-populate categoryIds based on selected serviceGroup!
                               if (val) {
@@ -847,7 +864,10 @@ export function ProjectManagement() {
                                   (g) => g.id === val,
                                 );
                                 if (sGroup && sGroup.categoryIds) {
-                                  form.setValue("categoryIds", sGroup.categoryIds);
+                                  form.setValue(
+                                    "categoryIds",
+                                    sGroup.categoryIds,
+                                  );
                                 }
                               } else {
                                 form.setValue("categoryIds", []);
@@ -879,50 +899,68 @@ export function ProjectManagement() {
 
                     <Controller
                       control={form.control}
-                      name="serviceId"
+                      name="serviceIds"
                       render={({ field }) => {
                         const selectedGroupId = form.watch("serviceGroupId");
-                        const filteredServices = selectedGroupId
-                          ? services.filter((s) => s.groupId === selectedGroupId)
-                          : services;
+                        const filteredServices =
+                          selectedGroupId && selectedGroupId !== "none"
+                            ? services.filter(
+                                (s) => s.groupId === selectedGroupId,
+                              )
+                            : services;
+                        const checkedIds = field.value || [];
+                        const handleToggle = (id: string, checked: boolean) => {
+                          if (checked) {
+                            field.onChange([...checkedIds, id]);
+                          } else {
+                            field.onChange(checkedIds.filter((x) => x !== id));
+                          }
+                        };
 
                         return (
-                          <Field>
-                            <FieldLabel>Dịch vụ thực hiện</FieldLabel>
-                            <Select
-                              value={field.value || "none"}
-                              onValueChange={(v) => {
-                                const val = v === "none" ? "" : v;
-                                field.onChange(val);
-                                
-                                if (val) {
-                                  const selectedService = services.find((s) => s.id === val);
-                                  if (selectedService && selectedService.groupId) {
-                                    form.setValue("serviceGroupId", selectedService.groupId);
-                                  }
-                                }
-                              }}
-                            >
-                              <SelectTrigger>
-                                <SelectValue placeholder="Chọn dịch vụ (nếu có)" />
-                              </SelectTrigger>
-                              <SelectContent
-                                position="popper"
-                                className="max-h-60"
-                              >
-                                <ScrollArea className="h-full">
-                                  <SelectItem value="none">
-                                    Không chọn dịch vụ
-                                  </SelectItem>
-                                  {filteredServices.map((s) => (
-                                    <SelectItem key={s.id} value={s.id}>
-                                      {s.title}
-                                    </SelectItem>
-                                  ))}
-                                </ScrollArea>
-                              </SelectContent>
-                            </Select>
-                          </Field>
+                          <Card>
+                            <CardHeader className="pb-4">
+                              <CardTitle className="text-sm font-semibold tracking-tight text-foreground">
+                                Dịch vụ thực hiện
+                              </CardTitle>
+                              <CardDescription className="text-xs text-muted-foreground">
+                                Tích chọn các dịch vụ liên quan đến dự án này.
+                              </CardDescription>
+                            </CardHeader>
+                            <CardContent className="pt-0">
+                              {!selectedGroupId ||
+                              selectedGroupId === "none" ? (
+                                <div className="text-sm text-muted-foreground italic py-4 text-center bg-muted/30 rounded-md mt-2 border border-dashed">
+                                  Vui lòng chọn Nhóm dịch vụ phía trên để hiển
+                                  thị danh sách dịch vụ thực hiện.
+                                </div>
+                              ) : (
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
+                                  {filteredServices.map((s) => {
+                                    const isChecked = checkedIds.includes(s.id);
+                                    return (
+                                      <label
+                                        key={s.id}
+                                        className="flex items-center gap-3 text-xs font-medium text-foreground/80 cursor-pointer hover:text-primary transition-colors select-none hover:bg-muted/30"
+                                      >
+                                        <input
+                                          type="checkbox"
+                                          className="h-4.5 w-4.5 border-input text-primary cursor-pointer accent-primary shrink-0"
+                                          checked={isChecked}
+                                          onChange={(e) =>
+                                            handleToggle(s.id, e.target.checked)
+                                          }
+                                        />
+                                        <span className="leading-tight">
+                                          {s.title}
+                                        </span>
+                                      </label>
+                                    );
+                                  })}
+                                </div>
+                              )}
+                            </CardContent>
+                          </Card>
                         );
                       }}
                     />

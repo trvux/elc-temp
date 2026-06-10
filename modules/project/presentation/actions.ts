@@ -35,9 +35,9 @@ export async function countProjectsAction(options?: Pick<ProjectFilter, "categor
 
 export async function createProjectAction(input: CreateProjectInput) {
   try {
-    console.log("createProjectAction - Payload received on server:", JSON.stringify(input, null, 2));
+
     const data = await createProject(input);
-    console.log("createProjectAction - Project created successfully:", JSON.stringify(data, null, 2));
+
     revalidatePaths();
     return { data, error: null };
   } catch (error) {
@@ -57,7 +57,7 @@ import path from "path";
 
 export async function updateProjectAction(input: UpdateProjectInput) {
   try {
-    console.log("updateProjectAction - Payload received on server:", JSON.stringify(input, null, 2));
+
     
     // Write received payload directly to scratch file
     try {
@@ -70,13 +70,13 @@ export async function updateProjectAction(input: UpdateProjectInput) {
         JSON.stringify(input.description, null, 2),
         "utf-8"
       );
-      console.log("Successfully wrote payload to scratch/received-payload.json");
+
     } catch (fsErr) {
       console.error("Failed to write scratch file:", fsErr);
     }
 
     const data = await updateProject(input);
-    console.log("updateProjectAction - Project updated successfully:", JSON.stringify(data, null, 2));
+
     revalidatePaths();
     return { data, error: null };
   } catch (error) {

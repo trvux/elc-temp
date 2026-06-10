@@ -24,7 +24,9 @@ export class SupabaseProjectRepository implements ProjectRepository {
         group_categories(*)
       )
     ),
-    service:services(id, title, slug, group:service_groups(id, name, slug))
+    project_service(
+      service:services(id, title, slug, group:service_groups(id, name, slug))
+    )
   `;
 
   async getAll(options?: ProjectFilter): Promise<ProjectWithCategory[]> {
@@ -44,7 +46,21 @@ export class SupabaseProjectRepository implements ProjectRepository {
         .maybeSingle();
 
       if (svcData && !svcError) {
-        query = query.eq("service_id", svcData.id);
+        const { data: relData, error: relError } = await supabase
+          .from("project_service")
+          .select("project_id")
+          .eq("service_id", svcData.id);
+
+        if (relData && !relError) {
+          const projectIds = relData.map((r: { project_id: string }) => r.project_id);
+          if (projectIds.length > 0) {
+            query = query.in("id", projectIds);
+          } else {
+            query = query.in("id", ["00000000-0000-0000-0000-000000000000"]);
+          }
+        } else {
+          query = query.in("id", ["00000000-0000-0000-0000-000000000000"]);
+        }
       } else {
         query = query.in("id", ["00000000-0000-0000-0000-000000000000"]);
       }
@@ -59,7 +75,21 @@ export class SupabaseProjectRepository implements ProjectRepository {
 
       if (svcsData && svcsData.length > 0 && !svcsError) {
         const svcIds = svcsData.map((s) => s.id);
-        query = query.in("service_id", svcIds);
+        const { data: relData, error: relError } = await supabase
+          .from("project_service")
+          .select("project_id")
+          .in("service_id", svcIds);
+
+        if (relData && !relError) {
+          const projectIds = relData.map((r: { project_id: string }) => r.project_id);
+          if (projectIds.length > 0) {
+            query = query.in("id", projectIds);
+          } else {
+            query = query.in("id", ["00000000-0000-0000-0000-000000000000"]);
+          }
+        } else {
+          query = query.in("id", ["00000000-0000-0000-0000-000000000000"]);
+        }
       } else {
         query = query.in("id", ["00000000-0000-0000-0000-000000000000"]);
       }
@@ -166,7 +196,21 @@ export class SupabaseProjectRepository implements ProjectRepository {
         .maybeSingle();
 
       if (svcData && !svcError) {
-        query = query.eq("service_id", svcData.id);
+        const { data: relData, error: relError } = await supabase
+          .from("project_service")
+          .select("project_id")
+          .eq("service_id", svcData.id);
+
+        if (relData && !relError) {
+          const projectIds = relData.map((r: { project_id: string }) => r.project_id);
+          if (projectIds.length > 0) {
+            query = query.in("id", projectIds);
+          } else {
+            query = query.in("id", ["00000000-0000-0000-0000-000000000000"]);
+          }
+        } else {
+          query = query.in("id", ["00000000-0000-0000-0000-000000000000"]);
+        }
       } else {
         query = query.in("id", ["00000000-0000-0000-0000-000000000000"]);
       }
@@ -181,7 +225,21 @@ export class SupabaseProjectRepository implements ProjectRepository {
 
       if (svcsData && svcsData.length > 0 && !svcsError) {
         const svcIds = svcsData.map((s) => s.id);
-        query = query.in("service_id", svcIds);
+        const { data: relData, error: relError } = await supabase
+          .from("project_service")
+          .select("project_id")
+          .in("service_id", svcIds);
+
+        if (relData && !relError) {
+          const projectIds = relData.map((r: { project_id: string }) => r.project_id);
+          if (projectIds.length > 0) {
+            query = query.in("id", projectIds);
+          } else {
+            query = query.in("id", ["00000000-0000-0000-0000-000000000000"]);
+          }
+        } else {
+          query = query.in("id", ["00000000-0000-0000-0000-000000000000"]);
+        }
       } else {
         query = query.in("id", ["00000000-0000-0000-0000-000000000000"]);
       }
@@ -310,7 +368,6 @@ export class SupabaseProjectRepository implements ProjectRepository {
         order_index: input.orderIndex,
         category_id: input.categoryId,
         project_type_id: input.projectTypeId,
-        service_id: input.serviceId,
         deleted_at: null,
         updated_at: new Date().toISOString(),
       };
@@ -332,6 +389,14 @@ export class SupabaseProjectRepository implements ProjectRepository {
         .eq("project_id", existing.id);
 
       if (delError) this.handleError(delError, "create [clear relations]");
+
+      // Delete existing service relations
+      const { error: delSvcError } = await supabase
+        .from("project_service")
+        .delete()
+        .eq("project_id", existing.id);
+
+      if (delSvcError) this.handleError(delSvcError, "create [clear service relations]");
     } else {
       const row: ProjectInsert = {
         title: input.title,
@@ -345,7 +410,6 @@ export class SupabaseProjectRepository implements ProjectRepository {
         order_index: input.orderIndex,
         category_id: input.categoryId,
         project_type_id: input.projectTypeId,
-        service_id: input.serviceId,
       };
 
       const { data, error } = await supabase
@@ -372,6 +436,20 @@ export class SupabaseProjectRepository implements ProjectRepository {
       if (relError) this.handleError(relError, "createRelations");
     }
 
+    // Save project services if provided
+    if (input.serviceIds && input.serviceIds.length > 0) {
+      const svcRelations = input.serviceIds.map(svcId => ({
+        project_id: newProject.id,
+        service_id: svcId,
+      }));
+
+      const { error: svcError } = await supabase
+        .from("project_service")
+        .insert(svcRelations);
+
+      if (svcError) this.handleError(svcError, "createServiceRelations");
+    }
+
     return newProject;
   }
 
@@ -389,7 +467,6 @@ export class SupabaseProjectRepository implements ProjectRepository {
       order_index: input.orderIndex,
       category_id: input.categoryId,
       project_type_id: input.projectTypeId,
-      service_id: input.serviceId,
       updated_at: new Date().toISOString(),
     };
 
@@ -423,6 +500,29 @@ export class SupabaseProjectRepository implements ProjectRepository {
           .insert(relations);
 
         if (insError) this.handleError(insError, "insertRelations");
+      }
+    }
+
+    // Update project services
+    if (input.serviceIds !== undefined) {
+      const { error: delSvcError } = await supabase
+        .from("project_service")
+        .delete()
+        .eq("project_id", input.id);
+
+      if (delSvcError) this.handleError(delSvcError, "deleteServiceRelations");
+
+      if (input.serviceIds.length > 0) {
+        const svcRelations = input.serviceIds.map(svcId => ({
+          project_id: input.id,
+          service_id: svcId,
+        }));
+
+        const { error: insSvcError } = await supabase
+          .from("project_service")
+          .insert(svcRelations);
+
+        if (insSvcError) this.handleError(insSvcError, "insertServiceRelations");
       }
     }
 
@@ -524,7 +624,6 @@ export class SupabaseProjectRepository implements ProjectRepository {
       orderIndex: row.order_index || 0,
       categoryId: row.category_id || "",
       projectTypeId: row.project_type_id || null,
-      serviceId: row.service_id || null,
       createdAt: row.created_at || new Date().toISOString(),
       updatedAt: row.updated_at || new Date().toISOString(),
       deletedAt: row.deleted_at || null,
@@ -556,27 +655,65 @@ export class SupabaseProjectRepository implements ProjectRepository {
       })
       .filter(Boolean);
 
-    const service = row.service ? {
-      id: row.service.id,
-      title: row.service.title,
-      slug: row.service.slug || "",
-      group: row.service.group ? {
-        id: row.service.group.id,
-        name: row.service.group.name,
-        slug: row.service.group.slug || "",
-      } : null,
-    } : null;
+    const services = (row.project_service || [])
+      .map((ps: any) => {
+        const svc = ps.service;
+        if (!svc) return null;
+        return {
+          id: svc.id,
+          title: svc.title,
+          slug: svc.slug || "",
+          group: svc.group ? {
+            id: svc.group.id,
+            name: svc.group.name,
+            slug: svc.group.slug || "",
+          } : null,
+        };
+      })
+      .filter(Boolean);
 
     return {
       ...project,
       category: null,
       projectType,
-      service,
+      services,
       categories,
     };
   }
 
   private handleError(error: unknown, context: string): never {
+    let isAbort = false;
+    if (error && typeof error === "object") {
+      const errObj = error as Record<string, unknown>;
+      const name = typeof errObj.name === "string" ? errObj.name : "";
+      const message = typeof errObj.message === "string" ? errObj.message : "";
+      if (
+        name === "AbortError" || 
+        message.includes("AbortError") || 
+        message.includes("aborted") ||
+        message.includes("operation was aborted") ||
+        message.includes("prerender") ||
+        message.includes("prerendering")
+      ) {
+        isAbort = true;
+      }
+    } else if (error instanceof Error) {
+      if (
+        error.name === "AbortError" || 
+        error.message.includes("AbortError") || 
+        error.message.includes("aborted") ||
+        error.message.includes("operation was aborted") ||
+        error.message.includes("prerender") ||
+        error.message.includes("prerendering")
+      ) {
+        isAbort = true;
+      }
+    }
+
+    if (isAbort) {
+      throw error;
+    }
+
     let message = "Unknown error";
     if (error) {
       if (typeof error === "object") {

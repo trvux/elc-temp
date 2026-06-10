@@ -26,7 +26,7 @@ export type ProjectFormValues = {
   categoryId: string;
   projectTypeId: string;
   serviceGroupId?: string;
-  serviceId: string;
+  serviceIds: string[];
   categoryIds: string[];
 };
 
@@ -47,7 +47,7 @@ export function useProjectForm(
       categoryId: "00000000-0000-0000-0000-000000000000",
       projectTypeId: "",
       serviceGroupId: "",
-      serviceId: "",
+      serviceIds: [],
       categoryIds: [],
       images: [],
       isPublished: true,
@@ -74,10 +74,10 @@ export function useProjectForm(
         ...payloadValues,
         description: JSON.parse(JSON.stringify(payloadValues.description)) as Json,
         projectTypeId: payloadValues.projectTypeId || null,
-        serviceId: payloadValues.serviceId || null,
+        serviceIds: payloadValues.serviceIds || [],
         categoryIds: payloadValues.categoryIds || [],
       };
-      console.log("CLIENT-SIDE FORM SUBMITTING PAYLOAD:", JSON.stringify(payload.description, null, 2));
+
       if (activeProject && activeProject !== "new") {
         return updateProjectAction({
           ...payload,
