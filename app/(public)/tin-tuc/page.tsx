@@ -1,3 +1,5 @@
+import { getNews } from "@/modules/news/application";
+import { ScrollToTop } from "@/shared/components/layout/user/scroll-to-top";
 import {
   TypographyH1,
   TypographyH4,
@@ -5,15 +7,12 @@ import {
   TypographyP,
   TypographySmall,
 } from "@/shared/components/ui/typography";
-import { ScrollToTop } from "@/shared/components/layout/user/scroll-to-top";
+import { setUseStaticClient } from "@/shared/lib/supabase/server";
 import { cn } from "@/shared/lib/utils";
 import { ArrowUpRight as ArrowIcon } from "lucide-react";
+import { cacheLife } from "next/cache";
 import Image from "next/image";
 import Link from "next/link";
-import { getNews } from "@/modules/news/application";
-import { setUseStaticClient } from "@/shared/lib/supabase/server";
-import { cacheLife } from "next/cache";
-
 
 const STYLES = {
   main: cn("w-full min-h-screen py-12 px-4 md:px-8"),
@@ -23,14 +22,22 @@ const STYLES = {
   ),
   title: cn(),
   description: cn(),
-  list: cn("grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-16 min-h-[400px] animate-fade-in-up"),
+  list: cn(
+    "grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-16 min-h-[400px] animate-fade-in-up",
+  ),
   article: cn(
     "group flex flex-col gap-6 no-underline transition-all duration-300",
   ),
-  imageWrapper: cn("relative aspect-video rounded-2xl overflow-hidden border bg-muted"),
-  image: cn("object-cover transition-transform duration-500 group-hover:scale-105"),
+  imageWrapper: cn(
+    "relative aspect-video rounded-2xl overflow-hidden border bg-muted",
+  ),
+  image: cn(
+    "object-cover transition-transform duration-500 group-hover:scale-105",
+  ),
   articleHeader: cn("flex justify-between items-start gap-4"),
-  articleTitle: cn("text-primary/70 group-hover:text-primary transition-colors"),
+  articleTitle: cn(
+    "text-primary/70 group-hover:text-primary transition-colors",
+  ),
   articleIcon: cn(
     "w-6 h-6 shrink-0 mt-2 text-muted-foreground/40 group-hover:text-primary group-hover:translate-x-1 group-hover:-translate-y-1 transition-all",
   ),
@@ -64,7 +71,7 @@ export default async function NewsHub() {
     return (
       <main className={STYLES.main}>
         <div className={STYLES.container}>
-           <header className={STYLES.header}>
+          <header className={STYLES.header}>
             <TypographyH1 className={STYLES.title}>Tin tức</TypographyH1>
             <TypographyP className="text-muted-foreground">
               Hiện tại chưa có tin tức nào được đăng tải.
@@ -81,7 +88,8 @@ export default async function NewsHub() {
         <header className={STYLES.header}>
           <TypographyH1 className={STYLES.title}>Tin tức</TypographyH1>
           <TypographyLead className={STYLES.description}>
-            Cập nhật những giải pháp kỹ thuật mới nhất và các tin tức chuyên sâu từ đội ngũ kỹ sư ELC.
+            Cập nhật những giải pháp kỹ thuật mới nhất và các tin tức chuyên sâu
+            từ đội ngũ kỹ sư ELC
           </TypographyLead>
         </header>
 
@@ -126,8 +134,7 @@ export default async function NewsHub() {
 
         <footer className={STYLES.footer}>
           <TypographySmall>
-            &copy; {currentYear} ELC Holdings. Đã đăng ký bản
-            quyền.
+            &copy; {currentYear} ELC Holdings. Đã đăng ký bản quyền.
           </TypographySmall>
           <ScrollToTop className={STYLES.scrollToTop}>
             <TypographySmall>Quay lại đầu trang</TypographySmall>

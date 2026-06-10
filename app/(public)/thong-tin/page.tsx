@@ -73,8 +73,8 @@ export default async function InformationHub() {
         <header className={STYLES.header}>
           <TypographyH1>Thông tin về ELC</TypographyH1>
           <TypographyLead>
-            Kho lưu trữ minh bạch về các giá trị cốt lõi, cam kết bảo hành và
-            triết lý kiến tạo.
+            Các chính sách thương mại và dịch vụ công ty cam kết luôn luôn theo
+            đuổi cam kết thực hiện
           </TypographyLead>
         </header>
 
@@ -113,7 +113,7 @@ export default async function InformationHub() {
           <TypographyH1>Cơ sở hạ tầng</TypographyH1>
           <TypographyLead>
             Hệ thống không gian trưng bày và trạm dịch vụ của ELC được mở rộng
-            trên toàn quốc với triết lý kiến tạo giá trị đồng nhất.
+            trên toàn quốc với triết lý kiến tạo giá trị đồng nhất
           </TypographyLead>
         </header>
 
