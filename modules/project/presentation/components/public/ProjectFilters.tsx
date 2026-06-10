@@ -169,7 +169,7 @@ export function ProjectFilters({
     );
   }
 
-  const activeAccordionValues = ["Loại công trình", "Loại sản phẩm", "Dịch vụ"];
+  const activeAccordionValues = ["Loại công trình", "Dịch vụ", "Loại sản phẩm"];
 
   return (
     <div className="flex flex-col gap-2">
@@ -247,54 +247,6 @@ export function ProjectFilters({
           </AccordionItem>
         )}
 
-        {/* Categories (Loại sản phẩm) - Multi selection */}
-        {currentProjectTypeSlug && categories.length > 0 && (
-          <AccordionItem value="Loại sản phẩm">
-            <AccordionTrigger className="hover:no-underline">
-              <div className="flex items-center gap-2">
-                <span>Loại sản phẩm</span>
-                {currentCategorySlugs.length > 0 && (
-                  <Badge variant="secondary">
-                    <Check data-icon="inline-start" className="w-3 h-3" /> {currentCategorySlugs.length} chọn
-                  </Badge>
-                )}
-              </div>
-            </AccordionTrigger>
-            <AccordionContent className="px-2 h-auto!">
-              <div className="flex flex-col gap-1 -mx-6">
-                {/* Specific Options */}
-                {categories.map((cat) => {
-                  if (cat.count !== undefined && cat.count <= 0) return null;
-                  const isActive = currentCategorySlugs.includes(cat.slug);
-                  return (
-                    <label
-                      key={cat.id}
-                      className={cn(
-                        "flex items-center gap-2 pr-4 py-2 rounded-md transition-colors group pl-6 hover:bg-muted/50 cursor-pointer"
-                      )}
-                    >
-                      <Checkbox
-                        id={`filter-category-${cat.slug}`}
-                        checked={isActive}
-                        disabled={isPending}
-                        onCheckedChange={() => handleCategoryToggle(cat.slug)}
-                      />
-                      <span
-                        className={cn(
-                          "text-sm font-medium leading-snug group-hover:text-foreground transition-colors",
-                          isActive && "text-foreground font-semibold"
-                        )}
-                      >
-                        {cat.name}
-                      </span>
-                    </label>
-                  );
-                })}
-              </div>
-            </AccordionContent>
-          </AccordionItem>
-        )}
-
         {/* Services (Dịch vụ) - Multi selection */}
         {currentProjectTypeSlug && services.length > 0 && (
           <AccordionItem value="Dịch vụ">
@@ -334,6 +286,54 @@ export function ProjectFilters({
                         )}
                       >
                         {svc.name}
+                      </span>
+                    </label>
+                  );
+                })}
+              </div>
+            </AccordionContent>
+          </AccordionItem>
+        )}
+
+        {/* Categories (Loại sản phẩm) - Multi selection */}
+        {currentProjectTypeSlug && categories.length > 0 && (
+          <AccordionItem value="Loại sản phẩm">
+            <AccordionTrigger className="hover:no-underline">
+              <div className="flex items-center gap-2">
+                <span>Loại sản phẩm</span>
+                {currentCategorySlugs.length > 0 && (
+                  <Badge variant="secondary">
+                    <Check data-icon="inline-start" className="w-3 h-3" /> {currentCategorySlugs.length} chọn
+                  </Badge>
+                )}
+              </div>
+            </AccordionTrigger>
+            <AccordionContent className="px-2 h-auto!">
+              <div className="flex flex-col gap-1 -mx-6">
+                {/* Specific Options */}
+                {categories.map((cat) => {
+                  if (cat.count !== undefined && cat.count <= 0) return null;
+                  const isActive = currentCategorySlugs.includes(cat.slug);
+                  return (
+                    <label
+                      key={cat.id}
+                      className={cn(
+                        "flex items-center gap-2 pr-4 py-2 rounded-md transition-colors group pl-6 hover:bg-muted/50 cursor-pointer"
+                      )}
+                    >
+                      <Checkbox
+                        id={`filter-category-${cat.slug}`}
+                        checked={isActive}
+                        disabled={isPending}
+                        onCheckedChange={() => handleCategoryToggle(cat.slug)}
+                      />
+                      <span
+                        className={cn(
+                          "text-sm font-medium leading-snug group-hover:text-foreground transition-colors",
+                          isActive && "text-foreground font-semibold"
+                        )}
+                      >
+                        {cat.name}
                       </span>
                     </label>
                   );
