@@ -52,20 +52,20 @@ export async function getPublicLayoutData() {
       .order("name", { ascending: true }),
     supabase
       .from("products")
-      .select("price")
+      .select("sale_price, original_price")
       .eq("is_published", true)
       .is("deleted_at", null)
-      .gt("price", 0)
-      .order("price", { ascending: true })
+      .gt("sale_price", 0)
+      .order("sale_price", { ascending: true })
       .limit(1)
       .maybeSingle(),
     supabase
       .from("products")
-      .select("price")
+      .select("sale_price, original_price")
       .eq("is_published", true)
       .is("deleted_at", null)
-      .gt("price", 0)
-      .order("price", { ascending: false })
+      .gt("sale_price", 0)
+      .order("sale_price", { ascending: false })
       .limit(1)
       .maybeSingle(),
     supabase
@@ -121,9 +121,12 @@ export async function getPublicLayoutData() {
   const formatCurrency = (val: number) =>
     new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(val);
 
+  const minPrice = minPriceProd ? (minPriceProd.sale_price || minPriceProd.original_price || 0) : 0;
+  const maxPrice = maxPriceProd ? (maxPriceProd.sale_price || maxPriceProd.original_price || 0) : 0;
+
   const priceRange =
-    minPriceProd && maxPriceProd
-      ? `${formatCurrency(minPriceProd.price)} - ${formatCurrency(maxPriceProd.price)}`
+    minPrice && maxPrice
+      ? `${formatCurrency(minPrice)} - ${formatCurrency(maxPrice)}`
       : "10.000.000đ - 100.000.000đ";
 
   const mappedProjects = (projects || []).map((p) => {

@@ -1,0 +1,141 @@
+app/(public)/san-pham/[slug]/page.tsx
+  Line 58:62 - @typescript-eslint/no-explicit-any: Unexpected any. Specify a different type.
+  Line 90:68 - @typescript-eslint/no-explicit-any: Unexpected any. Specify a different type.
+
+app/api/product-feed/route.ts
+  Line 78:44 - @typescript-eslint/no-explicit-any: Unexpected any. Specify a different type.
+  Line 87:35 - @typescript-eslint/no-explicit-any: Unexpected any. Specify a different type.
+  Line 103:33 - @typescript-eslint/no-explicit-any: Unexpected any. Specify a different type.
+
+app/sitemap.ts
+  Line 78:20 - @typescript-eslint/no-explicit-any: Unexpected any. Specify a different type.
+  Line 79:17 - @typescript-eslint/no-explicit-any: Unexpected any. Specify a different type.
+  Line 90:21 - @typescript-eslint/no-explicit-any: Unexpected any. Specify a different type.
+  Line 91:18 - @typescript-eslint/no-explicit-any: Unexpected any. Specify a different type.
+
+modules/branch/presentation/hooks/useBranchForm.ts
+  Line 65:22 - @typescript-eslint/no-explicit-any: Unexpected any. Specify a different type.
+
+modules/catalog/application/resolveProductPath.ts
+  Line 25:30 - @typescript-eslint/no-explicit-any: Unexpected any. Specify a different type.
+  Line 31:43 - @typescript-eslint/no-explicit-any: Unexpected any. Specify a different type.
+
+modules/category/infrastructure/categoryRepo.ts
+  Line 39:35 - @typescript-eslint/no-explicit-any: Unexpected any. Specify a different type.
+  Line 74:53 - @typescript-eslint/no-explicit-any: Unexpected any. Specify a different type.
+  Line 181:28 - @typescript-eslint/no-explicit-any: Unexpected any. Specify a different type.
+  Line 198:37 - @typescript-eslint/no-explicit-any: Unexpected any. Specify a different type.
+
+modules/category/presentation/hooks/useCategoryForm.ts
+  Line 34:62 - @typescript-eslint/no-explicit-any: Unexpected any. Specify a different type.
+  Line 34:70 - @typescript-eslint/no-explicit-any: Unexpected any. Specify a different type.
+
+modules/contact/domain/utils.ts
+  Line 24:44 - @typescript-eslint/no-explicit-any: Unexpected any. Specify a different type.
+
+modules/contact/presentation/actions.ts
+  Line 13:51 - @typescript-eslint/no-explicit-any: Unexpected any. Specify a different type.
+
+modules/contact/presentation/components/ContactManagement.tsx
+  Line 68:61 - @typescript-eslint/no-explicit-any: Unexpected any. Specify a different type.
+  Line 68:69 - @typescript-eslint/no-explicit-any: Unexpected any. Specify a different type.
+  Line 95:14 - @typescript-eslint/no-explicit-any: Unexpected any. Specify a different type.
+  Line 97:44 - @typescript-eslint/no-explicit-any: Unexpected any. Specify a different type.
+
+modules/group/infrastructure/groupRepo.ts
+  Line 6:55 - @typescript-eslint/no-explicit-any: Unexpected any. Specify a different type.
+  Line 189:28 - @typescript-eslint/no-explicit-any: Unexpected any. Specify a different type.
+
+modules/group/presentation/hooks/useGroupForm.ts
+  Line 33:59 - @typescript-eslint/no-explicit-any: Unexpected any. Specify a different type.
+  Line 33:67 - @typescript-eslint/no-explicit-any: Unexpected any. Specify a different type.
+
+modules/news/infrastructure/SupabaseNewsRepository.ts
+  Line 141:31 - @typescript-eslint/no-explicit-any: Unexpected any. Specify a different type.
+
+modules/news/presentation/components/NewsManagement.tsx
+  Line 104:35 - @typescript-eslint/no-explicit-any: Unexpected any. Specify a different type.
+
+modules/page/domain/repository.ts
+  Line 22:21 - @typescript-eslint/no-explicit-any: Unexpected any. Specify a different type.
+  Line 23:21 - @typescript-eslint/no-explicit-any: Unexpected any. Specify a different type.
+
+modules/page/infrastructure/SupabaseAboutBlockRepository.ts
+  Line 22:27 - @typescript-eslint/no-explicit-any: Unexpected any. Specify a different type.
+
+modules/page/infrastructure/SupabasePageRepository.ts
+  Line 133:31 - @typescript-eslint/no-explicit-any: Unexpected any. Specify a different type.
+  Line 153:27 - @typescript-eslint/no-explicit-any: Unexpected any. Specify a different type.
+
+modules/page/presentation/components/PageManagement.tsx
+  Line 100:35 - @typescript-eslint/no-explicit-any: Unexpected any. Specify a different type.
+
+modules/project-type/infrastructure/projectTypeRepo.ts
+  Line 177:16 - @typescript-eslint/no-explicit-any: Unexpected any. Specify a different type.
+  Line 263:28 - @typescript-eslint/no-explicit-any: Unexpected any. Specify a different type.
+  Line 279:42 - @typescript-eslint/no-explicit-any: Unexpected any. Specify a different type.
+  Line 283:18 - @typescript-eslint/no-explicit-any: Unexpected any. Specify a different type.
+
+modules/project-type/presentation/hooks/useProjectTypeForm.ts
+  Line 34:65 - @typescript-eslint/no-explicit-any: Unexpected any. Specify a different type.
+  Line 34:73 - @typescript-eslint/no-explicit-any: Unexpected any. Specify a different type.
+
+modules/project/presentation/components/public/ProjectFilters.tsx
+  Line 66:5 - react-hooks/set-state-in-effect: Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+/Users/tranvux/Documents/elc-tem/modules/project/presentation/components/public/ProjectFilters.tsx:66:5
+  64 |
+  65 |   useEffect(() => {
+> 66 |     setIsMounted(true);
+     |     ^^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  67 |   }, []);
+  68 |
+  69 |   const hasAnyFilter = !!(
+
+modules/settings/domain/footer.ts
+  Line 31:51 - @typescript-eslint/no-explicit-any: Unexpected any. Specify a different type.
+
+shared/components/layout/admin/rich-text-editor/image-bubble-menu.tsx
+  Line 59:7 - @typescript-eslint/ban-ts-comment: Use "@ts-expect-error" instead of "@ts-ignore", as "@ts-ignore" will do nothing if the following line is error-free.
+
+shared/components/layout/admin/rich-text-editor/table-bubble-menu.tsx
+  Line 31:7 - @typescript-eslint/ban-ts-comment: Use "@ts-expect-error" instead of "@ts-ignore", as "@ts-ignore" will do nothing if the following line is error-free.
+
+shared/components/layout/admin/rich-text-editor/text-bubble-menu.tsx
+  Line 60:7 - @typescript-eslint/ban-ts-comment: Use "@ts-expect-error" instead of "@ts-ignore", as "@ts-ignore" will do nothing if the following line is error-free.
+
+shared/components/layout/user/product-description.tsx
+  Line 25:12 - @typescript-eslint/no-explicit-any: Unexpected any. Specify a different type.
+
+shared/components/sections/hero-contact-actions.tsx
+  Line 28:20 - @typescript-eslint/no-explicit-any: Unexpected any. Specify a different type.
+
+shared/components/sections/sticky-contact-actions.tsx
+  Line 91:26 - @typescript-eslint/no-explicit-any: Unexpected any. Specify a different type.
+
+shared/components/ui/data-table.tsx
+  Line 21:29 - @typescript-eslint/no-explicit-any: Unexpected any. Specify a different type.
+  Line 31:28 - @typescript-eslint/no-explicit-any: Unexpected any. Specify a different type.
+
+shared/components/ui/pagination.tsx
+  Line 66:23 - @typescript-eslint/no-explicit-any: Unexpected any. Specify a different type.
+
+shared/lib/helpers.ts
+  Line 90:32 - @typescript-eslint/no-explicit-any: Unexpected any. Specify a different type.
+  Line 90:40 - @typescript-eslint/no-explicit-any: Unexpected any. Specify a different type.
+
+shared/lib/seo-utils.ts
+  Line 23:25 - @typescript-eslint/no-explicit-any: Unexpected any. Specify a different type.
+  Line 25:7 - prefer-const: 'hpSpec' is never reassigned. Use 'const' instead.
+  Line 26:9 - @typescript-eslint/no-explicit-any: Unexpected any. Specify a different type.
+
+shared/proxy.ts
+  Line 187:9 - prefer-const: 'cleanPathname' is never reassigned. Use 'const' instead.
+
+Total errors: 59

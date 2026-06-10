@@ -4,13 +4,13 @@ import { Button } from "@/shared/components/ui/button";
 import { ButtonGroup } from "@/shared/components/ui/button-group";
 import { ArrowLeft } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 export function RedirectTimer({ delay = 15 }: { delay?: number }) {
   const [countdown, setCountdown] = useState(delay);
   const router = useRouter();
 
-  const handleBack = () => {
+  const handleBack = useCallback(() => {
     if (typeof window !== "undefined") {
       if (
         document.referrer &&
@@ -21,7 +21,7 @@ export function RedirectTimer({ delay = 15 }: { delay?: number }) {
         router.push("/");
       }
     }
-  };
+  }, [router]);
 
   useEffect(() => {
     if (countdown <= 0) {
@@ -34,7 +34,7 @@ export function RedirectTimer({ delay = 15 }: { delay?: number }) {
     }, 1000);
 
     return () => clearInterval(timer);
-  }, [countdown, router]);
+  }, [countdown, handleBack]);
 
   return (
     <div className="flex flex-col items-center space-y-6">

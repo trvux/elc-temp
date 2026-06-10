@@ -10,6 +10,7 @@ import {
   TooltipTrigger,
 } from "@/shared/components/ui/tooltip";
 import { ArrowRightIcon, MapPinIcon } from "@phosphor-icons/react";
+import Image from "next/image";
 import Link from "next/link";
 import { useMemo } from "react";
 
@@ -78,6 +79,18 @@ interface FooterProps {
   currentYear?: number;
 }
 
+const borderColor = "border-muted-foreground/35";
+
+function DashedDivider() {
+  return (
+    <div className="absolute top-0 left-0 w-full h-px z-10 pointer-events-none">
+      <div className="absolute left-1/2 h-px w-screen -translate-x-1/2">
+        <hr className={`-mt-px w-full border-dashed ${borderColor}`} />
+      </div>
+    </div>
+  );
+}
+
 export function Footer({
   branches = [],
   projects = [],
@@ -90,7 +103,7 @@ export function Footer({
   projectTypes = [],
   currentYear = 2026,
 }: FooterProps) {
-  const { address, currentYear: year } = getFooterLogic(
+  const { address } = getFooterLogic(
     contacts,
     settings as FooterSettings,
     currentYear,
@@ -108,16 +121,6 @@ export function Footer({
       children: categoriesList.filter((cat) => cat.groupId === group.id),
     }));
   }, [groupCategories, categoriesList]);
-
-  const borderColor = "border-muted-foreground/35";
-
-  const DashedDivider = () => (
-    <div className="absolute top-0 left-0 w-full h-px z-10 pointer-events-none">
-      <div className="absolute left-1/2 h-px w-screen -translate-x-1/2">
-        <hr className={`-mt-px w-full border-dashed ${borderColor}`} />
-      </div>
-    </div>
-  );
 
   return (
     <footer className="w-full relative bg-background">
@@ -147,10 +150,13 @@ export function Footer({
               href="/"
               className="flex items-center gap-2 w-fit hover:opacity-80 transition-opacity"
             >
-              <img
-                src="/logo/logo.svg"
+              <Image
+                src="/logo/logo.svg?v=footer"
                 alt="Điện máy ELC"
+                width={36}
+                height={36}
                 loading="lazy"
+                style={{ width: "auto" }}
                 className="h-8 md:h-9 w-auto dark:brightness-0 dark:invert"
               />
             </Link>
@@ -267,12 +273,16 @@ export function Footer({
                       title={`Xem sản phẩm từ thương hiệu ${brand.name}`}
                     >
                       {brand.logoUrl ? (
-                        <img
-                          src={brand.logoUrl}
-                          alt={brand.name}
-                          loading="lazy"
-                          className="max-h-8 w-auto max-w-[85%] object-contain opacity-90"
-                        />
+                        <div className="relative h-8 w-full max-w-[85%]">
+                          <Image
+                            src={brand.logoUrl}
+                            alt={brand.name}
+                            fill
+                            loading="lazy"
+                            sizes="120px"
+                            className="object-contain opacity-90"
+                          />
+                        </div>
                       ) : (
                         <span className="text-sm font-semibold text-muted-foreground group-hover:text-foreground transition-colors duration-300">
                           {brand.name}

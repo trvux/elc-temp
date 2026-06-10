@@ -1,8 +1,7 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Plus, Upload, X, ExternalLink } from "lucide-react";
-import Image from "next/image";
+import { Plus, ExternalLink } from "lucide-react";
 import { useMemo, useState } from "react";
 import { Controller } from "react-hook-form";
 import { toast } from "sonner";
@@ -45,7 +44,7 @@ export function BrandManagement() {
   });
 
   // Custom Form Hook
-  const { form, saveMutation, handleUpload, uploading, onNameChange } =
+  const { form, saveMutation, onNameChange } =
     useBrandForm(activeBrand, () => setActiveBrand(null));
 
   // Delete Mutation

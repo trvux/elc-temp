@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Controller, UseFormReturn } from "react-hook-form";
 import {
   Field,
@@ -52,17 +52,17 @@ export function ProductGeneralTab({
     return "";
   });
 
-  // Sync selected group if categoryId changes (e.g. on form reset/load)
-  useEffect(() => {
+  // Sync selected group during render if categoryId changes (e.g. on form reset/load)
+  const [prevCategoryId, setPrevCategoryId] = useState(currentCategoryId);
+  if (currentCategoryId !== prevCategoryId) {
+    setPrevCategoryId(currentCategoryId);
     if (currentCategoryId) {
       const cat = categories.find((c) => c.id === currentCategoryId);
-      if (cat && cat.groupId !== selectedGroupId) {
-        setSelectedGroupId(cat.groupId || "");
-      }
+      setSelectedGroupId(cat?.groupId || "");
     } else {
       setSelectedGroupId("");
     }
-  }, [currentCategoryId, categories]);
+  }
 
   return (
     <FieldGroup className="gap-8">

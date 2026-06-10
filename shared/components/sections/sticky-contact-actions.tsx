@@ -88,7 +88,7 @@ export function StickyContactActions({ contacts }: StickyContactActionsProps) {
                       size: contact.type === "zalo" ? 16 : 22,
                       weight: "fill",
                       ...(contact.type === "zalo" ? { stroke: 4 } : {}),
-                    } as any
+                    } as (React.ComponentProps<typeof ContactLink>["iconProps"] & { stroke?: number })
                   }
                   showLabel={false}
                   iconClassName={cn(

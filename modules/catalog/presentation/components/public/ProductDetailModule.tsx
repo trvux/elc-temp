@@ -1,8 +1,6 @@
 import {
   formatPrice,
   ProductWithRelations,
-  STOCK_STATUS,
-  STOCK_STATUS_MAP,
 } from "@/modules/catalog/domain";
 import { getAdjacentProducts } from "@/modules/catalog/application/getAdjacentProducts";
 import { mapContactRowToDomain } from "@/modules/contact/domain";
@@ -136,8 +134,6 @@ export async function ProductDetailModule({
 
   const category = product.category;
   if (!category) notFound();
-
-  const brand = product.brand;
 
   const normalizedSpecs: SpecItem[] = Array.isArray(product.specs)
     ? (product.specs as unknown as SpecItem[])

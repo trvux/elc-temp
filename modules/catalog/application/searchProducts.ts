@@ -1,7 +1,7 @@
 import Fuse from "fuse.js";
-import { ProductFilter, ProductWithRelations, normalizeProductPrice } from "../domain";
+import { ProductFilter, ProductWithRelations, normalizeProductPrice, SpecItem, SpecSubItem } from "../domain";
 import { productRepo } from "../infrastructure/SupabaseProductRepository";
-import { getQueryTokens, normalize, tokenize } from "@/shared/lib/search-utils";
+import { getQueryTokens, tokenize } from "@/shared/lib/search-utils";
 
 
 /**
@@ -261,7 +261,7 @@ export async function searchProducts(
       availableBrands.set(p.brandId, { 
         id: p.brandId, 
         name: p.brand.name,
-        slug: (p.brand as any).slug || ""
+        slug: p.brand.slug
       });
     }
   });
@@ -316,24 +316,27 @@ export async function searchProducts(
     if (nameGas) {
       if (!availableSpecs.has("Loại Gas"))
         availableSpecs.set("Loại Gas", new Set());
-      availableSpecs.get("Loại Gas")!.add(nameGas);
+      availableSpecs.get("Loại Gas")?.add(nameGas);
     }
 
     if (Array.isArray(p.specs)) {
-      p.specs.forEach((s: any) => {
+      (p.specs as unknown as SpecItem[]).forEach((s) => {
         if (!s.label) return;
         const uiLabel = REVERSE_SPEC_MAPPING[s.label.toLowerCase().trim()];
         if (!uiLabel) return;
         if (!availableSpecs.has(uiLabel)) availableSpecs.set(uiLabel, new Set());
 
-        const targetSet = availableSpecs.get(uiLabel)!;
-        const items = Array.isArray(s.items) ? s.items : Array.isArray(s.value) ? s.value : null;
+        const targetSet = availableSpecs.get(uiLabel);
+        if (!targetSet) return;
+        const items = Array.isArray(s.items) ? s.items : (Array.isArray(s.value) ? s.value : null);
 
         if (items) {
-          items.forEach((item: any) => {
-            const val = item.value !== undefined ? item.value : typeof item === "string" ? item : null;
+          (items as (SpecSubItem | string)[]).forEach((item) => {
+            const isObj = typeof item === "object" && item !== null;
+            const val = isObj && "value" in item ? item.value : (typeof item === "string" ? item : null);
             if (val !== null && val !== undefined) {
-              const normalized = normalizeSpecValue(uiLabel, String(val), item.unit, s.label);
+              const unit = isObj && "unit" in item ? item.unit : undefined;
+              const normalized = normalizeSpecValue(uiLabel, String(val), unit, s.label);
               if (normalized) targetSet.add(normalized);
             }
           });
@@ -361,17 +364,21 @@ export async function searchProducts(
         else if (label === "Loại Gas") nameMatch = getGasType(p.name);
         if (nameMatch && values.includes(nameMatch)) return true;
 
-        const pSpecs = (p.specs as any[]) || [];
+        const pSpecs = (p.specs as unknown as SpecItem[]) || [];
         return pSpecs.some((s) => {
           if (!s.label) return false;
           const uiLabel = REVERSE_SPEC_MAPPING[s.label.toLowerCase().trim()] || s.label;
           if (uiLabel !== label) return false;
           const pValues: string[] = [];
-          const items = Array.isArray(s.items) ? s.items : Array.isArray(s.value) ? s.value : null;
+          const items = Array.isArray(s.items) ? s.items : (Array.isArray(s.value) ? s.value : null);
           if (items) {
-            items.forEach((item: any) => {
-              const val = item.value !== undefined ? item.value : typeof item === "string" ? item : null;
-              if (val !== null && val !== undefined) pValues.push(normalizeSpecValue(uiLabel, String(val), item.unit, s.label));
+            (items as (SpecSubItem | string)[]).forEach((item) => {
+              const isObj = typeof item === "object" && item !== null;
+              const val = isObj && "value" in item ? item.value : (typeof item === "string" ? item : null);
+              if (val !== null && val !== undefined) {
+                const unit = isObj && "unit" in item ? item.unit : undefined;
+                pValues.push(normalizeSpecValue(uiLabel, String(val), unit, s.label));
+              }
             });
           } else if (s.value !== undefined && s.value !== null) {
             pValues.push(normalizeSpecValue(uiLabel, String(s.value), s.unit, s.label));

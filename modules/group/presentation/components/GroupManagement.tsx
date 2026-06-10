@@ -1,11 +1,10 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Plus, Upload, X, ExternalLink } from "lucide-react";
+import { Plus, ExternalLink } from "lucide-react";
 import { useMemo, useState } from "react";
 import { Controller } from "react-hook-form";
 import { toast } from "sonner";
-import Image from "next/image";
 
 import { AdminDialog } from "@/shared/components/layout/admin/admin-dialog";
 import { DeleteDialog } from "@/shared/components/layout/admin/delete-dialog";
@@ -14,7 +13,6 @@ import { DataTable } from "@/shared/components/ui/data-table";
 import {
   Field,
   FieldError,
-  FieldGroup,
   FieldLabel,
   FieldDescription,
 } from "@/shared/components/ui/field";
@@ -26,7 +24,7 @@ import { ImageUpload } from "@/shared/components/ui/image-upload";
 import { Group } from "../../domain";
 import { deleteGroupAction, getGroupsAction } from "../actions";
 import { useGroupForm } from "../hooks/useGroupForm";
-import { getColumns, type GroupRow } from "./columns";
+import { getColumns } from "./columns";
 
 export function GroupManagement() {
   const queryClient = useQueryClient();
@@ -44,7 +42,7 @@ export function GroupManagement() {
   });
 
   // Form Hook
-  const { form, saveMutation, handleUpload, uploading, onNameChange } = useGroupForm(
+  const { form, saveMutation, onNameChange } = useGroupForm(
     activeGroup,
     () => setActiveGroup(null)
   );

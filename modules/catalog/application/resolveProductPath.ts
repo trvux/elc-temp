@@ -22,13 +22,13 @@ export async function resolveProductPath(slug: string): Promise<ResolvedEntity> 
 
   // 1. Tra cứu slug_registry để xem slug này thuộc về loại entity nào
   const { data: registryItemRow, error: registryError } = await supabase
-    .from("slug_registry" as any)
+    .from("slug_registry")
     .select("entity_type, entity_id")
     .eq("slug", slug)
     .is("deleted_at", null)
     .single();
 
-  const registryItem = registryItemRow as any;
+  const registryItem = registryItemRow as { entity_type: string; entity_id: string } | null;
 
   if (registryError || !registryItem) {
     return null; // Slug không tồn tại hoặc lỗi (ví dụ: bị xóa)

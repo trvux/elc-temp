@@ -38,7 +38,6 @@ import {
   Phone,
   Settings,
   ShieldCheck,
-  Tag,
   Grid,
   List,
   Layers,

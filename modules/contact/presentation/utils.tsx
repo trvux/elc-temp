@@ -16,6 +16,8 @@ import { IconLetterZ } from "@tabler/icons-react";
 
 import { cn } from "@/shared/lib/utils";
 
+import * as React from "react";
+
 export const getContactIcon = (type: string) => {
   const icons: Record<string, React.ElementType> = {
     phone: PhoneIcon,
@@ -36,10 +38,10 @@ interface ContactIconProps extends IconProps {
 }
 
 export function ContactIcon({ type, className, ...props }: ContactIconProps) {
-  const Icon = getContactIcon(type);
+  const iconComponent = getContactIcon(type);
 
   // Safeguard props to avoid passing incompatible props (like weight) to Tabler icons
-  const finalProps: Record<string, string | number | undefined> = {};
+  const finalProps: Record<string, unknown> = {};
   if (props.size !== undefined) finalProps.size = props.size;
   if (props.color !== undefined) finalProps.color = props.color;
 
@@ -57,8 +59,10 @@ export function ContactIcon({ type, className, ...props }: ContactIconProps) {
         className
       )}
     >
-      {/* @ts-ignore */}
-      <Icon className="size-full" {...finalProps} />
+      {React.createElement(iconComponent, {
+        className: "size-full",
+        ...finalProps,
+      })}
     </span>
   );
 }

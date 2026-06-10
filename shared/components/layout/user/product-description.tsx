@@ -22,7 +22,7 @@ const STYLES = {
 };
 
 interface ProductDescriptionProps {
-  content: any;
+  content: unknown;
 }
 
 export function ProductDescription({ content }: ProductDescriptionProps) {

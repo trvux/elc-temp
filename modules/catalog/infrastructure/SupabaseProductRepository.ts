@@ -138,7 +138,7 @@ export class SupabaseProductRepository implements ProductRepository {
             stock_status: input.stockStatus || STOCK_STATUS.IN_STOCK,
             mpn: input.mpn,
             gtin: input.gtin,
-        } as any;
+        } as unknown as ProductInsert;
 
         const { data, error } = await supabase
             .from(this.TABLE_NAME)
@@ -174,7 +174,7 @@ export class SupabaseProductRepository implements ProductRepository {
             mpn: input.mpn,
             gtin: input.gtin,
             updated_at: new Date().toISOString(),
-        } as any;
+        } as unknown as ProductUpdate;
 
         const { data, error } = await supabase
             .from(this.TABLE_NAME)
@@ -210,7 +210,13 @@ export class SupabaseProductRepository implements ProductRepository {
         return (data || []).map((row) => this.mapToDomain(row));
     }
 
-    private applyFilters(query: any, options?: ProductFilter) {
+    private applyFilters<T extends {
+        is: (col: string, val: null) => T;
+        eq: (col: string, val: string | boolean | number) => T;
+        in: (col: string, val: string[]) => T;
+        ilike: (col: string, val: string) => T;
+        or: (val: string) => T;
+    }>(query: T, options?: ProductFilter) {
         let q = query.is("deleted_at", null);
         if (!options) return q;
         if (options.categoryId) q = q.eq("category_id", options.categoryId);
@@ -265,15 +271,15 @@ export class SupabaseProductRepository implements ProductRepository {
             salePrice,
             discountPercent,
             images: row.images || [],
-            labels: (row as any).labels || [],
+            labels: (row as unknown as { labels?: string[] }).labels || [],
             isFeatured: row.is_featured || false,
             isPublished: row.is_published || false,
             orderIndex: row.order_index || 0,
             categoryId: row.category_id || "",
             brandId: row.brand_id || "",
             stockStatus: (row.stock_status as StockStatus) || STOCK_STATUS.IN_STOCK,
-            mpn: (row as any).mpn || null,
-            gtin: (row as any).gtin || null,
+            mpn: (row as unknown as { mpn?: string | null }).mpn || null,
+            gtin: (row as unknown as { gtin?: string | null }).gtin || null,
             createdAt: row.created_at || new Date().toISOString(),
             updatedAt: row.updated_at || new Date().toISOString(),
             deletedAt: null,

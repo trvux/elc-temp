@@ -20,8 +20,6 @@ interface HeroSectionProps {
 const ROTATING_WORDS = ["Thuần khiết", "Thông minh"];
 
 export function HeroSection({
-  title = "Giải pháp Không khí",
-  subtitle = "ELC chuyên cung cấp, thi công lắp đặt và trao đổi trọn gói các dòng máy lạnh, hệ thống lọc khí tươi thông minh cho cá nhân và doanh nghiệp từ những thương hiệu uy tín hàng đầu.",
   contacts = [],
 }: HeroSectionProps) {
   const [wordIndex, setWordIndex] = React.useState(0);

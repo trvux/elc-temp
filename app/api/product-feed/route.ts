@@ -74,17 +74,22 @@ export async function GET() {
     return htmlStr.replace(/<[^>]*>/g, "").trim();
   };
 
+  interface DescriptionNode {
+    text?: string;
+    content?: DescriptionNode[];
+  }
+
   // Helper to parse Tiptap JSON description if it is JSON
-  const getProductDescription = (descJson: any, productName: string) => {
+  const getProductDescription = (descJson: unknown, productName: string) => {
     try {
       if (!descJson) {
         return `Sản phẩm ${productName} chính hãng chất lượng cao tại Điện máy ELC.`;
       }
       if (typeof descJson === "string") {
         if (descJson.startsWith("{")) {
-          const parsed = JSON.parse(descJson);
+          const parsed = JSON.parse(descJson) as DescriptionNode;
           let text = "";
-          const traverse = (node: any) => {
+          const traverse = (node: DescriptionNode) => {
             if (node.text) text += node.text + " ";
             if (node.content) {
               node.content.forEach(traverse);
@@ -98,15 +103,15 @@ export async function GET() {
         }
         return stripHtml(descJson);
       }
-      if (typeof descJson === "object") {
+      if (typeof descJson === "object" && descJson !== null) {
         let text = "";
-        const traverse = (node: any) => {
+        const traverse = (node: DescriptionNode) => {
           if (node.text) text += node.text + " ";
           if (node.content) {
             node.content.forEach(traverse);
           }
         };
-        traverse(descJson);
+        traverse(descJson as DescriptionNode);
         return (
           text.trim() ||
           `Sản phẩm ${productName} chính hãng chất lượng cao tại Điện máy ELC.`

@@ -1,4 +1,4 @@
-import { Page, CreatePageInput, UpdatePageInput } from "./types";
+import { Page, CreatePageInput, UpdatePageInput, AboutBlock } from "./types";
 
 export interface PageFilter {
   isPublished?: boolean;
@@ -19,6 +19,7 @@ export interface PageRepository {
 }
 
 export interface AboutBlockRepository {
-  getAll(): Promise<any[]>;
-  updateAll(blocks: any[]): Promise<void>;
+  getAll(): Promise<AboutBlock[]>;
+  updateAll(blocks: AboutBlock[]): Promise<void>;
 }
+

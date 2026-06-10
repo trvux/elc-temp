@@ -12,6 +12,12 @@ type PageRow = Tables<"pages">;
 type PageInsert = Insert<"pages">;
 type PageUpdate = Update<"pages">;
 
+interface PostgrestQueryLike {
+  is: (column: string, value: null) => PostgrestQueryLike;
+  eq: (column: string, value: unknown) => PostgrestQueryLike;
+  ilike: (column: string, value: string) => PostgrestQueryLike;
+}
+
 export class SupabasePageRepository implements PageRepository {
   private readonly TABLE_NAME = "pages";
 
@@ -19,7 +25,7 @@ export class SupabasePageRepository implements PageRepository {
     const supabase = await createClient();
     let query = supabase.from(this.TABLE_NAME).select("*");
 
-    query = this.applyFilters(query, options);
+    query = this.applyFilters(query as unknown as PostgrestQueryLike, options) as unknown as typeof query;
 
     const { data, error } = await query;
 
@@ -34,7 +40,7 @@ export class SupabasePageRepository implements PageRepository {
       .from(this.TABLE_NAME)
       .select("*", { count: "exact", head: true });
 
-    query = this.applyFilters(query, options);
+    query = this.applyFilters(query as unknown as PostgrestQueryLike, options) as unknown as typeof query;
 
     const { count, error } = await query;
     if (error) this.handleError(error, "count");
@@ -130,7 +136,7 @@ export class SupabasePageRepository implements PageRepository {
     if (error) this.handleError(error, "delete");
   }
 
-  private applyFilters(query: any, options?: PageFilter) {
+  private applyFilters(query: PostgrestQueryLike, options?: PageFilter): PostgrestQueryLike {
     let q = query;
     if (!options?.includeDeleted) {
       q = q.is("deleted_at", null);
@@ -150,7 +156,7 @@ export class SupabasePageRepository implements PageRepository {
       slug: row.slug,
       content: row.content,
       isPublished: row.is_published,
-      orderIndex: (row as any).order_index ?? 0,
+      orderIndex: (row as unknown as { order_index: number | null }).order_index ?? 0,
       metaTitle: row.meta_title || null,
       metaDescription: row.meta_description || null,
       createdAt: row.created_at || new Date().toISOString(),

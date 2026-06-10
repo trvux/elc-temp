@@ -1,6 +1,7 @@
 "use client";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
+import Image from "next/image";
 import { useState } from "react";
 
 import {
@@ -44,6 +45,7 @@ export function CardService({
   const [open, setOpen] = useState(false);
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [file, setFile] = useState<File | null>(null);
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
@@ -64,11 +66,12 @@ export function CardService({
 
   const renderImage = () => {
     const imgEl = (
-      <img
+      <Image
         src={imageSrc}
-        alt={title}
-        className="relative z-20 aspect-video w-full object-cover"
-        loading="lazy"
+        alt={title || ""}
+        fill
+        sizes="(max-width: 768px) 100vw, 384px"
+        className="relative z-20 object-cover"
       />
     );
 
@@ -76,7 +79,7 @@ export function CardService({
       return (
         <Link
           href={`/dich-vu/${slug}`}
-          className="block relative z-20 overflow-hidden"
+          className="block relative z-20 overflow-hidden w-full h-full"
         >
           {imgEl}
         </Link>

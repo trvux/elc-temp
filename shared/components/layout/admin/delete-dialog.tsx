@@ -18,8 +18,10 @@ import { getProjectsAction } from "@/modules/project/presentation/actions";
 import { getServicesAction } from "@/modules/service/presentation/actions";
 import { CategoryWithGroup } from "@/modules/category/domain/types";
 import { Product } from "@/modules/catalog/domain/types";
-import { Project, ProjectWithCategory } from "@/modules/project/domain/types";
+import { ProjectWithCategory } from "@/modules/project/domain/types";
 import { Service } from "@/modules/service/domain/types";
+
+const EMPTY_ARRAY: unknown[] = [];
 
 export type DeleteEntityType = "group" | "category" | "project-type" | "service-group";
 
@@ -68,7 +70,7 @@ export function DeleteDialog({
     },
     enabled: isGroup,
   });
-  const categories = (categoriesData || []) as CategoryWithGroup[];
+  const categories = (categoriesData || EMPTY_ARRAY) as CategoryWithGroup[];
 
   // Fetch Category products and projects (for entityType === "category")
   const isCategory = entityType === "category" && !!entityId && open;
@@ -80,7 +82,7 @@ export function DeleteDialog({
     },
     enabled: isCategory,
   });
-  const products = (productsData || []) as Product[];
+  const products = (productsData || EMPTY_ARRAY) as Product[];
 
   const { data: projectsData } = useQuery({
     queryKey: ["admin-projects-list"],
@@ -90,7 +92,7 @@ export function DeleteDialog({
     },
     enabled: (isCategory || (entityType === "project-type" && !!entityId)) && open,
   });
-  const projects = (projectsData || []) as ProjectWithCategory[];
+  const projects = (projectsData || EMPTY_ARRAY) as ProjectWithCategory[];
 
   // Fetch Service Group services (for entityType === "service-group")
   const isServiceGroup = entityType === "service-group" && !!entityId && open;
@@ -102,7 +104,7 @@ export function DeleteDialog({
     },
     enabled: isServiceGroup,
   });
-  const services = (servicesData || []) as Service[];
+  const services = (servicesData || EMPTY_ARRAY) as Service[];
 
   // Compute affected sections based on entityType/entityId
   const affectedCategories = useMemo(() => {

@@ -15,7 +15,6 @@ import {
   Field,
   FieldDescription,
   FieldError,
-  FieldGroup,
   FieldLabel,
 } from "@/shared/components/ui/field";
 import { Input } from "@/shared/components/ui/input";
@@ -36,7 +35,7 @@ import {
   getNewsAction,
 } from "../actions";
 import { getNewsColumns } from "./NewsColumns";
-import { useNewsForm, NewsFormValues } from "../hooks/useNewsForm";
+import { useNewsForm } from "../hooks/useNewsForm";
 import { convertToWebP } from "@/shared/lib/image";
 import { generateSlug } from "@/shared/lib/helpers";
 
@@ -101,7 +100,7 @@ export function NewsManagement() {
             title: n.title,
             slug: n.slug,
             image: n.image,
-            content: n.content as any,
+            content: n.content as unknown,
             isPublished: n.isPublished,
             metaTitle: n.metaTitle || "",
             metaDescription: n.metaDescription || "",

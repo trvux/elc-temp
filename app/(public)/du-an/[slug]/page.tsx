@@ -17,8 +17,6 @@ import { AspectRatio } from "@/shared/components/ui/aspect-ratio";
 import { Badge } from "@/shared/components/ui/badge";
 import { TypographySmall } from "@/shared/components/ui/typography";
 import { Sparkle } from "lucide-react";
-import { setUseStaticClient } from "@/shared/lib/supabase/server";
-import { cacheLife } from "next/cache";
 
 // Generate dynamic SEO Metadata
 export async function generateMetadata({

@@ -28,7 +28,8 @@ export function getFooterLogic(
   const cleanPhone = phone.replace(/\s/g, "");
 
   const getSocialUrl = (type: "facebook" | "messenger" | "zalo") => {
-    const val = findContact(type) || (settings as any)[`${type}_url`];
+    const key = `${type}_url` as keyof FooterSettings;
+    const val = findContact(type) || settings[key];
     
     if (!val || val === "#") {
       return type === "zalo" && cleanPhone ? `https://zalo.me/${cleanPhone}` : "#";

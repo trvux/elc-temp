@@ -2,8 +2,22 @@ import { createClient } from "@/shared/lib/supabase/server";
 import { Group, CreateGroupInput, UpdateGroupInput } from "../domain/types";
 import { GroupFilter, GroupRepository } from "../domain/repository";
 
+interface GroupDatabaseRow {
+  id: string;
+  name: string;
+  slug: string | null;
+  image_url: string | null;
+  meta_title: string | null;
+  meta_description: string | null;
+  is_featured: boolean | null;
+  order_index: number | null;
+  created_at: string | null;
+  updated_at: string | null;
+  deleted_at: string | null;
+}
+
 export class SupabaseGroupRepository implements GroupRepository {
-  private readonly TABLE_NAME = "group_categories" as any;
+  private readonly TABLE_NAME = "group_categories" as const;
 
   async getAll(options?: GroupFilter): Promise<Group[]> {
     const supabase = await createClient();
@@ -93,8 +107,8 @@ export class SupabaseGroupRepository implements GroupRepository {
         .select()
         .single() as unknown as Promise<{ data: Record<string, unknown> | null; error: unknown }>);
 
-      if (error) this.handleError(error, "create [restore]");
-      return this.mapToDomain(data);
+      if (error || !data) this.handleError(error, "create [restore]");
+      return this.mapToDomain(data as unknown as GroupDatabaseRow);
     }
 
     const row = {
@@ -113,8 +127,8 @@ export class SupabaseGroupRepository implements GroupRepository {
       .select()
       .single() as unknown as Promise<{ data: Record<string, unknown> | null; error: unknown }>);
 
-    if (error) this.handleError(error, "create");
-    return this.mapToDomain(data);
+    if (error || !data) this.handleError(error, "create");
+    return this.mapToDomain(data as unknown as GroupDatabaseRow);
   }
 
   async update(input: UpdateGroupInput): Promise<Group> {
@@ -186,7 +200,7 @@ export class SupabaseGroupRepository implements GroupRepository {
     }
   }
 
-  private mapToDomain(row: any): Group {
+  private mapToDomain(row: GroupDatabaseRow): Group {
     return {
       id: row.id,
       name: row.name,

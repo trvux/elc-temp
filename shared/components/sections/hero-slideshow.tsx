@@ -89,24 +89,6 @@ export function HeroSlideshow({
     return () => clearInterval(interval);
   }, [isAutoPlaying, isVisible, api]);
 
-  const goToNext = () => {
-    if (!api) return;
-    if (api.canScrollNext()) {
-      api.scrollNext();
-    } else {
-      api.scrollTo(0);
-    }
-  };
-
-  const goToPrev = () => {
-    if (!api) return;
-    if (api.canScrollPrev()) {
-      api.scrollPrev();
-    } else {
-      api.scrollTo(images.length - 1);
-    }
-  };
-
   const toggleAutoPlay = () => {
     setIsAutoPlaying((prev) => !prev);
   };

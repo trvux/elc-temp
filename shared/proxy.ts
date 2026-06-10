@@ -184,7 +184,7 @@ export async function proxy(request: NextRequest) {
   const hasSpaces = pathname.includes("%20") || pathname.includes(" ");
 
   if (hasTripleDash || hasOldCategory || hasSpaces) {
-    let cleanPathname = pathname
+    const cleanPathname = pathname
       .replace(/\/may-lanh\/treo-tuong\//g, "/may-lanh-treo-tuong/")
       .replace(/-+/g, "-")
       .replace(/\s+/g, "");

@@ -41,7 +41,7 @@ export const createClient = async () => {
         },
       },
     );
-  } catch (error) {
+  } catch {
     // If cookies() throws (e.g. during generateStaticParams),
     // return a cookie-free client.
     return createStaticClient();

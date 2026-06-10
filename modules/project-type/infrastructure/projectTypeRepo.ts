@@ -1,11 +1,58 @@
 import { createClient } from "@/shared/lib/supabase/server";
-import { Tables, Insert, Update } from "@/shared/types/supabase";
+import { Insert, Update } from "@/shared/types/supabase";
 import { ProjectType, ProjectTypeWithCategories, CreateProjectTypeInput, UpdateProjectTypeInput } from "../domain/types";
 import { ProjectTypeFilter, ProjectTypeRepository } from "../domain/repository";
 
-type ProjectTypeRow = Tables<"project_type">;
 type ProjectTypeInsert = Insert<"project_type">;
 type ProjectTypeUpdate = Update<"project_type">;
+
+interface ProjectTypeDatabaseRow {
+  id: string;
+  name: string;
+  slug: string | null;
+  image: string | null;
+  meta_title: string | null;
+  meta_description: string | null;
+  is_featured: boolean | null;
+  order_index: number | null;
+  created_at: string | null;
+  updated_at: string | null;
+  deleted_at: string | null;
+}
+
+interface ProjectTypeCategoryDatabaseRow {
+  categories?: {
+    id: string;
+    name: string;
+    group_id: string | null;
+    slug: string | null;
+    image_url: string | null;
+    meta_title: string | null;
+    meta_description: string | null;
+    is_featured: boolean | null;
+    order_index: number | null;
+    created_at: string | null;
+    updated_at: string | null;
+    deleted_at: string | null;
+    group_categories?: {
+      id: string;
+      name: string;
+      slug: string | null;
+      image_url: string | null;
+      meta_title: string | null;
+      meta_description: string | null;
+      is_featured: boolean | null;
+      order_index: number | null;
+      created_at: string | null;
+      updated_at: string | null;
+      deleted_at: string | null;
+    } | null;
+  } | null;
+}
+
+interface ProjectTypeWithCategoriesDatabaseRow extends ProjectTypeDatabaseRow {
+  project_type_category?: ProjectTypeCategoryDatabaseRow[] | null;
+}
 
 export class SupabaseProjectTypeRepository implements ProjectTypeRepository {
   private readonly TABLE_NAME = "project_type";
@@ -174,7 +221,7 @@ export class SupabaseProjectTypeRepository implements ProjectTypeRepository {
     const supabase = await createClient();
     
     // 1. Update service type
-    const row: any = {
+    const row: Record<string, unknown> = {
       name: input.name,
       slug: input.slug,
       image: input.image,
@@ -260,7 +307,7 @@ export class SupabaseProjectTypeRepository implements ProjectTypeRepository {
     if (relError) this.handleError(relError, "delete");
   }
 
-  private mapToDomain(row: any): ProjectType {
+  private mapToDomain(row: ProjectTypeDatabaseRow): ProjectType {
     return {
       id: row.id,
       name: row.name,
@@ -276,30 +323,42 @@ export class SupabaseProjectTypeRepository implements ProjectTypeRepository {
     };
   }
 
-  private mapToDomainWithCategories(row: any): ProjectTypeWithCategories {
+  private mapToDomainWithCategories(row: ProjectTypeWithCategoriesDatabaseRow): ProjectTypeWithCategories {
     const projectType = this.mapToDomain(row);
     
     const categories = (row.project_type_category || [])
-      .map((stc: any) => {
+      .map((stc) => {
         const cat = stc.categories;
         if (!cat || cat.deleted_at) return null;
         return {
           id: cat.id,
           name: cat.name,
           groupId: cat.group_id,
+          slug: cat.slug || "",
+          imageUrl: cat.image_url || null,
+          metaTitle: cat.meta_title || null,
+          metaDescription: cat.meta_description || null,
+          isFeatured: cat.is_featured || false,
+          orderIndex: cat.order_index || 0,
           createdAt: cat.created_at || new Date().toISOString(),
           updatedAt: cat.updated_at || new Date().toISOString(),
           deletedAt: cat.deleted_at || null,
           group: cat.group_categories ? {
             id: cat.group_categories.id,
             name: cat.group_categories.name,
+            slug: cat.group_categories.slug || "",
+            imageUrl: cat.group_categories.image_url || null,
+            metaTitle: cat.group_categories.meta_title || null,
+            metaDescription: cat.group_categories.meta_description || null,
+            isFeatured: cat.group_categories.is_featured || false,
+            orderIndex: cat.group_categories.order_index || 0,
             createdAt: cat.group_categories.created_at || new Date().toISOString(),
             updatedAt: cat.group_categories.updated_at || new Date().toISOString(),
             deletedAt: cat.group_categories.deleted_at || null,
           } : null,
         };
       })
-      .filter(Boolean);
+      .filter((c): c is NonNullable<typeof c> => c !== null);
 
     return {
       ...projectType,

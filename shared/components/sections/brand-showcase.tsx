@@ -7,6 +7,7 @@ import {
 } from "@/shared/components/ui/animate-in";
 import { TypographyH1 } from "@/shared/components/ui/typography";
 import { cn } from "@/shared/lib/utils";
+import Image from "next/image";
 import Link from "next/link";
 
 interface BrandShowcaseProps {
@@ -53,12 +54,16 @@ export function BrandShowcase({ brands = [] }: BrandShowcaseProps) {
                     title={`Xem sản phẩm từ thương hiệu ${brand.name}`}
                   >
                     {brand.logoUrl ? (
-                      <img
-                        src={brand.logoUrl}
-                        alt={brand.name}
-                        loading="lazy"
-                        className="h-8 md:h-9 lg:h-10 w-auto object-contain opacity-90 group-hover:opacity-100 transition-all duration-300"
-                      />
+                      <div className="relative h-8 md:h-9 lg:h-10 w-24 md:w-28 lg:w-32">
+                        <Image
+                          src={brand.logoUrl}
+                          alt={brand.name}
+                          fill
+                          loading="lazy"
+                          sizes="(max-width: 768px) 96px, (max-width: 1024px) 112px, 128px"
+                          className="object-contain opacity-90 group-hover:opacity-100 transition-all duration-300"
+                        />
+                      </div>
                     ) : (
                       <span className="text-sm md:text-base font-semibold text-muted-foreground group-hover:text-foreground transition-colors duration-300">
                         {brand.name}

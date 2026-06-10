@@ -2,6 +2,7 @@
 
 import { navLinks } from "@/modules/settings/domain/navigation";
 import { cn } from "@/shared/lib/utils";
+import Image from "next/image";
 import Link from "next/link";
 import { useMemo } from "react";
 import { DesktopMenu } from "./desktop-menu";
@@ -44,10 +45,14 @@ export function Header({ contacts = [] }: HeaderProps) {
               href="/"
               className="flex items-center gap-2 shrink-0 transition-opacity hover:opacity-80"
             >
-              <img
+              <Image
                 src="/logo/logo.svg"
                 alt="Điện máy ELC"
+                width={36}
+                height={36}
+                style={{ width: "auto" }}
                 className="h-8 md:h-9 w-auto dark:brightness-0 dark:invert"
+                priority
               />
               {/* <span className="text-xl font-bold text-primary/80">elc</span> */}
             </Link>
