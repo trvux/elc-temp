@@ -1,3 +1,7 @@
+import { BranchList, getBranches } from "@/modules/branch";
+import { getPages } from "@/modules/page/application";
+import { ScrollToTop } from "@/shared/components/layout/user/scroll-to-top";
+import { GridSection } from "@/shared/components/sections/grid-section";
 import {
   TypographyH1,
   TypographyH2,
@@ -6,15 +10,11 @@ import {
   TypographyP,
   TypographySmall,
 } from "@/shared/components/ui/typography";
-import { ScrollToTop } from "@/shared/components/layout/user/scroll-to-top";
+import { setUseStaticClient } from "@/shared/lib/supabase/server";
 import { cn } from "@/shared/lib/utils";
 import { ArrowUpRight } from "lucide-react";
-import Link from "next/link";
-import { getPages } from "@/modules/page/application";
-import { BranchList, getBranches } from "@/modules/branch";
-import { GridSection } from "@/shared/components/sections/grid-section";
-import { setUseStaticClient } from "@/shared/lib/supabase/server";
 import { cacheLife } from "next/cache";
+import Link from "next/link";
 
 const STYLES = {
   header: cn(
@@ -22,14 +22,16 @@ const STYLES = {
   ),
   title: cn(),
   description: cn(),
-  list: cn("grid grid-cols-1 md:grid-cols-2 gap-8 min-h-[200px] animate-fade-in-up"),
+  list: cn(
+    "grid grid-cols-1 md:grid-cols-2 gap-8 min-h-[200px] animate-fade-in-up",
+  ),
   article: cn(
-    "group flex flex-col gap-6 no-underline transition-all duration-300 p-6 rounded-lg border border-border/50 bg-background/50 backdrop-blur-sm shadow-sm hover:shadow-md hover:border-primary/20",
+    "group flex flex-col gap-6 no-underline transition-all duration-300 p-6",
   ),
   articleHeader: cn("flex justify-between items-start gap-4"),
-  articleTitle: cn("text-primary/70 group-hover:text-primary transition-colors"),
+  articleTitle: cn("text-primary/70 transition-colors"),
   articleIcon: cn(
-    "w-5 h-5 shrink-0 text-muted-foreground/40 group-hover:text-primary group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all",
+    "w-5 h-5 shrink-0 text-muted-foreground/40 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all",
   ),
   footer: cn(
     "flex flex-col md:flex-row justify-between items-center gap-8 text-muted-foreground w-full",
@@ -56,7 +58,8 @@ async function getCachedInformationData() {
 }
 
 export default async function InformationHub() {
-  const { allPages, allBranches, currentYear } = await getCachedInformationData();
+  const { allPages, allBranches, currentYear } =
+    await getCachedInformationData();
 
   return (
     <main className="w-full bg-background min-h-screen">
@@ -109,9 +112,7 @@ export default async function InformationHub() {
         contentClassName="py-12 md:py-16 lg:py-20 flex flex-col gap-12"
       >
         <header className={STYLES.header}>
-          <TypographyH2 className={STYLES.title}>
-            Chi nhánh của ELC
-          </TypographyH2>
+          <TypographyH2 className={STYLES.title}>Cơ sở hạ tầng</TypographyH2>
           <TypographyLead className={STYLES.description}>
             Hệ thống không gian trưng bày và trạm dịch vụ của ELC được mở rộng
             trên toàn quốc với triết lý kiến tạo giá trị đồng nhất.
@@ -130,8 +131,7 @@ export default async function InformationHub() {
       >
         <footer className={STYLES.footer}>
           <TypographySmall>
-            &copy; {currentYear} ELC Holdings. Đã đăng ký bản
-            quyền.
+            &copy; {currentYear} ELC Holdings. Đã đăng ký bản quyền.
           </TypographySmall>
           <ScrollToTop className={STYLES.scrollToTop}>
             <TypographySmall>Quay lại đầu trang</TypographySmall>
