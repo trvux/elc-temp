@@ -55,7 +55,7 @@ export async function generateMetadata(
             ? sParams.brands
             : [];
 
-      let seoMetadata = generateCategoryMetadata(category as any, 0); // Count can be added if needed
+      let seoMetadata = generateCategoryMetadata(category as unknown as Record<string, unknown>, 0); // Count can be added if needed
 
       if (brands.length === 1) {
         const brandName = brands[0]; // Normally we'd fetch the exact brand name here, simplified for now
@@ -87,7 +87,7 @@ export async function generateMetadata(
     }
 
     case "brand": {
-      const brandMetadata = generateBrandMetadata(resolved.data as any);
+      const brandMetadata = generateBrandMetadata(resolved.data as unknown as Record<string, unknown>);
       return {
         ...brandMetadata,
         alternates: { canonical: `${baseUrl}/san-pham/${slug}` },

@@ -67,7 +67,7 @@ export default async function StaticPage({ params }: PageProps) {
       <div className={STYLES.container}>
         <header>
           <TypographySmall className="text-muted-foreground mb-3 block">
-            {new Date(page.createdAt || Date.now()).toLocaleDateString("vi-VN", {
+            {new Date(page.createdAt || "2026-06-10T00:00:00.000Z").toLocaleDateString("vi-VN", {
               day: "numeric",
               month: "long",
               year: "numeric",

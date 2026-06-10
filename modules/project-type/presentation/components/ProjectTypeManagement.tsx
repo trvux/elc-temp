@@ -1,8 +1,7 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Plus, Upload, X } from "lucide-react";
-import Image from "next/image";
+import { Plus } from "lucide-react";
 import { useMemo, useState } from "react";
 import { Controller } from "react-hook-form";
 import { toast } from "sonner";
@@ -53,7 +52,7 @@ export function ProjectTypeManagement() {
     },
   });
   // Form Hook
-  const { form, saveMutation, handleUpload, uploading, onNameChange } = useProjectTypeForm(activeProjectType, () =>
+  const { form, saveMutation, onNameChange } = useProjectTypeForm(activeProjectType, () =>
     setActiveProjectType(null)
   );
 

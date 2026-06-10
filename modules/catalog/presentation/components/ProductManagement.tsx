@@ -12,17 +12,13 @@ import { DataTable } from "@/shared/components/ui/data-table";
 import {
   Select,
   SelectContent,
-  SelectGroup,
   SelectItem,
-  SelectLabel,
-  SelectSeparator,
   SelectTrigger,
   SelectValue,
 } from "@/shared/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/shared/components/ui/tabs";
-import { ScrollArea } from "@/shared/components/ui/scroll-area";
 
-import { STOCK_STATUS, STOCK_STATUS_MAP, ProductWithRelations, PRODUCT_LABELS } from "../../domain";
+import { STOCK_STATUS, STOCK_STATUS_MAP, ProductWithRelations, PRODUCT_LABELS, SpecItem } from "../../domain";
 import {
   deleteProductAction,
   getBrandsAction,
@@ -97,9 +93,7 @@ export function ProductManagement() {
     removeSpecItem,
     saveMutation,
     updateAutoSlug,
-    handleUpload,
-    uploading,
-  } = useProductForm(activeProduct, () => setActiveProduct(null), brands);
+  } = useProductForm(activeProduct, () => setActiveProduct(null));
 
   const deleteMutation = useMutation({
     mutationFn: deleteProductAction,
@@ -164,7 +158,7 @@ export function ProductManagement() {
             gtin: p.gtin || "",
             metaTitle: p.metaTitle || "",
             metaDescription: p.metaDescription || "",
-            specs: Array.isArray(p.specs) ? p.specs : [],
+            specs: Array.isArray(p.specs) ? (p.specs as unknown as SpecItem[]) : [],
             labels: p.labels || [],
           });
         },

@@ -49,6 +49,7 @@ function PaginationLink({
   className,
   isActive,
   size = "icon",
+  href,
   ...props
 }: PaginationLinkProps) {
   return (
@@ -59,11 +60,11 @@ function PaginationLink({
       className={cn(className)}
     >
       <Link
-        href={props.href || "#"}
+        href={href || "#"}
         aria-current={isActive ? "page" : undefined}
         data-slot="pagination-link"
         data-active={isActive}
-        {...(props as any)}
+        {...(props as unknown as Omit<React.ComponentProps<typeof Link>, "href">)}
       />
     </Button>
   );

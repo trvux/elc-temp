@@ -69,7 +69,8 @@ export function useProjectForm(
 
   const saveMutation = useMutation({
     mutationFn: async (values: ProjectFormValues) => {
-      const { serviceGroupId, ...payloadValues } = values;
+      const payloadValues = { ...values };
+      delete payloadValues.serviceGroupId;
       const payload = {
         ...payloadValues,
         description: JSON.parse(JSON.stringify(payloadValues.description)) as Json,
@@ -119,7 +120,7 @@ export function useProjectForm(
         
         const { data } = supabase.storage.from("images").getPublicUrl(fileName);
         uploaded.push(data.publicUrl);
-      } catch (error) {
+      } catch {
         toast.error(`Lỗi upload: ${file.name}`);
       }
     }

@@ -25,7 +25,7 @@ export function HeroContactActions({ contacts }: HeroContactActionsProps) {
                 size: 16,
                 weight: "regular",
                 ...(contact.type === "zalo" ? { stroke: 4 } : {}),
-              } as any
+              } as (React.ComponentProps<typeof ContactLink>["iconProps"] & { stroke?: number })
             }
             iconClassName={contact.type === "phone" ? "" : undefined}
             showValue={contact.type !== "phone"}

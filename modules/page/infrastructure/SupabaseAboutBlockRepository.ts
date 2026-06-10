@@ -1,10 +1,10 @@
 import { createClient } from "@/shared/lib/supabase/server";
-import { AboutBlockRepository } from "../domain";
+import { AboutBlockRepository, AboutBlock } from "../domain";
 
 export class SupabaseAboutBlockRepository implements AboutBlockRepository {
   private readonly TABLE_NAME = "about_blocks";
 
-  async getAll() {
+  async getAll(): Promise<AboutBlock[]> {
     const supabase = await createClient();
     const { data, error } = await supabase
       .from(this.TABLE_NAME)
@@ -16,10 +16,17 @@ export class SupabaseAboutBlockRepository implements AboutBlockRepository {
       throw new Error(error.message);
     }
 
-    return data || [];
+    return (data || []).map((row) => ({
+      id: row.id,
+      type: row.type,
+      content: row.content,
+      caption: row.caption,
+      orderIndex: row.order_index,
+      createdAt: row.created_at || new Date().toISOString(),
+    }));
   }
 
-  async updateAll(blocks: any[]) {
+  async updateAll(blocks: AboutBlock[]) {
     const supabase = await createClient();
     
     // Simple implementation: delete all and insert new
@@ -36,9 +43,11 @@ export class SupabaseAboutBlockRepository implements AboutBlockRepository {
     const { error: insertError } = await supabase
       .from(this.TABLE_NAME)
       .insert(blocks.map((b, i) => ({
-        ...b,
+        id: b.id || undefined,
+        type: b.type,
+        content: b.content,
+        caption: b.caption,
         order_index: i,
-        id: b.id || undefined
       })));
 
     if (insertError) throw insertError;

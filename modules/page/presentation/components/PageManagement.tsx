@@ -14,7 +14,6 @@ import {
   Field,
   FieldDescription,
   FieldError,
-  FieldGroup,
   FieldLabel,
 } from "@/shared/components/ui/field";
 import { Input } from "@/shared/components/ui/input";
@@ -97,7 +96,7 @@ export function PageManagement() {
           form.reset({
             title: p.title,
             slug: p.slug,
-            content: p.content as any,
+            content: p.content as unknown,
             isPublished: p.isPublished,
             orderIndex: p.orderIndex ?? 0,
             metaTitle: p.metaTitle || "",

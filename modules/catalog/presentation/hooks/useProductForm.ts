@@ -1,7 +1,7 @@
 import { standardSchemaResolver } from "@hookform/resolvers/standard-schema";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
-import { useFieldArray, useForm } from "react-hook-form";
+import { Resolver, useFieldArray, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import type { z } from "zod";
 
@@ -9,28 +9,18 @@ import { convertToWebP } from "@/shared/lib/image";
 import { createClient } from "@/shared/lib/supabase/client";
 import { generateSlug } from "@/shared/lib/helpers";
 
-import { createProductSchema, ProductWithRelations, STOCK_STATUS, Brand } from "../../domain";
+import { createProductSchema, ProductWithRelations, STOCK_STATUS, SpecItem, SpecSubItem, CreateProductInput, UpdateProductInput } from "../../domain";
 import { createProductAction, updateProductAction } from "../actions";
 
 export type ProductFormValues = Omit<
   z.infer<typeof createProductSchema>,
   "description" | "specs"
 > & {
-  description: any;
-  specs: any;
+  description: unknown;
+  specs: SpecItem[];
 };
 
-export type SpecSubItem = {
-  label: string;
-  value: string;
-  unit?: string;
-};
 
-export type SpecItem = {
-  label: string;
-  value?: string;
-  items?: SpecSubItem[];
-};
 
 export const AC_TEMPLATE: SpecItem[] = [
   { label: "Công nghệ Inverter", value: "" },
@@ -56,15 +46,14 @@ export const AC_TEMPLATE: SpecItem[] = [
 
 export function useProductForm(
   activeProduct: ProductWithRelations | "new" | null,
-  onClose: () => void,
-  brands: Brand[] = []
+  onClose: () => void
 ) {
   const queryClient = useQueryClient();
   const [uploading, setUploading] = useState(false);
   const supabase = createClient();
 
   const form = useForm<ProductFormValues>({
-    resolver: standardSchemaResolver(createProductSchema as any) as any,
+    resolver: standardSchemaResolver(createProductSchema) as unknown as Resolver<ProductFormValues>,
     defaultValues: {
       name: "",
       slug: "",
@@ -86,7 +75,7 @@ export function useProductForm(
       gtin: "",
       metaTitle: "",
       metaDescription: "",
-      specs: AC_TEMPLATE as any,
+      specs: AC_TEMPLATE,
     },
   });
 
@@ -99,7 +88,7 @@ export function useProductForm(
     name: "specs",
   });
 
-  const appendSpecItem = (index: number, item: any) => {
+  const appendSpecItem = (index: number, item: SpecSubItem) => {
     const currentSpecs = form.getValues("specs");
     const currentItems = currentSpecs[index].items || [];
     form.setValue(`specs.${index}.items`, [...currentItems, item]);
@@ -119,9 +108,9 @@ export function useProductForm(
         return updateProductAction({
           ...values,
           id: activeProduct.id,
-        } as any);
+        } as unknown as UpdateProductInput);
       }
-      return createProductAction(values as any);
+      return createProductAction(values as unknown as CreateProductInput);
     },
     onSuccess: (res) => {
       if (res.error) {
@@ -173,7 +162,7 @@ export function useProductForm(
         }
         const { data } = supabase.storage.from("images").getPublicUrl(fileName);
         uploaded.push(data.publicUrl);
-      } catch (err) {
+      } catch {
         toast.error(`Lỗi xử lý ảnh: ${file.name}`);
       }
     }

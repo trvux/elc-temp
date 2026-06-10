@@ -62,8 +62,9 @@ export function useBranchForm(
       onClose();
       queryClient.invalidateQueries({ queryKey: ["branches"] });
     },
-    onError: (error: any) => {
-      toast.error(error.message || "Đã có lỗi xảy ra");
+    onError: (error: unknown) => {
+      const message = error instanceof Error ? error.message : "Đã có lỗi xảy ra";
+      toast.error(message);
     },
   });
 

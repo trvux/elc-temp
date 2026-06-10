@@ -152,19 +152,23 @@ export default function SettingsPage() {
   const [saving, setSaving] = useState(false);
   const supabase = createClient();
 
-  async function fetchSettings() {
-    const { data } = await supabase.from("site_settings").select("*");
-    const map: Settings = {};
-    data?.forEach((row) => {
-      map[row.key] = row.value || "";
-    });
-    setSettings(map);
-    setLoading(false);
-  }
-
   useEffect(() => {
+    let active = true;
+    async function fetchSettings() {
+      const { data } = await supabase.from("site_settings").select("*");
+      if (!active) return;
+      const map: Settings = {};
+      data?.forEach((row) => {
+        map[row.key] = row.value || "";
+      });
+      setSettings(map);
+      setLoading(false);
+    }
     fetchSettings();
-  }, []);
+    return () => {
+      active = false;
+    };
+  }, [supabase]);
 
   function handleChange(key: string, value: string) {
     // Tự động viết hoa chữ cái đầu cho các trường văn bản, trừ các trường kỹ thuật

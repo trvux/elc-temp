@@ -77,7 +77,7 @@ export function useBrandForm(
       const { data } = supabase.storage.from("images").getPublicUrl(fileName);
       form.setValue("logoUrl", data.publicUrl);
       toast.success("Đã tải logo lên thành công");
-    } catch (error) {
+    } catch {
       toast.error("Lỗi upload logo");
     } finally {
       setUploading(false);

@@ -3,7 +3,6 @@
 import { login, logout } from "../application";
 import { LoginInput, loginSchema } from "../domain/types";
 import { revalidatePath } from "next/cache";
-import { redirect } from "next/navigation";
 
 export async function loginAction(input: LoginInput) {
 

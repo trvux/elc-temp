@@ -8,9 +8,10 @@ import {
   getContacts,
   updateContact,
   UpdateContactInput,
+  ContactFilter,
 } from "@/modules/contact";
 
-export async function getContactsAction(options?: any) {
+export async function getContactsAction(options?: ContactFilter) {
   try {
     const data = await getContacts(options);
     return { data, error: null };

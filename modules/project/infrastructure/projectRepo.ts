@@ -13,6 +13,33 @@ type ProjectRow = Tables<"projects">;
 type ProjectInsert = Insert<"projects">;
 type ProjectUpdate = Update<"projects">;
 
+type ProjectRowWithRelations = ProjectRow & {
+  projectType: { id: string; name: string; slug: string | null } | null;
+  project_category: {
+    category: {
+      id: string;
+      name: string;
+      group_id: string | null;
+      group_categories: {
+        id: string;
+        name: string;
+      } | null;
+    } | null;
+  }[] | null;
+  project_service: {
+    service: {
+      id: string;
+      title: string;
+      slug: string | null;
+      group: {
+        id: string;
+        name: string;
+        slug: string | null;
+      } | null;
+    } | null;
+  }[] | null;
+};
+
 export class SupabaseProjectRepository implements ProjectRepository {
   private readonly TABLE_NAME = "projects";
   private readonly SELECT_WITH_CATEGORY = `
@@ -630,7 +657,7 @@ export class SupabaseProjectRepository implements ProjectRepository {
     };
   }
 
-  private mapToDomainWithCategory(row: any): ProjectWithCategory {
+  private mapToDomainWithCategory(row: ProjectRowWithRelations): ProjectWithCategory {
     const project = this.mapToDomain(row);
     
     const projectType = row.projectType ? {
@@ -640,7 +667,7 @@ export class SupabaseProjectRepository implements ProjectRepository {
     } : null;
 
     const categories = (row.project_category || [])
-      .map((pc: any) => {
+      .map((pc) => {
         const cat = pc.category;
         if (!cat) return null;
         return {
@@ -653,10 +680,10 @@ export class SupabaseProjectRepository implements ProjectRepository {
           } : null,
         };
       })
-      .filter(Boolean);
+      .filter((c): c is NonNullable<typeof c> => c !== null);
 
     const services = (row.project_service || [])
-      .map((ps: any) => {
+      .map((ps) => {
         const svc = ps.service;
         if (!svc) return null;
         return {
@@ -670,7 +697,7 @@ export class SupabaseProjectRepository implements ProjectRepository {
           } : null,
         };
       })
-      .filter(Boolean);
+      .filter((s): s is NonNullable<typeof s> => s !== null);
 
     return {
       ...project,

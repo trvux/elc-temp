@@ -87,16 +87,18 @@ export function extractTitleFromHtml(content: unknown): string {
   }
   
   export function sortByOrderIndex<T>(items: T[]): T[] {
-    return [...items].sort((a: any, b: any) => {
-      const orderA = a.orderIndex ?? a.order_index;
-      const orderB = b.orderIndex ?? b.order_index;
+    return [...items].sort((a: unknown, b: unknown) => {
+      const recA = a as Record<string, unknown>;
+      const recB = b as Record<string, unknown>;
+      const orderA = recA.orderIndex ?? recA.order_index;
+      const orderB = recB.orderIndex ?? recB.order_index;
       
       if (typeof orderA === 'number' && typeof orderB === 'number') {
         return orderA - orderB;
       }
   
-      const textA = a.title || a.name || "";
-      const textB = b.title || b.name || "";
+      const textA = (recA.title || recA.name || "") as string;
+      const textB = (recB.title || recB.name || "") as string;
       const matchA = typeof textA === 'string' ? textA.match(/^(\d+)/) : null;
       const matchB = typeof textB === 'string' ? textB.match(/^(\d+)/) : null;
       

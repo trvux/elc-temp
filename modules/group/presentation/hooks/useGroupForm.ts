@@ -1,8 +1,8 @@
 import { standardSchemaResolver } from "@hookform/resolvers/standard-schema";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
+import type { Resolver } from "react-hook-form";
 import { toast } from "sonner";
-import type { z } from "zod";
 import { useState } from "react";
 import { createClient } from "@/shared/lib/supabase/client";
 import { convertToWebP } from "@/shared/lib/image";
@@ -30,7 +30,7 @@ export function useGroupForm(
   const supabase = createClient();
 
   const form = useForm<GroupFormValues>({
-    resolver: standardSchemaResolver(createGroupSchema as any) as any,
+    resolver: standardSchemaResolver(createGroupSchema) as unknown as Resolver<GroupFormValues>,
     defaultValues: {
       name: "",
       slug: "",
@@ -97,7 +97,7 @@ export function useGroupForm(
       const { data } = supabase.storage.from("images").getPublicUrl(fileName);
       form.setValue("imageUrl", data.publicUrl);
       toast.success("Đã tải lên ảnh đại diện");
-    } catch (error) {
+    } catch {
       toast.error(`Lỗi upload: ${file.name}`);
     } finally {
       setUploading(false);

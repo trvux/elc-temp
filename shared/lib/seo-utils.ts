@@ -19,11 +19,16 @@ export function generateProductMetadata(product: ProductWithRelations) {
   const synonyms = isAirCon ? "(Điều hòa)" : "";
 
   // 1. Try to get HP from specs
+  interface Spec {
+    label?: string;
+    value?: string;
+  }
+
   const productSpecs = Array.isArray(product.specs)
-    ? (product.specs as any[])
+    ? (product.specs as unknown as Spec[])
     : [];
-  let hpSpec = productSpecs.find(
-    (s: any) =>
+  const hpSpec = productSpecs.find(
+    (s) =>
       s.label?.toLowerCase().includes("công suất") ||
       s.label?.toLowerCase().includes("hp"),
   );
@@ -109,7 +114,8 @@ export function generateProductMetadata(product: ProductWithRelations) {
  */
 export function generateCategoryMetadata(
   category: Record<string, unknown> | null | undefined,
-  totalCount: number,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  totalCount?: number,
 ) {
   if (!category) return {};
 

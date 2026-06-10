@@ -1,6 +1,6 @@
 "use client";
 
-import { UseFormReturn } from "react-hook-form";
+import { FieldArrayWithId, UseFormReturn } from "react-hook-form";
 import {
   Field,
   FieldGroup,
@@ -12,15 +12,16 @@ import { Button } from "@/shared/components/ui/button";
 import { Input } from "@/shared/components/ui/input";
 import { Plus, Trash2, X } from "lucide-react";
 import { ProductFormValues } from "../../hooks/useProductForm";
+import { SpecItem, SpecSubItem } from "@/modules/catalog/domain/types";
 
 interface ProductSpecsTabProps {
   form: UseFormReturn<ProductFormValues>;
-  specsFields: any[];
-  appendSpec: (value: any) => void;
+  specsFields: FieldArrayWithId<ProductFormValues, "specs", "id">[];
+  appendSpec: (value: SpecItem) => void;
   removeSpec: (index: number) => void;
-  appendSpecItem: (index: number, item: any) => void;
+  appendSpecItem: (index: number, item: SpecSubItem) => void;
   removeSpecItem: (specIndex: number, itemIndex: number) => void;
-  updateAutoSlug: (name: string, sku: string, catId: string, brdId: string, specs: any[]) => void;
+  updateAutoSlug: (name: string, sku: string, catId: string, brdId: string, specs: SpecItem[]) => void;
 }
 
 export function ProductSpecsTab({
@@ -105,7 +106,7 @@ export function ProductSpecsTab({
                     </div>
 
                     <FieldGroup className="gap-3">
-                      {spec.items?.map((_: any, j: number) => (
+                      {spec.items?.map((_: SpecSubItem, j: number) => (
                         <Field
                           key={j}
                           orientation="horizontal"

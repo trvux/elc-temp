@@ -14,12 +14,12 @@ import {
 import { cn } from "@/shared/lib/utils";
 
 
-import { useState, useMemo } from "react";
+import { useState } from "react";
 import { Input } from "@/shared/components/ui/input";
 
 // Fuzzy filter function for Vietnamese and general text
-const fuzzyFilter: FilterFn<any> = (row, columnId, value, addMeta) => {
-  const searchTerm = value.toLowerCase();
+const fuzzyFilter: FilterFn<unknown> = (row, columnId, value) => {
+  const searchTerm = (value as string).toLowerCase();
   const normalize = (str: string) =>
     str
       .normalize("NFD")
@@ -28,7 +28,7 @@ const fuzzyFilter: FilterFn<any> = (row, columnId, value, addMeta) => {
 
   const normalizedSearchTerm = normalize(searchTerm);
 
-  const checkValue = (val: any) => {
+  const checkValue = (val: unknown) => {
     if (!val) return false;
     const rowValue = String(val).toLowerCase();
     const normalizedRowValue = normalize(rowValue);
@@ -86,10 +86,9 @@ export function DataTable<TData, TValue>({
     getSortedRowModel: getSortedRowModel(),
     onColumnFiltersChange: setColumnFilters,
     getFilteredRowModel: getFilteredRowModel(),
-    onGlobalFilterChange: setGlobalFilter,
-    globalFilterFn: fuzzyFilter,
+    globalFilterFn: fuzzyFilter as unknown as FilterFn<TData>,
     filterFns: {
-      fuzzy: fuzzyFilter,
+      fuzzy: fuzzyFilter as unknown as FilterFn<TData>,
     },
     state: {
       sorting,

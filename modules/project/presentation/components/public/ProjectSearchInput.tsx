@@ -16,7 +16,7 @@ export function ProjectSearchInput() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const pathname = usePathname();
-  const [isPending, startTransition] = useTransition();
+  const [, startTransition] = useTransition();
 
   const [inputValue, setInputValue] = useState<string>(searchParams.get("search") ?? "");
   const isFirstRender = useRef<boolean>(true);

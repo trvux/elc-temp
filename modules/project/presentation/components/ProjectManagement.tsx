@@ -158,9 +158,7 @@ export function ProjectManagement() {
   const {
     form,
     saveMutation,
-    handleUpload,
     handleContentChange,
-    uploading,
     supabase,
   } = useProjectForm(activeProject, () => setActiveProject(null));
 

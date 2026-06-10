@@ -7,9 +7,8 @@ import { ButtonGroup } from "@/shared/components/ui/button-group";
 import { ColumnDef } from "@tanstack/react-table";
 import { Check, Minus, Edit2, Star, Trash2, X } from "lucide-react";
 import Image from "next/image";
-import { ProductWithRelations, formatPrice, PRODUCT_LABELS, STOCK_STATUS_MAP, STOCK_STATUS } from "../../domain";
+import { ProductWithRelations, formatPrice, PRODUCT_LABELS } from "../../domain";
 import { StockBadge } from "@/shared/components/ui/stock-badge";
-import { cn } from "@/shared/lib/utils";
 
 const LABEL_MAP: Record<string, string> = {
   [PRODUCT_LABELS.NEW]: "Mới về",

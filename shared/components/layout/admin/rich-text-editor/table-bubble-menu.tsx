@@ -27,8 +27,7 @@ export const TableBubbleMenu = ({ editor }: TableBubbleMenuProps) => {
     <BubbleMenu
       editor={editor}
       className="transition-all duration-300 ease-out"
-      shouldShow={({ editor: currentEditor }) => currentEditor.isActive("table")}
-      // @ts-ignore
+      // @ts-expect-error - Tippy options type mismatch
       tippyOptions={{ duration: 100, offset: [0, 15], maxWidth: "none" }}
     >
       <div className="text-primary-foreground bg-primary rounded-lg p-1 shadow-md">

@@ -12,6 +12,12 @@ type NewsRow = Tables<"news">;
 type NewsInsert = Insert<"news">;
 type NewsUpdate = Update<"news">;
 
+interface PostgrestQueryLike {
+  is: (column: string, value: null) => PostgrestQueryLike;
+  eq: (column: string, value: unknown) => PostgrestQueryLike;
+  ilike: (column: string, value: string) => PostgrestQueryLike;
+}
+
 export class SupabaseNewsRepository implements NewsRepository {
   private readonly TABLE_NAME = "news";
 
@@ -19,7 +25,7 @@ export class SupabaseNewsRepository implements NewsRepository {
     const supabase = await createClient();
     let query = supabase.from(this.TABLE_NAME).select("*");
 
-    query = this.applyFilters(query, options);
+    query = this.applyFilters(query as unknown as PostgrestQueryLike, options) as unknown as typeof query;
 
     query = query.order("order_index", { ascending: true });
 
@@ -40,7 +46,7 @@ export class SupabaseNewsRepository implements NewsRepository {
     const supabase = await createClient();
     let query = supabase.from(this.TABLE_NAME).select("*", { count: "exact", head: true });
 
-    query = this.applyFilters(query, options);
+    query = this.applyFilters(query as unknown as PostgrestQueryLike, options) as unknown as typeof query;
 
     const { count, error } = await query;
     if (error) this.handleError(error, "count");
@@ -138,7 +144,7 @@ export class SupabaseNewsRepository implements NewsRepository {
     if (error) this.handleError(error, "delete");
   }
 
-  private applyFilters(query: any, options?: NewsFilter) {
+  private applyFilters(query: PostgrestQueryLike, options?: NewsFilter): PostgrestQueryLike {
     let q = query;
     if (!options?.includeDeleted) {
       q = q.is("deleted_at", null);

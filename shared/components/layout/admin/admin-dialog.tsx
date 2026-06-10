@@ -54,8 +54,6 @@ export function AdminDialog({
   loading = false,
   formId,
 }: AdminDialogProps) {
-  const isFullScreen = size === "full" || size === "screen";
-
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent

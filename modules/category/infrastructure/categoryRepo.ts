@@ -3,6 +3,37 @@ import { Category, CategoryWithGroup, CreateCategoryInput, UpdateCategoryInput }
 import { CategoryFilter, CategoryRepository } from "../domain/repository";
 import { unstable_rethrow } from "next/navigation";
 
+interface CategoryDatabaseRow {
+  id: string;
+  name: string;
+  group_id: string | null;
+  slug: string | null;
+  image_url: string | null;
+  meta_title: string | null;
+  meta_description: string | null;
+  is_featured: boolean | null;
+  order_index: number | null;
+  created_at: string | null;
+  updated_at: string | null;
+  deleted_at: string | null;
+}
+
+interface CategoryWithGroupDatabaseRow extends CategoryDatabaseRow {
+  group_categories?: {
+    id: string;
+    name: string;
+    slug: string | null;
+    image_url: string | null;
+    meta_title: string | null;
+    meta_description: string | null;
+    is_featured: boolean | null;
+    order_index: number | null;
+    created_at: string | null;
+    updated_at: string | null;
+    deleted_at: string | null;
+  } | null;
+}
+
 export class SupabaseCategoryRepository implements CategoryRepository {
   private readonly TABLE_NAME = "categories";
 
@@ -36,7 +67,8 @@ export class SupabaseCategoryRepository implements CategoryRepository {
     const { data, error } = await query;
     if (error) this.handleError(error, "getAll");
 
-    return (data || []).map((row: any) => this.mapToDomainWithGroup(row));
+    const rows = data as unknown as CategoryWithGroupDatabaseRow[];
+    return (rows || []).map((row) => this.mapToDomainWithGroup(row));
   }
 
   async count(options?: Pick<CategoryFilter, "groupId" | "search" | "includeDeleted">): Promise<number> {
@@ -71,7 +103,7 @@ export class SupabaseCategoryRepository implements CategoryRepository {
       .maybeSingle();
 
     if (error) this.handleError(error, "getById");
-    return data ? this.mapToDomainWithGroup(data as any) : null;
+    return data ? this.mapToDomainWithGroup(data as unknown as CategoryWithGroupDatabaseRow) : null;
   }
 
   async create(input: CreateCategoryInput): Promise<Category> {
@@ -178,7 +210,7 @@ export class SupabaseCategoryRepository implements CategoryRepository {
     if (relError) this.handleError(relError, "delete");
   }
 
-  private mapToDomain(row: any): Category {
+  private mapToDomain(row: CategoryDatabaseRow): Category {
     return {
       id: row.id,
       name: row.name,
@@ -195,7 +227,7 @@ export class SupabaseCategoryRepository implements CategoryRepository {
     };
   }
 
-  private mapToDomainWithGroup(row: any): CategoryWithGroup {
+  private mapToDomainWithGroup(row: CategoryWithGroupDatabaseRow): CategoryWithGroup {
     const category = this.mapToDomain(row);
     const groupRow = row.group_categories;
     

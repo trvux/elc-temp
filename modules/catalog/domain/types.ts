@@ -101,3 +101,16 @@ export interface ProductFilter {
     offset?: number;
     includeDeleted?: boolean;
 }
+
+export type SpecSubItem = {
+  label: string;
+  value: string;
+  unit?: string;
+};
+
+export type SpecItem = {
+  label: string;
+  value?: string;
+  unit?: string;
+  items?: SpecSubItem[];
+};

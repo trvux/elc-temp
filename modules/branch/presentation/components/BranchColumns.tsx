@@ -1,6 +1,7 @@
 "use client";
 
 import { ColumnDef } from "@tanstack/react-table";
+import Image from "next/image";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
 import { ButtonGroup } from "@/shared/components/ui/button-group";
@@ -22,11 +23,12 @@ export const getBranchColumns = ({
     cell: ({ row }) => (
       <div className="relative h-10 w-16 overflow-hidden rounded-md border bg-muted">
         {row.original.imageUrl ? (
-          <img
+          <Image
             src={row.original.imageUrl}
-            alt=""
-            loading="lazy"
-            className="h-full w-full object-cover"
+            alt={row.original.name || ""}
+            fill
+            sizes="64px"
+            className="object-cover"
           />
         ) : (
           <div className="flex h-full w-full items-center justify-center text-[9px] uppercase tracking-wider text-muted-foreground/40">

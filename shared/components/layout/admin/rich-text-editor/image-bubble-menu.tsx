@@ -14,11 +14,7 @@ import {
 import { cn } from "@/shared/lib/utils";
 import { type Editor } from "@tiptap/react";
 import { BubbleMenu } from "@tiptap/react/menus";
-import {
-  Maximize,
-  RectangleHorizontal,
-  Square,
-} from "lucide-react";
+import { Maximize, RectangleHorizontal, Square } from "lucide-react";
 import { useCallback } from "react";
 
 interface ImageBubbleMenuProps {
@@ -55,8 +51,10 @@ export const ImageBubbleMenu = ({ editor }: ImageBubbleMenuProps) => {
     <BubbleMenu
       editor={editor}
       className="transition-all duration-300 ease-out"
-      shouldShow={({ editor: currentEditor }) => currentEditor.isActive("image")}
-      // @ts-ignore
+      shouldShow={({ editor: currentEditor }) =>
+        currentEditor.isActive("image")
+      }
+      // @ts-expect-error - Tippy options type mismatch
       tippyOptions={{ duration: 100, offset: [0, 15] }}
     >
       <div className="text-primary-foreground bg-primary rounded-lg p-1 shadow-md">
@@ -111,7 +109,7 @@ export const ImageBubbleMenu = ({ editor }: ImageBubbleMenuProps) => {
               onClick={() => setImageRatio(r.value)}
               className={cn(
                 "px-2 font-medium text-xs",
-                currentRatio === r.value ? "text-green-300" : ""
+                currentRatio === r.value ? "text-green-300" : "",
               )}
             >
               {r.label}

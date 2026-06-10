@@ -43,7 +43,7 @@ export function ServiceGroupManagement({ initialData }: ServiceGroupManagementPr
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const queryClient = useQueryClient();
 
-  const { form, getFormData } = useServiceGroupForm(
+  const { form } = useServiceGroupForm(
     activeGroup === "new" ? null : activeGroup
   );
 

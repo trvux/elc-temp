@@ -16,7 +16,7 @@ export function ProductSearchInput() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const pathname = usePathname();
-  const [isPending, startTransition] = useTransition();
+  const [, startTransition] = useTransition();
 
   const [inputValue, setInputValue] = useState(searchParams.get("search") ?? "");
   const isFirstRender = useRef(true);

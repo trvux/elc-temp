@@ -21,7 +21,6 @@ interface HeroMediaSectionProps {
 }
 
 export function HeroMediaSection({
-  image,
   title = "Trải nghiệm không gian sống lý tưởng",
   description = "Khám phá hình ảnh của hệ thống điều khí thông minh và các giải pháp tối ưu từng nhịp thở cho ngôi nhà.",
 }: HeroMediaSectionProps) {

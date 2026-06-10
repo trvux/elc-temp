@@ -21,12 +21,24 @@ export const getContactHref = (type: string, value: string) => {
   }
 };
 
-export const mapContactRowToDomain = (row: any): Contact => {
+interface ContactDatabaseRow {
+  id: string;
+  type: string;
+  label: string | null;
+  value: string;
+  is_active: boolean | null;
+  order_index: number | null;
+}
+
+export const mapContactRowToDomain = (row: ContactDatabaseRow): Contact => {
   const href = getContactHref(row.type, row.value);
   const isExternal = !href.startsWith("tel:") && !href.startsWith("mailto:");
   
   return {
-    ...row,
+    id: row.id,
+    type: row.type,
+    label: row.label,
+    value: row.value,
     isActive: row.is_active ?? true,
     orderIndex: row.order_index || 0,
     href,

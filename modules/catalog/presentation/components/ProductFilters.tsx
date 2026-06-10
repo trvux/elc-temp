@@ -238,7 +238,10 @@ export function ProductFilters({
 
   const [isMounted, setIsMounted] = useState(false);
   useEffect(() => {
-    setIsMounted(true);
+    const timer = setTimeout(() => {
+      setIsMounted(true);
+    }, 0);
+    return () => clearTimeout(timer);
   }, []);
 
   const activeAccordionValues = useMemo(() => {
@@ -496,21 +499,13 @@ function ImmediateCheckbox({
   disabled?: boolean;
   onCheckedChange: (checked: boolean) => void;
 }) {
-  const [internalChecked, setInternalChecked] = useState(checked);
-
-  useEffect(() => {
-    setInternalChecked(checked);
-  }, [checked]);
-
   return (
     <Checkbox
       id={id}
-      checked={internalChecked}
+      checked={checked}
       disabled={disabled}
       onCheckedChange={(v) => {
-        const newValue = !!v;
-        setInternalChecked(newValue);
-        onCheckedChange(newValue);
+        onCheckedChange(!!v);
       }}
     />
   );

@@ -159,7 +159,7 @@ export class SupabaseBranchRepository implements BranchRepository {
     };
 
     return Object.fromEntries(
-      Object.entries(row).filter(([_, value]) => value !== undefined)
+      Object.entries(row).filter(([, value]) => value !== undefined)
     );
   }
 

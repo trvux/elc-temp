@@ -57,7 +57,7 @@ export const TextBubbleMenu = ({ editor }: TextBubbleMenuProps) => {
     <BubbleMenu
       editor={editor}
       className="transition-all duration-300 ease-out"
-      // @ts-ignore
+      // @ts-expect-error - Tippy options type mismatch
       tippyOptions={{
         duration: 100,
       }}

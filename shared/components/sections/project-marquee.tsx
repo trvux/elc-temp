@@ -29,8 +29,6 @@ export function ProjectMarqueeSection({
   description = "Xem qua các dự án điều hòa trung tâm và lọc khí tươi tiêu biểu đã được ELC thi công hoàn thiện.",
   projects = [],
 }: ProjectMarqueeSectionProps) {
-  if (!projects || projects.length === 0) return null;
-
   // Smart project short-title extractor
   const getShortTitle = (project: ProjectWithCategory) => {
     const match =
@@ -41,9 +39,11 @@ export function ProjectMarqueeSection({
       : project.title;
   };
 
+  const safeProjects = projects || [];
+
   // Group projects into two separate lists for two marquee rows
-  const row1 = projects.filter((_, idx) => idx % 2 === 0);
-  const row2 = projects.filter((_, idx) => idx % 2 === 1);
+  const row1 = safeProjects.filter((_, idx) => idx % 2 === 0);
+  const row2 = safeProjects.filter((_, idx) => idx % 2 === 1);
 
   // Target length for the base row to ensure equal physical widths and speeds
   const TARGET_LENGTH = 18;
@@ -66,6 +66,8 @@ export function ProjectMarqueeSection({
     }
     return result.slice(0, TARGET_LENGTH);
   }, [row2]);
+
+  if (!projects || projects.length === 0) return null;
 
   const renderCard = (project: ProjectWithCategory, idx: number) => {
     const shortTitle = getShortTitle(project);
@@ -100,7 +102,7 @@ export function ProjectMarqueeSection({
                 fill
                 sizes="(max-width: 640px) 256px, (max-width: 768px) 288px, 320px"
                 className="object-cover"
-                loading="lazy"
+                priority={idx < 3}
               />
             </div>
           </CardContent>

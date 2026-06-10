@@ -31,13 +31,20 @@ export function ProductPriceFilter({
     rawMax ? Number(rawMax) : maxPriceLimit,
   ]);
 
-  // Update internal state when limits change (e.g. when switching categories)
-  useEffect(() => {
+  // Sync state during render when limits or search params change
+  const [prevParams, setPrevParams] = useState({ minPriceLimit, maxPriceLimit, rawMin, rawMax });
+  if (
+    prevParams.minPriceLimit !== minPriceLimit ||
+    prevParams.maxPriceLimit !== maxPriceLimit ||
+    prevParams.rawMin !== rawMin ||
+    prevParams.rawMax !== rawMax
+  ) {
+    setPrevParams({ minPriceLimit, maxPriceLimit, rawMin, rawMax });
     setPriceRange([
       rawMin ? Number(rawMin) : minPriceLimit,
       rawMax ? Number(rawMax) : maxPriceLimit,
     ]);
-  }, [minPriceLimit, maxPriceLimit, rawMin, rawMax]);
+  }
 
   const isFirstRender = useRef(true);
   const searchParamsRef = useRef(searchParams);

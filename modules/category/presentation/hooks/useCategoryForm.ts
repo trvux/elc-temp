@@ -1,8 +1,8 @@
 import { standardSchemaResolver } from "@hookform/resolvers/standard-schema";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
+import type { Resolver } from "react-hook-form";
 import { toast } from "sonner";
-import type { z } from "zod";
 import { useState } from "react";
 import { createClient } from "@/shared/lib/supabase/client";
 import { convertToWebP } from "@/shared/lib/image";
@@ -31,7 +31,7 @@ export function useCategoryForm(
   const supabase = createClient();
 
   const form = useForm<CategoryFormValues>({
-    resolver: standardSchemaResolver(createCategorySchema as any) as any,
+    resolver: standardSchemaResolver(createCategorySchema) as unknown as Resolver<CategoryFormValues>,
     defaultValues: {
       name: "",
       groupId: null,
@@ -101,7 +101,7 @@ export function useCategoryForm(
       const { data } = supabase.storage.from("images").getPublicUrl(fileName);
       form.setValue("imageUrl", data.publicUrl);
       toast.success("Đã tải lên ảnh đại diện");
-    } catch (error) {
+    } catch {
       toast.error(`Lỗi upload: ${file.name}`);
     } finally {
       setUploading(false);

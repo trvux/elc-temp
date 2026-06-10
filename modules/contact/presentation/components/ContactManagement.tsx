@@ -5,6 +5,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Plus } from "lucide-react";
 import { useMemo, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
+import type { Resolver } from "react-hook-form";
 import { toast } from "sonner";
 
 import { AdminDialog } from "@/shared/components/layout/admin/admin-dialog";
@@ -27,7 +28,6 @@ import {
   SelectValue,
 } from "@/shared/components/ui/select";
 import { Switch } from "@/shared/components/ui/switch";
-import { ZaloIcon } from "@/shared/components/ui/social-icons";
 
 import { capitalize } from "@/shared/lib/helpers";
 
@@ -35,7 +35,8 @@ import {
   Contact,
   CONTACT_TYPES,
   createContactSchema,
-  updateContactSchema,
+  CreateContactInput,
+  UpdateContactInput,
 } from "../../domain";
 import { getContactIcon } from "../utils";
 import {
@@ -65,7 +66,7 @@ export function ContactManagement() {
   const [filterType, setFilterType] = useState<string>("all");
 
   const form = useForm<ContactFormValues>({
-    resolver: standardSchemaResolver(createContactSchema as any) as any,
+    resolver: standardSchemaResolver(createContactSchema) as unknown as Resolver<ContactFormValues>,
     defaultValues: {
       type: "phone",
       label: "",
@@ -92,9 +93,9 @@ export function ContactManagement() {
         return updateContactAction({
           ...values,
           id: activeContact.id,
-        } as any);
+        } as UpdateContactInput);
       }
-      return createContactAction(values as any);
+      return createContactAction(values as CreateContactInput);
     },
     onSuccess: (res) => {
       if (res.error) {

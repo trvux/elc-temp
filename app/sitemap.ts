@@ -7,10 +7,10 @@ const BASE_URL = 'https://dienmayelc.com.vn';
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const supabase = createStaticClient();
 
-  // 1. Fetch Categories (with type to filter)
+  // 1. Fetch Categories
   const { data: categories } = await supabase
     .from('categories')
-    .select('slug, updated_at, type')
+    .select('slug, updated_at')
     .is('deleted_at', null);
 
   // 2. Fetch Products with their category and brand slug for the URL
@@ -65,7 +65,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   // Category Routes (Only Product type categories go under /san-pham/)
   const categoryRoutes = (categories || [])
-    .filter(cat => cat.type === 'product' || !cat.type)
     .map((cat) => ({
       url: `${BASE_URL}/san-pham/${cat.slug}`,
       lastModified: new Date(cat.updated_at || Date.now()),
@@ -73,11 +72,18 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.8,
     }));
 
+  interface SitemapProduct {
+    slug: string;
+    updated_at: string | null;
+    category: { slug: string } | null;
+    brand: { slug: string } | null;
+  }
+
   // Product Routes
-  const productRoutes = (products || [])
-    .filter((prod: any) => prod.slug && prod.category?.slug && prod.brand?.slug)
-    .map((prod: any) => ({
-      url: `${BASE_URL}/san-pham/${prod.category.slug}/${prod.brand.slug}/${prod.slug}`,
+  const productRoutes = ((products as unknown as SitemapProduct[]) || [])
+    .filter((prod) => prod.slug && prod.category?.slug && prod.brand?.slug)
+    .map((prod) => ({
+      url: `${BASE_URL}/san-pham/${prod.category!.slug}/${prod.brand!.slug}/${prod.slug}`,
       lastModified: new Date(prod.updated_at || Date.now()),
       changeFrequency: 'daily' as const,
       priority: 0.9,
@@ -86,9 +92,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // Category + Brand Routes
   const categoryBrandRoutes = Array.from(
     new Set(
-      (products || [])
-        .filter((p: any) => p.category?.slug && p.brand?.slug)
-        .map((p: any) => `${p.category.slug}/${p.brand.slug}`)
+      ((products as unknown as SitemapProduct[]) || [])
+        .filter((p) => p.category?.slug && p.brand?.slug)
+        .map((p) => `${p.category!.slug}/${p.brand!.slug}`)
     )
   ).map((pair) => ({
     url: `${BASE_URL}/san-pham/${pair}`,
