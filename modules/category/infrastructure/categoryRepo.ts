@@ -218,6 +218,38 @@ export class SupabaseCategoryRepository implements CategoryRepository {
   }
 
   private handleError(error: unknown, context: string): never {
+    let isAbort = false;
+    if (error && typeof error === "object") {
+      const errObj = error as Record<string, unknown>;
+      const name = typeof errObj.name === "string" ? errObj.name : "";
+      const message = typeof errObj.message === "string" ? errObj.message : "";
+      if (
+        name === "AbortError" || 
+        message.includes("AbortError") || 
+        message.includes("aborted") ||
+        message.includes("operation was aborted") ||
+        message.includes("prerender") ||
+        message.includes("prerendering")
+      ) {
+        isAbort = true;
+      }
+    } else if (error instanceof Error) {
+      if (
+        error.name === "AbortError" || 
+        error.message.includes("AbortError") || 
+        error.message.includes("aborted") ||
+        error.message.includes("operation was aborted") ||
+        error.message.includes("prerender") ||
+        error.message.includes("prerendering")
+      ) {
+        isAbort = true;
+      }
+    }
+
+    if (isAbort) {
+      throw error;
+    }
+
     unstable_rethrow(error);
     let message = "Unknown error";
     if (error) {

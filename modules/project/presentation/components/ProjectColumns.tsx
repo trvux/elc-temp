@@ -105,21 +105,41 @@ export const getColumns = ({
     },
   },
   {
-    accessorKey: "service.title",
+    id: "services",
     header: "Dịch vụ liên quan",
     cell: ({ row }) => {
-      const service = row.original.service;
-      if (!service) return <span className="text-muted-foreground italic text-xs">Không có</span>;
+      const services = row.original.services || [];
+      if (services.length === 0) return <span className="text-[10px] text-muted-foreground italic">Không có</span>;
+
+      // Nhóm các dịch vụ theo nhóm dịch vụ
+      const groups = services.reduce((acc, service) => {
+        const groupName = service.group?.name || "Khác";
+        if (!acc[groupName]) {
+          acc[groupName] = [];
+        }
+        acc[groupName].push(service);
+        return acc;
+      }, {} as Record<string, typeof services>);
+
       return (
-        <div className="flex flex-col gap-1 max-w-[220px]">
-          {service.group && (
-            <span className="font-semibold text-xs text-foreground">
-              {service.group.name}
-            </span>
-          )}
-          <span className="text-xs text-muted-foreground">
-            {service.title}
-          </span>
+        <div className="flex flex-col gap-3 max-w-[280px]">
+          {Object.entries(groups).map(([groupName, groupServices]) => (
+            <div key={groupName} className="flex flex-col gap-1.5">
+              <span className="font-semibold text-xs text-foreground w-fit px-2 py-0.5">
+                {groupName}
+              </span>
+              <div className="flex flex-wrap gap-1">
+                {groupServices.map((service) => (
+                  <span
+                    key={service.id}
+                    className="text-[10px] bg-muted text-muted-foreground px-1.5 py-0.5 rounded"
+                  >
+                    {service.title}
+                  </span>
+                ))}
+              </div>
+            </div>
+          ))}
         </div>
       );
     },

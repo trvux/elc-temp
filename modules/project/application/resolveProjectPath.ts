@@ -180,7 +180,6 @@ export async function resolveProjectPath(slug: string): Promise<ResolvedProjectE
       order_index: number;
       category_id: string;
       project_type_id: string | null;
-      service_id: string | null;
       created_at: string;
       updated_at: string;
       deleted_at: string | null;
@@ -233,7 +232,6 @@ export async function resolveProjectPath(slug: string): Promise<ResolvedProjectE
       orderIndex: row.order_index || 0,
       categoryId: row.category_id || "",
       projectTypeId: row.project_type_id,
-      serviceId: row.service_id,
       createdAt: row.created_at,
       updatedAt: row.updated_at,
       deletedAt: row.deleted_at,
@@ -245,7 +243,7 @@ export async function resolveProjectPath(slug: string): Promise<ResolvedProjectE
             slug: row.projectType.slug,
           }
         : null,
-      service: null,
+      services: [],
       categories,
     };
 

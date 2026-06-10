@@ -13,7 +13,7 @@ export class SupabaseAuthRepository implements AuthRepository {
   async login(
     input: LoginInput,
   ): Promise<{ user: AuthUser | null; error: string | null }> {
-    console.log("[SupabaseAuthRepository] Step 3 - Initializing Supabase client and calling signInWithPassword for:", input.email);
+
     
     try {
       const supabase = await createClient();
@@ -27,7 +27,7 @@ export class SupabaseAuthRepository implements AuthRepository {
         return { user: null, error: error.message };
       }
 
-      console.log("[SupabaseAuthRepository] Step 3 - Supabase authenticated user successfully, user email:", data.user?.email);
+
       return { user: data.user, error: null };
     } catch (err) {
       console.error("[SupabaseAuthRepository] Step 3 - Exception in signInWithPassword:", err);

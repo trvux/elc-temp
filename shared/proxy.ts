@@ -64,7 +64,7 @@ export async function proxy(request: NextRequest) {
     : WP_PATTERNS.some((p) => pathname.includes(p) || search.includes(p));
 
   if (destination === "GONE" || isWpLegacy) {
-    console.log(`[Proxy] Redirecting ${pathname} because GONE=${destination === "GONE"}, isWpLegacy=${isWpLegacy}`);
+
     const slug = pathname.split("/").filter(Boolean).pop() || "";
 
     const { createClient } = await import("@/shared/lib/supabase/server");
@@ -80,7 +80,7 @@ export async function proxy(request: NextRequest) {
 
     if (registryItem) {
       const targetPath = getRedirectPath(registryItem.entity_type, slug);
-      console.log(`[Proxy] Slug exists in registry, redirecting to /${targetPath}`);
+
       return NextResponse.redirect(
         new URL(`/${targetPath}${search}`, request.url),
         301
@@ -145,7 +145,7 @@ export async function proxy(request: NextRequest) {
 
       if (registryItem) {
         const targetPath = getRedirectPath(registryItem.entity_type, segment);
-        console.log(`[Proxy] Root slug ${segment} exists in registry, redirecting to /${targetPath}`);
+
         return NextResponse.redirect(
           new URL(`/${targetPath}${search}`, request.url),
           301
@@ -171,7 +171,7 @@ export async function proxy(request: NextRequest) {
 
     if (registryItem) {
       const targetPath = getRedirectPath(registryItem.entity_type, lastSegment);
-      console.log(`[Proxy] Redirecting legacy nested path ${pathname} -> /${targetPath}`);
+
       return NextResponse.redirect(
         new URL(`/${targetPath}${search}`, request.url),
         301

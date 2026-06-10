@@ -199,9 +199,11 @@ async function getCachedProjectListData(
   // 4. Fetch services for filtering
   const allServices = await getServices({ isPublished: true });
   const serviceItems = allServices.map((svc) => {
-    const count = allPublishedProjects.filter(
-      (p) => p.serviceId === svc.id,
-    ).length;
+    const count = allPublishedProjects.filter((p) => {
+      const matchProjectType = projectType ? p.projectTypeId === projectType.id : true;
+      const matchService = p.services?.some((s) => s.id === svc.id);
+      return matchProjectType && matchService;
+    }).length;
     return {
       id: svc.id,
       name: svc.title,

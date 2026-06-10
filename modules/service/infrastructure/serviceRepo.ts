@@ -537,10 +537,10 @@ class ServiceRepository {
 
     if (error) throw error;
     
-    // 2. Set service_id = null for referencing projects
+    // 2. Delete relations in project_service for this service
     await supabase
-      .from("projects")
-      .update({ service_id: null })
+      .from("project_service")
+      .delete()
       .eq("service_id", id);
   }
 

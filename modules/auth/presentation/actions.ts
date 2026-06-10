@@ -6,16 +6,11 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
 export async function loginAction(input: LoginInput) {
-  console.log("[loginAction] Step 2 - Received input at Server Action:", {
-    email: input.email,
-    passwordLength: input.password ? input.password.length : 0,
-  });
+
 
   try {
     const validated = loginSchema.parse(input);
-    console.log("[loginAction] Step 2 - Zod validation parsed successfully:", {
-      email: validated.email,
-    });
+
 
     const { user, error } = await login(validated);
 
@@ -24,7 +19,7 @@ export async function loginAction(input: LoginInput) {
       return { data: null, error };
     }
 
-    console.log("[loginAction] Step 4 - Login succeeded, user ID:", user?.id);
+
     revalidatePath("/", "layout");
     return { data: user, error: null };
   } catch (error) {

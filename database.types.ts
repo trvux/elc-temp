@@ -523,6 +523,39 @@ export type Database = {
           },
         ]
       }
+      project_service: {
+        Row: {
+          created_at: string
+          project_id: string
+          service_id: string
+        }
+        Insert: {
+          created_at?: string
+          project_id: string
+          service_id: string
+        }
+        Update: {
+          created_at?: string
+          project_id?: string
+          service_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "project_service_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "project_service_service_id_fkey"
+            columns: ["service_id"]
+            isOneToOne: false
+            referencedRelation: "services"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       project_type: {
         Row: {
           created_at: string
@@ -612,7 +645,6 @@ export type Database = {
           meta_title: string | null
           order_index: number | null
           project_type_id: string | null
-          service_id: string | null
           slug: string
           title: string
           updated_at: string | null
@@ -630,7 +662,6 @@ export type Database = {
           meta_title?: string | null
           order_index?: number | null
           project_type_id?: string | null
-          service_id?: string | null
           slug: string
           title: string
           updated_at?: string | null
@@ -648,19 +679,11 @@ export type Database = {
           meta_title?: string | null
           order_index?: number | null
           project_type_id?: string | null
-          service_id?: string | null
           slug?: string
           title?: string
           updated_at?: string | null
         }
         Relationships: [
-          {
-            foreignKeyName: "projects_service_id_fkey"
-            columns: ["service_id"]
-            isOneToOne: false
-            referencedRelation: "services"
-            referencedColumns: ["id"]
-          },
           {
             foreignKeyName: "projects_service_type_id_fkey"
             columns: ["project_type_id"]
