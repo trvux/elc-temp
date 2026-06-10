@@ -39,7 +39,7 @@ export async function createBranchAction(input: CreateBranchInput) {
     try {
         const data = await createBranch(input);
         revalidatePath("/admin/branches");
-        revalidatePath("/chi-nhanh");
+        revalidatePath("/co-so-ha-tang");
         revalidatePath("/thong-tin");
         return {data, error: null};
     } catch (error) {
@@ -55,7 +55,7 @@ export async function updateBranchAction(input: UpdateBranchInput) {
     try {
         const data = await updateBranch(input);
         revalidatePath("/admin/branches");
-        revalidatePath("/chi-nhanh");
+        revalidatePath("/co-so-ha-tang");
         revalidatePath("/thong-tin");
         return {data, error: null};
     } catch (error) {
@@ -71,7 +71,7 @@ export async function deleteBranchAction(id: string) {
     try {
         await deleteBranch(id);
         revalidatePath("/admin/branches");
-        revalidatePath("/chi-nhanh");
+        revalidatePath("/co-so-ha-tang");
         revalidatePath("/thong-tin");
         return {success: true, error: null};
     } catch (error) {

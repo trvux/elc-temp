@@ -21,8 +21,8 @@ export const mockBranches: Branch[] = [
   },
   {
     id: "br-002",
-    name: "Chi nhánh Hà Nội",
-    slug: "chi-nhanh-ha-noi",
+    name: "Cơ sở hạ tầng Hà Nội",
+    slug: "co-so-ha-tang-ha-noi",
     address: "Tòa nhà Keangnam, Phạm Hùng, Nam Từ Liêm, Hà Nội",
     phone: "0243123456",
     email: "hanoi@elc.vn",
@@ -38,8 +38,8 @@ export const mockBranches: Branch[] = [
   },
   {
     id: "br-003",
-    name: "Chi nhánh Đà Nẵng",
-    slug: "chi-nhanh-da-nang",
+    name: "Cơ sở hạ tầng Đà Nẵng",
+    slug: "co-so-ha-tang-da-nang",
     address: "123 Nguyễn Văn Linh, Quận Hải Châu, Đà Nẵng",
     phone: "0236123456",
     email: "danang@elc.vn",

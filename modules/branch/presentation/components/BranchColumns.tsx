@@ -40,7 +40,7 @@ export const getBranchColumns = ({
   },
   {
     accessorKey: "name",
-    header: "Tên chi nhánh",
+    header: "Tên cơ sở hạ tầng",
     cell: ({ row }) => (
       <span>
         {row.original.name}
@@ -52,7 +52,7 @@ export const getBranchColumns = ({
     header: "URL",
     cell: ({ row }) => (
       <span>
-        /chi-nhanh/{row.original.slug}
+        /co-so-ha-tang/{row.original.slug}
       </span>
     ),
   },

@@ -184,17 +184,17 @@ export function Footer({
             )}
           </div>
 
-          {/* Chi nhánh */}
+          {/* Cơ sở hạ tầng */}
           <div className="flex flex-col gap-4">
             <h3 className="text-sm font-semibold text-foreground tracking-tight">
-              Chi nhánh
+              Cơ sở hạ tầng
             </h3>
             <nav className="flex flex-col gap-2.5">
               {branches.length ? (
                 sortByOrderIndex(branches).map((b) => (
                   <Link
                     key={b.slug}
-                    href={`/chi-nhanh/${b.slug}`}
+                    href={`/co-so-ha-tang/${b.slug}`}
                     className="text-sm text-muted-foreground hover:text-foreground transition-colors duration-200"
                   >
                     {b.name}
