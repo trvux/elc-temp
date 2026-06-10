@@ -4,18 +4,17 @@ import { ScrollToTop } from "@/shared/components/layout/user/scroll-to-top";
 import { GridSection } from "@/shared/components/sections/grid-section";
 import {
   TypographyH1,
-  TypographyH2,
   TypographyH4,
   TypographyLead,
   TypographyP,
   TypographySmall,
 } from "@/shared/components/ui/typography";
+import { sortByOrderIndex } from "@/shared/lib/helpers";
 import { setUseStaticClient } from "@/shared/lib/supabase/server";
 import { cn } from "@/shared/lib/utils";
 import { ArrowUpRight } from "lucide-react";
 import { cacheLife } from "next/cache";
 import Link from "next/link";
-import { sortByOrderIndex } from "@/shared/lib/helpers";
 
 const STYLES = {
   header: cn(
@@ -24,13 +23,13 @@ const STYLES = {
   title: cn(),
   description: cn(),
   list: cn(
-    "grid grid-cols-1 md:grid-cols-2 gap-8 min-h-[200px] animate-fade-in-up",
+    "flex flex-col justify-center gap-4 min-h-[200px] animate-fade-in-up max-w-3xl w-full mx-auto",
   ),
   article: cn(
-    "group flex flex-col gap-6 no-underline transition-all duration-300 p-6",
+    "group flex flex-col gap-6 no-underline transition-all duration-300 p-6 border-b border-border last:border-b-0",
   ),
   articleHeader: cn("flex justify-between items-start gap-4"),
-  articleTitle: cn("text-primary/70 transition-colors"),
+
   articleIcon: cn(
     "w-5 h-5 shrink-0 text-muted-foreground/40 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all",
   ),
@@ -72,8 +71,8 @@ export default async function InformationHub() {
         contentClassName="py-12 md:py-16 lg:py-20 flex flex-col gap-12"
       >
         <header className={STYLES.header}>
-          <TypographyH1 className={STYLES.title}>Thông tin về ELC</TypographyH1>
-          <TypographyLead className={STYLES.description}>
+          <TypographyH1>Thông tin về ELC</TypographyH1>
+          <TypographyLead>
             Kho lưu trữ minh bạch về các giá trị cốt lõi, cam kết bảo hành và
             triết lý kiến tạo.
           </TypographyLead>
@@ -94,9 +93,7 @@ export default async function InformationHub() {
                 className={STYLES.article}
               >
                 <div className={STYLES.articleHeader}>
-                  <TypographyH4 className={STYLES.articleTitle}>
-                    {page.title}
-                  </TypographyH4>
+                  <TypographyH4>{page.title}</TypographyH4>
                   <ArrowUpRight className={STYLES.articleIcon} />
                 </div>
               </Link>
@@ -113,8 +110,8 @@ export default async function InformationHub() {
         contentClassName="py-12 md:py-16 lg:py-20 flex flex-col gap-12"
       >
         <header className={STYLES.header}>
-          <TypographyH2 className={STYLES.title}>Cơ sở hạ tầng</TypographyH2>
-          <TypographyLead className={STYLES.description}>
+          <TypographyH1>Cơ sở hạ tầng</TypographyH1>
+          <TypographyLead>
             Hệ thống không gian trưng bày và trạm dịch vụ của ELC được mở rộng
             trên toàn quốc với triết lý kiến tạo giá trị đồng nhất.
           </TypographyLead>
