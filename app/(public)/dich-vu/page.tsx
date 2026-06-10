@@ -93,7 +93,7 @@ export default async function ServicesHub() {
           <TypographyH1 className={STYLES.title}>Dịch vụ</TypographyH1>
           <TypographyLead className={STYLES.description}>
             Giải pháp chuyên nghiệp dành cho hệ thống lạnh công nghiệp, điều hòa
-            trung tâm và bảo trì hệ thống.
+            trung tâm và bảo trì hệ thống
           </TypographyLead>
         </header>
       </GridSection>
