@@ -14,9 +14,10 @@ import React from "react";
 
 interface BranchCardProps {
   branch: Branch;
+  priority?: boolean;
 }
 
-export const BranchCard: React.FC<BranchCardProps> = ({ branch }) => {
+export const BranchCard: React.FC<BranchCardProps> = ({ branch, priority = false }) => {
   return (
     <Card className="relative cursor-pointer overflow-hidden hover:shadow-md transition-shadow flex flex-col border-none bg-background/50 backdrop-blur-sm shadow-sm group/card h-full pt-0">
       {branch.imageUrl ? (
@@ -27,7 +28,8 @@ export const BranchCard: React.FC<BranchCardProps> = ({ branch }) => {
             fill
             sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
             className="object-cover transition-transform duration-500 group-hover/card:scale-105"
-            loading="lazy"
+            loading={priority ? "eager" : "lazy"}
+            priority={priority}
           />
         </div>
       ) : (
@@ -39,14 +41,14 @@ export const BranchCard: React.FC<BranchCardProps> = ({ branch }) => {
 
       {/* Absolute link overlay to make the whole card clickable */}
       <Link
-        href={`/chi-nhanh/${branch.slug}`}
+        href={`/co-so-ha-tang/${branch.slug}`}
         className="absolute inset-0 z-0"
-        aria-label={`Chi tiết chi nhánh ${branch.name}`}
+        aria-label={`Chi tiết cơ sở hạ tầng ${branch.name}`}
       />
 
       <CardHeader className="relative z-10 pb-0">
         <Link
-          href={`/chi-nhanh/${branch.slug}`}
+          href={`/co-so-ha-tang/${branch.slug}`}
           className="hover:text-primary transition-colors group relative z-10"
         >
           <CardTitle className="text-xl font-bold flex items-center gap-2">
@@ -85,7 +87,7 @@ export const BranchCard: React.FC<BranchCardProps> = ({ branch }) => {
 
       <CardFooter className="relative z-10 grid grid-cols-2 gap-3 mt-auto pb-6">
         <Link
-          href={`/chi-nhanh/${branch.slug}`}
+          href={`/co-so-ha-tang/${branch.slug}`}
           className={cn(
             "flex items-center justify-center gap-2 py-2 border border-primary text-primary rounded-md hover:bg-primary/5 transition-colors text-sm font-medium",
             !branch.mapsUrl && "col-span-2",

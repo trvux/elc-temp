@@ -60,7 +60,7 @@ const navItems = [
   { href: "/admin/news", label: "Tin tức", icon: FileText },
   { href: "/admin/pages", label: "Trang tĩnh", icon: FileText },
   { href: "/admin/contacts", label: "Liên hệ", icon: Phone },
-  { href: "/admin/branches", label: "Chi nhánh", icon: MapPin },
+  { href: "/admin/branches", label: "Cơ sở hạ tầng", icon: MapPin },
   { href: "/admin/settings", label: "Cài đặt", icon: Settings },
 ];
 

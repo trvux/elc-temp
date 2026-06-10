@@ -79,8 +79,8 @@ describe("Branch Infrastructure Mocks", () => {
   describe("create", () => {
     it("should successfully create and return a new branch with generated ID and timestamps", async () => {
       const newBranchInput = {
-        name: "Chi nhánh Test",
-        slug: "chi-nhanh-test",
+        name: "Cơ sở hạ tầng Test",
+        slug: "co-so-ha-tang-test",
         address: "123 Test Street",
         phone: "0123456789",
         email: "test@elc.vn",

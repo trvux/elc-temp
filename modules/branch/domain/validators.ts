@@ -4,8 +4,8 @@ export const branchSchema = z.object({
     id: z.uuid({message: "ID không đúng định dạng UUID"}),
     name: z
         .string()
-        .min(1, {message: "Tên chi nhánh không được để trống"})
-        .max(100, {message: "Tên chi nhánh không được quá 100 ký tự"}),
+        .min(1, {message: "Tên cơ sở hạ tầng không được để trống"})
+        .max(100, {message: "Tên cơ sở hạ tầng không được quá 100 ký tự"}),
     slug: z
         .string()
         .min(1, {message: "Slug không được để trống"})

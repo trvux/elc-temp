@@ -55,7 +55,7 @@ export function BranchManagement() {
         toast.error(res.error);
         return;
       }
-      toast.success("Đã xóa chi nhánh");
+      toast.success("Đã xóa cơ sở hạ tầng");
       setDeletingId(null);
       queryClient.invalidateQueries({ queryKey: ["branches"] });
     },
@@ -118,13 +118,13 @@ export function BranchManagement() {
     <div>
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 mb-8">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">Chi nhánh</h1>
+          <h1 className="text-2xl font-bold tracking-tight">Cơ sở hạ tầng</h1>
           <p className="text-sm text-muted-foreground">
-            Quản lý địa điểm chi nhánh và thông tin liên hệ.
+            Quản lý địa điểm cơ sở hạ tầng và thông tin liên hệ.
           </p>
         </div>
         <Button onClick={openCreate} className="h-9">
-          <Plus size={16} className="mr-2" /> Thêm chi nhánh
+          <Plus size={16} className="mr-2" /> Thêm cơ sở hạ tầng
         </Button>
       </div>
 
@@ -140,8 +140,8 @@ export function BranchManagement() {
         open={!!activeBranch}
         onOpenChange={(open) => !open && setActiveBranch(null)}
         size="full"
-        title={activeBranch === "new" ? "Thêm chi nhánh" : "Sửa chi nhánh"}
-        description="Điền thông tin chi nhánh để hiển thị trên website."
+        title={activeBranch === "new" ? "Thêm cơ sở hạ tầng" : "Sửa cơ sở hạ tầng"}
+        description="Điền thông tin cơ sở hạ tầng để hiển thị trên website."
       >
         <form
           onSubmit={form.handleSubmit((v) => saveMutation.mutate(v))}
@@ -157,7 +157,7 @@ export function BranchManagement() {
                     name="name"
                     render={({ field, fieldState }) => (
                       <Field>
-                        <FieldLabel>Tên chi nhánh *</FieldLabel>
+                        <FieldLabel>Tên cơ sở hạ tầng *</FieldLabel>
                         <Input
                           {...field}
                           placeholder="Văn phòng Quận 1"
@@ -191,7 +191,7 @@ export function BranchManagement() {
                         />
                         <FieldDescription className="flex items-center gap-2">
                           <ExternalLink size={12} />
-                          /chi-nhanh/{field.value || "..."}
+                          /co-so-ha-tang/{field.value || "..."}
                         </FieldDescription>
                         <FieldError errors={[fieldState.error]} />
                       </Field>
@@ -240,7 +240,7 @@ export function BranchManagement() {
                     name="imageUrl"
                     render={({ field }) => (
                       <Field>
-                        <FieldLabel>Ảnh đại diện chi nhánh</FieldLabel>
+                        <FieldLabel>Ảnh đại diện cơ sở hạ tầng</FieldLabel>
                         <ImageUpload
                           value={field.value || ""}
                           onChange={field.onChange}
@@ -381,7 +381,7 @@ export function BranchManagement() {
                     render={({ field, fieldState }) => (
                       <Field>
                         <FieldLabel>Mô tả SEO</FieldLabel>
-                        <Textarea {...field} value={field.value || ""} placeholder="Mô tả tóm tắt chi nhánh để hiển thị trên Google..." className="min-h-[80px]" />
+                        <Textarea {...field} value={field.value || ""} placeholder="Mô tả tóm tắt cơ sở hạ tầng để hiển thị trên Google..." className="min-h-[80px]" />
                         <FieldError errors={[fieldState.error]} />
                       </Field>
                     )}
@@ -393,7 +393,7 @@ export function BranchManagement() {
               <div className="space-y-4">
                 <div className="flex items-center justify-between border-b pb-2">
                   <h3 className="text-sm font-semibold tracking-tight">
-                    Giới thiệu chi nhánh
+                    Giới thiệu cơ sở hạ tầng
                   </h3>
                   <span className="text-[10px] text-muted-foreground uppercase tracking-widest">
                     Tiptap Editor
@@ -407,7 +407,7 @@ export function BranchManagement() {
                       key={activeBranch === "new" ? "new" : (activeBranch as Branch)?.id}
                       value={field.value}
                       onChange={field.onChange}
-                      placeholder="Viết nội dung giới thiệu chi nhánh..."
+                      placeholder="Viết nội dung giới thiệu cơ sở hạ tầng..."
                       uploadImage={async (file) => {
                         const fileName = `branches/${Date.now()}-${Math.random().toString(36).slice(2)}.webp`;
                         const { error } = await supabase.storage
@@ -440,7 +440,7 @@ export function BranchManagement() {
               {saveMutation.isPending
                 ? "Đang lưu..."
                 : activeBranch === "new"
-                  ? "Tạo chi nhánh"
+                  ? "Tạo cơ sở hạ tầng"
                   : "Lưu thay đổi"}
             </Button>
           </div>

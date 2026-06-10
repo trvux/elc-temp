@@ -72,7 +72,7 @@ export function DashboardOverview() {
     { label: "Tin tức", value: stats?.news, icon: Newspaper },
     { label: "Trang tĩnh", value: stats?.pages, icon: FileText },
     { label: "Liên hệ", value: stats?.contacts, icon: Phone },
-    { label: "Chi nhánh", value: stats?.branches, icon: MapPin },
+    { label: "Cơ sở hạ tầng", value: stats?.branches, icon: MapPin },
   ];
 
   const chartConfig = {

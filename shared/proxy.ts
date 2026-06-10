@@ -38,6 +38,21 @@ function getRedirectPath(entityType: string, slug: string): string {
 export async function proxy(request: NextRequest) {
   const { pathname, search } = request.nextUrl;
 
+  // Redirect 301 from /chi-nhanh routes to /co-so-ha-tang
+  if (pathname === "/chi-nhanh") {
+    return NextResponse.redirect(
+      new URL("/co-so-ha-tang" + search, request.url),
+      301
+    );
+  }
+  if (pathname.startsWith("/chi-nhanh/")) {
+    const slug = pathname.slice("/chi-nhanh/".length);
+    return NextResponse.redirect(
+      new URL(`/co-so-ha-tang/${slug}${search}`, request.url),
+      301
+    );
+  }
+
   // --- Xử lý các đường dẫn chứa "chua-phan-loai" (Uncategorized) ---
   if (pathname.includes("/chua-phan-loai")) {
     const redirectTarget = pathname.split("/chua-phan-loai")[0] || "/";
@@ -121,7 +136,7 @@ export async function proxy(request: NextRequest) {
     const STATIC_PATHS = [
       "du-an",
       "dich-vu",
-      "chi-nhanh",
+      "co-so-ha-tang",
       "tin-tuc",
       "thong-tin",
       "san-pham",

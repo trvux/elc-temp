@@ -102,7 +102,7 @@ export default async function InformationHub() {
         )}
       </GridSection>
 
-      {/* Section 2: Chi nhanh cua ELC */}
+      {/* Section 2: Co so ha tang cua ELC */}
       <GridSection
         id="branches-section"
         isFirst={false}

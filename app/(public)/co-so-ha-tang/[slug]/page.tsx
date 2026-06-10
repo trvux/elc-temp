@@ -86,7 +86,7 @@ export default async function BranchDetail({
   const items = [
     {
       value: "address",
-      trigger: "Địa chỉ chi nhánh",
+      trigger: "Địa chỉ cơ sở hạ tầng",
       content: (
         <div>
           <span>{branch.address}</span>
@@ -149,6 +149,7 @@ export default async function BranchDetail({
                   fill
                   className="object-cover"
                   priority
+                  fetchPriority="high"
                   sizes="(max-width: 768px) 100vw, 768px"
                 />
               </AspectRatio>

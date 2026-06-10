@@ -57,7 +57,7 @@ export function useBranchForm(
         return;
       }
       toast.success(
-        activeBranch === "new" ? "Đã tạo chi nhánh" : "Đã cập nhật chi nhánh"
+        activeBranch === "new" ? "Đã tạo cơ sở hạ tầng" : "Đã cập nhật cơ sở hạ tầng"
       );
       onClose();
       queryClient.invalidateQueries({ queryKey: ["branches"] });
