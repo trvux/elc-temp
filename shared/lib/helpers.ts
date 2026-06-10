@@ -79,9 +79,34 @@ export function extractTitleFromHtml(content: unknown): string {
   }
 
   const text = doc.body.textContent || "";
-  const lines = text
-    .split("\n")
-    .map((l) => l.trim())
-    .filter(Boolean);
-  return lines[0] || "";
-}
+    const lines = text
+      .split("\n")
+      .map((l) => l.trim())
+      .filter(Boolean);
+    return lines[0] || "";
+  }
+  
+  export function sortByOrderIndex<T>(items: T[]): T[] {
+    return [...items].sort((a: any, b: any) => {
+      const orderA = a.orderIndex ?? a.order_index;
+      const orderB = b.orderIndex ?? b.order_index;
+      
+      if (typeof orderA === 'number' && typeof orderB === 'number') {
+        return orderA - orderB;
+      }
+  
+      const textA = a.title || a.name || "";
+      const textB = b.title || b.name || "";
+      const matchA = typeof textA === 'string' ? textA.match(/^(\d+)/) : null;
+      const matchB = typeof textB === 'string' ? textB.match(/^(\d+)/) : null;
+      
+      if (matchA && matchB) {
+        return parseInt(matchA[1], 10) - parseInt(matchB[1], 10);
+      }
+      if (matchA) return -1;
+      if (matchB) return 1;
+      
+      return 0;
+    });
+  }
+  

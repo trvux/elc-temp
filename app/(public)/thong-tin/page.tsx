@@ -15,6 +15,7 @@ import { cn } from "@/shared/lib/utils";
 import { ArrowUpRight } from "lucide-react";
 import { cacheLife } from "next/cache";
 import Link from "next/link";
+import { sortByOrderIndex } from "@/shared/lib/helpers";
 
 const STYLES = {
   header: cn(
@@ -51,8 +52,8 @@ async function getCachedInformationData() {
   const currentYear = new Date().getFullYear();
 
   return {
-    allPages: allPages ?? [],
-    allBranches: allBranches ?? [],
+    allPages: sortByOrderIndex(allPages ?? []),
+    allBranches: sortByOrderIndex(allBranches ?? []),
     currentYear,
   };
 }

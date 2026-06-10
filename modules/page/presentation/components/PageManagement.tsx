@@ -99,6 +99,7 @@ export function PageManagement() {
             slug: p.slug,
             content: p.content as any,
             isPublished: p.isPublished,
+            orderIndex: p.orderIndex ?? 0,
             metaTitle: p.metaTitle || "",
             metaDescription: p.metaDescription || "",
           });
@@ -116,6 +117,7 @@ export function PageManagement() {
       slug: "",
       content: "",
       isPublished: true,
+      orderIndex: 0,
       metaTitle: "",
       metaDescription: "",
     });
@@ -192,6 +194,25 @@ export function PageManagement() {
                       <Field orientation="horizontal" className="justify-between border p-3 rounded-xl">
                         <FieldLabel className="font-normal">Hiển thị trang</FieldLabel>
                         <Switch checked={field.value} onCheckedChange={field.onChange} />
+                      </Field>
+                    )}
+                  />
+
+                  <Controller
+                    control={form.control}
+                    name="orderIndex"
+                    render={({ field, fieldState }) => (
+                      <Field>
+                        <FieldLabel>Thứ tự hiển thị (từ nhỏ đến lớn)</FieldLabel>
+                        <Input
+                          type="number"
+                          {...field}
+                          onChange={(e) => field.onChange(Number(e.target.value))}
+                        />
+                        <FieldDescription>
+                          Số nhỏ sẽ hiển thị trước (VD: 1, 2, 3...)
+                        </FieldDescription>
+                        <FieldError errors={[fieldState.error]} />
                       </Field>
                     )}
                   />
