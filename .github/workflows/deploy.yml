@@ -28,7 +28,6 @@ jobs:
         uses: actions/cache@v4
         with:
           path: |
-            ~/.npm
             ${{ github.workspace }}/.next/cache
           key: ${{ runner.os }}-nextjs-${{ hashFiles('**/pnpm-lock.yaml') }}-${{ hashFiles('**/*.js', '**/*.jsx', '**/*.ts', '**/*.tsx') }}
           restore-keys: |
@@ -46,18 +45,15 @@ jobs:
         run: |
           cp -r public .next/standalone/
           cp -r .next/static .next/standalone/.next/
-          tar -czf deploy.tar.gz -C .next/standalone .
 
-      - name: Deploy to VPS via SCP
-        uses: appleboy/scp-action@v0.1.7
-        with:
-          host: ${{ secrets.VPS_HOST }}
-          username: ${{ secrets.VPS_USER }}
-          key: ${{ secrets.VPS_SSH_KEY }}
-          source: "deploy.tar.gz"
-          target: "/var/www/elc-tem"
+      - name: Deploy to VPS via Rsync
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.VPS_SSH_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          rsync -az --delete -e "ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no" .next/standalone/ ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}:/var/www/elc-tem/
 
-      - name: Extract and Restart PM2 on VPS
+      - name: Restart PM2 on VPS
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.VPS_HOST }}
@@ -65,9 +61,6 @@ jobs:
           key: ${{ secrets.VPS_SSH_KEY }}
           script: |
             cd /var/www/elc-tem
-            # Giai nen de len cac file cu
-            tar -xzf deploy.tar.gz
-            rm -f deploy.tar.gz
             # Xoa cache cu cua Next.js (Full Route Cache / Data Cache) de tranh ket cache
             rm -rf .next/cache
             # Tao hoac cap nhat PM2 process
