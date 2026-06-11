@@ -276,8 +276,12 @@ export function ProjectFilters({
               <div className="flex items-center gap-2">
                 <span>Loại công trình</span>
                 {localProjectTypeSlug && (
-                  <Badge variant="secondary">
-                    <Check data-icon="inline-start" className="w-3 h-3" />
+                  <Badge className="bg-blue-50 text-blue-700 dark:bg-blue-950 dark:text-blue-300">
+                    <Check
+                      data-icon="inline-start"
+                      className="w-3 h-3"
+                      weight="bold"
+                    />
                   </Badge>
                 )}
               </div>
@@ -326,8 +330,12 @@ export function ProjectFilters({
               <div className="flex items-center gap-2">
                 <span>Dịch vụ</span>
                 {localServiceSlugs.length > 0 && (
-                  <Badge variant="secondary">
-                    <Check data-icon="inline-start" className="w-3 h-3" />
+                  <Badge className="bg-blue-50 text-blue-700 dark:bg-blue-950 dark:text-blue-300">
+                    <Check
+                      data-icon="inline-start"
+                      className="w-3 h-3"
+                      weight="bold"
+                    />
                   </Badge>
                 )}
               </div>
@@ -374,8 +382,12 @@ export function ProjectFilters({
               <div className="flex items-center gap-2">
                 <span>Loại sản phẩm</span>
                 {localCategorySlugs.length > 0 && (
-                  <Badge variant="secondary">
-                    <Check data-icon="inline-start" className="w-3 h-3" />
+                  <Badge className="bg-blue-50 text-blue-700 dark:bg-blue-950 dark:text-blue-300">
+                    <Check
+                      data-icon="inline-start"
+                      className="w-3 h-3"
+                      weight="bold"
+                    />
                   </Badge>
                 )}
               </div>
@@ -421,8 +433,12 @@ export function ProjectFilters({
             <div className="flex items-center gap-2">
               <span>Tình trạng sản phẩm</span>
               {localCondition && (
-                <Badge variant="secondary">
-                  <Check data-icon="inline-start" className="w-3 h-3" />
+                <Badge className="bg-blue-50 text-blue-700 dark:bg-blue-950 dark:text-blue-300">
+                  <Check
+                    data-icon="inline-start"
+                    className="w-3 h-3"
+                    weight="bold"
+                  />
                 </Badge>
               )}
             </div>
