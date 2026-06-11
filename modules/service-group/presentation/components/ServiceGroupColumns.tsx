@@ -2,7 +2,7 @@ import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
 import { ButtonGroup } from "@/shared/components/ui/button-group";
 import { ColumnDef } from "@tanstack/react-table";
-import { Edit2, Minus, Star, Trash2 } from "lucide-react";
+import { PencilSimple, Minus, Star, Trash } from "@phosphor-icons/react/dist/ssr";
 import Image from "next/image";
 import { ServiceGroup } from "../../domain/types";
 
@@ -166,7 +166,7 @@ export const getServiceGroupColumns = ({
             onClick={() => onEdit(group)}
             className="h-8 w-8 text-muted-foreground hover:text-primary"
           >
-            <Edit2 size={14} />
+            <PencilSimple size={14} />
           </Button>
           <Button
             variant="ghost"
@@ -174,7 +174,7 @@ export const getServiceGroupColumns = ({
             onClick={() => onDelete(group.id)}
             className="h-8 w-8 text-muted-foreground hover:text-destructive"
           >
-            <Trash2 size={14} />
+            <Trash size={14} />
           </Button>
         </ButtonGroup>
       );

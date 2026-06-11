@@ -1,5 +1,5 @@
 import { Button } from "@/shared/components/ui/button";
-import { Home, ShoppingBag } from "lucide-react";
+import { House, ShoppingBag } from "@phosphor-icons/react/dist/ssr";
 import Link from "next/link";
 
 export default function GonePage() {
@@ -23,7 +23,7 @@ export default function GonePage() {
         <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-4">
           <Button asChild className="w-full sm:w-auto gap-2">
             <Link href="/">
-              <Home size={18} />
+              <House size={18} />
               Về trang chủ
             </Link>
           </Button>

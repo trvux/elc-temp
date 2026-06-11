@@ -1,7 +1,7 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Plus, ExternalLink } from "lucide-react";
+import { Plus, ArrowSquareOut } from "@phosphor-icons/react";
 import { useMemo, useState } from "react";
 import { Controller } from "react-hook-form";
 import { toast } from "sonner";
@@ -164,7 +164,7 @@ export function GroupManagement() {
                         <FieldLabel>Slug / URL Preview</FieldLabel>
                         <Input {...field} placeholder="Tự động tạo nếu để trống" />
                         <FieldDescription className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                          <ExternalLink size={12} />
+                          <ArrowSquareOut size={12} />
                           /{field.value || "..."}
                         </FieldDescription>
                         <FieldError errors={[fieldState.error]} />

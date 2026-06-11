@@ -1,7 +1,7 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { ExternalLink, Plus } from "lucide-react";
+import { ArrowSquareOut, Plus } from "@phosphor-icons/react";
 import { useMemo, useState } from "react";
 import { Controller } from "react-hook-form";
 import { toast } from "sonner";
@@ -190,7 +190,7 @@ export function BranchManagement() {
                           }
                         />
                         <FieldDescription className="flex items-center gap-2">
-                          <ExternalLink size={12} />
+                          <ArrowSquareOut size={12} />
                           /co-so-ha-tang/{field.value || "..."}
                         </FieldDescription>
                         <FieldError errors={[fieldState.error]} />

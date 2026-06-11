@@ -3,7 +3,7 @@
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
 import { ColumnDef } from "@tanstack/react-table";
-import { Edit2, ExternalLink, Minus, Star, Trash2 } from "lucide-react";
+import { PencilSimple, ArrowSquareOut, Minus, Star, Trash } from "@phosphor-icons/react";
 import Image from "next/image";
 import { ProjectTypeWithCategories } from "../../domain";
 
@@ -58,7 +58,7 @@ export function getColumns({
               className="text-[11px] text-foreground/75 hover:text-foreground hover:underline flex items-center gap-1 w-fit"
             >
               /{row.original.slug}
-              <ExternalLink size={11} />
+              <ArrowSquareOut size={11} />
             </a>
           )}
         </div>
@@ -161,7 +161,7 @@ export function getColumns({
               onClick={() => onEdit(row.original)}
               className="h-8 w-8 text-muted-foreground hover:text-primary"
             >
-              <Edit2 size={14} />
+              <PencilSimple size={14} />
             </Button>
             <Button
               variant="ghost"
@@ -169,7 +169,7 @@ export function getColumns({
               onClick={() => onDelete(row.original.id)}
               className="h-8 w-8 text-muted-foreground hover:text-destructive"
             >
-              <Trash2 size={14} />
+              <Trash size={14} />
             </Button>
           </ButtonGroup>
         </div>

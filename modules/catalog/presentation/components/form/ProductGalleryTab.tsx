@@ -6,7 +6,7 @@ import {
   FieldSet,
 } from "@/shared/components/ui/field";
 import { Button } from "@/shared/components/ui/button";
-import { X } from "lucide-react";
+import { X } from "@phosphor-icons/react";
 import Image from "next/image";
 import { ProductFormValues } from "../../hooks/useProductForm";
 import { ImageUpload } from "@/shared/components/ui/image-upload";

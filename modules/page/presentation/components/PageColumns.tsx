@@ -4,7 +4,7 @@ import { ColumnDef } from "@tanstack/react-table";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
 import { ButtonGroup } from "@/shared/components/ui/button-group";
-import { Edit2, Trash2, ExternalLink, Check, X } from "lucide-react";
+import { PencilSimple, Trash, ArrowSquareOut, Check, X } from "@phosphor-icons/react";
 import { Page } from "../../domain";
 
 interface ColumnProps {
@@ -36,7 +36,7 @@ export const getPageColumns = ({
         className="flex items-center gap-1"
       >
         /{row.original.slug}
-        <ExternalLink size={12} />
+        <ArrowSquareOut size={12} />
       </a>
     ),
   },
@@ -81,7 +81,7 @@ export const getPageColumns = ({
             onClick={() => onEdit(page)}
             className="h-8 w-8 text-muted-foreground hover:text-primary"
           >
-            <Edit2 size={14} />
+            <PencilSimple size={14} />
           </Button>
           <Button
             variant="ghost"
@@ -89,7 +89,7 @@ export const getPageColumns = ({
             onClick={() => onDelete(page.id)}
             className="h-8 w-8 text-muted-foreground hover:text-destructive"
           >
-            <Trash2 size={14} />
+            <Trash size={14} />
           </Button>
         </ButtonGroup>
       );

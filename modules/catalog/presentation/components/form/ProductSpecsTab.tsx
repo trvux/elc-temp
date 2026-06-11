@@ -10,7 +10,7 @@ import {
 } from "@/shared/components/ui/field";
 import { Button } from "@/shared/components/ui/button";
 import { Input } from "@/shared/components/ui/input";
-import { Plus, Trash2, X } from "lucide-react";
+import { Plus, Trash, X } from "@phosphor-icons/react";
 import { ProductFormValues } from "../../hooks/useProductForm";
 import { SpecItem, SpecSubItem } from "@/modules/catalog/domain/types";
 
@@ -166,7 +166,7 @@ export function ProductSpecsTab({
                     className="text-destructive hover:text-destructive hover:bg-destructive/10"
                     onClick={() => removeSpec(i)}
                   >
-                    <Trash2 size={14} className="mr-1" /> Xóa thông số
+                    <Trash size={14} className="mr-1" /> Xóa thông số
                   </Button>
                 </div>
               </FieldGroup>

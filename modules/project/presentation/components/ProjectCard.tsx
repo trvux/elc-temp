@@ -7,7 +7,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/shared/components/ui/card";
-import { Sparkle } from "lucide-react";
+import { Sparkle } from "@phosphor-icons/react/dist/ssr";
 import { ImageWithSkeleton } from "@/shared/components/ui/image-with-skeleton";
 import Link from "next/link";
 import { ProjectWithCategory } from "../../domain/types";

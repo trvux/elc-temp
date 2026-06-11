@@ -1,7 +1,7 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { ExternalLink, Plus, X } from "lucide-react";
+import { ArrowSquareOut, Plus, X } from "@phosphor-icons/react";
 import Image from "next/image";
 import { useMemo, useState } from "react";
 import { Controller } from "react-hook-form";
@@ -520,7 +520,7 @@ export function ProjectManagement() {
                               placeholder="vd: lap-may-lanh-nha-anh-tuan"
                             />
                             <FieldDescription className="flex items-center gap-2">
-                              <ExternalLink size={12} />
+                              <ArrowSquareOut size={12} />
                               /du-an/{field.value || "..."}
                             </FieldDescription>
                             <FieldError errors={[fieldState.error]} />

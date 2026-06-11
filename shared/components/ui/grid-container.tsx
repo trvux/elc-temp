@@ -1,5 +1,5 @@
 import { cn } from "@/shared/lib/utils";
-import { Plus } from "lucide-react";
+import { Plus } from "@phosphor-icons/react/dist/ssr";
 
 interface GridContainerProps {
   children: React.ReactNode;

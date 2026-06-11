@@ -16,7 +16,7 @@ import { notFound } from "next/navigation";
 import { AspectRatio } from "@/shared/components/ui/aspect-ratio";
 import { Badge } from "@/shared/components/ui/badge";
 import { TypographySmall } from "@/shared/components/ui/typography";
-import { Sparkle } from "lucide-react";
+import { Sparkle } from "@phosphor-icons/react/dist/ssr";
 
 // Generate dynamic SEO Metadata
 export async function generateMetadata({

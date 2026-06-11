@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { useRouter } from "next/navigation";
-import { Check, ChevronsUpDown } from "lucide-react";
+import { Check, CaretUpDown } from "@phosphor-icons/react";
 import { cn } from "@/shared/lib/utils";
 import { Button } from "@/shared/components/ui/button";
 import {
@@ -61,7 +61,7 @@ export function InfoTOC({
         >
           {/* Sentence case instead of all caps as requested */}
           <span className="font-medium text-sm">Tìm kiếm thông tin</span>
-          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+          <CaretUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-52 p-0 shadow-lg border-border">

@@ -14,7 +14,7 @@ import {
 import { cn } from "@/shared/lib/utils";
 import { type Editor } from "@tiptap/react";
 import { BubbleMenu } from "@tiptap/react/menus";
-import { Maximize, RectangleHorizontal, Square } from "lucide-react";
+import { CornersOut, Rectangle, Square } from "@phosphor-icons/react";
 import { useCallback } from "react";
 
 interface ImageBubbleMenuProps {
@@ -57,7 +57,7 @@ export const ImageBubbleMenu = ({ editor }: ImageBubbleMenuProps) => {
       // @ts-expect-error - Tippy options type mismatch
       tippyOptions={{ duration: 100, offset: [0, 15] }}
     >
-      <div className="text-primary-foreground bg-primary rounded-lg p-1 shadow-md">
+      <div className="tiptap-menu-wrapper">
         <ButtonGroup>
           {/* Alignment Options */}
           <Button
@@ -78,7 +78,7 @@ export const ImageBubbleMenu = ({ editor }: ImageBubbleMenuProps) => {
             className={cn(currentAlign === "wide" ? "text-green-300" : "")}
             title="Align Wide"
           >
-            <RectangleHorizontal />
+            <Rectangle />
           </Button>
           <Button
             type="button"
@@ -88,7 +88,7 @@ export const ImageBubbleMenu = ({ editor }: ImageBubbleMenuProps) => {
             className={cn(currentAlign === "full" ? "text-green-300" : "")}
             title="Align Full Width"
           >
-            <Maximize />
+            <CornersOut />
           </Button>
 
           <ButtonGroupSeparator className="bg-muted-foreground" />

@@ -18,7 +18,7 @@ import {
   TypographyMuted,
   TypographyP,
 } from "@/shared/components/ui/typography";
-import { ArrowUpRight } from "lucide-react";
+import { ArrowUpRight } from "@phosphor-icons/react";
 import Link from "next/link";
 
 interface FeaturesSectionProps {
@@ -70,10 +70,10 @@ export function FeaturesSection({ products }: FeaturesSectionProps) {
           <div className="md:hidden w-full">
             <Carousel className="w-full">
               <CarouselContent className="-ml-2 p-2">
-                {products.map((product, index) => (
+                {products.map((product) => (
                   <CarouselItem key={product.id} className="px-2 basis-[80%]">
                     <div className="text-foreground h-full">
-                      <ProductCard product={product} priority={index === 0} />
+                      <ProductCard product={product} />
                     </div>
                   </CarouselItem>
                 ))}
@@ -83,10 +83,10 @@ export function FeaturesSection({ products }: FeaturesSectionProps) {
 
           {/* Desktop Grid */}
           <StaggerContainer className={styles.productGrid} immediate>
-            {products.map((product, index) => (
+            {products.map((product) => (
               <StaggerItem key={product.id}>
                 <div className="text-foreground h-full">
-                  <ProductCard product={product} priority={index < 4} />
+                  <ProductCard product={product} />
                 </div>
               </StaggerItem>
             ))}

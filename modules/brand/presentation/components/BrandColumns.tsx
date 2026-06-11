@@ -2,7 +2,7 @@
 
 import { ColumnDef } from "@tanstack/react-table";
 import { Brand } from "../../domain";
-import { Edit2, Trash2, ExternalLink, Star, Minus } from "lucide-react";
+import { PencilSimple, Trash, ArrowSquareOut, Star, Minus } from "@phosphor-icons/react";
 import Image from "next/image";
 import { Button } from "@/shared/components/ui/button";
 import { ButtonGroup } from "@/shared/components/ui/button-group";
@@ -50,7 +50,7 @@ export const getBrandColumns = ({
             className="text-[11px] text-foreground/75 hover:text-foreground hover:underline flex items-center gap-1 w-fit"
           >
             /{row.original.slug}
-            <ExternalLink size={11} />
+            <ArrowSquareOut size={11} />
           </a>
         )}
       </div>
@@ -90,7 +90,7 @@ export const getBrandColumns = ({
           onClick={() => onEdit(row.original)}
           className="h-8 w-8 text-muted-foreground hover:text-primary"
         >
-          <Edit2 size={14} />
+          <PencilSimple size={14} />
         </Button>
         <Button
           variant="ghost"
@@ -98,7 +98,7 @@ export const getBrandColumns = ({
           onClick={() => onDelete(row.original.id)}
           className="h-8 w-8 text-muted-foreground hover:text-destructive"
         >
-          <Trash2 size={14} />
+          <Trash size={14} />
         </Button>
       </ButtonGroup>
     ),

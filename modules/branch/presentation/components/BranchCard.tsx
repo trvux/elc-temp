@@ -7,7 +7,7 @@ import {
   CardTitle,
 } from "@/shared/components/ui/card";
 import { cn } from "@/shared/lib/utils";
-import { ArrowRight, Building2, Mail, MapPin, Phone } from "lucide-react";
+import { ArrowRight, Buildings, Envelope, MapPin, Phone } from "@phosphor-icons/react/dist/ssr";
 import Image from "next/image";
 import Link from "next/link";
 import React from "react";
@@ -35,7 +35,7 @@ export const BranchCard: React.FC<BranchCardProps> = ({ branch, priority = false
       ) : (
         <div className="relative w-full aspect-[16/10] overflow-hidden bg-gradient-to-br from-primary/5 via-primary/10 to-transparent border-b border-border/10 flex items-center justify-center group-hover/card:bg-primary/10 transition-colors duration-500">
           <div className="absolute inset-0 bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] [background-size:16px_16px] [mask-image:radial-gradient(ellipse_50%_50%_at_50%_50%,#000_70%,transparent_100%)] opacity-30" />
-          <Building2 className="w-12 h-12 text-primary/40 group-hover/card:scale-110 group-hover/card:text-primary/60 transition-all duration-500" />
+          <Buildings className="w-12 h-12 text-primary/40 group-hover/card:scale-110 group-hover/card:text-primary/60 transition-all duration-500" />
         </div>
       )}
 
@@ -74,7 +74,7 @@ export const BranchCard: React.FC<BranchCardProps> = ({ branch, priority = false
             </a>
           </div>
           <div className="flex gap-3">
-            <Mail className="w-5 h-5 text-primary shrink-0" />
+            <Envelope className="w-5 h-5 text-primary shrink-0" />
             <a
               href={`mailto:${branch.email}`}
               className="hover:text-primary transition-colors"

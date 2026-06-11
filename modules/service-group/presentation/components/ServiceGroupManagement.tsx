@@ -24,7 +24,7 @@ import { AdminDialog } from "@/shared/components/layout/admin/admin-dialog";
 import { Controller } from "react-hook-form";
 import { Field, FieldError, FieldLabel, FieldGroup, FieldSet, FieldLegend, FieldSeparator } from "@/shared/components/ui/field";
 import { ImageUpload } from "@/shared/components/ui/image-upload";
-import { Plus, ChevronDown } from "lucide-react";
+import { Plus, CaretDown } from "@phosphor-icons/react";
 import { getCategoriesAction } from "@/modules/category/presentation/actions";
 import {
   Select,
@@ -307,7 +307,7 @@ export function ServiceGroupManagement({ initialData }: ServiceGroupManagementPr
                                 <span>
                                   {groupName} ({selectedInGroupCount}/{groupCats.length})
                                 </span>
-                                <ChevronDown
+                                <CaretDown
                                   className={cn("h-4 w-4 text-muted-foreground transition-transform", isExpanded && "rotate-180")}
                                 />
                               </button>

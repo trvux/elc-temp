@@ -1,7 +1,7 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Plus, Upload, X } from "lucide-react";
+import { Plus, Upload, X } from "@phosphor-icons/react";
 import Image from "next/image";
 import { useMemo, useState } from "react";
 import { Controller } from "react-hook-form";

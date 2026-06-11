@@ -8,29 +8,43 @@ import {
 import { cn } from "@/shared/lib/utils";
 import { type Editor } from "@tiptap/react";
 import { BubbleMenu } from "@tiptap/react/menus";
-import {
-  ArrowDownToLine,
-  ArrowLeftToLine,
-  ArrowRightToLine,
-  ArrowUpToLine,
-  TableCellsMerge,
-  TableCellsSplit,
-  Trash2,
-} from "lucide-react";
+import { ArrowLineLeft, ArrowLineRight, ArrowLineUp, ArrowLineDown, Intersect, SquareSplitHorizontal, Trash, CornersOut } from "@phosphor-icons/react";
+import { NodeSelection } from "@tiptap/pm/state";
+import { useCallback } from "react";
 
 interface TableBubbleMenuProps {
   editor: Editor;
 }
 
 export const TableBubbleMenu = ({ editor }: TableBubbleMenuProps) => {
+  const selectTable = useCallback(() => {
+    const { state, dispatch } = editor.view;
+    const { selection } = state;
+    let $pos = selection.$from;
+    let depth = $pos.depth;
+    while (depth > 0) {
+      if ($pos.node(depth).type.name === "table") {
+        const tablePos = $pos.before(depth);
+        const nodeSelection = NodeSelection.create(state.doc, tablePos);
+        dispatch(state.tr.setSelection(nodeSelection));
+        editor.view.focus();
+        return;
+      }
+      depth--;
+    }
+  }, [editor]);
+
   return (
     <BubbleMenu
       editor={editor}
       className="transition-all duration-300 ease-out"
+      shouldShow={({ editor: currentEditor }: { editor: Editor }) =>
+        currentEditor.isActive("table")
+      }
       // @ts-expect-error - Tippy options type mismatch
       tippyOptions={{ duration: 100, offset: [0, 15], maxWidth: "none" }}
     >
-      <div className="text-primary-foreground bg-primary rounded-lg p-1 shadow-md">
+      <div className="tiptap-menu-wrapper">
         <ButtonGroup>
           {/* Columns Group */}
           <Button
@@ -40,7 +54,7 @@ export const TableBubbleMenu = ({ editor }: TableBubbleMenuProps) => {
             onClick={() => editor.chain().focus().addColumnBefore().run()}
             title="Add Column Before"
           >
-            <ArrowLeftToLine />
+            <ArrowLineLeft />
           </Button>
           <Button
             type="button"
@@ -49,7 +63,7 @@ export const TableBubbleMenu = ({ editor }: TableBubbleMenuProps) => {
             onClick={() => editor.chain().focus().addColumnAfter().run()}
             title="Add Column After"
           >
-            <ArrowRightToLine />
+            <ArrowLineRight />
           </Button>
           <Button
             type="button"
@@ -59,7 +73,7 @@ export const TableBubbleMenu = ({ editor }: TableBubbleMenuProps) => {
             className="text-red-400 hover:text-red-300"
             title="Delete Column"
           >
-            <Trash2 />
+            <Trash />
           </Button>
 
           <ButtonGroupSeparator className="bg-muted-foreground" />
@@ -72,7 +86,7 @@ export const TableBubbleMenu = ({ editor }: TableBubbleMenuProps) => {
             onClick={() => editor.chain().focus().addRowBefore().run()}
             title="Add Row Before"
           >
-            <ArrowUpToLine />
+            <ArrowLineUp />
           </Button>
           <Button
             type="button"
@@ -81,7 +95,7 @@ export const TableBubbleMenu = ({ editor }: TableBubbleMenuProps) => {
             onClick={() => editor.chain().focus().addRowAfter().run()}
             title="Add Row After"
           >
-            <ArrowDownToLine />
+            <ArrowLineDown />
           </Button>
           <Button
             type="button"
@@ -91,7 +105,7 @@ export const TableBubbleMenu = ({ editor }: TableBubbleMenuProps) => {
             className="text-red-400 hover:text-red-300"
             title="Delete Row"
           >
-            <Trash2 />
+            <Trash />
           </Button>
 
           <ButtonGroupSeparator className="bg-muted-foreground" />
@@ -104,7 +118,7 @@ export const TableBubbleMenu = ({ editor }: TableBubbleMenuProps) => {
             onClick={() => editor.chain().focus().mergeCells().run()}
             title="Merge Cells"
           >
-            <TableCellsMerge />
+            <Intersect />
           </Button>
           <Button
             type="button"
@@ -113,7 +127,7 @@ export const TableBubbleMenu = ({ editor }: TableBubbleMenuProps) => {
             onClick={() => editor.chain().focus().splitCell().run()}
             title="Split Cell"
           >
-            <TableCellsSplit />
+            <SquareSplitHorizontal />
           </Button>
           <Button
             type="button"
@@ -131,6 +145,19 @@ export const TableBubbleMenu = ({ editor }: TableBubbleMenuProps) => {
 
           <ButtonGroupSeparator className="bg-muted-foreground" />
 
+          {/* Select Table */}
+          <Button
+            type="button"
+            variant="default"
+            size="sm"
+            onClick={selectTable}
+            className="px-2 flex items-center gap-1.5 text-blue-300 hover:text-blue-200"
+            title="Select Table"
+          >
+            <CornersOut className="h-4 w-4" />
+            Chọn
+          </Button>
+
           {/* Delete Table */}
           <Button
             type="button"
@@ -140,7 +167,7 @@ export const TableBubbleMenu = ({ editor }: TableBubbleMenuProps) => {
             className="px-2 flex items-center gap-1.5 text-red-400 hover:text-red-300"
             title="Delete Table"
           >
-            <Trash2 className="h-4 w-4" />
+            <Trash className="h-4 w-4" />
             Table
           </Button>
         </ButtonGroup>

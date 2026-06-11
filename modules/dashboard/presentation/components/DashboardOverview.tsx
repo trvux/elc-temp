@@ -8,18 +8,7 @@ import {
 } from "@/shared/components/ui/chart";
 import { Skeleton } from "@/shared/components/ui/skeleton";
 import { useQuery } from "@tanstack/react-query";
-import {
-  Briefcase,
-  FileText,
-  Layers,
-  MapPin,
-  Newspaper,
-  Package,
-  Phone,
-  Star,
-  Tag,
-  Wrench,
-} from "lucide-react";
+import { Briefcase, FileText, Stack, MapPin, Newspaper, Package, Phone, Star, Tag, Wrench } from "@phosphor-icons/react";
 import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from "recharts";
 import { getDashboardStatsAction } from "../actions";
 
@@ -65,7 +54,7 @@ export function DashboardOverview() {
 
   const cards = [
     { label: "Sản phẩm", value: stats?.products, icon: Package },
-    { label: "Danh mục", value: stats?.categories, icon: Layers },
+    { label: "Danh mục", value: stats?.categories, icon: Stack },
     { label: "Thương hiệu", value: stats?.brands, icon: Tag },
     { label: "Dự án", value: stats?.projects, icon: Briefcase },
     { label: "Dịch vụ", value: stats?.services, icon: Wrench },

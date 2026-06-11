@@ -4,7 +4,7 @@ import { ColumnDef } from "@tanstack/react-table";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
 import { ButtonGroup } from "@/shared/components/ui/button-group";
-import { Edit2, Trash2, ExternalLink } from "lucide-react";
+import { PencilSimple, Trash, ArrowSquareOut } from "@phosphor-icons/react";
 import Image from "next/image";
 import { News } from "../../domain";
 
@@ -62,7 +62,7 @@ export const getNewsColumns = ({
         className="text-xs text-foreground/75 font-medium hover:text-foreground hover:underline flex items-center gap-1 transition-colors"
       >
         /tin-tuc/{row.original.slug}
-        <ExternalLink size={12} className="shrink-0" />
+        <ArrowSquareOut size={12} className="shrink-0" />
       </a>
     ),
   },
@@ -97,7 +97,7 @@ export const getNewsColumns = ({
             onClick={() => onEdit(news)}
             className="h-8 w-8 text-muted-foreground hover:text-primary"
           >
-            <Edit2 size={14} />
+            <PencilSimple size={14} />
           </Button>
           <Button
             variant="ghost"
@@ -105,7 +105,7 @@ export const getNewsColumns = ({
             onClick={() => onDelete(news.id)}
             className="h-8 w-8 text-muted-foreground hover:text-destructive"
           >
-            <Trash2 size={14} />
+            <Trash size={14} />
           </Button>
         </ButtonGroup>
       );
