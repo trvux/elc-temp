@@ -13,7 +13,8 @@ import { Separator } from "@/shared/components/ui/separator";
 import { cn } from "@/shared/lib/utils";
 import { Check, X } from "@phosphor-icons/react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useState, useTransition } from "react";
+import { useEffect, useState } from "react";
+import { useFilterTransition } from "@/shared/providers/filter-transition-provider";
 
 interface ProjectTypeItem {
   id: string;
@@ -58,7 +59,7 @@ export function ProjectFilters({
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const [isPending, startTransition] = useTransition();
+  const { isPending, startTransition } = useFilterTransition();
 
   const [isMounted, setIsMounted] = useState(false);
 
@@ -74,16 +75,35 @@ export function ProjectFilters({
     };
   }, []);
 
+  // Local states for optimistic UI updates
+  const [localProjectTypeSlug, setLocalProjectTypeSlug] = useState<string>("");
+  const [localCategorySlugs, setLocalCategorySlugs] = useState<string[]>([]);
+  const [localServiceSlugs, setLocalServiceSlugs] = useState<string[]>([]);
+
+  // Keep local state in sync with props changes
+  useEffect(() => {
+    if (isPending) return;
+    /* eslint-disable react-hooks/set-state-in-effect */
+    setLocalProjectTypeSlug(currentProjectTypeSlug);
+    setLocalCategorySlugs(currentCategorySlugs);
+    setLocalServiceSlugs(currentServiceSlugs);
+    /* eslint-enable react-hooks/set-state-in-effect */
+  }, [currentProjectTypeSlug, currentCategorySlugs, currentServiceSlugs, isPending]);
+
   const hasAnyFilter = !!(
-    currentProjectTypeSlug ||
-    currentCategorySlugs.length > 0 ||
-    currentServiceSlugs.length > 0
+    localProjectTypeSlug ||
+    localCategorySlugs.length > 0 ||
+    localServiceSlugs.length > 0
   );
 
   const handleProjectTypeSelect = (slug: string | null) => {
+    const nextSlug = slug || "";
+    setLocalProjectTypeSlug(nextSlug);
+    setLocalCategorySlugs([]); // Reset category on type select optimistically
+
     const sParams = new URLSearchParams(searchParams.toString());
-    sParams.delete("page"); // Reset pagination on filter change
-    sParams.delete("category"); // Reset categories on service type change
+    sParams.delete("page");
+    sParams.delete("category");
 
     const newPathname = slug ? `/du-an/${slug}` : "/du-an";
 
@@ -100,14 +120,16 @@ export function ProjectFilters({
     sParams.delete("page");
 
     if (slug === null) {
+      setLocalCategorySlugs([]);
       sParams.delete("category");
     } else {
-      let nextSlugs = [...currentCategorySlugs];
+      let nextSlugs = [...localCategorySlugs];
       if (nextSlugs.includes(slug)) {
         nextSlugs = nextSlugs.filter((s) => s !== slug);
       } else {
         nextSlugs.push(slug);
       }
+      setLocalCategorySlugs(nextSlugs);
 
       if (nextSlugs.length > 0) {
         sParams.set("category", nextSlugs.join(","));
@@ -129,14 +151,16 @@ export function ProjectFilters({
     sParams.delete("page");
 
     if (slug === null) {
+      setLocalServiceSlugs([]);
       sParams.delete("service");
     } else {
-      let nextSlugs = [...currentServiceSlugs];
+      let nextSlugs = [...localServiceSlugs];
       if (nextSlugs.includes(slug)) {
         nextSlugs = nextSlugs.filter((s) => s !== slug);
       } else {
         nextSlugs.push(slug);
       }
+      setLocalServiceSlugs(nextSlugs);
 
       if (nextSlugs.length > 0) {
         sParams.set("service", nextSlugs.join(","));
@@ -154,6 +178,10 @@ export function ProjectFilters({
   };
 
   const clearAllFilters = () => {
+    setLocalProjectTypeSlug("");
+    setLocalCategorySlugs([]);
+    setLocalServiceSlugs([]);
+
     const sParams = new URLSearchParams(searchParams.toString());
     sParams.delete("page");
     sParams.delete("category");
@@ -211,7 +239,7 @@ export function ProjectFilters({
             <AccordionTrigger className="hover:no-underline">
               <div className="flex items-center gap-2">
                 <span>Loại công trình</span>
-                {currentProjectTypeSlug && (
+                {localProjectTypeSlug && (
                   <Badge variant="secondary">
                     <Check data-icon="inline-start" className="w-3 h-3" /> 1 được chọn
                   </Badge>
@@ -223,7 +251,7 @@ export function ProjectFilters({
                 {/* Specific Options */}
                 {projectTypes.map((st) => {
                   if (st.count !== undefined && st.count <= 0) return null;
-                  const isActive = currentProjectTypeSlug === st.slug;
+                  const isActive = localProjectTypeSlug === st.slug;
                   return (
                     <label
                       key={st.id}
@@ -256,14 +284,14 @@ export function ProjectFilters({
         )}
 
         {/* Services (Dịch vụ) - Multi selection */}
-        {currentProjectTypeSlug && services.length > 0 && (
+        {localProjectTypeSlug && services.length > 0 && (
           <AccordionItem value="Dịch vụ">
             <AccordionTrigger className="hover:no-underline">
               <div className="flex items-center gap-2">
                 <span>Dịch vụ</span>
-                {currentServiceSlugs.length > 0 && (
+                {localServiceSlugs.length > 0 && (
                   <Badge variant="secondary">
-                    <Check data-icon="inline-start" className="w-3 h-3" /> {currentServiceSlugs.length} chọn
+                    <Check data-icon="inline-start" className="w-3 h-3" /> {localServiceSlugs.length} chọn
                   </Badge>
                 )}
               </div>
@@ -273,7 +301,7 @@ export function ProjectFilters({
                 {/* Specific Options */}
                 {services.map((svc) => {
                   if (svc.count !== undefined && svc.count <= 0) return null;
-                  const isActive = currentServiceSlugs.includes(svc.slug);
+                  const isActive = localServiceSlugs.includes(svc.slug);
                   return (
                     <label
                       key={svc.id}
@@ -304,14 +332,14 @@ export function ProjectFilters({
         )}
 
         {/* Categories (Loại sản phẩm) - Multi selection */}
-        {currentProjectTypeSlug && categories.length > 0 && (
+        {localProjectTypeSlug && categories.length > 0 && (
           <AccordionItem value="Loại sản phẩm">
             <AccordionTrigger className="hover:no-underline">
               <div className="flex items-center gap-2">
                 <span>Loại sản phẩm</span>
-                {currentCategorySlugs.length > 0 && (
+                {localCategorySlugs.length > 0 && (
                   <Badge variant="secondary">
-                    <Check data-icon="inline-start" className="w-3 h-3" /> {currentCategorySlugs.length} chọn
+                    <Check data-icon="inline-start" className="w-3 h-3" /> {localCategorySlugs.length} chọn
                   </Badge>
                 )}
               </div>
@@ -321,7 +349,7 @@ export function ProjectFilters({
                 {/* Specific Options */}
                 {categories.map((cat) => {
                   if (cat.count !== undefined && cat.count <= 0) return null;
-                  const isActive = currentCategorySlugs.includes(cat.slug);
+                  const isActive = localCategorySlugs.includes(cat.slug);
                   return (
                     <label
                       key={cat.id}

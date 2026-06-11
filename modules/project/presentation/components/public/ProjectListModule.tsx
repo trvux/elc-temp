@@ -21,6 +21,9 @@ import { Suspense } from "react";
 import { ProjectFilterMobile } from "./ProjectFilterMobile";
 import { ProjectFilters } from "./ProjectFilters";
 import { ProjectSearchInput } from "./ProjectSearchInput";
+import { FilterTransitionProvider } from "@/shared/providers/filter-transition-provider";
+import { FilteredGridWrapper } from "@/shared/components/layout/user/filtered-grid-wrapper";
+import { Skeleton } from "@/shared/components/ui/skeleton";
 
 interface ProjectListModuleProps {
   projectType?: ProjectTypeWithCategories | null;
@@ -295,8 +298,9 @@ export async function ProjectListModule({
     : "Tổng hợp các công trình tiêu biểu do đội ngũ ELC trực tiếp tư vấn, thiết kế và thi công lắp đặt cho khách hàng toàn quốc.";
 
   return (
-    <main className={STYLES.main}>
-      <GridSection
+    <FilterTransitionProvider>
+      <main className={STYLES.main}>
+        <GridSection
         id="projects-header"
         isFirst={true}
         showDiamond={true}
@@ -374,43 +378,59 @@ export async function ProjectListModule({
 
           {/* Project List Area */}
           <div className="flex-1">
-            {paginatedProjects.length > 0 ? (
-              <div className={STYLES.grid}>
-                {paginatedProjects.map((project, index) => (
-                  <ProjectCard
-                    key={project.id}
-                    project={project}
-                    queryTokens={queryTokens}
-                    priority={index < 6}
-                  />
-                ))}
-              </div>
-            ) : (
-              /* Empty State */
-              <div className={STYLES.emptyState}>
-                <p className={STYLES.emptyText}>
-                  Không tìm thấy dự án nào khớp với bộ lọc hoặc tìm kiếm của
-                  bạn.
-                </p>
-                <Button asChild size="sm" variant="outline">
-                  <Link
-                    href={projectType ? `/du-an/${projectType.slug}` : "/du-an"}
-                  >
-                    Xóa tất cả bộ lọc
-                  </Link>
-                </Button>
-              </div>
-            )}
+            <FilteredGridWrapper
+              fallback={
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-10 md:gap-y-12 min-h-[450px]">
+                  {Array.from({ length: 6 }).map((_, index) => (
+                    <div key={index} className="flex flex-col gap-4">
+                      <Skeleton className="aspect-video w-full rounded-2xl" />
+                      <div className="space-y-2">
+                        <Skeleton className="h-6 w-full" />
+                        <Skeleton className="h-4 w-2/3" />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              }
+            >
+              {paginatedProjects.length > 0 ? (
+                <div className={STYLES.grid}>
+                  {paginatedProjects.map((project, index) => (
+                    <ProjectCard
+                      key={project.id}
+                      project={project}
+                      queryTokens={queryTokens}
+                      priority={index < 6}
+                    />
+                  ))}
+                </div>
+              ) : (
+                /* Empty State */
+                <div className={STYLES.emptyState}>
+                  <p className={STYLES.emptyText}>
+                    Không tìm thấy dự án nào khớp với bộ lọc hoặc tìm kiếm của
+                    bạn.
+                  </p>
+                  <Button asChild size="sm" variant="outline">
+                    <Link
+                      href={projectType ? `/du-an/${projectType.slug}` : "/du-an"}
+                    >
+                      Xóa tất cả bộ lọc
+                    </Link>
+                  </Button>
+                </div>
+              )}
 
-            {totalPages > 1 && (
-              <div className={STYLES.paginationWrapper}>
-                <PaginationNav
-                  currentPage={currentPage}
-                  totalPages={totalPages}
-                  searchParams={searchParams}
-                />
-              </div>
-            )}
+              {totalPages > 1 && (
+                <div className={STYLES.paginationWrapper}>
+                  <PaginationNav
+                    currentPage={currentPage}
+                    totalPages={totalPages}
+                    searchParams={searchParams}
+                  />
+                </div>
+              )}
+            </FilteredGridWrapper>
           </div>
         </div>
       </GridSection>
@@ -471,5 +491,6 @@ export async function ProjectListModule({
         );
       })()}
     </main>
+    </FilterTransitionProvider>
   );
 }
