@@ -1,54 +1,94 @@
 import { getNews } from "@/modules/news/application";
+import { Breadcrumbs } from "@/shared/components/layout/user/breadcrumbs";
 import { ScrollToTop } from "@/shared/components/layout/user/scroll-to-top";
+import { GridSection } from "@/shared/components/sections/grid-section";
 import {
   TypographyH1,
-  TypographyH4,
   TypographyLead,
-  TypographyP,
   TypographySmall,
 } from "@/shared/components/ui/typography";
 import { setUseStaticClient } from "@/shared/lib/supabase/server";
-import { cn } from "@/shared/lib/utils";
-import { ArrowUpRight as ArrowIcon } from "@phosphor-icons/react/dist/ssr";
 import { cacheLife, cacheTag } from "next/cache";
 import Image from "next/image";
 import Link from "next/link";
 
 const STYLES = {
-  main: cn("w-full min-h-screen py-12 px-4 md:px-8"),
-  container: cn("max-w-5xl mx-auto flex flex-col gap-24"),
-  header: cn(
-    "flex flex-col gap-6 max-w-2xl w-full mx-auto items-center text-center",
-  ),
-  title: cn(),
-  description: cn(),
-  list: cn(
-    "grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-16 min-h-[400px] animate-fade-in-up",
-  ),
-  article: cn(
-    "group flex flex-col gap-6 no-underline transition-all duration-300",
-  ),
-  imageWrapper: cn(
-    "relative aspect-video rounded-2xl overflow-hidden border bg-muted",
-  ),
-  image: cn(
-    "object-cover transition-transform duration-500 group-hover:scale-105",
-  ),
-  articleHeader: cn("flex justify-between items-start gap-4"),
-  articleTitle: cn(
-    "text-primary/70 group-hover:text-primary transition-colors",
-  ),
-  articleIcon: cn(
-    "w-6 h-6 shrink-0 mt-2 text-muted-foreground/40 group-hover:text-primary group-hover:translate-x-1 group-hover:-translate-y-1 transition-all",
-  ),
-  articleDescription: cn("line-clamp-3 text-muted-foreground"),
-  footer: cn(
-    "border-t pt-12 flex flex-col md:flex-row justify-between items-center gap-8 text-muted-foreground",
-  ),
-  scrollToTop: cn(
-    "flex items-center gap-2 cursor-pointer hover:text-foreground transition-colors",
-  ),
+  main: "w-full bg-background min-h-screen",
+  header: "flex flex-col items-center text-center gap-4 max-w-2xl mx-auto",
+  title: "text-3xl md:text-4xl font-extrabold tracking-tight",
+  description: "text-muted-foreground text-sm md:text-base leading-relaxed",
+  list: "flex flex-col w-full min-h-[400px] animate-fade-in-up",
+  article: "group flex flex-row justify-between items-center gap-4 sm:gap-6 md:gap-8 py-8 border-b border-border/60 last:border-b-0 no-underline transition-all duration-300 w-full",
+  textWrapper: "flex-1 min-w-0 flex flex-col gap-1.5 md:gap-2",
+  date: "text-xs text-muted-foreground/60 font-medium font-sans",
+  articleTitle: "text-base sm:text-lg md:text-xl font-bold tracking-tight text-foreground group-hover:text-foreground/70 transition-colors line-clamp-2 leading-snug font-heading",
+  articleDescription: "text-xs sm:text-sm md:text-base text-muted-foreground line-clamp-2 md:line-clamp-3 leading-relaxed",
+  imageWrapper: "shrink-0 relative w-36 aspect-video sm:w-48 md:w-64 rounded-lg overflow-hidden",
+  image: "object-contain",
+  footer: "w-full flex flex-col md:flex-row justify-between items-center gap-6 text-muted-foreground",
+  scrollToTop: "flex items-center gap-2 cursor-pointer hover:text-foreground transition-colors",
 };
+
+interface TiptapNode {
+  type?: string;
+  text?: string;
+  content?: TiptapNode[];
+}
+
+function getExcerptFromContent(
+  content: unknown,
+  fallbackDescription: string | null | undefined,
+): string {
+  if (!content) return fallbackDescription || "";
+
+  try {
+    let doc: TiptapNode | null = null;
+
+    if (typeof content === "string") {
+      const trimmed = content.trim();
+      if (trimmed.startsWith("{")) {
+        doc = JSON.parse(trimmed) as TiptapNode;
+      } else {
+        const stripped = content
+          .replace(/<[^>]*>/g, " ")
+          .replace(/\s+/g, " ")
+          .trim();
+        if (stripped.length > 180) {
+          return stripped.substring(0, 180) + "...";
+        }
+        return stripped || fallbackDescription || "";
+      }
+    } else if (typeof content === "object" && content !== null) {
+      doc = content as TiptapNode;
+    }
+
+    if (doc) {
+      const textParts: string[] = [];
+      const traverse = (node: TiptapNode) => {
+        if (node.type === "heading") {
+          return;
+        }
+        if (node.type === "text" && node.text) {
+          textParts.push(node.text);
+        }
+        if (node.content) {
+          node.content.forEach(traverse);
+        }
+      };
+
+      traverse(doc);
+      const combinedText = textParts.join(" ").replace(/\s+/g, " ").trim();
+      if (combinedText.length > 180) {
+        return combinedText.substring(0, 180) + "...";
+      }
+      return combinedText || fallbackDescription || "";
+    }
+  } catch (err) {
+    console.error("Error parsing news content for excerpt:", err);
+  }
+
+  return fallbackDescription || "";
+}
 
 async function getCachedNewsHubData() {
   "use cache";
@@ -71,68 +111,101 @@ export default async function NewsHub() {
   if (!allNews || allNews.length === 0) {
     return (
       <main className={STYLES.main}>
-        <div className={STYLES.container}>
+        <GridSection id="news-header-empty" isFirst={true} showDiamond={true}>
           <header className={STYLES.header}>
             <TypographyH1 className={STYLES.title}>Tin tức</TypographyH1>
-            <TypographyP className="text-muted-foreground">
+            <p className="text-muted-foreground">
               Hiện tại chưa có tin tức nào được đăng tải.
-            </TypographyP>
+            </p>
           </header>
-        </div>
+        </GridSection>
       </main>
     );
   }
 
   return (
     <main className={STYLES.main}>
-      <div className={STYLES.container}>
+      {/* Khối 1: Tiêu đề trang */}
+      <GridSection
+        id="news-header"
+        isFirst={true}
+        showDiamond={true}
+        contentClassName="py-6 md:py-8 lg:py-10"
+      >
         <header className={STYLES.header}>
-          <TypographyH1 className={STYLES.title}>Tin tức</TypographyH1>
+          <TypographyH1>{ "Tin tức" }</TypographyH1>
           <TypographyLead className={STYLES.description}>
             Cập nhật những giải pháp kỹ thuật mới nhất và các tin tức chuyên sâu
             từ đội ngũ kỹ sư ELC
           </TypographyLead>
         </header>
+      </GridSection>
 
-        <div className={STYLES.list}>
-          {allNews.map((news) => (
-            <Link
-              key={news.id}
-              href={`/tin-tuc/${news.slug}`}
-              className={STYLES.article}
-            >
-              {news.image && (
-                <div className={STYLES.imageWrapper}>
-                  <Image
-                    src={news.image}
-                    alt={news.title}
-                    fill
-                    className={STYLES.image}
-                    sizes="(max-width: 768px) 100vw, 500px"
-                  />
-                </div>
-              )}
-
-              <div className="flex flex-col gap-3">
-                <div className={STYLES.articleHeader}>
-                  <TypographyH4 className={STYLES.articleTitle}>
-                    {news.title}
-                  </TypographyH4>
-                  <ArrowIcon className={STYLES.articleIcon} />
-                </div>
-
-                <TypographySmall className="text-muted-foreground/40 font-medium">
-                  {new Date(news.createdAt).toLocaleDateString("vi-VN", {
+      {/* Khối 2: Danh sách bài viết */}
+      <GridSection
+        id="news-content"
+        isFirst={false}
+        showDiamond={true}
+        contentClassName="py-6 md:py-8 lg:py-10"
+      >
+        <div className="max-w-3xl mx-auto w-full">
+          <div className={STYLES.list}>
+            {allNews.map((news, index) => {
+              const formattedDate = news.createdAt
+                ? new Date(news.createdAt).toLocaleDateString("vi-VN", {
                     day: "numeric",
                     month: "long",
                     year: "numeric",
-                  })}
-                </TypographySmall>
-              </div>
-            </Link>
-          ))}
-        </div>
+                  })
+                : "";
 
+              const excerpt = getExcerptFromContent(
+                news.content,
+                news.metaDescription,
+              );
+
+              return (
+                <Link
+                  key={news.id}
+                  href={`/tin-tuc/${news.slug}`}
+                  className={STYLES.article}
+                >
+                  <div className={STYLES.textWrapper}>
+                    {formattedDate && (
+                      <span className={STYLES.date}>{formattedDate}</span>
+                    )}
+                    <h2 className={STYLES.articleTitle}>{news.title}</h2>
+                    {excerpt && (
+                      <p className={STYLES.articleDescription}>{excerpt}</p>
+                    )}
+                  </div>
+
+                  {news.image && (
+                    <div className={STYLES.imageWrapper}>
+                      <Image
+                        src={news.image}
+                        alt={news.title}
+                        fill
+                        className={STYLES.image}
+                        sizes="(max-width: 640px) 144px, (max-width: 768px) 192px, 256px"
+                        priority={index === 0}
+                      />
+                    </div>
+                  )}
+                </Link>
+              );
+            })}
+          </div>
+        </div>
+      </GridSection>
+
+      {/* Khối 3: Footer */}
+      <GridSection
+        id="news-footer"
+        isFirst={false}
+        showDiamond={true}
+        contentClassName="py-6 md:py-8 lg:py-10"
+      >
         <footer className={STYLES.footer}>
           <TypographySmall>
             &copy; {currentYear} ELC Holdings. Đã đăng ký bản quyền.
@@ -141,7 +214,19 @@ export default async function NewsHub() {
             <TypographySmall>Quay lại đầu trang</TypographySmall>
           </ScrollToTop>
         </footer>
-      </div>
+      </GridSection>
+
+      {/* Khối 4: Breadcrumbs */}
+      <GridSection
+        id="news-breadcrumbs"
+        isFirst={false}
+        showDiamond={false}
+        contentClassName="py-1"
+      >
+        <div className="w-full">
+          <Breadcrumbs items={[{ label: "Tin tức", active: true }]} />
+        </div>
+      </GridSection>
     </main>
   );
 }

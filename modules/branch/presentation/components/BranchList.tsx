@@ -16,10 +16,12 @@ export const BranchList: React.FC<BranchListProps> = ({branches}) => {
     }
 
     return (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 min-h-[400px] animate-fade-in-up">
-            {branches.map((branch, index) => (
-                <BranchCard key={branch.id} branch={branch} priority={index < 2}/>
-            ))}
+        <div className="max-w-3xl mx-auto w-full">
+            <div className="flex flex-col w-full min-h-[400px] animate-fade-in-up">
+                {branches.map((branch, index) => (
+                    <BranchCard key={branch.id} branch={branch} priority={index < 2}/>
+                ))}
+            </div>
         </div>
     );
 };

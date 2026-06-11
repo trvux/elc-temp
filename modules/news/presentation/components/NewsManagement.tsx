@@ -34,6 +34,7 @@ import {
   deleteNewsAction,
   getNewsAction,
 } from "../actions";
+import { getCategoriesAction } from "@/modules/category/presentation/actions";
 import { getNewsColumns } from "./NewsColumns";
 import { useNewsForm } from "../hooks/useNewsForm";
 import { convertToWebP } from "@/shared/lib/image";
@@ -55,6 +56,15 @@ export function NewsManagement() {
       const { data, error } = await getNewsAction();
       if (error) throw new Error(error);
       return data;
+    },
+  });
+
+  const { data: categories = [] } = useQuery({
+    queryKey: ["categories"],
+    queryFn: async () => {
+      const { data, error } = await getCategoriesAction();
+      if (error) throw new Error(error);
+      return data || [];
     },
   });
 
@@ -101,6 +111,7 @@ export function NewsManagement() {
             slug: n.slug,
             image: n.image,
             content: n.content as unknown,
+            categoryId: n.categoryId || "",
             isPublished: n.isPublished,
             metaTitle: n.metaTitle || "",
             metaDescription: n.metaDescription || "",
@@ -120,6 +131,7 @@ export function NewsManagement() {
       slug: "",
       image: "",
       content: "",
+      categoryId: "",
       isPublished: true,
       metaTitle: "",
       metaDescription: "",
@@ -263,6 +275,32 @@ export function NewsManagement() {
                             {...field}
                             onChange={(e) => field.onChange(Number(e.target.value))}
                           />
+                        </Field>
+                      )}
+                    />
+
+                    <Controller
+                      control={form.control}
+                      name="categoryId"
+                      render={({ field }) => (
+                        <Field>
+                          <FieldLabel>Danh mục liên kết</FieldLabel>
+                          <Select
+                            value={field.value || "none"}
+                            onValueChange={(val) => field.onChange(val === "none" ? "" : val)}
+                          >
+                            <SelectTrigger className="w-full">
+                              <SelectValue placeholder="Không liên kết danh mục" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="none">Không liên kết danh mục</SelectItem>
+                              {categories.map((cat) => (
+                                <SelectItem key={cat.id} value={cat.id}>
+                                  {cat.name}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
                         </Field>
                       )}
                     />

@@ -3,6 +3,8 @@ import { News, CreateNewsInput, UpdateNewsInput } from "./types";
 export interface NewsFilter {
   isPublished?: boolean;
   search?: string;
+  categoryId?: string | null;
+  excludeId?: string;
   limit?: number;
   offset?: number;
   includeDeleted?: boolean;

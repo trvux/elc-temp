@@ -16,6 +16,7 @@ export const newsSchema = z.object({
         }),
     image: z.url({message: "URL ảnh không hợp lệ"}).or(z.literal("")).default(""),
     content: z.custom<Json>().default({}),
+    categoryId: z.string().nullable().optional().or(z.literal("")),
     isPublished: z.boolean().default(false),
     metaTitle: z.string().max(70, { message: "Tiêu đề SEO không nên quá 70 ký tự" }).nullable().optional(),
     metaDescription: z.string().max(160, { message: "Mô tả SEO không nên quá 160 ký tự" }).nullable().optional(),

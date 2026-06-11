@@ -16,6 +16,7 @@ interface PostgrestQueryLike {
   is: (column: string, value: null) => PostgrestQueryLike;
   eq: (column: string, value: unknown) => PostgrestQueryLike;
   ilike: (column: string, value: string) => PostgrestQueryLike;
+  neq: (column: string, value: unknown) => PostgrestQueryLike;
 }
 
 export class SupabaseNewsRepository implements NewsRepository {
@@ -89,6 +90,7 @@ export class SupabaseNewsRepository implements NewsRepository {
       slug: input.slug,
       image: input.image || "",
       content: input.content || {},
+      category_id: input.categoryId || null,
       is_published: input.isPublished ?? true,
       meta_title: input.metaTitle,
       meta_description: input.metaDescription,
@@ -113,6 +115,7 @@ export class SupabaseNewsRepository implements NewsRepository {
       slug: input.slug,
       image: input.image,
       content: input.content,
+      category_id: input.categoryId,
       is_published: input.isPublished,
       meta_title: input.metaTitle,
       meta_description: input.metaDescription,
@@ -153,6 +156,8 @@ export class SupabaseNewsRepository implements NewsRepository {
 
     if (options.isPublished !== undefined) q = q.eq("is_published", options.isPublished);
     if (options.search) q = q.ilike("title", `%${options.search}%`);
+    if (options.categoryId !== undefined) q = q.eq("category_id", options.categoryId);
+    if (options.excludeId) q = q.neq("id", options.excludeId);
     return q;
   }
 
@@ -163,6 +168,7 @@ export class SupabaseNewsRepository implements NewsRepository {
       slug: row.slug,
       image: row.image,
       content: row.content,
+      categoryId: row.category_id || null,
       isPublished: row.is_published,
       metaTitle: row.meta_title || null,
       metaDescription: row.meta_description || null,
