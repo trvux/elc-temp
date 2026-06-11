@@ -21,6 +21,9 @@ import { cn } from "@/shared/lib/utils";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { cacheLife, cacheTag } from "next/cache";
+import { FilterTransitionProvider } from "@/shared/providers/filter-transition-provider";
+import { FilteredGridWrapper } from "@/shared/components/layout/user/filtered-grid-wrapper";
+import { Skeleton } from "@/shared/components/ui/skeleton";
 
 interface ProductListModuleProps {
   entity: ResolvedEntity;
@@ -200,7 +203,8 @@ export async function ProductListModule({
   const totalPages = Math.ceil(totalCount / pageSize);
 
   return (
-    <main className={STYLES.main}>
+    <FilterTransitionProvider>
+      <main className={STYLES.main}>
       {/* ===== KHỐI 1: TIÊU ĐỀ TRANG ===== */}
       <GridSection
         id="products-header"
@@ -260,34 +264,51 @@ export async function ProductListModule({
           </aside>
 
           <div className="flex-1 w-full">
-            {products.length > 0 ? (
-              <div className={STYLES.grid}>
-                {products.map((product, index) => (
-                  <ProductCard
-                    key={product.id}
-                    product={product}
-                    queryTokens={queryTokens}
-                    priority={index < 8}
-                  />
-                ))}
-              </div>
-            ) : (
-              <div className={STYLES.emptyState}>
-                <p className={STYLES.emptyText}>
-                  Hiện chưa có sản phẩm nào trong {subTitlePrefix} này.
-                </p>
-              </div>
-            )}
+            <FilteredGridWrapper
+              fallback={
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-6 gap-y-6 md:gap-y-16 min-h-[450px]">
+                  {Array.from({ length: 8 }).map((_, index) => (
+                    <div key={index} className="flex flex-col gap-4">
+                      <Skeleton className="aspect-square w-full rounded-2xl" />
+                      <div className="space-y-2">
+                        <Skeleton className="h-5 w-full" />
+                        <Skeleton className="h-5 w-2/3" />
+                      </div>
+                      <Skeleton className="h-6 w-1/3" />
+                    </div>
+                  ))}
+                </div>
+              }
+            >
+              {products.length > 0 ? (
+                <div className={STYLES.grid}>
+                  {products.map((product, index) => (
+                    <ProductCard
+                      key={product.id}
+                      product={product}
+                      queryTokens={queryTokens}
+                      priority={index < 8}
+                    />
+                  ))}
+                </div>
+              ) : (
+                <div className={STYLES.emptyState}>
+                  <p className={STYLES.emptyText}>
+                    Hiện chưa có sản phẩm nào trong {subTitlePrefix} này.
+                  </p>
+                </div>
+              )}
 
-            {totalPages > 1 && (
-              <div className={STYLES.paginationWrapper}>
-                <PaginationNav
-                  currentPage={currentPage}
-                  totalPages={totalPages}
-                  searchParams={sParams}
-                />
-              </div>
-            )}
+              {totalPages > 1 && (
+                <div className={STYLES.paginationWrapper}>
+                  <PaginationNav
+                    currentPage={currentPage}
+                    totalPages={totalPages}
+                    searchParams={sParams}
+                  />
+                </div>
+              )}
+            </FilteredGridWrapper>
           </div>
         </div>
       </GridSection>
@@ -339,6 +360,7 @@ export async function ProductListModule({
           </div>
         );
       })()}
-    </main>
+      </main>
+    </FilterTransitionProvider>
   );
 }

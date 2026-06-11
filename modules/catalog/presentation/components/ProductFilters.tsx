@@ -13,9 +13,15 @@ import { Checkbox } from "@/shared/components/ui/checkbox";
 import { Input } from "@/shared/components/ui/input";
 import { Separator } from "@/shared/components/ui/separator";
 import { cn } from "@/shared/lib/utils";
+import { useFilterTransition } from "@/shared/providers/filter-transition-provider";
 import { Check, MagnifyingGlass, X } from "@phosphor-icons/react";
-import { useParams, useRouter, useSearchParams, usePathname } from "next/navigation";
-import { useCallback, useEffect, useMemo, useState, useTransition } from "react";
+import {
+  useParams,
+  usePathname,
+  useRouter,
+  useSearchParams,
+} from "next/navigation";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 export interface ProductFilterCategory {
   id: string;
@@ -46,7 +52,7 @@ export function ProductFilters({
   const searchParams = useSearchParams();
   const params = useParams();
   const pathname = usePathname();
-  const [isPending, startTransition] = useTransition();
+  const { isPending, startTransition } = useFilterTransition();
 
   // Current entity slug from Flat URL path (/san-pham/[slug])
   const slugFromPath = params.slug as string;
@@ -61,17 +67,18 @@ export function ProductFilters({
     return slugs;
   }, [categories]);
 
-  // Determine if current path belongs to a category/group (for sidebar highlight)
-  const currentCategory = useMemo(() => {
-    return knownSlugs.has(slugFromPath) ? slugFromPath : "all";
-  }, [knownSlugs, slugFromPath]);
+  // Local states for optimistic UI updates
+  const [localCategory, setLocalCategory] = useState<string>("all");
+  const [localBrands, setLocalBrands] = useState<string[]>([]);
+  const [localSpecs, setLocalSpecs] = useState<Record<string, string[]>>({});
 
-  // Read selected brands and specs from query parameters
-  const currentBrands = useMemo(() => {
-    return searchParams.getAll("brands");
-  }, [searchParams]);
+  // Keep local state in sync with URL changes
+  useEffect(() => {
+    if (isPending) return;
+    /* eslint-disable react-hooks/set-state-in-effect */
+    setLocalCategory(knownSlugs.has(slugFromPath) ? slugFromPath : "all");
+    setLocalBrands(searchParams.getAll("brands"));
 
-  const currentSpecs = useMemo(() => {
     const specs: Record<string, string[]> = {};
     searchParams.forEach((value, key) => {
       if (key.startsWith("spec_")) {
@@ -80,8 +87,9 @@ export function ProductFilters({
         specs[label].push(value);
       }
     });
-    return specs;
-  }, [searchParams]);
+    setLocalSpecs(specs);
+    /* eslint-enable react-hooks/set-state-in-effect */
+  }, [searchParams, slugFromPath, knownSlugs, isPending]);
 
   const hasPriceFilter = useMemo(() => {
     return !!(searchParams.get("minPrice") || searchParams.get("maxPrice"));
@@ -89,12 +97,12 @@ export function ProductFilters({
 
   const hasAnyFilter = useMemo(() => {
     return (
-      currentBrands.length > 0 ||
-      (currentCategory !== "all" && currentCategory !== "") ||
-      Object.keys(currentSpecs).length > 0 ||
+      localBrands.length > 0 ||
+      (localCategory !== "all" && localCategory !== "") ||
+      Object.keys(localSpecs).some((label) => (localSpecs[label] || []).length > 0) ||
       hasPriceFilter
     );
-  }, [currentBrands, currentCategory, currentSpecs, hasPriceFilter]);
+  }, [localBrands, localCategory, localSpecs, hasPriceFilter]);
 
   // Gom danh mục theo nhóm cha (group): mỗi danh mục đã kèm sẵn `group`
   const groups = useMemo(() => {
@@ -104,7 +112,12 @@ export function ProductFilters({
 
     const byGroup = new Map<
       string,
-      { id: string; name: string; slug: string; children: ProductFilterCategory[] }
+      {
+        id: string;
+        name: string;
+        slug: string;
+        children: ProductFilterCategory[];
+      }
     >();
 
     for (const c of activeCategories) {
@@ -150,7 +163,7 @@ export function ProductFilters({
         router.refresh();
       });
     },
-    [router, searchParams, pathname],
+    [router, searchParams, pathname, startTransition],
   );
 
   const handleCategoryChange = (slug: string, checked: boolean) => {
@@ -161,7 +174,8 @@ export function ProductFilters({
     const newCategoryObj = categories.find((c) => c.slug === slug);
     const activeCategoryObj = categories.find((c) => c.slug === slugFromPath);
 
-    const newParentGroupId = newCategoryObj?.group?.id ?? newCategoryObj?.groupId;
+    const newParentGroupId =
+      newCategoryObj?.group?.id ?? newCategoryObj?.groupId;
     const activeParentGroupId =
       activeCategoryObj?.group?.id ?? activeCategoryObj?.groupId;
 
@@ -175,10 +189,17 @@ export function ProductFilters({
           sParams.delete(key);
         }
       });
+      // Optimistically clear local brands and specs
+      setLocalBrands([]);
+      setLocalSpecs({});
     }
 
     // Check if the current page is actually a Brand page (slug not a category/group slug)
     const isCurrentPageABrand = slugFromPath && !knownSlugs.has(slugFromPath);
+
+    // Optimistically update local category
+    const nextCategory = checked ? slug : "all";
+    setLocalCategory(nextCategory);
 
     startTransition(() => {
       if (checked) {
@@ -213,6 +234,11 @@ export function ProductFilters({
       existing.forEach((b) => sParams.append("brands", b));
     }
 
+    // Optimistically update local brands
+    const localExisting = localBrands.filter((b) => b !== brandSlug);
+    const newLocalBrands = checked ? [...localExisting, brandSlug] : localExisting;
+    setLocalBrands(newLocalBrands);
+
     const queryString = sParams.toString();
     const suffix = queryString ? `?${queryString}` : "";
     startTransition(() => {
@@ -223,12 +249,28 @@ export function ProductFilters({
   };
 
   const handleSpecChange = (label: string, value: string, checked: boolean) => {
+    // Optimistically update local specs
+    setLocalSpecs((prev) => {
+      const current = prev[label] || [];
+      const updated = checked
+        ? [...current.filter((v) => v !== value), value]
+        : current.filter((v) => v !== value);
+      return {
+        ...prev,
+        [label]: updated,
+      };
+    });
+
     const key = `spec_${label}`;
     updateFilters({ [key]: checked ? value : null });
     if (onFilterChange) onFilterChange();
   };
 
   const clearAllFilters = () => {
+    setLocalCategory("all");
+    setLocalBrands([]);
+    setLocalSpecs({});
+
     startTransition(() => {
       router.push("/san-pham");
       router.refresh();
@@ -246,14 +288,14 @@ export function ProductFilters({
 
   const activeAccordionValues = useMemo(() => {
     const values: string[] = [];
-    if (currentBrands.length > 0) values.push("Thương hiệu");
+    if (localBrands.length > 0) values.push("Thương hiệu");
     if (hasPriceFilter) values.push("Khoảng giá");
-    Object.keys(currentSpecs).forEach((label) => {
-      if (currentSpecs[label].length > 0) values.push(label);
+    Object.keys(localSpecs).forEach((label) => {
+      if ((localSpecs[label] || []).length > 0) values.push(label);
     });
 
     return values;
-  }, [currentBrands, hasPriceFilter, currentSpecs]);
+  }, [localBrands, hasPriceFilter, localSpecs]);
 
   if (!isMounted) {
     return (
@@ -266,7 +308,6 @@ export function ProductFilters({
 
   return (
     <div className="flex flex-col gap-2">
-
       <div className="flex items-center justify-between h-10">
         <h3 className="font-bold">Bộ lọc</h3>
         {hasAnyFilter && (
@@ -294,7 +335,7 @@ export function ProductFilters({
         {groups.map((g) => {
           if (g.children.length === 0) return null;
           const hasSelectedChild = g.children.some(
-            (c) => c.slug === currentCategory,
+            (c) => c.slug === localCategory,
           );
           return (
             <FilterGroup
@@ -304,7 +345,7 @@ export function ProductFilters({
                 id: c.slug,
                 name: c.name,
               }))}
-              selectedValues={[currentCategory]}
+              selectedValues={[localCategory]}
               selectionCount={hasSelectedChild ? 1 : 0}
               onToggle={handleCategoryChange}
               disabled={isPending}
@@ -320,8 +361,8 @@ export function ProductFilters({
               id: b.slug,
               name: b.name,
             }))}
-            selectedValues={currentBrands}
-            selectionCount={currentBrands.length}
+            selectedValues={localBrands}
+            selectionCount={localBrands.length}
             onToggle={handleBrandChange}
             disabled={isPending}
           />
@@ -333,8 +374,8 @@ export function ProductFilters({
             key={spec.label}
             label={spec.label}
             items={spec.values.map((v) => ({ id: v, name: v }))}
-            selectedValues={currentSpecs[spec.label] || []}
-            selectionCount={(currentSpecs[spec.label] || []).length}
+            selectedValues={localSpecs[spec.label] || []}
+            selectionCount={(localSpecs[spec.label] || []).length}
             onToggle={(id, checked) =>
               handleSpecChange(spec.label, id, checked)
             }

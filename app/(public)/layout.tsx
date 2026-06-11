@@ -1,6 +1,7 @@
 import { getPublicLayoutData } from "@/modules/settings";
 import { Footer } from "@/shared/components/layout/user/footer";
 import { Header } from "@/shared/components/layout/user/header";
+import { ChunkErrorListener } from "@/shared/components/layout/user/chunk-error-listener";
 
 interface PublicLayoutProps {
   children: React.ReactNode;
@@ -23,6 +24,7 @@ export default async function PublicLayout({ children }: PublicLayoutProps) {
 
   return (
     <div className="flex flex-col min-h-screen">
+      <ChunkErrorListener />
       <Header contacts={contacts} />
       <div className="flex-1 ">{children}</div>
       <Footer

@@ -21,7 +21,10 @@ export const DesktopNavItem = ({ link, isActive }: NavItemProps) => {
       <NavigationMenuLink
         asChild
         active={isActive}
-        className={navigationMenuTriggerStyle()}
+        className={cn(
+          navigationMenuTriggerStyle(),
+          "focus:bg-transparent focus:text-foreground focus-visible:ring-0 focus-visible:outline-none"
+        )}
       >
         <Link href={link.href}>{link.name}</Link>
       </NavigationMenuLink>
