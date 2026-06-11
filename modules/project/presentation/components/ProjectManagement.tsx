@@ -1,7 +1,7 @@
 "use client";
 
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ArrowSquareOut, Plus, X } from "@phosphor-icons/react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import Image from "next/image";
 import { useMemo, useState } from "react";
 import { Controller } from "react-hook-form";
@@ -155,12 +155,10 @@ export function ProjectManagement() {
   }, [categories]);
 
   // Custom Form Hook
-  const {
-    form,
-    saveMutation,
-    handleContentChange,
-    supabase,
-  } = useProjectForm(activeProject, () => setActiveProject(null));
+  const { form, saveMutation, handleContentChange, supabase } = useProjectForm(
+    activeProject,
+    () => setActiveProject(null),
+  );
 
   // Delete Mutation
   const deleteMutation = useMutation({
@@ -466,7 +464,6 @@ export function ProjectManagement() {
             <form
               onSubmit={form.handleSubmit(
                 (v) => {
-
                   saveMutation.mutate(v);
                 },
                 (errs) => {
@@ -757,14 +754,44 @@ export function ProjectManagement() {
                     {/* Dòng sản phẩm thực tế selection */}
                     <Card>
                       <CardHeader className="pb-4">
-                        <CardTitle className="text-sm font-semibold tracking-tight text-foreground">
-                          Dòng sản phẩm thực tế
-                        </CardTitle>
-                        <CardDescription className="text-xs text-muted-foreground">
-                          Tích chọn các dòng sản phẩm lắp đặt thực tế cho dự án
-                          này (Tự động điền theo loại hình công trình ở trên,
-                          bạn có thể tự chỉnh thêm).
-                        </CardDescription>
+                        <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+                          <div className="space-y-1">
+                            <CardTitle className="text-sm font-semibold tracking-tight text-foreground">
+                              Dòng sản phẩm thực tế
+                            </CardTitle>
+                            <CardDescription className="text-xs text-muted-foreground">
+                              Tích chọn các dòng sản phẩm lắp đặt thực tế cho dự
+                              án này (Tự động điền theo loại hình công trình ở
+                              trên, bạn có thể tự chỉnh thêm).
+                            </CardDescription>
+                          </div>
+                          <div className="flex items-center gap-2 shrink-0">
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="sm"
+                              // className="h-8 text-xs px-3 shadow-none"
+                              onClick={() => {
+                                const allIds = categories.map((c) => c.id);
+                                form.setValue("categoryIds", allIds);
+                              }}
+                            >
+                              Chọn tất cả
+                            </Button>
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="sm"
+                              // h-8 text-xs px-3 shadow-none
+                              className=" text-destructive hover:text-destructive "
+                              onClick={() => {
+                                form.setValue("categoryIds", []);
+                              }}
+                            >
+                              Bỏ chọn tất cả
+                            </Button>
+                          </div>
+                        </div>
                       </CardHeader>
                       <CardContent className="pt-0">
                         <Controller
@@ -790,10 +817,52 @@ export function ProjectManagement() {
                                 {Object.entries(groupedCategories).map(
                                   ([groupName, items]) => (
                                     <Card key={groupName}>
-                                      <CardHeader>
+                                      <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
                                         <span className="font-semibold text-md text-primary w-fit">
                                           {groupName}
                                         </span>
+                                        <div className="flex items-center gap-2">
+                                          <button
+                                            type="button"
+                                            className="text-xs text-muted-foreground hover:text-primary transition-colors cursor-pointer"
+                                            onClick={() => {
+                                              const groupItemIds = items.map(
+                                                (cat) => cat.id,
+                                              );
+                                              const otherIds =
+                                                checkedIds.filter(
+                                                  (id) =>
+                                                    !groupItemIds.includes(id),
+                                                );
+                                              field.onChange([
+                                                ...otherIds,
+                                                ...groupItemIds,
+                                              ]);
+                                            }}
+                                          >
+                                            Chọn tất cả
+                                          </button>
+                                          <span className="text-sm text-muted-foreground/30">
+                                            |
+                                          </span>
+                                          <button
+                                            type="button"
+                                            className="text-xs text-muted-foreground hover:text-destructive transition-colors cursor-pointer"
+                                            onClick={() => {
+                                              const groupItemIds = items.map(
+                                                (cat) => cat.id,
+                                              );
+                                              const otherIds =
+                                                checkedIds.filter(
+                                                  (id) =>
+                                                    !groupItemIds.includes(id),
+                                                );
+                                              field.onChange(otherIds);
+                                            }}
+                                          >
+                                            Bỏ chọn
+                                          </button>
+                                        </div>
                                       </CardHeader>
                                       <CardContent className="grid grid-cols-1 sm:grid-cols-2 gap-3 ">
                                         {items.map((cat) => {
