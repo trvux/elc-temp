@@ -17,6 +17,7 @@ vi.mock("../../application", () => ({
 
 vi.mock("next/cache", () => ({
   revalidatePath: vi.fn(),
+  revalidateTag: vi.fn(),
 }));
 
 describe("Brand Server Actions", () => {

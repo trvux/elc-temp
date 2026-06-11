@@ -250,7 +250,7 @@ export function ProjectManagement() {
             projectTypeId: p.projectTypeId || "",
             serviceGroupId: p.services?.[0]?.group?.id || "",
             serviceIds: (p.services || []).map((s) => s.id),
-            categoryIds: (p.categories || []).map((c) => c.id),
+            categories: (p.categories || []).map((c) => ({ id: c.id, condition: c.condition })),
             images: p.images || [],
             isPublished: p.isPublished,
             isFeatured: p.isFeatured || false,
@@ -274,7 +274,7 @@ export function ProjectManagement() {
       projectTypeId: "",
       serviceGroupId: "",
       serviceIds: [],
-      categoryIds: [],
+      categories: [],
       images: [],
       isPublished: true,
       isFeatured: false,
@@ -712,19 +712,26 @@ export function ProjectManagement() {
                             onValueChange={(v) => {
                               const val = v === "none" ? "" : v;
                               field.onChange(val);
-                              // Pre-populate categoryIds based on selected projectType template!
-                              if (val) {
-                                const sType = projectTypes.find(
-                                  (s) => s.id === val,
-                                );
-                                if (sType && sType.categories) {
-                                  const templateIds = sType.categories.map(
-                                    (c) => c.id,
+
+                              // Only pre-populate if it is a new project or the user explicitly changed the project type (making the field dirty)
+                              const shouldPrepopulate =
+                                activeProject === "new" ||
+                                !!form.formState.dirtyFields.projectTypeId;
+
+                              if (shouldPrepopulate) {
+                                if (val) {
+                                  const sType = projectTypes.find(
+                                    (s) => s.id === val,
                                   );
-                                  form.setValue("categoryIds", templateIds);
+                                  if (sType && sType.categories) {
+                                    const templateSelections = sType.categories.map(
+                                      (c) => ({ id: c.id, condition: "new" as const }),
+                                    );
+                                    form.setValue("categories", templateSelections);
+                                  }
+                                } else {
+                                  form.setValue("categories", []);
                                 }
-                              } else {
-                                form.setValue("categoryIds", []);
                               }
                             }}
                           >
@@ -773,8 +780,11 @@ export function ProjectManagement() {
                                 size="sm"
                                 className="h-8 text-xs px-3 hover:bg-muted"
                                 onClick={() => {
-                                  const allIds = categories.map((c) => c.id);
-                                  form.setValue("categoryIds", allIds);
+                                  const allSelections = categories.map((c) => ({
+                                    id: c.id,
+                                    condition: "new" as const,
+                                  }));
+                                  form.setValue("categories", allSelections);
                                 }}
                               >
                                 Chọn tất cả
@@ -785,7 +795,7 @@ export function ProjectManagement() {
                                 size="sm"
                                 className="h-8 text-xs px-3 text-destructive hover:bg-destructive/10 hover:text-destructive"
                                 onClick={() => {
-                                  form.setValue("categoryIds", []);
+                                  form.setValue("categories", []);
                                 }}
                               >
                                 Bỏ chọn tất cả
@@ -796,18 +806,28 @@ export function ProjectManagement() {
                         <CardContent className="pt-0">
                           <Controller
                             control={form.control}
-                            name="categoryIds"
+                            name="categories"
                             render={({ field }) => {
-                              const checkedIds = field.value || [];
-                              const handleToggle = (
-                                id: string,
+                              const checkedSelections = field.value || [];
+                              const handleToggleCondition = (
+                                catId: string,
+                                condition: "new" | "used",
                                 checked: boolean,
                               ) => {
                                 if (checked) {
-                                  field.onChange([...checkedIds, id]);
+                                  field.onChange([
+                                    ...checkedSelections,
+                                    { id: catId, condition },
+                                  ]);
                                 } else {
                                   field.onChange(
-                                    checkedIds.filter((x) => x !== id),
+                                    checkedSelections.filter(
+                                      (x) =>
+                                        !(
+                                          x.id === catId &&
+                                          x.condition === condition
+                                        ),
+                                    ),
                                   );
                                 }
                               };
@@ -829,14 +849,21 @@ export function ProjectManagement() {
                                                 const groupItemIds = items.map(
                                                   (cat) => cat.id,
                                                 );
-                                                const otherIds =
-                                                  checkedIds.filter(
-                                                    (id) =>
-                                                      !groupItemIds.includes(id),
+                                                const otherSelections =
+                                                  checkedSelections.filter(
+                                                    (sel) =>
+                                                      !groupItemIds.includes(
+                                                        sel.id,
+                                                      ),
                                                   );
+                                                const groupNewSelections =
+                                                  items.map((cat) => ({
+                                                    id: cat.id,
+                                                    condition: "new" as const,
+                                                  }));
                                                 field.onChange([
-                                                  ...otherIds,
-                                                  ...groupItemIds,
+                                                  ...otherSelections,
+                                                  ...groupNewSelections,
                                                 ]);
                                               }}
                                             >
@@ -852,43 +879,75 @@ export function ProjectManagement() {
                                                 const groupItemIds = items.map(
                                                   (cat) => cat.id,
                                                 );
-                                                const otherIds =
-                                                  checkedIds.filter(
-                                                    (id) =>
-                                                      !groupItemIds.includes(id),
+                                                const otherSelections =
+                                                  checkedSelections.filter(
+                                                    (sel) =>
+                                                      !groupItemIds.includes(
+                                                        sel.id,
+                                                      ),
                                                   );
-                                                field.onChange(otherIds);
+                                                field.onChange(otherSelections);
                                               }}
                                             >
                                               Bỏ chọn
                                             </button>
                                           </div>
                                         </CardHeader>
-                                        <CardContent className="grid grid-cols-1 sm:grid-cols-2 gap-3 ">
+                                        <CardContent className="grid grid-cols-1 gap-3">
                                           {items.map((cat) => {
-                                            const isChecked = checkedIds.includes(
-                                              cat.id,
-                                            );
+                                            const isNewChecked =
+                                              checkedSelections.some(
+                                                (x) =>
+                                                  x.id === cat.id &&
+                                                  x.condition === "new",
+                                              );
+                                            const isUsedChecked =
+                                              checkedSelections.some(
+                                                (x) =>
+                                                  x.id === cat.id &&
+                                                  x.condition === "used",
+                                              );
                                             return (
-                                              <label
+                                              <div
                                                 key={cat.id}
-                                                className="flex items-center gap-3 text-xs font-medium text-foreground/80 cursor-pointer hover:text-primary transition-colors select-none hover:bg-muted/30"
+                                                className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-2.5 rounded-lg border bg-muted/10 hover:bg-muted/30 transition-colors"
                                               >
-                                                <input
-                                                  type="checkbox"
-                                                  className="h-4.5 w-4.5  border-input text-primary cursor-pointer accent-primary shrink-0"
-                                                  checked={isChecked}
-                                                  onChange={(e) =>
-                                                    handleToggle(
-                                                      cat.id,
-                                                      e.target.checked,
-                                                    )
-                                                  }
-                                                />
-                                                <span className="leading-tight">
+                                                <span className="text-xs font-semibold text-foreground/85 select-none">
                                                   {cat.name}
                                                 </span>
-                                              </label>
+                                                <div className="flex items-center gap-4 shrink-0">
+                                                  <label className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-primary cursor-pointer select-none">
+                                                    <input
+                                                      type="checkbox"
+                                                      className="h-4 w-4 border-input text-primary cursor-pointer accent-primary shrink-0"
+                                                      checked={isNewChecked}
+                                                      onChange={(e) =>
+                                                        handleToggleCondition(
+                                                          cat.id,
+                                                          "new",
+                                                          e.target.checked,
+                                                        )
+                                                      }
+                                                    />
+                                                    <span>Mới</span>
+                                                  </label>
+                                                  <label className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-primary cursor-pointer select-none">
+                                                    <input
+                                                      type="checkbox"
+                                                      className="h-4 w-4 border-input text-primary cursor-pointer accent-primary shrink-0"
+                                                      checked={isUsedChecked}
+                                                      onChange={(e) =>
+                                                        handleToggleCondition(
+                                                          cat.id,
+                                                          "used",
+                                                          e.target.checked,
+                                                        )
+                                                      }
+                                                    />
+                                                    <span>Cũ</span>
+                                                  </label>
+                                                </div>
+                                              </div>
                                             );
                                           })}
                                         </CardContent>
@@ -923,22 +982,29 @@ export function ProjectManagement() {
                               const val = v === "none" ? "" : v;
                               field.onChange(val);
 
-                              // Reset serviceIds selection when group changes
-                              form.setValue("serviceIds", []);
+                              // Only pre-populate/reset if it is a new project or the user explicitly changed the service group (making the field dirty)
+                              const shouldPrepopulate =
+                                activeProject === "new" ||
+                                !!form.formState.dirtyFields.serviceGroupId;
 
-                              // Pre-populate categoryIds based on selected serviceGroup!
-                              if (val) {
-                                const sGroup = serviceGroups.find(
-                                  (g) => g.id === val,
-                                );
-                                if (sGroup && sGroup.categoryIds) {
-                                  form.setValue(
-                                    "categoryIds",
-                                    sGroup.categoryIds,
+                              if (shouldPrepopulate) {
+                                // Reset serviceIds selection when group changes
+                                form.setValue("serviceIds", []);
+
+                                // Pre-populate categories based on selected serviceGroup!
+                                if (val) {
+                                  const sGroup = serviceGroups.find(
+                                    (g) => g.id === val,
                                   );
+                                  if (sGroup && sGroup.categoryIds) {
+                                    const selections = sGroup.categoryIds.map(
+                                      (id) => ({ id, condition: "new" as const }),
+                                    );
+                                    form.setValue("categories", selections);
+                                  }
+                                } else {
+                                  form.setValue("categories", []);
                                 }
-                              } else {
-                                form.setValue("categoryIds", []);
                               }
                             }}
                           >

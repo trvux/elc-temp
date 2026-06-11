@@ -70,6 +70,7 @@ export default async function RelatedProducts({
       categoryId: p.category_id || "",
       brandId: p.brand_id || "",
       stockStatus: (p.stock_status || "in_stock") as StockStatus,
+      condition: (p.condition || "new") as "new" | "used",
       createdAt: p.created_at || "",
       updatedAt: p.updated_at || "",
       deletedAt: p.deleted_at || null,

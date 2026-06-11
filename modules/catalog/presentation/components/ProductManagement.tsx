@@ -18,7 +18,7 @@ import {
 } from "@/shared/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/shared/components/ui/tabs";
 
-import { STOCK_STATUS, STOCK_STATUS_MAP, ProductWithRelations, PRODUCT_LABELS, SpecItem } from "../../domain";
+import { STOCK_STATUS, STOCK_STATUS_MAP, ProductWithRelations, PRODUCT_LABELS, SpecItem, PRODUCT_CONDITION } from "../../domain";
 import {
   deleteProductAction,
   getBrandsAction,
@@ -153,6 +153,7 @@ export function ProductManagement() {
             categoryId: p.categoryId,
             brandId: p.brandId,
             stockStatus: p.stockStatus || STOCK_STATUS.IN_STOCK,
+            condition: p.condition || PRODUCT_CONDITION.NEW,
             discountPercent: p.discountPercent || 0,
             mpn: p.mpn || "",
             gtin: p.gtin || "",
@@ -184,6 +185,7 @@ export function ProductManagement() {
       categoryId: "",
       brandId: "",
       stockStatus: STOCK_STATUS.IN_STOCK,
+      condition: PRODUCT_CONDITION.NEW,
       discountPercent: 0,
       mpn: "",
       gtin: "",

@@ -9,6 +9,7 @@ import {
     ProductFilter,
     STOCK_STATUS,
     StockStatus,
+    ProductCondition,
     normalizeProductPrice
 } from "../domain";
 
@@ -136,6 +137,7 @@ export class SupabaseProductRepository implements ProductRepository {
             category_id: input.categoryId,
             brand_id: input.brandId,
             stock_status: input.stockStatus || STOCK_STATUS.IN_STOCK,
+            condition: input.condition || "new",
             mpn: input.mpn,
             gtin: input.gtin,
         } as unknown as ProductInsert;
@@ -171,6 +173,7 @@ export class SupabaseProductRepository implements ProductRepository {
             category_id: input.categoryId,
             brand_id: input.brandId,
             stock_status: input.stockStatus,
+            condition: input.condition,
             mpn: input.mpn,
             gtin: input.gtin,
             updated_at: new Date().toISOString(),
@@ -278,6 +281,7 @@ export class SupabaseProductRepository implements ProductRepository {
             categoryId: row.category_id || "",
             brandId: row.brand_id || "",
             stockStatus: (row.stock_status as StockStatus) || STOCK_STATUS.IN_STOCK,
+            condition: (row.condition as ProductCondition) || "new",
             mpn: (row as unknown as { mpn?: string | null }).mpn || null,
             gtin: (row as unknown as { gtin?: string | null }).gtin || null,
             createdAt: row.created_at || new Date().toISOString(),

@@ -29,7 +29,14 @@ export const projectSchema = z.object({
     z.string().uuid({ message: "ID loại hình công trình không đúng định dạng UUID" }).nullable().optional()
   ),
   serviceIds: z.array(z.string().uuid({ message: "ID dịch vụ không đúng định dạng UUID" })).optional(),
-  categoryIds: z.array(z.uuid({ message: "ID danh mục không đúng định dạng UUID" })).optional(),
+  categories: z
+    .array(
+      z.object({
+        id: z.uuid({ message: "ID danh mục không đúng định dạng UUID" }),
+        condition: z.enum(["new", "used"]),
+      })
+    )
+    .optional(),
   createdAt: z.iso.datetime({
     message: "Thời gian tạo không đúng định dạng ISO",
   }),

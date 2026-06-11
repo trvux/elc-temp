@@ -6,6 +6,8 @@ const { mockSupabase, mockQuery } = vi.hoisted(() => {
     from: vi.fn().mockReturnThis(),
     select: vi.fn().mockReturnThis(),
     eq: vi.fn().mockReturnThis(),
+    is: vi.fn().mockReturnThis(),
+    not: vi.fn().mockReturnThis(),
     maybeSingle: vi.fn(),
     single: vi.fn(),
     insert: vi.fn().mockReturnThis(),
@@ -41,6 +43,8 @@ describe("SupabaseProductRepository", () => {
     repository = new SupabaseProductRepository();
     mockQuery.select.mockReturnThis();
     mockQuery.eq.mockReturnThis();
+    mockQuery.is.mockReturnThis();
+    mockQuery.not.mockReturnThis();
     mockQuery.update.mockReturnThis();
     mockQuery.order.mockReturnThis();
     mockQuery.range.mockReturnThis();
@@ -130,7 +134,9 @@ describe("SupabaseProductRepository", () => {
 
       await repository.delete(VALID_UUID);
 
-      expect(mockQuery.delete).toHaveBeenCalled();
+      expect(mockQuery.update).toHaveBeenCalledWith(expect.objectContaining({
+        deleted_at: expect.any(String)
+      }));
       expect(mockQuery.eq).toHaveBeenCalledWith("id", VALID_UUID);
     });
   });

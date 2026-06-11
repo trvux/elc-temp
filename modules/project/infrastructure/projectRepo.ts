@@ -1,5 +1,6 @@
 import { createClient } from "@/shared/lib/supabase/server";
 import { Tables, Insert, Update } from "@/shared/types/supabase";
+import { Database } from "@/database.types";
 import { 
   Project, 
   ProjectWithCategory, 
@@ -16,6 +17,7 @@ type ProjectUpdate = Update<"projects">;
 type ProjectRowWithRelations = ProjectRow & {
   projectType: { id: string; name: string; slug: string | null } | null;
   project_category: {
+    condition: Database["public"]["Enums"]["product_condition"];
     category: {
       id: string;
       name: string;
@@ -46,6 +48,7 @@ export class SupabaseProjectRepository implements ProjectRepository {
     *,
     projectType:project_type(id, name, slug),
     project_category(
+      condition,
       category:categories(
         *,
         group_categories(*)
@@ -450,10 +453,11 @@ export class SupabaseProjectRepository implements ProjectRepository {
     }
 
     // Save project categories if provided
-    if (input.categoryIds && input.categoryIds.length > 0) {
-      const relations = input.categoryIds.map(catId => ({
+    if (input.categories && input.categories.length > 0) {
+      const relations = input.categories.map(c => ({
         project_id: newProject.id,
-        category_id: catId,
+        category_id: c.id,
+        condition: c.condition,
       }));
 
       const { error: relError } = await supabase
@@ -508,7 +512,7 @@ export class SupabaseProjectRepository implements ProjectRepository {
     const updatedProject = this.mapToDomain(data);
 
     // Update project categories
-    if (input.categoryIds !== undefined) {
+    if (input.categories !== undefined) {
       const { error: delError } = await supabase
         .from("project_category")
         .delete()
@@ -516,10 +520,11 @@ export class SupabaseProjectRepository implements ProjectRepository {
 
       if (delError) this.handleError(delError, "deleteRelations");
 
-      if (input.categoryIds.length > 0) {
-        const relations = input.categoryIds.map(catId => ({
+      if (input.categories.length > 0) {
+        const relations = input.categories.map(c => ({
           project_id: input.id,
-          category_id: catId,
+          category_id: c.id,
+          condition: c.condition,
         }));
 
         const { error: insError } = await supabase
@@ -674,6 +679,7 @@ export class SupabaseProjectRepository implements ProjectRepository {
           id: cat.id,
           name: cat.name,
           groupId: cat.group_id,
+          condition: pc.condition || "new",
           group: cat.group_categories ? {
             id: cat.group_categories.id,
             name: cat.group_categories.name,

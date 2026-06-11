@@ -30,3 +30,15 @@ export const PRODUCT_LABELS = {
 
 export type ProductLabel = typeof PRODUCT_LABELS[keyof typeof PRODUCT_LABELS];
 
+export const PRODUCT_CONDITION = {
+  NEW: "new",
+  USED: "used",
+} as const;
+
+export type ProductCondition = typeof PRODUCT_CONDITION[keyof typeof PRODUCT_CONDITION];
+
+export const PRODUCT_CONDITION_MAP: Record<ProductCondition, string> = {
+  [PRODUCT_CONDITION.NEW]: "Mới",
+  [PRODUCT_CONDITION.USED]: "Cũ",
+};
+

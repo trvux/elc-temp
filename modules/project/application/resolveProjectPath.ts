@@ -153,6 +153,7 @@ export async function resolveProjectPath(slug: string): Promise<ResolvedProjectE
         *,
         projectType:project_type(id, name, slug),
         project_category(
+          condition,
           category:categories(
             *,
             group_categories(*)
@@ -189,6 +190,7 @@ export async function resolveProjectPath(slug: string): Promise<ResolvedProjectE
         slug: string;
       } | null;
       project_category: {
+        condition: "new" | "used";
         category: {
           id: string;
           name: string;
@@ -209,6 +211,7 @@ export async function resolveProjectPath(slug: string): Promise<ResolvedProjectE
           id: cat.id,
           name: cat.name,
           groupId: cat.group_id,
+          condition: pc.condition || "new",
           group: cat.group_categories
             ? {
                 id: cat.group_categories.id,

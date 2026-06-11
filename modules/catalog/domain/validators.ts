@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { Json } from "./types";
-import { STOCK_STATUS } from "./constants";
+import { STOCK_STATUS, PRODUCT_CONDITION } from "./constants";
 
 // --- Product Validators ---
 
@@ -34,6 +34,9 @@ export const productSchema = z.object({
   stockStatus: z
     .nativeEnum(STOCK_STATUS)
     .default(STOCK_STATUS.IN_STOCK),
+  condition: z
+    .nativeEnum(PRODUCT_CONDITION)
+    .default(PRODUCT_CONDITION.NEW),
   mpn: z.string().nullable().optional(),
   gtin: z.string().nullable().optional(),
   metaTitle: z.string().max(70, { message: "Tiêu đề SEO không nên quá 70 ký tự" }).nullable().optional(),

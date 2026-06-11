@@ -27,7 +27,7 @@ export type ProjectFormValues = {
   projectTypeId: string;
   serviceGroupId?: string;
   serviceIds: string[];
-  categoryIds: string[];
+  categories: { id: string; condition: "new" | "used" }[];
 };
 
 export function useProjectForm(
@@ -48,7 +48,7 @@ export function useProjectForm(
       projectTypeId: "",
       serviceGroupId: "",
       serviceIds: [],
-      categoryIds: [],
+      categories: [],
       images: [],
       isPublished: true,
       isFeatured: false,
@@ -76,7 +76,7 @@ export function useProjectForm(
         description: JSON.parse(JSON.stringify(payloadValues.description)) as Json,
         projectTypeId: payloadValues.projectTypeId || null,
         serviceIds: payloadValues.serviceIds || [],
-        categoryIds: payloadValues.categoryIds || [],
+        categories: payloadValues.categories || [],
       };
 
       if (activeProject && activeProject !== "new") {

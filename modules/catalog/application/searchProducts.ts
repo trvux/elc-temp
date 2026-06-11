@@ -92,6 +92,24 @@ function getGasType(text: string): string | null {
   return null;
 }
 
+function flattenSpecs(specs: unknown): string {
+  if (!Array.isArray(specs)) return "";
+  return (specs as SpecItem[])
+    .flatMap((s) => {
+      const items = Array.isArray(s.items) ? s.items : (Array.isArray(s.value) ? s.value : null);
+      if (items) {
+        return (items as (SpecSubItem | string)[]).flatMap((i) => {
+          if (typeof i === "object" && i !== null) {
+            return [String(i.value ?? ""), String(i.unit ?? "")];
+          }
+          return [String(i ?? "")];
+        });
+      }
+      return [String(s.value ?? "")];
+    })
+    .join(" ");
+}
+
 const normalizeSpecValue = (
   uiLabel: string,
   rawValue: string,
@@ -231,10 +249,11 @@ export async function searchProducts(
 
     const fuse = new Fuse(allProducts, {
       keys: [
-        { name: "name", getFn: (p) => tokenize(p.name ?? ""), weight: 0.6 },
-        { name: "sku", getFn: (p) => tokenize(p.sku ?? ""), weight: 0.2 },
+        { name: "name", getFn: (p) => tokenize(p.name ?? ""), weight: 0.55 },
+        { name: "sku", getFn: (p) => tokenize(p.sku ?? ""), weight: 0.15 },
         { name: "brand", getFn: (p) => tokenize(p.brand?.name ?? ""), weight: 0.15 },
         { name: "category", getFn: (p) => tokenize(p.category?.name ?? ""), weight: 0.05 },
+        { name: "specs", getFn: (p) => tokenize(flattenSpecs(p.specs)), weight: 0.1 },
       ],
       threshold: 0.1,
       minMatchCharLength: 1,
