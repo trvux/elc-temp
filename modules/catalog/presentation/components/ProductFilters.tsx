@@ -395,20 +395,31 @@ export function ProductFilters({
         )}
 
         {/* Specs Filters */}
-        {availableFilters.specs.map((spec) => (
-          <FilterGroup
-            key={spec.label}
-            label={spec.label}
-            items={spec.values.map((v) => ({ id: v, name: v }))}
-            selectedValues={localSpecs[spec.label] || []}
-            selectionCount={(localSpecs[spec.label] || []).length}
-            onToggle={(id, checked) =>
-              handleSpecChange(spec.label, id, checked)
-            }
-            showSearch={spec.label !== "Công suất" && spec.values.length > 8}
-            disabled={isPending}
-          />
-        ))}
+        {availableFilters.specs
+          .filter(
+            (spec) =>
+              ![
+                "Số chiều",
+                "Công nghệ",
+                "Lọc không khí",
+                "Hiệu suất lọc",
+                "Loại Gas",
+              ].includes(spec.label),
+          )
+          .map((spec) => (
+            <FilterGroup
+              key={spec.label}
+              label={spec.label}
+              items={spec.values.map((v) => ({ id: v, name: v }))}
+              selectedValues={localSpecs[spec.label] || []}
+              selectionCount={(localSpecs[spec.label] || []).length}
+              onToggle={(id, checked) =>
+                handleSpecChange(spec.label, id, checked)
+              }
+              showSearch={spec.label !== "Công suất" && spec.values.length > 8}
+              disabled={isPending}
+            />
+          ))}
 
         {/* Price Range Slider */}
         <AccordionFilterWrapper
@@ -506,8 +517,8 @@ function AccordionFilterWrapper({
             {label}
           </span>
           {selectionCount > 0 && (
-            <Badge variant="secondary">
-              <Check data-icon="inline-start" />
+            <Badge className="bg-blue-50 text-blue-700 dark:bg-blue-950 dark:text-blue-300">
+              <Check data-icon="inline-start" className="w-3 h-3" weight="bold" />
             </Badge>
           )}
         </div>
