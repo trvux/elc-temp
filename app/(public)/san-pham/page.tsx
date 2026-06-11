@@ -20,7 +20,6 @@ import { cn } from "@/shared/lib/utils";
 import { Metadata } from "next";
 import { cacheLife, cacheTag } from "next/cache";
 import { Suspense } from "react";
-import { FilterTransitionProvider } from "@/shared/providers/filter-transition-provider";
 import { FilteredGridWrapper } from "@/shared/components/layout/user/filtered-grid-wrapper";
 import { Skeleton } from "@/shared/components/ui/skeleton";
 
@@ -105,11 +104,7 @@ export default async function ProductsPage({
   searchParams,
 }: ProductsPageProps) {
   const params = await searchParams;
-  return (
-    <FilterTransitionProvider>
-      <CachedProductsView params={params} />
-    </FilterTransitionProvider>
-  );
+  return <CachedProductsView params={params} />;
 }
 
 async function getCachedCategories() {
