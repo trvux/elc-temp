@@ -21,7 +21,6 @@ import { cn } from "@/shared/lib/utils";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { cacheLife, cacheTag } from "next/cache";
-import { FilterTransitionProvider } from "@/shared/providers/filter-transition-provider";
 import { FilteredGridWrapper } from "@/shared/components/layout/user/filtered-grid-wrapper";
 import { Skeleton } from "@/shared/components/ui/skeleton";
 
@@ -203,8 +202,7 @@ export async function ProductListModule({
   const totalPages = Math.ceil(totalCount / pageSize);
 
   return (
-    <FilterTransitionProvider>
-      <main className={STYLES.main}>
+    <main className={STYLES.main}>
       {/* ===== KHỐI 1: TIÊU ĐỀ TRANG ===== */}
       <GridSection
         id="products-header"
@@ -361,6 +359,5 @@ export async function ProductListModule({
         );
       })()}
       </main>
-    </FilterTransitionProvider>
   );
 }

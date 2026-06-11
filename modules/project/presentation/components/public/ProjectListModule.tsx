@@ -21,7 +21,6 @@ import { Suspense } from "react";
 import { ProjectFilterMobile } from "./ProjectFilterMobile";
 import { ProjectFilters } from "./ProjectFilters";
 import { ProjectSearchInput } from "./ProjectSearchInput";
-import { FilterTransitionProvider } from "@/shared/providers/filter-transition-provider";
 import { FilteredGridWrapper } from "@/shared/components/layout/user/filtered-grid-wrapper";
 import { Skeleton } from "@/shared/components/ui/skeleton";
 
@@ -298,8 +297,7 @@ export async function ProjectListModule({
     : "Tổng hợp các công trình tiêu biểu do đội ngũ ELC trực tiếp tư vấn, thiết kế và thi công lắp đặt cho khách hàng toàn quốc.";
 
   return (
-    <FilterTransitionProvider>
-      <main className={STYLES.main}>
+    <main className={STYLES.main}>
         <GridSection
         id="projects-header"
         isFirst={true}
@@ -491,6 +489,5 @@ export async function ProjectListModule({
         );
       })()}
     </main>
-    </FilterTransitionProvider>
   );
 }
