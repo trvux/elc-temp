@@ -1,6 +1,6 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
 import { unstable_rethrow } from "next/navigation";
 import {
   createCategory,
@@ -25,6 +25,8 @@ export async function createCategoryAction(input: CreateCategoryInput) {
   try {
     const data = await createCategory(input);
     revalidatePath("/admin/categories");
+    revalidateTag("layout", { expire: 0 });
+    revalidateTag("products", { expire: 0 });
     return { data, error: null };
   } catch (error) {
     console.error("createCategoryAction error:", error);
@@ -39,6 +41,8 @@ export async function updateCategoryAction(input: UpdateCategoryInput) {
   try {
     const data = await updateCategory(input);
     revalidatePath("/admin/categories");
+    revalidateTag("layout", { expire: 0 });
+    revalidateTag("products", { expire: 0 });
     return { data, error: null };
   } catch (error) {
     console.error("updateCategoryAction error:", error);
@@ -53,6 +57,8 @@ export async function deleteCategoryAction(id: string) {
   try {
     await deleteCategory(id);
     revalidatePath("/admin/categories");
+    revalidateTag("layout", { expire: 0 });
+    revalidateTag("products", { expire: 0 });
     return { error: null };
   } catch (error) {
     console.error("deleteCategoryAction error:", error);

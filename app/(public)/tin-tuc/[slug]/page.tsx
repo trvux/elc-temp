@@ -3,7 +3,7 @@ import { TypographyH1, TypographySmall } from "@/shared/components/ui/typography
 import { ScrollToTop } from "@/shared/components/layout/user/scroll-to-top";
 import { cn } from "@/shared/lib/utils";
 import { setUseStaticClient } from "@/shared/lib/supabase/server";
-import { cacheLife } from "next/cache";
+import { cacheLife, cacheTag } from "next/cache";
 import { ArrowLeft } from "@phosphor-icons/react/dist/ssr";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -40,6 +40,7 @@ export async function generateStaticParams() {
 async function getCachedNewsDetailData(slug: string) {
   "use cache";
   cacheLife("hours");
+  cacheTag("news");
   setUseStaticClient(true);
 
   const newsItem = await getNewsBySlug(slug);

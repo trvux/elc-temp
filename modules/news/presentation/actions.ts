@@ -1,6 +1,6 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
 import { 
   getNews, 
   createNews, 
@@ -29,6 +29,7 @@ export async function createNewsAction(input: CreateNewsInput) {
     const data = await createNews(input);
     revalidatePath("/admin/news");
     revalidatePath("/tin-tuc");
+    revalidateTag("news", { expire: 0 });
     return { data, error: null };
   } catch (error) {
     console.error("createNewsAction error:", error);
@@ -45,6 +46,7 @@ export async function updateNewsAction(input: UpdateNewsInput) {
     revalidatePath("/admin/news");
     revalidatePath("/tin-tuc");
     revalidatePath(`/tin-tuc/${data.slug}`);
+    revalidateTag("news", { expire: 0 });
     return { data, error: null };
   } catch (error) {
     console.error("updateNewsAction error:", error);
@@ -60,6 +62,7 @@ export async function deleteNewsAction(id: string) {
     await deleteNews(id);
     revalidatePath("/admin/news");
     revalidatePath("/tin-tuc");
+    revalidateTag("news", { expire: 0 });
     return { success: true, error: null };
   } catch (error) {
     console.error("deleteNewsAction error:", error);

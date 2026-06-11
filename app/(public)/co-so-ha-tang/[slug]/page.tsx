@@ -2,7 +2,7 @@ import { getBranchBySlug, getBranches } from "@/modules/branch";
 import { PreviewContent } from "@/shared/components/layout/user/preview-content";
 import { ScrollToTop } from "@/shared/components/layout/user/scroll-to-top";
 import { setUseStaticClient } from "@/shared/lib/supabase/server";
-import { cacheLife } from "next/cache";
+import { cacheLife, cacheTag } from "next/cache";
 import {
   Accordion,
   AccordionContent,
@@ -62,6 +62,7 @@ interface BranchDetailPageProps {
 async function getCachedBranchDetailData(slug: string) {
   "use cache";
   cacheLife("hours");
+  cacheTag("layout");
   setUseStaticClient(true);
 
   const branch = await getBranchBySlug(slug);

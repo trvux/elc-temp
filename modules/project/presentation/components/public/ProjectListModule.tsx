@@ -63,7 +63,7 @@ async function getCachedProjectListData(
   "use cache";
   // Serve stale content for up to 1 hour while revalidating in background every 5 minutes.
   // This prevents blank page caused by cache cold-start race condition.
-  cacheLife({ stale: 0, revalidate: 300, expire: 86400 });
+  cacheLife("days");
   cacheTag("projects");
   setUseStaticClient(true);
 

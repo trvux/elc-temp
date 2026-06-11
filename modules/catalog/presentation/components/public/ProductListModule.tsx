@@ -56,7 +56,7 @@ async function getCachedListModuleData(
   pageSize: number
 ) {
   "use cache";
-  cacheLife({ stale: 0, revalidate: 60, expire: 3600 });
+  cacheLife("days");
   cacheTag("products");
   setUseStaticClient(true);
 

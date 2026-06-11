@@ -1,6 +1,6 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
 import { unstable_rethrow } from "next/navigation";
 import {
   createServiceGroup,
@@ -25,6 +25,8 @@ export async function createServiceGroupAction(input: CreateServiceGroupInput) {
   try {
     const data = await createServiceGroup(input);
     revalidatePath("/admin/service-groups");
+    revalidateTag("layout", { expire: 0 });
+    revalidateTag("services", { expire: 0 });
     return { data, error: null };
   } catch (error) {
     console.error("createServiceGroupAction error:", error);
@@ -39,6 +41,8 @@ export async function updateServiceGroupAction(input: UpdateServiceGroupInput) {
   try {
     const data = await updateServiceGroup(input);
     revalidatePath("/admin/service-groups");
+    revalidateTag("layout", { expire: 0 });
+    revalidateTag("services", { expire: 0 });
     return { data, error: null };
   } catch (error) {
     console.error("updateServiceGroupAction error:", error);
@@ -53,6 +57,8 @@ export async function deleteServiceGroupAction(id: string) {
   try {
     await deleteServiceGroup(id);
     revalidatePath("/admin/service-groups");
+    revalidateTag("layout", { expire: 0 });
+    revalidateTag("services", { expire: 0 });
     return { error: null };
   } catch (error) {
     console.error("deleteServiceGroupAction error:", error);

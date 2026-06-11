@@ -1,6 +1,6 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
 import {
   createGroup,
   deleteGroup,
@@ -23,6 +23,8 @@ export async function createGroupAction(input: CreateGroupInput) {
   try {
     const data = await createGroup(input);
     revalidatePath("/admin/group-categories");
+    revalidateTag("layout", { expire: 0 });
+    revalidateTag("products", { expire: 0 });
     return { data, error: null };
   } catch (error) {
     console.error("createGroupAction error:", error);
@@ -37,6 +39,8 @@ export async function updateGroupAction(input: UpdateGroupInput) {
   try {
     const data = await updateGroup(input);
     revalidatePath("/admin/group-categories");
+    revalidateTag("layout", { expire: 0 });
+    revalidateTag("products", { expire: 0 });
     return { data, error: null };
   } catch (error) {
     console.error("updateGroupAction error:", error);
@@ -51,6 +55,8 @@ export async function deleteGroupAction(id: string) {
   try {
     await deleteGroup(id);
     revalidatePath("/admin/group-categories");
+    revalidateTag("layout", { expire: 0 });
+    revalidateTag("products", { expire: 0 });
     return { error: null };
   } catch (error) {
     console.error("deleteGroupAction error:", error);

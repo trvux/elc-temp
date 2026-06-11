@@ -104,7 +104,7 @@ const STYLES = {
 
 async function getCachedProductDetailData(productSlug: string) {
   "use cache";
-  cacheLife({ stale: 0, revalidate: 300, expire: 86400 });
+  cacheLife("days");
   cacheTag("products", `product:${productSlug}`);
   setUseStaticClient(true);
 

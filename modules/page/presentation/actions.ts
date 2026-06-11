@@ -1,6 +1,6 @@
 "use server";
 
-import {revalidatePath} from "next/cache";
+import {revalidatePath, revalidateTag} from "next/cache";
 import {createPage, CreatePageInput, deletePage, getPages, updatePage, UpdatePageInput} from "@/modules/page";
 
 export async function getPagesAction() {
@@ -18,6 +18,7 @@ export async function createPageAction(input: CreatePageInput) {
         const data = await createPage(input);
         revalidatePath("/admin/pages");
         revalidatePath(`/${data.slug}`);
+        revalidateTag("layout", { expire: 0 });
         return {data, error: null};
     } catch (error) {
         console.error("createPageAction error:", error);
@@ -33,6 +34,7 @@ export async function updatePageAction(input: UpdatePageInput) {
         const data = await updatePage(input);
         revalidatePath("/admin/pages");
         revalidatePath(`/${data.slug}`);
+        revalidateTag("layout", { expire: 0 });
         return {data, error: null};
     } catch (error) {
         console.error("updatePageAction error:", error);
@@ -47,6 +49,7 @@ export async function deletePageAction(id: string) {
     try {
         await deletePage(id);
         revalidatePath("/admin/pages");
+        revalidateTag("layout", { expire: 0 });
         return {success: true, error: null};
     } catch (error) {
         console.error("deletePageAction error:", error);

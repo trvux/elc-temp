@@ -14,7 +14,7 @@ export type ResolvedEntity =
 
 export async function resolveProductPath(slug: string): Promise<ResolvedEntity> {
   "use cache";
-  cacheLife({ stale: 0, revalidate: 300, expire: 86400 });
+  cacheLife("days");
   cacheTag("products", `slug:${slug}`);
   setUseStaticClient(true);
 

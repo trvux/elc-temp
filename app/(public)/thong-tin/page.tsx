@@ -13,7 +13,7 @@ import { sortByOrderIndex } from "@/shared/lib/helpers";
 import { setUseStaticClient } from "@/shared/lib/supabase/server";
 import { cn } from "@/shared/lib/utils";
 import { ArrowUpRight } from "@phosphor-icons/react/dist/ssr";
-import { cacheLife } from "next/cache";
+import { cacheLife, cacheTag } from "next/cache";
 import Link from "next/link";
 
 const STYLES = {
@@ -44,6 +44,7 @@ const STYLES = {
 async function getCachedInformationData() {
   "use cache";
   cacheLife("hours");
+  cacheTag("layout");
   setUseStaticClient(true);
 
   const allPages = await getPages({ isPublished: true });

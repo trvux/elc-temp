@@ -1,6 +1,6 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
 import {
   createContact,
   CreateContactInput,
@@ -25,6 +25,7 @@ export async function createContactAction(input: CreateContactInput) {
   try {
     const data = await createContact(input);
     revalidatePath("/admin/contacts");
+    revalidateTag("layout", { expire: 0 });
     return { data, error: null };
   } catch (error) {
     console.error("createContactAction error:", error);
@@ -39,6 +40,7 @@ export async function updateContactAction(input: UpdateContactInput) {
   try {
     const data = await updateContact(input);
     revalidatePath("/admin/contacts");
+    revalidateTag("layout", { expire: 0 });
     return { data, error: null };
   } catch (error) {
     console.error("updateContactAction error:", error);
@@ -53,6 +55,7 @@ export async function deleteContactAction(id: string) {
   try {
     await deleteContact(id);
     revalidatePath("/admin/contacts");
+    revalidateTag("layout", { expire: 0 });
     return { success: true, error: null };
   } catch (error) {
     console.error("deleteContactAction error:", error);

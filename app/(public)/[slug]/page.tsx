@@ -8,7 +8,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getPageBySlug, getPages } from "@/modules/page/application";
 import { setUseStaticClient } from "@/shared/lib/supabase/server";
-import { cacheLife } from "next/cache";
+import { cacheLife, cacheTag } from "next/cache";
 
 // Design System / Style Constants
 const STYLES = {
@@ -40,6 +40,7 @@ export async function generateStaticParams() {
 async function getCachedPageData(slug: string) {
   "use cache";
   cacheLife("hours");
+  cacheTag("layout");
   setUseStaticClient(true);
   return getPageBySlug(slug);
 }
