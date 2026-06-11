@@ -36,12 +36,13 @@ export function TopProgressBar() {
 
   // Sync with isPending transition state
   useEffect(() => {
+    /* eslint-disable react-hooks/set-state-in-effect */
     if (isPending) {
       startProgress();
-    } else if (visible) {
+    } else {
       completeProgress();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    /* eslint-enable react-hooks/set-state-in-effect */
   }, [isPending]);
 
   // Handle normal link clicks
@@ -105,10 +106,9 @@ export function TopProgressBar() {
 
   // Complete progress bar when pathname or searchParams change (navigation completes)
   useEffect(() => {
-    if (visible) {
-      completeProgress();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    /* eslint-disable react-hooks/set-state-in-effect */
+    completeProgress();
+    /* eslint-enable react-hooks/set-state-in-effect */
   }, [pathname, searchParams]);
 
   // Animate progress incrementally
@@ -148,7 +148,11 @@ export function TopProgressBar() {
         width: `${progress}%`,
         backgroundColor: "var(--foreground, #000000)",
         zIndex: 99999,
-        transition: progress === 100 ? "width 0.3s ease, opacity 0.3s ease" : "width 0.2s ease-out",
+        transition: progress === 100
+          ? "width 0.3s ease, opacity 0.3s ease"
+          : (progress === 0 || progress === 10)
+            ? "none"
+            : "width 0.2s ease-out",
         opacity: progress === 100 ? 0 : 1,
         pointerEvents: "none",
       }}
