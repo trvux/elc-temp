@@ -1,23 +1,18 @@
 "use client";
 
-import { Controller, UseFormReturn } from "react-hook-form";
-import {
-  FieldLegend,
-  FieldSet,
-} from "@/shared/components/ui/field";
 import { Button } from "@/shared/components/ui/button";
+import { FieldLegend, FieldSet } from "@/shared/components/ui/field";
+import { ImageUpload } from "@/shared/components/ui/image-upload";
 import { X } from "@phosphor-icons/react";
 import Image from "next/image";
+import { Controller, UseFormReturn } from "react-hook-form";
 import { ProductFormValues } from "../../hooks/useProductForm";
-import { ImageUpload } from "@/shared/components/ui/image-upload";
 
 interface ProductGalleryTabProps {
   form: UseFormReturn<ProductFormValues>;
 }
 
-export function ProductGalleryTab({
-  form,
-}: ProductGalleryTabProps) {
+export function ProductGalleryTab({ form }: ProductGalleryTabProps) {
   return (
     <FieldSet>
       <div className="flex items-center justify-between mb-4">
@@ -74,7 +69,7 @@ export function ProductGalleryTab({
               </div>
             ) : (
               <div className="py-12 flex flex-col items-center justify-center border border-dashed rounded-xl bg-muted/5">
-                <p className="text-xs font-bold text-muted-foreground/40 uppercase tracking-widest">
+                <p className="text-xs font-bold">
                   Chưa có hình ảnh nào được tải lên
                 </p>
               </div>

@@ -4,8 +4,16 @@ import { AspectRatio } from "@/shared/components/ui/aspect-ratio";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
 import { ButtonGroup } from "@/shared/components/ui/button-group";
+import {
+  ArrowSquareOut,
+  Check,
+  Minus,
+  PencilSimple,
+  Star,
+  Trash,
+  X,
+} from "@phosphor-icons/react";
 import { ColumnDef } from "@tanstack/react-table";
-import { Check, ArrowSquareOut, Minus, PencilSimple, Star, Trash, X } from "@phosphor-icons/react";
 import Image from "next/image";
 import { ProjectWithCategory } from "../../domain";
 
@@ -80,15 +88,24 @@ export const getColumns = ({
             <div className="flex flex-wrap gap-1">
               {cats.map((c) => (
                 <span
-                  key={c.id}
-                  className="text-[10px] bg-muted text-muted-foreground px-1.5 py-0.5 rounded"
+                  key={`${c.id}-${c.condition}`}
+                  className="text-xs bg-muted text-muted-foreground px-1.5 py-0.5 rounded"
                 >
-                  {c.name}
+                  <span
+                    className={
+                      c.condition === "new"
+                        ? "text-green-700 font-semibold"
+                        : "text-amber-700 font-semibold"
+                    }
+                  >
+                    {c.condition === "new" ? "Mới" : "Cũ"}
+                  </span>
+                  : {c.name}
                 </span>
               ))}
             </div>
           ) : (
-            <span className="text-[10px] text-muted-foreground italic">
+            <span className="text-xs text-muted-foreground italic">
               Chưa chọn sản phẩm
             </span>
           )}
@@ -101,17 +118,25 @@ export const getColumns = ({
     header: "Dịch vụ liên quan",
     cell: ({ row }) => {
       const services = row.original.services || [];
-      if (services.length === 0) return <span className="text-[10px] text-muted-foreground italic">Không có</span>;
+      if (services.length === 0)
+        return (
+          <span className="text-[10px] text-muted-foreground italic">
+            Không có
+          </span>
+        );
 
       // Nhóm các dịch vụ theo nhóm dịch vụ
-      const groups = services.reduce((acc, service) => {
-        const groupName = service.group?.name || "Khác";
-        if (!acc[groupName]) {
-          acc[groupName] = [];
-        }
-        acc[groupName].push(service);
-        return acc;
-      }, {} as Record<string, typeof services>);
+      const groups = services.reduce(
+        (acc, service) => {
+          const groupName = service.group?.name || "Khác";
+          if (!acc[groupName]) {
+            acc[groupName] = [];
+          }
+          acc[groupName].push(service);
+          return acc;
+        },
+        {} as Record<string, typeof services>,
+      );
 
       return (
         <div className="flex flex-col gap-3 max-w-[280px]">
