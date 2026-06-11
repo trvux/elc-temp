@@ -10,7 +10,7 @@ export type ResolvedProjectEntity =
 
 export async function resolveProjectPath(slug: string): Promise<ResolvedProjectEntity> {
   "use cache";
-  cacheLife({ stale: 0, revalidate: 3600, expire: 86400 });
+  cacheLife("days");
   cacheTag("projects", `slug:${slug}`);
   setUseStaticClient(true);
 

@@ -3,15 +3,26 @@ import { cookies } from "next/headers";
 import { Database } from "@/database.types";
 import { createStaticClient } from "./static";
 import { cache } from "react";
+import { AsyncLocalStorage } from "node:async_hooks";
+
+const staticClientStorage = new AsyncLocalStorage<{ isStatic: boolean }>();
 
 export const getUseStaticClient = cache(() => ({ value: false }));
 
 export const setUseStaticClient = (value: boolean) => {
-  getUseStaticClient().value = value;
+  try {
+    getUseStaticClient().value = value;
+  } catch {
+    // Ignore cache access outside of React render phase
+  }
+  if (value) {
+    staticClientStorage.enterWith({ isStatic: true });
+  }
 };
 
 export const createClient = async () => {
-  if (getUseStaticClient().value) {
+  const store = staticClientStorage.getStore();
+  if (store?.isStatic || getUseStaticClient().value) {
     return createStaticClient();
   }
   try {
@@ -38,6 +49,11 @@ export const createClient = async () => {
               // user sessions.
             }
           },
+        },
+        auth: {
+          persistSession: false,
+          autoRefreshToken: false,
+          detectSessionInUrl: false,
         },
       },
     );

@@ -10,7 +10,7 @@ import {
 import { setUseStaticClient } from "@/shared/lib/supabase/server";
 import { cn } from "@/shared/lib/utils";
 import { ArrowUpRight as ArrowIcon } from "@phosphor-icons/react/dist/ssr";
-import { cacheLife } from "next/cache";
+import { cacheLife, cacheTag } from "next/cache";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -53,6 +53,7 @@ const STYLES = {
 async function getCachedNewsHubData() {
   "use cache";
   cacheLife("hours");
+  cacheTag("news");
   setUseStaticClient(true);
 
   const allNews = await getNews({ isPublished: true });

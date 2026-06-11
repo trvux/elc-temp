@@ -23,6 +23,10 @@ const nextConfig: NextConfig = {
     ],
   },
   experimental: {
+    staleTimes: {
+      dynamic: 0,
+      static: 30,
+    },
     optimizePackageImports: [
       "@phosphor-icons/react",
       "@tabler/icons-react",

@@ -1,6 +1,6 @@
 "use server";
 
-import {revalidatePath} from "next/cache";
+import {revalidatePath, revalidateTag} from "next/cache";
 import {
     createBranch,
     deleteBranch,
@@ -41,6 +41,7 @@ export async function createBranchAction(input: CreateBranchInput) {
         revalidatePath("/admin/branches");
         revalidatePath("/co-so-ha-tang");
         revalidatePath("/thong-tin");
+        revalidateTag("layout", { expire: 0 });
         return {data, error: null};
     } catch (error) {
         console.error("createBranchAction error:", error);
@@ -57,6 +58,7 @@ export async function updateBranchAction(input: UpdateBranchInput) {
         revalidatePath("/admin/branches");
         revalidatePath("/co-so-ha-tang");
         revalidatePath("/thong-tin");
+        revalidateTag("layout", { expire: 0 });
         return {data, error: null};
     } catch (error) {
         console.error("updateBranchAction error:", error);
@@ -73,6 +75,7 @@ export async function deleteBranchAction(id: string) {
         revalidatePath("/admin/branches");
         revalidatePath("/co-so-ha-tang");
         revalidatePath("/thong-tin");
+        revalidateTag("layout", { expire: 0 });
         return {success: true, error: null};
     } catch (error) {
         console.error("deleteBranchAction error:", error);
@@ -87,12 +90,13 @@ export async function updateBranchOrderAction(id: string, orderIndex: number) {
     try {
         await updateBranchOrder(id, orderIndex);
         revalidatePath("/admin/branches");
+        revalidateTag("layout", { expire: 0 });
         return {success: true, error: null};
     } catch (error) {
         console.error("updateBranchOrderAction error:", error);
         return {
             success: false,
-            error: error instanceof Error ? error.message : "Failed to update order",
+            error: error instanceof Error ? orderIndex.toString() : "Failed to update order",
         };
     }
 }

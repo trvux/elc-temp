@@ -107,7 +107,7 @@ export default async function ProductsPage({
 
 async function getCachedCategories() {
   "use cache";
-  cacheLife({ stale: 0, revalidate: 300, expire: 86400 });
+  cacheLife("days");
   cacheTag("products", "categories");
   setUseStaticClient(true);
   return getCategories();
@@ -124,7 +124,7 @@ async function getCachedProductsData(
   pageSize: number,
 ) {
   "use cache";
-  cacheLife({ stale: 0, revalidate: 300, expire: 86400 });
+  cacheLife("days");
   cacheTag("products");
   setUseStaticClient(true);
 
