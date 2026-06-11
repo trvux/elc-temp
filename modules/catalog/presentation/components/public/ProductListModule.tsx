@@ -55,7 +55,8 @@ async function getCachedListModuleData(
   brandSlugs: string[],
   specs: Record<string, string[]>,
   currentPage: number,
-  pageSize: number
+  pageSize: number,
+  condition: string | undefined
 ) {
   "use cache";
   cacheLife("days");
@@ -111,6 +112,7 @@ async function getCachedListModuleData(
     minPrice,
     maxPrice,
     specs,
+    condition,
     limit: pageSize,
     offset: (currentPage - 1) * pageSize,
   });
@@ -166,6 +168,11 @@ export async function ProductListModule({
     }
   });
 
+  const condition =
+    typeof sParams.condition === "string" && sParams.condition
+      ? sParams.condition
+      : undefined;
+
   let pageTitle = "";
   let subTitlePrefix = "";
 
@@ -195,7 +202,8 @@ export async function ProductListModule({
     brandSlugs,
     specs,
     currentPage,
-    pageSize
+    pageSize,
+    condition
   );
 
   const queryTokens = getQueryTokens(q);

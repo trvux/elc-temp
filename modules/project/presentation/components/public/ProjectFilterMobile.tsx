@@ -43,6 +43,7 @@ interface ProjectFilterMobileProps {
   currentCategorySlugs?: string[];
   services: ServiceItem[];
   currentServiceSlugs?: string[];
+  currentCondition?: string;
 }
 
 export function ProjectFilterMobile({
@@ -52,6 +53,7 @@ export function ProjectFilterMobile({
   currentCategorySlugs = [],
   services = [],
   currentServiceSlugs = [],
+  currentCondition = "",
 }: ProjectFilterMobileProps) {
   const searchParams = useSearchParams();
   const params = useParams();
@@ -74,6 +76,11 @@ export function ProjectFilterMobile({
 
     // Check service slugs in search parameters
     if (currentServiceSlugs.length > 0) {
+      count++;
+    }
+
+    // Check condition in search parameters
+    if (searchParams.get("condition")) {
       count++;
     }
 
@@ -119,6 +126,7 @@ export function ProjectFilterMobile({
               currentCategorySlugs={currentCategorySlugs}
               services={services}
               currentServiceSlugs={currentServiceSlugs}
+              currentCondition={currentCondition}
             />
           </div>
         </SheetContent>

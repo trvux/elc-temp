@@ -71,6 +71,7 @@ export function ProductFilters({
   const [localCategory, setLocalCategory] = useState<string>("all");
   const [localBrands, setLocalBrands] = useState<string[]>([]);
   const [localSpecs, setLocalSpecs] = useState<Record<string, string[]>>({});
+  const [localCondition, setLocalCondition] = useState<string>("");
 
   // Keep local state in sync with URL changes
   useEffect(() => {
@@ -78,6 +79,7 @@ export function ProductFilters({
     /* eslint-disable react-hooks/set-state-in-effect */
     setLocalCategory(knownSlugs.has(slugFromPath) ? slugFromPath : "all");
     setLocalBrands(searchParams.getAll("brands"));
+    setLocalCondition(searchParams.get("condition") || "");
 
     const specs: Record<string, string[]> = {};
     searchParams.forEach((value, key) => {
@@ -100,9 +102,10 @@ export function ProductFilters({
       localBrands.length > 0 ||
       (localCategory !== "all" && localCategory !== "") ||
       Object.keys(localSpecs).some((label) => (localSpecs[label] || []).length > 0) ||
+      localCondition !== "" ||
       hasPriceFilter
     );
-  }, [localBrands, localCategory, localSpecs, hasPriceFilter]);
+  }, [localBrands, localCategory, localSpecs, localCondition, hasPriceFilter]);
 
   // Gom danh mục theo nhóm cha (group): mỗi danh mục đã kèm sẵn `group`
   const groups = useMemo(() => {
@@ -266,10 +269,32 @@ export function ProductFilters({
     if (onFilterChange) onFilterChange();
   };
 
+  const handleConditionChange = (conditionValue: string, checked: boolean) => {
+    const sParams = new URLSearchParams(searchParams.toString());
+    sParams.delete("page");
+
+    sParams.delete("condition");
+    if (checked) {
+      sParams.set("condition", conditionValue);
+    }
+
+    // Optimistically update localCondition
+    setLocalCondition(checked ? conditionValue : "");
+
+    const queryString = sParams.toString();
+    const suffix = queryString ? `?${queryString}` : "";
+    startTransition(() => {
+      router.push(`${window.location.pathname}${suffix}`, { scroll: false });
+      router.refresh();
+    });
+    if (onFilterChange) onFilterChange();
+  };
+
   const clearAllFilters = () => {
     setLocalCategory("all");
     setLocalBrands([]);
     setLocalSpecs({});
+    setLocalCondition("");
 
     startTransition(() => {
       router.push("/san-pham");
@@ -290,12 +315,13 @@ export function ProductFilters({
     const values: string[] = [];
     if (localBrands.length > 0) values.push("Thương hiệu");
     if (hasPriceFilter) values.push("Khoảng giá");
+    if (localCondition) values.push("Tình trạng sản phẩm");
     Object.keys(localSpecs).forEach((label) => {
       if ((localSpecs[label] || []).length > 0) values.push(label);
     });
 
     return values;
-  }, [localBrands, hasPriceFilter, localSpecs]);
+  }, [localBrands, hasPriceFilter, localCondition, localSpecs]);
 
   if (!isMounted) {
     return (
@@ -395,6 +421,55 @@ export function ProductFilters({
             maxPriceLimit={availableFilters.maxPrice}
           />
         </AccordionFilterWrapper>
+
+        {/* Condition Filter */}
+        <AccordionFilterWrapper
+          label="Tình trạng sản phẩm"
+          selectionCount={localCondition ? 1 : 0}
+        >
+          <div className="flex flex-col gap-1 -mx-6">
+            <label
+              className={cn(
+                "flex items-center gap-2 pr-4 py-2 rounded-md transition-colors group pl-6 hover:bg-muted/50 cursor-pointer"
+              )}
+            >
+              <ImmediateCheckbox
+                id="filter-condition-new"
+                checked={localCondition === "new"}
+                disabled={isPending}
+                onCheckedChange={(checked) => handleConditionChange("new", checked)}
+              />
+              <span
+                className={cn(
+                  "text-sm font-medium leading-snug group-hover:text-foreground transition-colors",
+                  localCondition === "new" && "text-foreground font-semibold"
+                )}
+              >
+                Mới
+              </span>
+            </label>
+            <label
+              className={cn(
+                "flex items-center gap-2 pr-4 py-2 rounded-md transition-colors group pl-6 hover:bg-muted/50 cursor-pointer"
+              )}
+            >
+              <ImmediateCheckbox
+                id="filter-condition-used"
+                checked={localCondition === "used"}
+                disabled={isPending}
+                onCheckedChange={(checked) => handleConditionChange("used", checked)}
+              />
+              <span
+                className={cn(
+                  "text-sm font-medium leading-snug group-hover:text-foreground transition-colors",
+                  localCondition === "used" && "text-foreground font-semibold"
+                )}
+              >
+                Cũ
+              </span>
+            </label>
+          </div>
+        </AccordionFilterWrapper>
       </Accordion>
 
       {hasAnyFilter && (
@@ -432,7 +507,7 @@ function AccordionFilterWrapper({
           </span>
           {selectionCount > 0 && (
             <Badge variant="secondary">
-              <Check data-icon="inline-start" /> Được chọn
+              <Check data-icon="inline-start" />
             </Badge>
           )}
         </div>

@@ -11,10 +11,10 @@ import { Button } from "@/shared/components/ui/button";
 import { Checkbox } from "@/shared/components/ui/checkbox";
 import { Separator } from "@/shared/components/ui/separator";
 import { cn } from "@/shared/lib/utils";
+import { useFilterTransition } from "@/shared/providers/filter-transition-provider";
 import { Check, X } from "@phosphor-icons/react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
-import { useFilterTransition } from "@/shared/providers/filter-transition-provider";
 
 interface ProjectTypeItem {
   id: string;
@@ -44,6 +44,7 @@ interface ProjectFiltersProps {
   currentCategorySlugs?: string[];
   services: ServiceItem[];
   currentServiceSlugs?: string[];
+  currentCondition?: string;
   onFilterChange?: () => void;
 }
 
@@ -54,6 +55,7 @@ export function ProjectFilters({
   currentCategorySlugs = [],
   services = [],
   currentServiceSlugs = [],
+  currentCondition = "",
   onFilterChange,
 }: ProjectFiltersProps) {
   const router = useRouter();
@@ -79,6 +81,7 @@ export function ProjectFilters({
   const [localProjectTypeSlug, setLocalProjectTypeSlug] = useState<string>("");
   const [localCategorySlugs, setLocalCategorySlugs] = useState<string[]>([]);
   const [localServiceSlugs, setLocalServiceSlugs] = useState<string[]>([]);
+  const [localCondition, setLocalCondition] = useState<string>("");
 
   // Keep local state in sync with props changes
   useEffect(() => {
@@ -87,13 +90,21 @@ export function ProjectFilters({
     setLocalProjectTypeSlug(currentProjectTypeSlug);
     setLocalCategorySlugs(currentCategorySlugs);
     setLocalServiceSlugs(currentServiceSlugs);
+    setLocalCondition(currentCondition);
     /* eslint-enable react-hooks/set-state-in-effect */
-  }, [currentProjectTypeSlug, currentCategorySlugs, currentServiceSlugs, isPending]);
+  }, [
+    currentProjectTypeSlug,
+    currentCategorySlugs,
+    currentServiceSlugs,
+    currentCondition,
+    isPending,
+  ]);
 
   const hasAnyFilter = !!(
     localProjectTypeSlug ||
     localCategorySlugs.length > 0 ||
-    localServiceSlugs.length > 0
+    localServiceSlugs.length > 0 ||
+    localCondition
   );
 
   const handleProjectTypeSelect = (slug: string | null) => {
@@ -177,16 +188,38 @@ export function ProjectFilters({
     if (onFilterChange) onFilterChange();
   };
 
+  const handleConditionToggle = (conditionValue: string | null) => {
+    const sParams = new URLSearchParams(searchParams.toString());
+    sParams.delete("page");
+
+    if (conditionValue === null || localCondition === conditionValue) {
+      setLocalCondition("");
+      sParams.delete("condition");
+    } else {
+      setLocalCondition(conditionValue);
+      sParams.set("condition", conditionValue);
+    }
+
+    startTransition(() => {
+      router.push(`${pathname}?${sParams.toString()}`, { scroll: false });
+      router.refresh();
+    });
+
+    if (onFilterChange) onFilterChange();
+  };
+
   const clearAllFilters = () => {
     setLocalProjectTypeSlug("");
     setLocalCategorySlugs([]);
     setLocalServiceSlugs([]);
+    setLocalCondition("");
 
     const sParams = new URLSearchParams(searchParams.toString());
     sParams.delete("page");
     sParams.delete("category");
     sParams.delete("service");
     sParams.delete("search");
+    sParams.delete("condition");
 
     startTransition(() => {
       router.push("/du-an", { scroll: false });
@@ -205,12 +238,15 @@ export function ProjectFilters({
     );
   }
 
-  const activeAccordionValues = ["Loại công trình", "Dịch vụ", "Loại sản phẩm"];
+  const activeAccordionValues = [
+    "Loại công trình",
+    "Dịch vụ",
+    "Loại sản phẩm",
+    "Tình trạng sản phẩm",
+  ];
 
   return (
     <div className="flex flex-col gap-2">
-
-
       <div className="flex items-center justify-between h-10">
         <h3 className="font-bold">Bộ lọc dự án</h3>
         {hasAnyFilter && (
@@ -241,7 +277,7 @@ export function ProjectFilters({
                 <span>Loại công trình</span>
                 {localProjectTypeSlug && (
                   <Badge variant="secondary">
-                    <Check data-icon="inline-start" className="w-3 h-3" /> 1 được chọn
+                    <Check data-icon="inline-start" className="w-3 h-3" />
                   </Badge>
                 )}
               </div>
@@ -256,7 +292,7 @@ export function ProjectFilters({
                     <label
                       key={st.id}
                       className={cn(
-                        "flex items-center gap-2 pr-4 py-2 rounded-md transition-colors group pl-6 hover:bg-muted/50 cursor-pointer"
+                        "flex items-center gap-2 pr-4 py-2 rounded-md transition-colors group pl-6 hover:bg-muted/50 cursor-pointer",
                       )}
                     >
                       <Checkbox
@@ -270,7 +306,7 @@ export function ProjectFilters({
                       <span
                         className={cn(
                           "text-sm font-medium leading-snug group-hover:text-foreground transition-colors",
-                          isActive && "text-foreground font-semibold"
+                          isActive && "text-foreground font-semibold",
                         )}
                       >
                         {st.name}
@@ -291,7 +327,7 @@ export function ProjectFilters({
                 <span>Dịch vụ</span>
                 {localServiceSlugs.length > 0 && (
                   <Badge variant="secondary">
-                    <Check data-icon="inline-start" className="w-3 h-3" /> {localServiceSlugs.length} chọn
+                    <Check data-icon="inline-start" className="w-3 h-3" />
                   </Badge>
                 )}
               </div>
@@ -306,7 +342,7 @@ export function ProjectFilters({
                     <label
                       key={svc.id}
                       className={cn(
-                        "flex items-center gap-2 pr-4 py-2 rounded-md transition-colors group pl-6 hover:bg-muted/50 cursor-pointer"
+                        "flex items-center gap-2 pr-4 py-2 rounded-md transition-colors group pl-6 hover:bg-muted/50 cursor-pointer",
                       )}
                     >
                       <Checkbox
@@ -318,7 +354,7 @@ export function ProjectFilters({
                       <span
                         className={cn(
                           "text-sm font-medium leading-snug group-hover:text-foreground transition-colors",
-                          isActive && "text-foreground font-semibold"
+                          isActive && "text-foreground font-semibold",
                         )}
                       >
                         {svc.name}
@@ -339,7 +375,7 @@ export function ProjectFilters({
                 <span>Loại sản phẩm</span>
                 {localCategorySlugs.length > 0 && (
                   <Badge variant="secondary">
-                    <Check data-icon="inline-start" className="w-3 h-3" /> {localCategorySlugs.length} chọn
+                    <Check data-icon="inline-start" className="w-3 h-3" />
                   </Badge>
                 )}
               </div>
@@ -354,7 +390,7 @@ export function ProjectFilters({
                     <label
                       key={cat.id}
                       className={cn(
-                        "flex items-center gap-2 pr-4 py-2 rounded-md transition-colors group pl-6 hover:bg-muted/50 cursor-pointer"
+                        "flex items-center gap-2 pr-4 py-2 rounded-md transition-colors group pl-6 hover:bg-muted/50 cursor-pointer",
                       )}
                     >
                       <Checkbox
@@ -366,7 +402,7 @@ export function ProjectFilters({
                       <span
                         className={cn(
                           "text-sm font-medium leading-snug group-hover:text-foreground transition-colors",
-                          isActive && "text-foreground font-semibold"
+                          isActive && "text-foreground font-semibold",
                         )}
                       >
                         {cat.name}
@@ -378,6 +414,69 @@ export function ProjectFilters({
             </AccordionContent>
           </AccordionItem>
         )}
+
+        {/* Condition (Tình trạng) */}
+        <AccordionItem value="Tình trạng sản phẩm">
+          <AccordionTrigger className="hover:no-underline">
+            <div className="flex items-center gap-2">
+              <span>Tình trạng sản phẩm</span>
+              {localCondition && (
+                <Badge variant="secondary">
+                  <Check data-icon="inline-start" className="w-3 h-3" />
+                </Badge>
+              )}
+            </div>
+          </AccordionTrigger>
+          <AccordionContent className="px-2 h-auto!">
+            <div className="flex flex-col gap-1 -mx-6">
+              <label
+                className={cn(
+                  "flex items-center gap-2 pr-4 py-2 rounded-md transition-colors group pl-6 hover:bg-muted/50 cursor-pointer",
+                )}
+              >
+                <Checkbox
+                  id="filter-condition-new"
+                  checked={localCondition === "new"}
+                  disabled={isPending}
+                  onCheckedChange={(checked) => {
+                    handleConditionToggle(checked ? "new" : null);
+                  }}
+                />
+                <span
+                  className={cn(
+                    "text-sm font-medium leading-snug group-hover:text-foreground transition-colors",
+                    localCondition === "new" && "text-foreground font-semibold",
+                  )}
+                >
+                  Mới
+                </span>
+              </label>
+              <label
+                className={cn(
+                  "flex items-center gap-2 pr-4 py-2 rounded-md transition-colors group pl-6 hover:bg-muted/50 cursor-pointer",
+                )}
+              >
+                <Checkbox
+                  id="filter-condition-used"
+                  checked={localCondition === "used"}
+                  disabled={isPending}
+                  onCheckedChange={(checked) => {
+                    handleConditionToggle(checked ? "used" : null);
+                  }}
+                />
+                <span
+                  className={cn(
+                    "text-sm font-medium leading-snug group-hover:text-foreground transition-colors",
+                    localCondition === "used" &&
+                      "text-foreground font-semibold",
+                  )}
+                >
+                  Cũ
+                </span>
+              </label>
+            </div>
+          </AccordionContent>
+        </AccordionItem>
       </Accordion>
 
       {hasAnyFilter && (
