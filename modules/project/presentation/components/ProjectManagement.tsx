@@ -752,155 +752,156 @@ export function ProjectManagement() {
                     />
 
                     {/* Dòng sản phẩm thực tế selection */}
-                    <Card>
-                      <CardHeader className="pb-4">
-                        <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
-                          <div className="space-y-1">
-                            <CardTitle className="text-sm font-semibold tracking-tight text-foreground">
-                              Dòng sản phẩm thực tế
-                            </CardTitle>
-                            <CardDescription className="text-xs text-muted-foreground">
-                              Tích chọn các dòng sản phẩm lắp đặt thực tế cho dự
-                              án này (Tự động điền theo loại hình công trình ở
-                              trên, bạn có thể tự chỉnh thêm).
-                            </CardDescription>
+                    {form.watch("projectTypeId") && (
+                      <Card>
+                        <CardHeader className="pb-4">
+                          <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+                            <div className="space-y-1">
+                              <CardTitle className="text-sm font-semibold tracking-tight text-foreground">
+                                Dòng sản phẩm thực tế
+                              </CardTitle>
+                              <CardDescription className="text-xs text-muted-foreground">
+                                Tích chọn các dòng sản phẩm lắp đặt thực tế cho dự
+                                án này (Tự động điền theo loại hình công trình ở
+                                trên, bạn có thể tự chỉnh thêm).
+                              </CardDescription>
+                            </div>
+                            <div className="flex items-center gap-2 shrink-0">
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                size="sm"
+                                className="h-8 text-xs px-3 hover:bg-muted"
+                                onClick={() => {
+                                  const allIds = categories.map((c) => c.id);
+                                  form.setValue("categoryIds", allIds);
+                                }}
+                              >
+                                Chọn tất cả
+                              </Button>
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                size="sm"
+                                className="h-8 text-xs px-3 text-destructive hover:bg-destructive/10 hover:text-destructive"
+                                onClick={() => {
+                                  form.setValue("categoryIds", []);
+                                }}
+                              >
+                                Bỏ chọn tất cả
+                              </Button>
+                            </div>
                           </div>
-                          <div className="flex items-center gap-2 shrink-0">
-                            <Button
-                              type="button"
-                              variant="outline"
-                              size="sm"
-                              // className="h-8 text-xs px-3 shadow-none"
-                              onClick={() => {
-                                const allIds = categories.map((c) => c.id);
-                                form.setValue("categoryIds", allIds);
-                              }}
-                            >
-                              Chọn tất cả
-                            </Button>
-                            <Button
-                              type="button"
-                              variant="outline"
-                              size="sm"
-                              // h-8 text-xs px-3 shadow-none
-                              className=" text-destructive hover:text-destructive "
-                              onClick={() => {
-                                form.setValue("categoryIds", []);
-                              }}
-                            >
-                              Bỏ chọn tất cả
-                            </Button>
-                          </div>
-                        </div>
-                      </CardHeader>
-                      <CardContent className="pt-0">
-                        <Controller
-                          control={form.control}
-                          name="categoryIds"
-                          render={({ field }) => {
-                            const checkedIds = field.value || [];
-                            const handleToggle = (
-                              id: string,
-                              checked: boolean,
-                            ) => {
-                              if (checked) {
-                                field.onChange([...checkedIds, id]);
-                              } else {
-                                field.onChange(
-                                  checkedIds.filter((x) => x !== id),
-                                );
-                              }
-                            };
+                        </CardHeader>
+                        <CardContent className="pt-0">
+                          <Controller
+                            control={form.control}
+                            name="categoryIds"
+                            render={({ field }) => {
+                              const checkedIds = field.value || [];
+                              const handleToggle = (
+                                id: string,
+                                checked: boolean,
+                              ) => {
+                                if (checked) {
+                                  field.onChange([...checkedIds, id]);
+                                } else {
+                                  field.onChange(
+                                    checkedIds.filter((x) => x !== id),
+                                  );
+                                }
+                              };
 
-                            return (
-                              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
-                                {Object.entries(groupedCategories).map(
-                                  ([groupName, items]) => (
-                                    <Card key={groupName}>
-                                      <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
-                                        <span className="font-semibold text-md text-primary w-fit">
-                                          {groupName}
-                                        </span>
-                                        <div className="flex items-center gap-2">
-                                          <button
-                                            type="button"
-                                            className="text-xs text-muted-foreground hover:text-primary transition-colors cursor-pointer"
-                                            onClick={() => {
-                                              const groupItemIds = items.map(
-                                                (cat) => cat.id,
-                                              );
-                                              const otherIds =
-                                                checkedIds.filter(
-                                                  (id) =>
-                                                    !groupItemIds.includes(id),
-                                                );
-                                              field.onChange([
-                                                ...otherIds,
-                                                ...groupItemIds,
-                                              ]);
-                                            }}
-                                          >
-                                            Chọn tất cả
-                                          </button>
-                                          <span className="text-sm text-muted-foreground/30">
-                                            |
+                              return (
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
+                                  {Object.entries(groupedCategories).map(
+                                    ([groupName, items]) => (
+                                      <Card key={groupName}>
+                                        <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
+                                          <span className="font-semibold text-md text-primary w-fit">
+                                            {groupName}
                                           </span>
-                                          <button
-                                            type="button"
-                                            className="text-xs text-muted-foreground hover:text-destructive transition-colors cursor-pointer"
-                                            onClick={() => {
-                                              const groupItemIds = items.map(
-                                                (cat) => cat.id,
-                                              );
-                                              const otherIds =
-                                                checkedIds.filter(
-                                                  (id) =>
-                                                    !groupItemIds.includes(id),
+                                          <div className="flex items-center gap-2">
+                                            <button
+                                              type="button"
+                                              className="text-xs text-muted-foreground hover:text-primary transition-colors cursor-pointer"
+                                              onClick={() => {
+                                                const groupItemIds = items.map(
+                                                  (cat) => cat.id,
                                                 );
-                                              field.onChange(otherIds);
-                                            }}
-                                          >
-                                            Bỏ chọn
-                                          </button>
-                                        </div>
-                                      </CardHeader>
-                                      <CardContent className="grid grid-cols-1 sm:grid-cols-2 gap-3 ">
-                                        {items.map((cat) => {
-                                          const isChecked = checkedIds.includes(
-                                            cat.id,
-                                          );
-                                          return (
-                                            <label
-                                              key={cat.id}
-                                              className="flex items-center gap-3 text-xs font-medium text-foreground/80 cursor-pointer hover:text-primary transition-colors select-none hover:bg-muted/30"
+                                                const otherIds =
+                                                  checkedIds.filter(
+                                                    (id) =>
+                                                      !groupItemIds.includes(id),
+                                                  );
+                                                field.onChange([
+                                                  ...otherIds,
+                                                  ...groupItemIds,
+                                                ]);
+                                              }}
                                             >
-                                              <input
-                                                type="checkbox"
-                                                className="h-4.5 w-4.5  border-input text-primary cursor-pointer accent-primary shrink-0"
-                                                checked={isChecked}
-                                                onChange={(e) =>
-                                                  handleToggle(
-                                                    cat.id,
-                                                    e.target.checked,
-                                                  )
-                                                }
-                                              />
-                                              <span className="leading-tight">
-                                                {cat.name}
-                                              </span>
-                                            </label>
-                                          );
-                                        })}
-                                      </CardContent>
-                                    </Card>
-                                  ),
-                                )}
-                              </div>
-                            );
-                          }}
-                        />
-                      </CardContent>
-                    </Card>
+                                              Chọn tất cả
+                                            </button>
+                                            <span className="text-sm text-muted-foreground/30">
+                                              |
+                                            </span>
+                                            <button
+                                              type="button"
+                                              className="text-xs text-muted-foreground hover:text-destructive transition-colors cursor-pointer"
+                                              onClick={() => {
+                                                const groupItemIds = items.map(
+                                                  (cat) => cat.id,
+                                                );
+                                                const otherIds =
+                                                  checkedIds.filter(
+                                                    (id) =>
+                                                      !groupItemIds.includes(id),
+                                                  );
+                                                field.onChange(otherIds);
+                                              }}
+                                            >
+                                              Bỏ chọn
+                                            </button>
+                                          </div>
+                                        </CardHeader>
+                                        <CardContent className="grid grid-cols-1 sm:grid-cols-2 gap-3 ">
+                                          {items.map((cat) => {
+                                            const isChecked = checkedIds.includes(
+                                              cat.id,
+                                            );
+                                            return (
+                                              <label
+                                                key={cat.id}
+                                                className="flex items-center gap-3 text-xs font-medium text-foreground/80 cursor-pointer hover:text-primary transition-colors select-none hover:bg-muted/30"
+                                              >
+                                                <input
+                                                  type="checkbox"
+                                                  className="h-4.5 w-4.5  border-input text-primary cursor-pointer accent-primary shrink-0"
+                                                  checked={isChecked}
+                                                  onChange={(e) =>
+                                                    handleToggle(
+                                                      cat.id,
+                                                      e.target.checked,
+                                                    )
+                                                  }
+                                                />
+                                                <span className="leading-tight">
+                                                  {cat.name}
+                                                </span>
+                                              </label>
+                                            );
+                                          })}
+                                        </CardContent>
+                                      </Card>
+                                    ),
+                                  )}
+                                </div>
+                              );
+                            }}
+                          />
+                        </CardContent>
+                      </Card>
+                    )}
                   </div>
                 </TabsContent>
 
