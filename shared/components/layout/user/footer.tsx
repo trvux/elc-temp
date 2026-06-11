@@ -312,7 +312,7 @@ export function Footer({
                 >
                   <span>Xem tất cả</span>
                   <span className="transition-transform group-hover:translate-x-0.5">
-                    →
+                    <ArrowRightIcon />
                   </span>
                 </Link>
               </div>
