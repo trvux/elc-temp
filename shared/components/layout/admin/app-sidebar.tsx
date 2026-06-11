@@ -17,7 +17,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/shared/components/ui/sidebar"
-import { TerminalSquareIcon, BotIcon, BookOpenIcon, Settings2Icon, LifeBuoyIcon, SendIcon, FrameIcon, PieChartIcon, MapIcon, TerminalIcon } from "lucide-react"
+import { TerminalWindow, Robot, BookOpen, Sliders, Lifebuoy, PaperPlane, Crop, ChartPie, MapTrifold, Terminal } from "@phosphor-icons/react";
 
 const data = {
   user: {
@@ -30,7 +30,7 @@ const data = {
       title: "Playground",
       url: "#",
       icon: (
-        <TerminalSquareIcon
+        <TerminalWindow
         />
       ),
       isActive: true,
@@ -53,7 +53,7 @@ const data = {
       title: "Models",
       url: "#",
       icon: (
-        <BotIcon
+        <Robot
         />
       ),
       items: [
@@ -75,7 +75,7 @@ const data = {
       title: "Documentation",
       url: "#",
       icon: (
-        <BookOpenIcon
+        <BookOpen
         />
       ),
       items: [
@@ -101,7 +101,7 @@ const data = {
       title: "Settings",
       url: "#",
       icon: (
-        <Settings2Icon
+        <Sliders
         />
       ),
       items: [
@@ -129,7 +129,7 @@ const data = {
       title: "Support",
       url: "#",
       icon: (
-        <LifeBuoyIcon
+        <Lifebuoy
         />
       ),
     },
@@ -137,7 +137,7 @@ const data = {
       title: "Feedback",
       url: "#",
       icon: (
-        <SendIcon
+        <PaperPlane
         />
       ),
     },
@@ -147,7 +147,7 @@ const data = {
       name: "Design Engineering",
       url: "#",
       icon: (
-        <FrameIcon
+        <Crop
         />
       ),
     },
@@ -155,7 +155,7 @@ const data = {
       name: "Sales & Marketing",
       url: "#",
       icon: (
-        <PieChartIcon
+        <ChartPie
         />
       ),
     },
@@ -163,7 +163,7 @@ const data = {
       name: "Travel",
       url: "#",
       icon: (
-        <MapIcon
+        <MapTrifold
         />
       ),
     },
@@ -179,7 +179,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             <SidebarMenuButton size="lg" asChild>
               <Link href="#">
                 <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
-                  <TerminalIcon className="size-4" />
+                  <Terminal className="size-4" />
                 </div>
                 <div className="grid flex-1 text-left text-sm leading-tight">
                   <span className="truncate font-medium">Acme Inc</span>

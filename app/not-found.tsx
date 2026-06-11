@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@/shared/components/ui/button";
-import { ArrowLeft, Home } from "lucide-react";
+import { ArrowLeft, House } from "@phosphor-icons/react";
 import Link from "next/link";
 
 export default function NotFound() {
@@ -24,7 +24,7 @@ export default function NotFound() {
         <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-4">
           <Button asChild className="w-full sm:w-auto gap-2">
             <Link href="/">
-              <Home size={18} />
+              <House size={18} />
               Quay về trang chủ
             </Link>
           </Button>

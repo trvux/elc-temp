@@ -1,6 +1,6 @@
 import React from "react";
 import { Contact } from "../../domain/types";
-import { Phone, Mail, MapPin, Globe } from "lucide-react";
+import { Phone, Envelope, MapPin, Globe } from "@phosphor-icons/react/dist/ssr";
 
 interface ContactListProps {
   contacts: Contact[];
@@ -10,7 +10,7 @@ export const ContactList: React.FC<ContactListProps> = ({ contacts }) => {
   const getIcon = (type: string) => {
     switch (type.toLowerCase()) {
       case "phone": return <Phone className="w-4 h-4" />;
-      case "email": return <Mail className="w-4 h-4" />;
+      case "email": return <Envelope className="w-4 h-4" />;
       case "address": return <MapPin className="w-4 h-4" />;
       default: return <Globe className="w-4 h-4" />;
     }

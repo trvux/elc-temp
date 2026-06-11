@@ -4,7 +4,7 @@ import { ColumnDef } from "@tanstack/react-table";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
 import { ButtonGroup } from "@/shared/components/ui/button-group";
-import { Edit2, Trash2 } from "lucide-react";
+import { PencilSimple, Trash } from "@phosphor-icons/react";
 import { Contact, CONTACT_TYPES } from "../../domain";
 
 interface ColumnProps {
@@ -77,7 +77,7 @@ export const getContactColumns = ({
             onClick={() => onEdit(contact)}
             className="h-8 w-8 text-muted-foreground hover:text-primary"
           >
-            <Edit2 size={14} />
+            <PencilSimple size={14} />
           </Button>
           <Button
             variant="ghost"
@@ -85,7 +85,7 @@ export const getContactColumns = ({
             onClick={() => onDelete(contact.id)}
             className="h-8 w-8 text-muted-foreground hover:text-destructive"
           >
-            <Trash2 size={14} />
+            <Trash size={14} />
           </Button>
         </ButtonGroup>
       );

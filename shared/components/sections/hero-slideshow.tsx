@@ -118,7 +118,7 @@ export function HeroSlideshow({
                     src={src}
                     alt={`Slide ${index + 1}`}
                     fill
-                    quality={90}
+                    quality={75}
                     priority={index === 0}
                     loading={index === 0 ? "eager" : "lazy"}
                     draggable={false}

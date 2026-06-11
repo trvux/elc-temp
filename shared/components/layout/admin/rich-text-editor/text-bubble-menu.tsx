@@ -14,14 +14,7 @@ import {
 import { cn } from "@/shared/lib/utils";
 import { type Editor } from "@tiptap/react";
 import { BubbleMenu } from "@tiptap/react/menus";
-import {
-  Bold,
-  Eraser,
-  Italic,
-  Link as LinkIcon,
-  List,
-  Quote,
-} from "lucide-react";
+import { TextB, Eraser, TextItalic, Link as LinkIcon, List, Quotes } from "@phosphor-icons/react";
 import { useCallback, useState } from "react";
 
 interface TextBubbleMenuProps {
@@ -72,11 +65,12 @@ export const TextBubbleMenu = ({ editor }: TextBubbleMenuProps) => {
         return (
           !selection.empty &&
           !currentEditor.isActive("image") &&
-          !currentEditor.isActive("table")
+          !currentEditor.isActive("table") &&
+          !currentEditor.isActive("horizontalRule")
         );
       }}
     >
-      <div className="text-primary-foreground bg-primary rounded-lg p-1 shadow-md">
+      <div className="tiptap-menu-wrapper">
         <ButtonGroup>
           {/* Bold */}
           <Button
@@ -87,7 +81,7 @@ export const TextBubbleMenu = ({ editor }: TextBubbleMenuProps) => {
             disabled={isH1 || isH2}
             className={cn(!(isH1 || isH2) && editor.isActive("bold") ? "text-green-300" : "")}
           >
-            <Bold size={16} />
+            <TextB size={16} />
           </Button>
 
           {/* Italic */}
@@ -99,7 +93,7 @@ export const TextBubbleMenu = ({ editor }: TextBubbleMenuProps) => {
             disabled={isH1 || isH2}
             className={cn(!(isH1 || isH2) && editor.isActive("italic") ? "text-green-300" : "")}
           >
-            <Italic size={16} />
+            <TextItalic size={16} />
           </Button>
 
           {/* Link */}
@@ -189,7 +183,7 @@ export const TextBubbleMenu = ({ editor }: TextBubbleMenuProps) => {
               editor.isActive("blockquote") ? "text-green-300" : "",
             )}
           >
-            <Quote size={16} />
+            <Quotes size={16} />
           </Button>
 
           {/* Bullet List */}

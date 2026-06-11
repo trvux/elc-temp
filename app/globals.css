@@ -78,13 +78,16 @@
 }
 
 /* Tiptap base image transition (only in editor mode) */
-.tiptap.ProseMirror img {
+.tiptap.ProseMirror img,
+.tiptap.ProseMirror .tableWrapper {
   transition: outline 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
 }
 
-/* Tiptap selected image styling (only in editor mode) */
+/* Tiptap selected elements styling (only in editor mode) */
 .tiptap.ProseMirror img.ProseMirror-selectednode,
-.tiptap.ProseMirror .ProseMirror-selectednode {
+.tiptap.ProseMirror .ProseMirror-selectednode:not(table),
+.tiptap.ProseMirror .tableWrapper:has(table:focus-within),
+.tiptap.ProseMirror .tableWrapper:has(table.ProseMirror-selectednode) {
   outline: 3px solid oklch(0.68 0.20 145) !important;
   outline-offset: 2px;
   box-shadow: 0 0 0 6px oklch(0.68 0.20 145 / 20%) !important;
@@ -333,4 +336,68 @@
   --sidebar-accent-foreground: oklch(0.985 0 0);
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.556 0 0);
+}
+
+/* Tiptap Bubble Menu Wrapper Inversion */
+.tiptap-menu-wrapper {
+  display: flex;
+  align-items: center;
+  border-radius: var(--radius-lg);
+  padding: 0.25rem;
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  border: 1px solid var(--border);
+}
+
+/* Light mode site -> Dark bubble menu */
+:root:not(.dark) .tiptap-menu-wrapper {
+  background-color: oklch(0.145 0 0);
+  color: oklch(0.985 0 0);
+  border-color: oklch(1 0 0 / 10%);
+}
+
+/* Dark mode site -> Light bubble menu */
+.dark .tiptap-menu-wrapper {
+  background-color: oklch(1 0 0);
+  color: oklch(0.145 0 0);
+  border-color: oklch(0.922 0 0);
+}
+
+/* Button overrides inside the menu */
+.tiptap-menu-wrapper [data-slot="button"],
+.tiptap-menu-wrapper [data-slot="popover-trigger"] {
+  background-color: transparent !important;
+  color: inherit !important;
+  border-color: transparent !important;
+  box-shadow: none !important;
+}
+
+/* Hover style for buttons inside the menu */
+.tiptap-menu-wrapper [data-slot="button"]:hover:not(:disabled),
+.tiptap-menu-wrapper [data-slot="popover-trigger"]:hover:not(:disabled) {
+  background-color: color-mix(in srgb, currentColor 10%, transparent) !important;
+}
+
+/* Color adjustments for Tiptap Bubble Menu buttons */
+.tiptap-menu-wrapper .text-green-300 {
+  color: oklch(0.50 0.15 145) !important;
+}
+.dark .tiptap-menu-wrapper .text-green-300,
+:root:not(.dark) .tiptap-menu-wrapper .text-green-300 {
+  color: oklch(0.85 0.15 145) !important;
+}
+
+.tiptap-menu-wrapper .text-blue-300 {
+  color: oklch(0.50 0.15 250) !important;
+}
+.dark .tiptap-menu-wrapper .text-blue-300,
+:root:not(.dark) .tiptap-menu-wrapper .text-blue-300 {
+  color: oklch(0.85 0.10 250) !important;
+}
+
+.tiptap-menu-wrapper .text-red-400 {
+  color: oklch(0.55 0.20 27) !important;
+}
+.dark .tiptap-menu-wrapper .text-red-400,
+:root:not(.dark) .tiptap-menu-wrapper .text-red-400 {
+  color: oklch(0.75 0.15 27) !important;
 }

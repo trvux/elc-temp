@@ -5,7 +5,7 @@ import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
 import { ButtonGroup } from "@/shared/components/ui/button-group";
 import { ColumnDef } from "@tanstack/react-table";
-import { Check, Minus, Edit2, Star, Trash2, X } from "lucide-react";
+import { Check, Minus, PencilSimple, Star, Trash, X } from "@phosphor-icons/react";
 import Image from "next/image";
 import { ProductWithRelations, formatPrice, PRODUCT_LABELS } from "../../domain";
 import { StockBadge } from "@/shared/components/ui/stock-badge";
@@ -211,7 +211,7 @@ export const getProductColumns = ({
             onClick={() => onEdit(product)}
             className="h-8 w-8 text-muted-foreground hover:text-primary"
           >
-            <Edit2 size={14} />
+            <PencilSimple size={14} />
           </Button>
           <Button
             variant="ghost"
@@ -219,7 +219,7 @@ export const getProductColumns = ({
             onClick={() => onDelete(product.id)}
             className="h-8 w-8 text-muted-foreground hover:text-destructive"
           >
-            <Trash2 size={14} />
+            <Trash size={14} />
           </Button>
         </ButtonGroup>
       );

@@ -10,7 +10,7 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/shared/components/ui/sheet";
-import { Filter } from "lucide-react";
+import { Funnel } from "@phosphor-icons/react";
 import { useParams, useSearchParams } from "next/navigation";
 import { useMemo } from "react";
 import { ProductFilters, type ProductFilterCategory } from "./ProductFilters";
@@ -61,7 +61,7 @@ export function ProductFilterMobile({
       <Sheet>
         <SheetTrigger asChild>
           <Button variant="outline" className="relative gap-2">
-            <Filter data-icon="inline-start" />
+            <Funnel data-icon="inline-start" />
             <span className="hidden sm:inline">Lọc sản phẩm</span>
             <span className="sm:hidden">Lọc</span>
             {activeFilterCount > 0 && (

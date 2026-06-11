@@ -17,7 +17,7 @@ import { ProjectWithCategory as Project } from "@/modules/project/domain";
 import { ProjectCard } from "@/modules/project/presentation/components/ProjectCard";
 import { ScrollArea } from "@/shared/components/ui/scroll-area";
 import { Tabs, TabsList, TabsTrigger } from "@/shared/components/ui/tabs";
-import { ArrowUpRight } from "lucide-react";
+import { ArrowUpRight } from "@phosphor-icons/react";
 
 interface ShowcaseSectionProps {
   projects: Project[];

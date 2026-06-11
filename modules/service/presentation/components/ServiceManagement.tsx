@@ -45,7 +45,7 @@ import {
 } from "@/shared/components/ui/select";
 import { Switch } from "@/shared/components/ui/switch";
 import { Textarea } from "@/shared/components/ui/textarea";
-import { Plus, X } from "lucide-react";
+import { Plus, X } from "@phosphor-icons/react";
 import { Controller } from "react-hook-form";
 
 interface ServiceManagementProps {

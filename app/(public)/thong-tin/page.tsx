@@ -12,7 +12,7 @@ import {
 import { sortByOrderIndex } from "@/shared/lib/helpers";
 import { setUseStaticClient } from "@/shared/lib/supabase/server";
 import { cn } from "@/shared/lib/utils";
-import { ArrowUpRight } from "lucide-react";
+import { ArrowUpRight } from "@phosphor-icons/react/dist/ssr";
 import { cacheLife } from "next/cache";
 import Link from "next/link";
 

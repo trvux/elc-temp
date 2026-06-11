@@ -3,7 +3,7 @@
 import { Button } from "@/shared/components/ui/button";
 import { Collapsible, CollapsibleTrigger } from "@/shared/components/ui/collapsible";
 import { cn } from "@/shared/lib/utils";
-import { ChevronDown, ChevronUp } from "lucide-react";
+import { CaretDown, CaretUp } from "@phosphor-icons/react";
 import { useState } from "react";
 import { PreviewContent } from "@/shared/components/layout/user/preview-content";
 
@@ -50,9 +50,9 @@ export function ProductDescription({ content }: ProductDescriptionProps) {
               {isOpen ? "Thu gọn nội dung" : "Xem thêm nội dung"}
             </span>
             {isOpen ? (
-              <ChevronUp className="w-4 h-4 text-foreground group-hover:text-foreground transition-colors" />
+              <CaretUp className="w-4 h-4 text-foreground group-hover:text-foreground transition-colors" />
             ) : (
-              <ChevronDown className="w-4 h-4 text-foreground group-hover:text-foreground transition-colors" />
+              <CaretDown className="w-4 h-4 text-foreground group-hover:text-foreground transition-colors" />
             )}
           </Button>
         </CollapsibleTrigger>

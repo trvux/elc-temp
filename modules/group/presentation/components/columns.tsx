@@ -1,5 +1,5 @@
 import { ColumnDef } from "@tanstack/react-table";
-import { Edit2, Trash2, Star, Minus, ExternalLink } from "lucide-react";
+import { PencilSimple, Trash, Star, Minus, ArrowSquareOut } from "@phosphor-icons/react/dist/ssr";
 import { Button } from "@/shared/components/ui/button";
 import { Badge } from "@/shared/components/ui/badge";
 import { AspectRatio } from "@/shared/components/ui/aspect-ratio";
@@ -56,7 +56,7 @@ export function getColumns({ onEdit, onDelete }: ColumnsProps): ColumnDef<GroupR
               className="text-[11px] text-foreground/75 hover:text-foreground hover:underline flex items-center gap-1 w-fit"
             >
               /{row.original.slug}
-              <ExternalLink size={11} />
+              <ArrowSquareOut size={11} />
             </a>
           )}
         </div>
@@ -104,7 +104,7 @@ export function getColumns({ onEdit, onDelete }: ColumnsProps): ColumnDef<GroupR
               onClick={() => onEdit(row.original)}
               className="h-8 w-8 text-muted-foreground hover:text-primary"
             >
-              <Edit2 size={14} />
+              <PencilSimple size={14} />
             </Button>
             <Button
               variant="ghost"
@@ -112,7 +112,7 @@ export function getColumns({ onEdit, onDelete }: ColumnsProps): ColumnDef<GroupR
               onClick={() => onDelete(row.original.id)}
               className="h-8 w-8 text-muted-foreground hover:text-destructive"
             >
-              <Trash2 size={14} />
+              <Trash size={14} />
             </Button>
           </ButtonGroup>
         </div>

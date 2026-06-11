@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import Image from "next/image";
-import { Upload, X, Loader2 } from "lucide-react";
+import { Upload, X, Spinner } from "@phosphor-icons/react";
 import { toast } from "sonner";
 
 import { AspectRatio } from "@/shared/components/ui/aspect-ratio";
@@ -187,7 +187,7 @@ export function ImageUpload({
 
           {uploading && (
             <div className="absolute inset-0 bg-background/80 backdrop-blur-[1px] flex flex-col items-center justify-center gap-2 z-20">
-              <Loader2 className="h-8 w-8 animate-spin text-primary" />
+              <Spinner className="h-8 w-8 animate-spin text-primary" />
               <span className="text-xs font-semibold text-primary uppercase tracking-wider animate-pulse">
                 Đang xử lý ảnh...
               </span>

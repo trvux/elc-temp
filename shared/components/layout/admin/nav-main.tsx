@@ -18,7 +18,7 @@ import {
   SidebarMenuSubButton,
   SidebarMenuSubItem,
 } from "@/shared/components/ui/sidebar"
-import { ChevronRightIcon } from "lucide-react"
+import { CaretRight } from "@phosphor-icons/react";
 
 export function NavMain({
   items,
@@ -51,7 +51,7 @@ export function NavMain({
                 <>
                   <CollapsibleTrigger asChild>
                     <SidebarMenuAction className="data-[state=open]:rotate-90">
-                      <ChevronRightIcon
+                      <CaretRight
                       />
                       <span className="sr-only">Toggle</span>
                     </SidebarMenuAction>

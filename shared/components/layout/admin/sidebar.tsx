@@ -26,42 +26,25 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/shared/components/ui/sidebar";
-import {
-  Award,
-  ChevronsUpDown,
-  FileText,
-  FolderKanban,
-  LayoutDashboard,
-  LogOut,
-  MapPin,
-  Package,
-  Phone,
-  Settings,
-  ShieldCheck,
-  Grid,
-  List,
-  Layers,
-  Briefcase,
-  LayoutGrid,
-} from "lucide-react";
+import { Medal, CaretUpDown, FileText, Kanban, Gauge, SignOut, MapPin, Package, Phone, Gear, ShieldCheck, GridFour, List, Stack, Briefcase, SquaresFour } from "@phosphor-icons/react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 
 const navItems = [
-  { href: "/admin", label: "Tổng quan", icon: LayoutDashboard },
-  { href: "/admin/group-categories", label: "Nhóm danh mục", icon: Grid },
+  { href: "/admin", label: "Tổng quan", icon: Gauge },
+  { href: "/admin/group-categories", label: "Nhóm danh mục", icon: GridFour },
   { href: "/admin/categories", label: "Danh mục", icon: List },
-  { href: "/admin/project-types", label: "Loại hình công trình", icon: Layers },
-  { href: "/admin/brands", label: "Thương hiệu", icon: Award },
-  { href: "/admin/projects", label: "Dự án", icon: FolderKanban },
+  { href: "/admin/project-types", label: "Loại hình công trình", icon: Stack },
+  { href: "/admin/brands", label: "Thương hiệu", icon: Medal },
+  { href: "/admin/projects", label: "Dự án", icon: Kanban },
   { href: "/admin/products", label: "Sản phẩm", icon: Package },
-  { href: "/admin/service-groups", label: "Nhóm dịch vụ", icon: LayoutGrid },
+  { href: "/admin/service-groups", label: "Nhóm dịch vụ", icon: SquaresFour },
   { href: "/admin/services", label: "Dịch vụ", icon: Briefcase },
   { href: "/admin/news", label: "Tin tức", icon: FileText },
   { href: "/admin/pages", label: "Trang tĩnh", icon: FileText },
   { href: "/admin/contacts", label: "Liên hệ", icon: Phone },
   { href: "/admin/branches", label: "Cơ sở hạ tầng", icon: MapPin },
-  { href: "/admin/settings", label: "Cài đặt", icon: Settings },
+  { href: "/admin/settings", label: "Cài đặt", icon: Gear },
 ];
 
 type UserInfo = { name: string; email: string; avatar: string };
@@ -103,7 +86,7 @@ function NavUser({ user }: { user: UserInfo }) {
                   {user.email}
                 </span>
               </div>
-              <ChevronsUpDown className="ml-auto size-4" />
+              <CaretUpDown className="ml-auto size-4" />
             </SidebarMenuButton>
           </DropdownMenuTrigger>
           <DropdownMenuContent
@@ -135,7 +118,7 @@ function NavUser({ user }: { user: UserInfo }) {
               onClick={handleLogout}
               className="text-destructive focus:text-destructive focus:bg-destructive/10"
             >
-              <LogOut className="mr-2 size-4" />
+              <SignOut className="mr-2 size-4" />
               Đăng xuất
             </DropdownMenuItem>
           </DropdownMenuContent>

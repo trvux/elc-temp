@@ -3,7 +3,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { News } from "../../domain/types";
 import { Card, CardContent } from "@/shared/components/ui/card";
-import { Calendar } from "lucide-react";
+import { Calendar } from "@phosphor-icons/react/dist/ssr";
 
 interface NewsCardProps {
   news: News;

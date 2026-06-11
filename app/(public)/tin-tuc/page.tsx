@@ -9,7 +9,7 @@ import {
 } from "@/shared/components/ui/typography";
 import { setUseStaticClient } from "@/shared/lib/supabase/server";
 import { cn } from "@/shared/lib/utils";
-import { ArrowUpRight as ArrowIcon } from "lucide-react";
+import { ArrowUpRight as ArrowIcon } from "@phosphor-icons/react/dist/ssr";
 import { cacheLife } from "next/cache";
 import Image from "next/image";
 import Link from "next/link";

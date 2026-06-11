@@ -22,6 +22,15 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  experimental: {
+    optimizePackageImports: [
+      "@phosphor-icons/react",
+      "@tabler/icons-react",
+      "@fortawesome/react-fontawesome",
+      "@fortawesome/free-solid-svg-icons",
+      "@fortawesome/free-brands-svg-icons",
+    ],
+  },
   turbopack: {
     root: __dirname,
   },

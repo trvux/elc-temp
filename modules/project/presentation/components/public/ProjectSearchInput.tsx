@@ -1,6 +1,6 @@
 "use client";
 
-import { Search, X } from "lucide-react";
+import { MagnifyingGlass, X } from "@phosphor-icons/react";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { useEffect, useRef, useState, useTransition } from "react";
 
@@ -69,7 +69,7 @@ export function ProjectSearchInput() {
       <InputGroup>
         <InputGroupAddon align="inline-start">
           <InputGroupText>
-            <Search />
+            <MagnifyingGlass />
           </InputGroupText>
         </InputGroupAddon>
         <InputGroupInput

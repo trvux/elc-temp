@@ -3,7 +3,7 @@ import { Button } from "@/shared/components/ui/button";
 import { ButtonGroup } from "@/shared/components/ui/button-group";
 import { formatCurrency } from "@/shared/lib/utils";
 import { ColumnDef } from "@tanstack/react-table";
-import { Check, Edit2, Minus, Star, Trash2, X } from "lucide-react";
+import { Check, PencilSimple, Minus, Star, Trash, X } from "@phosphor-icons/react/dist/ssr";
 import Image from "next/image";
 import { ServiceWithRelations } from "../../domain/types";
 
@@ -219,7 +219,7 @@ export const getServiceColumns = ({
             onClick={() => onEdit(service)}
             className="h-8 w-8 text-muted-foreground hover:text-primary"
           >
-            <Edit2 size={14} />
+            <PencilSimple size={14} />
           </Button>
           <Button
             variant="ghost"
@@ -227,7 +227,7 @@ export const getServiceColumns = ({
             onClick={() => onDelete(service.id)}
             className="h-8 w-8 text-muted-foreground hover:text-destructive"
           >
-            <Trash2 size={14} />
+            <Trash size={14} />
           </Button>
         </ButtonGroup>
       );

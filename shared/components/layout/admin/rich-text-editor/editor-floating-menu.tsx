@@ -11,12 +11,7 @@ import { convertToWebP } from "@/shared/lib/image";
 import { type Editor } from "@tiptap/react";
 import { FloatingMenu } from "@tiptap/react/menus";
 import { Selection } from "@tiptap/pm/state";
-import {
-  Image as ImageIcon,
-  MoreHorizontal,
-  Plus,
-  Table as TableIcon,
-} from "lucide-react";
+import { Image as ImageIcon, DotsThree, Plus, Table as TableIcon } from "@phosphor-icons/react";
 import { useCallback } from "react";
 
 interface EditorFloatingMenuProps {
@@ -147,7 +142,7 @@ export const EditorFloatingMenu = ({
               onClick={() => editor.chain().focus().setHorizontalRule().run()}
               title="Add Part Separator"
             >
-              <MoreHorizontal />
+              <DotsThree />
             </Button>
           </ButtonGroup>
         </PopoverContent>
