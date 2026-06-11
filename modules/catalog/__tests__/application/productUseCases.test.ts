@@ -4,9 +4,9 @@ import { getFeaturedProducts } from "../../application/getFeaturedProducts";
 import { getProductBySlug } from "../../application/getProductBySlug";
 import { getProducts } from "../../application/getProducts";
 import { updateProduct } from "../../application/updateProduct";
-import { productRepo } from "../../infrastructure";
+import { productRepo } from "../../infrastructure/SupabaseProductRepository";
 
-vi.mock("../../infrastructure", () => ({
+vi.mock("../../infrastructure/SupabaseProductRepository", () => ({
   productRepo: {
     create: vi.fn(),
     update: vi.fn(),
@@ -37,6 +37,7 @@ describe("Product Application Use Cases", () => {
     categoryId: "550e8400-e29b-411d-a716-446655440001",
     brandId: "550e8400-e29b-411d-a716-446655440002",
     stockStatus: "in_stock" as const,
+    condition: "new" as const,
     labels: [],
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),

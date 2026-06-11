@@ -9,7 +9,7 @@ import { convertToWebP } from "@/shared/lib/image";
 import { createClient } from "@/shared/lib/supabase/client";
 import { generateSlug } from "@/shared/lib/helpers";
 
-import { createProductSchema, ProductWithRelations, STOCK_STATUS, SpecItem, SpecSubItem, CreateProductInput, UpdateProductInput } from "../../domain";
+import { createProductSchema, ProductWithRelations, STOCK_STATUS, PRODUCT_CONDITION, SpecItem, SpecSubItem, CreateProductInput, UpdateProductInput } from "../../domain";
 import { createProductAction, updateProductAction } from "../actions";
 
 export type ProductFormValues = Omit<
@@ -71,6 +71,7 @@ export function useProductForm(
       categoryId: "",
       brandId: "",
       stockStatus: STOCK_STATUS.IN_STOCK,
+      condition: PRODUCT_CONDITION.NEW,
       mpn: "",
       gtin: "",
       metaTitle: "",

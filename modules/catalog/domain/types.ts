@@ -1,7 +1,7 @@
 
 import { Brand, CreateBrandInput, UpdateBrandInput } from "../../brand/domain";
 export type { Brand, CreateBrandInput, UpdateBrandInput };
-import { StockStatus } from "./constants";
+import { StockStatus, ProductCondition } from "./constants";
 
 export type Json =
     | string
@@ -32,6 +32,7 @@ export interface Product {
     categoryId: string;
     brandId: string;
     stockStatus: StockStatus;
+    condition: ProductCondition;
     mpn?: string | null;
     gtin?: string | null;
     createdAt: string;
@@ -69,6 +70,7 @@ export interface CreateProductInput {
     categoryId: string;
     brandId: string;
     stockStatus?: StockStatus;
+    condition?: ProductCondition;
     mpn?: string | null;
     gtin?: string | null;
 }

@@ -26,7 +26,7 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/shared/components/ui/sidebar";
-import { Medal, CaretUpDown, FileText, Kanban, Gauge, SignOut, MapPin, Package, Phone, Gear, ShieldCheck, GridFour, List, Stack, Briefcase, SquaresFour } from "@phosphor-icons/react";
+import { Medal, CaretUpDown, FileText, Kanban, Gauge, SignOut, MapPin, Package, Phone, Gear, ShieldCheck, GridFour, List, Stack, Briefcase, SquaresFour, Newspaper } from "@phosphor-icons/react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 
@@ -40,7 +40,7 @@ const navItems = [
   { href: "/admin/products", label: "Sản phẩm", icon: Package },
   { href: "/admin/service-groups", label: "Nhóm dịch vụ", icon: SquaresFour },
   { href: "/admin/services", label: "Dịch vụ", icon: Briefcase },
-  { href: "/admin/news", label: "Tin tức", icon: FileText },
+  { href: "/admin/news", label: "Tin tức", icon: Newspaper },
   { href: "/admin/pages", label: "Trang tĩnh", icon: FileText },
   { href: "/admin/contacts", label: "Liên hệ", icon: Phone },
   { href: "/admin/branches", label: "Cơ sở hạ tầng", icon: MapPin },

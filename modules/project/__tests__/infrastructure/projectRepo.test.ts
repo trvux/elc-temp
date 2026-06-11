@@ -8,6 +8,7 @@ const { mockSupabase, mockQuery } = vi.hoisted(() => {
     eq: vi.fn().mockReturnThis(),
     neq: vi.fn().mockReturnThis(),
     is: vi.fn().mockReturnThis(),
+    not: vi.fn().mockReturnThis(),
     maybeSingle: vi.fn(),
     single: vi.fn(),
     insert: vi.fn().mockReturnThis(),
@@ -45,17 +46,39 @@ describe("SupabaseProjectRepository", () => {
     mockQuery.eq.mockReturnThis();
     mockQuery.neq.mockReturnThis();
     mockQuery.is.mockReturnThis();
+    mockQuery.not.mockReturnThis();
     mockQuery.update.mockReturnThis();
     mockQuery.order.mockReturnThis();
     mockQuery.range.mockReturnThis();
     mockQuery.ilike.mockReturnThis();
     mockQuery.limit.mockReturnThis();
+    mockQuery.maybeSingle.mockResolvedValue({ data: null, error: null });
+    mockQuery.single.mockResolvedValue({ data: null, error: null });
   });
 
   describe("getAll", () => {
     it("should return a list of projects with categories", async () => {
       const mockData = [
-        { id: "1", title: "Project 1", slug: "p1", category_id: "c1", category: { id: "c1", name: "Cat 1" } },
+        {
+          id: "1",
+          title: "Project 1",
+          slug: "p1",
+          category_id: "c1",
+          project_category: [
+            {
+              condition: "new",
+              category: {
+                id: "c1",
+                name: "Cat 1",
+                group_id: "g1",
+                group_categories: {
+                  id: "g1",
+                  name: "Group 1",
+                },
+              },
+            },
+          ],
+        },
       ];
       mockQuery.then.mockImplementation((onfulfilled: any) => onfulfilled({ data: mockData, error: null }));
 
@@ -64,7 +87,7 @@ describe("SupabaseProjectRepository", () => {
       expect(mockSupabase.from).toHaveBeenCalledWith("projects");
       expect(result).toHaveLength(1);
       expect(result[0].title).toBe("Project 1");
-      expect(result[0].category?.name).toBe("Cat 1");
+      expect(result[0].categories?.[0]?.name).toBe("Cat 1");
     });
 
     it("should apply filters correctly", async () => {

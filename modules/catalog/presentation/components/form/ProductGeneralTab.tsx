@@ -25,7 +25,7 @@ import { Switch } from "@/shared/components/ui/switch";
 import { Group } from "@/modules/group/domain/types";
 import { CategoryWithGroup } from "@/modules/category/domain/types";
 import { Checkbox } from "@/shared/components/ui/checkbox";
-import { Brand, formatPrice, PRODUCT_LABELS } from "@/modules/catalog/domain";
+import { Brand, formatPrice, PRODUCT_LABELS, PRODUCT_CONDITION, PRODUCT_CONDITION_MAP } from "@/modules/catalog/domain";
 import { ProductFormValues } from "../../hooks/useProductForm";
 
 interface ProductGeneralTabProps {
@@ -124,6 +124,29 @@ export function ProductGeneralTab({
                     <SelectItem value="out_of_stock">Hết hàng</SelectItem>
                     <SelectItem value="pre_order">Đặt trước</SelectItem>
                     <SelectItem value="discontinued">Ngưng sản xuất</SelectItem>
+                  </SelectContent>
+                </Select>
+              </Field>
+            )}
+          />
+
+          <Controller
+            control={form.control}
+            name="condition"
+            render={({ field }) => (
+              <Field>
+                <FieldLabel>Tình trạng sản phẩm</FieldLabel>
+                <Select value={field.value} onValueChange={field.onChange}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value={PRODUCT_CONDITION.NEW}>
+                      {PRODUCT_CONDITION_MAP[PRODUCT_CONDITION.NEW]}
+                    </SelectItem>
+                    <SelectItem value={PRODUCT_CONDITION.USED}>
+                      {PRODUCT_CONDITION_MAP[PRODUCT_CONDITION.USED]}
+                    </SelectItem>
                   </SelectContent>
                 </Select>
               </Field>

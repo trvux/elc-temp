@@ -47,6 +47,7 @@ export interface ProjectWithCategory extends Project {
     name: string;
     groupId: string | null;
     group?: { id: string; name: string } | null;
+    condition: "new" | "used";
   }[];
 }
 
@@ -63,7 +64,7 @@ export interface CreateProjectInput {
   categoryId: string;
   projectTypeId?: string | null;
   serviceIds?: string[];
-  categoryIds?: string[];
+  categories?: { id: string; condition: "new" | "used" }[];
 }
 
 export interface UpdateProjectInput extends Partial<CreateProjectInput> {

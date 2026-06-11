@@ -401,6 +401,7 @@ export type Database = {
         Row: {
           brand_id: string
           category_id: string
+          condition: Database["public"]["Enums"]["product_condition"]
           created_at: string | null
           deleted_at: string | null
           description: Json
@@ -427,6 +428,7 @@ export type Database = {
         Insert: {
           brand_id: string
           category_id: string
+          condition?: Database["public"]["Enums"]["product_condition"]
           created_at?: string | null
           deleted_at?: string | null
           description?: Json
@@ -453,6 +455,7 @@ export type Database = {
         Update: {
           brand_id?: string
           category_id?: string
+          condition?: Database["public"]["Enums"]["product_condition"]
           created_at?: string | null
           deleted_at?: string | null
           description?: Json
@@ -496,16 +499,19 @@ export type Database = {
       project_category: {
         Row: {
           category_id: string
+          condition: Database["public"]["Enums"]["product_condition"]
           created_at: string
           project_id: string
         }
         Insert: {
           category_id: string
+          condition?: Database["public"]["Enums"]["product_condition"]
           created_at?: string
           project_id: string
         }
         Update: {
           category_id?: string
+          condition?: Database["public"]["Enums"]["product_condition"]
           created_at?: string
           project_id?: string
         }
@@ -918,7 +924,7 @@ export type Database = {
       unaccent: { Args: { "": string }; Returns: string }
     }
     Enums: {
-      [_ in never]: never
+      product_condition: "new" | "used"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -1045,6 +1051,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      product_condition: ["new", "used"],
+    },
   },
 } as const
