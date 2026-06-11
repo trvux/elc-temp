@@ -20,7 +20,7 @@ export const TableBubbleMenu = ({ editor }: TableBubbleMenuProps) => {
   const selectTable = useCallback(() => {
     const { state, dispatch } = editor.view;
     const { selection } = state;
-    let $pos = selection.$from;
+    const $pos = selection.$from;
     let depth = $pos.depth;
     while (depth > 0) {
       if ($pos.node(depth).type.name === "table") {

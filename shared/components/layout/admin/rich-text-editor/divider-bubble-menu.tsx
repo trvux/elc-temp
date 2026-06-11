@@ -5,7 +5,6 @@ import { ButtonGroup } from "@/shared/components/ui/button-group";
 import { type Editor } from "@tiptap/react";
 import { BubbleMenu } from "@tiptap/react/menus";
 import { Trash } from "@phosphor-icons/react";
-import { NodeSelection } from "@tiptap/pm/state";
 import { useCallback } from "react";
 
 interface DividerBubbleMenuProps {
