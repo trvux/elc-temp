@@ -111,10 +111,14 @@ export function ProjectFilters({
     const nextSlug = slug || "";
     setLocalProjectTypeSlug(nextSlug);
     setLocalCategorySlugs([]); // Reset category on type select optimistically
+    setLocalServiceSlugs([]); // Reset services on type select optimistically
+    setLocalCondition(""); // Reset condition on type select optimistically
 
     const sParams = new URLSearchParams(searchParams.toString());
     sParams.delete("page");
     sParams.delete("category");
+    sParams.delete("service");
+    sParams.delete("condition");
 
     const newPathname = slug ? `/du-an/${slug}` : "/du-an";
 
@@ -239,10 +243,10 @@ export function ProjectFilters({
   }
 
   const activeAccordionValues = [
-    "Loại công trình",
     "Dịch vụ",
     "Loại sản phẩm",
-    "Tình trạng sản phẩm",
+    ...(localProjectTypeSlug ? ["Loại công trình"] : []),
+    ...(localCondition ? ["Tình trạng sản phẩm"] : []),
   ];
 
   return (
@@ -267,6 +271,7 @@ export function ProjectFilters({
       <Accordion
         type="multiple"
         defaultValue={activeAccordionValues}
+        key={activeAccordionValues.join(",")}
         className="w-full"
       >
         {/* Service Type (Loại công trình) - Single selection */}

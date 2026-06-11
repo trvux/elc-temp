@@ -72,6 +72,7 @@ export function ProductFilters({
   const [localBrands, setLocalBrands] = useState<string[]>([]);
   const [localSpecs, setLocalSpecs] = useState<Record<string, string[]>>({});
   const [localCondition, setLocalCondition] = useState<string>("");
+  const [openItems, setOpenItems] = useState<string[]>([]);
 
   // Keep local state in sync with URL changes
   useEffect(() => {
@@ -90,8 +91,25 @@ export function ProductFilters({
       }
     });
     setLocalSpecs(specs);
+
+    const activeValues: string[] = [];
+    if (searchParams.getAll("brands").length > 0) activeValues.push("Thương hiệu");
+    if (searchParams.get("minPrice") || searchParams.get("maxPrice")) activeValues.push("Khoảng giá");
+    if (searchParams.get("condition")) activeValues.push("Tình trạng sản phẩm");
+    Object.keys(specs).forEach((label) => {
+      if ((specs[label] || []).length > 0) activeValues.push(label);
+    });
+
+    const activeCat = knownSlugs.has(slugFromPath) ? slugFromPath : "all";
+    categories.forEach((c) => {
+      if (c.slug === activeCat && c.group?.name) {
+        activeValues.push(c.group.name);
+      }
+    });
+
+    setOpenItems(activeValues);
     /* eslint-enable react-hooks/set-state-in-effect */
-  }, [searchParams, slugFromPath, knownSlugs, isPending]);
+  }, [searchParams, slugFromPath, knownSlugs, isPending, categories]);
 
   const hasPriceFilter = useMemo(() => {
     return !!(searchParams.get("minPrice") || searchParams.get("maxPrice"));
@@ -173,29 +191,21 @@ export function ProductFilters({
     const sParams = new URLSearchParams(searchParams.toString());
     sParams.delete("page");
 
-    // Find parent group of new and currently active categories
-    const newCategoryObj = categories.find((c) => c.slug === slug);
-    const activeCategoryObj = categories.find((c) => c.slug === slugFromPath);
+    // Clear ALL spec/brand/price/condition query filters on category change
+    sParams.delete("brands");
+    sParams.delete("minPrice");
+    sParams.delete("maxPrice");
+    sParams.delete("condition");
+    Array.from(sParams.keys()).forEach((key) => {
+      if (key.startsWith("spec_")) {
+        sParams.delete(key);
+      }
+    });
 
-    const newParentGroupId =
-      newCategoryObj?.group?.id ?? newCategoryObj?.groupId;
-    const activeParentGroupId =
-      activeCategoryObj?.group?.id ?? activeCategoryObj?.groupId;
-
-    // If changing to a category in a different parent group, clear ALL spec/brand query filters
-    if (newParentGroupId !== activeParentGroupId) {
-      sParams.delete("brands");
-      sParams.delete("minPrice");
-      sParams.delete("maxPrice");
-      Array.from(sParams.keys()).forEach((key) => {
-        if (key.startsWith("spec_")) {
-          sParams.delete(key);
-        }
-      });
-      // Optimistically clear local brands and specs
-      setLocalBrands([]);
-      setLocalSpecs({});
-    }
+    // Optimistically clear local brands, specs, and condition
+    setLocalBrands([]);
+    setLocalSpecs({});
+    setLocalCondition("");
 
     // Check if the current page is actually a Brand page (slug not a category/group slug)
     const isCurrentPageABrand = slugFromPath && !knownSlugs.has(slugFromPath);
@@ -353,8 +363,8 @@ export function ProductFilters({
 
       <Accordion
         type="multiple"
-        defaultValue={activeAccordionValues}
-        key={activeAccordionValues.join(",")}
+        value={openItems}
+        onValueChange={setOpenItems}
         className="w-full"
       >
         {/* Category Group Accordions */}
