@@ -267,6 +267,7 @@ export type Database = {
       }
       news: {
         Row: {
+          category_id: string | null
           content: Json
           created_at: string | null
           deleted_at: string | null
@@ -281,6 +282,7 @@ export type Database = {
           updated_at: string | null
         }
         Insert: {
+          category_id?: string | null
           content?: Json
           created_at?: string | null
           deleted_at?: string | null
@@ -295,6 +297,7 @@ export type Database = {
           updated_at?: string | null
         }
         Update: {
+          category_id?: string | null
           content?: Json
           created_at?: string | null
           deleted_at?: string | null
@@ -308,7 +311,15 @@ export type Database = {
           title?: string
           updated_at?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "news_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "categories"
+            referencedColumns: ["id"]
+          }
+        ]
       }
       old_services: {
         Row: {

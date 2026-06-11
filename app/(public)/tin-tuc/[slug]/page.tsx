@@ -1,25 +1,24 @@
-import { Button } from "@/shared/components/ui/button";
-import { TypographyH1, TypographySmall } from "@/shared/components/ui/typography";
+import { getNewsBySlug, getNews } from "@/modules/news/application";
+import { Breadcrumbs } from "@/shared/components/layout/user/breadcrumbs";
+import { DetailPager } from "@/shared/components/layout/user/detail-pager";
+import { PreviewContent } from "@/shared/components/layout/user/preview-content";
 import { ScrollToTop } from "@/shared/components/layout/user/scroll-to-top";
-import { cn } from "@/shared/lib/utils";
+import { GridSection } from "@/shared/components/sections/grid-section";
+import { TypographyH1, TypographySmall } from "@/shared/components/ui/typography";
 import { setUseStaticClient } from "@/shared/lib/supabase/server";
-import { cacheLife, cacheTag } from "next/cache";
+import { cn } from "@/shared/lib/utils";
 import { ArrowLeft } from "@phosphor-icons/react/dist/ssr";
+import { cacheLife, cacheTag } from "next/cache";
+import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { PreviewContent } from "@/shared/components/layout/user/preview-content";
-import { getNewsBySlug, getNews } from "@/modules/news/application";
 
 // Design System / Style Constants
 const STYLES = {
-  main: cn("w-full min-h-screen py-10 px-4 md:py-20"),
-  container: cn("max-w-3xl mx-auto flex flex-col gap-6 animate-fade-in-up"),
-  title: cn("w-full max-w-none! text-wrap!"),
-  footerNav: "mt-10",
-  backLink: "group inline-flex items-center",
-  backLabel: "flex items-center gap-2",
+  main: "w-full bg-background min-h-screen",
+  title: "w-full max-w-none! text-wrap! text-3xl md:text-4xl lg:text-5xl font-extrabold tracking-tight font-heading leading-tight",
   footer:
-    "mt-10 border-t border-border pt-8 flex flex-col md:flex-row justify-between items-center gap-10 text-muted-foreground",
+    "w-full flex flex-col md:flex-row justify-between items-center gap-6 text-muted-foreground",
 };
 
 interface PageProps {
@@ -43,11 +42,39 @@ async function getCachedNewsDetailData(slug: string) {
   cacheTag("news");
   setUseStaticClient(true);
 
-  const newsItem = await getNewsBySlug(slug);
+  const allNews = await getNews({ isPublished: true });
+  const newsItemIndex = (allNews ?? []).findIndex((n) => n.slug === slug);
+
+  if (newsItemIndex === -1) {
+    const newsItem = await getNewsBySlug(slug);
+    return {
+      newsItem,
+      prevNews: null,
+      nextNews: null,
+      relatedNews: [],
+      currentYear: new Date().getFullYear(),
+    };
+  }
+
+  const newsItem = allNews[newsItemIndex];
+  const prevNews = newsItemIndex > 0 ? allNews[newsItemIndex - 1] : null;
+  const nextNews = newsItemIndex < allNews.length - 1 ? allNews[newsItemIndex + 1] : null;
+  
+  // Lấy tin tức liên quan theo category_id (nếu có), loại trừ bài hiện tại.
+  // Bổ sung các bài viết khác nếu không đủ 3 bài.
+  const sameCategoryNews = newsItem.categoryId
+    ? allNews.filter((n) => n.categoryId === newsItem.categoryId && n.slug !== slug)
+    : [];
+  const fallbackNews = allNews.filter((n) => n.slug !== slug && n.categoryId !== newsItem.categoryId);
+  const relatedNews = [...sameCategoryNews, ...fallbackNews].slice(0, 3);
+
   const currentYear = new Date().getFullYear();
 
   return {
     newsItem,
+    prevNews,
+    nextNews,
+    relatedNews,
     currentYear,
   };
 }
@@ -56,7 +83,7 @@ export default async function NewsDetailPage({ params }: PageProps) {
   const { slug } = await params;
   
   // Fetch current news detail using the cached helper
-  const { newsItem, currentYear } = await getCachedNewsDetailData(slug);
+  const { newsItem, prevNews, nextNews, relatedNews, currentYear } = await getCachedNewsDetailData(slug);
 
   if (!newsItem || !newsItem.isPublished) {
     notFound();
@@ -73,41 +100,149 @@ export default async function NewsDetailPage({ params }: PageProps) {
 
   return (
     <main className={STYLES.main}>
-      <div className={STYLES.container}>
-        <header>
+      {/* Khối 1: Tiêu đề chi tiết bài viết */}
+      <GridSection
+        id="news-detail-header"
+        isFirst={true}
+        showDiamond={true}
+        contentClassName="py-8 md:py-12"
+      >
+        <div className="max-w-3xl mx-auto w-full">
+          <Link
+            href="/tin-tuc"
+            className="group inline-flex items-center gap-2 text-xs text-muted-foreground hover:text-foreground transition-colors mb-4"
+          >
+            <ArrowLeft className="w-3 h-3 transition-transform group-hover:-translate-x-0.5" />
+            <span>Quay lại danh sách tin tức</span>
+          </Link>
           {formattedDate && (
-            <TypographySmall className="text-muted-foreground mb-3 block">
+            <TypographySmall className="text-muted-foreground/60 mb-2 block font-medium font-sans">
               {formattedDate}
             </TypographySmall>
           )}
           <TypographyH1 className={STYLES.title}>{title}</TypographyH1>
-        </header>
+        </div>
+      </GridSection>
 
-        <article>
-          <PreviewContent content={newsItem.content} hideFirstHeading={true} />
-        </article>
+      {/* Khối 2: Nội dung bài viết */}
+      <GridSection
+        id="news-detail-content"
+        isFirst={false}
+        showDiamond={true}
+        contentClassName="py-10 md:py-16"
+      >
+        <div className="max-w-3xl mx-auto w-full">
+          <article>
+            <PreviewContent content={newsItem.content} hideFirstHeading={true} />
+          </article>
+        </div>
+      </GridSection>
 
-        <nav className={STYLES.footerNav}>
-          <Button asChild>
-            <Link href="/tin-tuc" className={STYLES.backLink}>
-              <div className={STYLES.backLabel}>
-                <ArrowLeft className="w-3 h-3 transition-transform group-hover:-translate-x-1" />
-                <span>Xem các bài viết khác</span>
-              </div>
-            </Link>
-          </Button>
-        </nav>
+      {/* Khối 3: Bài viết liên quan */}
+      {relatedNews.length > 0 && (
+        <GridSection
+          id="news-related"
+          isFirst={false}
+          showDiamond={true}
+          contentClassName="py-10 md:py-16"
+        >
+          <div className="max-w-3xl mx-auto w-full">
+            <h3 className="text-xl md:text-2xl font-bold tracking-tight text-foreground mb-8 font-heading text-center md:text-left">
+              Bài viết liên quan
+            </h3>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+              {relatedNews.map((item) => {
+                const itemDate = item.createdAt
+                  ? new Date(item.createdAt).toLocaleDateString("vi-VN", {
+                      day: "numeric",
+                      month: "long",
+                      year: "numeric",
+                    })
+                  : "";
 
+                return (
+                  <Link
+                    key={item.id}
+                    href={`/tin-tuc/${item.slug}`}
+                    className="group flex flex-col gap-3 no-underline"
+                  >
+                    {item.image && (
+                      <div className="relative w-full aspect-video rounded-lg overflow-hidden border bg-muted">
+                        <Image
+                          src={item.image}
+                          alt={item.title}
+                          fill
+                          className="object-cover transition-transform duration-500 group-hover:scale-105"
+                          sizes="(max-width: 640px) 100vw, 250px"
+                        />
+                      </div>
+                    )}
+                    <div className="flex flex-col gap-1.5">
+                      {itemDate && (
+                        <span className="text-[10px] text-muted-foreground/60 font-medium font-sans">
+                          {itemDate}
+                        </span>
+                      )}
+                      <h4 className="text-sm font-semibold tracking-tight text-foreground group-hover:text-foreground/70 transition-colors line-clamp-2 leading-snug">
+                        {item.title}
+                      </h4>
+                    </div>
+                  </Link>
+                );
+              })}
+            </div>
+          </div>
+        </GridSection>
+      )}
+
+      {/* Khối 4: Điều hướng Pager (Trước / Sau) */}
+      <GridSection
+        id="news-detail-nav"
+        isFirst={false}
+        showDiamond={true}
+        contentClassName="py-8"
+      >
+        <DetailPager
+          prev={prevNews ? { title: prevNews.title, href: `/tin-tuc/${prevNews.slug}` } : null}
+          next={nextNews ? { title: nextNews.title, href: `/tin-tuc/${nextNews.slug}` } : null}
+          prevLabel="Bài viết trước"
+          nextLabel="Bài viết sau"
+        />
+      </GridSection>
+
+      {/* Khối 5: Footer bản quyền */}
+      <GridSection
+        id="news-detail-footer"
+        isFirst={false}
+        showDiamond={true}
+        contentClassName="py-6 md:py-8 lg:py-10"
+      >
         <footer className={STYLES.footer}>
           <TypographySmall>
-            &copy; {currentYear} ELC Holdings. Đã đăng ký bản
-            quyền.
+            &copy; {currentYear} ELC Holdings. Đã đăng ký bản quyền.
           </TypographySmall>
           <ScrollToTop className="flex items-center gap-2 cursor-pointer hover:text-foreground transition-colors">
             <TypographySmall>Quay lại đầu trang</TypographySmall>
           </ScrollToTop>
         </footer>
-      </div>
+      </GridSection>
+
+      {/* Khối 6: Breadcrumbs */}
+      <GridSection
+        id="news-detail-breadcrumbs"
+        isFirst={false}
+        showDiamond={false}
+        contentClassName="py-1"
+      >
+        <div className="w-full">
+          <Breadcrumbs
+            items={[
+              { label: "Tin tức", href: "/tin-tuc" },
+              { label: title, active: true },
+            ]}
+          />
+        </div>
+      </GridSection>
     </main>
   );
 }

@@ -16,6 +16,7 @@ export type NewsFormValues = {
   slug: string;
   image: string;
   content: unknown;
+  categoryId: string;
   isPublished: boolean;
   metaTitle: string;
   metaDescription: string;
@@ -36,6 +37,7 @@ export function useNewsForm(
       slug: "",
       image: "",
       content: "",
+      categoryId: editingNews?.categoryId || "",
       isPublished: true,
       metaTitle: "",
       metaDescription: "",
@@ -62,6 +64,7 @@ export function useNewsForm(
     mutationFn: async (values: NewsFormValues) => {
       const payload = {
         ...values,
+        categoryId: values.categoryId || null,
         content: JSON.parse(JSON.stringify(values.content)) as Json,
       };
       if (editingNews) {

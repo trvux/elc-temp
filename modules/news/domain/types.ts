@@ -12,6 +12,7 @@ export interface News {
   slug: string;
   image: string;
   content: Json;
+  categoryId?: string | null;
   isPublished: boolean;
   metaTitle?: string | null;
   metaDescription?: string | null;
@@ -26,6 +27,7 @@ export interface CreateNewsInput {
   slug: string;
   image?: string;
   content?: Json;
+  categoryId?: string | null;
   isPublished?: boolean;
   metaTitle?: string | null;
   metaDescription?: string | null;
