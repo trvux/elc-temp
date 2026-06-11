@@ -104,6 +104,24 @@ export const getProductColumns = ({
     cell: ({ row }) => <span>{row.original.category?.name || "—"}</span>,
   },
   {
+    accessorKey: "condition",
+    header: "Tình trạng",
+    cell: ({ row }) => {
+      const condition = row.original.condition;
+      return (
+        <span
+          className={
+            condition === "new"
+              ? "text-green-700 font-semibold"
+              : "text-amber-700 font-semibold"
+          }
+        >
+          {condition === "new" ? "Mới" : "Cũ"}
+        </span>
+      );
+    },
+  },
+  {
     accessorKey: "originalPrice",
     header: "Giá gốc",
     cell: ({ row }) => (

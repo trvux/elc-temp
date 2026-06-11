@@ -5,7 +5,7 @@ import React from "react";
 
 export function AdminIconProvider({ children }: { children: React.ReactNode }) {
   return (
-    <IconContext.Provider value={{ weight: "duotone" }}>
+    <IconContext.Provider value={{ weight: "regular" }}>
       {children}
     </IconContext.Provider>
   );

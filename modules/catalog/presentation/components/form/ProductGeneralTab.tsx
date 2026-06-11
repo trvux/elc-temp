@@ -91,68 +91,6 @@ export function ProductGeneralTab({
             )}
           />
 
-          <Controller
-            control={form.control}
-            name="sku"
-            render={({ field, fieldState }) => (
-              <Field>
-                <FieldLabel>Mã sản phẩm (SKU) *</FieldLabel>
-                <Input
-                  {...field}
-                  placeholder="VD: DAIKIN-15HP"
-                  onChange={(e) => {
-                    field.onChange(e);
-                  }}
-                />
-                <FieldError errors={[fieldState.error]} />
-              </Field>
-            )}
-          />
-
-          <Controller
-            control={form.control}
-            name="stockStatus"
-            render={({ field }) => (
-              <Field>
-                <FieldLabel>Trạng thái kho</FieldLabel>
-                <Select value={field.value} onValueChange={field.onChange}>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="in_stock">Còn hàng</SelectItem>
-                    <SelectItem value="out_of_stock">Hết hàng</SelectItem>
-                    <SelectItem value="pre_order">Đặt trước</SelectItem>
-                    <SelectItem value="discontinued">Ngưng sản xuất</SelectItem>
-                  </SelectContent>
-                </Select>
-              </Field>
-            )}
-          />
-
-          <Controller
-            control={form.control}
-            name="condition"
-            render={({ field }) => (
-              <Field>
-                <FieldLabel>Tình trạng sản phẩm</FieldLabel>
-                <Select value={field.value} onValueChange={field.onChange}>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value={PRODUCT_CONDITION.NEW}>
-                      {PRODUCT_CONDITION_MAP[PRODUCT_CONDITION.NEW]}
-                    </SelectItem>
-                    <SelectItem value={PRODUCT_CONDITION.USED}>
-                      {PRODUCT_CONDITION_MAP[PRODUCT_CONDITION.USED]}
-                    </SelectItem>
-                  </SelectContent>
-                </Select>
-              </Field>
-            )}
-          />
-
           {/* Nhóm danh mục (Cascading Level 1) */}
           <Field>
             <FieldLabel>Nhóm danh mục *</FieldLabel>
@@ -246,6 +184,40 @@ export function ProductGeneralTab({
 
           <Controller
             control={form.control}
+            name="gtin"
+            render={({ field, fieldState }) => (
+              <Field>
+                <FieldLabel>GTIN (Barcode/EAN)</FieldLabel>
+                <Input
+                  {...field}
+                  value={field.value ?? ""}
+                  placeholder="VD: 8931234567890"
+                />
+                <FieldError errors={[fieldState.error]} />
+              </Field>
+            )}
+          />
+
+          <Controller
+            control={form.control}
+            name="sku"
+            render={({ field, fieldState }) => (
+              <Field>
+                <FieldLabel>Mã sản phẩm (SKU) *</FieldLabel>
+                <Input
+                  {...field}
+                  placeholder="VD: DAIKIN-15HP"
+                  onChange={(e) => {
+                    field.onChange(e);
+                  }}
+                />
+                <FieldError errors={[fieldState.error]} />
+              </Field>
+            )}
+          />
+
+          <Controller
+            control={form.control}
             name="mpn"
             render={({ field, fieldState }) => (
               <Field>
@@ -269,16 +241,44 @@ export function ProductGeneralTab({
 
           <Controller
             control={form.control}
-            name="gtin"
-            render={({ field, fieldState }) => (
+            name="condition"
+            render={({ field }) => (
               <Field>
-                <FieldLabel>GTIN (Barcode/EAN)</FieldLabel>
-                <Input
-                  {...field}
-                  value={field.value ?? ""}
-                  placeholder="VD: 8931234567890"
-                />
-                <FieldError errors={[fieldState.error]} />
+                <FieldLabel>Tình trạng sản phẩm</FieldLabel>
+                <Select value={field.value} onValueChange={field.onChange}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value={PRODUCT_CONDITION.NEW}>
+                      {PRODUCT_CONDITION_MAP[PRODUCT_CONDITION.NEW]}
+                    </SelectItem>
+                    <SelectItem value={PRODUCT_CONDITION.USED}>
+                      {PRODUCT_CONDITION_MAP[PRODUCT_CONDITION.USED]}
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+              </Field>
+            )}
+          />
+
+          <Controller
+            control={form.control}
+            name="stockStatus"
+            render={({ field }) => (
+              <Field>
+                <FieldLabel>Trạng thái kho</FieldLabel>
+                <Select value={field.value} onValueChange={field.onChange}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="in_stock">Còn hàng</SelectItem>
+                    <SelectItem value="out_of_stock">Hết hàng</SelectItem>
+                    <SelectItem value="pre_order">Đặt trước</SelectItem>
+                    <SelectItem value="discontinued">Ngưng sản xuất</SelectItem>
+                  </SelectContent>
+                </Select>
               </Field>
             )}
           />
@@ -304,96 +304,102 @@ export function ProductGeneralTab({
 
       <FieldSeparator />
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-        <FieldSet>
-          <FieldLegend>Giá bán</FieldLegend>
-          <FieldGroup className="gap-5">
-            <Controller
-              control={form.control}
-              name="originalPrice"
-              render={({ field, fieldState }) => (
-                <Field>
-                  <FieldLabel>Giá gốc *</FieldLabel>
-                  <Input
-                    type="number"
-                    {...field}
-                    placeholder="0"
-                    onFocus={(e) => e.target.select()}
-                    onChange={(e) => {
-                      const val = Number(e.target.value) || 0;
-                      field.onChange(val);
-                      const discount = form.getValues("discountPercent") || 0;
+      <FieldSet>
+        <FieldLegend>Giá bán</FieldLegend>
+        <FieldGroup className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <Controller
+            control={form.control}
+            name="originalPrice"
+            render={({ field, fieldState }) => (
+              <Field>
+                <FieldLabel>Giá gốc *</FieldLabel>
+                <Input
+                  type="number"
+                  {...field}
+                  placeholder="0"
+                  onFocus={(e) => e.target.select()}
+                  onChange={(e) => {
+                    const val = Number(e.target.value) || 0;
+                    field.onChange(val);
+                    const discount = form.getValues("discountPercent") || 0;
+                    form.setValue(
+                      "salePrice",
+                      Math.round(val * (1 - discount / 100))
+                    );
+                  }}
+                />
+                <FieldDescription>{formatPrice(field.value)}</FieldDescription>
+                <FieldError errors={[fieldState.error]} />
+              </Field>
+            )}
+          />
+
+          <Controller
+            control={form.control}
+            name="salePrice"
+            render={({ field, fieldState }) => (
+              <Field>
+                <FieldLabel>Giá bán</FieldLabel>
+                <Input
+                  type="number"
+                  {...field}
+                  placeholder="0"
+                  onFocus={(e) => e.target.select()}
+                  onChange={(e) => {
+                    const val = Number(e.target.value) || 0;
+                    field.onChange(val);
+                    const original = form.getValues("originalPrice") || 0;
+                    if (original > 0) {
                       form.setValue(
-                        "salePrice",
-                        Math.round(val * (1 - discount / 100))
+                        "discountPercent",
+                        Math.round(((original - val) / original) * 100)
                       );
-                    }}
-                  />
-                  <FieldDescription>{formatPrice(field.value)}</FieldDescription>
-                  <FieldError errors={[fieldState.error]} />
-                </Field>
-              )}
-            />
+                    }
+                  }}
+                />
+                <FieldDescription>
+                  {formatPrice(field.value || form.getValues("originalPrice"))}
+                </FieldDescription>
+                <FieldError errors={[fieldState.error]} />
+              </Field>
+            )}
+          />
 
-            <Controller
-              control={form.control}
-              name="salePrice"
-              render={({ field, fieldState }) => (
-                <Field>
-                  <FieldLabel>Giá bán</FieldLabel>
-                  <Input
-                    type="number"
-                    {...field}
-                    placeholder="0"
-                    onFocus={(e) => e.target.select()}
-                    onChange={(e) => {
-                      const val = Number(e.target.value) || 0;
-                      field.onChange(val);
-                      const original = form.getValues("originalPrice") || 0;
-                      if (original > 0) {
-                        form.setValue(
-                          "discountPercent",
-                          Math.round(((original - val) / original) * 100)
-                        );
-                      }
-                    }}
-                  />
-                  <FieldError errors={[fieldState.error]} />
-                </Field>
-              )}
-            />
+          <Controller
+            control={form.control}
+            name="discountPercent"
+            render={({ field, fieldState }) => (
+              <Field>
+                <FieldLabel>Giảm %</FieldLabel>
+                <Input
+                  type="number"
+                  {...field}
+                  placeholder="0"
+                  onFocus={(e) => e.target.select()}
+                  onChange={(e) => {
+                    const val = Number(e.target.value) || 0;
+                    field.onChange(val);
+                    const original = form.getValues("originalPrice") || 0;
+                    form.setValue(
+                      "salePrice",
+                      Math.round(original * (1 - val / 100))
+                    );
+                  }}
+                />
+                <FieldDescription>Tỷ lệ phần trăm giảm giá</FieldDescription>
+                <FieldError errors={[fieldState.error]} />
+              </Field>
+            )}
+          />
+        </FieldGroup>
+      </FieldSet>
 
-            <Controller
-              control={form.control}
-              name="discountPercent"
-              render={({ field, fieldState }) => (
-                <Field>
-                  <FieldLabel>Giảm %</FieldLabel>
-                  <Input
-                    type="number"
-                    {...field}
-                    placeholder="0"
-                    onFocus={(e) => e.target.select()}
-                    onChange={(e) => {
-                      const val = Number(e.target.value) || 0;
-                      field.onChange(val);
-                      const original = form.getValues("originalPrice") || 0;
-                      form.setValue(
-                        "salePrice",
-                        Math.round(original * (1 - val / 100))
-                      );
-                    }}
-                  />
-                  <FieldError errors={[fieldState.error]} />
-                </Field>
-              )}
-            />
-          </FieldGroup>
-        </FieldSet>
+      <FieldSeparator />
 
-        <FieldSet>
-          <FieldLegend>Cấu hình hiển thị</FieldLegend>
-          <FieldGroup className="gap-5">
+      <FieldSet>
+        <FieldLegend>Cấu hình hiển thị</FieldLegend>
+        <FieldGroup className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="flex flex-col gap-5">
             <Controller
               control={form.control}
               name="orderIndex"
@@ -405,102 +411,103 @@ export function ProductGeneralTab({
                     {...field}
                     onFocus={(e) => e.target.select()}
                   />
+                  <FieldDescription>Thứ tự sắp xếp hiển thị của sản phẩm</FieldDescription>
                 </Field>
               )}
             />
 
-            <div className="grid grid-cols-1 gap-4">
-              <Controller
-                control={form.control}
-                name="isFeatured"
-                render={({ field }) => (
-                  <Field
-                    orientation="horizontal"
-                    className="justify-between border p-3 rounded-lg"
-                  >
-                    <FieldLabel className="font-normal mb-0">
-                      Sản phẩm nổi bật
-                    </FieldLabel>
-                    <Switch
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                    />
-                  </Field>
-                )}
-              />
+            <Controller
+              control={form.control}
+              name="isFeatured"
+              render={({ field }) => (
+                <Field
+                  orientation="horizontal"
+                  className="justify-between border p-3 rounded-lg"
+                >
+                  <FieldLabel className="font-normal mb-0">
+                    Sản phẩm nổi bật
+                  </FieldLabel>
+                  <Switch
+                    checked={field.value}
+                    onCheckedChange={field.onChange}
+                  />
+                </Field>
+              )}
+            />
 
-              <Controller
-                control={form.control}
-                name="labels"
-                render={({ field }) => {
-                  const currentLabels = field.value || [];
-                  const toggleLabel = (val: string) => {
-                    if (currentLabels.includes(val)) {
-                      field.onChange(currentLabels.filter((l) => l !== val));
-                    } else {
-                      field.onChange([...currentLabels, val]);
-                    }
-                  };
-                  return (
-                    <Field className="border p-3 rounded-lg">
-                      <FieldLabel className="font-normal">Nhãn hiển thị</FieldLabel>
-                      <div className="flex flex-wrap gap-4 mt-2">
-                        <label className="flex items-center space-x-2 text-sm cursor-pointer">
-                          <Checkbox 
-                            checked={currentLabels.includes(PRODUCT_LABELS.NEW)} 
-                            onCheckedChange={() => toggleLabel(PRODUCT_LABELS.NEW)} 
-                          />
-                          <span>Mới về (New)</span>
-                        </label>
-                        <label className="flex items-center space-x-2 text-sm cursor-pointer">
-                          <Checkbox 
-                            checked={currentLabels.includes(PRODUCT_LABELS.HOT)} 
-                            onCheckedChange={() => toggleLabel(PRODUCT_LABELS.HOT)} 
-                          />
-                          <span>Nổi bật (Hot)</span>
-                        </label>
-                        <label className="flex items-center space-x-2 text-sm cursor-pointer">
-                          <Checkbox 
-                            checked={currentLabels.includes(PRODUCT_LABELS.BEST_SELLER)} 
-                            onCheckedChange={() => toggleLabel(PRODUCT_LABELS.BEST_SELLER)} 
-                          />
-                          <span>Bán chạy (Best Seller)</span>
-                        </label>
-                        <label className="flex items-center space-x-2 text-sm cursor-pointer">
-                          <Checkbox 
-                            checked={currentLabels.includes(PRODUCT_LABELS.SALE)} 
-                            onCheckedChange={() => toggleLabel(PRODUCT_LABELS.SALE)} 
-                          />
-                          <span>Giảm giá (Sale)</span>
-                        </label>
-                      </div>
-                    </Field>
-                  );
-                }}
-              />
+            <Controller
+              control={form.control}
+              name="isPublished"
+              render={({ field }) => (
+                <Field
+                  orientation="horizontal"
+                  className="justify-between border p-3 rounded-lg"
+                >
+                  <FieldLabel className="font-normal mb-0">
+                    Trạng thái hiển thị
+                  </FieldLabel>
+                  <Switch
+                    checked={field.value}
+                    onCheckedChange={field.onChange}
+                  />
+                </Field>
+              )}
+            />
+          </div>
 
-              <Controller
-                control={form.control}
-                name="isPublished"
-                render={({ field }) => (
-                  <Field
-                    orientation="horizontal"
-                    className="justify-between border p-3 rounded-lg"
-                  >
-                    <FieldLabel className="font-normal mb-0">
-                      Trạng thái hiển thị
-                    </FieldLabel>
-                    <Switch
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                    />
+          <div className="flex flex-col gap-5">
+            <Controller
+              control={form.control}
+              name="labels"
+              render={({ field }) => {
+                const currentLabels = field.value || [];
+                const toggleLabel = (val: string) => {
+                  if (currentLabels.includes(val)) {
+                    field.onChange(currentLabels.filter((l) => l !== val));
+                  } else {
+                    field.onChange([...currentLabels, val]);
+                  }
+                };
+                return (
+                  <Field className="border p-4 rounded-lg h-full">
+                    <FieldLabel className="font-normal">Nhãn hiển thị</FieldLabel>
+                    <div className="flex flex-col gap-3.5 mt-3">
+                      <label className="flex items-center space-x-2 text-sm cursor-pointer">
+                        <Checkbox 
+                          checked={currentLabels.includes(PRODUCT_LABELS.NEW)} 
+                          onCheckedChange={() => toggleLabel(PRODUCT_LABELS.NEW)} 
+                        />
+                        <span>Mới về (New)</span>
+                      </label>
+                      <label className="flex items-center space-x-2 text-sm cursor-pointer">
+                        <Checkbox 
+                          checked={currentLabels.includes(PRODUCT_LABELS.HOT)} 
+                          onCheckedChange={() => toggleLabel(PRODUCT_LABELS.HOT)} 
+                        />
+                        <span>Nổi bật (Hot)</span>
+                      </label>
+                      <label className="flex items-center space-x-2 text-sm cursor-pointer">
+                        <Checkbox 
+                          checked={currentLabels.includes(PRODUCT_LABELS.BEST_SELLER)} 
+                          onCheckedChange={() => toggleLabel(PRODUCT_LABELS.BEST_SELLER)} 
+                        />
+                        <span>Bán chạy (Best Seller)</span>
+                      </label>
+                      <label className="flex items-center space-x-2 text-sm cursor-pointer">
+                        <Checkbox 
+                          checked={currentLabels.includes(PRODUCT_LABELS.SALE)} 
+                          onCheckedChange={() => toggleLabel(PRODUCT_LABELS.SALE)} 
+                        />
+                        <span>Giảm giá (Sale)</span>
+                      </label>
+                    </div>
                   </Field>
-                )}
-              />
-            </div>
-          </FieldGroup>
-        </FieldSet>
-      </div>
+                );
+              }}
+            />
+          </div>
+        </FieldGroup>
+      </FieldSet>
       <FieldSeparator />
 
       {/* SEO Section */}
