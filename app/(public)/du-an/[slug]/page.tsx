@@ -1,22 +1,22 @@
+import { getProjectTypes } from "@/modules/project-type/application";
 import { getAdjacentProjects } from "@/modules/project/application/getAdjacentProjects";
 import { getProjects } from "@/modules/project/application/getProjects";
 import { resolveProjectPath } from "@/modules/project/application/resolveProjectPath";
 import { ProjectWithCategory } from "@/modules/project/domain/types";
 import { ProjectListModule } from "@/modules/project/presentation/components/public/ProjectListModule";
 import { RelatedProjects } from "@/modules/project/presentation/components/public/RelatedProjects";
-import { getProjectTypes } from "@/modules/project-type/application";
 import { Breadcrumbs } from "@/shared/components/layout/user/breadcrumbs";
 import { DetailPager } from "@/shared/components/layout/user/detail-pager";
 import { PreviewContent } from "@/shared/components/layout/user/preview-content";
 import { ScrollToTop } from "@/shared/components/layout/user/scroll-to-top";
 import { GridSection } from "@/shared/components/sections/grid-section";
-import { Metadata } from "next";
-import Image from "next/image";
-import { notFound } from "next/navigation";
 import { AspectRatio } from "@/shared/components/ui/aspect-ratio";
 import { Badge } from "@/shared/components/ui/badge";
 import { TypographySmall } from "@/shared/components/ui/typography";
 import { Sparkle } from "@phosphor-icons/react/dist/ssr";
+import { Metadata } from "next";
+import Image from "next/image";
+import { notFound } from "next/navigation";
 
 // Generate dynamic SEO Metadata
 export async function generateMetadata({
@@ -122,7 +122,11 @@ async function getCachedCurrentYear() {
 }
 
 // Sub-component to render the Project Detail page view
-async function ProjectDetailView({ project }: { project: ProjectWithCategory }) {
+async function ProjectDetailView({
+  project,
+}: {
+  project: ProjectWithCategory;
+}) {
   const images = project.images || [];
   const displayCategory =
     project.categories?.[0]?.name || project.projectType?.name || "Dự án";
@@ -263,9 +267,7 @@ async function ProjectDetailView({ project }: { project: ProjectWithCategory }) 
         contentClassName="py-6 md:py-8 lg:py-10"
       >
         <footer className="w-full flex flex-col md:flex-row justify-between items-center gap-6 text-muted-foreground">
-          <TypographySmall>
-            &copy; {currentYear} ELC Holdings. Đã đăng ký bản quyền.
-          </TypographySmall>
+          <TypographySmall>&copy; {currentYear} Điện máy ELC.</TypographySmall>
           <ScrollToTop className="flex items-center gap-2 cursor-pointer hover:text-foreground transition-colors">
             <TypographySmall>Quay lại đầu trang</TypographySmall>
           </ScrollToTop>

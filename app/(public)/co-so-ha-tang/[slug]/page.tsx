@@ -1,8 +1,6 @@
 import { getBranchBySlug, getBranches } from "@/modules/branch";
 import { PreviewContent } from "@/shared/components/layout/user/preview-content";
 import { ScrollToTop } from "@/shared/components/layout/user/scroll-to-top";
-import { setUseStaticClient } from "@/shared/lib/supabase/server";
-import { cacheLife, cacheTag } from "next/cache";
 import {
   Accordion,
   AccordionContent,
@@ -11,13 +9,15 @@ import {
 } from "@/shared/components/ui/accordion";
 import { AspectRatio } from "@/shared/components/ui/aspect-ratio";
 import { Card, CardContent } from "@/shared/components/ui/card";
-import Image from "next/image";
 import {
   TypographyH1,
   TypographyH4,
   TypographySmall,
 } from "@/shared/components/ui/typography";
+import { setUseStaticClient } from "@/shared/lib/supabase/server";
 import { cn } from "@/shared/lib/utils";
+import { cacheLife, cacheTag } from "next/cache";
+import Image from "next/image";
 import { notFound } from "next/navigation";
 
 // Helper to control Google Maps zoom level
@@ -74,9 +74,7 @@ async function getCachedBranchDetailData(slug: string) {
   };
 }
 
-export default async function BranchDetail({
-  params,
-}: BranchDetailPageProps) {
+export default async function BranchDetail({ params }: BranchDetailPageProps) {
   const { slug } = await params;
   const { branch, currentYear } = await getCachedBranchDetailData(slug);
 
@@ -189,10 +187,7 @@ export default async function BranchDetail({
         </article>
 
         <footer className={STYLES.footer}>
-          <TypographySmall>
-            &copy; {currentYear} ELC Holdings. Đã đăng ký bản
-            quyền.
-          </TypographySmall>
+          <TypographySmall>&copy; {currentYear} Điện máy ELC.</TypographySmall>
           <ScrollToTop className="flex items-center gap-2 cursor-pointer hover:text-foreground transition-colors">
             <TypographySmall>Quay lại đầu trang</TypographySmall>
           </ScrollToTop>

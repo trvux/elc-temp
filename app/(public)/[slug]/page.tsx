@@ -1,14 +1,17 @@
-import { Button } from "@/shared/components/ui/button";
-import { TypographyH1, TypographySmall } from "@/shared/components/ui/typography";
+import { getPageBySlug, getPages } from "@/modules/page/application";
 import { PreviewContent } from "@/shared/components/layout/user/preview-content";
 import { ScrollToTop } from "@/shared/components/layout/user/scroll-to-top";
+import { Button } from "@/shared/components/ui/button";
+import {
+  TypographyH1,
+  TypographySmall,
+} from "@/shared/components/ui/typography";
+import { setUseStaticClient } from "@/shared/lib/supabase/server";
 import { cn } from "@/shared/lib/utils";
 import { ArrowLeft } from "@phosphor-icons/react/dist/ssr";
+import { cacheLife, cacheTag } from "next/cache";
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { getPageBySlug, getPages } from "@/modules/page/application";
-import { setUseStaticClient } from "@/shared/lib/supabase/server";
-import { cacheLife, cacheTag } from "next/cache";
 
 // Design System / Style Constants
 const STYLES = {
@@ -52,7 +55,7 @@ async function getCachedCurrentYear() {
 
 export default async function StaticPage({ params }: PageProps) {
   const { slug } = await params;
-  
+
   // Fetch current page content using the application layer
   const page = await getCachedPageData(slug);
 
@@ -68,7 +71,9 @@ export default async function StaticPage({ params }: PageProps) {
       <div className={STYLES.container}>
         <header>
           <TypographySmall className="text-muted-foreground mb-3 block">
-            {new Date(page.createdAt || "2026-06-10T00:00:00.000Z").toLocaleDateString("vi-VN", {
+            {new Date(
+              page.createdAt || "2026-06-10T00:00:00.000Z",
+            ).toLocaleDateString("vi-VN", {
               day: "numeric",
               month: "long",
               year: "numeric",
@@ -93,10 +98,7 @@ export default async function StaticPage({ params }: PageProps) {
         </nav>
 
         <footer className={STYLES.footer}>
-          <TypographySmall>
-            &copy; {currentYear} ELC Holdings. Đã đăng ký bản
-            quyền.
-          </TypographySmall>
+          <TypographySmall>&copy; {currentYear} Điện máy ELC.</TypographySmall>
           <ScrollToTop className="flex items-center gap-2 cursor-pointer hover:text-foreground transition-colors">
             <TypographySmall>Quay lại đầu trang</TypographySmall>
           </ScrollToTop>
