@@ -23,10 +23,8 @@ export const DividerBubbleMenu = ({ editor }: DividerBubbleMenuProps) => {
       className="transition-all duration-300 ease-out"
       shouldShow={({ state }: { state: import("@tiptap/pm/state").EditorState }) => {
         const { selection } = state;
-        return (
-          selection instanceof NodeSelection &&
-          selection.node.type.name === "horizontalRule"
-        );
+        const node = "node" in selection ? (selection as { node: import("@tiptap/pm/model").Node }).node : null;
+        return node?.type?.name === "horizontalRule";
       }}
       // @ts-expect-error - Tippy options type mismatch
       tippyOptions={{ duration: 100, offset: [0, 15] }}
