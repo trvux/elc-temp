@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
 import { useFilterTransition } from "@/shared/providers/filter-transition-provider";
 
@@ -11,21 +11,37 @@ export function TopProgressBar() {
   const [visible, setVisible] = useState(false);
   const [progress, setProgress] = useState(0);
 
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  const startProgress = () => {
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+      timeoutRef.current = null;
+    }
+    setVisible(true);
+    setProgress(10);
+  };
+
+  const completeProgress = () => {
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+    }
+    setProgress(100);
+    timeoutRef.current = setTimeout(() => {
+      setVisible(false);
+      setProgress(0);
+      timeoutRef.current = null;
+    }, 300);
+  };
+
   // Sync with isPending transition state
   useEffect(() => {
-    /* eslint-disable react-hooks/set-state-in-effect */
     if (isPending) {
-      setVisible(true);
-      setProgress(10);
-    } else {
-      setProgress(100);
-      const timer = setTimeout(() => {
-        setVisible(false);
-        setProgress(0);
-      }, 300);
-      return () => clearTimeout(timer);
+      startProgress();
+    } else if (visible) {
+      completeProgress();
     }
-    /* eslint-enable react-hooks/set-state-in-effect */
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isPending]);
 
   // Handle normal link clicks
@@ -41,7 +57,6 @@ export function TopProgressBar() {
 
       // Skip external, blank, hash, or non-navigation links
       if (
-        href.startsWith("http") ||
         href.startsWith("mailto:") ||
         href.startsWith("tel:") ||
         href.startsWith("#") ||
@@ -54,12 +69,32 @@ export function TopProgressBar() {
         return;
       }
 
-      // Check if it's the exact same URL (pathname + search) to avoid trigger on identical navigation
-      const currentUrl = window.location.pathname + window.location.search;
-      if (href === currentUrl) return;
+      try {
+        const url = new URL(href, window.location.origin);
+        // Skip external origins
+        if (url.origin !== window.location.origin) return;
 
-      setVisible(true);
-      setProgress((prev) => (prev > 0 ? prev : 10));
+        // Skip hash link changes on the same page
+        if (
+          url.pathname === window.location.pathname &&
+          url.search === window.location.search &&
+          url.hash !== window.location.hash
+        ) {
+          return;
+        }
+
+        // Skip identical navigation
+        if (
+          url.pathname === window.location.pathname &&
+          url.search === window.location.search
+        ) {
+          return;
+        }
+      } catch {
+        return;
+      }
+
+      startProgress();
     };
 
     document.addEventListener("click", handleAnchorClick, { capture: true });
@@ -70,14 +105,10 @@ export function TopProgressBar() {
 
   // Complete progress bar when pathname or searchParams change (navigation completes)
   useEffect(() => {
-    /* eslint-disable react-hooks/set-state-in-effect */
-    setProgress(100);
-    const timer = setTimeout(() => {
-      setVisible(false);
-      setProgress(0);
-    }, 300);
-    return () => clearTimeout(timer);
-    /* eslint-enable react-hooks/set-state-in-effect */
+    if (visible) {
+      completeProgress();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pathname, searchParams]);
 
   // Animate progress incrementally
@@ -95,6 +126,15 @@ export function TopProgressBar() {
 
     return () => clearInterval(interval);
   }, [visible, progress]);
+
+  // Cleanup timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+    };
+  }, []);
 
   if (!visible) return null;
 
