@@ -46,6 +46,7 @@ jobs:
         run: |
           cp -r public .next/standalone/
           cp -r .next/static .next/standalone/.next/
+          tar -czf deploy.tar.gz -C .next/standalone .
 
       - name: Deploy to VPS via SCP
         uses: appleboy/scp-action@v0.1.7
@@ -53,11 +54,10 @@ jobs:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_SSH_KEY }}
-          source: ".next/standalone/*"
+          source: "deploy.tar.gz"
           target: "/var/www/elc-tem"
-          strip_components: 2
 
-      - name: Restart PM2 on VPS
+      - name: Extract and Restart PM2 on VPS
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.VPS_HOST }}
@@ -65,8 +65,11 @@ jobs:
           key: ${{ secrets.VPS_SSH_KEY }}
           script: |
             cd /var/www/elc-tem
-            # Xóa cache cũ của Next.js (Full Route Cache / Data Cache) để tránh kẹt cache
+            # Giai nen de len cac file cu
+            tar -xzf deploy.tar.gz
+            rm -f deploy.tar.gz
+            # Xoa cache cu cua Next.js (Full Route Cache / Data Cache) de tranh ket cache
             rm -rf .next/cache
-            # Tạo hoặc cập nhật PM2 process
+            # Tao hoac cap nhat PM2 process
             pm2 delete elc-tem 2>/dev/null || true
             PORT=3000 pm2 start server.js --name elc-tem
