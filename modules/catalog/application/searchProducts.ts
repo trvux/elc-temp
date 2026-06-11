@@ -242,8 +242,14 @@ export async function searchProducts(
     isFeatured: options.isFeatured,
   });
 
+  // Filter by condition if provided
+  let filteredByCondition = allProducts;
+  if (options.condition) {
+    filteredByCondition = allProducts.filter((p) => p.condition === options.condition);
+  }
+
   // 1. Search Query
-  let searchedProducts = allProducts;
+  let searchedProducts = filteredByCondition;
   if (q) {
     const queryTokens = getQueryTokens(q);
 

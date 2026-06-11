@@ -98,6 +98,7 @@ export interface ProductFilter {
     minPrice?: number;
     maxPrice?: number;
     sortBy?: ProductSortBy;
+    condition?: string;
     specs?: Record<string, string[]>;
     limit?: number;
     offset?: number;

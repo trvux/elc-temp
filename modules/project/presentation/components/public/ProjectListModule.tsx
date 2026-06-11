@@ -61,6 +61,7 @@ async function getCachedProjectListData(
   categorySlugs: string[],
   serviceSlugs: string[],
   searchVal: string | undefined,
+  conditionParam: string | undefined,
 ) {
   "use cache";
   // Serve stale content for up to 1 hour while revalidating in background every 5 minutes.
@@ -70,13 +71,19 @@ async function getCachedProjectListData(
   setUseStaticClient(true);
 
   // 1. Fetch filtered projects
-  const projects = await getProjects({
+  let projects = await getProjects({
     isPublished: true,
     projectTypeId: projectType?.id || undefined,
     categorySlugs: categorySlugs.length > 0 ? categorySlugs : undefined,
     serviceSlugs: serviceSlugs.length > 0 ? serviceSlugs : undefined,
     search: searchVal,
   });
+
+  if (conditionParam) {
+    projects = projects.filter((p) =>
+      p.categories?.some((c) => c.condition === conditionParam)
+    );
+  }
 
   // Sort projects: featured first, then order index
   const sortedProjects = [...projects].sort((a, b) => {
@@ -90,7 +97,10 @@ async function getCachedProjectListData(
   const activeProjectTypes = allProjectTypes.filter((st) => !st.deletedAt);
 
   // Fetch all published projects to compute counts
-  const allPublishedProjects = await getProjects({ isPublished: true });
+  const allPublishedProjectsRaw = await getProjects({ isPublished: true });
+  const allPublishedProjects = conditionParam
+    ? allPublishedProjectsRaw.filter((p) => p.categories?.some((c) => c.condition === conditionParam))
+    : allPublishedProjectsRaw;
 
   const projectTypeItems = activeProjectTypes.map((st) => {
     const count = allPublishedProjects.filter(
@@ -246,6 +256,11 @@ export async function ProjectListModule({
       ? searchParams.search.trim()
       : undefined;
 
+  const conditionVal =
+    typeof searchParams.condition === "string"
+      ? searchParams.condition
+      : undefined;
+
   const queryTokens = getQueryTokens(searchVal || "");
 
   // Prepare simplified projectType for cache helper parameters
@@ -263,7 +278,7 @@ export async function ProjectListModule({
     : null;
 
   const { sortedProjects, projectTypeItems, filterCategories, serviceItems, currentYear } =
-    await getCachedProjectListData(projectTypeData, categorySlugs, serviceSlugs, searchVal);
+    await getCachedProjectListData(projectTypeData, categorySlugs, serviceSlugs, searchVal, conditionVal);
 
   // Phân trang (giữ thứ tự featured-first toàn cục bằng cách cắt trang sau khi sắp xếp)
   const currentPage = Number(searchParams.page) || 1;
@@ -340,6 +355,7 @@ export async function ProjectListModule({
                 currentCategorySlugs={categorySlugs}
                 services={serviceItems}
                 currentServiceSlugs={serviceSlugs}
+                currentCondition={conditionVal}
               />
             </Suspense>
           </div>
@@ -370,6 +386,7 @@ export async function ProjectListModule({
                 currentCategorySlugs={categorySlugs}
                 services={serviceItems}
                 currentServiceSlugs={serviceSlugs}
+                currentCondition={conditionVal}
               />
             </Suspense>
           </aside>

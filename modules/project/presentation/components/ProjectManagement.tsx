@@ -71,6 +71,7 @@ export function ProjectManagement() {
   const [filterServiceGroupId, setFilterServiceGroupId] =
     useState<string>("all");
   const [filterServiceId, setFilterServiceId] = useState<string>("all");
+  const [filterCondition, setFilterCondition] = useState<string>("all");
 
   const handleServiceGroupIdChange = (val: string) => {
     setFilterServiceGroupId(val);
@@ -216,6 +217,10 @@ export function ProjectManagement() {
         filterServiceId === "all" ||
         (p.services || []).some((s) => s.id === filterServiceId);
 
+      const matchCondition =
+        filterCondition === "all" ||
+        (p.categories && p.categories.some((c) => c.condition === filterCondition));
+
       return (
         matchGroup &&
         matchCategory &&
@@ -223,7 +228,8 @@ export function ProjectManagement() {
         matchFeatured &&
         matchPublished &&
         matchServiceGroup &&
-        matchService
+        matchService &&
+        matchCondition
       );
     });
   }, [
@@ -235,6 +241,7 @@ export function ProjectManagement() {
     filterIsPublished,
     filterServiceGroupId,
     filterServiceId,
+    filterCondition,
   ]);
 
   const columns = useMemo(
@@ -371,6 +378,18 @@ export function ProjectManagement() {
           </SelectContent>
         </Select>
 
+        {/* Condition Filter */}
+        <Select value={filterCondition} onValueChange={setFilterCondition}>
+          <SelectTrigger className="w-full md:w-[150px]">
+            <SelectValue placeholder="Tình trạng" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">Tất cả tình trạng</SelectItem>
+            <SelectItem value="new">Mới</SelectItem>
+            <SelectItem value="used">Cũ</SelectItem>
+          </SelectContent>
+        </Select>
+
         {/* Service Group Filter */}
         <Select
           value={filterServiceGroupId}
@@ -410,7 +429,8 @@ export function ProjectManagement() {
           filterCategoryId !== "all" ||
           filterProjectTypeId !== "all" ||
           filterServiceGroupId !== "all" ||
-          filterServiceId !== "all") && (
+          filterServiceId !== "all" ||
+          filterCondition !== "all") && (
           <Button
             variant="ghost"
             onClick={() => {
@@ -421,6 +441,7 @@ export function ProjectManagement() {
               setFilterProjectTypeId("all");
               setFilterServiceGroupId("all");
               setFilterServiceId("all");
+              setFilterCondition("all");
             }}
             className="h-9 px-3 text-muted-foreground hover:text-foreground"
           >

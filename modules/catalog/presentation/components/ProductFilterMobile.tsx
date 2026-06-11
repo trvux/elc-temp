@@ -47,6 +47,9 @@ export function ProductFilterMobile({
     // Check price
     if (searchParams.get("minPrice") || searchParams.get("maxPrice")) count++;
 
+    // Check condition
+    if (searchParams.get("condition")) count++;
+
     // Check specs
     const specKeys = Array.from(searchParams.keys()).filter((k) =>
       k.startsWith("spec_"),

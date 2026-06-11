@@ -45,6 +45,7 @@ export function ProductManagement() {
   const [filterIsPublished, setFilterIsPublished] = useState<string>("all");
   const [filterLabel, setFilterLabel] = useState<string>("all");
   const [filterStockStatus, setFilterStockStatus] = useState<string>("all");
+  const [filterCondition, setFilterCondition] = useState<string>("all");
 
   // Fetch Data
   const { data: products = [], isLoading: isLoadingProducts } = useQuery({
@@ -129,9 +130,10 @@ export function ProductManagement() {
       const matchPublished = filterIsPublished === "all" || (filterIsPublished === "true" ? p.isPublished : !p.isPublished);
       const matchLabel = filterLabel === "all" || (p.labels && p.labels.includes(filterLabel));
       const matchStockStatus = filterStockStatus === "all" || p.stockStatus === filterStockStatus;
-      return matchGroup && matchCategory && matchFeatured && matchPublished && matchLabel && matchStockStatus;
+      const matchCondition = filterCondition === "all" || p.condition === filterCondition;
+      return matchGroup && matchCategory && matchFeatured && matchPublished && matchLabel && matchStockStatus && matchCondition;
     });
-  }, [products, filterGroupId, filterCategoryId, filterIsFeatured, filterIsPublished, filterLabel, filterStockStatus, categories]);
+  }, [products, filterGroupId, filterCategoryId, filterIsFeatured, filterIsPublished, filterLabel, filterStockStatus, filterCondition, categories]);
 
   const columns = useMemo(
     () =>
@@ -287,12 +289,24 @@ export function ProductManagement() {
           </SelectContent>
         </Select>
 
+        <Select value={filterCondition} onValueChange={setFilterCondition}>
+          <SelectTrigger className="w-full md:w-[150px]">
+            <SelectValue placeholder="Tình trạng" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">Tất cả tình trạng</SelectItem>
+            <SelectItem value={PRODUCT_CONDITION.NEW}>Mới</SelectItem>
+            <SelectItem value={PRODUCT_CONDITION.USED}>Cũ</SelectItem>
+          </SelectContent>
+        </Select>
+
         {(filterGroupId !== "all" ||
           filterCategoryId !== "all" ||
           filterIsFeatured !== "all" ||
           filterIsPublished !== "all" ||
           filterLabel !== "all" ||
-          filterStockStatus !== "all") && (
+          filterStockStatus !== "all" ||
+          filterCondition !== "all") && (
           <Button
             variant="ghost"
             onClick={() => {
@@ -302,6 +316,7 @@ export function ProductManagement() {
               setFilterIsPublished("all");
               setFilterLabel("all");
               setFilterStockStatus("all");
+              setFilterCondition("all");
             }}
             className="h-10 text-muted-foreground"
           >
