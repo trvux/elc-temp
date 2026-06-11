@@ -109,7 +109,7 @@ export const EditorFloatingMenu = ({
         <PopoverContent
           side="right"
           align="center"
-          className="p-1 w-auto min-w-max bg-primary border-muted rounded-full shadow-lg ml-2 animate-in fade-in zoom-in-95 duration-200"
+          className="tiptap-menu-wrapper p-1 w-auto min-w-max rounded-full shadow-lg ml-2 animate-in fade-in zoom-in-95 duration-200"
         >
           <ButtonGroup>
             <Button
