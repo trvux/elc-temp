@@ -1,8 +1,5 @@
-import {
-  formatPrice,
-  ProductWithRelations,
-} from "@/modules/catalog/domain";
 import { getAdjacentProducts } from "@/modules/catalog/application/getAdjacentProducts";
+import { formatPrice, ProductWithRelations } from "@/modules/catalog/domain";
 import { mapContactRowToDomain } from "@/modules/contact/domain";
 import { Breadcrumbs } from "@/shared/components/layout/user/breadcrumbs";
 import { DetailPager } from "@/shared/components/layout/user/detail-pager";
@@ -20,13 +17,13 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/shared/components/ui/carousel";
+import { StockBadge } from "@/shared/components/ui/stock-badge";
 import {
   Tabs,
   TabsContent,
   TabsList,
   TabsTrigger,
 } from "@/shared/components/ui/tabs";
-import { StockBadge } from "@/shared/components/ui/stock-badge";
 import {
   TypographyH1,
   TypographyH3,
@@ -129,7 +126,9 @@ export async function ProductDetailModule({
 }: {
   product: ProductWithRelations;
 }) {
-  const { contacts, currentYear } = await getCachedProductDetailData(product.slug);
+  const { contacts, currentYear } = await getCachedProductDetailData(
+    product.slug,
+  );
   const { prev, next } = await getAdjacentProducts(product);
 
   const category = product.category;
@@ -232,7 +231,10 @@ export async function ProductDetailModule({
                     Mã sản phẩm (SKU): {product.sku}
                   </TypographySmall>
                 )}
-                <StockBadge status={product.stockStatus || undefined} className="text-sm" />
+                <StockBadge
+                  status={product.stockStatus || undefined}
+                  className="text-sm"
+                />
               </div>
 
               <div className={STYLES.priceArea}>
@@ -391,9 +393,7 @@ export async function ProductDetailModule({
         contentClassName="py-6 md:py-8 lg:py-10"
       >
         <footer className={STYLES.footer}>
-          <TypographySmall>
-            &copy; {currentYear} ELC Holdings. Đã đăng ký bản quyền.
-          </TypographySmall>
+          <TypographySmall>&copy; {currentYear} Điện máy ELC.</TypographySmall>
           <ScrollToTop className={STYLES.scrollToTop}>
             <TypographySmall>Quay lại đầu trang</TypographySmall>
           </ScrollToTop>

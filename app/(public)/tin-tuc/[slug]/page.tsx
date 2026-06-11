@@ -1,12 +1,14 @@
-import { getNewsBySlug, getNews } from "@/modules/news/application";
+import { getNews, getNewsBySlug } from "@/modules/news/application";
 import { Breadcrumbs } from "@/shared/components/layout/user/breadcrumbs";
 import { DetailPager } from "@/shared/components/layout/user/detail-pager";
 import { PreviewContent } from "@/shared/components/layout/user/preview-content";
 import { ScrollToTop } from "@/shared/components/layout/user/scroll-to-top";
 import { GridSection } from "@/shared/components/sections/grid-section";
-import { TypographyH1, TypographySmall } from "@/shared/components/ui/typography";
+import {
+  TypographyH1,
+  TypographySmall,
+} from "@/shared/components/ui/typography";
 import { setUseStaticClient } from "@/shared/lib/supabase/server";
-import { cn } from "@/shared/lib/utils";
 import { ArrowLeft } from "@phosphor-icons/react/dist/ssr";
 import { cacheLife, cacheTag } from "next/cache";
 import Image from "next/image";
@@ -16,7 +18,8 @@ import { notFound } from "next/navigation";
 // Design System / Style Constants
 const STYLES = {
   main: "w-full bg-background min-h-screen",
-  title: "w-full max-w-none! text-wrap! text-3xl md:text-4xl lg:text-5xl font-extrabold tracking-tight font-heading leading-tight",
+  title:
+    "w-full max-w-none! text-wrap! text-3xl md:text-4xl lg:text-5xl font-extrabold tracking-tight font-heading leading-tight",
   footer:
     "w-full flex flex-col md:flex-row justify-between items-center gap-6 text-muted-foreground",
 };
@@ -58,14 +61,19 @@ async function getCachedNewsDetailData(slug: string) {
 
   const newsItem = allNews[newsItemIndex];
   const prevNews = newsItemIndex > 0 ? allNews[newsItemIndex - 1] : null;
-  const nextNews = newsItemIndex < allNews.length - 1 ? allNews[newsItemIndex + 1] : null;
-  
+  const nextNews =
+    newsItemIndex < allNews.length - 1 ? allNews[newsItemIndex + 1] : null;
+
   // Lấy tin tức liên quan theo category_id (nếu có), loại trừ bài hiện tại.
   // Bổ sung các bài viết khác nếu không đủ 3 bài.
   const sameCategoryNews = newsItem.categoryId
-    ? allNews.filter((n) => n.categoryId === newsItem.categoryId && n.slug !== slug)
+    ? allNews.filter(
+        (n) => n.categoryId === newsItem.categoryId && n.slug !== slug,
+      )
     : [];
-  const fallbackNews = allNews.filter((n) => n.slug !== slug && n.categoryId !== newsItem.categoryId);
+  const fallbackNews = allNews.filter(
+    (n) => n.slug !== slug && n.categoryId !== newsItem.categoryId,
+  );
   const relatedNews = [...sameCategoryNews, ...fallbackNews].slice(0, 3);
 
   const currentYear = new Date().getFullYear();
@@ -81,9 +89,10 @@ async function getCachedNewsDetailData(slug: string) {
 
 export default async function NewsDetailPage({ params }: PageProps) {
   const { slug } = await params;
-  
+
   // Fetch current news detail using the cached helper
-  const { newsItem, prevNews, nextNews, relatedNews, currentYear } = await getCachedNewsDetailData(slug);
+  const { newsItem, prevNews, nextNews, relatedNews, currentYear } =
+    await getCachedNewsDetailData(slug);
 
   if (!newsItem || !newsItem.isPublished) {
     notFound();
@@ -92,11 +101,13 @@ export default async function NewsDetailPage({ params }: PageProps) {
   const title = newsItem.title || "Tin tức";
   const createdAt = newsItem.createdAt || "";
 
-  const formattedDate = createdAt ? new Date(createdAt).toLocaleDateString("vi-VN", {
-    day: "numeric",
-    month: "long",
-    year: "numeric",
-  }) : "";
+  const formattedDate = createdAt
+    ? new Date(createdAt).toLocaleDateString("vi-VN", {
+        day: "numeric",
+        month: "long",
+        year: "numeric",
+      })
+    : "";
 
   return (
     <main className={STYLES.main}>
@@ -133,7 +144,10 @@ export default async function NewsDetailPage({ params }: PageProps) {
       >
         <div className="max-w-3xl mx-auto w-full">
           <article>
-            <PreviewContent content={newsItem.content} hideFirstHeading={true} />
+            <PreviewContent
+              content={newsItem.content}
+              hideFirstHeading={true}
+            />
           </article>
         </div>
       </GridSection>
@@ -203,8 +217,16 @@ export default async function NewsDetailPage({ params }: PageProps) {
         contentClassName="py-8"
       >
         <DetailPager
-          prev={prevNews ? { title: prevNews.title, href: `/tin-tuc/${prevNews.slug}` } : null}
-          next={nextNews ? { title: nextNews.title, href: `/tin-tuc/${nextNews.slug}` } : null}
+          prev={
+            prevNews
+              ? { title: prevNews.title, href: `/tin-tuc/${prevNews.slug}` }
+              : null
+          }
+          next={
+            nextNews
+              ? { title: nextNews.title, href: `/tin-tuc/${nextNews.slug}` }
+              : null
+          }
           prevLabel="Bài viết trước"
           nextLabel="Bài viết sau"
         />
@@ -218,9 +240,7 @@ export default async function NewsDetailPage({ params }: PageProps) {
         contentClassName="py-6 md:py-8 lg:py-10"
       >
         <footer className={STYLES.footer}>
-          <TypographySmall>
-            &copy; {currentYear} ELC Holdings. Đã đăng ký bản quyền.
-          </TypographySmall>
+          <TypographySmall>&copy; {currentYear} Điện máy ELC.</TypographySmall>
           <ScrollToTop className="flex items-center gap-2 cursor-pointer hover:text-foreground transition-colors">
             <TypographySmall>Quay lại đầu trang</TypographySmall>
           </ScrollToTop>

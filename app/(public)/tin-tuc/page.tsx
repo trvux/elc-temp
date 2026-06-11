@@ -18,15 +18,21 @@ const STYLES = {
   title: "text-3xl md:text-4xl font-extrabold tracking-tight",
   description: "text-muted-foreground text-sm md:text-base leading-relaxed",
   list: "flex flex-col w-full min-h-[400px] animate-fade-in-up",
-  article: "group flex flex-row justify-between items-center gap-4 sm:gap-6 md:gap-8 py-8 border-b border-border/60 last:border-b-0 no-underline transition-all duration-300 w-full",
+  article:
+    "group flex flex-row justify-between items-center gap-4 sm:gap-6 md:gap-8 py-8 border-b border-border/60 last:border-b-0 no-underline transition-all duration-300 w-full",
   textWrapper: "flex-1 min-w-0 flex flex-col gap-1.5 md:gap-2",
-  date: "text-xs text-muted-foreground/60 font-medium font-sans",
-  articleTitle: "text-base sm:text-lg md:text-xl font-bold tracking-tight text-foreground group-hover:text-foreground/70 transition-colors line-clamp-2 leading-snug font-heading",
-  articleDescription: "text-xs sm:text-sm md:text-base text-muted-foreground line-clamp-2 md:line-clamp-3 leading-relaxed",
-  imageWrapper: "shrink-0 relative w-36 aspect-video sm:w-48 md:w-64 rounded-lg overflow-hidden",
+  date: "text-xs text-muted-foreground font-sans",
+  articleTitle:
+    "text-base sm:text-lg md:text-xl font-bold tracking-tight text-foreground group-hover:text-foreground/70 transition-colors line-clamp-2 leading-snug font-heading",
+  articleDescription:
+    "text-xs sm:text-sm md:text-base text-muted-foreground line-clamp-2 md:line-clamp-3 leading-relaxed",
+  imageWrapper:
+    "shrink-0 relative w-36 aspect-video sm:w-48 md:w-64 rounded-lg overflow-hidden",
   image: "object-contain",
-  footer: "w-full flex flex-col md:flex-row justify-between items-center gap-6 text-muted-foreground",
-  scrollToTop: "flex items-center gap-2 cursor-pointer hover:text-foreground transition-colors",
+  footer:
+    "w-full flex flex-col md:flex-row justify-between items-center gap-6 text-muted-foreground",
+  scrollToTop:
+    "flex items-center gap-2 cursor-pointer hover:text-foreground transition-colors",
 };
 
 interface TiptapNode {
@@ -133,7 +139,7 @@ export default async function NewsHub() {
         contentClassName="py-6 md:py-8 lg:py-10"
       >
         <header className={STYLES.header}>
-          <TypographyH1>{ "Tin tức" }</TypographyH1>
+          <TypographyH1>{"Tin tức"}</TypographyH1>
           <TypographyLead className={STYLES.description}>
             Cập nhật những giải pháp kỹ thuật mới nhất và các tin tức chuyên sâu
             từ đội ngũ kỹ sư ELC
@@ -207,9 +213,7 @@ export default async function NewsHub() {
         contentClassName="py-6 md:py-8 lg:py-10"
       >
         <footer className={STYLES.footer}>
-          <TypographySmall>
-            &copy; {currentYear} ELC Holdings. Đã đăng ký bản quyền.
-          </TypographySmall>
+          <TypographySmall>&copy; {currentYear} Điện máy ELC.</TypographySmall>
           <ScrollToTop className={STYLES.scrollToTop}>
             <TypographySmall>Quay lại đầu trang</TypographySmall>
           </ScrollToTop>

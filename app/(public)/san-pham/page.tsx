@@ -4,10 +4,12 @@ import { ProductFilterMobile } from "@/modules/catalog/presentation/components/P
 import { ProductFilters } from "@/modules/catalog/presentation/components/ProductFilters";
 import { getCategories } from "@/modules/category/application";
 import { Breadcrumbs } from "@/shared/components/layout/user/breadcrumbs";
+import { FilteredGridWrapper } from "@/shared/components/layout/user/filtered-grid-wrapper";
 import { PaginationNav } from "@/shared/components/layout/user/pagination-nav";
 import { ProductSearch } from "@/shared/components/layout/user/product-search";
 import { ScrollToTop } from "@/shared/components/layout/user/scroll-to-top";
 import { GridSection } from "@/shared/components/sections/grid-section";
+import { Skeleton } from "@/shared/components/ui/skeleton";
 import {
   TypographyH1,
   TypographyLarge,
@@ -20,8 +22,6 @@ import { cn } from "@/shared/lib/utils";
 import { Metadata } from "next";
 import { cacheLife, cacheTag } from "next/cache";
 import { Suspense } from "react";
-import { FilteredGridWrapper } from "@/shared/components/layout/user/filtered-grid-wrapper";
-import { Skeleton } from "@/shared/components/ui/skeleton";
 
 interface Props {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
@@ -329,8 +329,7 @@ async function CachedProductsView({
       >
         <footer className={STYLES.footer}>
           <TypographySmall>
-            &copy; {new Date().getFullYear()} ELC Holdings. Đã đăng ký bản
-            quyền.
+            &copy; {new Date().getFullYear()} Điện máy ELC.
           </TypographySmall>
           <ScrollToTop className={STYLES.scrollToTop}>
             <TypographySmall>Quay lại đầu trang</TypographySmall>

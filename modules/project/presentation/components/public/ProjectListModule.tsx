@@ -1,14 +1,16 @@
 import { getCategories } from "@/modules/category/application";
-import { getProjects } from "@/modules/project/application/getProjects";
-import { ProjectCard } from "@/modules/project/presentation/components/ProjectCard";
 import { getProjectTypes } from "@/modules/project-type/application";
 import { ProjectTypeWithCategories } from "@/modules/project-type/domain/types";
+import { getProjects } from "@/modules/project/application/getProjects";
+import { ProjectCard } from "@/modules/project/presentation/components/ProjectCard";
 import { getServices } from "@/modules/service/application";
 import { Breadcrumbs } from "@/shared/components/layout/user/breadcrumbs";
+import { FilteredGridWrapper } from "@/shared/components/layout/user/filtered-grid-wrapper";
 import { PaginationNav } from "@/shared/components/layout/user/pagination-nav";
 import { ScrollToTop } from "@/shared/components/layout/user/scroll-to-top";
 import { GridSection } from "@/shared/components/sections/grid-section";
 import { Button } from "@/shared/components/ui/button";
+import { Skeleton } from "@/shared/components/ui/skeleton";
 import {
   TypographyH1,
   TypographySmall,
@@ -21,8 +23,6 @@ import { Suspense } from "react";
 import { ProjectFilterMobile } from "./ProjectFilterMobile";
 import { ProjectFilters } from "./ProjectFilters";
 import { ProjectSearchInput } from "./ProjectSearchInput";
-import { FilteredGridWrapper } from "@/shared/components/layout/user/filtered-grid-wrapper";
-import { Skeleton } from "@/shared/components/ui/skeleton";
 
 interface ProjectListModuleProps {
   projectType?: ProjectTypeWithCategories | null;
@@ -81,7 +81,7 @@ async function getCachedProjectListData(
 
   if (conditionParam) {
     projects = projects.filter((p) =>
-      p.categories?.some((c) => c.condition === conditionParam)
+      p.categories?.some((c) => c.condition === conditionParam),
     );
   }
 
@@ -99,7 +99,9 @@ async function getCachedProjectListData(
   // Fetch all published projects to compute counts
   const allPublishedProjectsRaw = await getProjects({ isPublished: true });
   const allPublishedProjects = conditionParam
-    ? allPublishedProjectsRaw.filter((p) => p.categories?.some((c) => c.condition === conditionParam))
+    ? allPublishedProjectsRaw.filter((p) =>
+        p.categories?.some((c) => c.condition === conditionParam),
+      )
     : allPublishedProjectsRaw;
 
   const projectTypeItems = activeProjectTypes.map((st) => {
@@ -212,7 +214,9 @@ async function getCachedProjectListData(
   const allServices = await getServices({ isPublished: true });
   const serviceItems = allServices.map((svc) => {
     const count = allPublishedProjects.filter((p) => {
-      const matchProjectType = projectType ? p.projectTypeId === projectType.id : true;
+      const matchProjectType = projectType
+        ? p.projectTypeId === projectType.id
+        : true;
       const matchService = p.services?.some((s) => s.id === svc.id);
       return matchProjectType && matchService;
     }).length;
@@ -277,8 +281,19 @@ export async function ProjectListModule({
       }
     : null;
 
-  const { sortedProjects, projectTypeItems, filterCategories, serviceItems, currentYear } =
-    await getCachedProjectListData(projectTypeData, categorySlugs, serviceSlugs, searchVal, conditionVal);
+  const {
+    sortedProjects,
+    projectTypeItems,
+    filterCategories,
+    serviceItems,
+    currentYear,
+  } = await getCachedProjectListData(
+    projectTypeData,
+    categorySlugs,
+    serviceSlugs,
+    searchVal,
+    conditionVal,
+  );
 
   // Phân trang (giữ thứ tự featured-first toàn cục bằng cách cắt trang sau khi sắp xếp)
   const currentPage = Number(searchParams.page) || 1;
@@ -313,7 +328,7 @@ export async function ProjectListModule({
 
   return (
     <main className={STYLES.main}>
-        <GridSection
+      <GridSection
         id="projects-header"
         isFirst={true}
         showDiamond={true}
@@ -428,7 +443,9 @@ export async function ProjectListModule({
                   </p>
                   <Button asChild size="sm" variant="outline">
                     <Link
-                      href={projectType ? `/du-an/${projectType.slug}` : "/du-an"}
+                      href={
+                        projectType ? `/du-an/${projectType.slug}` : "/du-an"
+                      }
                     >
                       Xóa tất cả bộ lọc
                     </Link>
@@ -458,8 +475,7 @@ export async function ProjectListModule({
       >
         <footer className={STYLES.footer}>
           <TypographySmall className="text-xs text-muted-foreground/75">
-            &copy; {currentYear} ELC Holdings. Mọi quyền được bảo
-            lưu.
+            &copy; {currentYear} Điện máy ELC.
           </TypographySmall>
           <ScrollToTop className={STYLES.scrollToTop}>
             <TypographySmall>Quay lại đầu trang</TypographySmall>

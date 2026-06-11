@@ -1,16 +1,19 @@
-import { Button } from "@/shared/components/ui/button";
-import { TypographyH1, TypographySmall } from "@/shared/components/ui/typography";
+import { getServiceBySlug, getServices } from "@/modules/service/application";
+import { PreviewContent } from "@/shared/components/layout/user/preview-content";
 import { ScrollToTop } from "@/shared/components/layout/user/scroll-to-top";
+import { Button } from "@/shared/components/ui/button";
+import {
+  TypographyH1,
+  TypographySmall,
+} from "@/shared/components/ui/typography";
+import { generateServiceMetadata } from "@/shared/lib/seo-utils";
+import { setUseStaticClient } from "@/shared/lib/supabase/server";
 import { cn } from "@/shared/lib/utils";
 import { ArrowLeft } from "@phosphor-icons/react/dist/ssr";
+import { Metadata } from "next";
+import { cacheLife, cacheTag } from "next/cache";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { PreviewContent } from "@/shared/components/layout/user/preview-content";
-import { generateServiceMetadata } from "@/shared/lib/seo-utils";
-import { Metadata } from "next";
-import { setUseStaticClient } from "@/shared/lib/supabase/server";
-import { cacheLife, cacheTag } from "next/cache";
-import { getServiceBySlug, getServices } from "@/modules/service/application";
 
 interface PageProps {
   params: Promise<{
@@ -28,7 +31,9 @@ async function getCachedService(slug: string) {
   return getServiceBySlug(slug);
 }
 
-export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: PageProps): Promise<Metadata> {
   const { slug } = await params;
   const service = await getCachedService(slug);
   return generateServiceMetadata(service as unknown as Record<string, unknown>);
@@ -111,10 +116,7 @@ export default async function ServiceDetailPage({ params }: PageProps) {
         </nav>
 
         <footer className={STYLES.footer}>
-          <TypographySmall>
-            &copy; {currentYear} ELC Holdings. Đã đăng ký bản
-            quyền.
-          </TypographySmall>
+          <TypographySmall>&copy; {currentYear} Điện máy ELC.</TypographySmall>
           <ScrollToTop className="flex items-center gap-2 cursor-pointer hover:text-foreground transition-colors">
             <TypographySmall>Quay lại đầu trang</TypographySmall>
           </ScrollToTop>
