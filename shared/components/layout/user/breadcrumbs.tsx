@@ -20,9 +20,10 @@ export interface BreadcrumbStep {
 interface BreadcrumbsProps {
   items: BreadcrumbStep[];
   className?: string;
+  disableJsonLd?: boolean;
 }
 
-export function Breadcrumbs({ items, className }: BreadcrumbsProps) {
+export function Breadcrumbs({ items, className, disableJsonLd }: BreadcrumbsProps) {
   const pathname = usePathname();
   const baseUrl =
     process.env.NEXT_PUBLIC_APP_URL || "https://dienmayelc.com.vn";
@@ -53,6 +54,8 @@ export function Breadcrumbs({ items, className }: BreadcrumbsProps) {
   // Inject JSON-LD imperatively to avoid React's script-in-client-component warning.
   // Scripts mutated via the DOM are outside React's render tree and never trigger the warning.
   useEffect(() => {
+    if (disableJsonLd) return;
+
     const script = document.createElement("script");
     script.type = "application/ld+json";
     script.textContent = JSON.stringify(jsonLd);

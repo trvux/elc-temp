@@ -6,7 +6,7 @@ import {
   TypographyH1,
   TypographySmall,
 } from "@/shared/components/ui/typography";
-import { generateServiceMetadata } from "@/shared/lib/seo-utils";
+import { generateServiceMetadata, generateServiceDetailSchema } from "@/shared/lib/seo-utils";
 import { setUseStaticClient } from "@/shared/lib/supabase/server";
 import { cn } from "@/shared/lib/utils";
 import { ArrowLeft } from "@phosphor-icons/react/dist/ssr";
@@ -15,6 +15,7 @@ import { cacheLife, cacheTag } from "next/cache";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Breadcrumbs } from "@/shared/components/layout/user/breadcrumbs";
+import { getBranches } from "@/modules/branch/application";
 
 interface PageProps {
   params: Promise<{
@@ -88,42 +89,8 @@ export default async function ServiceDetailPage({ params }: PageProps) {
   }
 
   const currentYear = await getCachedCurrentYear();
-
-  const serviceSchema = {
-    "@context": "https://schema.org",
-    "@type": "Service",
-    "name": service.title,
-    "description": service.metaDescription || service.title,
-    "provider": {
-      "@type": "HVACBusiness",
-      "name": "Điện máy ELC",
-      "url": "https://dienmayelc.com.vn",
-      "telephone": "+84789978898",
-      "image": "https://dienmayelc.com.vn/opengraph-image.png",
-      "priceRange": "$$",
-      "address": {
-        "@type": "PostalAddress",
-        "streetAddress": "06 Dương Quảng Hàm, phường An Nhơn",
-        "addressLocality": "Gò Vấp",
-        "addressRegion": "Thành phố Hồ Chí Minh",
-        "addressCountry": "VN",
-      },
-    },
-    "areaServed": [
-      {
-        "@type": "AdministrativeArea",
-        "name": "Thành phố Hồ Chí Minh",
-      },
-      {
-        "@type": "AdministrativeArea",
-        "name": "Bình Dương",
-      },
-      {
-        "@type": "AdministrativeArea",
-        "name": "Đồng Nai",
-      },
-    ],
-  };
+  const branches = await getBranches({ isPublished: true });
+  const serviceSchema = generateServiceDetailSchema(service, branches);
 
   return (
     <main className={STYLES.main}>
@@ -161,6 +128,7 @@ export default async function ServiceDetailPage({ params }: PageProps) {
             { label: "Dịch vụ", href: "/dich-vu" },
             { label: service.title, active: true },
           ]}
+          disableJsonLd={true}
         />
 
         <footer className={STYLES.footer}>

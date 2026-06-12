@@ -1,6 +1,7 @@
 import { createStaticClient } from "@/shared/lib/supabase/static";
 import { mapContactRowToDomain } from "@/modules/contact/domain";
 import { cacheLife, cacheTag } from "next/cache";
+import { Branch } from "@/modules/branch/domain";
 
 export async function getPublicLayoutData() {
   "use cache";
@@ -148,10 +149,30 @@ export async function getPublicLayoutData() {
     slug: st.slug || "",
   }));
 
+  const mappedBranches: Branch[] = (branches || []).map((row) => ({
+    id: row.id,
+    name: row.name,
+    slug: row.slug || "",
+    address: row.address || "",
+    phone: row.phone || "",
+    email: row.email || "",
+    mapsUrl: row.maps_url || "",
+    mapsEmbed: row.maps_embed || "",
+    description: row.description || null,
+    imageUrl: row.image_url || null,
+    isPublished: row.is_published ?? false,
+    metaTitle: row.meta_title || null,
+    metaDescription: row.meta_description || null,
+    orderIndex: row.order_index ?? 0,
+    createdAt: row.created_at || new Date().toISOString(),
+    updatedAt: row.updated_at || new Date().toISOString(),
+    deletedAt: null,
+  }));
+
   return {
     settings,
     contacts: (contacts || []).map(mapContactRowToDomain),
-    branches: branches || [],
+    branches: mappedBranches,
     projects: mappedProjects,
     pages: pages || [],
     categories: categories || [],

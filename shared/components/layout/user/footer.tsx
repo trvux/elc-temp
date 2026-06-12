@@ -194,7 +194,7 @@ export function Footer({
                 sortByOrderIndex(branches).map((b) => (
                   <Link
                     key={b.slug}
-                    href={`/co-so-ha-tang/${b.slug}`}
+                    href={`/thong-tin/${b.slug}`}
                     className="text-sm text-muted-foreground hover:text-foreground transition-colors duration-200"
                   >
                     {b.name}

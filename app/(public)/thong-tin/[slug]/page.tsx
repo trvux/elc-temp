@@ -24,6 +24,8 @@ import { ArrowLeft } from "@phosphor-icons/react/dist/ssr";
 import { Button } from "@/shared/components/ui/button";
 import Link from "next/link";
 import { Metadata } from "next";
+import { getPublicLayoutData } from "@/modules/settings";
+import { generateBranchDetailSchema } from "@/shared/lib/seo-utils";
 
 // Helper to control Google Maps zoom level
 const getZoomedUrl = (url: string, zoomLevel = "15") => {
@@ -70,8 +72,12 @@ async function getBranchData(slug: string) {
   setUseStaticClient(true);
   const branch = await getBranchBySlug(slug);
   const currentYear = new Date().getFullYear();
+  const { settings, contacts, branches } = await getPublicLayoutData();
   return {
     branch,
+    branches,
+    settings,
+    contacts,
     currentYear,
   };
 }
@@ -102,11 +108,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function BranchDetail({ params }: Props) {
   const { slug } = await params;
-  const { branch, currentYear } = await getBranchData(slug);
+  const { branch, branches, settings, contacts, currentYear } = await getBranchData(slug);
 
   if (!branch || !branch.isPublished) {
     notFound();
   }
+
+  const branchSchema = generateBranchDetailSchema(branch, branches, settings, contacts);
 
   const items = [
     {
@@ -165,6 +173,10 @@ export default async function BranchDetail({ params }: Props) {
 
   return (
     <main className={STYLES.main}>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(branchSchema) }}
+      />
       <div className={STYLES.container}>
         <header className="w-full flex flex-col gap-6">
           <TypographyH1 className={STYLES.title}>{branch.name}</TypographyH1>
@@ -233,6 +245,7 @@ export default async function BranchDetail({ params }: Props) {
             { label: "Thông tin", href: "/thong-tin" },
             { label: branch.name, active: true },
           ]}
+          disableJsonLd={true}
         />
 
         <footer className={STYLES.footer}>
