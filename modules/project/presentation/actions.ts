@@ -9,9 +9,11 @@ import {
   deleteProject,
   toggleProjectPublish,
   toggleProjectFeatured,
-  updateProjectOrder
+  updateProjectOrder,
+  getProjectById
 } from "../application/index";
 import { CreateProjectInput, UpdateProjectInput, ProjectFilter } from "../domain/index";
+import { submitToIndexNow } from "@/shared/lib/indexnow";
 
 export async function getProjectsAction(options?: ProjectFilter) {
   try {
@@ -39,6 +41,11 @@ export async function createProjectAction(input: CreateProjectInput) {
     const data = await createProject(input);
 
     revalidatePaths();
+    if (data && data.isPublished && data.slug) {
+      submitToIndexNow([`https://dienmayelc.com.vn/du-an/${data.slug}`]).catch((err) => 
+        console.error("IndexNow error during project creation:", err)
+      );
+    }
     return { data, error: null };
   } catch (error) {
     console.error("createProjectAction - SERVER-SIDE EXCEPTION OCCURRED:", error);
@@ -78,6 +85,11 @@ export async function updateProjectAction(input: UpdateProjectInput) {
     const data = await updateProject(input);
 
     revalidatePaths();
+    if (data && data.isPublished && data.slug) {
+      submitToIndexNow([`https://dienmayelc.com.vn/du-an/${data.slug}`]).catch((err) => 
+        console.error("IndexNow error during project update:", err)
+      );
+    }
     return { data, error: null };
   } catch (error) {
     console.error("updateProjectAction - SERVER-SIDE EXCEPTION OCCURRED:", error);
@@ -106,6 +118,14 @@ export async function toggleProjectPublishAction(id: string, isPublished: boolea
   try {
     await toggleProjectPublish(id, isPublished);
     revalidatePaths();
+    if (isPublished) {
+      const proj = await getProjectById(id);
+      if (proj && proj.slug) {
+        submitToIndexNow([`https://dienmayelc.com.vn/du-an/${proj.slug}`]).catch((err) => 
+          console.error("IndexNow error during project publish toggle:", err)
+        );
+      }
+    }
     return { error: null };
   } catch (error) {
     console.error("toggleProjectPublishAction error:", error);

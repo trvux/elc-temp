@@ -79,6 +79,29 @@ export async function proxy(request: NextRequest) {
     : WP_PATTERNS.some((p) => pathname.includes(p) || search.includes(p));
 
   if (destination === "GONE" || isWpLegacy) {
+    // Tối ưu hóa: Trả về 410 ngay lập tức cho các file tĩnh hoặc các đường dẫn hệ thống mà không cần truy vấn DB
+    const isStaticOrSystem = 
+      pathname.includes("wp-content/") ||
+      pathname.includes("wp-includes/") ||
+      pathname.includes("wp-json/") ||
+      pathname.includes("xmlrpc.php") ||
+      pathname.endsWith(".php") ||
+      pathname.includes("comments/feed") ||
+      pathname.endsWith("/feed") ||
+      pathname.endsWith("/feed/") ||
+      /\.(png|jpg|jpeg|webp|gif|svg|ico)$/i.test(pathname);
+
+    if (isStaticOrSystem) {
+      const url = request.nextUrl.clone();
+      url.pathname = "/gone";
+      return NextResponse.rewrite(url, {
+        status: 410,
+        headers: {
+          "x-robots-tag": "noindex, nofollow, noarchive",
+          "cache-control": "public, max-age=31536000, immutable",
+        },
+      });
+    }
 
     const slug = pathname.split("/").filter(Boolean).pop() || "";
 
