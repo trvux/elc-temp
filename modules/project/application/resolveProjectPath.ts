@@ -156,7 +156,8 @@ export async function resolveProjectPath(slug: string): Promise<ResolvedProjectE
           condition,
           category:categories(
             *,
-            group_categories(*)
+            group_categories(*),
+            products(sale_price, original_price, is_published, deleted_at)
           )
         ),
         project_service(
@@ -203,6 +204,12 @@ export async function resolveProjectPath(slug: string): Promise<ResolvedProjectE
             id: string;
             name: string;
           } | null;
+          products: {
+            sale_price: number;
+            original_price: number;
+            is_published: boolean;
+            deleted_at: string | null;
+          }[] | null;
         } | null;
       }[] | null;
       project_service: {
@@ -223,6 +230,18 @@ export async function resolveProjectPath(slug: string): Promise<ResolvedProjectE
       .map((pc) => {
         const cat = pc.category;
         if (!cat) return null;
+
+        const catProducts = (cat.products || [])
+          .filter((p) => p.is_published && !p.deleted_at);
+
+        const prices = catProducts
+          .map((p) => p.sale_price || p.original_price || 0)
+          .filter((p) => p > 0);
+
+        const lowPrice = prices.length > 0 ? Math.min(...prices) : 0;
+        const highPrice = prices.length > 0 ? Math.max(...prices) : 0;
+        const offerCount = prices.length;
+
         return {
           id: cat.id,
           name: cat.name,
@@ -235,6 +254,9 @@ export async function resolveProjectPath(slug: string): Promise<ResolvedProjectE
                 name: cat.group_categories.name,
               }
             : null,
+          lowPrice,
+          highPrice,
+          offerCount,
         };
       })
       .filter((c): c is NonNullable<typeof c> => c !== null);
