@@ -324,7 +324,7 @@ async function ProjectDetailView({
         contentClassName="py-1"
       >
         <div className="w-full">
-          <Breadcrumbs items={breadcrumbItems} />
+          <Breadcrumbs items={breadcrumbItems} disableJsonLd={true} />
         </div>
       </GridSection>
     </main>
