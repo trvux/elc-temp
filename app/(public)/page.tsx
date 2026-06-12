@@ -13,8 +13,10 @@ import { getProducts } from "@/modules/catalog/application";
 import { getContacts } from "@/modules/contact/application";
 import { getProjects } from "@/modules/project/application";
 import { getSiteSettings } from "@/modules/settings/application";
+import { getBranches } from "@/modules/branch/application";
 
 import { Metadata } from "next";
+import { generateHomeSchema } from "@/shared/lib/seo-utils";
 
 export const metadata: Metadata = {
   title:
@@ -39,7 +41,7 @@ async function getCachedHomeData() {
   setUseStaticClient(true);
 
   // Fetch all necessary data for the homepage using the application layer
-  const [settingsData, projects, featuredProducts, contacts, brands] =
+  const [settingsData, projects, featuredProducts, contacts, brands, branches] =
     await Promise.all([
       getSiteSettings(),
       getProjects({
@@ -54,6 +56,7 @@ async function getCachedHomeData() {
       }),
       getContacts(),
       getBrands({ limit: 100 }),
+      getBranches({ isPublished: true }),
     ]);
 
   // Convert settings array to a more usable object
@@ -68,11 +71,12 @@ async function getCachedHomeData() {
     featuredProducts,
     contacts,
     brands,
+    branches,
   };
 }
 
 export default async function Home() {
-  const { settings, projects, featuredProducts, contacts, brands } =
+  const { settings, projects, featuredProducts, contacts, brands, branches } =
     await getCachedHomeData();
 
   const sections = [
@@ -138,8 +142,16 @@ export default async function Home() {
     },
   ];
 
+  const homeSchema = generateHomeSchema(settings, contacts || [], branches || []);
+
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(homeSchema),
+        }}
+      />
       <main className="w-full flex flex-col animate-fade-in-up mt-0 mb-0">
         {sections.map((section, index) => (
           <GridSection

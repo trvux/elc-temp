@@ -3,7 +3,6 @@ import { createStaticClient } from '@/shared/lib/supabase/static';
 
 const BASE_URL = 'https://dienmayelc.com.vn';
 
-
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const supabase = createStaticClient();
 
@@ -13,30 +12,62 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     .select('slug, updated_at')
     .is('deleted_at', null);
 
-  // 2. Fetch Products with their category and brand slug for the URL
+  // 2. Fetch Brands
+  const { data: brands } = await supabase
+    .from('brands')
+    .select('slug, updated_at')
+    .is('deleted_at', null);
+
+  // 3. Fetch Group Categories
+  const { data: groupCategories } = await supabase
+    .from('group_categories')
+    .select('slug, updated_at')
+    .is('deleted_at', null);
+
+  // 4. Fetch Products (Flat URLs)
   const { data: products } = await supabase
     .from('products')
-    .select('slug, updated_at, category:categories(slug), brand:brands(slug)')
+    .select('slug, updated_at')
     .eq('is_published', true)
     .is('deleted_at', null);
 
-  // 3. Fetch Services
+  // 5. Fetch Services
   const { data: services } = await supabase
     .from('services')
     .select('slug, updated_at')
     .eq('is_published', true)
     .is('deleted_at', null);
 
-  // 4. Fetch Static Pages
+  // 6. Fetch Static Pages
   const { data: pages } = await supabase
     .from('pages')
     .select('slug, updated_at')
     .eq('is_published', true)
     .is('deleted_at', null);
 
-  // 5. Fetch Projects
+  // 7. Fetch Projects
   const { data: projects } = await supabase
     .from('projects')
+    .select('slug, updated_at, meta_title, meta_description')
+    .eq('is_published', true)
+    .is('deleted_at', null);
+
+  // 8. Fetch Project Types
+  const { data: projectTypes } = await supabase
+    .from('project_type')
+    .select('slug, updated_at, image, meta_title, meta_description')
+    .is('deleted_at', null);
+
+  // 9. Fetch News
+  const { data: news } = await supabase
+    .from('news')
+    .select('slug, updated_at')
+    .eq('is_published', true)
+    .is('deleted_at', null);
+
+  // 10. Fetch Branches
+  const { data: branches } = await supabase
+    .from('branches')
     .select('slug, updated_at')
     .eq('is_published', true)
     .is('deleted_at', null);
@@ -48,23 +79,27 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     '/dich-vu',
     '/du-an',
     '/tin-tuc',
+    '/thong-tin',
   ].map((route) => ({
     url: `${BASE_URL}${route}`,
     lastModified: new Date(),
     changeFrequency: 'daily' as const,
-    priority: 1.0,
+    priority: route === '' ? 1.0 : 0.8,
   }));
 
   // Page Routes (from the database)
-  const pageRoutes = (pages || []).map((p) => ({
-    url: `${BASE_URL}/${p.slug}`,
-    lastModified: new Date(p.updated_at || Date.now()),
-    changeFrequency: 'weekly' as const,
-    priority: 0.7,
-  }));
+  const pageRoutes = (pages || [])
+    .filter((p) => p.slug)
+    .map((p) => ({
+      url: `${BASE_URL}/${p.slug}`,
+      lastModified: new Date(p.updated_at || Date.now()),
+      changeFrequency: 'weekly' as const,
+      priority: 0.7,
+    }));
 
-  // Category Routes (Only Product type categories go under /san-pham/)
+  // Category Routes
   const categoryRoutes = (categories || [])
+    .filter((cat) => cat.slug)
     .map((cat) => ({
       url: `${BASE_URL}/san-pham/${cat.slug}`,
       lastModified: new Date(cat.updated_at || Date.now()),
@@ -72,60 +107,97 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.8,
     }));
 
-  interface SitemapProduct {
-    slug: string;
-    updated_at: string | null;
-    category: { slug: string } | null;
-    brand: { slug: string } | null;
-  }
+  // Brand Routes
+  const brandRoutes = (brands || [])
+    .filter((b) => b.slug)
+    .map((b) => ({
+      url: `${BASE_URL}/san-pham/${b.slug}`,
+      lastModified: new Date(b.updated_at || Date.now()),
+      changeFrequency: 'weekly' as const,
+      priority: 0.8,
+    }));
 
-  // Product Routes
-  const productRoutes = ((products as unknown as SitemapProduct[]) || [])
-    .filter((prod) => prod.slug && prod.category?.slug && prod.brand?.slug)
+  // Group Category Routes
+  const groupRoutes = (groupCategories || [])
+    .filter((g) => g.slug)
+    .map((g) => ({
+      url: `${BASE_URL}/san-pham/${g.slug}`,
+      lastModified: new Date(g.updated_at || Date.now()),
+      changeFrequency: 'weekly' as const,
+      priority: 0.8,
+    }));
+
+  // Product Routes (Flat!)
+  const productRoutes = (products || [])
+    .filter((prod) => prod.slug)
     .map((prod) => ({
-      url: `${BASE_URL}/san-pham/${prod.category!.slug}/${prod.brand!.slug}/${prod.slug}`,
+      url: `${BASE_URL}/san-pham/${prod.slug}`,
       lastModified: new Date(prod.updated_at || Date.now()),
       changeFrequency: 'daily' as const,
       priority: 0.9,
     }));
 
-  // Category + Brand Routes
-  const categoryBrandRoutes = Array.from(
-    new Set(
-      ((products as unknown as SitemapProduct[]) || [])
-        .filter((p) => p.category?.slug && p.brand?.slug)
-        .map((p) => `${p.category!.slug}/${p.brand!.slug}`)
-    )
-  ).map((pair) => ({
-    url: `${BASE_URL}/san-pham/${pair}`,
-    lastModified: new Date(),
-    changeFrequency: 'weekly' as const,
-    priority: 0.7,
-  }));
-
   // Service Routes
-  const serviceRoutes = (services || []).map((serv) => ({
-    url: `${BASE_URL}/dich-vu/${serv.slug}`,
-    lastModified: new Date(serv.updated_at || Date.now()),
-    changeFrequency: 'weekly' as const,
-    priority: 0.7,
-  }));
+  const serviceRoutes = (services || [])
+    .filter((serv) => serv.slug)
+    .map((serv) => ({
+      url: `${BASE_URL}/dich-vu/${serv.slug}`,
+      lastModified: new Date(serv.updated_at || Date.now()),
+      changeFrequency: 'weekly' as const,
+      priority: 0.7,
+    }));
 
   // Project Routes
-  const projectRoutes = (projects || []).map((proj) => ({
-    url: `${BASE_URL}/du-an/${proj.slug}`,
-    lastModified: new Date(proj.updated_at || Date.now()),
-    changeFrequency: 'weekly' as const,
-    priority: 0.7,
-  }));
+  const projectRoutes = (projects || [])
+    .filter((proj) => proj.slug && proj.meta_title && proj.meta_description)
+    .map((proj) => ({
+      url: `${BASE_URL}/du-an/${proj.slug}`,
+      lastModified: new Date(proj.updated_at || Date.now()),
+      changeFrequency: 'weekly' as const,
+      priority: 0.7,
+    }));
+
+  // Project Type Routes
+  const projectTypeRoutes = (projectTypes || [])
+    .filter((pt) => pt.slug && pt.meta_title && pt.meta_description)
+    .map((pt) => ({
+      url: `${BASE_URL}/du-an/${pt.slug}`,
+      lastModified: new Date(pt.updated_at || Date.now()),
+      changeFrequency: 'weekly' as const,
+      priority: 0.8,
+    }));
+
+  // News Routes
+  const newsRoutes = (news || [])
+    .filter((n) => n.slug)
+    .map((n) => ({
+      url: `${BASE_URL}/tin-tuc/${n.slug}`,
+      lastModified: new Date(n.updated_at || Date.now()),
+      changeFrequency: 'weekly' as const,
+      priority: 0.7,
+    }));
+
+  // Branch Routes
+  const branchRoutes = (branches || [])
+    .filter((b) => b.slug)
+    .map((b) => ({
+      url: `${BASE_URL}/thong-tin/${b.slug}`,
+      lastModified: new Date(b.updated_at || Date.now()),
+      changeFrequency: 'weekly' as const,
+      priority: 0.6,
+    }));
 
   return [
     ...staticRoutes,
     ...pageRoutes,
     ...categoryRoutes,
-    ...categoryBrandRoutes,
+    ...brandRoutes,
+    ...groupRoutes,
     ...productRoutes,
     ...serviceRoutes,
     ...projectRoutes,
+    ...projectTypeRoutes,
+    ...newsRoutes,
+    ...branchRoutes,
   ];
 }

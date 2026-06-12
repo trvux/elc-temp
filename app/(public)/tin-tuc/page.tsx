@@ -28,7 +28,7 @@ const STYLES = {
     "text-xs sm:text-sm md:text-base text-muted-foreground line-clamp-2 md:line-clamp-3 leading-relaxed",
   imageWrapper:
     "shrink-0 relative w-36 aspect-video sm:w-48 md:w-64 rounded-lg overflow-hidden",
-  image: "object-contain",
+  image: "object-cover",
   footer:
     "w-full flex flex-col md:flex-row justify-between items-center gap-6 text-muted-foreground",
   scrollToTop:

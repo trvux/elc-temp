@@ -15,6 +15,7 @@ import { cn } from "@/shared/lib/utils";
 import { ArrowUpRight } from "@phosphor-icons/react/dist/ssr";
 import { cacheLife, cacheTag } from "next/cache";
 import Link from "next/link";
+import { ScrollToActiveBranch } from "./ScrollToActiveBranch";
 
 const STYLES = {
   header: cn(
@@ -58,12 +59,20 @@ async function getCachedInformationData() {
   };
 }
 
-export default async function InformationHub() {
+export default async function InformationHub({
+  params,
+}: {
+  params?: Promise<{ slug?: string }>;
+}) {
+  const resolvedParams = params ? await params : undefined;
+  const slug = resolvedParams?.slug;
+
   const { allPages, allBranches, currentYear } =
     await getCachedInformationData();
 
   return (
     <main className="w-full bg-background min-h-screen">
+      <ScrollToActiveBranch slug={slug} />
       {/* Section 1: Thong tin ve ELC */}
       <GridSection
         id="info-section"

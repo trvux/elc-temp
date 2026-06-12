@@ -14,9 +14,9 @@ export const BranchCard: React.FC<BranchCardProps> = ({ branch, priority = false
   const zaloUrl = cleanPhone ? `https://zalo.me/${cleanPhone}` : "";
 
   return (
-    <div className="group flex flex-row justify-between items-center gap-4 sm:gap-6 md:gap-8 py-8 border-b border-border/60 last:border-b-0 w-full">
+    <div id={branch.slug} className="group flex flex-row justify-between items-center gap-4 sm:gap-6 md:gap-8 py-8 border-b border-border/60 last:border-b-0 w-full rounded-md transition-colors duration-500">
       <div className="flex-1 min-w-0 flex flex-col gap-1.5 md:gap-2">
-        <Link href={`/co-so-ha-tang/${branch.slug}`} className="no-underline">
+        <Link href={`/thong-tin/${branch.slug}`} className="no-underline">
           <h2 className="text-base sm:text-lg md:text-xl font-bold tracking-tight text-foreground group-hover:text-foreground/60 transition-colors line-clamp-2 leading-snug font-heading">
             {branch.name}
           </h2>
@@ -62,21 +62,21 @@ export const BranchCard: React.FC<BranchCardProps> = ({ branch, priority = false
 
       {branch.imageUrl ? (
         <Link
-          href={`/co-so-ha-tang/${branch.slug}`}
+          href={`/thong-tin/${branch.slug}`}
           className="shrink-0 relative w-36 aspect-video sm:w-48 md:w-64 rounded-lg overflow-hidden"
         >
           <Image
             src={branch.imageUrl}
             alt={branch.name}
             fill
-            className="object-contain"
+            className="object-cover"
             sizes="(max-width: 640px) 144px, (max-width: 768px) 192px, 256px"
             priority={priority}
           />
         </Link>
       ) : (
         <Link
-          href={`/co-so-ha-tang/${branch.slug}`}
+          href={`/thong-tin/${branch.slug}`}
           className="shrink-0 relative w-36 aspect-video sm:w-48 md:w-64 rounded-lg overflow-hidden border bg-gradient-to-br from-primary/5 via-primary/10 to-transparent flex items-center justify-center"
         >
           <Buildings className="w-12 h-12 text-primary/40" />

@@ -77,17 +77,17 @@ export default function RootLayout({
             __html: JSON.stringify({
               "@context": "https://schema.org",
               "@type": "Organization",
-              name: "Điện máy ELC",
-              url: "https://dienmayelc.com.vn",
-              logo: "https://dienmayelc.com.vn/icon.svg",
-              contactPoint: {
+              "name": "Điện máy ELC",
+              "url": "https://dienmayelc.com.vn",
+              "logo": "https://dienmayelc.com.vn/icon.svg",
+              "contactPoint": {
                 "@type": "ContactPoint",
-                telephone: "+84-xxx-xxx-xxx",
-                contactType: "customer service",
-                areaServed: "VN",
-                availableLanguage: "Vietnamese",
+                "telephone": "+84789978898",
+                "contactType": "customer service",
+                "areaServed": "VN",
+                "availableLanguage": "Vietnamese",
               },
-              sameAs: [
+              "sameAs": [
                 "https://www.facebook.com/dienmayelc",
                 "https://www.youtube.com/dienmayelc",
               ],

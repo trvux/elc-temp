@@ -1,4 +1,5 @@
 import { ProductWithRelations } from "@/modules/catalog/domain";
+import { Branch } from "@/modules/branch/domain";
 
 export const SHOP_NAME = "Điện máy ELC";
 export const BASE_URL = "https://dienmayelc.com.vn";
@@ -446,3 +447,483 @@ export function generateProductSchema(product: ProductWithRelations) {
     } : undefined,
   };
 }
+
+interface SchemaContact {
+  type: string;
+  value: string;
+  isActive: boolean;
+}
+
+export function parseAddress(addr: string) {
+  const parts = addr.split(",").map((s) => s.trim());
+  if (parts.length >= 3) {
+    return {
+      streetAddress: parts.slice(0, parts.length - 2).join(", "),
+      addressLocality: parts[parts.length - 2],
+      addressRegion: parts[parts.length - 1],
+    };
+  }
+  return {
+    streetAddress: addr,
+    addressLocality: undefined,
+    addressRegion: undefined,
+  };
+}
+
+export function formatPhone(phone: string) {
+  const cleaned = phone.replace(/\s+/g, "");
+  if (cleaned.startsWith("0") && cleaned.length === 10) {
+    return `+84${cleaned.slice(1)}`;
+  } else if (!cleaned.startsWith("+") && cleaned.length > 0) {
+    return `+${cleaned}`;
+  }
+  return phone;
+}
+
+/**
+ * Generates JSON-LD Structured Data for the Homepage Organization, LocalBusiness and WebSite Sitelinks Searchbox
+ */
+export function generateHomeSchema(
+  settings: Record<string, string>,
+  contacts: SchemaContact[],
+  branches?: Branch[],
+) {
+  const companyName = settings.company_name || "Điện máy ELC";
+  const companyPhone = settings.company_phone || "0789978898";
+  const companyEmail = settings.company_email || "elc.jointstock@gmail.com";
+  const companyAddress = settings.company_address || "06 Dương Quảng Hàm, phường An Nhơn, Thành phố Hồ Chí Minh";
+  
+  let sameAsLinks: string[] = [
+    "https://www.facebook.com/dienmayelc",
+    "https://www.youtube.com/dienmayelc",
+  ];
+
+  if (contacts) {
+    const fbContact = contacts.find((c) => c.type === "facebook" && c.isActive);
+    const zaloContact = contacts.find((c) => c.type === "zalo" && c.isActive);
+    const links: string[] = [];
+
+    if (fbContact?.value) {
+      const fbVal = fbContact.value;
+      const fbUrl = fbVal.startsWith("http") ? fbVal : `https://www.facebook.com/${fbVal}`;
+      links.push(fbUrl);
+    } else {
+      links.push("https://www.facebook.com/dienmayelc");
+    }
+
+    if (zaloContact?.value) {
+      const zaloVal = zaloContact.value;
+      const zaloUrl = zaloVal.startsWith("http") ? zaloVal : `https://zalo.me/${zaloVal}`;
+      links.push(zaloUrl);
+    }
+
+    links.push("https://www.youtube.com/dienmayelc");
+    sameAsLinks = links;
+  }
+
+  const parsedMainAddress = parseAddress(companyAddress);
+  const schemaPhone = formatPhone(companyPhone);
+
+  const branchSchemas = (branches || [])
+    .filter((b) => b.isPublished)
+    .map((b) => {
+      const parsedBranchAddress = parseAddress(b.address);
+      return {
+        "@type": "HVACBusiness",
+        "@id": `${BASE_URL}/co-so-ha-tang/${b.slug}#localbusiness`,
+        "name": `Điện máy ELC - ${b.name}`,
+        "image": b.imageUrl || `${BASE_URL}/opengraph-image.png`,
+        "telephone": formatPhone(b.phone),
+        "email": b.email || companyEmail,
+        "address": {
+          "@type": "PostalAddress",
+          "streetAddress": parsedBranchAddress.streetAddress,
+          "addressLocality": parsedBranchAddress.addressLocality,
+          "addressRegion": parsedBranchAddress.addressRegion,
+          "addressCountry": "VN",
+        },
+        "url": `${BASE_URL}/co-so-ha-tang/${b.slug}`,
+        "branchOf": {
+          "@id": `${BASE_URL}/#organization`,
+        },
+      };
+    });
+
+  return {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Organization",
+        "@id": `${BASE_URL}/#organization`,
+        "name": companyName,
+        "alternateName": "Điện máy ELC",
+        "url": BASE_URL,
+        "logo": {
+          "@type": "ImageObject",
+          "url": `${BASE_URL}/icon.svg`,
+          "width": 112,
+          "height": 112,
+        },
+        "image": `${BASE_URL}/opengraph-image.png`,
+        "sameAs": sameAsLinks,
+      },
+      {
+        "@type": "HVACBusiness",
+        "@id": `${BASE_URL}/#localbusiness`,
+        "name": "Điện máy ELC",
+        "image": `${BASE_URL}/opengraph-image.png`,
+        "telephone": schemaPhone,
+        "email": companyEmail,
+        "address": {
+          "@type": "PostalAddress",
+          "streetAddress": parsedMainAddress.streetAddress,
+          "addressLocality": parsedMainAddress.addressLocality || "Gò Vấp",
+          "addressRegion": parsedMainAddress.addressRegion || "Thành phố Hồ Chí Minh",
+          "addressCountry": "VN",
+        },
+        "priceRange": "$$",
+        "url": BASE_URL,
+      },
+      {
+        "@type": "WebSite",
+        "@id": `${BASE_URL}/#website`,
+        "url": BASE_URL,
+        "name": "Điện máy ELC",
+        "publisher": {
+          "@id": `${BASE_URL}/#organization`,
+        },
+        "potentialAction": {
+          "@type": "SearchAction",
+          "target": {
+            "@type": "EntryPoint",
+            "urlTemplate": `${BASE_URL}/san-pham?search={search_term_string}`,
+          },
+          "query-input": "required name=search_term_string",
+        },
+      },
+      ...branchSchemas,
+    ],
+  };
+}
+
+export function detectLocation(text: string): { name: string; type: string } | null {
+  if (!text) return null;
+  const lowercaseText = text.toLowerCase();
+  
+  const locations = [
+    { name: "Thành phố Hồ Chí Minh", keywords: ["tp. hcm", "tp.hcm", "hồ chí minh", "sài gòn", "tphcm"] },
+    { name: "Bình Dương", keywords: ["bình dương"] },
+    { name: "Đồng Nai", keywords: ["đồng nai", "biên hòa"] },
+    { name: "Bình Phước", keywords: ["bình phước", "đồng xoài"] },
+    { name: "Long An", keywords: ["long an", "tân an"] },
+    { name: "Bà Rịa - Vũng Tàu", keywords: ["vũng tàu", "bà rịa"] },
+    { name: "Tây Ninh", keywords: ["tây ninh"] },
+  ];
+
+  for (const loc of locations) {
+    for (const keyword of loc.keywords) {
+      if (lowercaseText.includes(keyword)) {
+        return { name: loc.name, type: "AdministrativeArea" };
+      }
+    }
+  }
+
+  const districts = [
+    "quận 1", "quận 2", "quận 3", "quận 4", "quận 5", "quận 6", "quận 7", "quận 8", "quận 9", "quận 10", "quận 11", "quận 12",
+    "gò vấp", "bình thạnh", "phú nhuận", "tân bình", "tân phú", "thủ đức", "bình tân", "hóc môn", "củ chi", "nhà bè", "cần giờ"
+  ];
+  for (const dist of districts) {
+    if (lowercaseText.includes(dist)) {
+      return { name: "Thành phố Hồ Chí Minh", type: "AdministrativeArea" };
+    }
+  }
+
+  return null;
+}
+
+export function extractFirstImageFromDescription(description: unknown): string | null {
+  if (!description) return null;
+
+  if (typeof description === "string") {
+    const imgMatch = description.match(/<img[^>]+src=["']([^"']+)["']/i);
+    if (imgMatch && imgMatch[1]) {
+      return imgMatch[1];
+    }
+    return null;
+  }
+
+  if (typeof description === "object" && description !== null) {
+    const doc = description as Record<string, unknown>;
+    
+    const findImageSrc = (node: Record<string, unknown>): string | null => {
+      if (node.type === "image" && node.attrs && typeof node.attrs === "object") {
+        const attrs = node.attrs as Record<string, unknown>;
+        if (typeof attrs.src === "string") {
+          return attrs.src;
+        }
+      }
+      if (Array.isArray(node.content)) {
+        for (const child of node.content) {
+          if (child && typeof child === "object") {
+            const found = findImageSrc(child as Record<string, unknown>);
+            if (found) return found;
+          }
+        }
+      }
+      return null;
+    };
+
+    return findImageSrc(doc);
+  }
+
+  return null;
+}
+
+export function generateProjectTypeMetadata(
+  projectType: { name: string; slug: string; image?: string | null; metaTitle?: string | null; metaDescription?: string | null },
+  searchParams: { service?: string; category?: string; condition?: string },
+  serviceName?: string,
+  categoryName?: string,
+) {
+  const metaTitle = projectType.metaTitle;
+  const metaDescription = projectType.metaDescription;
+  const image = projectType.image;
+
+  // Rule: If metaTitle or metaDescription is null or empty, set robots to noindex
+  if (!metaTitle || !metaDescription) {
+    return {
+      title: `${projectType.name} | ${SHOP_NAME}`,
+      description: "",
+      robots: {
+        index: false,
+        follow: false,
+      },
+    };
+  }
+
+  let titleParts: string[] = [];
+  let descParts: string[] = [];
+
+  if (serviceName) {
+    titleParts.push(serviceName);
+    descParts.push(`dịch vụ ${serviceName.toLowerCase()}`);
+  }
+
+  if (categoryName) {
+    titleParts.push(categoryName);
+    descParts.push(`sản phẩm ${categoryName.toLowerCase()}`);
+  }
+
+  if (searchParams.condition) {
+    const conditionText = searchParams.condition === "new" ? "mới 100%" : "thanh lý";
+    titleParts.push(conditionText);
+    descParts.push(`tình trạng ${conditionText}`);
+  }
+
+  let title = metaTitle;
+  let description = metaDescription;
+
+  if (titleParts.length > 0) {
+    title = `Dự án ${titleParts.join(" - ")} cho ${projectType.name}`;
+    description = `Danh sách các dự án thực tế về ${descParts.join(" sử dụng ")} cho loại hình ${projectType.name} do ELC thực hiện.`;
+  }
+
+  if (!title.endsWith(SHOP_NAME)) {
+    title += ` | ${SHOP_NAME}`;
+  }
+
+  const cleanUrl = `${BASE_URL}/du-an/${projectType.slug}`;
+
+  return {
+    title,
+    description,
+    robots: {
+      index: true,
+      follow: true,
+    },
+    alternates: {
+      canonical: cleanUrl,
+    },
+    openGraph: {
+      title,
+      description,
+      url: cleanUrl,
+      type: "website",
+      images: image ? [{ url: image }] : [],
+    },
+  };
+}
+
+export function generateProjectDetailMetadata(
+  project: { 
+    title: string; 
+    slug: string; 
+    metaTitle?: string | null; 
+    metaDescription?: string | null; 
+    images?: string[]; 
+    description?: unknown;
+  }
+) {
+  const metaTitle = project.metaTitle;
+  const metaDescription = project.metaDescription;
+
+  // Rule: If metaTitle or metaDescription is null or empty, set robots to noindex
+  if (!metaTitle || !metaDescription) {
+    return {
+      title: `${project.title} | ${SHOP_NAME}`,
+      description: "",
+      robots: {
+        index: false,
+        follow: false,
+      },
+    };
+  }
+
+  let title = metaTitle;
+  if (!title.endsWith(SHOP_NAME)) {
+    title += ` | ${SHOP_NAME}`;
+  }
+
+  const cleanUrl = `${BASE_URL}/du-an/${project.slug}`;
+  const representativeImage = project.images?.[0] || extractFirstImageFromDescription(project.description);
+
+  return {
+    title,
+    description: metaDescription,
+    robots: {
+      index: true,
+      follow: true,
+    },
+    alternates: {
+      canonical: cleanUrl,
+    },
+    openGraph: {
+      title,
+      description: metaDescription,
+      url: cleanUrl,
+      type: "article",
+      images: representativeImage ? [{ url: representativeImage }] : [],
+    },
+  };
+}
+
+export interface ProjectDetailSchemaInput {
+  title: string;
+  slug: string;
+  metaDescription?: string | null;
+  images?: string[];
+  description?: unknown;
+  createdAt?: string;
+  updatedAt?: string;
+  services?: Array<{ id: string; title: string; slug: string }>;
+  categories?: Array<{ id: string; name: string; slug: string; condition?: "new" | "used" }>;
+}
+
+export function generateProjectDetailSchema(
+  project: ProjectDetailSchemaInput,
+  branches: Branch[]
+) {
+  let images = project.images || [];
+  if (images.length === 0) {
+    const extractedImage = extractFirstImageFromDescription(project.description);
+    if (extractedImage) {
+      images = [extractedImage];
+    }
+  }
+
+  const cleanUrl = `${BASE_URL}/du-an/${project.slug}`;
+
+  const textToParse = `${project.title} ${project.metaDescription || ""}`;
+  const loc = detectLocation(textToParse);
+  
+  let spatialCoverage: Record<string, unknown> | undefined = undefined;
+  if (loc) {
+    spatialCoverage = {
+      "@type": "AdministrativeArea",
+      "name": loc.name,
+    };
+  }
+
+  const sameAsLinks = [
+    "https://www.facebook.com/dienmayelc",
+    "https://www.youtube.com/dienmayelc",
+  ];
+
+  const serviceAbouts = (project.services || []).map((svc) => ({
+    "@type": "Service",
+    "name": svc.title,
+    "url": `${BASE_URL}/dich-vu/${svc.slug}`,
+  }));
+
+  const categoryAbouts = (project.categories || []).map((cat) => ({
+    "@type": "Product",
+    "name": cat.name,
+    "url": `${BASE_URL}/san-pham/${cat.slug}`,
+    "offers": {
+      "@type": "Offer",
+      "itemCondition": cat.condition === "used" 
+        ? "https://schema.org/UsedCondition" 
+        : "https://schema.org/NewCondition",
+    },
+  }));
+
+  // Local spatial coverage from branches
+  const companyBranchCoverage = (branches || [])
+    .filter((b) => b.isPublished)
+    .map((b) => {
+      const parsedBranch = parseAddress(b.address);
+      return {
+        "@type": "Place",
+        "name": b.name,
+        "address": {
+          "@type": "PostalAddress",
+          "streetAddress": parsedBranch.streetAddress,
+          "addressLocality": parsedBranch.addressLocality,
+          "addressRegion": parsedBranch.addressRegion || "Thành phố Hồ Chí Minh",
+          "addressCountry": "VN",
+        }
+      };
+    });
+
+  const about = [...serviceAbouts, ...categoryAbouts];
+
+  return {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Article",
+        "@id": `${cleanUrl}#article`,
+        "headline": project.title,
+        "description": project.metaDescription || project.title,
+        "image": images,
+        "datePublished": project.createdAt,
+        "dateModified": project.updatedAt || project.createdAt,
+        "author": {
+          "@type": "Organization",
+          "@id": `${BASE_URL}/#organization`,
+        },
+        "publisher": {
+          "@type": "Organization",
+          "@id": `${BASE_URL}/#organization`,
+        },
+        ...(spatialCoverage ? { spatialCoverage } : {}),
+        ...(about.length > 0 ? { about } : {}),
+      },
+      {
+        "@type": "Organization",
+        "@id": `${BASE_URL}/#organization`,
+        "name": "Công ty cổ phần giải pháp công nghệ TMDV ELC",
+        "alternateName": "Điện máy ELC",
+        "url": BASE_URL,
+        "logo": {
+          "@type": "ImageObject",
+          "url": `${BASE_URL}/icon.svg`,
+        },
+        "sameAs": sameAsLinks,
+        "areaServed": companyBranchCoverage,
+      }
+    ],
+  };
+}
+
+
