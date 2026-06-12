@@ -17,12 +17,22 @@ import { Sparkle } from "@phosphor-icons/react/dist/ssr";
 import { Metadata } from "next";
 import Image from "next/image";
 import { notFound } from "next/navigation";
+import { getServiceBySlug } from "@/modules/service/application";
+import { createStaticClient } from "@/shared/lib/supabase/static";
+import { 
+  generateProjectTypeMetadata, 
+  generateProjectDetailMetadata,
+  generateProjectDetailSchema
+} from "@/shared/lib/seo-utils";
+import { getBranches } from "@/modules/branch/application";
 
 // Generate dynamic SEO Metadata
 export async function generateMetadata({
   params,
+  searchParams,
 }: {
   params: Promise<{ slug: string }>;
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }): Promise<Metadata> {
   const { slug } = await params;
   const entity = await resolveProjectPath(slug);
@@ -35,22 +45,47 @@ export async function generateMetadata({
 
   if (entity.type === "project_type") {
     const st = entity.data;
-    return {
-      title: `${st.metaTitle || `Dự án ${st.name}`} | Điện máy ELC`,
-      description:
-        st.metaDescription ||
-        `Tổng hợp các dự án, công trình thiết kế thi công hệ thống, điều hòa không khí cho ${st.name} tiêu biểu do ELC thực hiện.`,
-    };
+    const resolvedSearchParams = await searchParams;
+    
+    // Resolve active filter slugs
+    const serviceSlug = typeof resolvedSearchParams.service === "string" ? resolvedSearchParams.service : undefined;
+    const categorySlug = typeof resolvedSearchParams.category === "string" ? resolvedSearchParams.category : undefined;
+    const condition = typeof resolvedSearchParams.condition === "string" ? resolvedSearchParams.condition : undefined;
+
+    let serviceName: string | undefined = undefined;
+    let categoryName: string | undefined = undefined;
+
+    if (serviceSlug) {
+      const service = await getServiceBySlug(serviceSlug);
+      if (service) {
+        serviceName = service.title;
+      }
+    }
+
+    if (categorySlug) {
+      const supabase = createStaticClient();
+      const { data: catData } = await supabase
+        .from("categories")
+        .select("name")
+        .eq("slug", categorySlug)
+        .is("deleted_at", null)
+        .maybeSingle();
+      if (catData) {
+        categoryName = catData.name;
+      }
+    }
+
+    return generateProjectTypeMetadata(
+      st,
+      { service: serviceSlug, category: categorySlug, condition },
+      serviceName,
+      categoryName
+    );
   }
 
   if (entity.type === "project") {
     const proj = entity.data;
-    return {
-      title: `${proj.metaTitle || proj.title} | Điện máy ELC`,
-      description:
-        proj.metaDescription ||
-        `Chi tiết công trình ${proj.title} hoàn thiện lắp đặt hệ thống chuyên nghiệp bởi ELC.`,
-    };
+    return generateProjectDetailMetadata(proj);
   }
 
   return {};
@@ -149,8 +184,15 @@ async function ProjectDetailView({
     { label: project.title, active: true },
   ];
 
+  const branches = await getBranches({ isPublished: true });
+  const articleSchema = generateProjectDetailSchema(project, branches);
+
   return (
     <main className="w-full bg-background min-h-screen flex flex-col">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(articleSchema) }}
+      />
       {/* ===== KHỐI 1: NỘI DUNG BÀI VIẾT ===== */}
       <GridSection
         id="project-detail-content"

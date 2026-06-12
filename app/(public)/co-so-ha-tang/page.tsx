@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
 
 export default function BranchesHub() {
-  redirect("/thong-tin");
+  redirect("/thong-tin#branches-section");
 }

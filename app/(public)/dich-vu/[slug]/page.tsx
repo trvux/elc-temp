@@ -14,6 +14,7 @@ import { Metadata } from "next";
 import { cacheLife, cacheTag } from "next/cache";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { Breadcrumbs } from "@/shared/components/layout/user/breadcrumbs";
 
 interface PageProps {
   params: Promise<{
@@ -88,8 +89,48 @@ export default async function ServiceDetailPage({ params }: PageProps) {
 
   const currentYear = await getCachedCurrentYear();
 
+  const serviceSchema = {
+    "@context": "https://schema.org",
+    "@type": "Service",
+    "name": service.title,
+    "description": service.metaDescription || service.title,
+    "provider": {
+      "@type": "HVACBusiness",
+      "name": "Điện máy ELC",
+      "url": "https://dienmayelc.com.vn",
+      "telephone": "+84789978898",
+      "image": "https://dienmayelc.com.vn/opengraph-image.png",
+      "priceRange": "$$",
+      "address": {
+        "@type": "PostalAddress",
+        "streetAddress": "06 Dương Quảng Hàm, phường An Nhơn",
+        "addressLocality": "Gò Vấp",
+        "addressRegion": "Thành phố Hồ Chí Minh",
+        "addressCountry": "VN",
+      },
+    },
+    "areaServed": [
+      {
+        "@type": "AdministrativeArea",
+        "name": "Thành phố Hồ Chí Minh",
+      },
+      {
+        "@type": "AdministrativeArea",
+        "name": "Bình Dương",
+      },
+      {
+        "@type": "AdministrativeArea",
+        "name": "Đồng Nai",
+      },
+    ],
+  };
+
   return (
     <main className={STYLES.main}>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(serviceSchema) }}
+      />
       <div className={STYLES.container}>
         <header>
           {formattedDate && (
@@ -114,6 +155,13 @@ export default async function ServiceDetailPage({ params }: PageProps) {
             </Link>
           </Button>
         </nav>
+
+        <Breadcrumbs
+          items={[
+            { label: "Dịch vụ", href: "/dich-vu" },
+            { label: service.title, active: true },
+          ]}
+        />
 
         <footer className={STYLES.footer}>
           <TypographySmall>&copy; {currentYear} Điện máy ELC.</TypographySmall>

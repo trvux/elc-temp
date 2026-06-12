@@ -14,6 +14,7 @@ import { cacheLife, cacheTag } from "next/cache";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { Metadata } from "next";
 
 // Design System / Style Constants
 const STYLES = {
@@ -87,6 +88,33 @@ async function getCachedNewsDetailData(slug: string) {
   };
 }
 
+export async function generateMetadata({
+  params,
+}: PageProps): Promise<Metadata> {
+  const { slug } = await params;
+  const { newsItem } = await getCachedNewsDetailData(slug);
+
+  if (!newsItem) {
+    return {
+      title: "Không tìm thấy bài viết | ELC",
+    };
+  }
+
+  const title = newsItem.metaTitle || `${newsItem.title} | Điện máy ELC`;
+  const description = newsItem.metaDescription || newsItem.title;
+
+  return {
+    title,
+    description,
+    openGraph: {
+      title,
+      description,
+      images: newsItem.image ? [newsItem.image] : [],
+      type: "article",
+    },
+  };
+}
+
 export default async function NewsDetailPage({ params }: PageProps) {
   const { slug } = await params;
 
@@ -109,8 +137,35 @@ export default async function NewsDetailPage({ params }: PageProps) {
       })
     : "";
 
+  const newsArticleSchema = {
+    "@context": "https://schema.org",
+    "@type": "NewsArticle",
+    "headline": newsItem.title,
+    "image": newsItem.image ? [newsItem.image] : [],
+    "datePublished": newsItem.createdAt,
+    "dateModified": newsItem.updatedAt || newsItem.createdAt,
+    "author": {
+      "@type": "Organization",
+      "name": "Điện máy ELC",
+      "url": "https://dienmayelc.com.vn",
+    },
+    "publisher": {
+      "@type": "Organization",
+      "name": "Điện máy ELC",
+      "logo": {
+        "@type": "ImageObject",
+        "url": "https://dienmayelc.com.vn/icon.svg",
+      },
+    },
+    "description": newsItem.metaDescription || newsItem.title,
+  };
+
   return (
     <main className={STYLES.main}>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(newsArticleSchema) }}
+      />
       {/* Khối 1: Tiêu đề chi tiết bài viết */}
       <GridSection
         id="news-detail-header"

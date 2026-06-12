@@ -21,6 +21,7 @@ type ProjectRowWithRelations = ProjectRow & {
     category: {
       id: string;
       name: string;
+      slug: string | null;
       group_id: string | null;
       group_categories: {
         id: string;
@@ -678,6 +679,7 @@ export class SupabaseProjectRepository implements ProjectRepository {
         return {
           id: cat.id,
           name: cat.name,
+          slug: cat.slug || "",
           groupId: cat.group_id,
           condition: pc.condition || "new",
           group: cat.group_categories ? {

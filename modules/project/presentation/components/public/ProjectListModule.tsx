@@ -23,6 +23,8 @@ import { Suspense } from "react";
 import { ProjectFilterMobile } from "./ProjectFilterMobile";
 import { ProjectFilters } from "./ProjectFilters";
 import { ProjectSearchInput } from "./ProjectSearchInput";
+import Image from "next/image";
+import { AspectRatio } from "@/shared/components/ui/aspect-ratio";
 
 interface ProjectListModuleProps {
   projectType?: ProjectTypeWithCategories | null;
@@ -337,13 +339,25 @@ export async function ProjectListModule({
         {/* Hero Header Section */}
         <header className={STYLES.header}>
           <TypographyH1>{pageTitle}</TypographyH1>
-          {/* <TypographyLarge className="flex items-center justify-center gap-x-1 text-sm! md:text-md! lg:text-lg! text-muted-foreground mt-2">
-              Danh sách{" "}
-              <span className="flex gap-x-1 bg-blue-100 text-blue-800 px-2 rounded-sm items-center dark:bg-blue-900/30 dark:text-blue-400 font-semibold">
-                {sortedProjects.length} dự án
-              </span>{" "}
-              đáp ứng tiêu chí
-            </TypographyLarge> */}
+          <p className="text-sm md:text-base text-muted-foreground mt-2 max-w-2xl mx-auto">
+            {pageSubtitle}
+          </p>
+          
+          {/* Project Type Representative Image - Hidden if null */}
+          {projectType && projectType.image && (
+            <div className="w-full max-w-4xl mt-6 overflow-hidden rounded-md border border-border/40 shadow-sm animate-fade-in-up">
+              <AspectRatio ratio={21 / 9}>
+                <Image
+                  src={projectType.image}
+                  alt={projectType.name}
+                  fill
+                  className="object-cover"
+                  priority
+                  sizes="(max-width: 1024px) 100vw, 1024px"
+                />
+              </AspectRatio>
+            </div>
+          )}
         </header>
       </GridSection>
 

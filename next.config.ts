@@ -38,6 +38,20 @@ const nextConfig: NextConfig = {
   turbopack: {
     root: __dirname,
   },
+  async redirects() {
+    return [
+      {
+        source: "/co-so-ha-tang",
+        destination: "/thong-tin#branches-section",
+        permanent: true,
+      },
+      {
+        source: "/co-so-ha-tang/:slug",
+        destination: "/thong-tin/:slug",
+        permanent: true,
+      },
+    ];
+  },
 };
 
 export default nextConfig;

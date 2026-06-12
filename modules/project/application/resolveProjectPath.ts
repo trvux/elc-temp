@@ -158,6 +158,9 @@ export async function resolveProjectPath(slug: string): Promise<ResolvedProjectE
             *,
             group_categories(*)
           )
+        ),
+        project_service(
+          service:services(id, title, slug, group:service_groups(id, name, slug))
         )
       `)
       .eq("id", registryItem.entity_id)
@@ -194,10 +197,23 @@ export async function resolveProjectPath(slug: string): Promise<ResolvedProjectE
         category: {
           id: string;
           name: string;
+          slug: string | null;
           group_id: string | null;
           group_categories: {
             id: string;
             name: string;
+          } | null;
+        } | null;
+      }[] | null;
+      project_service: {
+        service: {
+          id: string;
+          title: string;
+          slug: string;
+          group: {
+            id: string;
+            name: string;
+            slug: string;
           } | null;
         } | null;
       }[] | null;
@@ -210,6 +226,7 @@ export async function resolveProjectPath(slug: string): Promise<ResolvedProjectE
         return {
           id: cat.id,
           name: cat.name,
+          slug: cat.slug || "",
           groupId: cat.group_id,
           condition: pc.condition || "new",
           group: cat.group_categories
@@ -221,6 +238,25 @@ export async function resolveProjectPath(slug: string): Promise<ResolvedProjectE
         };
       })
       .filter((c): c is NonNullable<typeof c> => c !== null);
+
+    const services = (row.project_service || [])
+      .map((ps) => {
+        const svc = ps.service;
+        if (!svc) return null;
+        return {
+          id: svc.id,
+          title: svc.title,
+          slug: svc.slug || "",
+          group: svc.group
+            ? {
+                id: svc.group.id,
+                name: svc.group.name,
+                slug: svc.group.slug || "",
+              }
+            : null,
+        };
+      })
+      .filter((s): s is NonNullable<typeof s> => s !== null);
 
     const project: ProjectWithCategory = {
       id: row.id,
@@ -246,7 +282,7 @@ export async function resolveProjectPath(slug: string): Promise<ResolvedProjectE
             slug: row.projectType.slug,
           }
         : null,
-      services: [],
+      services,
       categories,
     };
 

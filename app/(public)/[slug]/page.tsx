@@ -12,6 +12,8 @@ import { ArrowLeft } from "@phosphor-icons/react/dist/ssr";
 import { cacheLife, cacheTag } from "next/cache";
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { Breadcrumbs } from "@/shared/components/layout/user/breadcrumbs";
+import { Metadata } from "next";
 
 // Design System / Style Constants
 const STYLES = {
@@ -46,6 +48,32 @@ async function getCachedPageData(slug: string) {
   cacheTag("layout");
   setUseStaticClient(true);
   return getPageBySlug(slug);
+}
+
+export async function generateMetadata({
+  params,
+}: PageProps): Promise<Metadata> {
+  const { slug } = await params;
+  const page = await getCachedPageData(slug);
+
+  if (!page) {
+    return {
+      title: "Không tìm thấy trang | ELC",
+    };
+  }
+
+  const title = page.metaTitle || `${page.title} | Điện máy ELC`;
+  const description = page.metaDescription || page.title;
+
+  return {
+    title,
+    description,
+    openGraph: {
+      title,
+      description,
+      type: "article",
+    },
+  };
 }
 
 async function getCachedCurrentYear() {
@@ -96,6 +124,13 @@ export default async function StaticPage({ params }: PageProps) {
             </Link>
           </Button>
         </nav>
+
+        <Breadcrumbs
+          items={[
+            { label: "Thông tin", href: "/thong-tin" },
+            { label: page.title, active: true },
+          ]}
+        />
 
         <footer className={STYLES.footer}>
           <TypographySmall>&copy; {currentYear} Điện máy ELC.</TypographySmall>
