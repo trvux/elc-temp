@@ -49,6 +49,9 @@ export interface ProjectWithCategory extends Project {
     groupId: string | null;
     group?: { id: string; name: string } | null;
     condition: "new" | "used";
+    lowPrice?: number;
+    highPrice?: number;
+    offerCount?: number;
   }[];
 }
 
