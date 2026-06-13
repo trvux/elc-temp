@@ -11,7 +11,7 @@ import { cn } from "@/shared/lib/utils";
 import { ArrowLeft } from "@phosphor-icons/react/dist/ssr";
 import { cacheLife, cacheTag } from "next/cache";
 import Link from "next/link";
-import { redirect } from "next/navigation";
+import { notFound } from "next/navigation";
 import { Breadcrumbs } from "@/shared/components/layout/user/breadcrumbs";
 import { Metadata } from "next";
 
@@ -88,8 +88,7 @@ export default async function StaticPage({ params }: PageProps) {
   const page = await getCachedPageData(slug);
 
   if (!page || !page.isPublished) {
-    // Nếu không tìm thấy trang thông tin, tự động redirect sang Tin tức (cứu link WordPress cũ)
-    redirect(`/tin-tuc/${slug}`);
+    notFound();
   }
 
   const currentYear = await getCachedCurrentYear();
