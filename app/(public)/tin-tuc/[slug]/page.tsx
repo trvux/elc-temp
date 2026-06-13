@@ -11,7 +11,7 @@ import {
 import { setUseStaticClient } from "@/shared/lib/supabase/server";
 import { ArrowLeft } from "@phosphor-icons/react/dist/ssr";
 import { cacheLife, cacheTag } from "next/cache";
-import Image from "next/image";
+import { ImageWithSkeleton } from "@/shared/components/ui/image-with-skeleton";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Metadata } from "next";
@@ -43,7 +43,7 @@ export async function generateStaticParams() {
 async function getCachedNewsDetailData(slug: string) {
   "use cache";
   cacheLife("hours");
-  cacheTag("news");
+  cacheTag("news-list", `news-slug:${slug}`);
   setUseStaticClient(true);
 
   const allNews = await getNews({ isPublished: true });
@@ -236,15 +236,14 @@ export default async function NewsDetailPage({ params }: PageProps) {
                     className="group flex flex-col gap-3 no-underline"
                   >
                     {item.image && (
-                      <div className="relative w-full aspect-video rounded-lg overflow-hidden border bg-muted">
-                        <Image
-                          src={item.image}
-                          alt={item.title}
-                          fill
-                          className="object-cover transition-transform duration-500 group-hover:scale-105"
-                          sizes="(max-width: 640px) 100vw, 250px"
-                        />
-                      </div>
+                      <ImageWithSkeleton
+                        wrapperClassName="relative w-full aspect-video rounded-lg overflow-hidden border bg-muted"
+                        src={item.image}
+                        alt={item.title}
+                        fill
+                        className="object-cover transition-transform duration-500 group-hover:scale-105"
+                        sizes="(max-width: 640px) 100vw, 250px"
+                      />
                     )}
                     <div className="flex flex-col gap-1.5">
                       {itemDate && (

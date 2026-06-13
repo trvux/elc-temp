@@ -18,6 +18,7 @@ import {
   CreateProductInput,
   UpdateProductInput,
 } from "../domain/index";
+import { productRepo } from "../infrastructure/SupabaseProductRepository";
 
 export async function getBrandsAction() {
   try {
@@ -63,7 +64,10 @@ export async function createProductAction(input: CreateProductInput) {
     revalidatePath("/admin/products");
     revalidatePath("/san-pham", "layout");
     revalidatePath("/", "layout");
-    revalidateTag("products", { expire: 0 });
+    revalidateTag("products-list", { expire: 0 });
+    if (data?.slug) {
+      revalidateTag(`slug:${data.slug}`, { expire: 0 });
+    }
     return { data, error: null };
   } catch (error) {
     console.error("createProductAction error:", error);
@@ -80,7 +84,10 @@ export async function updateProductAction(input: UpdateProductInput) {
     revalidatePath("/admin/products");
     revalidatePath("/san-pham", "layout");
     revalidatePath("/", "layout");
-    revalidateTag("products", { expire: 0 });
+    revalidateTag("products-list", { expire: 0 });
+    if (data?.slug) {
+      revalidateTag(`slug:${data.slug}`, { expire: 0 });
+    }
     return { data, error: null };
   } catch (error) {
     console.error("updateProductAction error:", error);
@@ -92,11 +99,15 @@ export async function updateProductAction(input: UpdateProductInput) {
 }
 export async function deleteProductAction(id: string) {
   try {
+    const product = await productRepo.getById(id);
     await deleteProduct(id);
     revalidatePath("/admin/products");
     revalidatePath("/san-pham", "layout");
     revalidatePath("/", "layout");
-    revalidateTag("products", { expire: 0 });
+    revalidateTag("products-list", { expire: 0 });
+    if (product?.slug) {
+      revalidateTag(`slug:${product.slug}`, { expire: 0 });
+    }
     return { data: true, error: null };
   } catch (error) {
     console.error("deleteProductAction error:", error);

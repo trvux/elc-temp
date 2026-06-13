@@ -46,7 +46,7 @@ export const metadata = {
 async function getCachedServicesData() {
   "use cache";
   cacheLife("days");
-  cacheTag("services");
+  cacheTag("services-list");
   setUseStaticClient(true);
 
   const groupedServices = await getPublishedServicesGrouped();

@@ -40,7 +40,7 @@ export async function createProjectAction(input: CreateProjectInput) {
 
     const data = await createProject(input);
 
-    revalidatePaths();
+    revalidatePaths(data?.slug);
     if (data && data.isPublished && data.slug) {
       submitToIndexNow([`https://dienmayelc.com.vn/du-an/${data.slug}`]).catch((err) => 
         console.error("IndexNow error during project creation:", err)
@@ -84,7 +84,7 @@ export async function updateProjectAction(input: UpdateProjectInput) {
 
     const data = await updateProject(input);
 
-    revalidatePaths();
+    revalidatePaths(data?.slug);
     if (data && data.isPublished && data.slug) {
       submitToIndexNow([`https://dienmayelc.com.vn/du-an/${data.slug}`]).catch((err) => 
         console.error("IndexNow error during project update:", err)
@@ -105,8 +105,9 @@ export async function updateProjectAction(input: UpdateProjectInput) {
 
 export async function deleteProjectAction(id: string) {
   try {
+    const proj = await getProjectById(id);
     await deleteProject(id);
-    revalidatePaths();
+    revalidatePaths(proj?.slug);
     return { error: null };
   } catch (error) {
     console.error("deleteProjectAction error:", error);
@@ -117,9 +118,9 @@ export async function deleteProjectAction(id: string) {
 export async function toggleProjectPublishAction(id: string, isPublished: boolean) {
   try {
     await toggleProjectPublish(id, isPublished);
-    revalidatePaths();
+    const proj = await getProjectById(id);
+    revalidatePaths(proj?.slug);
     if (isPublished) {
-      const proj = await getProjectById(id);
       if (proj && proj.slug) {
         submitToIndexNow([`https://dienmayelc.com.vn/du-an/${proj.slug}`]).catch((err) => 
           console.error("IndexNow error during project publish toggle:", err)
@@ -135,8 +136,9 @@ export async function toggleProjectPublishAction(id: string, isPublished: boolea
 
 export async function toggleProjectFeaturedAction(id: string, isFeatured: boolean) {
   try {
+    const proj = await getProjectById(id);
     await toggleProjectFeatured(id, isFeatured);
-    revalidatePaths();
+    revalidatePaths(proj?.slug);
     return { error: null };
   } catch (error) {
     console.error("toggleProjectFeaturedAction error:", error);
@@ -146,8 +148,9 @@ export async function toggleProjectFeaturedAction(id: string, isFeatured: boolea
 
 export async function updateProjectOrderAction(id: string, orderIndex: number) {
   try {
+    const proj = await getProjectById(id);
     await updateProjectOrder(id, orderIndex);
-    revalidatePaths();
+    revalidatePaths(proj?.slug);
     return { error: null };
   } catch (error) {
     console.error("updateProjectOrderAction error:", error);
@@ -155,8 +158,11 @@ export async function updateProjectOrderAction(id: string, orderIndex: number) {
   }
 }
 
-function revalidatePaths() {
+function revalidatePaths(slug?: string) {
   revalidatePath("/admin/projects");
   revalidatePath("/du-an", "layout");
-  revalidateTag("projects", { expire: 0 });
+  revalidateTag("projects-list", { expire: 0 });
+  if (slug) {
+    revalidateTag(`slug:${slug}`, { expire: 0 });
+  }
 }

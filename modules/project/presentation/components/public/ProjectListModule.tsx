@@ -23,7 +23,7 @@ import { Suspense } from "react";
 import { ProjectFilterMobile } from "./ProjectFilterMobile";
 import { ProjectFilters } from "./ProjectFilters";
 import { ProjectSearchInput } from "./ProjectSearchInput";
-import Image from "next/image";
+import { ImageWithSkeleton } from "@/shared/components/ui/image-with-skeleton";
 import { AspectRatio } from "@/shared/components/ui/aspect-ratio";
 
 interface ProjectListModuleProps {
@@ -69,17 +69,45 @@ async function getCachedProjectListData(
   // Serve stale content for up to 1 hour while revalidating in background every 5 minutes.
   // This prevents blank page caused by cache cold-start race condition.
   cacheLife("days");
-  cacheTag("projects");
+  cacheTag("projects-list");
   setUseStaticClient(true);
 
-  // 1. Fetch filtered projects
-  let projects = await getProjects({
-    isPublished: true,
-    projectTypeId: projectType?.id || undefined,
-    categorySlugs: categorySlugs.length > 0 ? categorySlugs : undefined,
-    serviceSlugs: serviceSlugs.length > 0 ? serviceSlugs : undefined,
-    search: searchVal,
-  });
+  // Fetch independent database calls in parallel to resolve query waterfalls
+  const [
+    projectsRaw,
+    allProjectTypes,
+    allPublishedProjectsRaw,
+    allServices,
+    relDataResult,
+    allCategoriesRaw
+  ] = await Promise.all([
+    getProjects({
+      isPublished: true,
+      projectTypeId: projectType?.id || undefined,
+      categorySlugs: categorySlugs.length > 0 ? categorySlugs : undefined,
+      serviceSlugs: serviceSlugs.length > 0 ? serviceSlugs : undefined,
+      search: searchVal,
+    }),
+    getProjectTypes(),
+    getProjects({ isPublished: true }),
+    getServices({ isPublished: true }),
+    projectType ? (async () => {
+      const supabase = await createClient();
+      return supabase
+        .from("project_category")
+        .select(`
+          category:categories(id, name, slug, deleted_at),
+          projects!inner(id, project_type_id, is_published, deleted_at)
+        `)
+        .eq("projects.project_type_id", projectType.id)
+        .eq("projects.is_published", true)
+        .is("projects.deleted_at", null)
+        .is("categories.deleted_at", null);
+    })() : Promise.resolve({ data: null, error: null }),
+    projectType ? Promise.resolve([]) : getCategories({ includeDeleted: false })
+  ]);
+
+  let projects = projectsRaw;
 
   if (conditionParam) {
     projects = projects.filter((p) =>
@@ -94,12 +122,8 @@ async function getCachedProjectListData(
     return a.orderIndex - b.orderIndex;
   });
 
-  // 2. Fetch service types for filtering
-  const allProjectTypes = await getProjectTypes();
   const activeProjectTypes = allProjectTypes.filter((st) => !st.deletedAt);
 
-  // Fetch all published projects to compute counts
-  const allPublishedProjectsRaw = await getProjects({ isPublished: true });
   const allPublishedProjects = conditionParam
     ? allPublishedProjectsRaw.filter((p) =>
         p.categories?.some((c) => c.condition === conditionParam),
@@ -134,19 +158,8 @@ async function getCachedProjectListData(
     }));
 
     // 2. Fetch categories from projects under this service type
-    const supabase = await createClient();
-    const { data: relData, error: relError } = await supabase
-      .from("project_category")
-      .select(
-        `
-        category:categories(id, name, slug, deleted_at),
-        projects!inner(id, project_type_id, is_published, deleted_at)
-      `,
-      )
-      .eq("projects.project_type_id", projectType.id)
-      .eq("projects.is_published", true)
-      .is("projects.deleted_at", null)
-      .is("categories.deleted_at", null);
+    const relData = relDataResult.data;
+    const relError = relDataResult.error;
 
     // Merge and deduplicate
     const categoryMap = new Map<
@@ -198,8 +211,7 @@ async function getCachedProjectListData(
       return { ...cat, count };
     });
   } else {
-    const allCategories = await getCategories({ includeDeleted: false });
-    filterCategories = allCategories.map((cat) => {
+    filterCategories = allCategoriesRaw.map((cat) => {
       const count = allPublishedProjects.filter((p) =>
         p.categories?.some((c) => c.id === cat.id),
       ).length;
@@ -213,7 +225,6 @@ async function getCachedProjectListData(
   }
 
   // 4. Fetch services for filtering
-  const allServices = await getServices({ isPublished: true });
   const serviceItems = allServices.map((svc) => {
     const count = allPublishedProjects.filter((p) => {
       const matchProjectType = projectType
@@ -347,7 +358,8 @@ export async function ProjectListModule({
           {projectType && projectType.image && (
             <div className="w-full max-w-4xl mt-6 overflow-hidden rounded-md border border-border/40 shadow-sm animate-fade-in-up">
               <AspectRatio ratio={21 / 9}>
-                <Image
+                <ImageWithSkeleton
+                  wrapperClassName="w-full h-full"
                   src={projectType.image}
                   alt={projectType.name}
                   fill

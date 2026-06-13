@@ -17,7 +17,7 @@ import {
 import { setUseStaticClient } from "@/shared/lib/supabase/server";
 import { cn } from "@/shared/lib/utils";
 import { cacheLife, cacheTag } from "next/cache";
-import Image from "next/image";
+import { ImageWithSkeleton } from "@/shared/components/ui/image-with-skeleton";
 import { notFound } from "next/navigation";
 import { Breadcrumbs } from "@/shared/components/layout/user/breadcrumbs";
 import { ArrowLeft } from "@phosphor-icons/react/dist/ssr";
@@ -183,7 +183,8 @@ export default async function BranchDetail({ params }: Props) {
           {branch.imageUrl && (
             <div className="w-full mt-2 overflow-hidden rounded-sm border border-border/40">
               <AspectRatio ratio={16 / 9}>
-                <Image
+                <ImageWithSkeleton
+                  wrapperClassName="w-full h-full"
                   src={branch.imageUrl}
                   alt={branch.name}
                   fill

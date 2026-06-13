@@ -14,7 +14,7 @@ import {
   CardTitle,
 } from "@/shared/components/ui/card";
 import { TypographyH1, TypographyP } from "@/shared/components/ui/typography";
-import Image from "next/image";
+import { ImageWithSkeleton } from "@/shared/components/ui/image-with-skeleton";
 import Link from "next/link";
 import * as React from "react";
 
@@ -96,7 +96,8 @@ export function ProjectMarqueeSection({
           {/* Image in the middle */}
           <CardContent className="px-3 py-0">
             <div className="relative w-full aspect-video rounded-lg overflow-hidden">
-              <Image
+              <ImageWithSkeleton
+                wrapperClassName="w-full h-full"
                 src={firstImage}
                 alt={project.title}
                 fill
