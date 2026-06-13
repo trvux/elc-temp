@@ -1,6 +1,6 @@
 import React from "react";
 import Link from "next/link";
-import Image from "next/image";
+import { ImageWithSkeleton } from "@/shared/components/ui/image-with-skeleton";
 import { News } from "../../domain/types";
 import { Card, CardContent } from "@/shared/components/ui/card";
 import { Calendar } from "@phosphor-icons/react/dist/ssr";
@@ -19,11 +19,12 @@ export const NewsCard: React.FC<NewsCardProps> = ({ news }) => {
   return (
     <Card className="overflow-hidden h-full flex flex-col group hover:shadow-lg transition-all duration-300">
       <Link href={`/tin-tuc/${news.slug}`} className="relative aspect-video block overflow-hidden">
-        <Image
+        <ImageWithSkeleton
           src={news.image || "/placeholder.png"}
           alt={news.title}
           fill
           className="object-cover group-hover:scale-105 transition-transform duration-500"
+          wrapperClassName="w-full h-full"
         />
       </Link>
       <CardContent className="p-4 flex-grow">

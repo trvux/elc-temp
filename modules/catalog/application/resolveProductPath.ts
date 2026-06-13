@@ -15,7 +15,7 @@ export type ResolvedEntity =
 export async function resolveProductPath(slug: string): Promise<ResolvedEntity> {
   "use cache";
   cacheLife("days");
-  cacheTag("products", `slug:${slug}`);
+  cacheTag(`slug:${slug}`);
   setUseStaticClient(true);
 
   const supabase = await createClient();

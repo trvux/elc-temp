@@ -26,7 +26,7 @@ const nextConfig: NextConfig = {
   experimental: {
     staticGenerationMaxConcurrency: 2,
     staleTimes: {
-      dynamic: 0,
+      dynamic: 5,
       static: 30,
     },
     optimizePackageImports: [

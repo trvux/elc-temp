@@ -9,7 +9,7 @@ import {
 } from "@/shared/components/ui/typography";
 import { setUseStaticClient } from "@/shared/lib/supabase/server";
 import { cacheLife, cacheTag } from "next/cache";
-import Image from "next/image";
+import { ImageWithSkeleton } from "@/shared/components/ui/image-with-skeleton";
 import Link from "next/link";
 
 const STYLES = {
@@ -99,7 +99,7 @@ function getExcerptFromContent(
 async function getCachedNewsHubData() {
   "use cache";
   cacheLife("hours");
-  cacheTag("news");
+  cacheTag("news-list");
   setUseStaticClient(true);
 
   const allNews = await getNews({ isPublished: true });
@@ -187,16 +187,15 @@ export default async function NewsHub() {
                   </div>
 
                   {news.image && (
-                    <div className={STYLES.imageWrapper}>
-                      <Image
-                        src={news.image}
-                        alt={news.title}
-                        fill
-                        className={STYLES.image}
-                        sizes="(max-width: 640px) 144px, (max-width: 768px) 192px, 256px"
-                        priority={index === 0}
-                      />
-                    </div>
+                    <ImageWithSkeleton
+                      wrapperClassName={STYLES.imageWrapper}
+                      src={news.image}
+                      alt={news.title}
+                      fill
+                      className={STYLES.image}
+                      sizes="(max-width: 640px) 144px, (max-width: 768px) 192px, 256px"
+                      priority={index === 0}
+                    />
                   )}
                 </Link>
               );

@@ -7,6 +7,7 @@ import {
   deleteService,
   getServices,
   updateService,
+  getServiceById,
 } from "../application/index";
 import { CreateServiceInput, UpdateServiceInput, ServiceFilter } from "../domain/types";
 
@@ -24,7 +25,10 @@ export async function getServicesAction(options?: ServiceFilter) {
 export async function createServiceAction(input: CreateServiceInput) {
   try {
     const data = await createService(input);
-    revalidateTag("services", { expire: 0 });
+    revalidateTag("services-list", { expire: 0 });
+    if (data?.slug) {
+      revalidateTag(`service-slug:${data.slug}`, { expire: 0 });
+    }
     revalidatePath("/dich-vu", "layout");
     revalidatePath("/admin/services");
     return { data, error: null };
@@ -40,7 +44,10 @@ export async function createServiceAction(input: CreateServiceInput) {
 export async function updateServiceAction(input: UpdateServiceInput) {
   try {
     const data = await updateService(input);
-    revalidateTag("services", { expire: 0 });
+    revalidateTag("services-list", { expire: 0 });
+    if (data?.slug) {
+      revalidateTag(`service-slug:${data.slug}`, { expire: 0 });
+    }
     revalidatePath("/dich-vu", "layout");
     revalidatePath("/admin/services");
     return { data, error: null };
@@ -55,8 +62,12 @@ export async function updateServiceAction(input: UpdateServiceInput) {
 
 export async function deleteServiceAction(id: string) {
   try {
+    const service = await getServiceById(id);
     await deleteService(id);
-    revalidateTag("services", { expire: 0 });
+    revalidateTag("services-list", { expire: 0 });
+    if (service?.slug) {
+      revalidateTag(`service-slug:${service.slug}`, { expire: 0 });
+    }
     revalidatePath("/dich-vu", "layout");
     revalidatePath("/admin/services");
     return { error: null };

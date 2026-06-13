@@ -11,6 +11,7 @@ import {
   CreateNewsInput, 
   UpdateNewsInput 
 } from "../domain/index";
+import { newsRepo } from "../infrastructure/SupabaseNewsRepository";
 
 export async function getNewsAction(options?: {
   isPublished?: boolean;
@@ -29,7 +30,10 @@ export async function createNewsAction(input: CreateNewsInput) {
     const data = await createNews(input);
     revalidatePath("/admin/news");
     revalidatePath("/tin-tuc");
-    revalidateTag("news", { expire: 0 });
+    revalidateTag("news-list", { expire: 0 });
+    if (data?.slug) {
+      revalidateTag(`news-slug:${data.slug}`, { expire: 0 });
+    }
     return { data, error: null };
   } catch (error) {
     console.error("createNewsAction error:", error);
@@ -46,7 +50,10 @@ export async function updateNewsAction(input: UpdateNewsInput) {
     revalidatePath("/admin/news");
     revalidatePath("/tin-tuc");
     revalidatePath(`/tin-tuc/${data.slug}`);
-    revalidateTag("news", { expire: 0 });
+    revalidateTag("news-list", { expire: 0 });
+    if (data?.slug) {
+      revalidateTag(`news-slug:${data.slug}`, { expire: 0 });
+    }
     return { data, error: null };
   } catch (error) {
     console.error("updateNewsAction error:", error);
@@ -59,10 +66,14 @@ export async function updateNewsAction(input: UpdateNewsInput) {
 
 export async function deleteNewsAction(id: string) {
   try {
+    const newsItem = await newsRepo.getById(id);
     await deleteNews(id);
     revalidatePath("/admin/news");
     revalidatePath("/tin-tuc");
-    revalidateTag("news", { expire: 0 });
+    revalidateTag("news-list", { expire: 0 });
+    if (newsItem?.slug) {
+      revalidateTag(`news-slug:${newsItem.slug}`, { expire: 0 });
+    }
     return { success: true, error: null };
   } catch (error) {
     console.error("deleteNewsAction error:", error);

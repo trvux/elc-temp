@@ -34,7 +34,7 @@ import { generateProductSchema } from "@/shared/lib/seo-utils";
 import { createClient, setUseStaticClient } from "@/shared/lib/supabase/server";
 import { cn } from "@/shared/lib/utils";
 import { cacheLife, cacheTag } from "next/cache";
-import Image from "next/image";
+import { ImageWithSkeleton } from "@/shared/components/ui/image-with-skeleton";
 import { notFound } from "next/navigation";
 
 interface SpecSubItem {
@@ -102,7 +102,7 @@ const STYLES = {
 async function getCachedProductDetailData(productSlug: string) {
   "use cache";
   cacheLife("days");
-  cacheTag("products", `product:${productSlug}`);
+  cacheTag("products-list", `slug:${productSlug}`);
   setUseStaticClient(true);
 
   const supabase = await createClient();
@@ -178,13 +178,14 @@ export async function ProductDetailModule({
                       images.map((img: string, i: number) => (
                         <CarouselItem key={i}>
                           <AspectRatio ratio={16 / 9}>
-                            <Image
+                            <ImageWithSkeleton
                               src={img}
                               alt={`${product.name} ${product.sku ? `(${product.sku})` : ""} - ${product.brand?.name || "ELC"} - Điện máy ELC`}
                               fill
                               className={STYLES.carouselImage}
                               priority={i === 0}
                               sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 800px"
+                              wrapperClassName="w-full h-full"
                             />
                           </AspectRatio>
                         </CarouselItem>

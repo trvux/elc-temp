@@ -110,7 +110,7 @@ export default async function ProductsPage({
 async function getCachedCategories() {
   "use cache";
   cacheLife("days");
-  cacheTag("products", "categories");
+  cacheTag("products-list", "categories");
   setUseStaticClient(true);
   return getCategories();
 }
@@ -127,7 +127,7 @@ async function getCachedProductsData(
 ) {
   "use cache";
   cacheLife("days");
-  cacheTag("products");
+  cacheTag("products-list");
   setUseStaticClient(true);
 
   return searchProducts(q, {

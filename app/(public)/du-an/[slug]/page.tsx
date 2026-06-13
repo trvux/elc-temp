@@ -15,7 +15,7 @@ import { Badge } from "@/shared/components/ui/badge";
 import { TypographySmall } from "@/shared/components/ui/typography";
 import { Sparkle } from "@phosphor-icons/react/dist/ssr";
 import { Metadata } from "next";
-import Image from "next/image";
+import { ImageWithSkeleton } from "@/shared/components/ui/image-with-skeleton";
 import { notFound } from "next/navigation";
 import { getServiceBySlug } from "@/modules/service/application";
 import { createStaticClient } from "@/shared/lib/supabase/static";
@@ -223,7 +223,8 @@ async function ProjectDetailView({
           {images[0] && (
             <div className="w-full mt-2 overflow-hidden rounded-sm border border-border/40">
               <AspectRatio ratio={16 / 9}>
-                <Image
+                <ImageWithSkeleton
+                  wrapperClassName="w-full h-full"
                   src={images[0]}
                   alt={project.title}
                   fill
@@ -251,7 +252,8 @@ async function ProjectDetailView({
                     className="w-full overflow-hidden rounded-sm border border-border/40"
                   >
                     <AspectRatio ratio={3 / 2}>
-                      <Image
+                      <ImageWithSkeleton
+                        wrapperClassName="w-full h-full"
                         src={img}
                         alt={`${project.title} - ảnh ${i + 2}`}
                         fill

@@ -27,7 +27,7 @@ interface PageProps {
 async function getCachedService(slug: string) {
   "use cache";
   cacheLife("days");
-  cacheTag("services");
+  cacheTag("services-list", `service-slug:${slug}`);
   setUseStaticClient(true);
 
   return getServiceBySlug(slug);

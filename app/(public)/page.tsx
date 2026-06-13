@@ -37,7 +37,7 @@ import { cacheLife, cacheTag } from "next/cache";
 async function getCachedHomeData() {
   "use cache";
   cacheLife("days");
-  cacheTag("products", "projects", "brands", "layout");
+  cacheTag("products-list", "projects-list", "brands", "layout");
   setUseStaticClient(true);
 
   // Fetch all necessary data for the homepage using the application layer
