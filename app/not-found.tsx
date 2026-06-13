@@ -9,21 +9,23 @@ import { getProjectTypes } from "@/modules/project-type/application";
 import { getBrands } from "@/modules/brand/application";
 import { getServiceGroups } from "@/modules/service-group/application";
 import { formatPrice } from "@/modules/catalog/domain";
+import { ProductCard } from "@/modules/catalog/presentation/components/ProductCard";
+import { ProjectCard } from "@/modules/project/presentation/components/ProjectCard";
+import { CardService, mapServiceToCardData } from "@/modules/service";
 import { GridSection } from "@/shared/components/sections/grid-section";
 import { setUseStaticClient } from "@/shared/lib/supabase/server";
 import { cacheLife, cacheTag } from "next/cache";
 import Link from "next/link";
+import Image from "next/image";
 import { 
+  ArrowRight,
   ShoppingBag, 
   Folder, 
   Wrench, 
   BookOpen, 
   Info, 
   MapPin,
-  ArrowRight,
-  Tag,
   SquaresFour,
-  List,
   Trademark
 } from "@phosphor-icons/react/dist/ssr";
 import { sortByOrderIndex } from "@/shared/lib/helpers";
@@ -33,6 +35,67 @@ import {
   TypographyLead, 
   TypographySmall 
 } from "@/shared/components/ui/typography";
+
+interface TiptapNode {
+  type?: string;
+  text?: string;
+  content?: TiptapNode[];
+}
+
+function getExcerptFromContent(
+  content: unknown,
+  fallbackDescription: string | null | undefined,
+): string {
+  if (!content) return fallbackDescription || "";
+
+  try {
+    let doc: TiptapNode | null = null;
+
+    if (typeof content === "string") {
+      const trimmed = content.trim();
+      if (trimmed.startsWith("{")) {
+        doc = JSON.parse(trimmed) as TiptapNode;
+      } else {
+        const stripped = content
+          .replace(/<[^>]*>/g, " ")
+          .replace(/\s+/g, " ")
+          .trim();
+        if (stripped.length > 150) {
+          return stripped.substring(0, 150) + "...";
+        }
+        return stripped || fallbackDescription || "";
+      }
+    } else if (typeof content === "object" && content !== null) {
+      doc = content as TiptapNode;
+    }
+
+    if (doc) {
+      const textParts: string[] = [];
+      const traverse = (node: TiptapNode) => {
+        if (node.type === "heading") {
+          return;
+        }
+        if (node.type === "text" && node.text) {
+          textParts.push(node.text);
+        }
+        if (node.content) {
+          node.content.forEach(traverse);
+        }
+      };
+
+      traverse(doc);
+      const combinedText = textParts.join(" ").replace(/\s+/g, " ").trim();
+      if (combinedText.length > 150) {
+        return combinedText.substring(0, 150) + "...";
+      }
+      return combinedText || fallbackDescription || "";
+    }
+  } catch (err) {
+    console.error("Error parsing news content for excerpt:", err);
+  }
+
+  return fallbackDescription || "";
+}
 
 async function getCachedNotFoundData() {
   "use cache";
@@ -52,15 +115,15 @@ async function getCachedNotFoundData() {
     brands,
     serviceGroups
   ] = await Promise.all([
-    getProjects({ isPublished: true, limit: 6 }),
-    getProducts({ isPublished: true, limit: 6 }),
+    getProjects({ isPublished: true }),
+    getProducts({ isPublished: true }),
     getServices({ isPublished: true }),
-    getNews({ isPublished: true, limit: 6 }),
+    getNews({ isPublished: true }),
     getPages({ isPublished: true }),
     getBranches({ isPublished: true }),
     getCategories(),
     getProjectTypes(),
-    getBrands({ limit: 12 }),
+    getBrands(),
     getServiceGroups(),
   ]);
 
@@ -74,6 +137,8 @@ async function getCachedNotFoundData() {
       id: item.id,
       title: item.title,
       slug: item.slug,
+      image: item.image || "",
+      excerpt: getExcerptFromContent(item.content, item.metaDescription),
       formattedDate: item.createdAt
         ? new Date(item.createdAt).toLocaleDateString("vi-VN", {
             day: "numeric",
@@ -108,7 +173,7 @@ export default async function NotFound() {
   } = await getCachedNotFoundData();
 
   return (
-    <main className="w-full bg-background min-h-screen flex flex-col">
+    <main className="w-full bg-background min-h-screen flex flex-col animate-fade-in-up">
       {/* SECTION 1: 404 Hero */}
       <GridSection
         id="not-found-hero"
@@ -116,7 +181,7 @@ export default async function NotFound() {
         showDiamond={true}
         contentClassName="py-16 md:py-24 flex flex-col items-center text-center gap-6 max-w-2xl mx-auto"
       >
-        <h1 className="text-8xl md:text-9xl font-extrabold text-primary/15 tracking-tighter leading-none">
+        <h1 className="text-8xl md:text-9xl font-extrabold text-primary/15 tracking-tighter leading-none select-none">
           404
         </h1>
         <div className="space-y-3">
@@ -129,320 +194,545 @@ export default async function NotFound() {
         </div>
       </GridSection>
 
-      {/* SECTION 2: Rich Exploration Content */}
-      <GridSection
-        id="not-found-explore"
-        isFirst={false}
-        showDiamond={true}
-        contentClassName="py-12 md:py-16 lg:py-20"
-      >
-        <div className="flex flex-col gap-10 w-full animate-fade-in-up">
-          <div className="space-y-2 text-center md:text-left">
-            <TypographyH2 className="text-xl md:text-2xl font-bold tracking-tight">
-              Khám phá Điện máy ELC
-            </TypographyH2>
-            <TypographyLead className="text-sm md:text-base text-muted-foreground">
-              Hãy tiếp tục khám phá các danh mục, dịch vụ và sản phẩm nổi bật của chúng tôi dưới đây.
-            </TypographyLead>
+      {/* SECTION 2: Product Categories */}
+      {categories.length > 0 && (
+        <GridSection
+          id="not-found-categories"
+          isFirst={false}
+          showDiamond={true}
+          contentClassName="py-12 md:py-16"
+        >
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 md:gap-12 w-full max-w-7xl mx-auto">
+            <div className="lg:col-span-4 space-y-2 text-left sticky top-16 lg:top-24 bg-background/95 backdrop-blur-sm z-20 py-4 -mx-4 px-4 sm:-mx-6 sm:px-6 lg:mx-0 lg:px-0 lg:py-0 lg:bg-transparent lg:backdrop-blur-none h-fit">
+              <TypographyH2 className="text-xl md:text-2xl font-bold tracking-tight flex items-center gap-2 justify-start">
+                <SquaresFour size={24} className="text-primary" />
+                Danh mục sản phẩm
+              </TypographyH2>
+              <TypographyLead className="text-sm md:text-base text-muted-foreground leading-relaxed">
+                Các loại máy lạnh dân dụng, thương mại và hệ thống giải pháp không khí chính hãng.
+              </TypographyLead>
+            </div>
+
+            <div className="lg:col-span-8 flex flex-col w-full">
+              {categories.map((cat) => (
+                <Link
+                  key={cat.id}
+                  href={`/san-pham/${cat.slug}`}
+                  className="group flex flex-row justify-between items-center gap-4 sm:gap-6 md:gap-8 py-6 border-b border-border/60 last:border-b-0 no-underline transition-all duration-300 w-full"
+                >
+                  <div className="flex-1 min-w-0 flex flex-col gap-1.5">
+                    <h3 className="text-base sm:text-lg md:text-xl font-bold tracking-tight text-foreground group-hover:text-primary transition-colors line-clamp-2 leading-snug font-heading">
+                      {cat.name}
+                    </h3>
+                    {cat.metaDescription && (
+                      <p className="text-xs sm:text-sm text-muted-foreground line-clamp-2 leading-relaxed">
+                        {cat.metaDescription}
+                      </p>
+                    )}
+                  </div>
+                  {cat.imageUrl && (
+                    <div className="shrink-0 relative w-24 h-16 sm:w-36 sm:h-24 rounded-lg overflow-hidden bg-muted/20">
+                      <Image
+                        src={cat.imageUrl}
+                        alt={cat.name}
+                        fill
+                        className="object-cover transition-transform duration-300 group-hover:scale-105"
+                        sizes="(max-width: 640px) 96px, 144px"
+                      />
+                    </div>
+                  )}
+                </Link>
+              ))}
+            </div>
           </div>
+        </GridSection>
+      )}
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 w-full">
-            {/* Products (Sản phẩm) */}
-            <div className="flex flex-col gap-4 p-6 rounded-lg border border-border/40 bg-card/30 backdrop-blur-sm hover:border-primary/30 transition-all duration-300">
-              <h3 className="flex items-center gap-2 font-bold text-lg text-foreground border-b border-border/60 pb-3 mb-2 font-heading">
-                <ShoppingBag size={20} className="text-primary shrink-0" />
+      {/* SECTION 3: Project Categories */}
+      {projectTypes.length > 0 && (
+        <GridSection
+          id="not-found-project-types"
+          isFirst={false}
+          showDiamond={true}
+          contentClassName="py-12 md:py-16"
+        >
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 md:gap-12 w-full max-w-7xl mx-auto">
+            <div className="lg:col-span-4 space-y-2 text-left sticky top-16 lg:top-24 bg-background/95 backdrop-blur-sm z-20 py-4 -mx-4 px-4 sm:-mx-6 sm:px-6 lg:mx-0 lg:px-0 lg:py-0 lg:bg-transparent lg:backdrop-blur-none h-fit">
+              <TypographyH2 className="text-xl md:text-2xl font-bold tracking-tight flex items-center gap-2 justify-start">
+                <Folder size={24} className="text-primary" />
+                Danh mục dự án
+              </TypographyH2>
+              <TypographyLead className="text-sm md:text-base text-muted-foreground leading-relaxed">
+                Phân loại các dự án thi công hệ thống điều hòa trung tâm VRV, Multi và thông gió.
+              </TypographyLead>
+            </div>
+
+            <div className="lg:col-span-8 flex flex-col w-full">
+              {projectTypes.map((pt) => (
+                <Link
+                  key={pt.id}
+                  href={`/du-an/${pt.slug}`}
+                  className="group flex flex-row justify-between items-center gap-4 sm:gap-6 md:gap-8 py-6 border-b border-border/60 last:border-b-0 no-underline transition-all duration-300 w-full"
+                >
+                  <div className="flex-1 min-w-0 flex flex-col gap-1.5">
+                    <h3 className="text-base sm:text-lg md:text-xl font-bold tracking-tight text-foreground group-hover:text-primary transition-colors line-clamp-2 leading-snug font-heading">
+                      {pt.name}
+                    </h3>
+                    {pt.metaDescription && (
+                      <p className="text-xs sm:text-sm text-muted-foreground line-clamp-2 leading-relaxed">
+                        {pt.metaDescription}
+                      </p>
+                    )}
+                  </div>
+                  {pt.image && (
+                    <div className="shrink-0 relative w-24 h-16 sm:w-36 sm:h-24 rounded-lg overflow-hidden bg-muted/20">
+                      <Image
+                        src={pt.image}
+                        alt={pt.name}
+                        fill
+                        className="object-cover transition-transform duration-300 group-hover:scale-105"
+                        sizes="(max-width: 640px) 96px, 144px"
+                      />
+                    </div>
+                  )}
+                </Link>
+              ))}
+            </div>
+          </div>
+        </GridSection>
+      )}
+
+      {/* SECTION 4: Brands */}
+      {brands.length > 0 && (
+        <GridSection
+          id="not-found-brands"
+          isFirst={false}
+          showDiamond={true}
+          contentClassName="py-12 md:py-16"
+        >
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 md:gap-12 w-full max-w-7xl mx-auto">
+            <div className="lg:col-span-4 space-y-2 text-left sticky top-16 lg:top-24 bg-background/95 backdrop-blur-sm z-20 py-4 -mx-4 px-4 sm:-mx-6 sm:px-6 lg:mx-0 lg:px-0 lg:py-0 lg:bg-transparent lg:backdrop-blur-none h-fit">
+              <TypographyH2 className="text-xl md:text-2xl font-bold tracking-tight flex items-center gap-2 justify-start">
+                <Trademark size={24} className="text-primary" />
+                Thương hiệu đối tác
+              </TypographyH2>
+              <TypographyLead className="text-sm md:text-base text-muted-foreground leading-relaxed">
+                Sản phẩm phân phối chính hãng từ các thương hiệu điều hòa uy tín hàng đầu.
+              </TypographyLead>
+            </div>
+
+            <div className="lg:col-span-8 flex flex-col w-full">
+              {brands.map((brand) => (
+                <Link
+                  key={brand.id}
+                  href={`/san-pham/${brand.slug}`}
+                  className="group flex flex-row justify-between items-center gap-4 sm:gap-6 md:gap-8 py-6 border-b border-border/60 last:border-b-0 no-underline transition-all duration-300 w-full"
+                >
+                  <div className="flex-1 min-w-0 flex flex-col gap-1.5">
+                    <h3 className="text-base sm:text-lg md:text-xl font-bold tracking-tight text-foreground group-hover:text-primary transition-colors line-clamp-2 leading-snug font-heading">
+                      {brand.name}
+                    </h3>
+                    {brand.metaDescription && (
+                      <p className="text-xs sm:text-sm text-muted-foreground line-clamp-2 leading-relaxed">
+                        {brand.metaDescription}
+                      </p>
+                    )}
+                  </div>
+                  {brand.logoUrl && (
+                    <div className="shrink-0 relative w-24 h-12 sm:w-36 sm:h-16 rounded-lg overflow-hidden bg-white/5 p-2 flex items-center justify-center">
+                      <Image
+                        src={brand.logoUrl}
+                        alt={brand.name}
+                        fill
+                        className="object-contain px-2 transition-transform duration-300 group-hover:scale-105"
+                        sizes="(max-width: 640px) 96px, 144px"
+                      />
+                    </div>
+                  )}
+                </Link>
+              ))}
+            </div>
+          </div>
+        </GridSection>
+      )}
+
+      {/* SECTION 5: Service Groups */}
+      {serviceGroups.length > 0 && (
+        <GridSection
+          id="not-found-service-groups"
+          isFirst={false}
+          showDiamond={true}
+          contentClassName="py-12 md:py-16"
+        >
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 md:gap-12 w-full max-w-7xl mx-auto">
+            <div className="lg:col-span-4 space-y-2 text-left sticky top-16 lg:top-24 bg-background/95 backdrop-blur-sm z-20 py-4 -mx-4 px-4 sm:-mx-6 sm:px-6 lg:mx-0 lg:px-0 lg:py-0 lg:bg-transparent lg:backdrop-blur-none h-fit">
+              <TypographyH2 className="text-xl md:text-2xl font-bold tracking-tight flex items-center gap-2 justify-start">
+                <Wrench size={24} className="text-primary" />
+                Nhóm dịch vụ kỹ thuật
+              </TypographyH2>
+              <TypographyLead className="text-sm md:text-base text-muted-foreground leading-relaxed">
+                Các giải pháp khảo sát thiết kế, thi công lắp đặt và bảo dưỡng định kỳ hệ thống lạnh.
+              </TypographyLead>
+            </div>
+
+            <div className="lg:col-span-8 flex flex-col w-full">
+              {serviceGroups.map((sg) => (
+                <Link
+                  key={sg.id}
+                  href={`/dich-vu`}
+                  className="group flex flex-row justify-between items-center gap-4 sm:gap-6 md:gap-8 py-6 border-b border-border/60 last:border-b-0 no-underline transition-all duration-300 w-full"
+                >
+                  <div className="flex-1 min-w-0 flex flex-col gap-1.5">
+                    <h3 className="text-base sm:text-lg md:text-xl font-bold tracking-tight text-foreground group-hover:text-primary transition-colors line-clamp-2 leading-snug font-heading">
+                      {sg.name}
+                    </h3>
+                    {sg.metaDescription && (
+                      <p className="text-xs sm:text-sm text-muted-foreground line-clamp-2 leading-relaxed">
+                        {sg.metaDescription}
+                      </p>
+                    )}
+                  </div>
+                  {sg.imageUrl && (
+                    <div className="shrink-0 relative w-24 h-16 sm:w-36 sm:h-24 rounded-lg overflow-hidden bg-muted/20">
+                      <Image
+                        src={sg.imageUrl}
+                        alt={sg.name}
+                        fill
+                        className="object-cover transition-transform duration-300 group-hover:scale-105"
+                        sizes="(max-width: 640px) 96px, 144px"
+                      />
+                    </div>
+                  )}
+                </Link>
+              ))}
+            </div>
+          </div>
+        </GridSection>
+      )}
+
+      {/* SECTION 6: Products */}
+      {products.length > 0 && (
+        <GridSection
+          id="not-found-products"
+          isFirst={false}
+          showDiamond={true}
+          contentClassName="py-12 md:py-16"
+        >
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 md:gap-12 w-full max-w-7xl mx-auto">
+            <div className="lg:col-span-4 space-y-2 text-left sticky top-16 lg:top-24 bg-background/95 backdrop-blur-sm z-20 py-4 -mx-4 px-4 sm:-mx-6 sm:px-6 lg:mx-0 lg:px-0 lg:py-0 lg:bg-transparent lg:backdrop-blur-none h-fit">
+              <TypographyH2 className="text-xl md:text-2xl font-bold tracking-tight flex items-center gap-2 justify-start">
+                <ShoppingBag size={24} className="text-primary" />
                 Sản phẩm nổi bật
-              </h3>
-              {products.length === 0 ? (
-                <p className="text-sm text-muted-foreground italic">Đang cập nhật sản phẩm...</p>
-              ) : (
-                <div className="flex flex-col gap-2">
-                  {products.map((product) => {
-                    const price = product.salePrice || product.originalPrice || 0;
-                    return (
-                      <Link
-                        key={product.id}
-                        href={`/san-pham/${product.slug}`}
-                        className="group/item flex flex-col gap-0.5 text-sm py-1 border-b border-dashed border-border/45 last:border-0"
-                      >
-                        <span className="font-medium text-foreground group-hover/item:text-primary transition-colors line-clamp-1">
-                          {product.name}
-                        </span>
-                        <span className="text-xs text-muted-foreground">
-                          {price > 0 ? formatPrice(price) : "Liên hệ"}
-                        </span>
-                      </Link>
-                    );
-                  })}
-                </div>
-              )}
+              </TypographyH2>
+              <TypographyLead className="text-sm md:text-base text-muted-foreground leading-relaxed">
+                Các dòng máy lạnh, thiết bị xử lý không khí bán chạy nhất từ đối tác tin cậy.
+              </TypographyLead>
             </div>
 
-            {/* Projects (Dự án) */}
-            <div className="flex flex-col gap-4 p-6 rounded-lg border border-border/40 bg-card/30 backdrop-blur-sm hover:border-primary/30 transition-all duration-300">
-              <h3 className="flex items-center gap-2 font-bold text-lg text-foreground border-b border-border/60 pb-3 mb-2 font-heading">
-                <Folder size={20} className="text-primary shrink-0" />
-                Dự án tiêu biểu
-              </h3>
-              {projects.length === 0 ? (
-                <p className="text-sm text-muted-foreground italic">Đang cập nhật dự án...</p>
-              ) : (
-                <div className="flex flex-col gap-2">
-                  {projects.map((project) => (
-                    <Link
-                      key={project.id}
-                      href={`/du-an/${project.slug}`}
-                      className="group/item flex items-center justify-between text-sm py-2 border-b border-dashed border-border/45 last:border-0"
-                    >
-                      <span className="font-medium text-foreground group-hover/item:text-primary transition-colors line-clamp-1">
-                        {project.title}
+            <div className="lg:col-span-8 flex flex-col w-full">
+              {products.map((prod) => (
+                <Link
+                  key={prod.id}
+                  href={`/san-pham/${prod.slug}`}
+                  className="group flex flex-row justify-between items-center gap-4 sm:gap-6 md:gap-8 py-6 border-b border-border/60 last:border-b-0 no-underline transition-all duration-300 w-full"
+                >
+                  <div className="flex-1 min-w-0 flex flex-col gap-1.5">
+                    {prod.brand?.name && (
+                      <span className="text-[10px] font-semibold text-primary uppercase tracking-wider">
+                        {prod.brand.name}
                       </span>
-                      <ArrowRight size={14} className="opacity-0 group-hover/item:opacity-100 transition-opacity text-primary shrink-0 ml-2" />
-                    </Link>
-                  ))}
-                </div>
-              )}
-            </div>
-
-            {/* Services (Dịch vụ) */}
-            <div className="flex flex-col gap-4 p-6 rounded-lg border border-border/40 bg-card/30 backdrop-blur-sm hover:border-primary/30 transition-all duration-300">
-              <h3 className="flex items-center gap-2 font-bold text-lg text-foreground border-b border-border/60 pb-3 mb-2 font-heading">
-                <Wrench size={20} className="text-primary shrink-0" />
-                Dịch vụ chuyên nghiệp
-              </h3>
-              {services.length === 0 ? (
-                <p className="text-sm text-muted-foreground italic">Đang cập nhật dịch vụ...</p>
-              ) : (
-                <div className="flex flex-col gap-2">
-                  {services.map((service) => (
-                    <Link
-                      key={service.id}
-                      href={`/dich-vu/${service.slug}`}
-                      className="group/item flex items-center justify-between text-sm py-2 border-b border-dashed border-border/45 last:border-0"
-                    >
-                      <span className="font-medium text-foreground group-hover/item:text-primary transition-colors line-clamp-1">
-                        {service.title}
+                    )}
+                    <h3 className="text-base sm:text-lg md:text-xl font-bold tracking-tight text-foreground group-hover:text-primary transition-colors line-clamp-2 leading-snug font-heading">
+                      {prod.name}
+                    </h3>
+                    <div className="flex items-baseline gap-2">
+                      <span className="text-sm sm:text-base font-bold text-foreground">
+                        {prod.salePrice > 0 ? formatPrice(prod.salePrice) : "Liên hệ"}
                       </span>
-                      <ArrowRight size={14} className="opacity-0 group-hover/item:opacity-100 transition-opacity text-primary shrink-0 ml-2" />
-                    </Link>
-                  ))}
-                </div>
-              )}
-            </div>
-
-            {/* News (Tin tức) */}
-            <div className="flex flex-col gap-4 p-6 rounded-lg border border-border/40 bg-card/30 backdrop-blur-sm hover:border-primary/30 transition-all duration-300">
-              <h3 className="flex items-center gap-2 font-bold text-lg text-foreground border-b border-border/60 pb-3 mb-2 font-heading">
-                <BookOpen size={20} className="text-primary shrink-0" />
-                Tin tức & Giải pháp
-              </h3>
-              {news.length === 0 ? (
-                <p className="text-sm text-muted-foreground italic">Đang cập nhật tin tức...</p>
-              ) : (
-                <div className="flex flex-col gap-2">
-                  {news.map((item) => (
-                    <Link
-                      key={item.id}
-                      href={`/tin-tuc/${item.slug}`}
-                      className="group/item flex flex-col gap-0.5 text-sm py-1 border-b border-dashed border-border/45 last:border-0"
-                    >
-                      <span className="font-medium text-foreground group-hover/item:text-primary transition-colors line-clamp-1">
-                        {item.title}
-                      </span>
-                      {item.formattedDate && (
-                        <span className="text-xs text-muted-foreground">
-                          {item.formattedDate}
+                      {prod.originalPrice > prod.salePrice && prod.salePrice > 0 && (
+                        <span className="text-xs text-muted-foreground line-through">
+                          {formatPrice(prod.originalPrice)}
                         </span>
                       )}
-                    </Link>
-                  ))}
-                </div>
-              )}
+                    </div>
+                  </div>
+                  {prod.images && prod.images[0] && (
+                    <div className="shrink-0 relative w-24 h-16 sm:w-36 sm:h-24 rounded-lg overflow-hidden bg-white p-1 border border-border/40 flex items-center justify-center">
+                      <Image
+                        src={prod.images[0]}
+                        alt={prod.name}
+                        fill
+                        className="object-contain transition-transform duration-300 group-hover:scale-105"
+                        sizes="(max-width: 640px) 96px, 144px"
+                      />
+                    </div>
+                  )}
+                </Link>
+              ))}
+            </div>
+          </div>
+        </GridSection>
+      )}
+
+      {/* SECTION 7: Projects */}
+      {projects.length > 0 && (
+        <GridSection
+          id="not-found-projects"
+          isFirst={false}
+          showDiamond={true}
+          contentClassName="py-12 md:py-16"
+        >
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 md:gap-12 w-full max-w-7xl mx-auto">
+            <div className="lg:col-span-4 space-y-2 text-left sticky top-16 lg:top-24 bg-background/95 backdrop-blur-sm z-20 py-4 -mx-4 px-4 sm:-mx-6 sm:px-6 lg:mx-0 lg:px-0 lg:py-0 lg:bg-transparent lg:backdrop-blur-none h-fit">
+              <TypographyH2 className="text-xl md:text-2xl font-bold tracking-tight flex items-center gap-2 justify-start">
+                <Folder size={24} className="text-primary" />
+                Dự án tiêu biểu
+              </TypographyH2>
+              <TypographyLead className="text-sm md:text-base text-muted-foreground leading-relaxed">
+                Những công trình thực tế do đội ngũ kỹ sư ELC thi công hoàn thiện bàn giao trên cả nước.
+              </TypographyLead>
             </div>
 
-            {/* Info Pages (Thông tin) */}
-            <div className="flex flex-col gap-4 p-6 rounded-lg border border-border/40 bg-card/30 backdrop-blur-sm hover:border-primary/30 transition-all duration-300">
-              <h3 className="flex items-center gap-2 font-bold text-lg text-foreground border-b border-border/60 pb-3 mb-2 font-heading">
-                <Info size={20} className="text-primary shrink-0" />
-                Thông tin & Hỗ trợ
-              </h3>
-              {pages.length === 0 ? (
-                <p className="text-sm text-muted-foreground italic">Đang cập nhật chính sách...</p>
-              ) : (
-                <div className="flex flex-col gap-2">
-                  {pages.map((page) => (
-                    <Link
-                      key={page.id}
-                      href={`/${page.slug}`}
-                      className="group/item flex items-center justify-between text-sm py-2 border-b border-dashed border-border/45 last:border-0"
-                    >
-                      <span className="font-medium text-foreground group-hover/item:text-primary transition-colors line-clamp-1">
-                        {page.title}
+            <div className="lg:col-span-8 flex flex-col w-full">
+              {projects.map((proj) => (
+                <Link
+                  key={proj.id}
+                  href={`/du-an/${proj.slug}`}
+                  className="group flex flex-row justify-between items-center gap-4 sm:gap-6 md:gap-8 py-6 border-b border-border/60 last:border-b-0 no-underline transition-all duration-300 w-full"
+                >
+                  <div className="flex-1 min-w-0 flex flex-col gap-1.5">
+                    {proj.projectType?.name && (
+                      <span className="text-[10px] font-semibold text-primary uppercase tracking-wider">
+                        {proj.projectType.name}
                       </span>
-                      <ArrowRight size={14} className="opacity-0 group-hover/item:opacity-100 transition-opacity text-primary shrink-0 ml-2" />
-                    </Link>
-                  ))}
-                </div>
-              )}
+                    )}
+                    <h3 className="text-base sm:text-lg md:text-xl font-bold tracking-tight text-foreground group-hover:text-primary transition-colors line-clamp-2 leading-snug font-heading">
+                      {proj.title}
+                    </h3>
+                    {proj.metaDescription && (
+                      <p className="text-xs sm:text-sm text-muted-foreground line-clamp-2 leading-relaxed">
+                        {proj.metaDescription}
+                      </p>
+                    )}
+                  </div>
+                  {proj.images && proj.images[0] && (
+                    <div className="shrink-0 relative w-24 h-16 sm:w-36 sm:h-24 rounded-lg overflow-hidden bg-muted/20">
+                      <Image
+                        src={proj.images[0]}
+                        alt={proj.title}
+                        fill
+                        className="object-cover transition-transform duration-300 group-hover:scale-105"
+                        sizes="(max-width: 640px) 96px, 144px"
+                      />
+                    </div>
+                  )}
+                </Link>
+              ))}
+            </div>
+          </div>
+        </GridSection>
+      )}
+
+      {/* SECTION 8: Services */}
+      {services.length > 0 && (
+        <GridSection
+          id="not-found-services"
+          isFirst={false}
+          showDiamond={true}
+          contentClassName="py-12 md:py-16"
+        >
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 md:gap-12 w-full max-w-7xl mx-auto">
+            <div className="lg:col-span-4 space-y-2 text-left sticky top-16 lg:top-24 bg-background/95 backdrop-blur-sm z-20 py-4 -mx-4 px-4 sm:-mx-6 sm:px-6 lg:mx-0 lg:px-0 lg:py-0 lg:bg-transparent lg:backdrop-blur-none h-fit">
+              <TypographyH2 className="text-xl md:text-2xl font-bold tracking-tight flex items-center gap-2 justify-start">
+                <Wrench size={24} className="text-primary" />
+                Dịch vụ chuyên nghiệp
+              </TypographyH2>
+              <TypographyLead className="text-sm md:text-base text-muted-foreground leading-relaxed">
+                Dịch vụ tư vấn, thiết kế, thi công lắp đặt và bảo dưỡng điều hòa trung tâm chất lượng cao.
+              </TypographyLead>
             </div>
 
-            {/* Branches (Cơ sở hạ tầng) */}
-            <div className="flex flex-col gap-4 p-6 rounded-lg border border-border/40 bg-card/30 backdrop-blur-sm hover:border-primary/30 transition-all duration-300">
-              <h3 className="flex items-center gap-2 font-bold text-lg text-foreground border-b border-border/60 pb-3 mb-2 font-heading">
-                <MapPin size={20} className="text-primary shrink-0" />
-                Cơ sở hạ tầng
-              </h3>
-              {branches.length === 0 ? (
-                <p className="text-sm text-muted-foreground italic">Đang cập nhật hệ thống cơ sở...</p>
-              ) : (
-                <div className="flex flex-col gap-2">
-                  {branches.map((branch) => (
-                    <Link
-                      key={branch.id}
-                      href={`/thong-tin/${branch.slug}`}
-                      className="group/item flex flex-col gap-0.5 text-sm py-1 border-b border-dashed border-border/45 last:border-0"
-                    >
-                      <span className="font-medium text-foreground group-hover/item:text-primary transition-colors line-clamp-1">
-                        {branch.name}
+            <div className="lg:col-span-8 flex flex-col w-full">
+              {services.map((serv) => (
+                <Link
+                  key={serv.id}
+                  href={`/dich-vu/${serv.slug}`}
+                  className="group flex flex-row justify-between items-center gap-4 sm:gap-6 md:gap-8 py-6 border-b border-border/60 last:border-b-0 no-underline transition-all duration-300 w-full"
+                >
+                  <div className="flex-1 min-w-0 flex flex-col gap-1.5">
+                    {serv.group?.name && (
+                      <span className="text-[10px] font-semibold text-primary uppercase tracking-wider">
+                        {serv.group.name}
                       </span>
-                      <span className="text-xs text-muted-foreground line-clamp-1">
+                    )}
+                    <h3 className="text-base sm:text-lg md:text-xl font-bold tracking-tight text-foreground group-hover:text-primary transition-colors line-clamp-2 leading-snug font-heading">
+                      {serv.title}
+                    </h3>
+                    <p className="text-xs sm:text-sm text-muted-foreground line-clamp-2 leading-relaxed">
+                      {serv.metaDescription || serv.description || "Dịch vụ thi công, lắp đặt sửa chữa nhanh chóng."}
+                    </p>
+                  </div>
+                  {serv.image && (
+                    <div className="shrink-0 relative w-24 h-16 sm:w-36 sm:h-24 rounded-lg overflow-hidden bg-muted/20">
+                      <Image
+                        src={serv.image}
+                        alt={serv.title}
+                        fill
+                        className="object-cover transition-transform duration-300 group-hover:scale-105"
+                        sizes="(max-width: 640px) 96px, 144px"
+                      />
+                    </div>
+                  )}
+                </Link>
+              ))}
+            </div>
+          </div>
+        </GridSection>
+      )}
+
+      {/* SECTION 9: News */}
+      {news.length > 0 && (
+        <GridSection
+          id="not-found-news"
+          isFirst={false}
+          showDiamond={true}
+          contentClassName="py-12 md:py-16"
+        >
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 md:gap-12 w-full max-w-7xl mx-auto">
+            <div className="lg:col-span-4 space-y-2 text-left sticky top-16 lg:top-24 bg-background/95 backdrop-blur-sm z-20 py-4 -mx-4 px-4 sm:-mx-6 sm:px-6 lg:mx-0 lg:px-0 lg:py-0 lg:bg-transparent lg:backdrop-blur-none h-fit">
+              <TypographyH2 className="text-xl md:text-2xl font-bold tracking-tight flex items-center gap-2 justify-start">
+                <BookOpen size={24} className="text-primary" />
+                Tin tức & Giải pháp mới
+              </TypographyH2>
+              <TypographyLead className="text-sm md:text-base text-muted-foreground leading-relaxed">
+                Kiến thức chuyên sâu, cẩm nang sử dụng và cập nhật xu hướng từ đội ngũ chuyên gia ELC.
+              </TypographyLead>
+            </div>
+
+            <div className="lg:col-span-8 flex flex-col w-full">
+              {news.map((item) => (
+                <Link
+                  key={item.id}
+                  href={`/tin-tuc/${item.slug}`}
+                  className="group flex flex-row justify-between items-center gap-4 sm:gap-6 md:gap-8 py-6 border-b border-border/60 last:border-b-0 no-underline transition-all duration-300 w-full"
+                >
+                  <div className="flex-1 min-w-0 flex flex-col gap-1.5">
+                    {item.formattedDate && (
+                      <span className="text-xs text-muted-foreground font-sans">
+                        {item.formattedDate}
+                      </span>
+                    )}
+                    <h3 className="text-base sm:text-lg md:text-xl font-bold tracking-tight text-foreground group-hover:text-primary transition-colors line-clamp-2 leading-snug font-heading">
+                      {item.title}
+                    </h3>
+                    {item.excerpt && (
+                      <p className="text-xs sm:text-sm text-muted-foreground line-clamp-2 leading-relaxed">
+                        {item.excerpt}
+                      </p>
+                    )}
+                  </div>
+                  {item.image && (
+                    <div className="shrink-0 relative w-24 h-16 sm:w-36 sm:h-24 rounded-lg overflow-hidden bg-muted/20">
+                      <Image
+                        src={item.image}
+                        alt={item.title}
+                        fill
+                        className="object-cover transition-transform duration-300 group-hover:scale-105"
+                        sizes="(max-width: 640px) 96px, 144px"
+                      />
+                    </div>
+                  )}
+                </Link>
+              ))}
+            </div>
+          </div>
+        </GridSection>
+      )}
+
+      {/* SECTION 10: Support Pages */}
+      {pages.length > 0 && (
+        <GridSection
+          id="not-found-pages"
+          isFirst={false}
+          showDiamond={true}
+          contentClassName="py-12 md:py-16"
+        >
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 md:gap-12 w-full max-w-7xl mx-auto">
+            <div className="lg:col-span-4 space-y-2 text-left sticky top-16 lg:top-24 bg-background/95 backdrop-blur-sm z-20 py-4 -mx-4 px-4 sm:-mx-6 sm:px-6 lg:mx-0 lg:px-0 lg:py-0 lg:bg-transparent lg:backdrop-blur-none h-fit">
+              <TypographyH2 className="text-xl md:text-2xl font-bold tracking-tight flex items-center gap-2 justify-start">
+                <Info size={24} className="text-primary" />
+                Chính sách & Hướng dẫn hỗ trợ
+              </TypographyH2>
+              <TypographyLead className="text-sm md:text-base text-muted-foreground leading-relaxed">
+                Quy định bảo hành, điều khoản mua bán, hướng dẫn lắp đặt và hỗ trợ dịch vụ khách hàng.
+              </TypographyLead>
+            </div>
+
+            <div className="lg:col-span-8 flex flex-col w-full">
+              {pages.map((page) => (
+                <Link
+                  key={page.id}
+                  href={`/${page.slug}`}
+                  className="group flex flex-row justify-between items-center gap-4 py-6 border-b border-border/60 last:border-b-0 no-underline transition-all duration-300 w-full"
+                >
+                  <div className="flex-1 min-w-0 flex flex-col gap-1.5">
+                    <h3 className="text-base sm:text-lg font-bold tracking-tight text-foreground group-hover:text-primary transition-colors line-clamp-1 leading-snug">
+                      {page.title}
+                    </h3>
+                  </div>
+                  <ArrowRight size={14} className="opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all text-primary shrink-0 ml-2" />
+                </Link>
+              ))}
+            </div>
+          </div>
+        </GridSection>
+      )}
+
+      {/* SECTION 11: Branches */}
+      {branches.length > 0 && (
+        <GridSection
+          id="not-found-branches"
+          isFirst={false}
+          showDiamond={true}
+          contentClassName="py-12 md:py-16"
+        >
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 md:gap-12 w-full max-w-7xl mx-auto">
+            <div className="lg:col-span-4 space-y-2 text-left sticky top-16 lg:top-24 bg-background/95 backdrop-blur-sm z-20 py-4 -mx-4 px-4 sm:-mx-6 sm:px-6 lg:mx-0 lg:px-0 lg:py-0 lg:bg-transparent lg:backdrop-blur-none h-fit">
+              <TypographyH2 className="text-xl md:text-2xl font-bold tracking-tight flex items-center gap-2 justify-start">
+                <MapPin size={24} className="text-primary" />
+                Hệ thống chi nhánh dịch vụ
+              </TypographyH2>
+              <TypographyLead className="text-sm md:text-base text-muted-foreground leading-relaxed">
+                Mạng lưới chi nhánh showroom và các điểm phục vụ lắp đặt bảo dưỡng nhanh chóng của chúng tôi.
+              </TypographyLead>
+            </div>
+
+            <div className="lg:col-span-8 flex flex-col w-full">
+              {branches.map((branch) => (
+                <Link
+                  key={branch.id}
+                  href={`/thong-tin/${branch.slug}`}
+                  className="group flex flex-row justify-between items-center gap-4 py-6 border-b border-border/60 last:border-b-0 no-underline transition-all duration-300 w-full"
+                >
+                  <div className="flex-1 min-w-0 flex flex-col gap-1">
+                    <h3 className="text-base sm:text-lg font-bold tracking-tight text-foreground group-hover:text-primary transition-colors line-clamp-2 leading-snug">
+                      {branch.name}
+                    </h3>
+                    {branch.address && (
+                      <p className="text-xs sm:text-sm text-muted-foreground line-clamp-2">
                         {branch.address}
-                      </span>
-                    </Link>
-                  ))}
-                </div>
-              )}
+                      </p>
+                    )}
+                  </div>
+                  <ArrowRight size={14} className="opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all text-primary shrink-0 ml-2" />
+                </Link>
+              ))}
             </div>
           </div>
-        </div>
-      </GridSection>
+        </GridSection>
+      )}
 
-      {/* SECTION 3: Categories & Brands Exploration */}
-      <GridSection
-        id="not-found-categories"
-        isFirst={false}
-        showDiamond={true}
-        contentClassName="py-12 md:py-16 lg:py-20"
-      >
-        <div className="flex flex-col gap-10 w-full animate-fade-in-up">
-          <div className="space-y-2 text-center md:text-left">
-            <TypographyH2 className="text-xl md:text-2xl font-bold tracking-tight">
-              Danh mục & Thương hiệu
-            </TypographyH2>
-            <TypographyLead className="text-sm md:text-base text-muted-foreground">
-              Truy cập nhanh các danh mục sản phẩm, phân loại dự án, nhóm dịch vụ và đối tác thương hiệu của chúng tôi.
-            </TypographyLead>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 w-full">
-            {/* Product Categories (Danh mục sản phẩm) */}
-            <div className="flex flex-col gap-4 p-6 rounded-lg border border-border/40 bg-card/30 backdrop-blur-sm hover:border-primary/30 transition-all duration-300">
-              <h3 className="flex items-center gap-2 font-bold text-lg text-foreground border-b border-border/60 pb-3 mb-2 font-heading">
-                <SquaresFour size={20} className="text-primary shrink-0" />
-                Danh mục sản phẩm
-              </h3>
-              {categories.length === 0 ? (
-                <p className="text-sm text-muted-foreground italic">Đang cập nhật danh mục...</p>
-              ) : (
-                <div className="flex flex-col gap-2">
-                  {categories.map((category) => (
-                    <Link
-                      key={category.id}
-                      href={`/san-pham/${category.slug}`}
-                      className="group/item flex items-center justify-between text-sm py-2 border-b border-dashed border-border/45 last:border-0"
-                    >
-                      <span className="font-medium text-foreground group-hover/item:text-primary transition-colors line-clamp-1">
-                        {category.name}
-                      </span>
-                      <ArrowRight size={14} className="opacity-0 group-hover/item:opacity-100 transition-opacity text-primary shrink-0 ml-2" />
-                    </Link>
-                  ))}
-                </div>
-              )}
-            </div>
-
-            {/* Project Categories (Danh mục dự án) */}
-            <div className="flex flex-col gap-4 p-6 rounded-lg border border-border/40 bg-card/30 backdrop-blur-sm hover:border-primary/30 transition-all duration-300">
-              <h3 className="flex items-center gap-2 font-bold text-lg text-foreground border-b border-border/60 pb-3 mb-2 font-heading">
-                <Folder size={20} className="text-primary shrink-0" />
-                Danh mục dự án
-              </h3>
-              {projectTypes.length === 0 ? (
-                <p className="text-sm text-muted-foreground italic">Đang cập nhật phân loại...</p>
-              ) : (
-                <div className="flex flex-col gap-2">
-                  {projectTypes.map((type) => (
-                    <Link
-                      key={type.id}
-                      href={`/du-an/${type.slug}`}
-                      className="group/item flex items-center justify-between text-sm py-2 border-b border-dashed border-border/45 last:border-0"
-                    >
-                      <span className="font-medium text-foreground group-hover/item:text-primary transition-colors line-clamp-1">
-                        {type.name}
-                      </span>
-                      <ArrowRight size={14} className="opacity-0 group-hover/item:opacity-100 transition-opacity text-primary shrink-0 ml-2" />
-                    </Link>
-                  ))}
-                </div>
-              )}
-            </div>
-
-            {/* Service Groups (Nhóm dịch vụ) */}
-            <div className="flex flex-col gap-4 p-6 rounded-lg border border-border/40 bg-card/30 backdrop-blur-sm hover:border-primary/30 transition-all duration-300">
-              <h3 className="flex items-center gap-2 font-bold text-lg text-foreground border-b border-border/60 pb-3 mb-2 font-heading">
-                <List size={20} className="text-primary shrink-0" />
-                Nhóm dịch vụ
-              </h3>
-              {serviceGroups.length === 0 ? (
-                <p className="text-sm text-muted-foreground italic">Đang cập nhật nhóm dịch vụ...</p>
-              ) : (
-                <div className="flex flex-col gap-2">
-                  {serviceGroups.map((group) => (
-                    <Link
-                      key={group.id}
-                      href="/dich-vu"
-                      className="group/item flex items-center justify-between text-sm py-2 border-b border-dashed border-border/45 last:border-0"
-                    >
-                      <span className="font-medium text-foreground group-hover/item:text-primary transition-colors line-clamp-1">
-                        {group.name}
-                      </span>
-                      <ArrowRight size={14} className="opacity-0 group-hover/item:opacity-100 transition-opacity text-primary shrink-0 ml-2" />
-                    </Link>
-                  ))}
-                </div>
-              )}
-            </div>
-
-            {/* Brands (Thương hiệu) */}
-            <div className="flex flex-col gap-4 p-6 rounded-lg border border-border/40 bg-card/30 backdrop-blur-sm hover:border-primary/30 transition-all duration-300">
-              <h3 className="flex items-center gap-2 font-bold text-lg text-foreground border-b border-border/60 pb-3 mb-2 font-heading">
-                <Trademark size={20} className="text-primary shrink-0" />
-                Thương hiệu nổi bật
-              </h3>
-              {brands.length === 0 ? (
-                <p className="text-sm text-muted-foreground italic">Đang cập nhật thương hiệu...</p>
-              ) : (
-                <div className="flex flex-col gap-2">
-                  {brands.map((brand) => (
-                    <Link
-                      key={brand.id}
-                      href={`/san-pham/${brand.slug}`}
-                      className="group/item flex items-center justify-between text-sm py-2 border-b border-dashed border-border/45 last:border-0"
-                    >
-                      <span className="font-medium text-foreground group-hover/item:text-primary transition-colors line-clamp-1">
-                        {brand.name}
-                      </span>
-                      <ArrowRight size={14} className="opacity-0 group-hover/item:opacity-100 transition-opacity text-primary shrink-0 ml-2" />
-                    </Link>
-                  ))}
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-      </GridSection>
-
-      {/* SECTION 4: Footer copyright */}
+      {/* SECTION 12: Footer copyright */}
       <GridSection
         id="not-found-footer"
         isFirst={false}
