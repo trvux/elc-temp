@@ -16,6 +16,8 @@ import { GridSection } from "@/shared/components/sections/grid-section";
 import { setUseStaticClient } from "@/shared/lib/supabase/server";
 import { cacheLife, cacheTag } from "next/cache";
 import Link from "next/link";
+
+export const revalidate = 3600; // Cache 404 page for 1 hour
 import Image from "next/image";
 import { 
   ArrowRight,
