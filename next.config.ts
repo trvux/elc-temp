@@ -1,6 +1,7 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  staticPageGenerationTimeout: 300,
   cacheComponents: true,
   output: "standalone",
   allowedDevOrigins: ["192.168.1.238"],
@@ -23,6 +24,7 @@ const nextConfig: NextConfig = {
     ],
   },
   experimental: {
+    staticGenerationMaxConcurrency: 2,
     staleTimes: {
       dynamic: 0,
       static: 30,
