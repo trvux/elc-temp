@@ -44,7 +44,7 @@ export function ProjectCard({
   const projectUrl = `/du-an/${project.slug}`;
 
   return (
-    <Link href={projectUrl} className="w-full block group h-full">
+    <Link href={projectUrl} className="w-full block group h-full" prefetch={false}>
       <Card className="relative mx-auto w-full h-full max-w-sm pt-0 overflow-hidden">
         <div className="relative z-20 aspect-video w-full">
           <ImageWithSkeleton

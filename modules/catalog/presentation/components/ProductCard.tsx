@@ -34,7 +34,7 @@ export function ProductCard({
   const displaySku = product.sku ? product.sku.split("/")[0].trim() : "";
 
   return (
-    <Link href={productUrl} className="w-full block group h-full">
+    <Link href={productUrl} className="w-full block group h-full" prefetch={false}>
       <Card className="relative mx-auto w-full h-full max-w-sm pt-0 transition-all duration-300 hover:shadow-md cursor-pointer gap-2 md:gap-3 overflow-hidden">
         <div className="absolute inset-0 z-30 aspect-video bg-white" />
         {product.images?.[0] ? (

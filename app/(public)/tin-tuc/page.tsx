@@ -175,6 +175,7 @@ export default async function NewsHub() {
                   key={news.id}
                   href={`/tin-tuc/${news.slug}`}
                   className={STYLES.article}
+                  prefetch={false}
                 >
                   <div className={STYLES.textWrapper}>
                     {formattedDate && (

@@ -101,6 +101,7 @@ export default async function InformationHub({
                 key={page.id}
                 href={`/${page.slug}`}
                 className={STYLES.article}
+                prefetch={false}
               >
                 <div className={STYLES.articleHeader}>
                   <TypographyH4>{page.title}</TypographyH4>
