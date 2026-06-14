@@ -243,8 +243,8 @@ export function ProjectFilters({
   }
 
   const activeAccordionValues = [
-    "Dịch vụ",
-    "Loại sản phẩm",
+    ...(localServiceSlugs.length > 0 ? ["Dịch vụ"] : []),
+    ...(localCategorySlugs.length > 0 ? ["Loại sản phẩm"] : []),
     ...(localProjectTypeSlug ? ["Loại công trình"] : []),
     ...(localCondition ? ["Tình trạng sản phẩm"] : []),
   ];
@@ -329,7 +329,7 @@ export function ProjectFilters({
         )}
 
         {/* Services (Dịch vụ) - Multi selection */}
-        {localProjectTypeSlug && services.length > 0 && (
+        {services.length > 0 && (
           <AccordionItem value="Dịch vụ">
             <AccordionTrigger className="hover:no-underline">
               <div className="flex items-center gap-2">
@@ -381,7 +381,7 @@ export function ProjectFilters({
         )}
 
         {/* Categories (Loại sản phẩm) - Multi selection */}
-        {localProjectTypeSlug && categories.length > 0 && (
+        {categories.length > 0 && (
           <AccordionItem value="Loại sản phẩm">
             <AccordionTrigger className="hover:no-underline">
               <div className="flex items-center gap-2">
