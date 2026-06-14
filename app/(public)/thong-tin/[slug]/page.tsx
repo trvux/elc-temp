@@ -1,4 +1,4 @@
-import { getBranchBySlug, getBranches } from "@/modules/branch";
+import { getBranchBySlug } from "@/modules/branch";
 import { PreviewContent } from "@/shared/components/layout/user/preview-content";
 import { ScrollToTop } from "@/shared/components/layout/user/scroll-to-top";
 import {
@@ -53,10 +53,7 @@ interface Props {
   params: Promise<{ slug: string }>;
 }
 
-export async function generateStaticParams() {
-  const branches = await getBranches({ isPublished: true });
-  return (branches ?? []).map((b) => ({ slug: b.slug }));
-}
+
 
 async function getBranchData(slug: string) {
   "use cache";

@@ -1,4 +1,4 @@
-import { getServiceBySlug, getServices } from "@/modules/service/application";
+import { getServiceBySlug } from "@/modules/service/application";
 import { PreviewContent } from "@/shared/components/layout/user/preview-content";
 import { ScrollToTop } from "@/shared/components/layout/user/scroll-to-top";
 import { Button } from "@/shared/components/ui/button";
@@ -52,14 +52,7 @@ const STYLES = {
     "mt-10 border-t border-border pt-8 flex flex-col md:flex-row justify-between items-center gap-10 text-muted-foreground",
 };
 
-export async function generateStaticParams() {
-  const services = await getServices({ isPublished: true });
-  const params = (services ?? []).map((s) => ({ slug: s.slug }));
-  if (params.length === 0) {
-    return [{ slug: "preview-stub" }];
-  }
-  return params;
-}
+
 
 async function getCachedCurrentYear() {
   "use cache";
