@@ -9,7 +9,7 @@ export const navLinks: NavLink[] = [
   { name: "Sản phẩm", href: "/san-pham" },
   { name: "Dịch vụ", href: "/dich-vu" },
   { name: "Tin tức", href: "/tin-tuc" },
-  { name: "Thông tin", href: "/thong-tin" },
+  { name: "Giới thiệu", href: "/thong-tin" },
 ];
 
 export function checkActiveLink(href: string, pathname: string) {
