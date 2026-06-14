@@ -158,7 +158,7 @@ export function Footer({
                 height={36}
                 loading="lazy"
                 style={{ width: "auto" }}
-                className="h-8 md:h-9 w-auto dark:brightness-0 dark:invert"
+                className="h-8 md:h-9 w-auto"
               />
             </Link>
             {settings?.company_short_desc && (
