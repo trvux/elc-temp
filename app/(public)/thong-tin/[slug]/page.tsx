@@ -167,50 +167,42 @@ export default async function BranchDetail({ params }: Props) {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(branchSchema) }}
       />
-      {/* ===== KHỐI 1: TIÊU ĐỀ CHI TIẾT ===== */}
-      <GridSection
-        id="branch-detail-header"
-        isFirst={true}
-        showDiamond={true}
-        contentClassName="py-8 md:py-12"
-      >
-        <div className="max-w-3xl mx-auto w-full">
-          <Link
-            href="/thong-tin"
-            className="group inline-flex items-center gap-2 text-xs text-muted-foreground hover:text-foreground transition-colors mb-4"
-          >
-            <ArrowLeft className="w-3 h-3 transition-transform group-hover:-translate-x-0.5" />
-            <span>Quay lại danh mục</span>
-          </Link>
-          <TypographyH1 className="w-full max-w-none! text-wrap! text-3xl md:text-4xl lg:text-5xl font-extrabold tracking-tight font-heading leading-tight">
-            {branch.name}
-          </TypographyH1>
-          {branch.imageUrl && (
-            <div className="w-full mt-6 overflow-hidden rounded-sm border border-border/40">
-              <AspectRatio ratio={16 / 9}>
-                <ImageWithSkeleton
-                  wrapperClassName="w-full h-full"
-                  src={branch.imageUrl}
-                  alt={branch.name}
-                  fill
-                  className="object-cover"
-                  priority
-                  sizes="(max-width: 768px) 100vw, 768px"
-                />
-              </AspectRatio>
-            </div>
-          )}
-        </div>
-      </GridSection>
-
-      {/* ===== KHỐI 2: NỘI DUNG CHI TIẾT ===== */}
+      {/* ===== KHỐI 1: CHI TIẾT CƠ SỞ ===== */}
       <GridSection
         id="branch-detail-content"
-        isFirst={false}
+        isFirst={true}
         showDiamond={true}
         contentClassName="py-10 md:py-16"
       >
-        <div className="max-w-3xl mx-auto w-full flex flex-col gap-6">
+        <div className="max-w-3xl mx-auto w-full flex flex-col gap-6 animate-fade-in-up">
+          <div>
+            <Link
+              href="/thong-tin"
+              className="group inline-flex items-center gap-2 text-xs text-muted-foreground hover:text-foreground transition-colors mb-4"
+            >
+              <ArrowLeft className="w-3 h-3 transition-transform group-hover:-translate-x-0.5" />
+              <span>Quay lại danh mục</span>
+            </Link>
+            <TypographyH1 className="w-full max-w-none! text-wrap! text-3xl md:text-4xl lg:text-5xl font-extrabold tracking-tight font-heading leading-tight">
+              {branch.name}
+            </TypographyH1>
+            {branch.imageUrl && (
+              <div className="w-full mt-6 overflow-hidden rounded-sm border border-border/40">
+                <AspectRatio ratio={16 / 9}>
+                  <ImageWithSkeleton
+                    wrapperClassName="w-full h-full"
+                    src={branch.imageUrl}
+                    alt={branch.name}
+                    fill
+                    className="object-cover"
+                    priority
+                    sizes="(max-width: 768px) 100vw, 768px"
+                  />
+                </AspectRatio>
+              </div>
+            )}
+          </div>
+
           {items.length > 0 && (
             <section className={STYLES.section}>
               <Accordion
