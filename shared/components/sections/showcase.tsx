@@ -24,20 +24,17 @@ interface ShowcaseSectionProps {
 }
 
 export function ShowcaseSection({ projects }: ShowcaseSectionProps) {
-  const featuredProjects = useMemo(
-    () => projects?.filter((p) => p.isFeatured) || [],
-    [projects],
-  );
+  const allProjects = useMemo(() => projects || [], [projects]);
 
   const projectTypes = useMemo(() => {
     const map = new Map<string, { id: string; name: string; slug?: string }>();
-    featuredProjects.forEach((p) => {
+    allProjects.forEach((p) => {
       if (p.projectType) {
         map.set(p.projectType.id, p.projectType);
       }
     });
     return Array.from(map.values());
-  }, [featuredProjects]);
+  }, [allProjects]);
 
   const [activeTab, setActiveTab] = useState<string>(() => {
     const firstType = projectTypes[0];
@@ -53,12 +50,75 @@ export function ShowcaseSection({ projects }: ShowcaseSectionProps) {
   }, [activeTab, projectTypes]);
 
   const filteredProjects = useMemo(() => {
-    return featuredProjects
-      .filter((p) => p.projectType?.id === currentActiveTab)
-      .slice(0, 6);
-  }, [featuredProjects, currentActiveTab]);
+    return allProjects.filter((p) => p.projectType?.id === currentActiveTab);
+  }, [allProjects, currentActiveTab]);
 
-  if (featuredProjects.length === 0) return null;
+  const TARGET_LENGTH = 12;
+
+  const baseRow = useMemo(() => {
+    if (filteredProjects.length === 0) return [];
+    const result: Project[] = [];
+    while (result.length < TARGET_LENGTH) {
+      result.push(...filteredProjects);
+    }
+    // If very few items, repeat more to guarantee seamless scrolling without white gaps
+    if (filteredProjects.length < 4) {
+      while (result.length < 24) {
+        result.push(...filteredProjects);
+      }
+    }
+    return result;
+  }, [filteredProjects]);
+
+  if (allProjects.length === 0) return null;
+
+  const renderMarquee = (items: Project[]) => {
+    if (items.length === 0) return null;
+
+    const trackClass =
+      "flex shrink-0 justify-around gap-6 animate-marquee-horizontal group-hover:[animation-play-state:paused]";
+
+    // Compute duration based on number of items to keep consistent speed
+    const durationSeconds = Math.max(items.length * 10, 30);
+
+    const trackStyle: React.CSSProperties = {
+      animationDuration: `${durationSeconds}s`,
+    };
+
+    return (
+      <div
+        className="group flex gap-6 overflow-hidden p-3 w-full"
+        style={{
+          maskImage:
+            "linear-gradient(to right, transparent, black 4%, black 96%, transparent)",
+          WebkitMaskImage:
+            "linear-gradient(to right, transparent, black 4%, black 96%, transparent)",
+        }}
+      >
+        <div className={trackClass} style={trackStyle}>
+          {items.map((project, idx) => (
+            <div key={`${project.id}-${idx}`} className="w-80 shrink-0 flex">
+              <ProjectCard project={project} />
+            </div>
+          ))}
+        </div>
+        <div className={trackClass} style={trackStyle}>
+          {items.map((project, idx) => (
+            <div key={`${project.id}-${idx}-dup1`} className="w-80 shrink-0 flex">
+              <ProjectCard project={project} />
+            </div>
+          ))}
+        </div>
+        <div className={trackClass} style={trackStyle}>
+          {items.map((project, idx) => (
+            <div key={`${project.id}-${idx}-dup2`} className="w-80 shrink-0 flex">
+              <ProjectCard project={project} />
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  };
 
   return (
     <div className="w-full flex flex-col items-center justify-center gap-6">
@@ -117,25 +177,16 @@ export function ShowcaseSection({ projects }: ShowcaseSectionProps) {
         )}
       </StaggerContainer>
 
-      <div className="w-full min-h-[300px]" key={activeTab}>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 w-full justify-items-center">
-          {filteredProjects.map((p, index) => (
-            <AnimateIn
-              key={p.id}
-              className="w-full flex justify-center"
-              delay={(index % 3) * 0.1}
-            >
-              <ProjectCard project={p} />
-            </AnimateIn>
-          ))}
-          {filteredProjects.length === 0 && (
-            <AnimateIn className="w-full py-16 text-center border border-dashed border-border/10 rounded-xl bg-background/25">
-              <TypographyMuted>
-                Chưa có dự án nào trong không gian này
-              </TypographyMuted>
-            </AnimateIn>
-          )}
-        </div>
+      <div className="w-full min-h-[300px] flex items-center" key={activeTab}>
+        {filteredProjects.length > 0 ? (
+          renderMarquee(baseRow)
+        ) : (
+          <AnimateIn className="w-full py-16 text-center border border-dashed border-border/10 rounded-xl bg-background/25">
+            <TypographyMuted>
+              Chưa có dự án nào trong không gian này
+            </TypographyMuted>
+          </AnimateIn>
+        )}
       </div>
     </div>
   );

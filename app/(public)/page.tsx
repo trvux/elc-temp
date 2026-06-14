@@ -46,8 +46,7 @@ async function getCachedHomeData() {
       getSiteSettings(),
       getProjects({
         isPublished: true,
-        isFeatured: true,
-        limit: 100,
+        limit: 200,
       }),
       getProducts({
         isPublished: true,
@@ -98,7 +97,7 @@ export default async function Home() {
       showDiamond: true,
       component: (
         <ProjectMarqueeSection
-          projects={projects || []}
+          projects={projects?.filter((p) => p.isFeatured) || []}
           title="Dự án tiêu biểu nổi bật"
           description="Khám phá sự đa dạng của các hệ thống điều hòa không khí do ELC thi công hoàn thiện, bao gồm từ hệ thống điều hòa trung tâm VRV, hệ thống điều hòa Multi, máy lạnh âm trần Cassette, máy lạnh tủ đứng, máy lạnh treo tường, cho đến hệ thống cấp khí tươi thu hồi nhiệt và lọc không khí chuyên nghiệp."
         />

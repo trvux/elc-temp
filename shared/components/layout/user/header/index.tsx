@@ -51,7 +51,7 @@ export function Header({ contacts = [] }: HeaderProps) {
                 width={36}
                 height={36}
                 style={{ width: "auto" }}
-                className="h-8 md:h-9 w-auto dark:brightness-0 dark:invert"
+                className="h-8 md:h-9 w-auto"
                 priority
               />
               {/* <span className="text-xl font-bold text-primary/80">elc</span> */}
