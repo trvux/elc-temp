@@ -1,4 +1,4 @@
-import { getPageBySlug, getPages } from "@/modules/page/application";
+import { getPageBySlug } from "@/modules/page/application";
 import { PreviewContent } from "@/shared/components/layout/user/preview-content";
 import { ScrollToTop } from "@/shared/components/layout/user/scroll-to-top";
 import { Button } from "@/shared/components/ui/button";
@@ -22,14 +22,7 @@ interface PageProps {
   }>;
 }
 
-export async function generateStaticParams() {
-  const pages = await getPages({ isPublished: true });
-  const params = (pages ?? []).map((p) => ({ slug: p.slug }));
-  if (params.length === 0) {
-    return [{ slug: "preview-stub" }];
-  }
-  return params;
-}
+
 
 async function getCachedPageData(slug: string) {
   "use cache";

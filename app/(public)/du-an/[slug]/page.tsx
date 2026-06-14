@@ -1,6 +1,4 @@
-import { getProjectTypes } from "@/modules/project-type/application";
 import { getAdjacentProjects } from "@/modules/project/application/getAdjacentProjects";
-import { getProjects } from "@/modules/project/application/getProjects";
 import { resolveProjectPath } from "@/modules/project/application/resolveProjectPath";
 import { ProjectWithCategory } from "@/modules/project/domain/types";
 import { ProjectListModule } from "@/modules/project/presentation/components/public/ProjectListModule";
@@ -92,28 +90,7 @@ export async function generateMetadata({
 }
 
 // Generate static parameters for high performance static pre-rendering
-export async function generateStaticParams() {
-  const projectTypes = await getProjectTypes();
-  const projects = await getProjects({ isPublished: true });
 
-  const projectTypeParams = projectTypes
-    .filter((st) => st.slug && !st.deletedAt)
-    .map((st) => ({
-      slug: st.slug,
-    }));
-
-  const projectParams = projects
-    .filter((p) => p.slug && !p.deletedAt)
-    .map((p) => ({
-      slug: p.slug,
-    }));
-
-  const params = [...projectTypeParams, ...projectParams];
-  if (params.length === 0) {
-    return [{ slug: "preview-stub" }];
-  }
-  return params;
-}
 
 interface ProjectDetailPageProps {
   params: Promise<{ slug: string }>;
