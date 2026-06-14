@@ -1,4 +1,5 @@
 import { createClient } from "@/shared/lib/supabase/server";
+import { createStaticClient } from "@/shared/lib/supabase/static";
 import { Insert, Tables, Update } from "@/shared/types/supabase";
 import {
   CreatePageInput,
@@ -22,7 +23,7 @@ export class SupabasePageRepository implements PageRepository {
   private readonly TABLE_NAME = "pages";
 
   async getAll(options?: PageFilter): Promise<Page[]> {
-    const supabase = await createClient();
+    const supabase = createStaticClient();
     let query = supabase.from(this.TABLE_NAME).select("*");
 
     query = this.applyFilters(query as unknown as PostgrestQueryLike, options) as unknown as typeof query;
@@ -35,7 +36,7 @@ export class SupabasePageRepository implements PageRepository {
   }
 
   async count(options?: PageFilter): Promise<number> {
-    const supabase = await createClient();
+    const supabase = createStaticClient();
     let query = supabase
       .from(this.TABLE_NAME)
       .select("*", { count: "exact", head: true });
@@ -49,7 +50,7 @@ export class SupabasePageRepository implements PageRepository {
   }
 
   async getById(id: string): Promise<Page | null> {
-    const supabase = await createClient();
+    const supabase = createStaticClient();
     const { data, error } = await supabase
       .from(this.TABLE_NAME)
       .select("*")
@@ -63,7 +64,7 @@ export class SupabasePageRepository implements PageRepository {
   }
 
   async getBySlug(slug: string): Promise<Page | null> {
-    const supabase = await createClient();
+    const supabase = createStaticClient();
     const { data, error } = await supabase
       .from(this.TABLE_NAME)
       .select("*")

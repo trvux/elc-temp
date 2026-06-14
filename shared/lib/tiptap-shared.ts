@@ -115,7 +115,7 @@ export const getTiptapExtensions = () => [
   Link.configure({
     openOnClick: false,
     HTMLAttributes: {
-      class: "text-primary underline underline-offset-4 cursor-pointer",
+      class: "font-medium text-primary underline underline-offset-4 cursor-pointer",
     },
   }),
   Image.extend({
@@ -164,19 +164,13 @@ export const getTiptapExtensions = () => [
       return [{ tag: 'div[class*="section-divider"]' }, { tag: "hr" }];
     },
     renderHTML() {
-      return [
-        "div",
-        {
-          class: "section-divider py-8 text-center text-xl tracking-widest opacity-40",
-        },
-        "...",
-      ];
+      return ["hr", { class: "my-6 border-t border-border" }];
     },
   }),
   Table.configure({
     resizable: typeof window !== "undefined",
     HTMLAttributes: {
-      class: "border-collapse table-fixed w-full my-8",
+      class: "w-full border-collapse",
     },
   }),
   TableRow,

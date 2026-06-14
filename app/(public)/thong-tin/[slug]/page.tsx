@@ -26,6 +26,7 @@ import Link from "next/link";
 import { Metadata } from "next";
 import { getPublicLayoutData } from "@/modules/settings";
 import { generateBranchDetailSchema } from "@/shared/lib/seo-utils";
+import { GridSection } from "@/shared/components/sections/grid-section";
 
 // Helper to control Google Maps zoom level
 const getZoomedUrl = (url: string, zoomLevel = "15") => {
@@ -34,10 +35,6 @@ const getZoomedUrl = (url: string, zoomLevel = "15") => {
 
 // Design System / Style Constants
 const STYLES = {
-  main: cn("min-h-screen w-full px-4 py-12 md:px-8"),
-  container: cn(
-    "mx-auto flex max-w-3xl flex-col items-center justify-center gap-6 animate-fade-in-up",
-  ),
   title: cn("w-full max-w-none! text-wrap!"),
   section: cn("w-full"),
   accordion: cn("w-full"),
@@ -48,12 +45,8 @@ const STYLES = {
   mapIframe: cn(
     "w-full h-full rounded-lg transition-all duration-2000 ease-in-out ",
   ),
-  footerNav: "mt-10 w-full",
   backLink: "group inline-flex items-center",
   backLabel: "flex items-center gap-2",
-  footer: cn(
-    "mt-10 flex w-full flex-col items-center justify-between gap-10 border-t border-border pt-8 text-muted-foreground md:flex-row",
-  ),
 };
 
 interface Props {
@@ -172,16 +165,31 @@ export default async function BranchDetail({ params }: Props) {
   ].filter((item) => item.isVisible);
 
   return (
-    <main className={STYLES.main}>
+    <main className="w-full bg-background min-h-screen flex flex-col">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(branchSchema) }}
       />
-      <div className={STYLES.container}>
-        <header className="w-full flex flex-col gap-6">
-          <TypographyH1 className={STYLES.title}>{branch.name}</TypographyH1>
+      {/* ===== KHỐI 1: TIÊU ĐỀ CHI TIẾT ===== */}
+      <GridSection
+        id="branch-detail-header"
+        isFirst={true}
+        showDiamond={true}
+        contentClassName="py-8 md:py-12"
+      >
+        <div className="max-w-3xl mx-auto w-full">
+          <Link
+            href="/thong-tin"
+            className="group inline-flex items-center gap-2 text-xs text-muted-foreground hover:text-foreground transition-colors mb-4"
+          >
+            <ArrowLeft className="w-3 h-3 transition-transform group-hover:-translate-x-0.5" />
+            <span>Quay lại danh mục</span>
+          </Link>
+          <TypographyH1 className="w-full max-w-none! text-wrap! text-3xl md:text-4xl lg:text-5xl font-extrabold tracking-tight font-heading leading-tight">
+            {branch.name}
+          </TypographyH1>
           {branch.imageUrl && (
-            <div className="w-full mt-2 overflow-hidden rounded-sm border border-border/40">
+            <div className="w-full mt-6 overflow-hidden rounded-sm border border-border/40">
               <AspectRatio ratio={16 / 9}>
                 <ImageWithSkeleton
                   wrapperClassName="w-full h-full"
@@ -195,67 +203,84 @@ export default async function BranchDetail({ params }: Props) {
               </AspectRatio>
             </div>
           )}
-        </header>
-        
-        {items.length > 0 && (
-          <section className={STYLES.section}>
-            <Accordion
-              type="single"
-              collapsible
-              className={STYLES.accordion}
-              defaultValue="address"
-            >
-              {items.map((item) => (
-                <AccordionItem
-                  key={item.value}
-                  value={item.value}
-                  className={STYLES.accordionItem}
-                >
-                  <AccordionTrigger>
-                    <TypographyH4>{item.trigger}</TypographyH4>
-                  </AccordionTrigger>
-                  <AccordionContent>
-                    <div className={STYLES.accordionContent}>{item.content}</div>
-                  </AccordionContent>
-                </AccordionItem>
-              ))}
-            </Accordion>
-          </section>
-        )}
+        </div>
+      </GridSection>
 
-        <article className="w-full">
-          <PreviewContent
-            content={branch.description}
-            hideFirstHeading={true}
-          />
-        </article>
+      {/* ===== KHỐI 2: NỘI DUNG CHI TIẾT ===== */}
+      <GridSection
+        id="branch-detail-content"
+        isFirst={false}
+        showDiamond={true}
+        contentClassName="py-10 md:py-16"
+      >
+        <div className="max-w-3xl mx-auto w-full flex flex-col gap-6">
+          {items.length > 0 && (
+            <section className={STYLES.section}>
+              <Accordion
+                type="single"
+                collapsible
+                className={STYLES.accordion}
+                defaultValue="address"
+              >
+                {items.map((item) => (
+                  <AccordionItem
+                    key={item.value}
+                    value={item.value}
+                    className={STYLES.accordionItem}
+                  >
+                    <AccordionTrigger>
+                      <TypographyH4>{item.trigger}</TypographyH4>
+                    </AccordionTrigger>
+                    <AccordionContent>
+                      <div className={STYLES.accordionContent}>{item.content}</div>
+                    </AccordionContent>
+                  </AccordionItem>
+                ))}
+              </Accordion>
+            </section>
+          )}
 
-        <nav className={STYLES.footerNav}>
-          <Button asChild>
-            <Link href="/thong-tin" className={STYLES.backLink}>
-              <div className={STYLES.backLabel}>
-                <ArrowLeft className="w-3 h-3 transition-transform group-hover:-translate-x-1" />
-                <span>Quay lại danh mục</span>
-              </div>
-            </Link>
-          </Button>
-        </nav>
+          <article className="w-full">
+            <PreviewContent
+              content={branch.description}
+              hideFirstHeading={true}
+            />
+          </article>
+        </div>
+      </GridSection>
 
-        <Breadcrumbs
-          items={[
-            { label: "Thông tin", href: "/thong-tin" },
-            { label: branch.name, active: true },
-          ]}
-          disableJsonLd={true}
-        />
-
-        <footer className={STYLES.footer}>
+      {/* ===== KHỐI 3: FOOTER BẢN QUYỀN ===== */}
+      <GridSection
+        id="branch-detail-footer"
+        isFirst={false}
+        showDiamond={true}
+        contentClassName="py-6 md:py-8 lg:py-10"
+      >
+        <footer className="w-full flex flex-col md:flex-row justify-between items-center gap-6 text-muted-foreground">
           <TypographySmall>&copy; {currentYear} Điện máy ELC.</TypographySmall>
           <ScrollToTop className="flex items-center gap-2 cursor-pointer hover:text-foreground transition-colors">
             <TypographySmall>Quay lại đầu trang</TypographySmall>
           </ScrollToTop>
         </footer>
-      </div>
+      </GridSection>
+
+      {/* ===== KHỐI 4: BREADCRUMBS ===== */}
+      <GridSection
+        id="branch-detail-breadcrumbs"
+        isFirst={false}
+        showDiamond={false}
+        contentClassName="py-1"
+      >
+        <div className="w-full">
+          <Breadcrumbs
+            items={[
+              { label: "Thông tin", href: "/thong-tin" },
+              { label: branch.name, active: true },
+            ]}
+            disableJsonLd={true}
+          />
+        </div>
+      </GridSection>
     </main>
   );
 }
