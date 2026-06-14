@@ -76,6 +76,8 @@ export function CardService({
       />
     );
 
+    // Commented out navigation link to details
+    /*
     if (slug) {
       return (
         <Link
@@ -86,10 +88,13 @@ export function CardService({
         </Link>
       );
     }
+    */
     return imgEl;
   };
 
   const renderTitle = () => {
+    // Commented out navigation link to details
+    /*
     if (slug) {
       return (
         <Link
@@ -100,6 +105,7 @@ export function CardService({
         </Link>
       );
     }
+    */
     return title;
   };
 
