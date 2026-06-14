@@ -24,6 +24,8 @@ const nextConfig: NextConfig = {
     ],
   },
   experimental: {
+    cpus: 2,
+    staticGenerationMinPagesPerWorker: 10,
     staticGenerationMaxConcurrency: 2,
     staleTimes: {
       dynamic: 5,
