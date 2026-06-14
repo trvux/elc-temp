@@ -2,6 +2,7 @@ import { getNews } from "@/modules/news/application";
 import { Breadcrumbs } from "@/shared/components/layout/user/breadcrumbs";
 import { ScrollToTop } from "@/shared/components/layout/user/scroll-to-top";
 import { GridSection } from "@/shared/components/sections/grid-section";
+import { ImageWithSkeleton } from "@/shared/components/ui/image-with-skeleton";
 import {
   TypographyH1,
   TypographyLead,
@@ -9,14 +10,12 @@ import {
 } from "@/shared/components/ui/typography";
 import { setUseStaticClient } from "@/shared/lib/supabase/server";
 import { cacheLife, cacheTag } from "next/cache";
-import { ImageWithSkeleton } from "@/shared/components/ui/image-with-skeleton";
 import Link from "next/link";
 
 const STYLES = {
   main: "w-full bg-background min-h-screen",
   header: "flex flex-col items-center text-center gap-4 max-w-2xl mx-auto",
   title: "text-3xl md:text-4xl font-extrabold tracking-tight",
-  description: "text-muted-foreground text-sm md:text-base leading-relaxed",
   list: "flex flex-col w-full min-h-[400px] animate-fade-in-up",
   article:
     "group flex flex-row justify-between items-center gap-4 sm:gap-6 md:gap-8 py-8 border-b border-border/60 last:border-b-0 no-underline transition-all duration-300 w-full",
@@ -140,7 +139,7 @@ export default async function NewsHub() {
       >
         <header className={STYLES.header}>
           <TypographyH1>{"Tin tức"}</TypographyH1>
-          <TypographyLead className={STYLES.description}>
+          <TypographyLead>
             Cập nhật những giải pháp kỹ thuật mới nhất và các tin tức chuyên sâu
             từ đội ngũ kỹ sư ELC
           </TypographyLead>
