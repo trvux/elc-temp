@@ -14,18 +14,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Breadcrumbs } from "@/shared/components/layout/user/breadcrumbs";
 import { Metadata } from "next";
-
-// Design System / Style Constants
-const STYLES = {
-  main: cn("w-full min-h-screen py-10 px-4 md:py-20"),
-  container: cn("max-w-3xl mx-auto flex flex-col gap-6 animate-fade-in-up"),
-  title: cn("w-full max-w-none! text-wrap!"),
-  footerNav: "mt-10",
-  backLink: "group inline-flex items-center",
-  backLabel: "flex items-center gap-2",
-  footer:
-    "mt-10 border-t border-border pt-8 flex flex-col md:flex-row justify-between items-center gap-10 text-muted-foreground",
-};
+import { GridSection } from "@/shared/components/sections/grid-section";
 
 interface PageProps {
   params: Promise<{
@@ -94,10 +83,23 @@ export default async function StaticPage({ params }: PageProps) {
   const currentYear = await getCachedCurrentYear();
 
   return (
-    <main className={STYLES.main}>
-      <div className={STYLES.container}>
-        <header>
-          <TypographySmall className="text-muted-foreground mb-3 block">
+    <main className="w-full bg-background min-h-screen flex flex-col">
+      {/* ===== KHỐI 1: TIÊU ĐỀ CHI TIẾT ===== */}
+      <GridSection
+        id="static-page-header"
+        isFirst={true}
+        showDiamond={true}
+        contentClassName="py-8 md:py-12"
+      >
+        <div className="max-w-3xl mx-auto w-full">
+          <Link
+            href="/thong-tin"
+            className="group inline-flex items-center gap-2 text-xs text-muted-foreground hover:text-foreground transition-colors mb-4"
+          >
+            <ArrowLeft className="w-3 h-3 transition-transform group-hover:-translate-x-0.5" />
+            <span>Quay lại danh mục</span>
+          </Link>
+          <TypographySmall className="text-muted-foreground/60 mb-2 block font-medium font-sans">
             {new Date(
               page.createdAt || "2026-06-10T00:00:00.000Z",
             ).toLocaleDateString("vi-VN", {
@@ -106,38 +108,58 @@ export default async function StaticPage({ params }: PageProps) {
               year: "numeric",
             })}
           </TypographySmall>
-          <TypographyH1 className={STYLES.title}>{page.title}</TypographyH1>
-        </header>
+          <TypographyH1 className="w-full max-w-none! text-wrap! text-3xl md:text-4xl lg:text-5xl font-extrabold tracking-tight font-heading leading-tight">
+            {page.title}
+          </TypographyH1>
+        </div>
+      </GridSection>
 
-        <article>
-          <PreviewContent content={page.content} hideFirstHeading={true} />
-        </article>
+      {/* ===== KHỐI 2: NỘI DUNG TRANG ===== */}
+      <GridSection
+        id="static-page-content"
+        isFirst={false}
+        showDiamond={true}
+        contentClassName="py-10 md:py-16"
+      >
+        <div className="max-w-3xl mx-auto w-full">
+          <article>
+            <PreviewContent content={page.content} hideFirstHeading={true} />
+          </article>
+        </div>
+      </GridSection>
 
-        <nav className={STYLES.footerNav}>
-          <Button asChild>
-            <Link href="/thong-tin" className={STYLES.backLink}>
-              <div className={STYLES.backLabel}>
-                <ArrowLeft className="w-3 h-3 transition-transform group-hover:-translate-x-1" />
-                <span>Quay lại danh mục</span>
-              </div>
-            </Link>
-          </Button>
-        </nav>
-
-        <Breadcrumbs
-          items={[
-            { label: "Thông tin", href: "/thong-tin" },
-            { label: page.title, active: true },
-          ]}
-        />
-
-        <footer className={STYLES.footer}>
+      {/* ===== KHỐI 3: FOOTER BẢN QUYỀN ===== */}
+      <GridSection
+        id="static-page-footer"
+        isFirst={false}
+        showDiamond={true}
+        contentClassName="py-6 md:py-8 lg:py-10"
+      >
+        <footer className="w-full flex flex-col md:flex-row justify-between items-center gap-6 text-muted-foreground">
           <TypographySmall>&copy; {currentYear} Điện máy ELC.</TypographySmall>
           <ScrollToTop className="flex items-center gap-2 cursor-pointer hover:text-foreground transition-colors">
             <TypographySmall>Quay lại đầu trang</TypographySmall>
           </ScrollToTop>
         </footer>
-      </div>
+      </GridSection>
+
+      {/* ===== KHỐI 4: BREADCRUMBS ===== */}
+      <GridSection
+        id="static-page-breadcrumbs"
+        isFirst={false}
+        showDiamond={false}
+        contentClassName="py-1"
+      >
+        <div className="w-full">
+          <Breadcrumbs
+            items={[
+              { label: "Thông tin", href: "/thong-tin" },
+              { label: page.title, active: true },
+            ]}
+            disableJsonLd={true}
+          />
+        </div>
+      </GridSection>
     </main>
   );
 }
