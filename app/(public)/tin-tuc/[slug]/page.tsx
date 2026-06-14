@@ -159,38 +159,29 @@ export default async function NewsDetailPage({ params }: PageProps) {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(newsArticleSchema) }}
       />
-      {/* Khối 1: Tiêu đề chi tiết bài viết */}
-      <GridSection
-        id="news-detail-header"
-        isFirst={true}
-        showDiamond={true}
-        contentClassName="py-8 md:py-12"
-      >
-        <div className="max-w-3xl mx-auto w-full">
-          <Link
-            href="/tin-tuc"
-            className="group inline-flex items-center gap-2 text-xs text-muted-foreground hover:text-foreground transition-colors mb-4"
-          >
-            <ArrowLeft className="w-3 h-3 transition-transform group-hover:-translate-x-0.5" />
-            <span>Quay lại danh sách tin tức</span>
-          </Link>
-          {formattedDate && (
-            <TypographySmall className="text-muted-foreground/60 mb-2 block font-medium font-sans">
-              {formattedDate}
-            </TypographySmall>
-          )}
-          <TypographyH1 className={STYLES.title}>{title}</TypographyH1>
-        </div>
-      </GridSection>
-
-      {/* Khối 2: Nội dung bài viết */}
+      {/* Khối 1: Chi tiết bài viết */}
       <GridSection
         id="news-detail-content"
-        isFirst={false}
+        isFirst={true}
         showDiamond={true}
         contentClassName="py-10 md:py-16"
       >
-        <div className="max-w-3xl mx-auto w-full">
+        <div className="max-w-3xl mx-auto w-full flex flex-col gap-6 animate-fade-in-up">
+          <div>
+            <Link
+              href="/tin-tuc"
+              className="group inline-flex items-center gap-2 text-xs text-muted-foreground hover:text-foreground transition-colors mb-4"
+            >
+              <ArrowLeft className="w-3 h-3 transition-transform group-hover:-translate-x-0.5" />
+              <span>Quay lại danh sách tin tức</span>
+            </Link>
+            {formattedDate && (
+              <TypographySmall className="text-muted-foreground/60 mb-2 block font-medium font-sans">
+                {formattedDate}
+              </TypographySmall>
+            )}
+            <TypographyH1 className={STYLES.title}>{title}</TypographyH1>
+          </div>
           <article>
             <PreviewContent
               content={newsItem.content}

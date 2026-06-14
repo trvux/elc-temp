@@ -77,44 +77,35 @@ export default async function StaticPage({ params }: PageProps) {
 
   return (
     <main className="w-full bg-background min-h-screen flex flex-col">
-      {/* ===== KHỐI 1: TIÊU ĐỀ CHI TIẾT ===== */}
-      <GridSection
-        id="static-page-header"
-        isFirst={true}
-        showDiamond={true}
-        contentClassName="py-8 md:py-12"
-      >
-        <div className="max-w-3xl mx-auto w-full">
-          <Link
-            href="/thong-tin"
-            className="group inline-flex items-center gap-2 text-xs text-muted-foreground hover:text-foreground transition-colors mb-4"
-          >
-            <ArrowLeft className="w-3 h-3 transition-transform group-hover:-translate-x-0.5" />
-            <span>Quay lại danh mục</span>
-          </Link>
-          <TypographySmall className="text-muted-foreground/60 mb-2 block font-medium font-sans">
-            {new Date(
-              page.createdAt || "2026-06-10T00:00:00.000Z",
-            ).toLocaleDateString("vi-VN", {
-              day: "numeric",
-              month: "long",
-              year: "numeric",
-            })}
-          </TypographySmall>
-          <TypographyH1 className="w-full max-w-none! text-wrap! text-3xl md:text-4xl lg:text-5xl font-extrabold tracking-tight font-heading leading-tight">
-            {page.title}
-          </TypographyH1>
-        </div>
-      </GridSection>
-
-      {/* ===== KHỐI 2: NỘI DUNG TRANG ===== */}
+      {/* ===== KHỐI 1: CHI TIẾT TRANG ===== */}
       <GridSection
         id="static-page-content"
-        isFirst={false}
+        isFirst={true}
         showDiamond={true}
         contentClassName="py-10 md:py-16"
       >
-        <div className="max-w-3xl mx-auto w-full">
+        <div className="max-w-3xl mx-auto w-full flex flex-col gap-6 animate-fade-in-up">
+          <div>
+            <Link
+              href="/thong-tin"
+              className="group inline-flex items-center gap-2 text-xs text-muted-foreground hover:text-foreground transition-colors mb-4"
+            >
+              <ArrowLeft className="w-3 h-3 transition-transform group-hover:-translate-x-0.5" />
+              <span>Quay lại danh mục</span>
+            </Link>
+            <TypographySmall className="text-muted-foreground/60 mb-2 block font-medium font-sans">
+              {new Date(
+                page.createdAt || "2026-06-10T00:00:00.000Z",
+              ).toLocaleDateString("vi-VN", {
+                day: "numeric",
+                month: "long",
+                year: "numeric",
+              })}
+            </TypographySmall>
+            <TypographyH1 className="w-full max-w-none! text-wrap! text-3xl md:text-4xl lg:text-5xl font-extrabold tracking-tight font-heading leading-tight">
+              {page.title}
+            </TypographyH1>
+          </div>
           <article>
             <PreviewContent content={page.content} hideFirstHeading={true} />
           </article>
