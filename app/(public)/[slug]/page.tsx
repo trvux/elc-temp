@@ -1,4 +1,5 @@
 import { getPageBySlug } from "@/modules/page/application";
+import { pageRepo } from "@/modules/page/infrastructure/SupabasePageRepository";
 import { PreviewContent } from "@/shared/components/layout/user/preview-content";
 import { ScrollToTop } from "@/shared/components/layout/user/scroll-to-top";
 import { Button } from "@/shared/components/ui/button";
@@ -29,7 +30,7 @@ async function getCachedPageData(slug: string) {
   cacheLife("hours");
   cacheTag("layout");
   setUseStaticClient(true);
-  return getPageBySlug(slug);
+  return getPageBySlug(pageRepo, slug);
 }
 
 export async function generateMetadata({

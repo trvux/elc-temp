@@ -1,9 +1,11 @@
 import { getProjects } from "@/modules/project/application/getProjects";
+import { ProjectRepository } from "@/modules/project/domain/repository";
 import { ProjectCard } from "@/modules/project/presentation/components/ProjectCard";
 import { TypographyH2 } from "@/shared/components/ui/typography";
 import { cn } from "@/shared/lib/utils";
 
 interface RelatedProjectsProps {
+  projectRepo: ProjectRepository;
   projectTypeId: string | null;
   currentProjectId: string;
   limit?: number;
@@ -16,24 +18,25 @@ const STYLES = {
 };
 
 /**
- * Khối "Dự án liên quan" trên trang chi tiết — gom các dự án cùng loại công
- * trình (projectType), bỏ dự án hiện tại, ưu tiên nổi bật rồi tới orderIndex.
+ * Khoi "Du an lien quan" tren trang chi tiet — gom cac du an cung loai cong
+ * trinh (projectType), bo du an hien tai, uu tien noi bat roi toi orderIndex.
  */
 export async function RelatedProjects({
+  projectRepo,
   projectTypeId,
   currentProjectId,
   limit = 3,
 }: RelatedProjectsProps) {
-  // Ưu tiên các dự án cùng loại công trình.
-  const siblings = await getProjects({
+  // Uu tien cac du an cung loai cong trinh.
+  const siblings = await getProjects(projectRepo, {
     isPublished: true,
     projectTypeId: projectTypeId || undefined,
   });
   let pool = siblings.filter((p) => p.id !== currentProjectId);
 
-  // Fallback: nếu không có dự án cùng loại, gom toàn bộ dự án đã xuất bản.
+  // Fallback: neu khong co du an cung loai, gom toan bo du an da xuat ban.
   if (pool.length === 0) {
-    const all = await getProjects({ isPublished: true });
+    const all = await getProjects(projectRepo, { isPublished: true });
     pool = all.filter((p) => p.id !== currentProjectId);
   }
 
@@ -49,7 +52,7 @@ export async function RelatedProjects({
 
   return (
     <section className={STYLES.section}>
-      <TypographyH2 className={STYLES.title}>Dự án liên quan</TypographyH2>
+      <TypographyH2 className={STYLES.title}>Du an lien quan</TypographyH2>
       <div className={STYLES.grid}>
         {related.map((project) => (
           <ProjectCard key={project.id} project={project} />

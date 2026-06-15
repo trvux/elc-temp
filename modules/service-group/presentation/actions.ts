@@ -9,10 +9,11 @@ import {
   updateServiceGroup,
 } from "../application/index";
 import { CreateServiceGroupInput, UpdateServiceGroupInput } from "../domain/types";
+import { serviceGroupRepo } from "../infrastructure/serviceGroupRepo";
 
 export async function getServiceGroupsAction() {
   try {
-    const data = await getServiceGroups();
+    const data = await getServiceGroups(serviceGroupRepo);
     return { data, error: null };
   } catch (error) {
     unstable_rethrow(error);
@@ -23,7 +24,7 @@ export async function getServiceGroupsAction() {
 
 export async function createServiceGroupAction(input: CreateServiceGroupInput) {
   try {
-    const data = await createServiceGroup(input);
+    const data = await createServiceGroup(serviceGroupRepo, input);
     revalidatePath("/admin/service-groups");
     revalidateTag("layout", { expire: 0 });
     revalidateTag("services", { expire: 0 });
@@ -39,7 +40,7 @@ export async function createServiceGroupAction(input: CreateServiceGroupInput) {
 
 export async function updateServiceGroupAction(input: UpdateServiceGroupInput) {
   try {
-    const data = await updateServiceGroup(input);
+    const data = await updateServiceGroup(serviceGroupRepo, input);
     revalidatePath("/admin/service-groups");
     revalidateTag("layout", { expire: 0 });
     revalidateTag("services", { expire: 0 });
@@ -55,7 +56,7 @@ export async function updateServiceGroupAction(input: UpdateServiceGroupInput) {
 
 export async function deleteServiceGroupAction(id: string) {
   try {
-    await deleteServiceGroup(id);
+    await deleteServiceGroup(serviceGroupRepo, id);
     revalidatePath("/admin/service-groups");
     revalidateTag("layout", { expire: 0 });
     revalidateTag("services", { expire: 0 });

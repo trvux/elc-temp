@@ -1,5 +1,5 @@
-import { authRepo } from "../infrastructure/authRepo";
+import { AuthRepository } from "../domain/repository";
 
-export async function logout(): Promise<{ error: string | null }> {
+export async function logout(authRepo: AuthRepository): Promise<{ error: string | null }> {
   return authRepo.logout();
 }

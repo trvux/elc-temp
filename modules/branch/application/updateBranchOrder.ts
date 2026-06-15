@@ -1,5 +1,5 @@
-import { branchRepo } from "../infrastructure/branchRepo";
+import { BranchRepository } from "../domain";
 
-export const updateBranchOrder = (id: string, orderIndex: number) => {
+export const updateBranchOrder = (branchRepo: BranchRepository, id: string, orderIndex: number) => {
   return branchRepo.updateOrder(id, orderIndex);
 };

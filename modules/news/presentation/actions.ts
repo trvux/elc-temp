@@ -17,7 +17,7 @@ export async function getNewsAction(options?: {
   isPublished?: boolean;
 }) {
   try {
-    const data = await getNews(options);
+    const data = await getNews(newsRepo, options);
     return { data, error: null };
   } catch (error) {
     console.error("getNewsAction error:", error);
@@ -27,7 +27,7 @@ export async function getNewsAction(options?: {
 
 export async function createNewsAction(input: CreateNewsInput) {
   try {
-    const data = await createNews(input);
+    const data = await createNews(newsRepo, input);
     revalidatePath("/admin/news");
     revalidatePath("/tin-tuc");
     revalidateTag("news-list", { expire: 0 });
@@ -46,7 +46,7 @@ export async function createNewsAction(input: CreateNewsInput) {
 
 export async function updateNewsAction(input: UpdateNewsInput) {
   try {
-    const data = await updateNews(input);
+    const data = await updateNews(newsRepo, input);
     revalidatePath("/admin/news");
     revalidatePath("/tin-tuc");
     revalidatePath(`/tin-tuc/${data.slug}`);
@@ -67,7 +67,7 @@ export async function updateNewsAction(input: UpdateNewsInput) {
 export async function deleteNewsAction(id: string) {
   try {
     const newsItem = await newsRepo.getById(id);
-    await deleteNews(id);
+    await deleteNews(newsRepo, id);
     revalidatePath("/admin/news");
     revalidatePath("/tin-tuc");
     revalidateTag("news-list", { expire: 0 });

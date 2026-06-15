@@ -1,8 +1,10 @@
 import { searchProducts } from "@/modules/catalog/application";
+import { productRepo } from "@/modules/catalog/infrastructure/SupabaseProductRepository";
 import { ProductCard } from "@/modules/catalog/presentation/components/ProductCard";
 import { ProductFilterMobile } from "@/modules/catalog/presentation/components/ProductFilterMobile";
 import { ProductFilters } from "@/modules/catalog/presentation/components/ProductFilters";
 import { getCategories } from "@/modules/category/application";
+import { categoryRepo } from "@/modules/category/infrastructure/categoryRepo";
 import { Breadcrumbs } from "@/shared/components/layout/user/breadcrumbs";
 import { FilteredGridWrapper } from "@/shared/components/layout/user/filtered-grid-wrapper";
 import { PaginationNav } from "@/shared/components/layout/user/pagination-nav";
@@ -112,7 +114,7 @@ async function getCachedCategories() {
   cacheLife("days");
   cacheTag("products-list", "categories");
   setUseStaticClient(true);
-  return getCategories();
+  return getCategories(categoryRepo);
 }
 
 async function getCachedProductsData(
@@ -130,7 +132,7 @@ async function getCachedProductsData(
   cacheTag("products-list");
   setUseStaticClient(true);
 
-  return searchProducts(q, {
+  return searchProducts(productRepo, q, {
     isPublished: true,
     minPrice,
     maxPrice,

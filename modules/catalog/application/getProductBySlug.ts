@@ -1,6 +1,9 @@
 import { ProductWithRelations } from "../domain";
-import { productRepo } from "../infrastructure/SupabaseProductRepository";
+import { ProductRepository } from "../domain/repository";
 
-export async function getProductBySlug(slug: string): Promise<ProductWithRelations | null> {
+export async function getProductBySlug(
+  productRepo: ProductRepository,
+  slug: string,
+): Promise<ProductWithRelations | null> {
   return productRepo.getBySlug(slug);
 }

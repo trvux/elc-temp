@@ -1,4 +1,5 @@
 import { getServiceBySlug } from "@/modules/service/application";
+import { serviceRepo } from "@/modules/service/infrastructure/serviceRepo";
 import { PreviewContent } from "@/shared/components/layout/user/preview-content";
 import { ScrollToTop } from "@/shared/components/layout/user/scroll-to-top";
 import { Button } from "@/shared/components/ui/button";
@@ -16,6 +17,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Breadcrumbs } from "@/shared/components/layout/user/breadcrumbs";
 import { getBranches } from "@/modules/branch/application";
+import { branchRepo } from "@/modules/branch/infrastructure/branchRepo";
 
 interface PageProps {
   params: Promise<{
@@ -30,7 +32,7 @@ async function getCachedService(slug: string) {
   cacheTag("services-list", `service-slug:${slug}`);
   setUseStaticClient(true);
 
-  return getServiceBySlug(slug);
+  return getServiceBySlug(serviceRepo, slug);
 }
 
 export async function generateMetadata({
@@ -82,7 +84,7 @@ export default async function ServiceDetailPage({ params }: PageProps) {
   }
 
   const currentYear = await getCachedCurrentYear();
-  const branches = await getBranches({ isPublished: true });
+  const branches = await getBranches(branchRepo, { isPublished: true });
   const serviceSchema = generateServiceDetailSchema(service, branches);
 
   return (

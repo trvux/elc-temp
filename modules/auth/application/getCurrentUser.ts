@@ -1,6 +1,6 @@
-import { authRepo } from "../infrastructure/authRepo";
+import { AuthRepository } from "../domain/repository";
 import { AuthUser } from "../domain/types";
 
-export async function getCurrentUser(): Promise<AuthUser | null> {
+export async function getCurrentUser(authRepo: AuthRepository): Promise<AuthUser | null> {
   return authRepo.getCurrentUser();
 }

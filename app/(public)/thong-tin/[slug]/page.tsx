@@ -1,4 +1,5 @@
-import { getBranchBySlug } from "@/modules/branch";
+import { getBranchBySlug } from "@/modules/branch/application";
+import { branchRepo } from "@/modules/branch/infrastructure/branchRepo";
 import { PreviewContent } from "@/shared/components/layout/user/preview-content";
 import { ScrollToTop } from "@/shared/components/layout/user/scroll-to-top";
 import {
@@ -60,7 +61,7 @@ async function getBranchData(slug: string) {
   cacheLife("hours");
   cacheTag("layout");
   setUseStaticClient(true);
-  const branch = await getBranchBySlug(slug);
+  const branch = await getBranchBySlug(branchRepo, slug);
   const currentYear = new Date().getFullYear();
   const { settings, contacts, branches } = await getPublicLayoutData();
   return {

@@ -1,5 +1,8 @@
-import { BranchList, getBranches } from "@/modules/branch";
+import { BranchList } from "@/modules/branch";
+import { getBranches } from "@/modules/branch/application";
+import { branchRepo } from "@/modules/branch/infrastructure/branchRepo";
 import { getPages } from "@/modules/page/application";
+import { pageRepo } from "@/modules/page/infrastructure/SupabasePageRepository";
 import { ScrollToTop } from "@/shared/components/layout/user/scroll-to-top";
 import { GridSection } from "@/shared/components/sections/grid-section";
 import {
@@ -48,8 +51,8 @@ async function getCachedInformationData() {
   cacheTag("layout");
   setUseStaticClient(true);
 
-  const allPages = await getPages({ isPublished: true });
-  const allBranches = await getBranches({ isPublished: true });
+  const allPages = await getPages(pageRepo, { isPublished: true });
+  const allBranches = await getBranches(branchRepo, { isPublished: true });
   const currentYear = new Date().getFullYear();
 
   return {

@@ -1,5 +1,5 @@
-import { branchRepo } from "../infrastructure/branchRepo";
+import { BranchRepository } from "../domain";
 
-export const deleteBranch = (id: string) => {
+export const deleteBranch = (branchRepo: BranchRepository, id: string) => {
   return branchRepo.delete(id);
 };

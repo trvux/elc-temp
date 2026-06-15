@@ -1,4 +1,5 @@
 import { ProjectWithCategory } from "../domain/types";
+import { ProjectRepository } from "../domain/repository";
 import { getProjects } from "./getProjects";
 
 export interface AdjacentProject {
@@ -19,10 +20,11 @@ export interface AdjacentProjects {
  * với trang danh sách: dự án nổi bật lên đầu, sau đó theo orderIndex.
  */
 export const getAdjacentProjects = async (
+  projectRepo: ProjectRepository,
   project: Pick<ProjectWithCategory, "id" | "projectTypeId">,
 ): Promise<AdjacentProjects> => {
   // Ưu tiên các dự án cùng loại công trình.
-  let siblings = await getProjects({
+  let siblings = await getProjects(projectRepo, {
     isPublished: true,
     projectTypeId: project.projectTypeId || undefined,
   });
@@ -30,7 +32,7 @@ export const getAdjacentProjects = async (
   // Fallback: nếu nhóm cùng loại không đủ để điều hướng, gom toàn bộ dự án
   // đã xuất bản để người dùng vẫn có thể chuyển qua lại.
   if (siblings.length < 2) {
-    siblings = await getProjects({ isPublished: true });
+    siblings = await getProjects(projectRepo, { isPublished: true });
   }
 
   const sorted = [...siblings].sort((a, b) => {

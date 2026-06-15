@@ -3,6 +3,8 @@ import {
   getPublishedServicesGrouped,
   mapServiceToCardData,
 } from "@/modules/service";
+import { serviceRepo } from "@/modules/service/infrastructure/serviceRepo";
+import { serviceGroupRepo } from "@/modules/service-group/infrastructure/serviceGroupRepo";
 import { Breadcrumbs } from "@/shared/components/layout/user/breadcrumbs";
 import { ScrollToTop } from "@/shared/components/layout/user/scroll-to-top";
 import { GridSection } from "@/shared/components/sections/grid-section";
@@ -49,7 +51,7 @@ async function getCachedServicesData() {
   cacheTag("services-list");
   setUseStaticClient(true);
 
-  const groupedServices = await getPublishedServicesGrouped();
+  const groupedServices = await getPublishedServicesGrouped(serviceRepo, serviceGroupRepo);
   const currentYear = new Date().getFullYear();
 
   return {

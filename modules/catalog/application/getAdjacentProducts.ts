@@ -1,4 +1,5 @@
 import { ProductWithRelations } from "../domain";
+import { ProductRepository } from "../domain/repository";
 import { getProducts } from "./getProducts";
 
 export interface AdjacentProduct {
@@ -12,24 +13,25 @@ export interface AdjacentProducts {
 }
 
 /**
- * Lấy sản phẩm liền trước / liền sau trong cùng nhóm để hiển thị pager điều hướng.
+ * Lay san pham lien truoc / lien sau trong cung nhom de hien thi pager dieu huong.
  *
- * Nhóm ưu tiên theo loại sản phẩm (category). Nếu nhóm cùng loại không đủ để
- * điều hướng thì gom toàn bộ sản phẩm đã xuất bản. Thứ tự sắp xếp đồng nhất với
- * trang danh sách: sản phẩm nổi bật lên đầu, sau đó theo orderIndex.
+ * Nhom uu tien theo loai san pham (category). Neu nhom cung loai khong du de
+ * dieu huong thi gom toan bo san pham da xuat ban. Thu tu sap xep dong nhat voi
+ * trang danh sach: san pham noi bat len dau, sau do theo orderIndex.
  */
 export const getAdjacentProducts = async (
+  productRepo: ProductRepository,
   product: Pick<ProductWithRelations, "id" | "categoryId">,
 ): Promise<AdjacentProducts> => {
-  // Ưu tiên các sản phẩm cùng loại.
-  let siblings = await getProducts({
+  // Uu tien cac san pham cung loai.
+  let siblings = await getProducts(productRepo, {
     isPublished: true,
     categoryId: product.categoryId || undefined,
   });
 
-  // Fallback: gom toàn bộ sản phẩm đã xuất bản nếu nhóm cùng loại quá ít.
+  // Fallback: gom toan bo san pham da xuat ban neu nhom cung loai qua it.
   if (siblings.length < 2) {
-    siblings = await getProducts({ isPublished: true });
+    siblings = await getProducts(productRepo, { isPublished: true });
   }
 
   const sorted = [...siblings].sort((a, b) => {

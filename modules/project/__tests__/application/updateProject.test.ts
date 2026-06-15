@@ -1,15 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { updateProject, toggleProjectPublish } from "../../application/updateProject";
-import { projectRepo } from "../../infrastructure/projectRepo";
+import { ProjectRepository } from "../../domain/repository";
 import { UpdateProjectInput, Project } from "../../domain/types";
-
-// Mock the repository
-vi.mock("../../infrastructure/projectRepo", () => ({
-  projectRepo: {
-    update: vi.fn(),
-    togglePublish: vi.fn(),
-  },
-}));
 
 describe("updateProject Use Case", () => {
   const mockProject: Project = {
@@ -28,6 +20,11 @@ describe("updateProject Use Case", () => {
     deletedAt: null,
   };
 
+  const mockRepo = {
+    update: vi.fn(),
+    togglePublish: vi.fn(),
+  } as unknown as ProjectRepository;
+
   beforeEach(() => {
     vi.clearAllMocks();
   });
@@ -39,22 +36,22 @@ describe("updateProject Use Case", () => {
         title: "Updated Title",
       };
 
-      vi.mocked(projectRepo.update).mockResolvedValue({ ...mockProject, title: "Updated Title" });
+      vi.mocked(mockRepo.update).mockResolvedValue({ ...mockProject, title: "Updated Title" });
 
-      const result = await updateProject(input);
+      const result = await updateProject(mockRepo, input);
 
-      expect(projectRepo.update).toHaveBeenCalledWith(input);
+      expect(mockRepo.update).toHaveBeenCalledWith(input);
       expect(result.title).toBe("Updated Title");
     });
   });
 
   describe("toggleProjectPublish", () => {
     it("should toggle publish status successfully", async () => {
-      vi.mocked(projectRepo.togglePublish).mockResolvedValue(undefined);
+      vi.mocked(mockRepo.togglePublish).mockResolvedValue(undefined);
 
-      await toggleProjectPublish("p1", false);
+      await toggleProjectPublish(mockRepo, "p1", false);
 
-      expect(projectRepo.togglePublish).toHaveBeenCalledWith("p1", false);
+      expect(mockRepo.togglePublish).toHaveBeenCalledWith("p1", false);
     });
   });
 });

@@ -1,26 +1,25 @@
 import { createCategorySchema, updateCategorySchema } from "../domain/validators";
-import { categoryRepo } from "../infrastructure/categoryRepo";
 import { Category, CategoryWithGroup, CreateCategoryInput, UpdateCategoryInput } from "../domain/types";
-import { CategoryFilter } from "../domain/repository";
+import { CategoryFilter, CategoryRepository } from "../domain/repository";
 
-export async function getCategories(options?: CategoryFilter): Promise<CategoryWithGroup[]> {
+export async function getCategories(categoryRepo: CategoryRepository, options?: CategoryFilter): Promise<CategoryWithGroup[]> {
   return categoryRepo.getAll(options);
 }
 
-export async function getCategoryById(id: string): Promise<CategoryWithGroup | null> {
+export async function getCategoryById(categoryRepo: CategoryRepository, id: string): Promise<CategoryWithGroup | null> {
   return categoryRepo.getById(id);
 }
 
-export async function createCategory(input: CreateCategoryInput): Promise<Category> {
+export async function createCategory(categoryRepo: CategoryRepository, input: CreateCategoryInput): Promise<Category> {
   const validated = createCategorySchema.parse(input);
   return categoryRepo.create(validated as CreateCategoryInput);
 }
 
-export async function updateCategory(input: UpdateCategoryInput): Promise<Category> {
+export async function updateCategory(categoryRepo: CategoryRepository, input: UpdateCategoryInput): Promise<Category> {
   const validated = updateCategorySchema.parse(input);
   return categoryRepo.update(validated as UpdateCategoryInput);
 }
 
-export async function deleteCategory(id: string): Promise<void> {
+export async function deleteCategory(categoryRepo: CategoryRepository, id: string): Promise<void> {
   return categoryRepo.delete(id);
 }

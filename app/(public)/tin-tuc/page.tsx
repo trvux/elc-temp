@@ -1,4 +1,5 @@
 import { getNews } from "@/modules/news/application";
+import { newsRepo } from "@/modules/news/infrastructure/SupabaseNewsRepository";
 import { Breadcrumbs } from "@/shared/components/layout/user/breadcrumbs";
 import { ScrollToTop } from "@/shared/components/layout/user/scroll-to-top";
 import { GridSection } from "@/shared/components/sections/grid-section";
@@ -101,7 +102,7 @@ async function getCachedNewsHubData() {
   cacheTag("news-list");
   setUseStaticClient(true);
 
-  const allNews = await getNews({ isPublished: true });
+  const allNews = await getNews(newsRepo, { isPublished: true });
   const currentYear = new Date().getFullYear();
 
   return {

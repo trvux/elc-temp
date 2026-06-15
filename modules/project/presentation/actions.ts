@@ -14,10 +14,13 @@ import {
 } from "../application/index";
 import { CreateProjectInput, UpdateProjectInput, ProjectFilter } from "../domain/index";
 import { submitToIndexNow } from "@/shared/lib/indexnow";
+import { projectRepo } from "../infrastructure/projectRepo";
+import fs from "fs";
+import path from "path";
 
 export async function getProjectsAction(options?: ProjectFilter) {
   try {
-    const data = await getProjects(options);
+    const data = await getProjects(projectRepo, options);
     return { data, error: null };
   } catch (error) {
     console.error("getProjectsAction error:", error);
@@ -27,7 +30,7 @@ export async function getProjectsAction(options?: ProjectFilter) {
 
 export async function countProjectsAction(options?: Pick<ProjectFilter, "categoryId" | "isPublished" | "isFeatured" | "search" | "includeDeleted">) {
   try {
-    const data = await countProjects(options);
+    const data = await countProjects(projectRepo, options);
     return { data, error: null };
   } catch (error) {
     console.error("countProjectsAction error:", error);
@@ -37,8 +40,7 @@ export async function countProjectsAction(options?: Pick<ProjectFilter, "categor
 
 export async function createProjectAction(input: CreateProjectInput) {
   try {
-
-    const data = await createProject(input);
+    const data = await createProject(projectRepo, input);
 
     revalidatePaths(data?.slug);
     if (data && data.isPublished && data.slug) {
@@ -59,13 +61,8 @@ export async function createProjectAction(input: CreateProjectInput) {
   }
 }
 
-import fs from "fs";
-import path from "path";
-
 export async function updateProjectAction(input: UpdateProjectInput) {
   try {
-
-    
     // Write received payload directly to scratch file
     try {
       const scratchDir = "/Users/tranvux/Documents/elc-tem/scratch";
@@ -82,7 +79,7 @@ export async function updateProjectAction(input: UpdateProjectInput) {
       console.error("Failed to write scratch file:", fsErr);
     }
 
-    const data = await updateProject(input);
+    const data = await updateProject(projectRepo, input);
 
     revalidatePaths(data?.slug);
     if (data && data.isPublished && data.slug) {
@@ -105,8 +102,8 @@ export async function updateProjectAction(input: UpdateProjectInput) {
 
 export async function deleteProjectAction(id: string) {
   try {
-    const proj = await getProjectById(id);
-    await deleteProject(id);
+    const proj = await getProjectById(projectRepo, id);
+    await deleteProject(projectRepo, id);
     revalidatePaths(proj?.slug);
     return { error: null };
   } catch (error) {
@@ -117,8 +114,8 @@ export async function deleteProjectAction(id: string) {
 
 export async function toggleProjectPublishAction(id: string, isPublished: boolean) {
   try {
-    await toggleProjectPublish(id, isPublished);
-    const proj = await getProjectById(id);
+    await toggleProjectPublish(projectRepo, id, isPublished);
+    const proj = await getProjectById(projectRepo, id);
     revalidatePaths(proj?.slug);
     if (isPublished) {
       if (proj && proj.slug) {
@@ -136,8 +133,8 @@ export async function toggleProjectPublishAction(id: string, isPublished: boolea
 
 export async function toggleProjectFeaturedAction(id: string, isFeatured: boolean) {
   try {
-    const proj = await getProjectById(id);
-    await toggleProjectFeatured(id, isFeatured);
+    const proj = await getProjectById(projectRepo, id);
+    await toggleProjectFeatured(projectRepo, id, isFeatured);
     revalidatePaths(proj?.slug);
     return { error: null };
   } catch (error) {
@@ -148,8 +145,8 @@ export async function toggleProjectFeaturedAction(id: string, isFeatured: boolea
 
 export async function updateProjectOrderAction(id: string, orderIndex: number) {
   try {
-    const proj = await getProjectById(id);
-    await updateProjectOrder(id, orderIndex);
+    const proj = await getProjectById(projectRepo, id);
+    await updateProjectOrder(projectRepo, id, orderIndex);
     revalidatePaths(proj?.slug);
     return { error: null };
   } catch (error) {

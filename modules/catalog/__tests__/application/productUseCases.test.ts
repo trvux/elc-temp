@@ -4,18 +4,7 @@ import { getFeaturedProducts } from "../../application/getFeaturedProducts";
 import { getProductBySlug } from "../../application/getProductBySlug";
 import { getProducts } from "../../application/getProducts";
 import { updateProduct } from "../../application/updateProduct";
-import { productRepo } from "../../infrastructure/SupabaseProductRepository";
-
-vi.mock("../../infrastructure/SupabaseProductRepository", () => ({
-  productRepo: {
-    create: vi.fn(),
-    update: vi.fn(),
-    delete: vi.fn(),
-    getAll: vi.fn(),
-    getById: vi.fn(),
-    getBySlug: vi.fn(),
-  },
-}));
+import { ProductRepository } from "../../domain/repository";
 
 describe("Product Application Use Cases", () => {
   const VALID_ID = "550e8400-e29b-411d-a716-446655440000";
@@ -44,6 +33,17 @@ describe("Product Application Use Cases", () => {
     deletedAt: null,
   };
 
+  const mockRepo = {
+    create: vi.fn(),
+    update: vi.fn(),
+    delete: vi.fn(),
+    getAll: vi.fn(),
+    getById: vi.fn(),
+    getBySlug: vi.fn(),
+    getByIds: vi.fn(),
+    count: vi.fn(),
+  } as unknown as ProductRepository;
+
   beforeEach(() => {
     vi.clearAllMocks();
   });
@@ -58,66 +58,70 @@ describe("Product Application Use Cases", () => {
         categoryId: "550e8400-e29b-411d-a716-446655440001",
         brandId: "550e8400-e29b-411d-a716-446655440002",
       };
-      vi.mocked(productRepo.create).mockResolvedValue({
+      vi.mocked(mockRepo.create).mockResolvedValue({
         ...mockProduct,
         ...input,
       });
 
-      const result = await createProduct(input as any);
+      const result = await createProduct(mockRepo, input as Parameters<typeof createProduct>[1]);
 
-      expect(productRepo.create).toHaveBeenCalled();
+      expect(mockRepo.create).toHaveBeenCalled();
       expect(result.name).toBe("Samsung S24");
     });
 
     it("should throw error if validation fails", async () => {
       const input = { name: "" }; // Missing required fields
-      await expect(createProduct(input as any)).rejects.toThrow();
+      await expect(
+        createProduct(mockRepo, input as Parameters<typeof createProduct>[1]),
+      ).rejects.toThrow();
     });
   });
 
   describe("updateProduct", () => {
     it("should validate and update a product", async () => {
       const input = { id: VALID_ID, name: "Updated Name" };
-      vi.mocked(productRepo.update).mockResolvedValue({
+      vi.mocked(mockRepo.update).mockResolvedValue({
         ...mockProduct,
         ...input,
       });
 
-      const result = await updateProduct(input as any);
+      const result = await updateProduct(mockRepo, input as Parameters<typeof updateProduct>[1]);
 
-      expect(productRepo.update).toHaveBeenCalled();
+      expect(mockRepo.update).toHaveBeenCalled();
       expect(result.name).toBe("Updated Name");
     });
 
     it("should throw error if id is missing", async () => {
       const input = { name: "No ID" };
-      await expect(updateProduct(input as any)).rejects.toThrow();
+      await expect(
+        updateProduct(mockRepo, input as Parameters<typeof updateProduct>[1]),
+      ).rejects.toThrow();
     });
   });
 
   describe("getProducts", () => {
     it("should return products from repository", async () => {
-      vi.mocked(productRepo.getAll).mockResolvedValue([mockProduct as any]);
-      const result = await getProducts();
+      vi.mocked(mockRepo.getAll).mockResolvedValue([mockProduct as never]);
+      const result = await getProducts(mockRepo);
       expect(result).toHaveLength(1);
-      expect(productRepo.getAll).toHaveBeenCalled();
+      expect(mockRepo.getAll).toHaveBeenCalled();
     });
   });
 
   describe("getProductBySlug", () => {
     it("should return product by slug", async () => {
-      vi.mocked(productRepo.getBySlug).mockResolvedValue(mockProduct as any);
-      const result = await getProductBySlug("iphone-15-pro");
+      vi.mocked(mockRepo.getBySlug).mockResolvedValue(mockProduct as never);
+      const result = await getProductBySlug(mockRepo, "iphone-15-pro");
       expect(result?.slug).toBe("iphone-15-pro");
-      expect(productRepo.getBySlug).toHaveBeenCalledWith("iphone-15-pro");
+      expect(mockRepo.getBySlug).toHaveBeenCalledWith("iphone-15-pro");
     });
   });
 
   describe("getFeaturedProducts", () => {
     it("should call getAll with featured filters", async () => {
-      vi.mocked(productRepo.getAll).mockResolvedValue([mockProduct as any]);
-      await getFeaturedProducts(10);
-      expect(productRepo.getAll).toHaveBeenCalledWith({
+      vi.mocked(mockRepo.getAll).mockResolvedValue([mockProduct as never]);
+      await getFeaturedProducts(mockRepo, 10);
+      expect(mockRepo.getAll).toHaveBeenCalledWith({
         isFeatured: true,
         isPublished: true,
         limit: 10,

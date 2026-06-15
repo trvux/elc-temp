@@ -1,5 +1,7 @@
 import { getAdjacentProjects } from "@/modules/project/application/getAdjacentProjects";
+import { projectRepo } from "@/modules/project/infrastructure/projectRepo";
 import { resolveProjectPath } from "@/modules/project/application/resolveProjectPath";
+import { resolveProjectPathFromDb } from "@/modules/project/infrastructure/resolveProjectPath";
 import { ProjectWithCategory } from "@/modules/project/domain/types";
 import { ProjectListModule } from "@/modules/project/presentation/components/public/ProjectListModule";
 import { RelatedProjects } from "@/modules/project/presentation/components/public/RelatedProjects";
@@ -16,6 +18,7 @@ import { Metadata } from "next";
 import { ImageWithSkeleton } from "@/shared/components/ui/image-with-skeleton";
 import { notFound } from "next/navigation";
 import { getServiceBySlug } from "@/modules/service/application";
+import { serviceRepo } from "@/modules/service/infrastructure/serviceRepo";
 import { createStaticClient } from "@/shared/lib/supabase/static";
 import { 
   generateProjectTypeMetadata, 
@@ -23,6 +26,7 @@ import {
   generateProjectDetailSchema
 } from "@/shared/lib/seo-utils";
 import { getBranches } from "@/modules/branch/application";
+import { branchRepo } from "@/modules/branch/infrastructure/branchRepo";
 
 // Generate dynamic SEO Metadata
 export async function generateMetadata({
@@ -33,7 +37,7 @@ export async function generateMetadata({
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }): Promise<Metadata> {
   const { slug } = await params;
-  const entity = await resolveProjectPath(slug);
+  const entity = await resolveProjectPath(resolveProjectPathFromDb, slug);
 
   if (!entity) {
     return {
@@ -54,7 +58,7 @@ export async function generateMetadata({
     let categoryName: string | undefined = undefined;
 
     if (serviceSlug) {
-      const service = await getServiceBySlug(serviceSlug);
+      const service = await getServiceBySlug(serviceRepo, serviceSlug);
       if (service) {
         serviceName = service.title;
       }
@@ -104,7 +108,7 @@ export default async function ProjectDetailPage({
   const { slug } = await params;
 
   // Resolve the slug via the database slug registry
-  const entity = await resolveProjectPath(slug);
+  const entity = await resolveProjectPath(resolveProjectPathFromDb, slug);
 
   if (!entity) {
     notFound();
@@ -144,7 +148,7 @@ async function ProjectDetailView({
     project.categories?.[0]?.name || project.projectType?.name || "Dự án";
 
   const currentYear = await getCachedCurrentYear();
-  const { prev, next } = await getAdjacentProjects(project);
+  const { prev, next } = await getAdjacentProjects(projectRepo, project);
 
   const breadcrumbItems = [
     { label: "Dự án", href: "/du-an" },
@@ -161,7 +165,7 @@ async function ProjectDetailView({
     { label: project.title, active: true },
   ];
 
-  const branches = await getBranches({ isPublished: true });
+  const branches = await getBranches(branchRepo, { isPublished: true });
   const articleSchema = generateProjectDetailSchema(project, branches);
 
   return (
@@ -275,6 +279,7 @@ async function ProjectDetailView({
         contentClassName="py-6 md:py-8 lg:py-10"
       >
         <RelatedProjects
+          projectRepo={projectRepo}
           projectTypeId={project.projectTypeId}
           currentProjectId={project.id}
         />

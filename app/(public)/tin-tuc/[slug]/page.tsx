@@ -1,4 +1,5 @@
 import { getNews, getNewsBySlug } from "@/modules/news/application";
+import { newsRepo } from "@/modules/news/infrastructure/SupabaseNewsRepository";
 import { Breadcrumbs } from "@/shared/components/layout/user/breadcrumbs";
 import { DetailPager } from "@/shared/components/layout/user/detail-pager";
 import { PreviewContent } from "@/shared/components/layout/user/preview-content";
@@ -39,11 +40,11 @@ async function getCachedNewsDetailData(slug: string) {
   cacheTag("news-list", `news-slug:${slug}`);
   setUseStaticClient(true);
 
-  const allNews = await getNews({ isPublished: true });
+  const allNews = await getNews(newsRepo, { isPublished: true });
   const newsItemIndex = (allNews ?? []).findIndex((n) => n.slug === slug);
 
   if (newsItemIndex === -1) {
-    const newsItem = await getNewsBySlug(slug);
+    const newsItem = await getNewsBySlug(newsRepo, slug);
     return {
       newsItem,
       prevNews: null,

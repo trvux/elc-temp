@@ -1,7 +1,5 @@
-import { NewsFilter } from "../domain";
-import { newsRepo } from "../infrastructure";
+import { NewsFilter, NewsRepository } from "../domain";
 
-
-export async function getNews(options?: NewsFilter) {
+export async function getNews(newsRepo: NewsRepository, options?: NewsFilter) {
   return await newsRepo.getAll(options);
 }

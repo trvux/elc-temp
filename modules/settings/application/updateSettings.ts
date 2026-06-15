@@ -1,6 +1,5 @@
-import { SiteSetting } from "../domain/types";
-import { settingsRepo } from "../infrastructure/settingsRepo";
+import { SiteSetting, SettingsRepository } from "../domain";
 
-export const updateSettings = (settings: SiteSetting[]) => {
+export const updateSettings = (settingsRepo: SettingsRepository, settings: SiteSetting[]) => {
   return settingsRepo.updateMany(settings);
 };

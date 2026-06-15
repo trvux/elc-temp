@@ -5,6 +5,7 @@ import {
   createBrand,
   getBrands,
 } from "../../brand";
+import { brandRepo } from "../../brand/infrastructure/brandRepo";
 import {
   createProduct,
   getProducts,
@@ -22,7 +23,7 @@ import { productRepo } from "../infrastructure/SupabaseProductRepository";
 
 export async function getBrandsAction() {
   try {
-    const data = await getBrands();
+    const data = await getBrands(brandRepo);
     return { data, error: null };
   } catch (error) {
     console.error("getBrandsAction error:", error);
@@ -32,7 +33,7 @@ export async function getBrandsAction() {
 
 export async function createBrandAction(input: CreateBrandInput) {
   try {
-    const data = await createBrand(input);
+    const data = await createBrand(brandRepo, input);
     revalidatePath("/admin/brands");
     return { data, error: null };
   } catch (error) {
@@ -50,7 +51,7 @@ export async function getProductsAction(options?: {
   isPublished?: boolean;
 }) {
   try {
-    const data = await getProducts(options);
+    const data = await getProducts(productRepo, options);
     return { data, error: null };
   } catch (error) {
     console.error("getProductsAction error:", error);
@@ -60,7 +61,7 @@ export async function getProductsAction(options?: {
 
 export async function createProductAction(input: CreateProductInput) {
   try {
-    const data = await createProduct(input);
+    const data = await createProduct(productRepo, input);
     revalidatePath("/admin/products");
     revalidatePath("/san-pham", "layout");
     revalidatePath("/", "layout");
@@ -80,7 +81,7 @@ export async function createProductAction(input: CreateProductInput) {
 
 export async function updateProductAction(input: UpdateProductInput) {
   try {
-    const data = await updateProduct(input);
+    const data = await updateProduct(productRepo, input);
     revalidatePath("/admin/products");
     revalidatePath("/san-pham", "layout");
     revalidatePath("/", "layout");
@@ -97,10 +98,11 @@ export async function updateProductAction(input: UpdateProductInput) {
     };
   }
 }
+
 export async function deleteProductAction(id: string) {
   try {
     const product = await productRepo.getById(id);
-    await deleteProduct(id);
+    await deleteProduct(productRepo, id);
     revalidatePath("/admin/products");
     revalidatePath("/san-pham", "layout");
     revalidatePath("/", "layout");

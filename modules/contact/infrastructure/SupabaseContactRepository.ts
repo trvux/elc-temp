@@ -6,7 +6,7 @@ import {
   ContactFilter,
   ContactRepository,
   UpdateContactInput,
-  mapContactRowToDomain,
+  getContactHref,
 } from "../domain";
 
 type ContactRow = Tables<"contacts">;
@@ -120,7 +120,19 @@ export class SupabaseContactRepository implements ContactRepository {
   }
 
   private mapToDomain(row: ContactRow): Contact {
-    return mapContactRowToDomain(row);
+    const href = getContactHref(row.type, row.value);
+    const isExternal = !href.startsWith("tel:") && !href.startsWith("mailto:");
+
+    return {
+      id: row.id,
+      type: row.type,
+      label: row.label,
+      value: row.value,
+      isActive: row.is_active ?? true,
+      orderIndex: row.order_index || 0,
+      href,
+      isExternal,
+    };
   }
 
   private handleError(error: unknown, context: string): never {

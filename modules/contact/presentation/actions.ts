@@ -3,17 +3,20 @@
 import { revalidatePath, revalidateTag } from "next/cache";
 import {
   createContact,
-  CreateContactInput,
   deleteContact,
   getContacts,
   updateContact,
+} from "../application";
+import {
+  CreateContactInput,
   UpdateContactInput,
   ContactFilter,
-} from "@/modules/contact";
+} from "../domain";
+import { contactRepo } from "../infrastructure";
 
 export async function getContactsAction(options?: ContactFilter) {
   try {
-    const data = await getContacts(options);
+    const data = await getContacts(contactRepo, options);
     return { data, error: null };
   } catch (error) {
     console.error("getContactsAction error:", error);
@@ -23,7 +26,7 @@ export async function getContactsAction(options?: ContactFilter) {
 
 export async function createContactAction(input: CreateContactInput) {
   try {
-    const data = await createContact(input);
+    const data = await createContact(contactRepo, input);
     revalidatePath("/admin/contacts");
     revalidateTag("layout", { expire: 0 });
     return { data, error: null };
@@ -38,7 +41,7 @@ export async function createContactAction(input: CreateContactInput) {
 
 export async function updateContactAction(input: UpdateContactInput) {
   try {
-    const data = await updateContact(input);
+    const data = await updateContact(contactRepo, input);
     revalidatePath("/admin/contacts");
     revalidateTag("layout", { expire: 0 });
     return { data, error: null };
@@ -53,7 +56,7 @@ export async function updateContactAction(input: UpdateContactInput) {
 
 export async function deleteContactAction(id: string) {
   try {
-    await deleteContact(id);
+    await deleteContact(contactRepo, id);
     revalidatePath("/admin/contacts");
     revalidateTag("layout", { expire: 0 });
     return { success: true, error: null };

@@ -1,6 +1,5 @@
-import { PageFilter } from "../domain";
-import { pageRepo } from "../infrastructure";
+import { PageFilter, PageRepository } from "../domain";
 
-export async function getPages(options?: PageFilter) {
+export async function getPages(pageRepo: PageRepository, options?: PageFilter) {
   return await pageRepo.getAll(options);
 }

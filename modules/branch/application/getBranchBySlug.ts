@@ -1,5 +1,5 @@
-import { branchRepo } from "../infrastructure/branchRepo";
+import { BranchRepository } from "../domain";
 
-export const getBranchBySlug = (slug: string) => {
+export const getBranchBySlug = (branchRepo: BranchRepository, slug: string) => {
   return branchRepo.getBySlug(slug);
 };

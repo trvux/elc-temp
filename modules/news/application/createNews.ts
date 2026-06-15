@@ -1,7 +1,6 @@
-import { CreateNewsInput, createNewsSchema } from "../domain";
-import { newsRepo } from "../infrastructure";
+import { CreateNewsInput, createNewsSchema, NewsRepository } from "../domain";
 
-export async function createNews(input: CreateNewsInput) {
+export async function createNews(newsRepo: NewsRepository, input: CreateNewsInput) {
   const validated = createNewsSchema.parse(input);
   return await newsRepo.create(validated as CreateNewsInput);
 }

@@ -1,7 +1,10 @@
 import { Product, UpdateProductInput, updateProductSchema } from "../domain";
-import { productRepo } from "../infrastructure/SupabaseProductRepository";
+import { ProductRepository } from "../domain/repository";
 
-export async function updateProduct(input: UpdateProductInput): Promise<Product> {
+export async function updateProduct(
+  productRepo: ProductRepository,
+  input: UpdateProductInput,
+): Promise<Product> {
   const validated = updateProductSchema.parse(input);
   return productRepo.update(validated);
 }

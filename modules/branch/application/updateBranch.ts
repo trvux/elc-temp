@@ -1,6 +1,5 @@
-import { UpdateBranchInput } from "../domain/types";
-import { branchRepo } from "../infrastructure/branchRepo";
+import { UpdateBranchInput, BranchRepository } from "../domain";
 
-export const updateBranch = (input: UpdateBranchInput) => {
+export const updateBranch = (branchRepo: BranchRepository, input: UpdateBranchInput) => {
   return branchRepo.update(input);
 };

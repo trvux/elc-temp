@@ -1,5 +1,5 @@
-import {aboutBlockRepo} from "@/modules/page/infrastructure";
+import { AboutBlockRepository } from "../domain";
 
-export const getAboutBlocks = () => {
+export const getAboutBlocks = (aboutBlockRepo: AboutBlockRepository) => {
     return aboutBlockRepo.getAll();
 };

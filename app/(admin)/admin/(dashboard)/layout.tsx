@@ -1,4 +1,5 @@
 import { getCurrentUser } from "@/modules/auth/server";
+import { authRepo } from "@/modules/auth/infrastructure/authRepo";
 import { redirect } from "next/navigation";
 import AdminSidebar from "@/shared/components/layout/admin/sidebar";
 import AdminBreadcrumb from "@/shared/components/layout/admin/breadcrumb";
@@ -18,7 +19,7 @@ export default async function AdminLayout({
   children: React.ReactNode;
 }) {
   await connection();
-  const user = await getCurrentUser();
+  const user = await getCurrentUser(authRepo);
 
   if (!user) redirect("/admin/login");
 

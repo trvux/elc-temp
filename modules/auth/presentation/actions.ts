@@ -3,21 +3,18 @@
 import { login, logout } from "../application";
 import { LoginInput, loginSchema } from "../domain/types";
 import { revalidatePath } from "next/cache";
+import { authRepo } from "../infrastructure/authRepo";
 
 export async function loginAction(input: LoginInput) {
-
-
   try {
     const validated = loginSchema.parse(input);
 
-
-    const { user, error } = await login(validated);
+    const { user, error } = await login(authRepo, validated);
 
     if (error) {
       console.warn("[loginAction] Step 3 - Login failed with error:", error);
       return { data: null, error };
     }
-
 
     revalidatePath("/", "layout");
     return { data: user, error: null };
@@ -32,7 +29,7 @@ export async function loginAction(input: LoginInput) {
 
 export async function logoutAction() {
   try {
-    const { error } = await logout();
+    const { error } = await logout(authRepo);
     if (error) {
       return { success: false, error };
     }

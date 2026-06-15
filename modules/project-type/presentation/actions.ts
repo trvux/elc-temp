@@ -8,10 +8,11 @@ import {
   updateProjectType,
 } from "../application/index";
 import { CreateProjectTypeInput, UpdateProjectTypeInput } from "../domain/types";
+import { projectTypeRepo } from "../infrastructure/projectTypeRepo";
 
 export async function getProjectTypesAction() {
   try {
-    const data = await getProjectTypes();
+    const data = await getProjectTypes(projectTypeRepo);
     return { data, error: null };
   } catch (error) {
     console.error("getProjectTypesAction error:", error);
@@ -21,7 +22,7 @@ export async function getProjectTypesAction() {
 
 export async function createProjectTypeAction(input: CreateProjectTypeInput) {
   try {
-    const data = await createProjectType(input);
+    const data = await createProjectType(projectTypeRepo, input);
     revalidatePath("/admin/project-types");
     revalidateTag("layout", { expire: 0 });
     revalidateTag("projects", { expire: 0 });
@@ -37,7 +38,7 @@ export async function createProjectTypeAction(input: CreateProjectTypeInput) {
 
 export async function updateProjectTypeAction(input: UpdateProjectTypeInput) {
   try {
-    const data = await updateProjectType(input);
+    const data = await updateProjectType(projectTypeRepo, input);
     revalidatePath("/admin/project-types");
     revalidateTag("layout", { expire: 0 });
     revalidateTag("projects", { expire: 0 });
@@ -53,7 +54,7 @@ export async function updateProjectTypeAction(input: UpdateProjectTypeInput) {
 
 export async function deleteProjectTypeAction(id: string) {
   try {
-    await deleteProjectType(id);
+    await deleteProjectType(projectTypeRepo, id);
     revalidatePath("/admin/project-types");
     revalidateTag("layout", { expire: 0 });
     revalidateTag("projects", { expire: 0 });

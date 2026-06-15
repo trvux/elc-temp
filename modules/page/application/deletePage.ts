@@ -1,5 +1,5 @@
-import { pageRepo } from "../infrastructure";
+import { PageRepository } from "../domain";
 
-export async function deletePage(id: string) {
+export async function deletePage(pageRepo: PageRepository, id: string) {
   return await pageRepo.delete(id);
 }

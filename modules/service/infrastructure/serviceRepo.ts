@@ -7,6 +7,7 @@ import {
   UpdateServiceInput,
   ServiceFilter,
 } from "../domain/types";
+import { ServiceRepository } from "../domain/repository";
 import { ServiceGroup } from "@/modules/service-group/domain/types";
 import { CategoryWithGroup } from "@/modules/category/domain/types";
 
@@ -79,7 +80,7 @@ interface ServiceQueryRow {
   } | null;
 }
 
-class ServiceRepository {
+export class SupabaseServiceRepository implements ServiceRepository {
   private readonly TABLE_NAME = "services";
 
   private mapToEntity(row: ServiceRow): Service {
@@ -555,4 +556,4 @@ class ServiceRepository {
   }
 }
 
-export const serviceRepo = new ServiceRepository();
+export const serviceRepo = new SupabaseServiceRepository();

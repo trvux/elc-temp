@@ -5,13 +5,14 @@ import {
   CreateServiceGroupInput,
   UpdateServiceGroupInput,
 } from "../domain/types";
+import { ServiceGroupRepository, ServiceGroupFilter } from "../domain/repository";
 
 type Tables = Database["public"]["Tables"];
 type ServiceGroupRow = Tables["service_groups"]["Row"];
 type ServiceGroupInsert = Tables["service_groups"]["Insert"];
 type ServiceGroupUpdate = Tables["service_groups"]["Update"];
 
-class ServiceGroupRepository {
+export class SupabaseServiceGroupRepository implements ServiceGroupRepository {
   private readonly TABLE_NAME = "service_groups";
 
   private mapToEntity(row: ServiceGroupRow): ServiceGroup {
@@ -31,7 +32,7 @@ class ServiceGroupRepository {
     };
   }
 
-  async getAll(options?: { includeDeleted?: boolean; isFeatured?: boolean }): Promise<ServiceGroup[]> {
+  async getAll(options?: ServiceGroupFilter): Promise<ServiceGroup[]> {
     const supabase = await createClient();
     let query = supabase.from(this.TABLE_NAME).select("*");
 
@@ -194,4 +195,4 @@ class ServiceGroupRepository {
   }
 }
 
-export const serviceGroupRepo = new ServiceGroupRepository();
+export const serviceGroupRepo = new SupabaseServiceGroupRepository();

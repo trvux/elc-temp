@@ -8,10 +8,11 @@ import {
   updateGroup,
 } from "../application/index";
 import { CreateGroupInput, UpdateGroupInput } from "../domain/types";
+import { groupRepo } from "../infrastructure/groupRepo";
 
 export async function getGroupsAction() {
   try {
-    const data = await getGroups();
+    const data = await getGroups(groupRepo);
     return { data, error: null };
   } catch (error) {
     console.error("getGroupsAction error:", error);
@@ -21,7 +22,7 @@ export async function getGroupsAction() {
 
 export async function createGroupAction(input: CreateGroupInput) {
   try {
-    const data = await createGroup(input);
+    const data = await createGroup(groupRepo, input);
     revalidatePath("/admin/group-categories");
     revalidateTag("layout", { expire: 0 });
     revalidateTag("products", { expire: 0 });
@@ -37,7 +38,7 @@ export async function createGroupAction(input: CreateGroupInput) {
 
 export async function updateGroupAction(input: UpdateGroupInput) {
   try {
-    const data = await updateGroup(input);
+    const data = await updateGroup(groupRepo, input);
     revalidatePath("/admin/group-categories");
     revalidateTag("layout", { expire: 0 });
     revalidateTag("products", { expire: 0 });
@@ -53,7 +54,7 @@ export async function updateGroupAction(input: UpdateGroupInput) {
 
 export async function deleteGroupAction(id: string) {
   try {
-    await deleteGroup(id);
+    await deleteGroup(groupRepo, id);
     revalidatePath("/admin/group-categories");
     revalidateTag("layout", { expire: 0 });
     revalidateTag("products", { expire: 0 });

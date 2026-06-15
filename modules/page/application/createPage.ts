@@ -1,7 +1,6 @@
-import { CreatePageInput, createPageSchema } from "../domain";
-import { pageRepo } from "../infrastructure";
+import { CreatePageInput, createPageSchema, PageRepository } from "../domain";
 
-export async function createPage(input: CreatePageInput) {
+export async function createPage(pageRepo: PageRepository, input: CreatePageInput) {
   const validated = createPageSchema.parse(input);
   return await pageRepo.create(validated as CreatePageInput);
 }
