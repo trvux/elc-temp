@@ -766,6 +766,44 @@ export class SupabaseProjectRepository implements ProjectRepository {
     console.error(`[SupabaseProjectRepository][${context}] Error:`, error);
     throw new Error(`Database error in ${context}: ${message}`);
   }
+
+  async getCategoriesByProjectTypeId(
+    projectTypeId: string,
+  ): Promise<{ id: string; name: string; slug: string }[]> {
+    const supabase = await createClient();
+    const { data, error } = await supabase
+      .from("project_category")
+      .select(
+        `
+        category:categories(id, name, slug, deleted_at),
+        projects!inner(id, project_type_id, is_published, deleted_at)
+      `,
+      )
+      .eq("projects.project_type_id", projectTypeId)
+      .eq("projects.is_published", true)
+      .is("projects.deleted_at", null)
+      .is("categories.deleted_at", null);
+
+    if (error) {
+      this.handleError(error, "getCategoriesByProjectTypeId");
+    }
+
+    const rows = (data ?? []) as unknown as {
+      category: { id: string; name: string; slug: string | null; deleted_at: string | null } | null;
+    }[];
+
+    const seen = new Set<string>();
+    const categories: { id: string; name: string; slug: string }[] = [];
+
+    for (const row of rows) {
+      const cat = row.category;
+      if (!cat || cat.deleted_at || seen.has(cat.id)) continue;
+      seen.add(cat.id);
+      categories.push({ id: cat.id, name: cat.name, slug: cat.slug || "" });
+    }
+
+    return categories;
+  }
 }
 
 export const projectRepo = new SupabaseProjectRepository();

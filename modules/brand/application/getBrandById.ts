@@ -1,6 +1,5 @@
-import { Brand } from "../domain/types";
-import { brandRepo } from "../infrastructure/brandRepo";
+import { Brand, BrandRepository } from "../domain";
 
-export async function getBrandById(id: string): Promise<Brand | null> {
+export async function getBrandById(brandRepo: BrandRepository, id: string): Promise<Brand | null> {
   return brandRepo.getById(id);
 }

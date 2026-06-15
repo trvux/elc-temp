@@ -2,10 +2,11 @@
 
 import {revalidatePath, revalidateTag} from "next/cache";
 import {createPage, CreatePageInput, deletePage, getPages, updatePage, UpdatePageInput} from "@/modules/page";
+import { pageRepo } from "../infrastructure/SupabasePageRepository";
 
 export async function getPagesAction() {
     try {
-        const data = await getPages();
+        const data = await getPages(pageRepo);
         return {data, error: null};
     } catch (error) {
         console.error("getPagesAction error:", error);
@@ -15,7 +16,7 @@ export async function getPagesAction() {
 
 export async function createPageAction(input: CreatePageInput) {
     try {
-        const data = await createPage(input);
+        const data = await createPage(pageRepo, input);
         revalidatePath("/admin/pages");
         revalidatePath(`/${data.slug}`);
         revalidateTag("layout", { expire: 0 });
@@ -31,7 +32,7 @@ export async function createPageAction(input: CreatePageInput) {
 
 export async function updatePageAction(input: UpdatePageInput) {
     try {
-        const data = await updatePage(input);
+        const data = await updatePage(pageRepo, input);
         revalidatePath("/admin/pages");
         revalidatePath(`/${data.slug}`);
         revalidateTag("layout", { expire: 0 });
@@ -47,7 +48,7 @@ export async function updatePageAction(input: UpdatePageInput) {
 
 export async function deletePageAction(id: string) {
     try {
-        await deletePage(id);
+        await deletePage(pageRepo, id);
         revalidatePath("/admin/pages");
         revalidateTag("layout", { expire: 0 });
         return {success: true, error: null};

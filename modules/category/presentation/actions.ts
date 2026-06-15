@@ -7,12 +7,13 @@ import {
   deleteCategory,
   getCategories,
   updateCategory,
-} from "../application/index";
-import { CreateCategoryInput, UpdateCategoryInput } from "../domain/types";
+} from "../application";
+import { CreateCategoryInput, UpdateCategoryInput } from "../domain";
+import { categoryRepo } from "../infrastructure/categoryRepo";
 
 export async function getCategoriesAction() {
   try {
-    const data = await getCategories();
+    const data = await getCategories(categoryRepo);
     return { data, error: null };
   } catch (error) {
     unstable_rethrow(error);
@@ -23,7 +24,7 @@ export async function getCategoriesAction() {
 
 export async function createCategoryAction(input: CreateCategoryInput) {
   try {
-    const data = await createCategory(input);
+    const data = await createCategory(categoryRepo, input);
     revalidatePath("/admin/categories");
     revalidateTag("layout", { expire: 0 });
     revalidateTag("products", { expire: 0 });
@@ -39,7 +40,7 @@ export async function createCategoryAction(input: CreateCategoryInput) {
 
 export async function updateCategoryAction(input: UpdateCategoryInput) {
   try {
-    const data = await updateCategory(input);
+    const data = await updateCategory(categoryRepo, input);
     revalidatePath("/admin/categories");
     revalidateTag("layout", { expire: 0 });
     revalidateTag("products", { expire: 0 });
@@ -55,7 +56,7 @@ export async function updateCategoryAction(input: UpdateCategoryInput) {
 
 export async function deleteCategoryAction(id: string) {
   try {
-    await deleteCategory(id);
+    await deleteCategory(categoryRepo, id);
     revalidatePath("/admin/categories");
     revalidateTag("layout", { expire: 0 });
     revalidateTag("products", { expire: 0 });

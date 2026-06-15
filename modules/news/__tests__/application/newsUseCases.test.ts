@@ -37,7 +37,7 @@ describe("News Application Use Cases", () => {
   describe("getNews", () => {
     it("should call repository.getAll", async () => {
       vi.mocked(newsRepo.getAll).mockResolvedValue([mockNews]);
-      const result = await getNews();
+      const result = await getNews(newsRepo);
       expect(newsRepo.getAll).toHaveBeenCalled();
       expect(result).toEqual([mockNews]);
     });
@@ -47,7 +47,7 @@ describe("News Application Use Cases", () => {
     it("should validate and create news", async () => {
       const input: CreateNewsInput = { title: "New", slug: "new" };
       vi.mocked(newsRepo.create).mockResolvedValue({ ...mockNews, ...input });
-      const result = await createNews(input);
+      const result = await createNews(newsRepo, input);
       expect(newsRepo.create).toHaveBeenCalled();
       expect(result.title).toBe("New");
     });
@@ -56,7 +56,7 @@ describe("News Application Use Cases", () => {
   describe("deleteNews", () => {
     it("should call repository.delete", async () => {
       vi.mocked(newsRepo.delete).mockResolvedValue(undefined);
-      await deleteNews(mockNewsId);
+      await deleteNews(newsRepo, mockNewsId);
       expect(newsRepo.delete).toHaveBeenCalledWith(mockNewsId);
     });
   });

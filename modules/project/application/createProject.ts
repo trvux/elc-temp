@@ -1,9 +1,8 @@
-import { CreateProjectInput } from "../domain";
-import { projectRepo } from "../infrastructure/projectRepo";
+import { CreateProjectInput, ProjectRepository } from "../domain";
 
 /**
- * Tạo mới một dự án
+ * Tạo mới dự án
  */
-export const createProject = (input: CreateProjectInput) => {
+export const createProject = (projectRepo: ProjectRepository, input: CreateProjectInput) => {
   return projectRepo.create(input);
 };

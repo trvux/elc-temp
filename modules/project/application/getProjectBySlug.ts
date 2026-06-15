@@ -1,8 +1,8 @@
-import { projectRepo } from "../infrastructure/projectRepo";
+import { ProjectRepository } from "../domain";
 
 /**
- * Lấy chi tiết dự án theo Slug
+ * Lấy dự án theo slug
  */
-export const getProjectBySlug = (slug: string) => {
+export const getProjectBySlug = (projectRepo: ProjectRepository, slug: string) => {
   return projectRepo.getBySlug(slug);
 };

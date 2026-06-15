@@ -1,8 +1,8 @@
-import { projectRepo } from "../infrastructure/projectRepo";
+import { ProjectRepository } from "../domain";
 
 /**
- * Xóa dự án (Soft delete)
+ * Xóa mềm dự án
  */
-export const deleteProject = (id: string) => {
+export const deleteProject = (projectRepo: ProjectRepository, id: string) => {
   return projectRepo.delete(id);
 };

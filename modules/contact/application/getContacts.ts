@@ -1,7 +1,5 @@
-import { ContactFilter } from "../domain";
-import { contactRepo } from "../infrastructure";
+import { ContactFilter, ContactRepository } from "../domain";
 
-
-export async function getContacts(options?: ContactFilter) {
+export async function getContacts(contactRepo: ContactRepository, options?: ContactFilter) {
   return await contactRepo.getAll(options);
 }

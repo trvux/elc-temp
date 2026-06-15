@@ -597,8 +597,8 @@ export function generateProjectTypeMetadata(
     };
   }
 
-  let titleParts: string[] = [];
-  let descParts: string[] = [];
+  const titleParts: string[] = [];
+  const descParts: string[] = [];
 
   if (serviceName) {
     titleParts.push(serviceName);

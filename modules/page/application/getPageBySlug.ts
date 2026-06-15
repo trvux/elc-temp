@@ -1,5 +1,5 @@
-import { pageRepo } from "../infrastructure";
+import { PageRepository } from "../domain";
 
-export async function getPageBySlug(slug: string) {
+export async function getPageBySlug(pageRepo: PageRepository, slug: string) {
   return await pageRepo.getBySlug(slug);
 }

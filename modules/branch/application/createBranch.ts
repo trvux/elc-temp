@@ -1,6 +1,5 @@
-import { CreateBranchInput } from "../domain/types";
-import { branchRepo } from "../infrastructure/branchRepo";
+import { CreateBranchInput, BranchRepository } from "../domain";
 
-export const createBranch = (input: CreateBranchInput) => {
+export const createBranch = (branchRepo: BranchRepository, input: CreateBranchInput) => {
   return branchRepo.create(input);
 };

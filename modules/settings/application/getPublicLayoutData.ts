@@ -1,5 +1,5 @@
 import { createStaticClient } from "@/shared/lib/supabase/static";
-import { mapContactRowToDomain } from "@/modules/contact/domain";
+import { getContactHref } from "@/modules/contact";
 import { cacheLife, cacheTag } from "next/cache";
 import { Branch } from "@/modules/branch/domain";
 
@@ -171,7 +171,19 @@ export async function getPublicLayoutData() {
 
   return {
     settings,
-    contacts: (contacts || []).map(mapContactRowToDomain),
+    contacts: (contacts || []).map((row) => {
+      const href = getContactHref(row.type || "", row.value || "");
+      return {
+        id: row.id,
+        type: row.type || "",
+        label: row.label || null,
+        value: row.value || "",
+        isActive: row.is_active ?? true,
+        orderIndex: row.order_index || 0,
+        href,
+        isExternal: !href.startsWith("tel:") && !href.startsWith("mailto:"),
+      };
+    }),
     branches: mappedBranches,
     projects: mappedProjects,
     pages: pages || [],

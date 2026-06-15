@@ -40,7 +40,7 @@ describe("Brand Application Use Cases", () => {
       const input = { name: "Samsung", slug: "samsung" };
       vi.mocked(brandRepo.create).mockResolvedValue({ ...mockBrand, ...input });
 
-      const result = await createBrand(input);
+      const result = await createBrand(brandRepo, input);
 
       expect(brandRepo.create).toHaveBeenCalled();
       expect(result.name).toBe("Samsung");
@@ -48,7 +48,7 @@ describe("Brand Application Use Cases", () => {
 
     it("should throw error if validation fails", async () => {
       const input = { name: "", slug: "samsung" };
-      await expect(createBrand(input as any)).rejects.toThrow();
+      await expect(createBrand(brandRepo, input as any)).rejects.toThrow();
     });
   });
 
@@ -57,7 +57,7 @@ describe("Brand Application Use Cases", () => {
       const input = { id: VALID_ID, name: "Apple Updated" };
       vi.mocked(brandRepo.update).mockResolvedValue({ ...mockBrand, ...input });
 
-      const result = await updateBrand(input);
+      const result = await updateBrand(brandRepo, input);
 
       expect(brandRepo.update).toHaveBeenCalled();
       expect(result.name).toBe("Apple Updated");
@@ -65,14 +65,14 @@ describe("Brand Application Use Cases", () => {
 
     it("should throw error if id is missing", async () => {
       const input = { name: "Apple Updated" };
-      await expect(updateBrand(input as any)).rejects.toThrow();
+      await expect(updateBrand(brandRepo, input as any)).rejects.toThrow();
     });
   });
 
   describe("getBrands", () => {
     it("should return all brands from repository", async () => {
       vi.mocked(brandRepo.getAll).mockResolvedValue([mockBrand]);
-      const result = await getBrands();
+      const result = await getBrands(brandRepo);
       expect(result).toHaveLength(1);
       expect(brandRepo.getAll).toHaveBeenCalled();
     });
@@ -81,7 +81,7 @@ describe("Brand Application Use Cases", () => {
   describe("getBrandById", () => {
     it("should return brand by id", async () => {
       vi.mocked(brandRepo.getById).mockResolvedValue(mockBrand);
-      const result = await getBrandById(VALID_ID);
+      const result = await getBrandById(brandRepo, VALID_ID);
       expect(result?.id).toBe(VALID_ID);
       expect(brandRepo.getById).toHaveBeenCalledWith(VALID_ID);
     });
@@ -90,7 +90,7 @@ describe("Brand Application Use Cases", () => {
   describe("deleteBrand", () => {
     it("should call repository delete", async () => {
       vi.mocked(brandRepo.delete).mockResolvedValue();
-      await deleteBrand(VALID_ID);
+      await deleteBrand(brandRepo, VALID_ID);
       expect(brandRepo.delete).toHaveBeenCalledWith(VALID_ID);
     });
   });

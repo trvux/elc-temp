@@ -57,4 +57,12 @@ export interface ProjectRepository {
     categoryId: string,
     limit?: number,
   ): Promise<ProjectWithCategory[]>;
+
+  getCategoriesByProjectTypeId(projectTypeId: string): Promise<
+    {
+      id: string;
+      name: string;
+      slug: string;
+    }[]
+  >;
 }

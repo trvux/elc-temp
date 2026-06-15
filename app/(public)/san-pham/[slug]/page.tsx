@@ -1,4 +1,5 @@
 import { resolveProductPath } from "@/modules/catalog/application/resolveProductPath";
+import { resolveProductPathFromDb } from "@/modules/catalog/infrastructure/resolveProductPath";
 import { ProductWithRelations } from "@/modules/catalog/domain";
 import { ProductDetailModule } from "@/modules/catalog/presentation/components/public/ProductDetailModule";
 import { ProductListModule } from "@/modules/catalog/presentation/components/public/ProductListModule";
@@ -21,7 +22,7 @@ export async function generateMetadata(
   parent: ResolvingMetadata,
 ): Promise<Metadata> {
   const { slug } = await params;
-  const resolved = await resolveProductPath(slug);
+  const resolved = await resolveProductPath(resolveProductPathFromDb, slug);
 
   if (!resolved) return {};
 
@@ -101,7 +102,7 @@ export async function generateMetadata(
 export default async function FlatSlugPage({ params, searchParams }: Props) {
   const { slug } = await params;
 
-  const resolved = await resolveProductPath(slug);
+  const resolved = await resolveProductPath(resolveProductPathFromDb, slug);
 
   if (!resolved) {
     notFound();

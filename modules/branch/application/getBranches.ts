@@ -1,6 +1,5 @@
-import { BranchFilter } from "../domain";
-import { branchRepo } from "../infrastructure/branchRepo";
+import { BranchFilter, BranchRepository } from "../domain";
 
-export const getBranches = (options?: BranchFilter) => {
+export const getBranches = (branchRepo: BranchRepository, options?: BranchFilter) => {
   return branchRepo.getAll(options);
 };

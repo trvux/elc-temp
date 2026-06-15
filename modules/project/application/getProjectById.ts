@@ -1,15 +1,15 @@
-import { projectRepo } from "../infrastructure/projectRepo";
+import { ProjectRepository } from "../domain";
 
 /**
- * Lấy chi tiết dự án theo ID
+ * Lấy dự án theo ID
  */
-export const getProjectById = (id: string) => {
+export const getProjectById = (projectRepo: ProjectRepository, id: string) => {
   return projectRepo.getById(id);
 };
 
 /**
- * Lấy danh sách dự án theo mảng ID (Batch fetch)
+ * Lấy danh sách dự án theo mảng ID
  */
-export const getProjectsByIds = (ids: string[]) => {
+export const getProjectsByIds = (projectRepo: ProjectRepository, ids: string[]) => {
   return projectRepo.getByIds(ids);
 };

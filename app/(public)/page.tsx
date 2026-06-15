@@ -9,11 +9,17 @@ import { ShowcaseSection } from "@/shared/components/sections/showcase";
 import { StickyContactActions } from "@/shared/components/sections/sticky-contact-actions";
 
 import { getBrands } from "@/modules/brand/application";
+import { brandRepo } from "@/modules/brand/infrastructure/brandRepo";
 import { getProducts } from "@/modules/catalog/application";
+import { productRepo } from "@/modules/catalog/infrastructure/SupabaseProductRepository";
 import { getContacts } from "@/modules/contact/application";
+import { contactRepo } from "@/modules/contact/infrastructure";
 import { getProjects } from "@/modules/project/application";
+import { projectRepo as projectRepo } from "@/modules/project/infrastructure/projectRepo";
 import { getSiteSettings } from "@/modules/settings/application";
+import { settingsRepo as settingsRepo } from "@/modules/settings/infrastructure/settingsRepo";
 import { getBranches } from "@/modules/branch/application";
+import { branchRepo as branchRepo } from "@/modules/branch/infrastructure/branchRepo";
 
 import { Metadata } from "next";
 import { generateHomeSchema } from "@/shared/lib/seo-utils";
@@ -43,19 +49,19 @@ async function getCachedHomeData() {
   // Fetch all necessary data for the homepage using the application layer
   const [settingsData, projects, featuredProducts, contacts, brands, branches] =
     await Promise.all([
-      getSiteSettings(),
-      getProjects({
+      getSiteSettings(settingsRepo),
+      getProjects(projectRepo, {
         isPublished: true,
         limit: 200,
       }),
-      getProducts({
+      getProducts(productRepo, {
         isPublished: true,
         isFeatured: true,
         limit: 12,
       }),
-      getContacts(),
-      getBrands({ limit: 100 }),
-      getBranches({ isPublished: true }),
+      getContacts(contactRepo),
+      getBrands(brandRepo, { limit: 100 }),
+      getBranches(branchRepo, { isPublished: true }),
     ]);
 
   // Convert settings array to a more usable object

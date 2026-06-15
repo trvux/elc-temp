@@ -1,5 +1,7 @@
-import { serviceRepo } from "../infrastructure/serviceRepo";
-import { CreateServiceInput, UpdateServiceInput, ServiceFilter, ServiceWithRelations } from "../domain/types";
+import { CreateServiceInput, UpdateServiceInput, ServiceFilter, ServiceWithRelations, Service } from "../domain/types";
+import { ServiceRepository } from "../domain/repository";
+import { ServiceGroupRepository } from "@/modules/service-group/domain/repository";
+import { getServiceGroups } from "@/modules/service-group/application";
 
 export interface GroupedServices {
   name: string;
@@ -8,16 +10,17 @@ export interface GroupedServices {
   createdAt: string;
 }
 
-export const getServices = async (options?: ServiceFilter) => {
+export async function getServices(serviceRepo: ServiceRepository, options?: ServiceFilter): Promise<ServiceWithRelations[]> {
   return serviceRepo.getAll(options);
-};
+}
 
-import { getServiceGroups } from "@/modules/service-group/application";
-
-export const getPublishedServicesGrouped = async (): Promise<GroupedServices[]> => {
+export async function getPublishedServicesGrouped(
+  serviceRepo: ServiceRepository,
+  serviceGroupRepo: ServiceGroupRepository
+): Promise<GroupedServices[]> {
   const [allServices, allGroups] = await Promise.all([
-    getServices({ isPublished: true }),
-    getServiceGroups({ includeDeleted: false })
+    getServices(serviceRepo, { isPublished: true }),
+    getServiceGroups(serviceGroupRepo, { includeDeleted: false })
   ]);
 
   const groupsMap = new Map<
@@ -74,28 +77,28 @@ export const getPublishedServicesGrouped = async (): Promise<GroupedServices[]> 
     const bTime = new Date(b.createdAt).getTime();
     return aTime - bTime;
   });
-};
+}
 
-export const getServiceById = async (id: string) => {
+export async function getServiceById(serviceRepo: ServiceRepository, id: string): Promise<ServiceWithRelations | null> {
   return serviceRepo.getById(id);
-};
+}
 
-export const getServiceBySlug = async (slug: string) => {
+export async function getServiceBySlug(serviceRepo: ServiceRepository, slug: string): Promise<ServiceWithRelations | null> {
   return serviceRepo.getBySlug(slug);
-};
+}
 
-export const createService = async (input: CreateServiceInput) => {
+export async function createService(serviceRepo: ServiceRepository, input: CreateServiceInput): Promise<Service> {
   return serviceRepo.create(input);
-};
+}
 
-export const updateService = async (input: UpdateServiceInput) => {
+export async function updateService(serviceRepo: ServiceRepository, input: UpdateServiceInput): Promise<Service> {
   return serviceRepo.update(input);
-};
+}
 
-export const deleteService = async (id: string) => {
+export async function deleteService(serviceRepo: ServiceRepository, id: string): Promise<void> {
   return serviceRepo.softDelete(id);
-};
+}
 
-export const restoreService = async (id: string) => {
+export async function restoreService(serviceRepo: ServiceRepository, id: string): Promise<void> {
   return serviceRepo.restore(id);
-};
+}

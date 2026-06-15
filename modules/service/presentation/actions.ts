@@ -10,10 +10,11 @@ import {
   getServiceById,
 } from "../application/index";
 import { CreateServiceInput, UpdateServiceInput, ServiceFilter } from "../domain/types";
+import { serviceRepo } from "../infrastructure/serviceRepo";
 
 export async function getServicesAction(options?: ServiceFilter) {
   try {
-    const data = await getServices(options);
+    const data = await getServices(serviceRepo, options);
     return { data, error: null };
   } catch (error) {
     unstable_rethrow(error);
@@ -24,7 +25,7 @@ export async function getServicesAction(options?: ServiceFilter) {
 
 export async function createServiceAction(input: CreateServiceInput) {
   try {
-    const data = await createService(input);
+    const data = await createService(serviceRepo, input);
     revalidateTag("services-list", { expire: 0 });
     if (data?.slug) {
       revalidateTag(`service-slug:${data.slug}`, { expire: 0 });
@@ -43,7 +44,7 @@ export async function createServiceAction(input: CreateServiceInput) {
 
 export async function updateServiceAction(input: UpdateServiceInput) {
   try {
-    const data = await updateService(input);
+    const data = await updateService(serviceRepo, input);
     revalidateTag("services-list", { expire: 0 });
     if (data?.slug) {
       revalidateTag(`service-slug:${data.slug}`, { expire: 0 });
@@ -62,8 +63,8 @@ export async function updateServiceAction(input: UpdateServiceInput) {
 
 export async function deleteServiceAction(id: string) {
   try {
-    const service = await getServiceById(id);
-    await deleteService(id);
+    const service = await getServiceById(serviceRepo, id);
+    await deleteService(serviceRepo, id);
     revalidateTag("services-list", { expire: 0 });
     if (service?.slug) {
       revalidateTag(`service-slug:${service.slug}`, { expire: 0 });

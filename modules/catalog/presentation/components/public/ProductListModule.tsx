@@ -1,9 +1,11 @@
 import { searchProducts } from "@/modules/catalog/application";
+import { productRepo } from "@/modules/catalog/infrastructure/SupabaseProductRepository";
 import { ResolvedEntity } from "@/modules/catalog/application/resolveProductPath";
 import { ProductCard } from "@/modules/catalog/presentation/components/ProductCard";
 import { ProductFilterMobile } from "@/modules/catalog/presentation/components/ProductFilterMobile";
 import { ProductFilters } from "@/modules/catalog/presentation/components/ProductFilters";
 import { getCategories } from "@/modules/category/application";
+import { categoryRepo } from "@/modules/category/infrastructure/categoryRepo";
 import { Breadcrumbs } from "@/shared/components/layout/user/breadcrumbs";
 import { FilteredGridWrapper } from "@/shared/components/layout/user/filtered-grid-wrapper";
 import { PaginationNav } from "@/shared/components/layout/user/pagination-nav";
@@ -102,9 +104,9 @@ async function getCachedListModuleData(
       .map((c) => c.id);
   }
 
-  const allCategories = await getCategories();
+  const allCategories = await getCategories(categoryRepo);
 
-  const { products, totalCount, availableFilters } = await searchProducts(q, {
+  const { products, totalCount, availableFilters } = await searchProducts(productRepo, q, {
     categoryIds,
     brandIds,
     brandSlugs,

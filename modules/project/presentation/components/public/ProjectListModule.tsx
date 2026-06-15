@@ -1,9 +1,14 @@
 import { getCategories } from "@/modules/category/application";
+import { categoryRepo } from "@/modules/category/infrastructure/categoryRepo";
 import { getProjectTypes } from "@/modules/project-type/application";
+import { projectTypeRepo } from "@/modules/project-type/infrastructure/projectTypeRepo";
 import { ProjectTypeWithCategories } from "@/modules/project-type/domain/types";
 import { getProjects } from "@/modules/project/application/getProjects";
+import { getCategoriesByProjectTypeId } from "@/modules/project/application/getCategoriesByProjectTypeId";
+import { projectRepo } from "@/modules/project/infrastructure/projectRepo";
 import { ProjectCard } from "@/modules/project/presentation/components/ProjectCard";
 import { getServices } from "@/modules/service/application";
+import { serviceRepo } from "@/modules/service/infrastructure/serviceRepo";
 import { Breadcrumbs } from "@/shared/components/layout/user/breadcrumbs";
 import { FilteredGridWrapper } from "@/shared/components/layout/user/filtered-grid-wrapper";
 import { PaginationNav } from "@/shared/components/layout/user/pagination-nav";
@@ -16,7 +21,7 @@ import {
   TypographySmall,
 } from "@/shared/components/ui/typography";
 import { getQueryTokens } from "@/shared/lib/search-utils";
-import { createClient, setUseStaticClient } from "@/shared/lib/supabase/server";
+import { setUseStaticClient } from "@/shared/lib/supabase/server";
 import { cacheLife, cacheTag } from "next/cache";
 import Link from "next/link";
 import { Suspense } from "react";
@@ -78,33 +83,23 @@ async function getCachedProjectListData(
     allProjectTypes,
     allPublishedProjectsRaw,
     allServices,
-    relDataResult,
+    projectTypeCategoriesRaw,
     allCategoriesRaw
   ] = await Promise.all([
-    getProjects({
+    getProjects(projectRepo, {
       isPublished: true,
       projectTypeId: projectType?.id || undefined,
       categorySlugs: categorySlugs.length > 0 ? categorySlugs : undefined,
       serviceSlugs: serviceSlugs.length > 0 ? serviceSlugs : undefined,
       search: searchVal,
     }),
-    getProjectTypes(),
-    getProjects({ isPublished: true }),
-    getServices({ isPublished: true }),
-    projectType ? (async () => {
-      const supabase = await createClient();
-      return supabase
-        .from("project_category")
-        .select(`
-          category:categories(id, name, slug, deleted_at),
-          projects!inner(id, project_type_id, is_published, deleted_at)
-        `)
-        .eq("projects.project_type_id", projectType.id)
-        .eq("projects.is_published", true)
-        .is("projects.deleted_at", null)
-        .is("categories.deleted_at", null);
-    })() : Promise.resolve({ data: null, error: null }),
-    projectType ? Promise.resolve([]) : getCategories({ includeDeleted: false })
+    getProjectTypes(projectTypeRepo),
+    getProjects(projectRepo, { isPublished: true }),
+    getServices(serviceRepo, { isPublished: true }),
+    projectType
+      ? getCategoriesByProjectTypeId(projectRepo, projectType.id)
+      : Promise.resolve(null),
+    projectType ? Promise.resolve([]) : getCategories(categoryRepo, { includeDeleted: false })
   ]);
 
   let projects = projectsRaw;
@@ -157,11 +152,7 @@ async function getCachedProjectListData(
       slug: cat.slug || "",
     }));
 
-    // 2. Fetch categories from projects under this service type
-    const relData = relDataResult.data;
-    const relError = relDataResult.error;
-
-    // Merge and deduplicate
+    // 2. Merge default categories with project-specific ones from the repository
     const categoryMap = new Map<
       string,
       { id: string; name: string; slug: string }
@@ -172,32 +163,10 @@ async function getCachedProjectListData(
       categoryMap.set(cat.id, cat);
     });
 
-    // Add project-specific ones
-    if (relData && !relError) {
-      const typedData = relData as unknown as {
-        category: {
-          id: string;
-          name: string;
-          slug: string;
-          deleted_at: string | null;
-        } | null;
-        projects: {
-          id: string;
-          project_type_id: string | null;
-          is_published: boolean;
-          deleted_at: string | null;
-        } | null;
-      }[];
-
-      typedData.forEach((row) => {
-        const cat = row.category;
-        if (cat) {
-          categoryMap.set(cat.id, {
-            id: cat.id,
-            name: cat.name,
-            slug: cat.slug || "",
-          });
-        }
+    // Add project-specific ones fetched from the repo
+    if (projectTypeCategoriesRaw) {
+      projectTypeCategoriesRaw.forEach((cat) => {
+        categoryMap.set(cat.id, cat);
       });
     }
 

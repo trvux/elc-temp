@@ -1,10 +1,10 @@
 import { createClient } from "@/shared/lib/supabase/server";
 import { Tables } from "@/shared/types/supabase";
-import { SiteSetting } from "../domain/types";
+import { SiteSetting, SettingsRepository } from "../domain";
 
 type SettingRow = Tables<"site_settings">;
 
-export const settingsRepo = {
+export class SupabaseSettingsRepository implements SettingsRepository {
   async getAll(): Promise<SiteSetting[]> {
     const supabase = await createClient();
     const { data, error } = await supabase.from("site_settings").select("*");
@@ -12,7 +12,7 @@ export const settingsRepo = {
     if (error) throw error;
 
     return (data || []).map((row) => this.mapToDomain(row));
-  },
+  }
 
   async updateMany(settings: SiteSetting[]): Promise<void> {
     const supabase = await createClient();
@@ -29,12 +29,14 @@ export const settingsRepo = {
       );
 
     if (error) throw error;
-  },
+  }
 
-  mapToDomain(row: SettingRow): SiteSetting {
+  private mapToDomain(row: SettingRow): SiteSetting {
     return {
       key: row.key,
       value: row.value || "",
     };
   }
-};
+}
+
+export const settingsRepo = new SupabaseSettingsRepository();

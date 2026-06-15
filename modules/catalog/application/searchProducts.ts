@@ -1,6 +1,6 @@
 import Fuse from "fuse.js";
 import { ProductFilter, ProductWithRelations, normalizeProductPrice, SpecItem, SpecSubItem } from "../domain";
-import { productRepo } from "../infrastructure/SupabaseProductRepository";
+import { ProductRepository } from "../domain/repository";
 import { getQueryTokens, tokenize } from "@/shared/lib/search-utils";
 
 
@@ -222,6 +222,7 @@ function getCategoryPriority(slug: string): number {
 }
 
 export async function searchProducts(
+  productRepo: ProductRepository,
   q: string,
   options: ProductFilter = {},
 ): Promise<{

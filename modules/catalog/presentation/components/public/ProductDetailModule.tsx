@@ -1,6 +1,7 @@
 import { getAdjacentProducts } from "@/modules/catalog/application/getAdjacentProducts";
+import { productRepo } from "@/modules/catalog/infrastructure/SupabaseProductRepository";
 import { formatPrice, ProductWithRelations } from "@/modules/catalog/domain";
-import { mapContactRowToDomain } from "@/modules/contact/domain";
+import { getContactHref } from "@/modules/contact";
 import { Breadcrumbs } from "@/shared/components/layout/user/breadcrumbs";
 import { DetailPager } from "@/shared/components/layout/user/detail-pager";
 import { OrderButton } from "@/shared/components/layout/user/order-button";
@@ -113,7 +114,19 @@ async function getCachedProductDetailData(productSlug: string) {
     .eq("is_active", true)
     .order("order_index");
 
-  const contacts = (rawContacts || []).map(mapContactRowToDomain);
+  const contacts = (rawContacts || []).map((row) => {
+    const href = getContactHref(row.type || "", row.value || "");
+    return {
+      id: row.id,
+      type: row.type || "",
+      label: row.label || null,
+      value: row.value || "",
+      isActive: row.is_active ?? true,
+      orderIndex: row.order_index || 0,
+      href,
+      isExternal: !href.startsWith("tel:") && !href.startsWith("mailto:"),
+    };
+  });
 
   return {
     contacts,
@@ -129,7 +142,7 @@ export async function ProductDetailModule({
   const { contacts, currentYear } = await getCachedProductDetailData(
     product.slug,
   );
-  const { prev, next } = await getAdjacentProducts(product);
+  const { prev, next } = await getAdjacentProducts(productRepo, product);
 
   const category = product.category;
   if (!category) notFound();

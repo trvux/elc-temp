@@ -9,10 +9,11 @@ import {
   deleteBrand,
 } from "../application";
 import { BrandFilter, CreateBrandInput, UpdateBrandInput } from "../domain";
+import { brandRepo } from "../infrastructure/brandRepo";
 
 export async function getBrandsAction(options?: BrandFilter) {
   try {
-    const data = await getBrands(options);
+    const data = await getBrands(brandRepo, options);
     return { data, error: null };
   } catch (error) {
     console.error("getBrandsAction error:", error);
@@ -22,7 +23,7 @@ export async function getBrandsAction(options?: BrandFilter) {
 
 export async function getBrandByIdAction(id: string) {
   try {
-    const data = await getBrandById(id);
+    const data = await getBrandById(brandRepo, id);
     return { data, error: null };
   } catch (error) {
     console.error("getBrandByIdAction error:", error);
@@ -32,7 +33,7 @@ export async function getBrandByIdAction(id: string) {
 
 export async function createBrandAction(input: CreateBrandInput) {
   try {
-    const data = await createBrand(input);
+    const data = await createBrand(brandRepo, input);
     revalidatePath("/admin/brands");
     revalidateTag("layout", { expire: 0 });
     return { data, error: null };
@@ -47,7 +48,7 @@ export async function createBrandAction(input: CreateBrandInput) {
 
 export async function updateBrandAction(input: UpdateBrandInput) {
   try {
-    const data = await updateBrand(input);
+    const data = await updateBrand(brandRepo, input);
     revalidatePath("/admin/brands");
     revalidateTag("layout", { expire: 0 });
     return { data, error: null };
@@ -62,7 +63,7 @@ export async function updateBrandAction(input: UpdateBrandInput) {
 
 export async function deleteBrandAction(id: string) {
   try {
-    await deleteBrand(id);
+    await deleteBrand(brandRepo, id);
     revalidatePath("/admin/brands");
     revalidateTag("layout", { expire: 0 });
     return { success: true, error: null };
@@ -74,4 +75,3 @@ export async function deleteBrandAction(id: string) {
     };
   }
 }
-

@@ -31,7 +31,7 @@ describe("Contact Use Cases", () => {
       };
       vi.mocked(contactRepo.create).mockResolvedValue(mockResult);
 
-      const result = await createContact(input);
+      const result = await createContact(contactRepo, input);
 
       expect(contactRepo.create).toHaveBeenCalledWith(expect.objectContaining(input));
       expect(result).toEqual(mockResult);
@@ -39,7 +39,7 @@ describe("Contact Use Cases", () => {
 
     it("should throw error if validation fails", async () => {
       const input = { type: "" }; // Invalid
-      await expect(createContact(input as any)).rejects.toThrow();
+      await expect(createContact(contactRepo, input as any)).rejects.toThrow();
     });
   });
 });

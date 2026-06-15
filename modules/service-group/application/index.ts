@@ -1,30 +1,30 @@
-import { serviceGroupRepo } from "../infrastructure/serviceGroupRepo";
-import { CreateServiceGroupInput, UpdateServiceGroupInput } from "../domain/types";
+import { CreateServiceGroupInput, UpdateServiceGroupInput, ServiceGroup } from "../domain/types";
+import { ServiceGroupRepository, ServiceGroupFilter } from "../domain/repository";
 
-export const getServiceGroups = async (options?: { includeDeleted?: boolean; isFeatured?: boolean }) => {
+export async function getServiceGroups(serviceGroupRepo: ServiceGroupRepository, options?: ServiceGroupFilter): Promise<ServiceGroup[]> {
   return serviceGroupRepo.getAll(options);
-};
+}
 
-export const getServiceGroupById = async (id: string) => {
+export async function getServiceGroupById(serviceGroupRepo: ServiceGroupRepository, id: string): Promise<ServiceGroup | null> {
   return serviceGroupRepo.getById(id);
-};
+}
 
-export const getServiceGroupBySlug = async (slug: string) => {
+export async function getServiceGroupBySlug(serviceGroupRepo: ServiceGroupRepository, slug: string): Promise<ServiceGroup | null> {
   return serviceGroupRepo.getBySlug(slug);
-};
+}
 
-export const createServiceGroup = async (input: CreateServiceGroupInput) => {
+export async function createServiceGroup(serviceGroupRepo: ServiceGroupRepository, input: CreateServiceGroupInput): Promise<ServiceGroup> {
   return serviceGroupRepo.create(input);
-};
+}
 
-export const updateServiceGroup = async (input: UpdateServiceGroupInput) => {
+export async function updateServiceGroup(serviceGroupRepo: ServiceGroupRepository, input: UpdateServiceGroupInput): Promise<ServiceGroup> {
   return serviceGroupRepo.update(input);
-};
+}
 
-export const deleteServiceGroup = async (id: string) => {
+export async function deleteServiceGroup(serviceGroupRepo: ServiceGroupRepository, id: string): Promise<void> {
   return serviceGroupRepo.softDelete(id);
-};
+}
 
-export const restoreServiceGroup = async (id: string) => {
+export async function restoreServiceGroup(serviceGroupRepo: ServiceGroupRepository, id: string): Promise<void> {
   return serviceGroupRepo.restore(id);
-};
+}

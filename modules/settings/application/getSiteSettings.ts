@@ -1,6 +1,5 @@
-import { settingsRepo } from "../infrastructure/settingsRepo";
+import { SettingsRepository } from "../domain";
 
-
-export const getSiteSettings = async () => {
+export const getSiteSettings = async (settingsRepo: SettingsRepository) => {
   return settingsRepo.getAll();
 };

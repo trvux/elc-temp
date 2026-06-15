@@ -1,8 +1,6 @@
-import { Brand, CreateBrandInput } from "../domain/types";
-import { brandRepo } from "../infrastructure/brandRepo";
-import { createBrandSchema } from "../domain/validators";
+import { Brand, CreateBrandInput, BrandRepository, createBrandSchema } from "../domain";
 
-export async function createBrand(input: CreateBrandInput): Promise<Brand> {
+export async function createBrand(brandRepo: BrandRepository, input: CreateBrandInput): Promise<Brand> {
   const validated = createBrandSchema.parse(input);
   return brandRepo.create(validated);
 }
