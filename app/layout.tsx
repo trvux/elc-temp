@@ -6,6 +6,8 @@ import { cn } from "@/shared/lib/utils";
 import { QueryProvider } from "@/shared/providers/query-provider";
 import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
+// Import component Script của Next.js để tối ưu tốc độ load trang
+import Script from "next/script";
 import { Suspense } from "react";
 import "./globals.css";
 
@@ -61,12 +63,24 @@ export default function RootLayout({
     <html
       lang="vi"
       suppressHydrationWarning
-      className={cn(
-        "h-full antialiased font-sans",
-        inter.variable,
-      )}
+      className={cn("h-full antialiased font-sans", inter.variable)}
     >
       <head>
+        {/* Google Tag Manager (Phần script trong head) */}
+        <Script
+          id="gtm-script"
+          strategy="afterInteractive"
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+              new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+              j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+              'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+              })(window,document,'script','dataLayer','GTM-TQ9DL8CG');
+            `,
+          }}
+        />
+
         <link
           rel="preconnect"
           href="https://gdzihzsjfczuggwpykjk.supabase.co"
@@ -77,17 +91,17 @@ export default function RootLayout({
             __html: JSON.stringify({
               "@context": "https://schema.org",
               "@type": "Organization",
-              "name": "Điện máy ELC",
-              "url": "https://dienmayelc.com.vn",
-              "logo": "https://dienmayelc.com.vn/icon.svg",
-              "contactPoint": {
+              name: "Điện máy ELC",
+              url: "https://dienmayelc.com.vn",
+              logo: "https://dienmayelc.com.vn/icon.svg",
+              contactPoint: {
                 "@type": "ContactPoint",
-                "telephone": "+84789978898",
-                "contactType": "customer service",
-                "areaServed": "VN",
-                "availableLanguage": "Vietnamese",
+                telephone: "+84789978898",
+                contactType: "customer service",
+                areaServed: "VN",
+                availableLanguage: "Vietnamese",
               },
-              "sameAs": [
+              sameAs: [
                 "https://www.facebook.com/dienmayelc",
                 "https://www.youtube.com/dienmayelc",
               ],
@@ -97,10 +111,18 @@ export default function RootLayout({
       </head>
       <body
         suppressHydrationWarning
-        className={cn(
-          "min-h-full flex flex-col text-foreground",
-        )}
+        className={cn("min-h-full flex flex-col text-foreground")}
       >
+        {/* Google Tag Manager (noscript - Phần dự phòng ngay đầu body) */}
+        <noscript>
+          <iframe
+            src="https://www.googletagmanager.com/ns.html?id=GTM-TQ9DL8CG"
+            height="0"
+            width="0"
+            style={{ display: "none", visibility: "hidden" }}
+          />
+        </noscript>
+
         <TooltipProvider>
           <ThemeProvider
             attribute="class"
