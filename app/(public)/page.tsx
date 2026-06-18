@@ -8,6 +8,8 @@ import { ProjectMarqueeSection } from "@/shared/components/sections/project-marq
 import { ShowcaseSection } from "@/shared/components/sections/showcase";
 import { StickyContactActions } from "@/shared/components/sections/sticky-contact-actions";
 
+import { getBranches } from "@/modules/branch/application";
+import { branchRepo } from "@/modules/branch/infrastructure/branchRepo";
 import { getBrands } from "@/modules/brand/application";
 import { brandRepo } from "@/modules/brand/infrastructure/brandRepo";
 import { getProducts } from "@/modules/catalog/application";
@@ -15,24 +17,21 @@ import { productRepo } from "@/modules/catalog/infrastructure/SupabaseProductRep
 import { getContacts } from "@/modules/contact/application";
 import { contactRepo } from "@/modules/contact/infrastructure";
 import { getProjects } from "@/modules/project/application";
-import { projectRepo as projectRepo } from "@/modules/project/infrastructure/projectRepo";
+import { projectRepo } from "@/modules/project/infrastructure/projectRepo";
 import { getSiteSettings } from "@/modules/settings/application";
-import { settingsRepo as settingsRepo } from "@/modules/settings/infrastructure/settingsRepo";
-import { getBranches } from "@/modules/branch/application";
-import { branchRepo as branchRepo } from "@/modules/branch/infrastructure/branchRepo";
+import { settingsRepo } from "@/modules/settings/infrastructure/settingsRepo";
 
-import { Metadata } from "next";
 import { generateHomeSchema } from "@/shared/lib/seo-utils";
+import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title:
-    "Điện máy ELC - Siêu thị máy lạnh & Giải pháp không khí chính hãng, giá tốt",
+  title: "Điện máy ELC | Máy lạnh, Hệ thống khí tươi & Dự án trọn gói",
   description:
-    "Điện máy ELC - Hệ thống cung cấp máy lạnh chính hãng, máy lọc không khí và giải pháp điều hòa trung tâm VRV/VRF. Cam kết giá rẻ nhất thị trường, lắp đặt chuyên nghiệp, bảo hành dài hạn.",
+    "Điện máy ELC chuyên cung cấp, lắp đặt & thi công máy lạnh, hệ thống khí tươi chính hãng. Đầy đủ dịch vụ: bảo trì, cho thuê, thu cũ đổi mới uy tín hàng đầu.",
   openGraph: {
-    title: "Điện máy ELC - Máy lạnh chính hãng, giá tốt nhất",
+    title: "Điện máy ELC | Máy lạnh, Hệ thống khí tươi & Dự án trọn gói",
     description:
-      "Hệ thống điện máy chuyên cung cấp máy lạnh, máy lọc khí và giải pháp không khí cho gia đình, dự án. Uy tín, chất lượng.",
+      "Chuyên cung cấp, lắp đặt & thi công máy lạnh, hệ thống khí tươi chính hãng. Đầy đủ dịch vụ: bảo trì, cho thuê, thu cũ đổi mới chuyên nghiệp trọn gói.",
     images: ["/images/hero-bg.jpg"],
   },
 };
@@ -147,7 +146,11 @@ export default async function Home() {
     },
   ];
 
-  const homeSchema = generateHomeSchema(settings, contacts || [], branches || []);
+  const homeSchema = generateHomeSchema(
+    settings,
+    contacts || [],
+    branches || [],
+  );
 
   return (
     <>

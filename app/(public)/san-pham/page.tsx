@@ -355,10 +355,10 @@ async function CachedProductsView({
       {(() => {
         const schema = generateCollectionSchema(
           {
-            name: "Tất cả sản phẩm điện máy",
+            name: "Sản phẩm Điện máy ELC | Máy lạnh & Hệ thống khí tươi chính hãng",
             slug: "san-pham",
             description:
-              "Danh sách tổng hợp các sản phẩm máy lạnh, máy lọc không khí và thiết bị điện máy chính hãng tại Điện máy ELC.",
+              "Máy lạnh, điều hòa trung tâm và hệ thống khí tươi chính hãng tại Điện máy ELC. Đầy đủ dịch vụ thi công lắp đặt, bảo trì, cho thuê và thu cũ đổi mới uy tín.",
           },
           products,
         );
