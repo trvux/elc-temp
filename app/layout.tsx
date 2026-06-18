@@ -21,9 +21,9 @@ export const metadata: Metadata = {
   metadataBase: new URL(
     process.env.NEXT_PUBLIC_APP_URL || "https://dienmayelc.com.vn",
   ),
-  title: "Điện máy ELC | Máy lạnh & Giải pháp không khí chuyên nghiệp, giá tốt",
+  title: "Điện máy ELC | Máy lạnh, Hệ thống khí tươi & Dự án trọn gói",
   description:
-    "Điện máy ELC chuyên cung cấp máy lạnh chính hãng, máy lọc không khí và hệ thống điều hòa trung tâm VRV/VRF. Giá tốt nhất, lắp đặt chuyên nghiệp, bảo hành uy tín.",
+    "Điện máy ELC chuyên cung cấp, lắp đặt & thi công máy lạnh, hệ thống khí tươi chính hãng. Đầy đủ dịch vụ: bảo trì, cho thuê, thu cũ đổi mới uy tín hàng đầu.",
   openGraph: {
     title: "Điện máy ELC - Máy lạnh chính hãng, giá tốt",
     description:
