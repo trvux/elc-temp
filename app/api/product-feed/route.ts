@@ -1,7 +1,5 @@
-import { NextResponse } from "next/server";
 import { createStaticClient } from "@/shared/lib/supabase/static";
-
-
+import { NextResponse } from "next/server";
 
 interface FeedProduct {
   id: string;
@@ -23,7 +21,8 @@ export async function GET() {
   // Fetch all published products with brand and category slug
   const { data: rawProducts, error } = await supabase
     .from("products")
-    .select(`
+    .select(
+      `
       id,
       name,
       sku,
@@ -35,7 +34,8 @@ export async function GET() {
       stock_status,
       category:categories(slug),
       brand:brands(name, slug)
-    `)
+    `,
+    )
     .eq("is_published", true)
     .is("deleted_at", null);
 
@@ -43,7 +43,7 @@ export async function GET() {
     return new NextResponse("Error fetching products", { status: 500 });
   }
 
-  const products = (rawProducts as unknown) as FeedProduct[];
+  const products = rawProducts as unknown as FeedProduct[];
 
   const BASE_URL = "https://dienmayelc.com.vn";
 
@@ -146,7 +146,7 @@ export async function GET() {
     const id = prod.sku || prod.id;
     const title = escapeXml(`${prod.name} | Điện máy ELC`);
     const desc = escapeXml(
-      getProductDescription(prod.description, prod.name).substring(0, 1000)
+      getProductDescription(prod.description, prod.name).substring(0, 1000),
     );
 
     const priceVal = prod.original_price || prod.sale_price || 0;
@@ -176,7 +176,7 @@ export async function GET() {
 
     for (const imgUrl of additionalImages) {
       xml += `      <g:additional_image_link>${escapeXml(
-        imgUrl
+        imgUrl,
       )}</g:additional_image_link>\n`;
     }
 
@@ -192,9 +192,19 @@ export async function GET() {
     if (prod.sku) {
       xml += `      <g:mpn>${escapeXml(prod.sku)}</g:mpn>\n`;
     }
-    xml += `      <g:condition>new</g:condition>
-    </item>
-`;
+    xml += `      <g:condition>new</g:condition>\n`;
+
+    // Nếu là máy lạnh thì gán mã máy lạnh, còn lại gán mã điện máy chung
+    if (
+      categorySlug.includes("may-lanh") ||
+      categorySlug.includes("dieu-hoa")
+    ) {
+      xml += `      <g:google_product_category>3429</g:google_product_category>\n`;
+    } else {
+      xml += `      <g:google_product_category>505307</g:google_product_category>\n`;
+    }
+
+    xml += `    </item>\n`;
   }
 
   xml += `  </channel>
