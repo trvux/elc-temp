@@ -8,6 +8,8 @@ export interface NewsFilter {
   limit?: number;
   offset?: number;
   includeDeleted?: boolean;
+  sortBy?: "created_at" | "order_index";
+  sortOrder?: "asc" | "desc";
 }
 
 export interface NewsRepository {
