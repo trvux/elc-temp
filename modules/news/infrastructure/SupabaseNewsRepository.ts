@@ -28,7 +28,11 @@ export class SupabaseNewsRepository implements NewsRepository {
 
     query = this.applyFilters(query as unknown as PostgrestQueryLike, options) as unknown as typeof query;
 
-    query = query.order("order_index", { ascending: true });
+    if (options?.sortBy) {
+      query = query.order(options.sortBy, { ascending: options.sortOrder !== "desc" });
+    } else {
+      query = query.order("order_index", { ascending: true });
+    }
 
     if (options?.limit) {
       const from = options.offset || 0;

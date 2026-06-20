@@ -102,7 +102,11 @@ async function getCachedNewsHubData() {
   cacheTag("news-list");
   setUseStaticClient(true);
 
-  const allNews = await getNews(newsRepo, { isPublished: true });
+  const allNews = await getNews(newsRepo, {
+    isPublished: true,
+    sortBy: "created_at",
+    sortOrder: "desc",
+  });
   const currentYear = new Date().getFullYear();
 
   return {

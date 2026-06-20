@@ -75,9 +75,21 @@ describe("SupabaseNewsRepository", () => {
 
   describe("getAll", () => {
     it("should filter out deleted news", async () => {
-      mockQuery.then.mockImplementation((onfulfilled: any) => onfulfilled({ data: [], error: null }));
+      mockQuery.then.mockImplementation((onfulfilled: (res: { data: unknown[]; error: null }) => unknown) => onfulfilled({ data: [], error: null }));
       await repository.getAll();
       expect(mockQuery.is).toHaveBeenCalledWith("deleted_at", null);
+    });
+
+    it("should order by order_index ascending by default", async () => {
+      mockQuery.then.mockImplementation((onfulfilled: (res: { data: unknown[]; error: null }) => unknown) => onfulfilled({ data: [], error: null }));
+      await repository.getAll();
+      expect(mockQuery.order).toHaveBeenCalledWith("order_index", { ascending: true });
+    });
+
+    it("should order by custom field and direction when specified", async () => {
+      mockQuery.then.mockImplementation((onfulfilled: (res: { data: unknown[]; error: null }) => unknown) => onfulfilled({ data: [], error: null }));
+      await repository.getAll({ sortBy: "created_at", sortOrder: "desc" });
+      expect(mockQuery.order).toHaveBeenCalledWith("created_at", { ascending: false });
     });
   });
 
