@@ -9,9 +9,6 @@ export interface FooterSettings {
   company_email?: string;
   company_address?: string;
   company_short_desc?: string;
-  facebook_url?: string;
-  messenger_url?: string;
-  zalo_url?: string;
 }
 
 export function getFooterLogic(
@@ -28,8 +25,7 @@ export function getFooterLogic(
   const cleanPhone = phone.replace(/\s/g, "");
 
   const getSocialUrl = (type: "facebook" | "messenger" | "zalo") => {
-    const key = `${type}_url` as keyof FooterSettings;
-    const val = findContact(type) || settings[key];
+    const val = findContact(type);
     
     if (!val || val === "#") {
       return type === "zalo" && cleanPhone ? `https://zalo.me/${cleanPhone}` : "#";

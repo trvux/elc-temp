@@ -22,62 +22,6 @@ type Settings = Record<string, string>;
 
 const SETTINGS_CONFIG = [
   {
-    section: "Trang chủ (Hero Section)",
-    description:
-      "Cấu hình nội dung tiêu đề và nút kêu gọi hành động (CTA) đầu trang chủ.",
-    fields: [
-      {
-        key: "hero_title",
-        label: "Tiêu đề chính",
-        placeholder: "VD: Điện Máy ABC",
-        type: "input",
-      },
-      {
-        key: "hero_subtitle",
-        label: "Mô tả ngắn",
-        placeholder: "VD: Chuyên bán điện máy & dịch vụ sửa chữa",
-        type: "textarea",
-      },
-      {
-        key: "hero_cta_text",
-        label: "Nội dung nút CTA",
-        placeholder: "VD: Xem dự án",
-        type: "input",
-      },
-      {
-        key: "hero_cta_url",
-        label: "Đường dẫn nút CTA",
-        placeholder: "VD: /du-an",
-        type: "input",
-      },
-    ],
-  },
-  {
-    section: "Trang chủ (CTA Section)",
-    description: "Cấu hình nội dung cho khối kêu gọi hành động ở cuối trang.",
-    fields: [
-      {
-        key: "cta_title",
-        label: "Tiêu đề CTA",
-        placeholder: "Nâng tầm chuẩn mực không gian.",
-        type: "textarea",
-      },
-      {
-        key: "cta_description",
-        label: "Mô tả CTA",
-        placeholder:
-          "Đội ngũ chuyên gia của ELC sẵn sàng đồng hành tư vấn giải pháp...",
-        type: "textarea",
-      },
-      {
-        key: "cta_primary_btn_text",
-        label: "Nội dung nút liên hệ",
-        placeholder: "Liên hệ ngay",
-        type: "input",
-      },
-    ],
-  },
-  {
     section: "Thông tin công ty",
     description:
       "Thông tin cơ bản dùng cho chân trang (Footer) và trang liên diện.",
@@ -110,36 +54,6 @@ const SETTINGS_CONFIG = [
         key: "company_email",
         label: "Địa chỉ Email hỗ trợ",
         placeholder: "contact@company.com",
-        type: "input",
-      },
-    ],
-  },
-  {
-    section: "Mạng xã hội",
-    description: "Cấu hình các đường dẫn mạng xã hội hiển thị ở chân trang.",
-    fields: [
-      {
-        key: "facebook_url",
-        label: "Facebook URL",
-        placeholder: "https://facebook.com/yourpage",
-        type: "input",
-      },
-      {
-        key: "messenger_url",
-        label: "Messenger URL",
-        placeholder: "https://m.me/yourpage",
-        type: "input",
-      },
-      {
-        key: "zalo_url",
-        label: "Zalo URL (hoặc Số điện thoại)",
-        placeholder: "0789978898",
-        type: "input",
-      },
-      {
-        key: "youtube_url",
-        label: "YouTube URL",
-        placeholder: "https://youtube.com/@yourchannel",
         type: "input",
       },
     ],
