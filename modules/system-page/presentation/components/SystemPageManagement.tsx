@@ -3,7 +3,9 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
 import { useForm, Controller } from "react-hook-form";
+import type { Resolver } from "react-hook-form";
 import { toast } from "sonner";
+import { standardSchemaResolver } from "@hookform/resolvers/standard-schema";
 
 import { AdminDialog } from "@/shared/components/layout/admin/admin-dialog";
 import { Button } from "@/shared/components/ui/button";
@@ -16,7 +18,7 @@ import {
 import { Input } from "@/shared/components/ui/input";
 import { Textarea } from "@/shared/components/ui/textarea";
 
-import { SystemPage } from "../../domain";
+import { SystemPage, updateSystemPageSchema } from "../../domain";
 import { getSystemPagesAction, updateSystemPageAction } from "../actions";
 import { getSystemPageColumns } from "./SystemPageColumns";
 
@@ -40,6 +42,7 @@ export function SystemPageManagement() {
   });
 
   const form = useForm<SystemPageFormValues>({
+    resolver: standardSchemaResolver(updateSystemPageSchema) as unknown as Resolver<SystemPageFormValues>,
     defaultValues: {
       metaTitle: "",
       metaDescription: "",
@@ -132,8 +135,13 @@ export function SystemPageManagement() {
                 name="metaTitle"
                 render={({ field, fieldState }) => (
                   <Field>
-                    <FieldLabel>Tiêu đề SEO</FieldLabel>
-                    <Input {...field} placeholder="Nhập tiêu đề hiển thị trên Google..." />
+                    <div className="flex justify-between items-center w-full">
+                      <FieldLabel>Tiêu đề SEO</FieldLabel>
+                      <span className="text-[10px] text-muted-foreground font-medium">
+                        {(field.value || "").length}/70 ký tự (Khuyên dùng)
+                      </span>
+                    </div>
+                    <Input {...field} value={field.value || ""} placeholder="Nhập tiêu đề hiển thị trên Google..." />
                     <FieldError errors={[fieldState.error]} />
                   </Field>
                 )}
@@ -144,8 +152,13 @@ export function SystemPageManagement() {
                 name="metaDescription"
                 render={({ field, fieldState }) => (
                   <Field>
-                    <FieldLabel>Mô tả SEO</FieldLabel>
-                    <Textarea {...field} placeholder="Nhập mô tả tóm tắt nội dung trang để hiển thị trên Google..." className="min-h-[120px]" />
+                    <div className="flex justify-between items-center w-full">
+                      <FieldLabel>Mô tả SEO</FieldLabel>
+                      <span className="text-[10px] text-muted-foreground font-medium">
+                        {(field.value || "").length}/160 ký tự (Khuyên dùng)
+                      </span>
+                    </div>
+                    <Textarea {...field} value={field.value || ""} placeholder="Nhập mô tả tóm tắt nội dung trang để hiển thị trên Google..." className="min-h-[120px]" />
                     <FieldError errors={[fieldState.error]} />
                   </Field>
                 )}

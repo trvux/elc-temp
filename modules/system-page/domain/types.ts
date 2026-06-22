@@ -7,9 +7,3 @@ export interface SystemPage {
   createdAt: string;
   updatedAt: string;
 }
-
-export interface UpdateSystemPageInput {
-  id: string;
-  metaTitle: string | null;
-  metaDescription: string | null;
-}

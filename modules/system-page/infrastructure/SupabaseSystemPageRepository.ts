@@ -1,8 +1,7 @@
 import { createClient } from "@/shared/lib/supabase/server";
 import { createStaticClient } from "@/shared/lib/supabase/static";
 import { Tables, Update } from "@/shared/types/supabase";
-import { SystemPage, UpdateSystemPageInput } from "../domain/types";
-import { SystemPageRepository } from "../domain/repository";
+import { SystemPage, UpdateSystemPageInput, SystemPageRepository } from "../domain";
 
 type SystemPageRow = Tables<"system_pages">;
 type SystemPageUpdate = Update<"system_pages">;

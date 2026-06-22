@@ -1,4 +1,5 @@
-import { SystemPage, UpdateSystemPageInput } from "./types";
+import { SystemPage } from "./types";
+import { UpdateSystemPageInput } from "./validators";
 
 export interface SystemPageRepository {
   getAll(): Promise<SystemPage[]>;
