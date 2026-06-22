@@ -483,16 +483,20 @@ export function generateHomeSchema(
   contacts: SchemaContact[],
   branches?: Branch[],
 ) {
-  const companyPhone = settings.company_phone || "0789978898";
-  const companyEmail = settings.company_email || "elc.jointstock@gmail.com";
-  const companyAddress = settings.company_address || "06 Dương Quảng Hàm, phường An Nhơn, Thành phố Hồ Chí Minh";
+  const findContact = (type: string) => contacts.find((c) => c.type === type && c.isActive)?.value;
+  
+  const companyPhone = findContact("phone") || "0789978898";
+  const companyEmail = findContact("email") || "elc.jointstock@gmail.com";
+  
+  const branchAddress = branches?.find((b) => b.isPublished)?.address || branches?.[0]?.address;
+  const companyAddress = findContact("address") || branchAddress || "06 Dương Quảng Hàm, phường An Nhơn, Thành phố Hồ Chí Minh";
   
   const parsedMainAddress = parseAddress(companyAddress);
   const schemaPhone = formatPhone(companyPhone);
 
   const branchSchemas = (branches || [])
     .filter((b) => b.isPublished)
-    .map((b) => SEOSchema.getLocalBusiness(b, settings));
+    .map((b) => SEOSchema.getLocalBusiness(b));
 
   return {
     "@context": "https://schema.org",
@@ -962,7 +966,7 @@ export function generateBranchDetailSchema(
   return {
     "@context": "https://schema.org",
     "@graph": [
-      SEOSchema.getLocalBusiness(branch, settings),
+      SEOSchema.getLocalBusiness(branch),
       SEOSchema.getOrganization(branches, contacts),
       SEOSchema.getWebSite(),
       breadcrumbSchema,

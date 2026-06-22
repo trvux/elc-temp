@@ -52,6 +52,7 @@ export interface BranchFooter {
   id: string;
   name: string;
   slug: string;
+  address?: string;
 }
 
 export interface PageFooter {
@@ -108,6 +109,7 @@ export function Footer({
     contacts,
     settings as FooterSettings,
     currentYear,
+    branches as Array<{ address: string }>,
   );
 
   const displayContacts = useMemo(

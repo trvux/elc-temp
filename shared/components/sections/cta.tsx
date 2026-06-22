@@ -31,7 +31,8 @@ interface CTASectionProps {
 }
 
 export function CTASection({ settings, contacts }: CTASectionProps) {
-  const email = settings?.company_email || "contact@elc.com";
+  const emailContact = contacts.find((c) => c.type === "email" && c.isActive);
+  const email = emailContact?.value || "elc.jointstock@gmail.com";
   const title = settings?.cta_title || "Nâng tầm chuẩn mực không gian.";
   const description =
     settings?.cta_description ||

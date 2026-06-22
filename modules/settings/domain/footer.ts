@@ -5,22 +5,20 @@ export interface FooterContact {
 
 export interface FooterSettings {
   company_name?: string;
-  company_phone?: string;
-  company_email?: string;
-  company_address?: string;
   company_short_desc?: string;
 }
 
 export function getFooterLogic(
   contacts: FooterContact[] = [],
   settings: FooterSettings = {},
-  year: number = 2026
+  year: number = 2026,
+  branches: Array<{ address: string }> = []
 ) {
   const findContact = (type: string) => contacts.find((c) => c.type === type)?.value;
 
-  const phone = findContact("phone") || settings.company_phone || "";
-  const email = findContact("email") || settings.company_email || "";
-  const address = settings.company_address || "";
+  const phone = findContact("phone") || "";
+  const email = findContact("email") || "";
+  const address = findContact("address") || branches[0]?.address || "";
   
   const cleanPhone = phone.replace(/\s/g, "");
 
