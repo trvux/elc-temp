@@ -76,21 +76,32 @@ export function generateProductMetadata(product: ProductWithRelations) {
   // Clean SKU (main part only)
   const mainSku = product.sku?.split(/[\/\+]/)[0].trim() || "";
 
-  // Strategy: [Category] [Synonym] [Brand] [HP] [SKU] [Tech]
-  let title =
-    `${categoryName} ${synonyms} ${brandName} ${hpValue} ${mainSku} Inverter`
+  const metaTitle = product.metaTitle || (product as unknown as Record<string, unknown>).meta_title as string | null | undefined;
+  const metaDescription = product.metaDescription || (product as unknown as Record<string, unknown>).meta_description as string | null | undefined;
+
+  let title = "";
+  if (metaTitle) {
+    title = metaTitle;
+  } else {
+    // Strategy: [Category] [Synonym] [Brand] [HP] [SKU] [Tech]
+    title = `${categoryName} ${synonyms} ${brandName} ${hpValue} ${mainSku} Inverter`
       .replace(/\s+/g, " ")
       .trim();
+  }
 
   // Always append Shop Name in the module for consistent branding
   if (!title.endsWith(SHOP_NAME)) {
     title += ` | ${SHOP_NAME}`;
   }
 
-  const description =
-    `Điện máy ELC - Chuyên cung cấp ${categoryName} ${brandName} ${mainSku} ${hpValue}${hpLocal} chính hãng. Máy lạnh giá tốt nhất thị trường, tiết kiệm điện vượt trội, hỗ trợ thi công lắp đặt máy lạnh chuyên nghiệp. Xem ngay!`
+  let description = "";
+  if (metaDescription) {
+    description = metaDescription;
+  } else {
+    description = `Điện máy ELC - Chuyên cung cấp ${categoryName} ${brandName} ${mainSku} ${hpValue}${hpLocal} chính hãng. Máy lạnh giá tốt nhất thị trường, tiết kiệm điện vượt trội, hỗ trợ thi công lắp đặt máy lạnh chuyên nghiệp. Xem ngay!`
       .replace(/\s+/g, " ")
       .trim();
+  }
 
   return {
     title,
@@ -241,21 +252,29 @@ export function generateServiceMetadata(
   const serviceTitle = (service.title || "") as string;
   const image = (service.image || service.image_url) as string | undefined;
 
-  const title = `${serviceTitle} - Dịch vụ chuyên nghiệp | ${SHOP_NAME}`;
-  const description = `Cung cấp dịch vụ ${serviceTitle} uy tín, giá tốt tại ${SHOP_NAME}. Đội ngũ kỹ thuật tay nghề cao, thi công nhanh chóng, hỗ trợ 24/7. Click để nhận báo giá chi tiết!`;
+  const metaTitle = (service.metaTitle || service.meta_title) as string | undefined;
+  const metaDescription = (service.metaDescription || service.meta_description) as string | undefined;
+
+  const title = metaTitle || `${serviceTitle} - Dịch vụ chuyên nghiệp | ${SHOP_NAME}`;
+  const description = metaDescription || `Cung cấp dịch vụ ${serviceTitle} uy tín, giá tốt tại ${SHOP_NAME}. Đội ngũ kỹ thuật tay nghề cao, thi công nhanh chóng, hỗ trợ 24/7. Click để nhận báo giá chi tiết!`;
+
+  let finalTitle = title;
+  if (!finalTitle.endsWith(SHOP_NAME)) {
+    finalTitle += ` | ${SHOP_NAME}`;
+  }
 
   return {
-    title,
+    title: finalTitle,
     description,
     openGraph: {
-      title,
+      title: finalTitle,
       description,
       images: image ? [image] : [],
       type: "article",
     },
     twitter: {
       card: "summary_large_image",
-      title,
+      title: finalTitle,
       description,
       images: image ? [image] : [],
     },
