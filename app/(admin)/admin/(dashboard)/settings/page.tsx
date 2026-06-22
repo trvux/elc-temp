@@ -38,24 +38,6 @@ const SETTINGS_CONFIG = [
         placeholder: "Mô tả vắn tắt về lĩnh vực hoạt động...",
         type: "textarea",
       },
-      {
-        key: "company_address",
-        label: "Địa chỉ văn phòng",
-        placeholder: "123 Nguyễn Văn A, Q.1, TP.HCM",
-        type: "input",
-      },
-      {
-        key: "company_phone",
-        label: "Số điện thoại Hotline",
-        placeholder: "0909 123 456",
-        type: "input",
-      },
-      {
-        key: "company_email",
-        label: "Địa chỉ Email hỗ trợ",
-        placeholder: "contact@company.com",
-        type: "input",
-      },
     ],
   },
 ];

@@ -132,10 +132,9 @@ export const SEOSchema = {
 
   getLocalBusiness(
     branch: BranchInput,
-    settings?: Record<string, string>
   ) {
     const parsedAddress = parseAddress(branch.address);
-    const companyEmail = settings?.company_email || "elc.jointstock@gmail.com";
+    const companyEmail = "elc.jointstock@gmail.com";
     return {
       "@type": "HVACBusiness",
       "@id": `${BASE_URL}/thong-tin/${branch.slug}#localbusiness`,
