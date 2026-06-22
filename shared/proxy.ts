@@ -112,7 +112,19 @@ async function resolveRedirectPath(
   oldSlug: string,
   defaultBase: "san-pham" | "du-an" | "tin-tuc"
 ): Promise<string> {
-  // 1. Try exact match in registry
+  // 1. Check if it is an active static page in the pages table
+  const { data: pageItem } = await supabase
+    .from("pages")
+    .select("slug")
+    .eq("slug", oldSlug)
+    .is("deleted_at", null)
+    .maybeSingle();
+
+  if (pageItem) {
+    return `/${pageItem.slug}`;
+  }
+
+  // 2. Try exact match in registry
   const { data: registryItem } = await supabase
     .from("slug_registry")
     .select("entity_type, slug")
@@ -129,7 +141,7 @@ async function resolveRedirectPath(
     }
   }
 
-  // 2. Try exact match in news table
+  // 3. Try exact match in news table
   const { data: newsItem } = await supabase
     .from("news")
     .select("slug")
@@ -141,14 +153,20 @@ async function resolveRedirectPath(
     return `/tin-tuc/${newsItem.slug}`;
   }
 
-  // 3. Fallback to fuzzy match
+  // 4. Fallback to fuzzy match
   const fuzzy = await findFuzzyRedirect(supabase, oldSlug);
   if (fuzzy) {
     return fuzzy.pathname;
   }
 
-  // 4. Default fallback if nothing matches
-  return `/${defaultBase}/${oldSlug}`;
+  // 5. Default fallback if nothing matches (channel link juice to parent hubs or home)
+  if (defaultBase === "san-pham") {
+    return "/san-pham";
+  }
+  if (defaultBase === "du-an") {
+    return "/du-an";
+  }
+  return "/";
 }
 
 export async function proxy(request: NextRequest) {
@@ -224,43 +242,55 @@ export async function proxy(request: NextRequest) {
     }
   }
 
-  // 4. Handle nested /san-pham/ paths with > 2 segments
-  if (pathname.startsWith("/san-pham/") && parts.length > 2) {
-    if (lastSegment) {
-      const dest = await resolveRedirectPath(supabase, lastSegment, "san-pham");
+  // 4. Handle nested /san-pham/ paths
+  if (pathname.startsWith("/san-pham/")) {
+    if (parts.length > 2) {
+      if (lastSegment) {
+        const dest = await resolveRedirectPath(supabase, lastSegment, "san-pham");
+        return NextResponse.redirect(new URL(dest, request.url), 308);
+      }
+    } else if (parts.length === 2) {
+      const slug = parts[1];
+      const dest = await resolveRedirectPath(supabase, slug, "san-pham");
+      if (dest !== `/san-pham/${slug}`) {
+        return NextResponse.redirect(new URL(dest, request.url), 308);
+      }
+    }
+  }
+
+  // 5. Handle nested /du-an/ paths
+  if (pathname.startsWith("/du-an/")) {
+    if (parts.length > 2) {
+      if (lastSegment) {
+        const dest = await resolveRedirectPath(supabase, lastSegment, "du-an");
+        return NextResponse.redirect(new URL(dest, request.url), 308);
+      }
+    } else if (parts.length === 2) {
+      const slug = parts[1];
+      const dest = await resolveRedirectPath(supabase, slug, "du-an");
+      if (dest !== `/du-an/${slug}`) {
+        return NextResponse.redirect(new URL(dest, request.url), 308);
+      }
+    }
+  }
+
+  // 6. Handle nested /tin-tuc/ paths
+  if (pathname.startsWith("/tin-tuc/") && parts.length === 2) {
+    const slug = parts[1];
+    const dest = await resolveRedirectPath(supabase, slug, "tin-tuc");
+    if (dest !== `/tin-tuc/${slug}`) {
       return NextResponse.redirect(new URL(dest, request.url), 308);
     }
   }
 
-  // 5. Handle nested /du-an/ paths with > 2 segments
-  if (pathname.startsWith("/du-an/") && parts.length > 2) {
-    if (lastSegment) {
-      const dest = await resolveRedirectPath(supabase, lastSegment, "du-an");
-      return NextResponse.redirect(new URL(dest, request.url), 308);
-    }
-  }
-
-  // 6. Handle root-level old slugs (potential products, projects, or blog posts)
+  // 7. Handle root-level old slugs (potential products, projects, or blog posts)
   if (parts.length === 1 && !SYSTEM_PATHS.has(parts[0])) {
     const slug = parts[0];
     
     // Check if it exists exactly or fuzzy matches
     const dest = await resolveRedirectPath(supabase, slug, "tin-tuc");
-    // Only redirect if it doesn't fall back to the default tin-tuc (meaning we found a real match!)
-    if (dest !== `/tin-tuc/${slug}`) {
+    if (dest !== `/${slug}`) {
       return NextResponse.redirect(new URL(dest, request.url), 308);
-    } else {
-      // Check if it exists exactly in news table (if it does, dest would be /tin-tuc/slug anyway, which we want to redirect to)
-      const { data: newsItem } = await supabase
-        .from("news")
-        .select("id")
-        .eq("slug", slug)
-        .is("deleted_at", null)
-        .maybeSingle();
-
-      if (newsItem) {
-        return NextResponse.redirect(new URL(`/tin-tuc/${slug}`, request.url), 308);
-      }
     }
   }
 
