@@ -1,6 +1,7 @@
 import { ProductWithRelations } from "@/modules/catalog/domain";
 import { Branch } from "@/modules/branch/domain";
 import { SEOSchema, parseAddress, formatPhone, BASE_URL } from "./seo-schema";
+import type { Metadata } from "next";
 
 export const SHOP_NAME = "Điện máy ELC";
 export { BASE_URL, parseAddress, formatPhone, SEOSchema };
@@ -971,6 +972,37 @@ export function generateBranchDetailSchema(
       SEOSchema.getWebSite(),
       breadcrumbSchema,
     ],
+  };
+}
+
+/**
+ * Generates SEO for System Pages
+ */
+export function generateSystemPageMetadata(
+  systemPage: { metaTitle: string | null; metaDescription: string | null } | null | undefined,
+  fallbackTitle: string,
+  fallbackDescription: string,
+  path: string,
+): Metadata {
+  const title = systemPage?.metaTitle || fallbackTitle;
+  const description = systemPage?.metaDescription || fallbackDescription;
+  const cleanUrl = `${BASE_URL}${path}`;
+  const finalTitle = title.endsWith(SHOP_NAME) ? title : `${title} | ${SHOP_NAME}`;
+
+  return {
+    title: finalTitle,
+    description,
+    openGraph: {
+      title: finalTitle,
+      description,
+      url: cleanUrl,
+      type: "website",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: finalTitle,
+      description,
+    },
   };
 }
 

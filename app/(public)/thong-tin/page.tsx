@@ -19,6 +19,20 @@ import { ArrowUpRight } from "@phosphor-icons/react/dist/ssr";
 import { cacheLife, cacheTag } from "next/cache";
 import Link from "next/link";
 import { ScrollToActiveBranch } from "./ScrollToActiveBranch";
+import { getSystemPageBySlug } from "@/modules/system-page/application";
+import { systemPageRepo } from "@/modules/system-page/infrastructure/SupabaseSystemPageRepository";
+import { generateSystemPageMetadata } from "@/shared/lib/seo-utils";
+import { Metadata } from "next";
+
+export async function generateMetadata(): Promise<Metadata> {
+  const systemPage = await getSystemPageBySlug(systemPageRepo, "thong-tin");
+  return generateSystemPageMetadata(
+    systemPage,
+    "Thông tin về ELC | Điện máy ELC",
+    "Các chính sách thương mại và dịch vụ công ty cam kết luôn luôn theo đuổi cam kết thực hiện",
+    "/thong-tin"
+  ) as Metadata;
+}
 
 const STYLES = {
   header: cn(

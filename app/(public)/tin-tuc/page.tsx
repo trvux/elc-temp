@@ -12,6 +12,20 @@ import {
 import { setUseStaticClient } from "@/shared/lib/supabase/server";
 import { cacheLife, cacheTag } from "next/cache";
 import Link from "next/link";
+import { getSystemPageBySlug } from "@/modules/system-page/application";
+import { systemPageRepo } from "@/modules/system-page/infrastructure/SupabaseSystemPageRepository";
+import { generateSystemPageMetadata } from "@/shared/lib/seo-utils";
+import { Metadata } from "next";
+
+export async function generateMetadata(): Promise<Metadata> {
+  const systemPage = await getSystemPageBySlug(systemPageRepo, "tin-tuc");
+  return generateSystemPageMetadata(
+    systemPage,
+    "Tin tức | Điện máy ELC",
+    "Cập nhật những giải pháp kỹ thuật mới nhất và các tin tức chuyên sâu từ đội ngũ kỹ sư ELC",
+    "/tin-tuc"
+  ) as Metadata;
+}
 
 const STYLES = {
   main: "w-full bg-background min-h-screen",

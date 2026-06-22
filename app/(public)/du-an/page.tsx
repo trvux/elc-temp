@@ -1,6 +1,9 @@
 import { ProjectListModule } from "@/modules/project/presentation/components/public/ProjectListModule";
 import { createStaticClient } from "@/shared/lib/supabase/static";
 import { Metadata } from "next";
+import { getSystemPageBySlug } from "@/modules/system-page/application";
+import { systemPageRepo } from "@/modules/system-page/infrastructure/SupabaseSystemPageRepository";
+import { generateSystemPageMetadata } from "@/shared/lib/seo-utils";
 
 export async function generateMetadata(): Promise<Metadata> {
   const supabase = createStaticClient();
@@ -31,22 +34,24 @@ export async function generateMetadata(): Promise<Metadata> {
 
   const ogImage = firstProject?.images?.[0] || "/images/hero-bg.jpg";
 
+  const systemPage = await getSystemPageBySlug(systemPageRepo, "du-an");
+  const meta = generateSystemPageMetadata(
+    systemPage,
+    "Dự án Thi công lắp đặt máy lạnh & hệ thống HVAC | Điện máy ELC",
+    "Tổng hợp các dự án, công trình thi công lắp đặt máy lạnh, hệ thống điều hòa không khí trung tâm VRV/VRF và HVAC tiêu biểu do Điện máy ELC thực hiện toàn quốc.",
+    "/du-an"
+  );
+
+  if (meta.openGraph) {
+    meta.openGraph.images = [{ url: ogImage }];
+  }
+
   return {
-    title: "Dự án Thi công lắp đặt máy lạnh & hệ thống HVAC | Điện máy ELC",
-    description:
-      "Tổng hợp các dự án, công trình thi công lắp đặt máy lạnh, hệ thống điều hòa không khí trung tâm VRV/VRF và HVAC tiêu biểu do Điện máy ELC thực hiện toàn quốc.",
-    openGraph: {
-      title: "Dự án Thi công lắp đặt máy lạnh & hệ thống HVAC | Điện máy ELC",
-      description:
-        "Tổng hợp các dự án, công trình thi công lắp đặt máy lạnh, hệ thống điều hòa không khí trung tâm VRV/VRF và HVAC tiêu biểu do Điện máy ELC thực hiện toàn quốc.",
-      url: "https://dienmayelc.com.vn/du-an",
-      type: "website",
-      images: [{ url: ogImage }],
-    },
+    ...meta,
     alternates: {
       canonical: "https://dienmayelc.com.vn/du-an",
     },
-  };
+  } as Metadata;
 }
 
 interface ProjectsPageProps {
