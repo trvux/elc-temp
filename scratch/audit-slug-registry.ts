@@ -27,12 +27,13 @@ async function run() {
   }
   console.log('Registry breakdown by entity_type:', groups);
 
-  // Check some samples
-  console.log('\nSamples:');
-  console.log('Product sample:', registry?.filter(r => r.entity_type === 'product').slice(0, 3));
-  console.log('Category sample:', registry?.filter(r => r.entity_type === 'category' || r.entity_type === 'categories').slice(0, 3));
-  console.log('Brand sample:', registry?.filter(r => r.entity_type === 'brand').slice(0, 3));
-  console.log('Group sample:', registry?.filter(r => r.entity_type === 'group').slice(0, 3));
+  console.log('All Categories & Groups:');
+  const catGroups = registry?.filter(r => ['category', 'categories', 'group'].includes(r.entity_type)) || [];
+  catGroups.forEach(cg => console.log(`- Slug: ${cg.slug}, Type: ${cg.entity_type}`));
+  
+  console.log('\nSearch for treo-tuong:');
+  const searchResults = registry?.filter(r => r.slug.includes('treo-tuong')) || [];
+  searchResults.forEach(r => console.log(`- Slug: ${r.slug}, Type: ${r.entity_type}`));
 }
 
 run();
