@@ -2,8 +2,9 @@ import { updateSession } from "@/shared/lib/supabase/session";
 import { type NextRequest, NextResponse } from "next/server";
 import { createServerClient } from "@supabase/ssr";
 import { Database } from "@/database.types";
+import redirectsMap from "./redirects-map.json";
 
-const WP_PREFIXES = ["/product/", "/category/", "/shop/", "/tag/", "/author/", "/wp-content/"];
+const WP_PREFIXES = ["/product/", "/category/", "/shop/", "/tag/", "/author/", "/wp-content/", "/danh-muc/"];
 
 const SYSTEM_PATHS = new Set([
   "san-pham",
@@ -43,64 +44,86 @@ function calculateScore(oldTokens: string[], candidateTokens: string[]): number 
   return score;
 }
 
+function normalizePath(rawPath: string): string {
+  let p = rawPath.trim();
+  if (p.length > 1 && p.endsWith("/")) {
+    p = p.slice(0, -1);
+  }
+  if (p.endsWith("/feed")) {
+    p = p.substring(0, p.length - 5);
+    if (p === "") p = "/";
+  }
+  return p;
+}
+
 async function findFuzzyRedirect(
   supabase: ReturnType<typeof createServerClient<Database>>,
-  oldSlug: string
+  oldSlug: string,
+  allowedTypes: ("product" | "category" | "categories" | "brand" | "group" | "project" | "project_type" | "news")[]
 ): Promise<{ pathname: string } | null> {
   const oldTokens = tokenize(oldSlug);
   if (oldTokens.length === 0) return null;
 
-  // 1. Fetch all active slugs from registry
-  const { data: registry } = await supabase
-    .from("slug_registry")
-    .select("slug, entity_type")
-    .is("deleted_at", null);
+  const hasNews = allowedTypes.includes("news");
+  const hasRegistry = allowedTypes.some((t) => t !== "news");
 
-  if (registry) {
-    let bestMatch: { slug: string; entity_type: string } | null = null;
-    let maxScore = 0;
+  if (hasRegistry) {
+    const { data: registry } = await supabase
+      .from("slug_registry")
+      .select("slug, entity_type")
+      .is("deleted_at", null);
 
-    for (const item of registry) {
-      const candidateTokens = tokenize(item.slug);
-      const score = calculateScore(oldTokens, candidateTokens);
-      if (score > maxScore) {
-        maxScore = score;
-        bestMatch = item;
+    if (registry) {
+      const filteredRegistry = registry.filter((item) =>
+        allowedTypes.includes(item.entity_type as "product" | "category" | "categories" | "brand" | "group" | "project" | "project_type" | "news")
+      );
+
+      let bestMatch: typeof filteredRegistry[0] | null = null;
+      let maxScore = 0;
+
+      for (const item of filteredRegistry) {
+        const candidateTokens = tokenize(item.slug);
+        const score = calculateScore(oldTokens, candidateTokens);
+        if (score > maxScore) {
+          maxScore = score;
+          bestMatch = item;
+        }
       }
-    }
 
-    if (bestMatch && maxScore >= 4) {
-      if (["product", "category", "brand", "group"].includes(bestMatch.entity_type)) {
-        return { pathname: `/san-pham/${bestMatch.slug}` };
-      }
-      if (["project", "project_type"].includes(bestMatch.entity_type)) {
-        return { pathname: `/du-an/${bestMatch.slug}` };
+      if (bestMatch && maxScore >= 4) {
+        if (["product", "category", "categories", "brand", "group"].includes(bestMatch.entity_type)) {
+          return { pathname: `/san-pham/${bestMatch.slug}` };
+        }
+        if (["project", "project_type"].includes(bestMatch.entity_type)) {
+          return { pathname: `/du-an/${bestMatch.slug}` };
+        }
       }
     }
   }
 
-  // 2. Fetch all active news articles
-  const { data: news } = await supabase
-    .from("news")
-    .select("slug")
-    .is("deleted_at", null)
-    .eq("is_published", true);
+  if (hasNews) {
+    const { data: news } = await supabase
+      .from("news")
+      .select("slug")
+      .is("deleted_at", null)
+      .eq("is_published", true);
 
-  if (news) {
-    let bestMatch: { slug: string } | null = null;
-    let maxScore = 0;
+    if (news) {
+      let bestMatch: { slug: string } | null = null;
+      let maxScore = 0;
 
-    for (const item of news) {
-      const candidateTokens = tokenize(item.slug);
-      const score = calculateScore(oldTokens, candidateTokens);
-      if (score > maxScore) {
-        maxScore = score;
-        bestMatch = item;
+      for (const item of news) {
+        const candidateTokens = tokenize(item.slug);
+        const score = calculateScore(oldTokens, candidateTokens);
+        if (score > maxScore) {
+          maxScore = score;
+          bestMatch = item;
+        }
       }
-    }
 
-    if (bestMatch && maxScore >= 4) {
-      return { pathname: `/tin-tuc/${bestMatch.slug}` };
+      if (bestMatch && maxScore >= 4) {
+        return { pathname: `/tin-tuc/${bestMatch.slug}` };
+      }
     }
   }
 
@@ -110,57 +133,69 @@ async function findFuzzyRedirect(
 async function resolveRedirectPath(
   supabase: ReturnType<typeof createServerClient<Database>>,
   oldSlug: string,
-  defaultBase: "san-pham" | "du-an" | "tin-tuc"
+  defaultBase: "san-pham" | "du-an" | "tin-tuc" | "danh-muc"
 ): Promise<string> {
-  // 1. Check if it is an active static page in the pages table
-  const { data: pageItem } = await supabase
-    .from("pages")
-    .select("slug")
-    .eq("slug", oldSlug)
-    .is("deleted_at", null)
-    .maybeSingle();
+  if (defaultBase === "tin-tuc") {
+    const { data: pageItem } = await supabase
+      .from("pages")
+      .select("slug")
+      .eq("slug", oldSlug)
+      .is("deleted_at", null)
+      .maybeSingle();
 
-  if (pageItem) {
-    return `/${pageItem.slug}`;
-  }
-
-  // 2. Try exact match in registry
-  const { data: registryItem } = await supabase
-    .from("slug_registry")
-    .select("entity_type, slug")
-    .eq("slug", oldSlug)
-    .is("deleted_at", null)
-    .maybeSingle();
-
-  if (registryItem) {
-    if (["product", "category", "brand", "group"].includes(registryItem.entity_type)) {
-      return `/san-pham/${registryItem.slug}`;
-    }
-    if (["project", "project_type"].includes(registryItem.entity_type)) {
-      return `/du-an/${registryItem.slug}`;
+    if (pageItem) {
+      return `/${pageItem.slug}`;
     }
   }
 
-  // 3. Try exact match in news table
-  const { data: newsItem } = await supabase
-    .from("news")
-    .select("slug")
-    .eq("slug", oldSlug)
-    .is("deleted_at", null)
-    .maybeSingle();
-
-  if (newsItem) {
-    return `/tin-tuc/${newsItem.slug}`;
+  let allowedTypes: ("product" | "category" | "categories" | "brand" | "group" | "project" | "project_type" | "news")[] = [];
+  if (defaultBase === "san-pham") {
+    allowedTypes = ["product", "category", "categories", "brand", "group"];
+  } else if (defaultBase === "danh-muc") {
+    allowedTypes = ["category", "categories", "group"];
+  } else if (defaultBase === "du-an") {
+    allowedTypes = ["project", "project_type"];
+  } else {
+    allowedTypes = ["news"];
   }
 
-  // 4. Fallback to fuzzy match
-  const fuzzy = await findFuzzyRedirect(supabase, oldSlug);
+  if (defaultBase === "san-pham" || defaultBase === "du-an" || defaultBase === "danh-muc") {
+    const { data: registryItem } = await supabase
+      .from("slug_registry")
+      .select("entity_type, slug")
+      .eq("slug", oldSlug)
+      .is("deleted_at", null)
+      .maybeSingle();
+
+    if (registryItem && allowedTypes.includes(registryItem.entity_type as "product" | "category" | "categories" | "brand" | "group" | "project" | "project_type" | "news")) {
+      if (["product", "category", "categories", "brand", "group"].includes(registryItem.entity_type)) {
+        return `/san-pham/${registryItem.slug}`;
+      }
+      if (["project", "project_type"].includes(registryItem.entity_type)) {
+        return `/du-an/${registryItem.slug}`;
+      }
+    }
+  }
+
+  if (defaultBase === "tin-tuc") {
+    const { data: newsItem } = await supabase
+      .from("news")
+      .select("slug")
+      .eq("slug", oldSlug)
+      .is("deleted_at", null)
+      .maybeSingle();
+
+    if (newsItem) {
+      return `/tin-tuc/${newsItem.slug}`;
+    }
+  }
+
+  const fuzzy = await findFuzzyRedirect(supabase, oldSlug, allowedTypes);
   if (fuzzy) {
     return fuzzy.pathname;
   }
 
-  // 5. Default fallback if nothing matches (channel link juice to parent hubs or home)
-  if (defaultBase === "san-pham") {
+  if (defaultBase === "san-pham" || defaultBase === "danh-muc") {
     return "/san-pham";
   }
   if (defaultBase === "du-an") {
@@ -172,12 +207,18 @@ async function resolveRedirectPath(
 export async function proxy(request: NextRequest) {
   let pathname = request.nextUrl.pathname;
 
-  // Normalize: Strip trailing slash (unless it is root "/")
+  const cleanPath = normalizePath(pathname);
+  const staticDest = (redirectsMap as Record<string, string>)[cleanPath];
+  if (staticDest) {
+    if (staticDest !== cleanPath) {
+      return NextResponse.redirect(new URL(staticDest, request.url), 308);
+    }
+  }
+
   if (pathname.length > 1 && pathname.endsWith("/")) {
     pathname = pathname.slice(0, -1);
   }
 
-  // Handle feed URLs (strip feed and redirect or process clean pathname)
   let isFeed = false;
   if (pathname.endsWith("/feed")) {
     pathname = pathname.substring(0, pathname.length - 5);
@@ -190,7 +231,6 @@ export async function proxy(request: NextRequest) {
   const parts = pathname.split("/").filter(Boolean);
   const lastSegment = parts.length > 0 ? parts[parts.length - 1] : "";
 
-  // Create Supabase client for lookup
   const supabase = createServerClient<Database>(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
@@ -199,22 +239,24 @@ export async function proxy(request: NextRequest) {
         getAll() {
           return request.cookies.getAll();
         },
-        setAll() {
-          // No-op in proxy lookup
-        },
+        setAll() {},
       },
     }
   );
 
-  // 1. Redirect if it's a WordPress feed or ends with feed
   if (isFeed) {
     return NextResponse.redirect(new URL(pathname, request.url), 308);
   }
 
-  // 2. Handle old WordPress specific prefixes
   const startsWithWpPrefix = WP_PREFIXES.some(prefix => pathname.startsWith(prefix));
   if (startsWithWpPrefix) {
-    if (pathname.startsWith("/product/") || pathname.startsWith("/shop/") || pathname.startsWith("/category/")) {
+    if (pathname.startsWith("/category/") || pathname.startsWith("/danh-muc/")) {
+      if (lastSegment) {
+        const dest = await resolveRedirectPath(supabase, lastSegment, "danh-muc");
+        return NextResponse.redirect(new URL(dest, request.url), 308);
+      }
+    }
+    if (pathname.startsWith("/product/") || pathname.startsWith("/shop/")) {
       if (lastSegment) {
         const dest = await resolveRedirectPath(supabase, lastSegment, "san-pham");
         return NextResponse.redirect(new URL(dest, request.url), 308);
