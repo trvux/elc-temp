@@ -21,20 +21,20 @@ import { projectRepo } from "@/modules/project/infrastructure/projectRepo";
 import { getSiteSettings } from "@/modules/settings/application";
 import { settingsRepo } from "@/modules/settings/infrastructure/settingsRepo";
 
-import { generateHomeSchema } from "@/shared/lib/seo-utils";
+import { generateHomeSchema, generateSystemPageMetadata } from "@/shared/lib/seo-utils";
 import { Metadata } from "next";
+import { getSystemPageBySlug } from "@/modules/system-page/application";
+import { systemPageRepo } from "@/modules/system-page/infrastructure/SupabaseSystemPageRepository";
 
-export const metadata: Metadata = {
-  title: "Điện máy ELC | Máy lạnh, Hệ thống khí tươi & Dự án trọn gói",
-  description:
+export async function generateMetadata(): Promise<Metadata> {
+  const systemPage = await getSystemPageBySlug(systemPageRepo, "home");
+  return generateSystemPageMetadata(
+    systemPage,
+    "Điện máy ELC | Máy lạnh, Hệ thống khí tươi & Dự án trọn gói",
     "Điện máy ELC chuyên cung cấp, lắp đặt & thi công máy lạnh, hệ thống khí tươi chính hãng. Đầy đủ dịch vụ: bảo trì, cho thuê, thu cũ đổi mới uy tín hàng đầu.",
-  openGraph: {
-    title: "Điện máy ELC | Máy lạnh, Hệ thống khí tươi & Dự án trọn gói",
-    description:
-      "Chuyên cung cấp, lắp đặt & thi công máy lạnh, hệ thống khí tươi chính hãng. Đầy đủ dịch vụ: bảo trì, cho thuê, thu cũ đổi mới chuyên nghiệp trọn gói.",
-    images: ["/images/hero-bg.jpg"],
-  },
-};
+    ""
+  ) as Metadata;
+}
 
 import { setUseStaticClient } from "@/shared/lib/supabase/server";
 import { cacheLife, cacheTag } from "next/cache";
