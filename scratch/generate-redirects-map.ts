@@ -4,7 +4,10 @@ import { createClient } from "@supabase/supabase-js";
 import * as dotenv from "dotenv";
 dotenv.config({ path: ".env.local" });
 
-const GSC_DIR = "/Users/tranvux/Downloads/gg_404";
+const GSC_DIRS = [
+  "/Users/tranvux/Downloads/gg_404",
+  "/Users/tranvux/Downloads/16thangtruoc"
+];
 const OUTPUT_MAP_FILE = path.join(process.cwd(), "shared/redirects-map.json");
 
 const supabase = createClient(
@@ -104,12 +107,13 @@ async function generateRedirectsMap() {
   const oldPaths = new Set<string>();
   
   function scanDir(dir: string) {
+    if (!fs.existsSync(dir)) return;
     const files = fs.readdirSync(dir);
     for (const file of files) {
       const fullPath = path.join(dir, file);
       if (fs.statSync(fullPath).isDirectory()) {
         scanDir(fullPath);
-      } else if (file.endsWith(".csv") && file.includes("Bảng")) {
+      } else if (file.endsWith(".csv") && (file.includes("Bảng") || file.toLowerCase().includes("trang") || file.toLowerCase().includes("pages"))) {
         const content = fs.readFileSync(fullPath, "utf-8");
         const lines = content.split("\n");
         if (lines.length > 0) {
@@ -146,7 +150,9 @@ async function generateRedirectsMap() {
     }
   }
 
-  scanDir(GSC_DIR);
+  for (const dir of GSC_DIRS) {
+    scanDir(dir);
+  }
   console.log(`Found ${oldPaths.size} unique old paths from GSC CSVs.`);
 
   const redirectsMap: Record<string, string> = {};
