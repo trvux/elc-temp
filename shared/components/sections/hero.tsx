@@ -53,7 +53,7 @@ export function HeroSection({
         <h1 className="z-10 max-w-5xl text-3xl font-extrabold sm:text-5xl lg:text-6xl leading-tight sm:leading-none tracking-tight sm:whitespace-nowrap">
           Giải pháp Không khí{" "}
           <span className="relative text-foreground font-black inline-block">
-            <AnimatePresence mode="wait">
+            <AnimatePresence mode="wait" initial={false}>
               <m.span
                 key={wordIndex}
                 initial={{ opacity: 0, y: 6 }}
