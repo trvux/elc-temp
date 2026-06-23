@@ -33,8 +33,11 @@ import { createClient, setUseStaticClient } from "@/shared/lib/supabase/server";
 import { cn, formatCurrency } from "@/shared/lib/utils";
 import { cacheLife, cacheTag } from "next/cache";
 
+import { District } from "@/shared/lib/districts";
+
 interface ServiceDetailModuleProps {
   service: ServiceWithRelations;
+  location?: District;
 }
 
 const STYLES = {
@@ -107,6 +110,7 @@ async function getCachedServiceDetailModuleData(slug: string) {
 
 export async function ServiceDetailModule({
   service,
+  location,
 }: ServiceDetailModuleProps) {
   const { contacts, currentYear } = await getCachedServiceDetailModuleData(
     service.slug,
@@ -137,7 +141,7 @@ export async function ServiceDetailModule({
                           <AspectRatio ratio={16 / 9}>
                             <ImageWithSkeleton
                               src={img}
-                              alt={`${service.title} - Điện máy ELC`}
+                              alt={location ? `${service.title} tại ${location.name} - Điện máy ELC` : `${service.title} - Điện máy ELC`}
                               fill
                               className={STYLES.carouselImage}
                               priority={i === 0}
@@ -172,7 +176,7 @@ export async function ServiceDetailModule({
               </div>
 
               <TypographyH1 className={STYLES.serviceName}>
-                {service.title}
+                {location ? `${service.title} tại ${location.name}` : service.title}
               </TypographyH1>
 
               {service.labels && service.labels.length > 0 && (
@@ -307,7 +311,11 @@ export async function ServiceDetailModule({
       >
         <div className="w-full">
           <Breadcrumbs
-            items={[
+            items={location ? [
+              { label: "Dịch vụ", href: "/dich-vu" },
+              { label: service.title, href: `/dich-vu/${service.slug}` },
+              { label: `${service.title} tại ${location.name}`, active: true },
+            ] : [
               { label: "Dịch vụ", href: "/dich-vu" },
               { label: service.title, active: true },
             ]}

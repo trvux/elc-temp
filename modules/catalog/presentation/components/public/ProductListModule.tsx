@@ -26,9 +26,12 @@ import { cacheLife, cacheTag } from "next/cache";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 
+import { District } from "@/shared/lib/districts";
+
 interface ProductListModuleProps {
   entity: ResolvedEntity;
   searchParams: { [key: string]: string | string[] | undefined };
+  location?: District;
 }
 
 const STYLES = {
@@ -132,6 +135,7 @@ async function getCachedListModuleData(
 export async function ProductListModule({
   entity,
   searchParams,
+  location,
 }: ProductListModuleProps) {
   if (!entity || entity.type === "product") return notFound();
 
@@ -189,6 +193,8 @@ export async function ProductListModule({
     subTitlePrefix = "nhóm danh mục";
   }
 
+  const displayTitle = location ? `${pageTitle} tại ${location.name}` : pageTitle;
+
   const {
     products,
     totalCount,
@@ -222,7 +228,7 @@ export async function ProductListModule({
       >
         <div className="flex flex-col gap-6 w-full">
           <header className={STYLES.header}>
-            <TypographyH1 className={STYLES.title}>{pageTitle}</TypographyH1>
+            <TypographyH1 className={STYLES.title}>{displayTitle}</TypographyH1>
             <TypographyLarge className="flex items-center gap-x-1 text-sm! md:text-md! lg:text-lg! text-muted-foreground">
               Danh sách{" "}
               <span className="flex gap-x-1 bg-primary text-primary-foreground px-2 rounded-sm items-center font-medium">
@@ -345,7 +351,11 @@ export async function ProductListModule({
       >
         <div className="w-full">
           <Breadcrumbs
-            items={[
+            items={location ? [
+              ...(breadcrumbParent ? [breadcrumbParent] : []),
+              { label: pageTitle, href: `/san-pham/${entity.data.slug}` },
+              { label: `${pageTitle} tại ${location.name}`, active: true },
+            ] : [
               ...(breadcrumbParent ? [breadcrumbParent] : []),
               { label: pageTitle, active: true },
             ]}
@@ -355,7 +365,7 @@ export async function ProductListModule({
 
       {/* Dữ liệu cấu trúc Schema SEO */}
       {(() => {
-        const schema = generateCollectionSchema(entity.data, products);
+        const schema = generateCollectionSchema(entity.data, products, location);
         if (!schema) return null;
         return (
           <div style={{ display: "none" }}>

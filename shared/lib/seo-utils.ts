@@ -2,14 +2,35 @@ import { ProductWithRelations } from "@/modules/catalog/domain";
 import { Branch } from "@/modules/branch/domain";
 import { SEOSchema, parseAddress, formatPhone, BASE_URL } from "./seo-schema";
 import type { Metadata } from "next";
+import { District } from "./districts";
 
 export const SHOP_NAME = "Điện máy ELC";
 export { BASE_URL, parseAddress, formatPhone, SEOSchema };
 
+export function appendLocationToTitle(title: string, location?: District): string {
+  if (!location) return title;
+  const suffix = ` | ${SHOP_NAME}`;
+  if (title.toLowerCase().endsWith(suffix.toLowerCase())) {
+    title = title.substring(0, title.length - suffix.length);
+  }
+  return `${title} tại ${location.name}${suffix}`;
+}
+
+export function appendLocationToDescription(description: string, location?: District): string {
+  if (!location) return description;
+  if (description.endsWith("Xem ngay!")) {
+    return description.replace("Xem ngay!", `tại ${location.name}. Xem ngay!`);
+  }
+  if (description.endsWith("Click để nhận báo giá chi tiết!")) {
+    return description.replace("Click để nhận báo giá chi tiết!", `tại ${location.name}. Click để nhận báo giá chi tiết!`);
+  }
+  return `${description} Hỗ trợ nhanh tại ${location.name}.`;
+}
+
 /**
  * Generates SEO-optimized Meta Title and Description to catch all keywords
  */
-export function generateProductMetadata(product: ProductWithRelations) {
+export function generateProductMetadata(product: ProductWithRelations, location?: District): Metadata {
   if (!product) return {};
 
   const brandName = product.brand?.name || "";
@@ -104,6 +125,15 @@ export function generateProductMetadata(product: ProductWithRelations) {
       .trim();
   }
 
+  if (location) {
+    title = appendLocationToTitle(title, location);
+    description = appendLocationToDescription(description, location);
+  }
+
+  const url = location 
+    ? `${BASE_URL}/san-pham/${product.slug}/${location.slug}`
+    : `${BASE_URL}/san-pham/${product.slug}`;
+
   return {
     title,
     description,
@@ -111,7 +141,7 @@ export function generateProductMetadata(product: ProductWithRelations) {
       title,
       description,
       images: product.images?.[0] ? [product.images[0]] : [],
-      url: `${BASE_URL}/san-pham/${product.slug}`,
+      url: url,
       type: "website",
     },
     twitter: {
@@ -128,9 +158,9 @@ export function generateProductMetadata(product: ProductWithRelations) {
  */
 export function generateCategoryMetadata(
   category: Record<string, unknown> | null | undefined,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   totalCount?: number,
-) {
+  location?: District,
+): Metadata {
   if (!category) return {};
 
   const name = (category.name || "") as string;
@@ -183,6 +213,16 @@ export function generateCategoryMetadata(
     title += ` | ${SHOP_NAME}`;
   }
 
+  if (location) {
+    title = appendLocationToTitle(title, location);
+    description = appendLocationToDescription(description, location);
+  }
+
+  const categorySlug = (category.slug || "") as string;
+  const url = location 
+    ? `${BASE_URL}/san-pham/${categorySlug}/${location.slug}`
+    : `${BASE_URL}/san-pham/${categorySlug}`;
+
   return {
     title,
     description,
@@ -190,6 +230,7 @@ export function generateCategoryMetadata(
       title,
       description,
       images: imageUrl ? [imageUrl] : [],
+      url: url,
       type: "website",
     },
   };
@@ -201,7 +242,8 @@ export function generateCategoryMetadata(
 export function generateBrandMetadata(
   brand: Record<string, unknown> | null | undefined,
   category?: Record<string, unknown> | null | undefined,
-) {
+  location?: District,
+): Metadata {
   if (!brand) return {};
 
   const brandName = (brand.name || "") as string;
@@ -230,13 +272,25 @@ export function generateBrandMetadata(
     finalTitle += ` | ${SHOP_NAME}`;
   }
 
+  let finalDescription = description;
+  if (location) {
+    finalTitle = appendLocationToTitle(finalTitle, location);
+    finalDescription = appendLocationToDescription(finalDescription, location);
+  }
+
+  const brandSlug = (brand.slug || "") as string;
+  const url = location 
+    ? `${BASE_URL}/san-pham/${brandSlug}/${location.slug}`
+    : `${BASE_URL}/san-pham/${brandSlug}`;
+
   return {
     title: finalTitle,
-    description,
+    description: finalDescription,
     openGraph: {
       title: finalTitle,
-      description,
+      description: finalDescription,
       images: logo ? [logo] : [],
+      url: url,
       type: "website",
     },
   };
@@ -247,7 +301,8 @@ export function generateBrandMetadata(
  */
 export function generateServiceMetadata(
   service: Record<string, unknown> | null | undefined,
-) {
+  location?: District,
+): Metadata {
   if (!service) return {};
 
   const serviceTitle = (service.title || "") as string;
@@ -264,19 +319,31 @@ export function generateServiceMetadata(
     finalTitle += ` | ${SHOP_NAME}`;
   }
 
+  let finalDescription = description;
+  if (location) {
+    finalTitle = appendLocationToTitle(finalTitle, location);
+    finalDescription = appendLocationToDescription(finalDescription, location);
+  }
+
+  const serviceSlug = (service.slug || "") as string;
+  const url = location 
+    ? `${BASE_URL}/dich-vu/${serviceSlug}/${location.slug}`
+    : `${BASE_URL}/dich-vu/${serviceSlug}`;
+
   return {
     title: finalTitle,
-    description,
+    description: finalDescription,
     openGraph: {
       title: finalTitle,
-      description,
+      description: finalDescription,
       images: image ? [image] : [],
+      url: url,
       type: "article",
     },
     twitter: {
       card: "summary_large_image",
       title: finalTitle,
-      description,
+      description: finalDescription,
       images: image ? [image] : [],
     },
   };
@@ -295,6 +362,7 @@ export function generateCollectionSchema(
     original_price?: number;
     images?: string[];
   }>,
+  location?: District,
 ) {
   if (!entity || !products || products.length === 0) return null;
 
@@ -327,21 +395,40 @@ export function generateCollectionSchema(
   });
   const imageUrl = firstProductWithImage ? firstProductWithImage.images?.[0] : undefined;
 
+  const url = location 
+    ? `${BASE_URL}/san-pham/${entityRecord.slug}/${location.slug}`
+    : `${BASE_URL}/san-pham/${entityRecord.slug}`;
+
   return {
     "@context": "https://schema.org/",
     "@type": "Product",
-    name: `Danh sách sản phẩm ${entityName} chính hãng`,
-    description:
-      entityDesc ||
-      `Khám phá danh sách các sản phẩm ${entityName} chính hãng chất lượng cao tại Điện máy ELC.`,
+    name: location 
+      ? `Danh sách sản phẩm ${entityName} chính hãng tại ${location.name}`
+      : `Danh sách sản phẩm ${entityName} chính hãng`,
+    description: appendLocationToDescription(
+      entityDesc || `Khám phá danh sách các sản phẩm ${entityName} chính hãng chất lượng cao tại Điện máy ELC.`,
+      location
+    ),
     image: imageUrl,
-    url: `${BASE_URL}/san-pham/${entityRecord.slug}`,
+    url: url,
     offers: {
       "@type": "AggregateOffer",
       lowPrice: lowPrice,
       highPrice: highPrice,
       priceCurrency: "VND",
       offerCount: prices.length,
+      ...(location ? {
+        areaServed: [
+          {
+            "@type": "AdministrativeArea",
+            "name": location.name,
+          },
+          {
+            "@type": "AdministrativeArea",
+            "name": "Thành phố Hồ Chí Minh",
+          }
+        ]
+      } : {})
     },
   };
 }
@@ -349,7 +436,7 @@ export function generateCollectionSchema(
 /**
  * Generates JSON-LD Structured Data for Google Rich Snippets
  */
-export function generateProductSchema(product: ProductWithRelations) {
+export function generateProductSchema(product: ProductWithRelations, location?: District) {
   const rawProduct = product as unknown as Record<string, unknown>;
   const rawSalePrice = (product.salePrice ?? rawProduct.sale_price ?? 0) as number;
   const rawOriginalPrice = (product.originalPrice ??
@@ -377,23 +464,31 @@ export function generateProductSchema(product: ProductWithRelations) {
   const firstSku = product.sku ? product.sku.split(/[\s/]+/)[0] : "";
 
   // Reuse the smart metadata logic to get the same description
-  const metadata = generateProductMetadata(product);
+  const metadata = generateProductMetadata(product, location);
 
   const brandLogo =
     product.brand?.logoUrl ||
     (product.brand as unknown as Record<string, unknown> | undefined)?.logo_url;
 
+  const productUrl = location 
+    ? `${BASE_URL}/san-pham/${product.slug}/${location.slug}`
+    : `${BASE_URL}/san-pham/${product.slug}`;
+
+  const productName = location 
+    ? `${product.name} tại ${location.name}`
+    : product.name;
+
   return {
     "@context": "https://schema.org/",
     "@type": "Product",
-    name: product.name,
+    name: productName,
     image:
       Array.isArray(product.images) && product.images.length > 0
         ? product.images
         : [],
     mainEntityOfPage: {
       "@type": "WebPage",
-      "@id": `${BASE_URL}/san-pham/${product.slug}`,
+      "@id": productUrl,
       primaryImageOfPage:
         Array.isArray(product.images) && product.images.length > 0
           ? product.images[0]
@@ -411,7 +506,7 @@ export function generateProductSchema(product: ProductWithRelations) {
     },
     offers: hasPrice ? {
       "@type": "Offer",
-      url: `${BASE_URL}/san-pham/${product.slug}`,
+      url: productUrl,
       priceCurrency: "VND",
       price: price,
       priceValidUntil: "2026-12-31",
@@ -465,6 +560,18 @@ export function generateProductSchema(product: ProductWithRelations) {
         "@type": "Organization",
         name: SHOP_NAME,
       },
+      ...(location ? {
+        areaServed: [
+          {
+            "@type": "AdministrativeArea",
+            "name": location.name,
+          },
+          {
+            "@type": "AdministrativeArea",
+            "name": "Thành phố Hồ Chí Minh",
+          }
+        ]
+      } : {})
     } : undefined,
   };
 }
@@ -891,39 +998,73 @@ export function generateProjectDetailSchema(
 export function generateServiceDetailSchema(
   service: { title: string; slug: string; metaDescription?: string | null },
   branches: Branch[],
-  contacts?: Array<{ type: string; value: string; isActive: boolean }>
+  contacts?: Array<{ type: string; value: string; isActive: boolean }>,
+  location?: District
 ) {
-  const cleanUrl = `${BASE_URL}/dich-vu/${service.slug}`;
+  const cleanUrl = location 
+    ? `${BASE_URL}/dich-vu/${service.slug}/${location.slug}`
+    : `${BASE_URL}/dich-vu/${service.slug}`;
   
+  const breadcrumbElements = [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Trang chủ",
+      "item": BASE_URL,
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Dịch vụ",
+      "item": `${BASE_URL}/dich-vu`,
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "name": service.title,
+      "item": `${BASE_URL}/dich-vu/${service.slug}`,
+    },
+  ];
+
+  if (location) {
+    breadcrumbElements.push({
+      "@type": "ListItem",
+      "position": 4,
+      "name": `${service.title} tại ${location.name}`,
+      "item": cleanUrl,
+    });
+  }
+
   const breadcrumbSchema = {
     "@type": "BreadcrumbList",
     "@id": `${cleanUrl}#breadcrumb`,
-    "itemListElement": [
-      {
-        "@type": "ListItem",
-        "position": 1,
-        "name": "Trang chủ",
-        "item": BASE_URL,
-      },
-      {
-        "@type": "ListItem",
-        "position": 2,
-        "name": "Dịch vụ",
-        "item": `${BASE_URL}/dich-vu`,
-      },
-      {
-        "@type": "ListItem",
-        "position": 3,
-        "name": service.title,
-        "item": cleanUrl,
-      },
-    ],
+    "itemListElement": breadcrumbElements,
   };
+
+  const serviceNode = SEOSchema.getService(service);
+  if (location) {
+    serviceNode["@id"] = `${cleanUrl}#service`;
+    serviceNode.name = `${service.title} tại ${location.name}`;
+    serviceNode.url = cleanUrl;
+    if (service.metaDescription) {
+      serviceNode.description = appendLocationToDescription(service.metaDescription, location);
+    }
+    serviceNode.areaServed = [
+      {
+        "@type": "AdministrativeArea",
+        "name": location.name,
+      },
+      {
+        "@type": "AdministrativeArea",
+        "name": "Thành phố Hồ Chí Minh",
+      }
+    ];
+  }
 
   return {
     "@context": "https://schema.org",
     "@graph": [
-      SEOSchema.getService(service),
+      serviceNode,
       SEOSchema.getOrganization(branches, contacts),
       SEOSchema.getWebSite(),
       breadcrumbSchema,

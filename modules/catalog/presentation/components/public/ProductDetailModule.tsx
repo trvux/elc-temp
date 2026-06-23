@@ -37,6 +37,7 @@ import { cn } from "@/shared/lib/utils";
 import { cacheLife, cacheTag } from "next/cache";
 import { ImageWithSkeleton } from "@/shared/components/ui/image-with-skeleton";
 import { notFound } from "next/navigation";
+import { District } from "@/shared/lib/districts";
 
 interface SpecSubItem {
   label: string;
@@ -136,8 +137,10 @@ async function getCachedProductDetailData(productSlug: string) {
 
 export async function ProductDetailModule({
   product,
+  location,
 }: {
   product: ProductWithRelations;
+  location?: District;
 }) {
   const { contacts, currentYear } = await getCachedProductDetailData(
     product.slug,
@@ -166,7 +169,7 @@ export async function ProductDetailModule({
     !spec.items;
 
   const productWithRelations = product;
-  const jsonLd = generateProductSchema(productWithRelations);
+  const jsonLd = generateProductSchema(productWithRelations, location);
 
   return (
     <main className={STYLES.main}>
@@ -193,7 +196,7 @@ export async function ProductDetailModule({
                           <AspectRatio ratio={16 / 9}>
                             <ImageWithSkeleton
                               src={img}
-                              alt={`${product.name} ${product.sku ? `(${product.sku})` : ""} - ${product.brand?.name || "ELC"} - Điện máy ELC`}
+                              alt={location ? `${product.name} ${product.sku ? `(${product.sku})` : ""} tại ${location.name} - ${product.brand?.name || "ELC"} - Điện máy ELC` : `${product.name} ${product.sku ? `(${product.sku})` : ""} - ${product.brand?.name || "ELC"} - Điện máy ELC`}
                               fill
                               className={STYLES.carouselImage}
                               priority={i === 0}
@@ -236,7 +239,7 @@ export async function ProductDetailModule({
               </div>
 
               <TypographyH1 className={STYLES.productName}>
-                {product.name}
+                {location ? `${product.name} tại ${location.name}` : product.name}
               </TypographyH1>
 
               <div className={STYLES.subInfo}>
@@ -423,7 +426,17 @@ export async function ProductDetailModule({
       >
         <div className="w-full">
           <Breadcrumbs
-            items={[
+            items={location ? [
+              {
+                label: category.name,
+                href: `/san-pham/${category.slug}`,
+              },
+              {
+                label: product.name,
+                href: `/san-pham/${product.slug}`,
+              },
+              { label: `${product.name} tại ${location.name}`, active: true },
+            ] : [
               {
                 label: category.name,
                 href: `/san-pham/${category.slug}`,
