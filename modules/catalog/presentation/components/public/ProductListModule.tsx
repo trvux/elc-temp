@@ -544,12 +544,10 @@ export async function ProductListModule({
         const schema = generateCollectionSchema(entity.data, products, location);
         if (!schema) return null;
         return (
-          <div style={{ display: "none" }}>
-            <script
-              type="application/ld+json"
-              dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
-            />
-          </div>
+          <script
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
+          />
         );
       })()}
 
@@ -568,12 +566,10 @@ export async function ProductListModule({
           }))
         };
         return (
-          <div style={{ display: "none" }}>
-            <script
-              type="application/ld+json"
-              dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
-            />
-          </div>
+          <script
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
+          />
         );
       })()}
     </main>
