@@ -1,9 +1,6 @@
 "use client";
 
-import {
-  StaggerContainer,
-  StaggerItem,
-} from "@/shared/components/ui/animate-in";
+
 import { TypographyH1, TypographyP } from "@/shared/components/ui/typography";
 import { HeroSlideshow } from "./hero-slideshow";
 
@@ -28,27 +25,23 @@ export function HeroMediaSection({
 
   return (
     <div className="w-full flex flex-col items-center justify-center gap-6">
-      <StaggerContainer className="flex flex-col gap-4 w-full" immediate>
+      <div className="flex flex-col gap-4 w-full">
         {/* Title */}
         <div className="flex flex-col items-center text-center gap-3 mb-4 md:mb-10">
-          <StaggerItem duration={0.25}>
-            <TypographyH1>{title}</TypographyH1>
-          </StaggerItem>
-          <StaggerItem duration={0.25}>
-            <TypographyP className="text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-              {description}
-            </TypographyP>
-          </StaggerItem>
+          <TypographyH1>{title}</TypographyH1>
+          <TypographyP className="text-muted-foreground max-w-2xl mx-auto leading-relaxed">
+            {description}
+          </TypographyP>
         </div>
 
-        <StaggerItem duration={0.25} className="w-full">
+        <div className="w-full">
           <HeroSlideshow
             images={images}
             className="w-full"
             imageClassName="object-fill"
           />
-        </StaggerItem>
-      </StaggerContainer>
+        </div>
+      </div>
     </div>
   );
 }
