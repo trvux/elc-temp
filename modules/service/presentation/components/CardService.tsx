@@ -152,6 +152,11 @@ export function CardService({
           {price}
         </div>
 
+        {/* 
+          Tạm thời ẩn form đặt lịch dịch vụ do chưa đăng ký xong Zalo OA doanh nghiệp.
+          Thay thế bằng nút liên kết trực tiếp đến Zalo cá nhân/hotline hỗ trợ.
+        */}
+        {/*
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger asChild>
             <Button className="w-full">Đặt lịch</Button>
@@ -217,6 +222,17 @@ export function CardService({
             </form>
           </DialogContent>
         </Dialog>
+        */}
+
+        <Button asChild className="w-full">
+          <a
+            href="https://zalo.me/0789978898"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Đặt lịch
+          </a>
+        </Button>
       </CardFooter>
     </Card>
   );

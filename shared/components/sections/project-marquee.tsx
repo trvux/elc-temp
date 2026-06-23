@@ -139,13 +139,7 @@ export function ProjectMarqueeSection({
 
     return (
       <div
-        className="group flex gap-5 overflow-hidden p-3"
-        style={{
-          maskImage:
-            "linear-gradient(to right, transparent, black 4%, black 96%, transparent)",
-          WebkitMaskImage:
-            "linear-gradient(to right, transparent, black 4%, black 96%, transparent)",
-        }}
+        className="group flex gap-5 overflow-hidden p-3 mask-[linear-gradient(to_right,transparent,black_15%,black_85%,transparent)]"
       >
         <div className={trackClass} style={trackStyle}>
           {items.map((project, idx) => renderCard(project, idx))}
