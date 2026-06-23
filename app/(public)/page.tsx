@@ -160,7 +160,7 @@ export default async function Home() {
           __html: JSON.stringify(homeSchema),
         }}
       />
-      <main className="w-full flex flex-col animate-fade-in-up mt-0 mb-0">
+      <main className="w-full flex flex-col mt-0 mb-0">
         {sections.map((section, index) => (
           <GridSection
             key={section.id}
