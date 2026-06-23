@@ -229,12 +229,8 @@ async function CachedProductsView({
             <TypographyH1 className={STYLES.title}>
               {q ? `Kết quả cho "${q}"` : "Tất cả sản phẩm"}
             </TypographyH1>
-            <TypographyLarge className="flex items-center gap-x-1 text-sm! md:text-md! lg:text-lg! text-muted-foreground">
-              Danh sách{" "}
-              <span className="flex gap-x-1 bg-primary text-primary-foreground px-2 rounded-sm items-center font-medium">
-                {totalCount} sản phẩm
-              </span>{" "}
-              đáp ứng tiêu chí
+            <TypographyLarge className="text-sm! md:text-md! lg:text-lg! text-muted-foreground font-normal">
+              Danh sách {totalCount} sản phẩm đáp ứng tiêu chí
             </TypographyLarge>
           </header>
         </div>

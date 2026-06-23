@@ -1,7 +1,10 @@
 import * as fs from "fs";
 import * as path from "path";
 
-const GSC_DIR = "/Users/tranvux/Downloads/gg_404";
+const GSC_DIRS = [
+  "/Users/tranvux/Downloads/gg_404",
+  "/Users/tranvux/Downloads/16thangtruoc"
+];
 const OUTPUT_SITEMAP = path.join(process.cwd(), "public/sitemap-migration.xml");
 
 function shouldIncludeUrl(url: string): boolean {
@@ -31,15 +34,14 @@ function shouldIncludeUrl(url: string): boolean {
 }
 
 async function parseCsvFiles() {
-  if (!fs.existsSync(GSC_DIR)) {
-    console.error(`GSC Directory not found: ${GSC_DIR}`);
-    return;
-  }
-
   const urlSet = new Set<string>();
 
-  // Helper to search directories recursively for CSV files named "Bảng.csv" or similar
+  // Scan function to process directories recursively
   function scanDir(dir: string) {
+    if (!fs.existsSync(dir)) {
+      console.warn(`Directory not found, skipping: ${dir}`);
+      return;
+    }
     const files = fs.readdirSync(dir);
     for (const file of files) {
       const fullPath = path.join(dir, file);
@@ -57,26 +59,10 @@ async function parseCsvFiles() {
     const content = fs.readFileSync(filePath, "utf-8");
     const lines = content.split("\n");
     
-    let urlColIndex = -1;
-    
     if (lines.length === 0) return;
     
-    // Find URL column header
-    const headers = lines[0].split(",");
-    for (let i = 0; i < headers.length; i++) {
-      const h = headers[i].trim().replace(/^"|"$/g, "");
-      if (h.toUpperCase() === "URL") {
-        urlColIndex = i;
-        break;
-      }
-    }
-
-    if (urlColIndex === -1) {
-      return;
-    }
-
-    // Read rows
-    for (let i = 1; i < lines.length; i++) {
+    // Scan each row
+    for (let i = 0; i < lines.length; i++) {
       const line = lines[i].trim();
       if (!line) continue;
       
@@ -97,16 +83,18 @@ async function parseCsvFiles() {
       }
       cols.push(current.trim().replace(/^"|"$/g, ""));
 
-      if (cols.length > urlColIndex) {
-        const rawUrl = cols[urlColIndex];
-        if (rawUrl.startsWith("http")) {
-          urlSet.add(rawUrl);
+      // Robust check: Look through all columns in the row for any valid URL
+      for (const col of cols) {
+        if (col.startsWith("http://") || col.startsWith("https://")) {
+          urlSet.add(col);
         }
       }
     }
   }
 
-  scanDir(GSC_DIR);
+  for (const dir of GSC_DIRS) {
+    scanDir(dir);
+  }
 
   const allUrls = Array.from(urlSet);
   console.log(`Extracted ${allUrls.length} unique URLs from GSC CSVs.`);
