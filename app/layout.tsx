@@ -6,8 +6,6 @@ import { cn } from "@/shared/lib/utils";
 import { QueryProvider } from "@/shared/providers/query-provider";
 import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
-// Import component Script của Next.js để tối ưu tốc độ load trang
-import Script from "next/script";
 import { Suspense } from "react";
 import "./globals.css";
 
@@ -66,20 +64,7 @@ export default function RootLayout({
       className={cn("h-full antialiased font-sans", inter.variable)}
     >
       <head>
-        {/* Google Tag Manager (Phần script trong head) */}
-        <Script
-          id="gtm-script"
-          strategy="afterInteractive"
-          dangerouslySetInnerHTML={{
-            __html: `
-              (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
-              new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
-              j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-              'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-              })(window,document,'script','dataLayer','GTM-TQ9DL8CG');
-            `,
-          }}
-        />
+
 
         <link
           rel="preconnect"
@@ -113,15 +98,7 @@ export default function RootLayout({
         suppressHydrationWarning
         className={cn("min-h-full flex flex-col text-foreground")}
       >
-        {/* Google Tag Manager (noscript - Phần dự phòng ngay đầu body) */}
-        <noscript>
-          <iframe
-            src="https://www.googletagmanager.com/ns.html?id=GTM-TQ9DL8CG"
-            height="0"
-            width="0"
-            style={{ display: "none", visibility: "hidden" }}
-          />
-        </noscript>
+
 
         <TooltipProvider>
           <ThemeProvider

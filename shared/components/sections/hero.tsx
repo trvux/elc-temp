@@ -46,11 +46,11 @@ export function HeroSection({
               <AnimatePresence mode="wait">
                 <m.span
                   key={wordIndex}
-                  initial={{ opacity: 0, y: 12, filter: "blur(6px)" }}
-                  animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-                  exit={{ opacity: 0, y: -12, filter: "blur(6px)" }}
-                  transition={{ duration: 0.35, ease: "easeInOut" }}
-                  className="inline-block text-foreground"
+                  initial={{ opacity: 0, y: 6 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -6 }}
+                  transition={{ duration: 0.25, ease: "easeOut" }}
+                  className="inline-block text-foreground will-change-transform"
                 >
                   {ROTATING_WORDS[wordIndex]}
                 </m.span>
