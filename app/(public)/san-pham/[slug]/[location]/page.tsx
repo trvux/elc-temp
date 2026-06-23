@@ -22,16 +22,18 @@ type Props = {
 export async function generateStaticParams() {
   const supabase = createStaticClient();
   
-  // Fetch categories, brands, groups
-  const [categoriesRes, brandsRes, groupsRes] = await Promise.all([
+  // Fetch categories, brands, groups, and published products
+  const [categoriesRes, brandsRes, groupsRes, productsRes] = await Promise.all([
     supabase.from("categories").select("slug").is("deleted_at", null),
     supabase.from("brands").select("slug").is("deleted_at", null),
     supabase.from("group_categories").select("slug").is("deleted_at", null),
+    supabase.from("products").select("slug").eq("is_published", true).is("deleted_at", null),
   ]);
 
   const categories = categoriesRes.data || [];
   const brands = brandsRes.data || [];
   const groups = groupsRes.data || [];
+  const products = productsRes.data || [];
 
   const params: Array<{ slug: string; location: string }> = [];
 
@@ -39,6 +41,7 @@ export async function generateStaticParams() {
     ...categories.map((c) => c.slug),
     ...brands.map((b) => b.slug),
     ...groups.map((g) => g.slug),
+    ...products.map((p) => p.slug),
   ].filter(Boolean) as string[];
 
   for (const slug of slugs) {

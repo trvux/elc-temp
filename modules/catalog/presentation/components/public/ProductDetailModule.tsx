@@ -12,6 +12,12 @@ import { GridSection } from "@/shared/components/sections/grid-section";
 import { AspectRatio } from "@/shared/components/ui/aspect-ratio";
 import { Badge } from "@/shared/components/ui/badge";
 import {
+  Accordion,
+  AccordionItem,
+  AccordionTrigger,
+  AccordionContent,
+} from "@/shared/components/ui/accordion";
+import {
   Carousel,
   CarouselContent,
   CarouselItem,
@@ -101,6 +107,47 @@ const STYLES = {
   ),
 };
 
+function getFallbackProductFaq(
+  product: ProductWithRelations,
+  location?: District,
+): Array<{ question: string; answer: string }> {
+  const name = product.name;
+  const brand = product.brand?.name || "hãng";
+  const locName = location?.name || "TPHCM";
+
+  if (location) {
+    return [
+      {
+        question: `${name} có được giao hàng và lắp đặt tận nơi tại ${locName} không?`,
+        answer: `Có, Điện máy ELC cung cấp dịch vụ giao hàng và thi công lắp đặt trọn gói chuyên nghiệp tại ${locName} bởi đội ngũ kỹ thuật viên giàu kinh nghiệm, đảm bảo máy vận hành tốt nhất ngay từ ngày đầu sử dụng.`,
+      },
+      {
+        question: `Chính sách bảo hành ${name} tại ${locName} như thế nào?`,
+        answer: `Sản phẩm được bảo hành chính hãng theo đúng quy định của ${brand}. Điện máy ELC hỗ trợ tiếp nhận và xử lý bảo hành nhanh chóng tại ${locName} giúp khách hàng an tâm sau khi mua.`,
+      },
+      {
+        question: `Mua ${name} tại ${locName} có được giá tốt nhất không?`,
+        answer: `Điện máy ELC cam kết bán đúng giá niêm yết, không phụ thu. Quý khách tại ${locName} có thể liên hệ hotline để được tư vấn báo giá chi tiết và các chương trình khuyến mãi ưu đãi hàng tháng.`,
+      },
+    ];
+  }
+
+  return [
+    {
+      question: `${name} có chính hãng 100% không?`,
+      answer: `Có, Điện máy ELC là đại lý phân phối chính thức của ${brand} tại Việt Nam, cam kết 100% sản phẩm chính hãng kèm đầy đủ chứng nhận xuất xứ và giấy tờ bảo hành.`,
+    },
+    {
+      question: `${name} có bảo hành bao lâu?`,
+      answer: `Sản phẩm được bảo hành chính hãng theo quy định của ${brand}. Điện máy ELC hỗ trợ tiếp nhận và xử lý bảo hành nhanh chóng, đảm bảo quyền lợi tối đa cho khách hàng.`,
+    },
+    {
+      question: `Điện máy ELC có dịch vụ lắp đặt ${name} không?`,
+      answer: `Có, Điện máy ELC cung cấp dịch vụ lắp đặt trọn gói bởi đội ngũ kỹ thuận viên được đào tạo bài bản, đảm bảo vận hành ón định, an toàn từ ngày đầu sử dụng.`,
+    },
+  ];
+}
+
 async function getCachedProductDetailData(productSlug: string) {
   "use cache";
   cacheLife("days");
@@ -170,6 +217,7 @@ export async function ProductDetailModule({
 
   const productWithRelations = product;
   const jsonLd = generateProductSchema(productWithRelations, location);
+  const faqList = getFallbackProductFaq(product, location);
 
   return (
     <main className={STYLES.main}>
@@ -177,6 +225,25 @@ export async function ProductDetailModule({
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
+      {faqList.length > 0 && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "FAQPage",
+              "mainEntity": faqList.map((item) => ({
+                "@type": "Question",
+                "name": item.question,
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": item.answer,
+                },
+              })),
+            }),
+          }}
+        />
+      )}
       {/* ===== KHỐI 1: ẢNH + THÔNG TIN SẢN PHẨM ===== */}
       <GridSection
         id="product-detail-top"
@@ -239,7 +306,7 @@ export async function ProductDetailModule({
               </div>
 
               <TypographyH1 className={STYLES.productName}>
-                {location ? `${product.name} tại ${location.name}` : product.name}
+                {product.name}
               </TypographyH1>
 
               <div className={STYLES.subInfo}>
@@ -402,7 +469,35 @@ export async function ProductDetailModule({
         </div>
       </GridSection>
 
-      {/* ===== KHỐI 5: FOOTER BẢN QUYỀN ===== */}
+      {/* ===== KHOI 4.5: FAQ ===== */}
+      {faqList.length > 0 && (
+        <GridSection
+          id="product-detail-faq"
+          isFirst={false}
+          showDiamond={true}
+          contentClassName="py-10 border-t border-border/30"
+        >
+          <div className="w-full max-w-4xl mx-auto space-y-6">
+            <TypographyH3 className="text-xl md:text-2xl font-bold tracking-tight">
+              Câu hỏi thường gặp (FAQ)
+            </TypographyH3>
+            <Accordion type="single" collapsible className="w-full">
+              {faqList.map((item, index) => (
+                <AccordionItem key={index} value={`faq-item-${index}`}>
+                  <AccordionTrigger className="text-sm md:text-base font-semibold text-foreground py-4">
+                    {item.question}
+                  </AccordionTrigger>
+                  <AccordionContent className="text-sm md:text-base text-muted-foreground leading-relaxed pb-4">
+                    {item.answer}
+                  </AccordionContent>
+                </AccordionItem>
+              ))}
+            </Accordion>
+          </div>
+        </GridSection>
+      )}
+
+      {/* ===== KHOI 5: FOOTER BAN QUYEN ===== */}
       <GridSection
         id="product-detail-footer"
         isFirst={false}
@@ -435,7 +530,7 @@ export async function ProductDetailModule({
                 label: product.name,
                 href: `/san-pham/${product.slug}`,
               },
-              { label: `${product.name} tại ${location.name}`, active: true },
+              { label: product.name, active: true },
             ] : [
               {
                 label: category.name,
