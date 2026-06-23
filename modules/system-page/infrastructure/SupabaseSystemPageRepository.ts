@@ -67,8 +67,54 @@ export class SupabaseSystemPageRepository implements SystemPageRepository {
   }
 
   private handleError(error: unknown, context: string): never {
+    let isAbort = false;
+    if (error && typeof error === "object") {
+      const errObj = error as Record<string, unknown>;
+      const name = typeof errObj.name === "string" ? errObj.name : "";
+      const message = typeof errObj.message === "string" ? errObj.message : "";
+      if (
+        name === "AbortError" || 
+        message.includes("AbortError") || 
+        message.includes("aborted") ||
+        message.includes("operation was aborted") ||
+        message.includes("prerender") ||
+        message.includes("prerendering")
+      ) {
+        isAbort = true;
+      }
+    } else if (error instanceof Error) {
+      if (
+        error.name === "AbortError" || 
+        error.message.includes("AbortError") || 
+        error.message.includes("aborted") ||
+        error.message.includes("operation was aborted") ||
+        error.message.includes("prerender") ||
+        error.message.includes("prerendering")
+      ) {
+        isAbort = true;
+      }
+    }
+
+    if (isAbort) {
+      throw error;
+    }
+
+    let message = "Unknown error";
+    if (error) {
+      if (typeof error === "object") {
+        const errObj = error as Record<string, unknown>;
+        if (typeof errObj.message === "string") {
+          message = errObj.message;
+          if (typeof errObj.details === "string" && errObj.details) {
+            message += ` (${errObj.details})`;
+          }
+        }
+      } else if (error instanceof Error) {
+        message = error.message;
+      }
+    }
     console.error(`[SupabaseSystemPageRepository][${context}] Error:`, error);
-    throw new Error(`Database error in ${context}`);
+    throw new Error(`Database error in ${context}: ${message}`);
   }
 }
 
