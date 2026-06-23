@@ -79,7 +79,14 @@ export function ProductFilters({
     if (isPending) return;
     /* eslint-disable react-hooks/set-state-in-effect */
     setLocalCategory(knownSlugs.has(slugFromPath) ? slugFromPath : "all");
-    setLocalBrands(searchParams.getAll("brands"));
+
+    const isBrandFromPath = slugFromPath && (availableFilters?.brands || []).some((b) => b.slug === slugFromPath);
+    const queryBrands = searchParams.getAll("brands");
+    const brandsToSet = isBrandFromPath
+      ? Array.from(new Set([...queryBrands, slugFromPath]))
+      : queryBrands;
+    setLocalBrands(brandsToSet);
+
     setLocalCondition(searchParams.get("condition") || "");
 
     const specs: Record<string, string[]> = {};
@@ -93,7 +100,7 @@ export function ProductFilters({
     setLocalSpecs(specs);
 
     const activeValues: string[] = [];
-    if (searchParams.getAll("brands").length > 0) activeValues.push("Thương hiệu");
+    if (brandsToSet.length > 0) activeValues.push("Thương hiệu");
     if (searchParams.get("minPrice") || searchParams.get("maxPrice")) activeValues.push("Khoảng giá");
     if (searchParams.get("condition")) activeValues.push("Tình trạng sản phẩm");
     Object.keys(specs).forEach((label) => {
@@ -109,7 +116,7 @@ export function ProductFilters({
 
     setOpenItems(activeValues);
     /* eslint-enable react-hooks/set-state-in-effect */
-  }, [searchParams, slugFromPath, knownSlugs, isPending, categories]);
+  }, [searchParams, slugFromPath, knownSlugs, isPending, categories, availableFilters]);
 
   const hasPriceFilter = useMemo(() => {
     return !!(searchParams.get("minPrice") || searchParams.get("maxPrice"));
