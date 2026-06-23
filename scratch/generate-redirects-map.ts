@@ -28,6 +28,18 @@ interface PageItem {
   slug: string;
 }
 
+interface ServiceItem {
+  slug: string;
+}
+
+interface Candidate {
+  slug: string;
+  destPattern: string;
+  tokens: string[];
+  type: "registry" | "news" | "service" | "page";
+  entity_type?: string;
+}
+
 function tokenize(s: string): string[] {
   return s.toLowerCase().split(/[-_\s/]+/).filter((t) => t.length > 0);
 }
@@ -69,41 +81,6 @@ function normalizePath(rawPath: string): string {
   return p;
 }
 
-function matchKeywordRules(slug: string): string | null {
-  const s = slug.toLowerCase();
-  
-  // 1. Remote controls, guides, and timers -> General usage guide (news article)
-  if (s.includes("remote") || s.includes("dieu-khien") || s.includes("hen-gio") || s.includes("su-dung")) {
-    return "/tin-tuc/top-5-sai-lam-khi-su-dung-may-lanh-ma-nhieu-nguoi-mac-phai";
-  }
-
-  // 2. Air conditioner cleaning, maintenance -> Cleaning service page
-  if (s.includes("ve-sinh") || s.includes("bao-tri") || s.includes("bao-duong") || s.includes("ong-thoat-nuoc") || s.includes("thao-mat-na") || s.includes("thao-quat")) {
-    return "/dich-vu/ve-sinh-bao-tri-cac-dong-may-lanh";
-  }
-
-  // 3. Refrigeration systems, cooling diagrams -> Projects page
-  if (s.includes("so-do") || s.includes("he-thong-lanh") || s.includes("moi-chat-lanh") || s.includes("leak-test") || s.includes("ro-ri")) {
-    return "/du-an";
-  }
-
-  // 4. Fresh air ventilation, air filters -> Fresh air product category
-  if (s.includes("cap-gio-tuoi") || s.includes("cap-khi-tuoi") || s.includes("loc-bui") || s.includes("loc-khong-khi") || s.includes("menred")) {
-    return "/san-pham";
-  }
-
-  // 5. Brand-specific error codes or pages
-  if (s.includes("daikin")) return "/san-pham/daikin";
-  if (s.includes("panasonic")) return "/san-pham/panasonic";
-  if (s.includes("lg")) return "/san-pham/lg";
-  if (s.includes("samsung")) return "/san-pham/samsung";
-  if (s.includes("toshiba")) return "/san-pham/toshiba";
-  if (s.includes("gree")) return "/san-pham/gree";
-  if (s.includes("midea")) return "/san-pham/midea";
-
-  return null;
-}
-
 async function generateRedirectsMap() {
   console.log("Fetching database records...");
   
@@ -134,7 +111,18 @@ async function generateRedirectsMap() {
   const pages: PageItem[] = pagesData || [];
   const pageSlugs = new Set(pages.map((p) => p.slug));
 
-  console.log(`Loaded ${registry.length} registry items, ${news.length} news items, and ${pages.length} pages.`);
+  // 4. Fetch services
+  const { data: servicesData } = await supabase
+    .from("services")
+    .select("slug")
+    .is("deleted_at", null)
+    .eq("is_published", true);
+
+  const services: ServiceItem[] = servicesData || [];
+
+  console.log(
+    `Loaded ${registry.length} registry items, ${news.length} news items, ${services.length} services, and ${pages.length} pages.`
+  );
 
   // Build the set of all active URLs currently on the website to avoid redirecting them
   const activeUrls = new Set<string>([
@@ -168,16 +156,79 @@ async function generateRedirectsMap() {
     activeUrls.add(`/${item.slug}`);
   }
 
-  // Tokenize candidates for fuzzy matching
-  const tokenizedRegistry = registry.map((item) => ({
-    ...item,
-    tokens: tokenize(item.slug),
-  }));
+  for (const item of services) {
+    activeUrls.add(`/dich-vu/${item.slug}`);
+  }
 
-  const tokenizedNews = news.map((item) => ({
-    ...item,
-    tokens: tokenize(item.slug),
-  }));
+  // Compile candidate pools for dynamic scopes
+  const categoryCandidates: Candidate[] = registry
+    .filter((r) => ["category", "categories", "group"].includes(r.entity_type))
+    .map((r) => ({
+      slug: r.slug,
+      destPattern: `/san-pham/${r.slug}`,
+      tokens: tokenize(r.slug),
+      type: "registry",
+      entity_type: r.entity_type,
+    }));
+
+  const productCandidates: Candidate[] = registry
+    .filter((r) => ["product", "category", "categories", "brand", "group"].includes(r.entity_type))
+    .map((r) => ({
+      slug: r.slug,
+      destPattern: `/san-pham/${r.slug}`,
+      tokens: tokenize(r.slug),
+      type: "registry",
+      entity_type: r.entity_type,
+    }));
+
+  const projectCandidates: Candidate[] = registry
+    .filter((r) => ["project", "project_type"].includes(r.entity_type))
+    .map((r) => ({
+      slug: r.slug,
+      destPattern: `/du-an/${r.slug}`,
+      tokens: tokenize(r.slug),
+      type: "registry",
+      entity_type: r.entity_type,
+    }));
+
+  const generalCandidates: Candidate[] = [
+    ...pages.map((p) => ({
+      slug: p.slug,
+      destPattern: `/${p.slug}`,
+      tokens: tokenize(p.slug),
+      type: "page" as const,
+    })),
+    ...services.map((s) => ({
+      slug: s.slug,
+      destPattern: `/dich-vu/${s.slug}`,
+      tokens: tokenize(s.slug),
+      type: "service" as const,
+    })),
+    ...news.map((n) => ({
+      slug: n.slug,
+      destPattern: `/tin-tuc/${n.slug}`,
+      tokens: tokenize(n.slug),
+      type: "news" as const,
+    })),
+    ...registry
+      .filter((r) => ["product", "category", "categories", "brand", "group"].includes(r.entity_type))
+      .map((r) => ({
+        slug: r.slug,
+        destPattern: `/san-pham/${r.slug}`,
+        tokens: tokenize(r.slug),
+        type: "registry" as const,
+        entity_type: r.entity_type,
+      })),
+    ...registry
+      .filter((r) => ["project", "project_type"].includes(r.entity_type))
+      .map((r) => ({
+        slug: r.slug,
+        destPattern: `/du-an/${r.slug}`,
+        tokens: tokenize(r.slug),
+        type: "registry" as const,
+        entity_type: r.entity_type,
+      })),
+  ];
 
   // Extract all old URLs from GSC CSVs
   const oldPaths = new Set<string>();
@@ -189,7 +240,10 @@ async function generateRedirectsMap() {
       const fullPath = path.join(dir, file);
       if (fs.statSync(fullPath).isDirectory()) {
         scanDir(fullPath);
-      } else if (file.endsWith(".csv") && (file.includes("Bảng") || file.toLowerCase().includes("trang") || file.toLowerCase().includes("pages"))) {
+      } else if (
+        file.endsWith(".csv") &&
+        (file.includes("Bảng") || file.toLowerCase().includes("trang") || file.toLowerCase().includes("pages"))
+      ) {
         const content = fs.readFileSync(fullPath, "utf-8");
         const lines = content.split("\n");
         if (lines.length > 0) {
@@ -214,7 +268,12 @@ async function generateRedirectsMap() {
                 if (rawUrl.startsWith("http")) {
                   try {
                     const pathname = new URL(rawUrl).pathname;
-                    if (pathname && pathname !== "/" && !pathname.includes("/wp-admin/") && !pathname.includes("/admin/")) {
+                    if (
+                      pathname &&
+                      pathname !== "/" &&
+                      !pathname.includes("/wp-admin/") &&
+                      !pathname.includes("/admin/")
+                    ) {
                       oldPaths.add(normalizePath(pathname));
                     }
                   } catch {}
@@ -257,155 +316,159 @@ async function generateRedirectsMap() {
     // Determine type-specific search scope based on old path prefix
     const isCategoryPath =
       oldPath.startsWith("/category/") ||
-      oldPath.startsWith("/danh-muc/");
+      oldPath.startsWith("/danh-muc/") ||
+      oldPath.startsWith("/product-category/");
 
     const isProductPath =
       oldPath.startsWith("/san-pham/") ||
       oldPath.startsWith("/product/") ||
       oldPath.startsWith("/shop/");
 
-    const isProjectPath = oldPath.startsWith("/du-an/") || oldPath.startsWith("/cong-trinh/");
+    const isProjectPath =
+      oldPath.startsWith("/du-an/") ||
+      oldPath.startsWith("/cong-trinh/");
 
-    // 1. Try keyword-based overrides first (dynamic domain matching)
-    let matchedDest = matchKeywordRules(cleanLastSegment);
+    let matchedDest: string | null = null;
 
-    if (!matchedDest) {
-      if (isCategoryPath) {
-        // 1. Try exact match in category registry
-        const exact = registry.find(
-          (r) =>
-            r.slug === cleanLastSegment &&
-            ["category", "categories", "group"].includes(r.entity_type)
-        );
-        if (exact) {
-          matchedDest = `/san-pham/${exact.slug}`;
-        } else {
-          // 2. Fuzzy match in category registry
-          let bestMatch: typeof tokenizedRegistry[0] | null = null;
-          let maxScore = 0;
-          let bestJaccard = 0;
-          const candidates = tokenizedRegistry.filter((r) =>
-            ["category", "categories", "group"].includes(r.entity_type)
-          );
-
-          for (const candidate of candidates) {
-            const score = calculateScore(cleanTokens, candidate.tokens);
-            const jaccard = calculateJaccard(cleanTokens, candidate.tokens);
-            if (score > maxScore || (score === maxScore && jaccard > bestJaccard)) {
-              maxScore = score;
-              bestJaccard = jaccard;
-              bestMatch = candidate;
-            }
-          }
-
-          if (bestMatch && maxScore >= 4 && bestJaccard >= 0.25) {
-            matchedDest = `/san-pham/${bestMatch.slug}`;
-          } else {
-            matchedDest = "/san-pham"; // Fallback category hub
-          }
-        }
-      } else if (isProductPath) {
-        // 1. Try exact match in product registry
-        const exact = registry.find(
-          (r) =>
-            r.slug === cleanLastSegment &&
-            ["product", "category", "categories", "brand", "group"].includes(r.entity_type)
-        );
-        if (exact) {
-          matchedDest = `/san-pham/${exact.slug}`;
-        } else {
-          // 2. Fuzzy match in product registry
-          let bestMatch: typeof tokenizedRegistry[0] | null = null;
-          let maxScore = 0;
-          let bestJaccard = 0;
-          const candidates = tokenizedRegistry.filter((r) =>
-            ["product", "category", "categories", "brand", "group"].includes(r.entity_type)
-          );
-
-          for (const candidate of candidates) {
-            const score = calculateScore(cleanTokens, candidate.tokens);
-            const jaccard = calculateJaccard(cleanTokens, candidate.tokens);
-            if (score > maxScore || (score === maxScore && jaccard > bestJaccard)) {
-              maxScore = score;
-              bestJaccard = jaccard;
-              bestMatch = candidate;
-            }
-          }
-
-          if (bestMatch && maxScore >= 4 && bestJaccard >= 0.25) {
-            matchedDest = `/san-pham/${bestMatch.slug}`;
-          } else {
-            matchedDest = "/san-pham"; // Fallback product hub
-          }
-        }
-      } else if (isProjectPath) {
-        // 1. Try exact match in projects registry
-        const exact = registry.find(
-          (r) =>
-            r.slug === cleanLastSegment &&
-            ["project", "project_type"].includes(r.entity_type)
-        );
-        if (exact) {
-          matchedDest = `/du-an/${exact.slug}`;
-        } else {
-          // 2. Fuzzy match in projects registry
-          let bestMatch: typeof tokenizedRegistry[0] | null = null;
-          let maxScore = 0;
-          let bestJaccard = 0;
-          const candidates = tokenizedRegistry.filter((r) =>
-            ["project", "project_type"].includes(r.entity_type)
-          );
-
-          for (const candidate of candidates) {
-            const score = calculateScore(cleanTokens, candidate.tokens);
-            const jaccard = calculateJaccard(cleanTokens, candidate.tokens);
-            if (score > maxScore || (score === maxScore && jaccard > bestJaccard)) {
-              maxScore = score;
-              bestJaccard = jaccard;
-              bestMatch = candidate;
-            }
-          }
-
-          if (bestMatch && maxScore >= 4 && bestJaccard >= 0.25) {
-            matchedDest = `/du-an/${bestMatch.slug}`;
-          } else {
-            matchedDest = "/du-an"; // Fallback projects hub
-          }
-        }
+    if (isCategoryPath) {
+      // 1. Try exact match in category registry
+      const exact = registry.find(
+        (r) =>
+          r.slug === cleanLastSegment &&
+          ["category", "categories", "group"].includes(r.entity_type)
+      );
+      if (exact) {
+        matchedDest = `/san-pham/${exact.slug}`;
       } else {
-        // General root paths or news/blog post paths
-        // 1. Try exact match in registry (could be a product or project at root level)
-        const exactRegistry = registry.find((r) => r.slug === cleanLastSegment);
-        if (exactRegistry) {
-          if (["product", "category", "categories", "brand", "group"].includes(exactRegistry.entity_type)) {
-            matchedDest = `/san-pham/${exactRegistry.slug}`;
-          } else {
-            matchedDest = `/du-an/${exactRegistry.slug}`;
+        // 2. Fuzzy match in category registry
+        let bestMatch: Candidate | null = null;
+        let maxScore = 0;
+        let bestJaccard = 0;
+
+        for (const candidate of categoryCandidates) {
+          const score = calculateScore(cleanTokens, candidate.tokens);
+          const jaccard = calculateJaccard(cleanTokens, candidate.tokens);
+          if (score > maxScore || (score === maxScore && jaccard > bestJaccard)) {
+            maxScore = score;
+            bestJaccard = jaccard;
+            bestMatch = candidate;
           }
+        }
+
+        if (bestMatch && maxScore >= 4 && bestJaccard >= 0.25) {
+          matchedDest = bestMatch.destPattern;
         } else {
-          // 2. Try exact match in news
+          matchedDest = "/san-pham"; // Fallback category hub
+        }
+      }
+    } else if (isProductPath) {
+      // 1. Try exact match in product registry
+      const exact = registry.find(
+        (r) =>
+          r.slug === cleanLastSegment &&
+          ["product", "category", "categories", "brand", "group"].includes(r.entity_type)
+      );
+      if (exact) {
+        matchedDest = `/san-pham/${exact.slug}`;
+      } else {
+        // 2. Fuzzy match in product registry
+        let bestMatch: Candidate | null = null;
+        let maxScore = 0;
+        let bestJaccard = 0;
+
+        for (const candidate of productCandidates) {
+          const score = calculateScore(cleanTokens, candidate.tokens);
+          const jaccard = calculateJaccard(cleanTokens, candidate.tokens);
+          if (score > maxScore || (score === maxScore && jaccard > bestJaccard)) {
+            maxScore = score;
+            bestJaccard = jaccard;
+            bestMatch = candidate;
+          }
+        }
+
+        if (bestMatch && maxScore >= 4 && bestJaccard >= 0.25) {
+          matchedDest = bestMatch.destPattern;
+        } else {
+          matchedDest = "/san-pham"; // Fallback product hub
+        }
+      }
+    } else if (isProjectPath) {
+      // 1. Try exact match in projects registry
+      const exact = registry.find(
+        (r) =>
+          r.slug === cleanLastSegment &&
+          ["project", "project_type"].includes(r.entity_type)
+      );
+      if (exact) {
+        matchedDest = `/du-an/${exact.slug}`;
+      } else {
+        // 2. Fuzzy match in projects registry
+        let bestMatch: Candidate | null = null;
+        let maxScore = 0;
+        let bestJaccard = 0;
+
+        for (const candidate of projectCandidates) {
+          const score = calculateScore(cleanTokens, candidate.tokens);
+          const jaccard = calculateJaccard(cleanTokens, candidate.tokens);
+          if (score > maxScore || (score === maxScore && jaccard > bestJaccard)) {
+            maxScore = score;
+            bestJaccard = jaccard;
+            bestMatch = candidate;
+          }
+        }
+
+        if (bestMatch && maxScore >= 4 && bestJaccard >= 0.25) {
+          matchedDest = bestMatch.destPattern;
+        } else {
+          matchedDest = "/du-an"; // Fallback projects hub
+        }
+      }
+    } else {
+      // General root paths
+      // 1. Try exact match in pages
+      const exactPage = pages.find((p) => p.slug === cleanLastSegment);
+      if (exactPage) {
+        matchedDest = `/${exactPage.slug}`;
+      } else {
+        // 2. Try exact match in services
+        const exactService = services.find((s) => s.slug === cleanLastSegment);
+        if (exactService) {
+          matchedDest = `/dich-vu/${exactService.slug}`;
+        } else {
+          // 3. Try exact match in news
           const exactNews = news.find((n) => n.slug === cleanLastSegment);
           if (exactNews) {
             matchedDest = `/tin-tuc/${exactNews.slug}`;
           } else {
-            // 3. Fuzzy match in news
-            let bestMatchNews: typeof tokenizedNews[0] | null = null;
-            let maxScoreNews = 0;
-            let bestJaccardNews = 0;
-            for (const candidate of tokenizedNews) {
-              const score = calculateScore(cleanTokens, candidate.tokens);
-              const jaccard = calculateJaccard(cleanTokens, candidate.tokens);
-              if (score > maxScoreNews || (score === maxScoreNews && jaccard > bestJaccardNews)) {
-                maxScoreNews = score;
-                bestJaccardNews = jaccard;
-                bestMatchNews = candidate;
+            // 4. Try exact match in registry (root level products/projects)
+            const exactRegistry = registry.find((r) => r.slug === cleanLastSegment);
+            if (exactRegistry) {
+              if (["product", "category", "categories", "brand", "group"].includes(exactRegistry.entity_type)) {
+                matchedDest = `/san-pham/${exactRegistry.slug}`;
+              } else {
+                matchedDest = `/du-an/${exactRegistry.slug}`;
               }
-            }
-
-            if (bestMatchNews && maxScoreNews >= 4 && bestJaccardNews >= 0.25) {
-              matchedDest = `/tin-tuc/${bestMatchNews.slug}`;
             } else {
-              matchedDest = "/"; // Fallback homepage
+              // 5. Global fuzzy match fallback
+              let bestMatch: Candidate | null = null;
+              let maxScore = 0;
+              let bestJaccard = 0;
+
+              for (const candidate of generalCandidates) {
+                const score = calculateScore(cleanTokens, candidate.tokens);
+                const jaccard = calculateJaccard(cleanTokens, candidate.tokens);
+                if (score > maxScore || (score === maxScore && jaccard > bestJaccard)) {
+                  maxScore = score;
+                  bestJaccard = jaccard;
+                  bestMatch = candidate;
+                }
+              }
+
+              if (bestMatch && maxScore >= 4 && bestJaccard >= 0.25) {
+                matchedDest = bestMatch.destPattern;
+              } else {
+                matchedDest = "/"; // Fallback homepage
+              }
             }
           }
         }
@@ -419,7 +482,11 @@ async function generateRedirectsMap() {
 
   // Write static mapping to JSON
   fs.writeFileSync(OUTPUT_MAP_FILE, JSON.stringify(redirectsMap, null, 2), "utf-8");
-  console.log(`Successfully generated static redirects map with ${Object.keys(redirectsMap).length} mappings at: shared/redirects-map.json`);
+  console.log(
+    `Successfully generated static redirects map with ${
+      Object.keys(redirectsMap).length
+    } mappings at: shared/redirects-map.json`
+  );
 }
 
 generateRedirectsMap().catch(console.error);

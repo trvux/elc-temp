@@ -47,6 +47,8 @@ import { Switch } from "@/shared/components/ui/switch";
 import { Textarea } from "@/shared/components/ui/textarea";
 import { Plus, X } from "@phosphor-icons/react";
 import { Controller } from "react-hook-form";
+import { TiptapEditor } from "@/shared/components/ui/tiptap-editor";
+import { createClient } from "@/shared/lib/supabase/client";
 
 interface ServiceManagementProps {
   initialData: ServiceWithRelations[];
@@ -59,6 +61,7 @@ export function ServiceManagement({
   groups,
   categories,
 }: ServiceManagementProps) {
+  const supabase = createClient();
   const [activeService, setActiveService] = useState<
     ServiceWithRelations | "new" | null
   >(null);
@@ -788,6 +791,41 @@ export function ServiceManagement({
                       )}
                     />
                   </div>
+                </div>
+
+                {/* Editor Section */}
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between border-b pb-2">
+                    <h3 className="text-sm font-semibold tracking-tight">Nội dung chi tiết dịch vụ</h3>
+                    <span className="text-[10px] text-muted-foreground uppercase tracking-widest">Tiptap</span>
+                  </div>
+                  <Controller
+                    control={form.control}
+                    name="content"
+                    render={({ field }) => (
+                      <TiptapEditor
+                        key={activeService === "new" ? "new" : activeService?.id}
+                        value={field.value}
+                        onChange={field.onChange}
+                        placeholder="Bắt đầu viết nội dung chi tiết dịch vụ..."
+                        uploadImage={async (file: File) => {
+                          const fileName = `services/${Date.now()}-${Math.random()
+                            .toString(36)
+                            .slice(2)}.webp`;
+                          const { error } = await supabase.storage
+                            .from("images")
+                            .upload(fileName, file, {
+                              contentType: "image/webp",
+                            });
+                          if (error) throw error;
+                          const { data } = supabase.storage
+                            .from("images")
+                            .getPublicUrl(fileName);
+                          return data.publicUrl;
+                        }}
+                      />
+                    )}
+                  />
                 </div>
               </div>
             </div>
