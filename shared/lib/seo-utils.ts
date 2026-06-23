@@ -91,7 +91,7 @@ export function generateProductMetadata(product: ProductWithRelations) {
   }
 
   // Always append Shop Name in the module for consistent branding
-  if (!title.endsWith(SHOP_NAME)) {
+  if (!title.toLowerCase().endsWith(SHOP_NAME.toLowerCase())) {
     title += ` | ${SHOP_NAME}`;
   }
 
@@ -179,7 +179,7 @@ export function generateCategoryMetadata(
       `Chuyên cung cấp ${displayName} chính hãng tại Điện máy ELC. Máy lạnh giá tốt nhất thị trường, hỗ trợ thi công lắp đặt máy lạnh chuyên nghiệp, bảo hành uy tín. Xem ngay!`;
   }
 
-  if (!title.endsWith(SHOP_NAME)) {
+  if (!title.toLowerCase().endsWith(SHOP_NAME.toLowerCase())) {
     title += ` | ${SHOP_NAME}`;
   }
 
@@ -226,7 +226,7 @@ export function generateBrandMetadata(
     `Chuyên cung cấp ${displayName} chính hãng tại Điện máy ELC. Cam kết chất lượng cao, bảo hành uy tín, thi công lắp đặt chuyên nghiệp. Xem ngay!`;
 
   let finalTitle = title;
-  if (!finalTitle.endsWith(SHOP_NAME)) {
+  if (!finalTitle.toLowerCase().endsWith(SHOP_NAME.toLowerCase())) {
     finalTitle += ` | ${SHOP_NAME}`;
   }
 
@@ -260,7 +260,7 @@ export function generateServiceMetadata(
   const description = metaDescription || `Cung cấp dịch vụ ${serviceTitle} uy tín, giá tốt tại ${SHOP_NAME}. Đội ngũ kỹ thuật tay nghề cao, thi công nhanh chóng, hỗ trợ 24/7. Click để nhận báo giá chi tiết!`;
 
   let finalTitle = title;
-  if (!finalTitle.endsWith(SHOP_NAME)) {
+  if (!finalTitle.toLowerCase().endsWith(SHOP_NAME.toLowerCase())) {
     finalTitle += ` | ${SHOP_NAME}`;
   }
 
@@ -648,7 +648,7 @@ export function generateProjectTypeMetadata(
     description = `Danh sách các dự án thực tế về ${descParts.join(" sử dụng ")} cho loại hình ${projectType.name} do ELC thực hiện.`;
   }
 
-  if (!title.endsWith(SHOP_NAME)) {
+  if (!title.toLowerCase().endsWith(SHOP_NAME.toLowerCase())) {
     title += ` | ${SHOP_NAME}`;
   }
 
@@ -700,7 +700,7 @@ export function generateProjectDetailMetadata(
   }
 
   let title = metaTitle;
-  if (!title.endsWith(SHOP_NAME)) {
+  if (!title.toLowerCase().endsWith(SHOP_NAME.toLowerCase())) {
     title += ` | ${SHOP_NAME}`;
   }
 
@@ -987,7 +987,7 @@ export function generateSystemPageMetadata(
   const title = systemPage?.metaTitle || fallbackTitle;
   const description = systemPage?.metaDescription || fallbackDescription;
   const cleanUrl = `${BASE_URL}${path}`;
-  const finalTitle = title.endsWith(SHOP_NAME) ? title : `${title} | ${SHOP_NAME}`;
+  const finalTitle = title.toLowerCase().endsWith(SHOP_NAME.toLowerCase()) ? title : `${title} | ${SHOP_NAME}`;
 
   return {
     title: finalTitle,
