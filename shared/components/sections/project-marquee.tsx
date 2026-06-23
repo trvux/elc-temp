@@ -1,10 +1,7 @@
 "use client";
 
 import { ProjectWithCategory } from "@/modules/project/domain/types";
-import {
-  StaggerContainer,
-  StaggerItem,
-} from "@/shared/components/ui/animate-in";
+
 import { Badge } from "@/shared/components/ui/badge";
 import {
   Card,
@@ -160,28 +157,24 @@ export function ProjectMarqueeSection({
 
   return (
     <div className="w-full flex flex-col items-center justify-center gap-6">
-      <StaggerContainer className="flex flex-col gap-4 w-full" immediate>
+      <div className="flex flex-col gap-4 w-full">
         {/* Title */}
         <div className="flex flex-col items-center text-center gap-3 mb-4 md:mb-10">
-          <StaggerItem duration={0.25}>
-            <TypographyH1>{title}</TypographyH1>
-          </StaggerItem>
-          <StaggerItem duration={0.25}>
-            <TypographyP className="text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-              {description}
-            </TypographyP>
-          </StaggerItem>
+          <TypographyH1>{title}</TypographyH1>
+          <TypographyP className="text-muted-foreground max-w-2xl mx-auto leading-relaxed">
+            {description}
+          </TypographyP>
         </div>
 
         {/* Dynamic Double Row Marquee */}
-        <StaggerItem duration={0.25} className="w-full flex flex-col gap-2">
+        <div className="w-full flex flex-col gap-2">
           {/* Row 1: Right to Left */}
           {baseRow1.length > 0 && renderMarqueeRow(baseRow1, false, 200)}
 
           {/* Row 2: Left to Right */}
           {baseRow2.length > 0 && renderMarqueeRow(baseRow2, true, 200)}
-        </StaggerItem>
-      </StaggerContainer>
+        </div>
+      </div>
     </div>
   );
 }
