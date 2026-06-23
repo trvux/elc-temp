@@ -32,6 +32,8 @@ export function useBrandForm(
       orderIndex: 0,
       metaTitle: "",
       metaDescription: "",
+      content: "",
+      faq: [],
     },
   });
 

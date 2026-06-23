@@ -20,6 +20,8 @@ export type CategoryFormValues = {
   metaDescription?: string | null;
   isFeatured?: boolean;
   orderIndex?: number;
+  content?: unknown;
+  faq?: Array<{ question: string; answer: string }> | null;
 };
 
 export function useCategoryForm(
@@ -41,6 +43,8 @@ export function useCategoryForm(
       metaDescription: "",
       isFeatured: false,
       orderIndex: 0,
+      content: "",
+      faq: [],
     },
   });
 
@@ -51,7 +55,6 @@ export function useCategoryForm(
       const finalSlug = (values.slug || "").trim() || generateSlug(formattedName);
       
       const payload = {
-        ...values,
         name: formattedName,
         slug: finalSlug,
         groupId: values.groupId || null,
@@ -60,6 +63,8 @@ export function useCategoryForm(
         metaDescription: values.metaDescription || null,
         isFeatured: !!values.isFeatured,
         orderIndex: Number(values.orderIndex || 0),
+        content: values.content || null,
+        faq: values.faq || null,
       };
 
       if (activeCategory && activeCategory !== "new") {

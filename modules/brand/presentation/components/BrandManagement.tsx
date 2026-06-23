@@ -5,6 +5,11 @@ import { Plus, ArrowSquareOut } from "@phosphor-icons/react";
 import { useMemo, useState } from "react";
 import { Controller } from "react-hook-form";
 import { toast } from "sonner";
+import { TiptapEditor } from "@/shared/components/ui/tiptap-editor";
+import { convertToWebP } from "@/shared/lib/image";
+import { createClient } from "@/shared/lib/supabase/client";
+import { generateHTML } from "@tiptap/html";
+import { getTiptapExtensions } from "@/shared/lib/tiptap-shared";
 
 import { AdminDialog } from "@/shared/components/layout/admin/admin-dialog";
 import { DeleteDialog } from "@/shared/components/layout/admin/delete-dialog";
@@ -61,6 +66,8 @@ export function BrandManagement() {
     },
   });
 
+  const supabase = createClient();
+
   const columns = useMemo(
     () =>
       getBrandColumns({
@@ -74,6 +81,8 @@ export function BrandManagement() {
             orderIndex: b.orderIndex || 0,
             metaTitle: b.metaTitle || "",
             metaDescription: b.metaDescription || "",
+            content: b.content || "",
+            faq: b.faq || [],
           });
         },
         onDelete: setDeletingId,
@@ -91,6 +100,8 @@ export function BrandManagement() {
       orderIndex: 0,
       metaTitle: "",
       metaDescription: "",
+      content: "",
+      faq: [],
     });
   }
 
@@ -129,6 +140,7 @@ export function BrandManagement() {
             <TabsList>
               <TabsTrigger value="info">Thông tin chung</TabsTrigger>
               <TabsTrigger value="seo">Cấu hình SEO</TabsTrigger>
+              <TabsTrigger value="content">Bài viết & FAQ</TabsTrigger>
             </TabsList>
           </div>
 
@@ -272,6 +284,111 @@ export function BrandManagement() {
                           </FieldDescription>
                           <FieldError errors={[fieldState.error]} />
                         </Field>
+                      )}
+                    />
+                  </div>
+                </TabsContent>
+
+                <TabsContent value="content" className="m-0 space-y-8">
+                  {/* FAQ Section */}
+                  <div className="space-y-6 border p-6 rounded-2xl bg-muted/10">
+                    <div className="flex items-center justify-between border-b pb-2">
+                      <div>
+                        <h3 className="text-sm font-semibold tracking-tight">Câu hỏi thường gặp (FAQ)</h3>
+                        <p className="text-[11px] text-muted-foreground">Thêm các câu hỏi và câu trả lời thường gặp cho hãng này.</p>
+                      </div>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                          const currentFaqs = form.getValues("faq") || [];
+                          form.setValue("faq", [...currentFaqs, { question: "", answer: "" }]);
+                        }}
+                        className="h-8"
+                      >
+                        Thêm câu hỏi
+                      </Button>
+                    </div>
+                    <div className="space-y-4">
+                      {(form.watch("faq") || []).map((_, index) => (
+                        <div key={index} className="border p-4 rounded-xl space-y-4 bg-background">
+                          <div className="flex items-center justify-between">
+                            <span className="text-xs font-semibold text-muted-foreground">Câu hỏi #{index + 1}</span>
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => {
+                                const currentFaqs = form.getValues("faq") || [];
+                                form.setValue("faq", currentFaqs.filter((_, i) => i !== index));
+                              }}
+                              className="h-7 text-destructive hover:text-destructive"
+                            >
+                              Xóa
+                            </Button>
+                          </div>
+                          <div className="grid grid-cols-1 gap-4">
+                            <Controller
+                              control={form.control}
+                              name={`faq.${index}.question`}
+                              render={({ field, fieldState }) => (
+                                <Field>
+                                  <FieldLabel className="text-xs">Câu hỏi</FieldLabel>
+                                  <Input {...field} placeholder="VD: Điều hòa hãng này bảo hành mấy năm?" />
+                                  <FieldError errors={[fieldState.error]} />
+                                </Field>
+                              )}
+                            />
+                            <Controller
+                              control={form.control}
+                              name={`faq.${index}.answer`}
+                              render={({ field, fieldState }) => (
+                                <Field>
+                                  <FieldLabel className="text-xs">Câu trả lời</FieldLabel>
+                                  <Textarea {...field} placeholder="VD: Bảo hành chính hãng 2 năm..." className="min-h-[60px]" />
+                                  <FieldError errors={[fieldState.error]} />
+                                </Field>
+                              )}
+                            />
+                          </div>
+                        </div>
+                      ))}
+                      {(!form.watch("faq") || form.watch("faq")?.length === 0) && (
+                        <p className="text-xs text-muted-foreground text-center py-4">Chưa có câu hỏi nào.</p>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Editor Section */}
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between border-b pb-2">
+                      <div>
+                        <h3 className="text-sm font-semibold tracking-tight">Bài viết chi tiết SEO</h3>
+                        <p className="text-[11px] text-muted-foreground">Nội dung bài viết hiển thị ở cuối danh sách sản phẩm.</p>
+                      </div>
+                      <span className="text-[10px] text-muted-foreground uppercase tracking-widest">Tiptap Editor</span>
+                    </div>
+                    <Controller
+                      control={form.control}
+                      name="content"
+                      render={({ field }) => (
+                        <TiptapEditor
+                          key={activeBrand === "new" ? "new" : activeBrand?.id}
+                          value={field.value ?? ""}
+                          onChange={field.onChange}
+                          placeholder="Bắt đầu viết bài viết tối ưu SEO tại đây..."
+                          uploadImage={async (file) => {
+                            const webpFile = await convertToWebP(file);
+                            const fileName = `brands/${Date.now()}-${Math.random().toString(36).slice(2)}.webp`;
+                            const { error } = await supabase.storage
+                              .from("images")
+                              .upload(fileName, webpFile, { contentType: "image/webp" });
+                            if (error) throw error;
+                            const { data } = supabase.storage.from("images").getPublicUrl(fileName);
+                            return data.publicUrl;
+                          }}
+                        />
                       )}
                     />
                   </div>

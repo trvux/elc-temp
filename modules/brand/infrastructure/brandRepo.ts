@@ -12,9 +12,9 @@ type BrandRow = Tables<"brands">;
 type BrandInsert = Insert<"brands">;
 type BrandUpdate = Update<"brands">;
 
-type ExtendedBrandRow = BrandRow & { is_featured?: boolean; order_index?: number };
-type ExtendedBrandInsert = BrandInsert & { is_featured?: boolean; order_index?: number };
-type ExtendedBrandUpdate = BrandUpdate & { is_featured?: boolean; order_index?: number };
+type ExtendedBrandRow = BrandRow & { is_featured?: boolean; order_index?: number; content?: unknown; faq?: unknown };
+type ExtendedBrandInsert = BrandInsert & { is_featured?: boolean; order_index?: number; content?: unknown; faq?: unknown };
+type ExtendedBrandUpdate = BrandUpdate & { is_featured?: boolean; order_index?: number; content?: unknown; faq?: unknown };
 
 export class SupabaseBrandRepository implements BrandRepository {
   private readonly TABLE_NAME = "brands";
@@ -95,6 +95,8 @@ export class SupabaseBrandRepository implements BrandRepository {
       order_index: input.orderIndex,
       meta_title: input.metaTitle,
       meta_description: input.metaDescription,
+      content: input.content || null,
+      faq: input.faq || null,
     };
 
     const { data, error } = await supabase
@@ -117,6 +119,8 @@ export class SupabaseBrandRepository implements BrandRepository {
       order_index: input.orderIndex,
       meta_title: input.metaTitle,
       meta_description: input.metaDescription,
+      content: input.content !== undefined ? input.content : undefined,
+      faq: input.faq !== undefined ? input.faq : undefined,
     };
     
     const { data, error } = await supabase
@@ -165,6 +169,8 @@ export class SupabaseBrandRepository implements BrandRepository {
       createdAt: row.created_at || new Date().toISOString(),
       updatedAt: row.created_at || new Date().toISOString(),
       deletedAt: row.deleted_at || null,
+      content: row.content || null,
+      faq: Array.isArray(row.faq) ? (row.faq as Array<{ question: string; answer: string }>) : null,
     };
   }
 

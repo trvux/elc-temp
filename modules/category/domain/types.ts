@@ -13,6 +13,8 @@ export interface Category {
   createdAt: string;
   updatedAt: string;
   deletedAt: string | null;
+  content?: unknown | null;
+  faq?: Array<{ question: string; answer: string }> | null;
 }
 
 export interface CategoryWithGroup extends Category {
@@ -28,6 +30,8 @@ export interface CreateCategoryInput {
   metaDescription?: string | null;
   isFeatured?: boolean;
   orderIndex?: number;
+  content?: unknown | null;
+  faq?: Array<{ question: string; answer: string }> | null;
 }
 
 export interface UpdateCategoryInput {
@@ -40,4 +44,6 @@ export interface UpdateCategoryInput {
   metaDescription?: string | null;
   isFeatured?: boolean;
   orderIndex?: number;
+  content?: unknown | null;
+  faq?: Array<{ question: string; answer: string }> | null;
 }

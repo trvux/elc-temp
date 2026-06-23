@@ -14,6 +14,8 @@ interface GroupDatabaseRow {
   created_at: string | null;
   updated_at: string | null;
   deleted_at: string | null;
+  content: unknown | null;
+  faq: unknown | null;
 }
 
 export class SupabaseGroupRepository implements GroupRepository {
@@ -42,7 +44,7 @@ export class SupabaseGroupRepository implements GroupRepository {
     const { data, error } = await query;
     if (error) this.handleError(error, "getAll");
 
-    return (data || []).map(row => this.mapToDomain(row));
+    return (data || []).map(row => this.mapToDomain(row as unknown as GroupDatabaseRow));
   }
 
   async count(options?: Pick<GroupFilter, "search" | "includeDeleted">): Promise<number> {
@@ -73,7 +75,7 @@ export class SupabaseGroupRepository implements GroupRepository {
       .maybeSingle();
 
     if (error) this.handleError(error, "getById");
-    return data ? this.mapToDomain(data) : null;
+    return data ? this.mapToDomain(data as unknown as GroupDatabaseRow) : null;
   }
 
   async create(input: CreateGroupInput): Promise<Group> {
@@ -100,6 +102,8 @@ export class SupabaseGroupRepository implements GroupRepository {
           meta_description: input.metaDescription,
           is_featured: input.isFeatured,
           order_index: input.orderIndex,
+          content: input.content || null,
+          faq: input.faq || null,
           deleted_at: null,
           updated_at: new Date().toISOString(),
         })
@@ -119,6 +123,8 @@ export class SupabaseGroupRepository implements GroupRepository {
       meta_description: input.metaDescription,
       is_featured: input.isFeatured,
       order_index: input.orderIndex,
+      content: input.content || null,
+      faq: input.faq || null,
     };
 
     const { data, error } = await (supabase
@@ -141,6 +147,8 @@ export class SupabaseGroupRepository implements GroupRepository {
       meta_description: input.metaDescription,
       is_featured: input.isFeatured,
       order_index: input.orderIndex,
+      content: input.content !== undefined ? input.content : undefined,
+      faq: input.faq !== undefined ? input.faq : undefined,
       updated_at: new Date().toISOString(),
     };
 
@@ -152,7 +160,7 @@ export class SupabaseGroupRepository implements GroupRepository {
       .single();
 
     if (error) this.handleError(error, "update");
-    return this.mapToDomain(data);
+    return this.mapToDomain(data as unknown as GroupDatabaseRow);
   }
 
   async delete(id: string): Promise<void> {
@@ -213,6 +221,8 @@ export class SupabaseGroupRepository implements GroupRepository {
       createdAt: row.created_at || new Date().toISOString(),
       updatedAt: row.updated_at || new Date().toISOString(),
       deletedAt: row.deleted_at || null,
+      content: row.content || null,
+      faq: Array.isArray(row.faq) ? (row.faq as Array<{ question: string; answer: string }>) : null,
     };
   }
 

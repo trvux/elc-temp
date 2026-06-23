@@ -252,10 +252,32 @@ export function ProductFilters({
     const newLocalBrands = checked ? [...localExisting, brandSlug] : localExisting;
     setLocalBrands(newLocalBrands);
 
+    // Determine target URL path and search params
+    let targetPath = pathname;
+    const isGenericProductPage = pathname === "/san-pham";
+    const isCurrentPageABrand = slugFromPath && !knownSlugs.has(slugFromPath);
+
+    if (isGenericProductPage && newLocalBrands.length === 1) {
+      // Transition to /san-pham/brandSlug when exactly 1 brand is selected on generic list
+      targetPath = `/san-pham/${newLocalBrands[0]}`;
+      sParams.delete("brands");
+    } else if (isCurrentPageABrand && newLocalBrands.length === 0) {
+      // Transition back to /san-pham when no brands are selected
+      targetPath = "/san-pham";
+      sParams.delete("brands");
+    } else if (isCurrentPageABrand && newLocalBrands.length > 1) {
+      // Transition back to /san-pham with queries when multiple brands are selected
+      targetPath = "/san-pham";
+    } else if (isCurrentPageABrand && newLocalBrands.length === 1 && newLocalBrands[0] !== slugFromPath) {
+      // Transition to /san-pham/newBrand if toggling brands
+      targetPath = `/san-pham/${newLocalBrands[0]}`;
+      sParams.delete("brands");
+    }
+
     const queryString = sParams.toString();
     const suffix = queryString ? `?${queryString}` : "";
     startTransition(() => {
-      router.push(`${window.location.pathname}${suffix}`, { scroll: false });
+      router.push(`${targetPath}${suffix}`, { scroll: false });
       router.refresh();
     });
     if (onFilterChange) onFilterChange();

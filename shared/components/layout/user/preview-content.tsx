@@ -6,6 +6,7 @@ interface PreviewContentProps {
   content: unknown;
   className?: string;
   hideFirstHeading?: boolean;
+  skipFirstHeadingPromotion?: boolean;
 }
 
 /**
@@ -16,6 +17,7 @@ export const PreviewContent = ({
   content,
   className,
   hideFirstHeading = false,
+  skipFirstHeadingPromotion = false,
 }: PreviewContentProps) => {
   if (!content) return null;
 
@@ -30,7 +32,7 @@ export const PreviewContent = ({
       (content as Record<string, unknown>).type === "doc"
     ) {
       // Normalize heading nodes that were stored without attrs.level (legacy DB records)
-      let contentToRender = normalizeTiptapJson(content) as Record<string, unknown>;
+      let contentToRender = normalizeTiptapJson(content, { skipFirstHeadingPromotion }) as Record<string, unknown>;
 
       // Logic: If hideFirstHeading is true, remove the first H1 node
       if (hideFirstHeading && Array.isArray(contentToRender.content)) {
