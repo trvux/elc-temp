@@ -19,6 +19,8 @@ export type GroupFormValues = {
   metaDescription?: string | null;
   isFeatured?: boolean;
   orderIndex?: number;
+  content?: unknown;
+  faq?: Array<{ question: string; answer: string }> | null;
 };
 
 export function useGroupForm(
@@ -39,6 +41,8 @@ export function useGroupForm(
       metaDescription: "",
       isFeatured: false,
       orderIndex: 0,
+      content: "",
+      faq: [],
     },
   });
 
@@ -49,7 +53,6 @@ export function useGroupForm(
       const finalSlug = (values.slug || "").trim() || generateSlug(formattedName);
       
       const payload = {
-        ...values,
         name: formattedName,
         slug: finalSlug,
         imageUrl: values.imageUrl || null,
@@ -57,6 +60,8 @@ export function useGroupForm(
         metaDescription: values.metaDescription || null,
         isFeatured: !!values.isFeatured,
         orderIndex: Number(values.orderIndex || 0),
+        content: values.content || null,
+        faq: values.faq || null,
       };
 
       if (activeGroup && activeGroup !== "new") {

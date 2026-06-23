@@ -75,14 +75,17 @@ function normalizeHeadingAttrs(node: TiptapNode): TiptapNode {
     : node;
 }
 
-export function normalizeTiptapJson(value: unknown): unknown {
+export function normalizeTiptapJson(
+  value: unknown,
+  options?: { skipFirstHeadingPromotion?: boolean }
+): unknown {
   if (!value || typeof value !== "object") return value;
   const doc = value as TiptapNode;
   if (!doc.content || doc.content.length === 0) return doc;
 
   const content = doc.content.map((node, index) => {
-    // Dòng đầu tiên (index === 0) luôn phải là heading level 1 làm tiêu đề
-    if (index === 0) {
+    // Dòng đầu tiên (index === 0) luôn phải là heading level 1 làm tiêu đề (trừ khi skipFirstHeadingPromotion = true)
+    if (index === 0 && !options?.skipFirstHeadingPromotion) {
       if (node.type === "paragraph" || node.type === "heading") {
         const normalizedContent = node.content
           ? stripMarksFromContent(node.content.map(normalizeHeadingAttrs), ["bold", "italic", "link"])

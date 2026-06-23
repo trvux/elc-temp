@@ -10,6 +10,8 @@ export interface Group {
   createdAt: string;
   updatedAt: string;
   deletedAt: string | null;
+  content?: unknown | null;
+  faq?: Array<{ question: string; answer: string }> | null;
 }
 
 export interface CreateGroupInput {
@@ -20,6 +22,8 @@ export interface CreateGroupInput {
   metaDescription?: string | null;
   isFeatured?: boolean;
   orderIndex?: number;
+  content?: unknown | null;
+  faq?: Array<{ question: string; answer: string }> | null;
 }
 
 export interface UpdateGroupInput {
@@ -31,4 +35,6 @@ export interface UpdateGroupInput {
   metaDescription?: string | null;
   isFeatured?: boolean;
   orderIndex?: number;
+  content?: unknown | null;
+  faq?: Array<{ question: string; answer: string }> | null;
 }

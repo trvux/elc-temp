@@ -3,8 +3,13 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Plus, ArrowSquareOut } from "@phosphor-icons/react";
 import { useMemo, useState } from "react";
-import { Controller } from "react-hook-form";
+import { Controller, useFieldArray } from "react-hook-form";
 import { toast } from "sonner";
+import { TiptapEditor } from "@/shared/components/ui/tiptap-editor";
+import { convertToWebP } from "@/shared/lib/image";
+import { createClient } from "@/shared/lib/supabase/client";
+import { generateHTML } from "@tiptap/html";
+import { getTiptapExtensions } from "@/shared/lib/tiptap-shared";
 
 import { AdminDialog } from "@/shared/components/layout/admin/admin-dialog";
 import { DeleteDialog } from "@/shared/components/layout/admin/delete-dialog";
@@ -80,6 +85,8 @@ export function CategoryManagement() {
     },
   });
 
+  const supabase = createClient();
+
   const sortedCategories = useMemo(() => {
     return [...categories].sort((a, b) => {
       const gA = a.group?.name || "zzz_Khác";
@@ -102,6 +109,8 @@ export function CategoryManagement() {
             metaDescription: cat.metaDescription || "",
             isFeatured: cat.isFeatured || false,
             orderIndex: cat.orderIndex || 0,
+            content: cat.content || "",
+            faq: cat.faq || [],
           });
         },
         onDelete: (id) => {
@@ -122,6 +131,8 @@ export function CategoryManagement() {
       metaDescription: "",
       isFeatured: false,
       orderIndex: 0,
+      content: "",
+      faq: [],
     });
   }
 
@@ -306,6 +317,109 @@ export function CategoryManagement() {
                     )}
                   />
                 </div>
+              </div>
+
+              {/* FAQ Section */}
+              <div className="space-y-6 border p-6 rounded-2xl bg-muted/10">
+                <div className="flex items-center justify-between border-b pb-2">
+                  <div>
+                    <h3 className="text-sm font-semibold tracking-tight">Câu hỏi thường gặp (FAQ)</h3>
+                    <p className="text-[11px] text-muted-foreground">Thêm các câu hỏi và câu trả lời thường gặp cho danh mục này.</p>
+                  </div>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      const currentFaqs = form.getValues("faq") || [];
+                      form.setValue("faq", [...currentFaqs, { question: "", answer: "" }]);
+                    }}
+                    className="h-8"
+                  >
+                    Thêm câu hỏi
+                  </Button>
+                </div>
+                <div className="space-y-4">
+                  {(form.watch("faq") || []).map((_, index) => (
+                    <div key={index} className="border p-4 rounded-xl space-y-4 bg-background">
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs font-semibold text-muted-foreground">Câu hỏi #{index + 1}</span>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => {
+                            const currentFaqs = form.getValues("faq") || [];
+                            form.setValue("faq", currentFaqs.filter((_, i) => i !== index));
+                          }}
+                          className="h-7 text-destructive hover:text-destructive"
+                        >
+                          Xóa
+                        </Button>
+                      </div>
+                      <div className="grid grid-cols-1 gap-4">
+                        <Controller
+                          control={form.control}
+                          name={`faq.${index}.question`}
+                          render={({ field, fieldState }) => (
+                            <Field>
+                              <FieldLabel className="text-xs">Câu hỏi</FieldLabel>
+                              <Input {...field} placeholder="VD: Máy lạnh áp trần lắp đặt thế nào?" />
+                              <FieldError errors={[fieldState.error]} />
+                            </Field>
+                          )}
+                        />
+                        <Controller
+                          control={form.control}
+                          name={`faq.${index}.answer`}
+                          render={({ field, fieldState }) => (
+                            <Field>
+                              <FieldLabel className="text-xs">Câu trả lời</FieldLabel>
+                              <Textarea {...field} placeholder="VD: Lắp đặt sát bề mặt trần..." className="min-h-[60px]" />
+                              <FieldError errors={[fieldState.error]} />
+                            </Field>
+                          )}
+                        />
+                      </div>
+                    </div>
+                  ))}
+                  {(!form.watch("faq") || form.watch("faq")?.length === 0) && (
+                    <p className="text-xs text-muted-foreground text-center py-4">Chưa có câu hỏi nào.</p>
+                  )}
+                </div>
+              </div>
+
+              {/* Editor Section */}
+              <div className="space-y-4">
+                <div className="flex items-center justify-between border-b pb-2">
+                  <div>
+                    <h3 className="text-sm font-semibold tracking-tight">Bài viết chi tiết SEO</h3>
+                    <p className="text-[11px] text-muted-foreground">Nội dung bài viết hiển thị ở cuối danh sách sản phẩm.</p>
+                  </div>
+                  <span className="text-[10px] text-muted-foreground uppercase tracking-widest">Tiptap Editor</span>
+                </div>
+                <Controller
+                  control={form.control}
+                  name="content"
+                  render={({ field }) => (
+                    <TiptapEditor
+                      key={activeCategory === "new" ? "new" : activeCategory?.id}
+                      value={field.value ?? ""}
+                      onChange={field.onChange}
+                      placeholder="Bắt đầu viết bài viết tối ưu SEO tại đây..."
+                      uploadImage={async (file) => {
+                        const webpFile = await convertToWebP(file);
+                        const fileName = `categories/${Date.now()}-${Math.random().toString(36).slice(2)}.webp`;
+                        const { error } = await supabase.storage
+                          .from("images")
+                          .upload(fileName, webpFile, { contentType: "image/webp" });
+                        if (error) throw error;
+                        const { data } = supabase.storage.from("images").getPublicUrl(fileName);
+                        return data.publicUrl;
+                      }}
+                    />
+                  )}
+                />
               </div>
             </div>
           </div>
