@@ -368,14 +368,12 @@ async function CachedProductsView({
         );
         if (!schema) return null;
         return (
-          <div style={{ display: "none" }}>
-            <script
-              type="application/ld+json"
-              dangerouslySetInnerHTML={{
-                __html: JSON.stringify(schema),
-              }}
-            />
-          </div>
+          <script
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{
+              __html: JSON.stringify(schema),
+            }}
+          />
         );
       })()}
     </main>

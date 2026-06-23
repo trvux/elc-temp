@@ -384,9 +384,13 @@ export function generateCollectionSchema(
   const entityName = (entityRecord.name || entityRecord.displayName) as
     | string
     | undefined;
-  const entityDesc = (entityRecord.metaDescription ||
+  const rawEntityDesc = (entityRecord.metaDescription ||
     entityRecord.meta_description ||
     entityRecord.description) as string | undefined;
+  // Strip any accidental "URL:" fragments that may have been entered in the DB
+  const entityDesc = rawEntityDesc
+    ? rawEntityDesc.replace(/\bURL:\s*/gi, "").trim() || undefined
+    : undefined;
 
   // Extract first product image to make Product schema valid and warning-free
   const firstProductWithImage = products.find((p) => {
@@ -402,11 +406,11 @@ export function generateCollectionSchema(
   return {
     "@context": "https://schema.org/",
     "@type": "Product",
-    name: location 
-      ? `Danh sách sản phẩm ${entityName} chính hãng tại ${location.name}`
-      : `Danh sách sản phẩm ${entityName} chính hãng`,
+    name: location
+      ? `${entityName} chính hãng tại ${location.name}`
+      : `${entityName} chính hãng`,
     description: appendLocationToDescription(
-      entityDesc || `Khám phá danh sách các sản phẩm ${entityName} chính hãng chất lượng cao tại Điện máy ELC.`,
+      entityDesc || `Chuyên cung cấp ${entityName} chính hãng tại Điện máy ELC. Giá tốt nhất thị trường, hỗ trợ lắp đặt chuyên nghiệp, bảo hành uy tín. Xem ngay!`,
       location
     ),
     image: imageUrl,
