@@ -226,6 +226,18 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       }))
     );
 
+  // Product + District (local SEO pages)
+  const productDistrictRoutes = (products || [])
+    .filter((prod) => prod.slug)
+    .flatMap((prod) =>
+      DISTRICTS.map((dist) => ({
+        url: `${BASE_URL}/san-pham/${prod.slug}/${dist.slug}`,
+        lastModified: new Date(prod.updated_at || Date.now()),
+        changeFrequency: 'weekly' as const,
+        priority: 0.65,
+      }))
+    );
+
   // Service + District
   const serviceDistrictRoutes = (services || [])
     .filter((serv) => serv.slug)
@@ -248,6 +260,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...groupRoutes,
     ...groupDistrictRoutes,
     ...productRoutes,
+    ...productDistrictRoutes,
     ...serviceRoutes,
     ...serviceDistrictRoutes,
     ...projectRoutes,
