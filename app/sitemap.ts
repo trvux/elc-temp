@@ -1,5 +1,6 @@
 import { MetadataRoute } from 'next';
 import { createStaticClient } from '@/shared/lib/supabase/static';
+import { DISTRICTS } from '@/shared/lib/districts';
 
 export const revalidate = 3600; // Cache sitemap for 1 hour
 
@@ -189,14 +190,66 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.6,
     }));
 
+  // Category + District
+  const categoryDistrictRoutes = (categories || [])
+    .filter((cat) => cat.slug)
+    .flatMap((cat) =>
+      DISTRICTS.map((dist) => ({
+        url: `${BASE_URL}/san-pham/${cat.slug}/${dist.slug}`,
+        lastModified: new Date(cat.updated_at || Date.now()),
+        changeFrequency: 'weekly' as const,
+        priority: 0.7,
+      }))
+    );
+
+  // Brand + District
+  const brandDistrictRoutes = (brands || [])
+    .filter((b) => b.slug)
+    .flatMap((b) =>
+      DISTRICTS.map((dist) => ({
+        url: `${BASE_URL}/san-pham/${b.slug}/${dist.slug}`,
+        lastModified: new Date(b.updated_at || Date.now()),
+        changeFrequency: 'weekly' as const,
+        priority: 0.7,
+      }))
+    );
+
+  // Group Category + District
+  const groupDistrictRoutes = (groupCategories || [])
+    .filter((g) => g.slug)
+    .flatMap((g) =>
+      DISTRICTS.map((dist) => ({
+        url: `${BASE_URL}/san-pham/${g.slug}/${dist.slug}`,
+        lastModified: new Date(g.updated_at || Date.now()),
+        changeFrequency: 'weekly' as const,
+        priority: 0.7,
+      }))
+    );
+
+  // Service + District
+  const serviceDistrictRoutes = (services || [])
+    .filter((serv) => serv.slug)
+    .flatMap((serv) =>
+      DISTRICTS.map((dist) => ({
+        url: `${BASE_URL}/dich-vu/${serv.slug}/${dist.slug}`,
+        lastModified: new Date(serv.updated_at || Date.now()),
+        changeFrequency: 'weekly' as const,
+        priority: 0.6,
+      }))
+    );
+
   return [
     ...staticRoutes,
     ...pageRoutes,
     ...categoryRoutes,
+    ...categoryDistrictRoutes,
     ...brandRoutes,
+    ...brandDistrictRoutes,
     ...groupRoutes,
+    ...groupDistrictRoutes,
     ...productRoutes,
     ...serviceRoutes,
+    ...serviceDistrictRoutes,
     ...projectRoutes,
     ...projectTypeRoutes,
     ...newsRoutes,
