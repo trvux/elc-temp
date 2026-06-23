@@ -71,13 +71,11 @@ export function CardService({
         alt={title || ""}
         fill
         sizes="(max-width: 768px) 100vw, 384px"
-        className="relative z-20 object-cover"
+        className="relative z-20 object-cover transition-transform duration-300 group-hover:scale-105"
         wrapperClassName="w-full h-full"
       />
     );
 
-    // Commented out navigation link to details
-    /*
     if (slug) {
       return (
         <Link
@@ -88,13 +86,10 @@ export function CardService({
         </Link>
       );
     }
-    */
     return imgEl;
   };
 
   const renderTitle = () => {
-    // Commented out navigation link to details
-    /*
     if (slug) {
       return (
         <Link
@@ -105,7 +100,6 @@ export function CardService({
         </Link>
       );
     }
-    */
     return title;
   };
 
