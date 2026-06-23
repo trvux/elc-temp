@@ -22,10 +22,28 @@ export function HeroSection({
   const [wordIndex, setWordIndex] = React.useState(0);
 
   React.useEffect(() => {
-    const timer = setTimeout(() => {
-      setWordIndex(1); // Transition once to 'Thông minh' and stop
-    }, 3000);
-    return () => clearTimeout(timer);
+    let timer: ReturnType<typeof setTimeout>;
+
+    const triggerAnimation = () => {
+      window.removeEventListener("scroll", triggerAnimation);
+      window.removeEventListener("touchstart", triggerAnimation);
+      window.removeEventListener("mousemove", triggerAnimation);
+
+      timer = setTimeout(() => {
+        setWordIndex(1);
+      }, 1500);
+    };
+
+    window.addEventListener("scroll", triggerAnimation, { passive: true });
+    window.addEventListener("touchstart", triggerAnimation, { passive: true });
+    window.addEventListener("mousemove", triggerAnimation, { passive: true });
+
+    return () => {
+      window.removeEventListener("scroll", triggerAnimation);
+      window.removeEventListener("touchstart", triggerAnimation);
+      window.removeEventListener("mousemove", triggerAnimation);
+      if (timer) clearTimeout(timer);
+    };
   }, []);
 
   return (
