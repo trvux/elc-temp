@@ -13,12 +13,14 @@ import { useHeader } from "./use-header";
 import { Contact, getDisplayContacts } from "@/modules/contact/domain";
 import { ContactLink } from "@/modules/contact/presentation/components/ContactLink";
 
+import { HeaderSearch } from "./header-search";
+
 interface HeaderProps {
   contacts?: Contact[];
 }
 
 export function Header({ contacts = [] }: HeaderProps) {
-  const { isMenuOpen, handleMenuToggle, isScrolled } = useHeader();
+  const { isMenuOpen, handleMenuToggle } = useHeader();
 
   const socialContacts = useMemo(() => {
     return getDisplayContacts(contacts, {
@@ -30,17 +32,13 @@ export function Header({ contacts = [] }: HeaderProps) {
     <div className="sticky top-0 z-200 w-full">
       <header
         className={cn(
-          "h-16 bg-background/80 backdrop-blur-sm backdrop-saturate-150 border-b border-dashed border-muted-foreground/35 transition-all duration-500",
-          isMenuOpen
-            ? ""
-            : isScrolled
-              ? "bg-background/80 backdrop-blur-sm backdrop-saturate-150"
-              : "",
+          "bg-background/80 backdrop-blur-sm backdrop-saturate-150 border-b border-border/40 transition-all duration-500",
+          isMenuOpen ? "bg-background" : "",
         )}
       >
-        <div className="mx-auto h-full w-full max-w-350 border-dashed min-[87.5rem]:border-x min-[112.5rem]:max-w-384 px-4 md:px-6 lg:px-8 relative border-muted-foreground/35 flex items-center">
-          {/* Left: Logo (flex-1 để cân với cụm bên phải) */}
-          <div className="flex flex-1 items-center">
+        <div className="mx-auto h-16 w-full max-w-350 min-[87.5rem]:border-x min-[112.5rem]:max-w-384 px-4 md:px-6 lg:px-8 relative flex items-center justify-between border-dashed border-muted-foreground/35">
+          {/* Left Column: Logo & Nav link */}
+          <div className="flex items-center gap-6 xl:gap-8">
             <Link
               href="/"
               className="flex items-center gap-2 shrink-0 transition-opacity hover:opacity-80"
@@ -54,42 +52,47 @@ export function Header({ contacts = [] }: HeaderProps) {
                 className="h-8 md:h-9 w-auto"
                 priority
               />
-              {/* <span className="text-xl font-bold text-primary/80">elc</span> */}
             </Link>
+            <DesktopMenu links={navLinks} />
           </div>
 
-          {/* Center: Desktop Menu (căn giữa thật nhờ 2 bên flex-1) */}
-          <DesktopMenu links={navLinks} />
-
-          {/* Right: Actions (flex-1 để cân với logo bên trái) */}
-          <div className="flex flex-1 items-center justify-end gap-4 lg:pl-3">
-            <ThemeToggle />
-
-            {/* Separator line */}
-            {socialContacts.length > 0 && (
-              <div className="hidden lg:block w-px h-9 bg-muted" />
-            )}
-
-            {/* Social Icons */}
-            <div className="hidden lg:flex items-center gap-1">
-              {socialContacts.map((contact) => (
-                <ContactLink
-                  key={contact.id}
-                  contact={contact}
-                  showLabel={false}
-                  showValue={false}
-                  iconProps={{ size: 24, weight: "bold" }}
-                  className="h-9 w-9 text-foreground transition-colors flex items-center justify-center p-0 gap-0 cursor-pointer"
-                  iconClassName="size-4.5 flex items-center justify-center"
-                  title={contact.label || contact.type}
-                />
-              ))}
+          {/* Right Column: Search, Dark mode button, Contact */}
+          <div className="flex items-center gap-2 sm:gap-4">
+            {/* Search */}
+            <div className="w-24 min-[375px]:w-28 min-[425px]:w-32 sm:w-40 md:w-44 lg:w-48 xl:w-56 shrink-0">
+              <HeaderSearch />
             </div>
 
+            {/* Dark mode toggle */}
+            <ThemeToggle
+              variant="ghost"
+              className="h-9 w-9 rounded-md hover:bg-muted"
+            />
+
+            {/* Contact links - Desktop only */}
+            {socialContacts.length > 0 && (
+              <div className="hidden md:flex items-center gap-1">
+                {socialContacts.map((contact) => (
+                  <ContactLink
+                    key={contact.id}
+                    contact={contact}
+                    showLabel={false}
+                    showValue={false}
+                    iconProps={{ size: 24, weight: "bold" }}
+                    className="h-9 w-9 text-foreground transition-colors flex items-center justify-center p-0 gap-0 cursor-pointer hover:bg-muted rounded-md"
+                    iconClassName="size-4.5 flex items-center justify-center"
+                    title={contact.label || contact.type}
+                  />
+                ))}
+              </div>
+            )}
+
+            {/* Mobile Menu (includes Search & Contact inside drawer) */}
             <MobileMenu
               links={navLinks}
               isOpen={isMenuOpen}
               onOpenChange={handleMenuToggle}
+              socialContacts={socialContacts}
             />
           </div>
         </div>

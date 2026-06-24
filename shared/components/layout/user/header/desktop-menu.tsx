@@ -13,7 +13,7 @@ export function DesktopMenu({ links }: DesktopMenuProps) {
   const pathname = usePathname();
 
   return (
-    <NavigationMenu className="hidden lg:flex mx-auto">
+    <NavigationMenu className="hidden lg:flex">
       <NavigationMenuList className="flex items-center gap-0.5 lg:gap-1">
         {links.map((link) => (
           <DesktopNavItem
