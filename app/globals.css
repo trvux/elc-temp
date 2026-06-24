@@ -288,6 +288,7 @@
   }
   html {
     @apply antialiased font-sans;
+    overflow-x: clip;
   }
 }
 
