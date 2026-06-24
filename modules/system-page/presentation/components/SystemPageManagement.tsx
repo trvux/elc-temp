@@ -23,6 +23,7 @@ import { getSystemPagesAction, updateSystemPageAction } from "../actions";
 import { getSystemPageColumns } from "./SystemPageColumns";
 
 interface SystemPageFormValues {
+  id: string;
   metaTitle: string;
   metaDescription: string;
 }
@@ -44,6 +45,7 @@ export function SystemPageManagement() {
   const form = useForm<SystemPageFormValues>({
     resolver: standardSchemaResolver(updateSystemPageSchema) as unknown as Resolver<SystemPageFormValues>,
     defaultValues: {
+      id: "",
       metaTitle: "",
       metaDescription: "",
     },
@@ -53,7 +55,7 @@ export function SystemPageManagement() {
     mutationFn: async (values: SystemPageFormValues) => {
       if (!editing) throw new Error("No page selected for editing");
       return updateSystemPageAction({
-        id: editing.id,
+        id: values.id,
         metaTitle: values.metaTitle || null,
         metaDescription: values.metaDescription || null,
       });
@@ -76,6 +78,7 @@ export function SystemPageManagement() {
         onEdit: (page) => {
           setEditing(page);
           form.reset({
+            id: page.id,
             metaTitle: page.metaTitle || "",
             metaDescription: page.metaDescription || "",
           });

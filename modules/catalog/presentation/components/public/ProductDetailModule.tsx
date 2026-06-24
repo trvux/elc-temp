@@ -37,7 +37,7 @@ import {
   TypographyH4,
   TypographySmall,
 } from "@/shared/components/ui/typography";
-import { generateProductSchema } from "@/shared/lib/seo-utils";
+import { generateProductSchema, localizeRichText } from "@/shared/lib/seo-utils";
 import { createClient, setUseStaticClient } from "@/shared/lib/supabase/server";
 import { cn } from "@/shared/lib/utils";
 import { cacheLife, cacheTag } from "next/cache";
@@ -424,7 +424,7 @@ export async function ProductDetailModule({
             {product.description && (
               <TabsContent value="description" className={STYLES.tabsContent}>
                 <div className={STYLES.descriptionWrapper}>
-                  <ProductDescription content={product.description} />
+                  <ProductDescription content={localizeRichText(product.description, location)} />
                 </div>
               </TabsContent>
             )}
@@ -521,17 +521,7 @@ export async function ProductDetailModule({
       >
         <div className="w-full">
           <Breadcrumbs
-            items={location ? [
-              {
-                label: category.name,
-                href: `/san-pham/${category.slug}`,
-              },
-              {
-                label: product.name,
-                href: `/san-pham/${product.slug}`,
-              },
-              { label: product.name, active: true },
-            ] : [
+            items={[
               {
                 label: category.name,
                 href: `/san-pham/${category.slug}`,

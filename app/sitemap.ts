@@ -250,6 +250,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       }))
     );
 
+  // Service hub pages per district (/dich-vu/[district])
+  const serviceHubDistrictRoutes = DISTRICTS.map((dist) => ({
+    url: `${BASE_URL}/dich-vu/${dist.slug}`,
+    lastModified: new Date(),
+    changeFrequency: 'weekly' as const,
+    priority: 0.7,
+  }));
+
   return [
     ...staticRoutes,
     ...pageRoutes,
@@ -262,6 +270,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...productRoutes,
     ...productDistrictRoutes,
     ...serviceRoutes,
+    ...serviceHubDistrictRoutes,
     ...serviceDistrictRoutes,
     ...projectRoutes,
     ...projectTypeRoutes,

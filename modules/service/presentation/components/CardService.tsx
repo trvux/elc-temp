@@ -32,6 +32,7 @@ export interface CardServiceProps {
   description?: string;
   badges?: string[];
   slug?: string;
+  locationSlug?: string;
 }
 
 export function CardService({
@@ -41,6 +42,7 @@ export function CardService({
   description,
   badges,
   slug,
+  locationSlug,
 }: CardServiceProps) {
   const [open, setOpen] = useState(false);
   const [name, setName] = useState("");
@@ -77,9 +79,10 @@ export function CardService({
     );
 
     if (slug) {
+      const href = locationSlug ? `/dich-vu/${slug}/${locationSlug}` : `/dich-vu/${slug}`;
       return (
         <Link
-          href={`/dich-vu/${slug}`}
+          href={href}
           className="block relative z-20 overflow-hidden w-full h-full"
         >
           {imgEl}
@@ -91,9 +94,10 @@ export function CardService({
 
   const renderTitle = () => {
     if (slug) {
+      const href = locationSlug ? `/dich-vu/${slug}/${locationSlug}` : `/dich-vu/${slug}`;
       return (
         <Link
-          href={`/dich-vu/${slug}`}
+          href={href}
           className="hover:text-primary transition-colors"
         >
           {title}

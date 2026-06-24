@@ -15,6 +15,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Breadcrumbs } from "@/shared/components/layout/user/breadcrumbs";
 import { Metadata } from "next";
+import { sanitizeAndFormatTitle } from "@/shared/lib/seo-utils";
 import { GridSection } from "@/shared/components/sections/grid-section";
 
 interface PageProps {
@@ -45,7 +46,7 @@ export async function generateMetadata({
     };
   }
 
-  const title = page.metaTitle || `${page.title} | Điện máy ELC`;
+  const title = sanitizeAndFormatTitle(page.metaTitle || page.title, false);
   const description = page.metaDescription || page.title;
 
   return {
