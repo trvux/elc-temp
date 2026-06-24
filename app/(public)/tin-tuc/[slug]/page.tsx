@@ -16,6 +16,7 @@ import { ImageWithSkeleton } from "@/shared/components/ui/image-with-skeleton";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Metadata } from "next";
+import { sanitizeAndFormatTitle } from "@/shared/lib/seo-utils";
 
 // Design System / Style Constants
 const STYLES = {
@@ -94,7 +95,7 @@ export async function generateMetadata({
     };
   }
 
-  const title = newsItem.metaTitle || `${newsItem.title} | Điện máy ELC`;
+  const title = sanitizeAndFormatTitle(newsItem.metaTitle || newsItem.title, false);
   const description = newsItem.metaDescription || newsItem.title;
 
   return {

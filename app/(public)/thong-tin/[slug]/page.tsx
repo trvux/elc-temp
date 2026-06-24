@@ -26,7 +26,7 @@ import { Button } from "@/shared/components/ui/button";
 import Link from "next/link";
 import { Metadata } from "next";
 import { getPublicLayoutData } from "@/modules/settings";
-import { generateBranchDetailSchema } from "@/shared/lib/seo-utils";
+import { generateBranchDetailSchema, sanitizeAndFormatTitle } from "@/shared/lib/seo-utils";
 import { GridSection } from "@/shared/components/sections/grid-section";
 
 // Helper to control Google Maps zoom level
@@ -83,7 +83,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     };
   }
 
-  const title = branch.metaTitle || `${branch.name} | Điện máy ELC`;
+  const title = sanitizeAndFormatTitle(branch.metaTitle || branch.name, false);
   const description = branch.metaDescription || branch.name;
 
   return {

@@ -27,7 +27,7 @@ import {
   TypographySmall,
 } from "@/shared/components/ui/typography";
 import { getQueryTokens } from "@/shared/lib/search-utils";
-import { generateCollectionSchema } from "@/shared/lib/seo-utils";
+import { generateCollectionSchema, localizeRichText } from "@/shared/lib/seo-utils";
 import { createClient, setUseStaticClient } from "@/shared/lib/supabase/server";
 import { cn } from "@/shared/lib/utils";
 import { cacheLife, cacheTag } from "next/cache";
@@ -343,11 +343,58 @@ export async function ProductListModule({
   const dbContent = entity.data.content;
   const typedContent = dbContent as { type?: string; content?: unknown[] } | null | undefined;
   const hasDbContent = !!(typedContent && typeof typedContent === "object" && typedContent.type === "doc" && Array.isArray(typedContent.content) && typedContent.content.length > 0);
-  const seoContent = hasDbContent ? dbContent : getFallbackContent(entity, location);
+  const seoContent = localizeRichText(hasDbContent ? dbContent : getFallbackContent(entity, location), location);
 
   const dbFaq = entity.data.faq;
   const hasDbFaq = !!(Array.isArray(dbFaq) && dbFaq.length > 0);
-  const faqList: Array<{ question: string; answer: string }> = (hasDbFaq && dbFaq) ? dbFaq : getFallbackFaq(entity, location);
+  let faqList: Array<{ question: string; answer: string }> = (hasDbFaq && dbFaq)
+    ? (dbFaq as unknown as Array<{ question: string; answer: string }>)
+    : getFallbackFaq(entity, location);
+
+  if (location && faqList.length > 0) {
+    faqList = faqList.map((item) => {
+      let q = item.question;
+      let a = item.answer;
+
+      const replaceLocationTerms = (text: string): string => {
+        return text
+          .replace(/tất cả các quận huyện thuộc [^.!?]* và lân cận/gi, `khu vực ${location.name}`)
+          .replace(/toàn bộ các quận huyện thuộc [^.!?]* và lân cận/gi, `khu vực ${location.name}`)
+          .replace(/các quận huyện và lân cận/gi, `khu vực ${location.name}`)
+          .replace(/Thành phố Hồ Chí Minh/gi, location.name)
+          .replace(/TP\.HCM/gi, location.name)
+          .replace(/TPHCM/gi, location.name)
+          .replace(/Sài Gòn/gi, location.name);
+      };
+
+      let newQ = replaceLocationTerms(q);
+      let newA = replaceLocationTerms(a);
+
+      if (newQ === q && !newQ.toLowerCase().includes(location.name.toLowerCase())) {
+        if (newQ.toLowerCase().includes("tại điện máy elc")) {
+          newQ = newQ.replace(/tại Điện máy ELC/gi, `tại Điện máy ELC khu vực ${location.name}`);
+        } else if (newQ.toLowerCase().includes("chính hãng")) {
+          newQ = newQ.replace(/chính hãng/gi, `chính hãng tại ${location.name}`);
+        } else if (newQ.toLowerCase().includes("giao hàng")) {
+          newQ = newQ.replace(/giao hàng/gi, `giao hàng tại ${location.name}`);
+        } else if (newQ.endsWith("?")) {
+          newQ = newQ.substring(0, newQ.length - 1).trim() + ` tại ${location.name}?`;
+        }
+      }
+
+      if (newA === a && !newA.toLowerCase().includes(location.name.toLowerCase())) {
+        if (newA.toLowerCase().includes("tại điện máy elc")) {
+          newA = newA.replace(/tại Điện máy ELC/gi, `tại Điện máy ELC khu vực ${location.name}`);
+        } else {
+          newA = newA.trim();
+          if (!newA.endsWith(".")) newA += ".";
+          newA += ` Điện máy ELC hỗ trợ bàn giao và lắp đặt nhanh chóng tại khu vực ${location.name}.`;
+        }
+      }
+
+      return { question: newQ, answer: newA };
+    });
+  }
 
   return (
     <main className={STYLES.main}>
@@ -527,11 +574,7 @@ export async function ProductListModule({
       >
         <div className="w-full">
           <Breadcrumbs
-            items={location ? [
-              ...(breadcrumbParent ? [breadcrumbParent] : []),
-              { label: pageTitle, href: `/san-pham/${entity.data.slug}` },
-              { label: `${pageTitle} tại ${location.name}`, active: true },
-            ] : [
+            items={[
               ...(breadcrumbParent ? [breadcrumbParent] : []),
               { label: pageTitle, active: true },
             ]}

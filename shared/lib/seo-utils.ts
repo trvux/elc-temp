@@ -7,6 +7,34 @@ import { District } from "./districts";
 export const SHOP_NAME = "Điện máy ELC";
 export { BASE_URL, parseAddress, formatPhone, SEOSchema };
 
+export function sanitizeAndFormatTitle(title: string | null | undefined, isHomepage: boolean = false): string {
+  if (!title) return SHOP_NAME;
+  
+  let cleaned = title;
+  
+  // 1. Remove all instances of "Điện máy ELC" accompanied by "|"
+  cleaned = cleaned.replace(/\s*\|\s*Điện máy ELC\s*/gi, " ");
+  cleaned = cleaned.replace(/\s*Điện máy ELC\s*\|\s*/gi, " ");
+  
+  // Clean up any double pipes or leftovers
+  cleaned = cleaned.replace(/\s*\|\s*\|\s*/g, " | ");
+  cleaned = cleaned.replace(/\s+/g, " ").trim();
+  
+  if (cleaned.startsWith("|")) cleaned = cleaned.substring(1).trim();
+  if (cleaned.endsWith("|")) cleaned = cleaned.substring(0, cleaned.length - 1).trim();
+  
+  if (!cleaned) return SHOP_NAME;
+
+  if (isHomepage) {
+    if (cleaned.toLowerCase().startsWith(SHOP_NAME.toLowerCase())) {
+      return cleaned;
+    }
+    return `${SHOP_NAME} | ${cleaned}`;
+  } else {
+    return `${cleaned} | ${SHOP_NAME}`;
+  }
+}
+
 export function appendLocationToTitle(title: string, location?: District): string {
   if (!location) return title;
   const suffix = ` | ${SHOP_NAME}`;
@@ -111,10 +139,7 @@ export function generateProductMetadata(product: ProductWithRelations, location?
       .trim();
   }
 
-  // Always append Shop Name in the module for consistent branding
-  if (!title.toLowerCase().endsWith(SHOP_NAME.toLowerCase())) {
-    title += ` | ${SHOP_NAME}`;
-  }
+  title = sanitizeAndFormatTitle(title, false);
 
   let description = "";
   if (metaDescription) {
@@ -209,9 +234,7 @@ export function generateCategoryMetadata(
       `Chuyên cung cấp ${displayName} chính hãng tại Điện máy ELC. Máy lạnh giá tốt nhất thị trường, hỗ trợ thi công lắp đặt máy lạnh chuyên nghiệp, bảo hành uy tín. Xem ngay!`;
   }
 
-  if (!title.toLowerCase().endsWith(SHOP_NAME.toLowerCase())) {
-    title += ` | ${SHOP_NAME}`;
-  }
+  title = sanitizeAndFormatTitle(title, false);
 
   if (location) {
     title = appendLocationToTitle(title, location);
@@ -267,10 +290,7 @@ export function generateBrandMetadata(
     metaDescription ||
     `Chuyên cung cấp ${displayName} chính hãng tại Điện máy ELC. Cam kết chất lượng cao, bảo hành uy tín, thi công lắp đặt chuyên nghiệp. Xem ngay!`;
 
-  let finalTitle = title;
-  if (!finalTitle.toLowerCase().endsWith(SHOP_NAME.toLowerCase())) {
-    finalTitle += ` | ${SHOP_NAME}`;
-  }
+  let finalTitle = sanitizeAndFormatTitle(title, false);
 
   let finalDescription = description;
   if (location) {
@@ -314,10 +334,7 @@ export function generateServiceMetadata(
   const title = metaTitle || `${serviceTitle} - Dịch vụ chuyên nghiệp | ${SHOP_NAME}`;
   const description = metaDescription || `Cung cấp dịch vụ ${serviceTitle} uy tín, giá tốt tại ${SHOP_NAME}. Đội ngũ kỹ thuật tay nghề cao, thi công nhanh chóng, hỗ trợ 24/7. Click để nhận báo giá chi tiết!`;
 
-  let finalTitle = title;
-  if (!finalTitle.toLowerCase().endsWith(SHOP_NAME.toLowerCase())) {
-    finalTitle += ` | ${SHOP_NAME}`;
-  }
+  let finalTitle = sanitizeAndFormatTitle(title, false);
 
   let finalDescription = description;
   if (location) {
@@ -759,9 +776,7 @@ export function generateProjectTypeMetadata(
     description = `Danh sách các dự án thực tế về ${descParts.join(" sử dụng ")} cho loại hình ${projectType.name} do ELC thực hiện.`;
   }
 
-  if (!title.toLowerCase().endsWith(SHOP_NAME.toLowerCase())) {
-    title += ` | ${SHOP_NAME}`;
-  }
+  title = sanitizeAndFormatTitle(title, false);
 
   const cleanUrl = `${BASE_URL}/du-an/${projectType.slug}`;
 
@@ -801,7 +816,7 @@ export function generateProjectDetailMetadata(
   // Rule: If metaTitle or metaDescription is null or empty, set robots to noindex
   if (!metaTitle || !metaDescription) {
     return {
-      title: `${project.title} | ${SHOP_NAME}`,
+      title: sanitizeAndFormatTitle(project.title, false),
       description: "",
       robots: {
         index: false,
@@ -810,10 +825,7 @@ export function generateProjectDetailMetadata(
     };
   }
 
-  let title = metaTitle;
-  if (!title.toLowerCase().endsWith(SHOP_NAME.toLowerCase())) {
-    title += ` | ${SHOP_NAME}`;
-  }
+  let title = sanitizeAndFormatTitle(metaTitle, false);
 
   const cleanUrl = `${BASE_URL}/du-an/${project.slug}`;
   const representativeImage = project.images?.[0] || extractFirstImageFromDescription(project.description);
@@ -1132,7 +1144,8 @@ export function generateSystemPageMetadata(
   const title = systemPage?.metaTitle || fallbackTitle;
   const description = systemPage?.metaDescription || fallbackDescription;
   const cleanUrl = `${BASE_URL}${path}`;
-  const finalTitle = title.toLowerCase().endsWith(SHOP_NAME.toLowerCase()) ? title : `${title} | ${SHOP_NAME}`;
+  const isHome = path === "/" || path === "";
+  const finalTitle = sanitizeAndFormatTitle(title, isHome);
 
   return {
     title: finalTitle,
@@ -1150,5 +1163,119 @@ export function generateSystemPageMetadata(
     },
   };
 }
+
+interface RichTextNode {
+  type: string;
+  text?: string;
+  content?: RichTextNode[];
+  attrs?: Record<string, unknown>;
+  [key: string]: unknown;
+}
+
+function getLocalServiceBlock(location: District): RichTextNode[] {
+  const streetsMap: Record<string, string> = {
+    "quan-1": "Nguyễn Huệ, Đồng Khởi, Lê Lợi, Hàm Nghi, Trần Hưng Đạo",
+    "quan-3": "Cách Mạng Tháng Tám, Nguyễn Đình Chiểu, Điện Biên Phủ, Nam Kỳ Khởi Nghĩa, Võ Văn Tần",
+    "quan-4": "Đoàn Văn Bơ, Hoàng Diệu, Khánh Hội, Bến Vân Đồn, Tôn Đản",
+    "quan-5": "An Dương Vương, Trần Hưng Đạo, Nguyễn Trãi, Hồng Bàng, Nguyễn Tri Phương",
+    "quan-6": "Hậu Giang, Kinh Dương Vương, Võ Văn Kiệt, Minh Phụng, Bà Hom",
+    "quan-7": "Nguyễn Văn Linh, Huỳnh Tấn Phát, Nguyễn Hữu Thọ, Trần Xuân Soạn, Nguyễn Thị Thập",
+    "quan-8": "Phạm Thế Hiển, Tạ Quang Bửu, Hưng Phú, Dương Bá Trạc, Võ Văn Kiệt",
+    "quan-10": "Đường 3 Tháng 2, Lý Thường Kiệt, Thành Thái, Tô Hiến Thành, Cách Mạng Tháng Tám",
+    "quan-11": "Lạc Long Quân, Lê Đại Hành, Ba Tháng Hai, Minh Phụng, Lãnh Binh Thăng",
+    "quan-12": "Quốc Lộ 1A, Tô Ký, Nguyễn Ảnh Thủ, Lê Văn Khương, Hà Huy Giáp",
+    "go-vap": "Quang Trung, Phan Văn Trị, Nguyễn Oanh, Lê Đức Thọ, Thống Nhất, Nguyễn Kiệm, Nguyễn Văn Lượng",
+    "binh-thanh": "Điện Biên Phủ, Xô Viết Nghệ Tĩnh, Bạch Đằng, Phan Đăng Lưu, Lê Quang Định, Nơ Trang Long",
+    "phu-nhuan": "Nguyễn Văn Trỗi, Phan Xích Long, Huỳnh Văn Bánh, Lê Văn Sỹ, Phan Đăng Lưu",
+    "tan-binh": "Cộng Hòa, Trường Chinh, Lý Thường Kiệt, Phổ Quang, Hoàng Văn Thụ, Út Tịch",
+    "tan-phu": "Lũy Bán Bích, Tân Kỳ Tân Quý, Độc Lập, Nguyễn Sơn, Hòa Bình",
+    "binh-tan": "Tên Lửa, Đường Số 7, Kinh Dương Vương, Mã Lò, Ao Đôi, Hương Lộ 2",
+    "thu-duc": "Võ Văn Ngân, Kha Vạn Cân, Phạm Văn Đồng, Tô Ngọc Vân, Nguyễn Duy Trinh, Đỗ Xuân Hợp",
+    "hoc-mon": "Quốc Lộ 22, Tô Ký, Nguyễn Ảnh Thủ, Phan Văn Hớn, Bùi Văn Ngữ",
+    "cu-chi": "Tỉnh Lộ 8, Quốc Lộ 22, Tỉnh Lộ 15, Nguyễn Văn Khạ",
+    "nha-be": "Nguyễn Hữu Thọ, Huỳnh Tấn Phát, Lê Văn Lương, Nguyễn Bình",
+    "can-gio": "Rừng Sác, Duyên Hải, Thạnh Thới",
+    "binh-chanh": "Quốc Lộ 1A, Nguyễn Văn Linh, Trần Đại Nghĩa, Đinh Đức Thiện, Tỉnh Lộ 10"
+  };
+
+  const streets = streetsMap[location.slug] || "";
+  const isGoVap = location.slug === "go-vap";
+  const isQuan12 = location.slug === "quan-12";
+
+  let branchText = "";
+  if (isGoVap) {
+    branchText = "Showroom trưng bày sản phẩm & Trụ sở chính của Điện máy ELC tọa lạc tại: Số 06 Dương Quảng Hàm, Phường An Nhơn, Quận Gò Vấp, Thành phố Hồ Chí Minh. Khách hàng tại Gò Vấp có thể đến trực tiếp showroom để trải nghiệm sản phẩm thực tế hoặc gọi Hotline 0789978898 để được phục vụ nhanh chóng.";
+  } else if (isQuan12) {
+    branchText = "Kho hàng lớn của Điện máy ELC được đặt tại: 170 QL1A, Phường Tân Thới Nhất, Quận 12, Thành phố Hồ Chí Minh. Chúng tôi hỗ trợ giao nhận thiết bị, vận chuyển và thi công lắp ráp nhanh cho khách hàng tại khu vực Quận 12 từ kho hàng này.";
+  } else {
+    branchText = `Chi nhánh phục vụ khu vực này gần bạn nhất: Showroom Điện máy ELC Gò Vấp (Địa chỉ: Số 06 Dương Quảng Hàm, Phường An Nhơn, Quận Gò Vấp). Đội ngũ kỹ thuật viên lưu động chuyên trách khu vực ${location.name} luôn sẵn sàng di chuyển hỗ trợ khảo sát hiện trạng công trình và lắp đặt chỉ trong vòng 30 - 45 phút.`;
+  }
+
+  const p1 = `Điện máy ELC cung cấp dịch vụ giao hàng nhanh chóng, khảo sát và thi công lắp đặt máy lạnh chuyên nghiệp tận nơi tại tất cả các khu vực thuộc ${location.name}, đặc biệt hỗ trợ siêu tốc trên các tuyến đường trọng điểm bao gồm: ${streets}.`;
+  const p2 = branchText;
+  const p3 = `Chính sách ưu đãi đặc biệt dành riêng cho khách hàng tại khu vực ${location.name}: Miễn phí 100% công khảo sát thiết kế hệ thống điều hòa cho các căn hộ, nhà phố, văn phòng, nhà hàng và showroom. Cam kết cung cấp thiết bị chính hãng 100% và vật tư lắp đặt phụ trợ (ống đồng Thái Lan cách nhiệt, dây điện Cadivi) đạt tiêu chuẩn chất lượng cao nhất.`;
+
+  return [
+    { type: "horizontalRule" },
+    {
+      type: "heading",
+      attrs: { level: 2 },
+      content: [{ type: "text", text: `Khu vực phục vụ và chi nhánh hỗ trợ tại ${location.name}` }]
+    },
+    {
+      type: "paragraph",
+      content: [{ type: "text", text: p1 }]
+    },
+    {
+      type: "paragraph",
+      content: [{ type: "text", text: p2 }]
+    },
+    {
+      type: "paragraph",
+      content: [{ type: "text", text: p3 }]
+    }
+  ];
+}
+
+export function localizeRichText(node: unknown, location?: District): unknown {
+  if (!location || !node || typeof node !== "object") return node;
+
+  const replaceLocationTerms = (text: string): string => {
+    return text
+      .replace(/tất cả các quận huyện thuộc [^.!?]* và lân cận/gi, `khu vực ${location.name}`)
+      .replace(/toàn bộ các quận huyện thuộc [^.!?]* và lân cận/gi, `khu vực ${location.name}`)
+      .replace(/các quận huyện và lân cận/gi, `khu vực ${location.name}`)
+      .replace(/Thành phố Hồ Chí Minh/gi, location.name)
+      .replace(/TP\.HCM/gi, location.name)
+      .replace(/TPHCM/gi, location.name)
+      .replace(/Sài Gòn/gi, location.name);
+  };
+
+  const typedNode = node as RichTextNode;
+  const updatedNode = { ...typedNode };
+
+  if (typeof updatedNode.text === "string") {
+    updatedNode.text = replaceLocationTerms(updatedNode.text);
+  }
+
+  if (Array.isArray(updatedNode.content)) {
+    updatedNode.content = updatedNode.content.map((child) => 
+      localizeRichText(child, location) as RichTextNode
+    );
+  }
+
+  if (typedNode.type === "doc" && Array.isArray(updatedNode.content)) {
+    const alreadyAppended = updatedNode.content.some(
+      (child) => child.type === "heading" && 
+                 child.content?.some((t) => t.text?.includes("Khu vực phục vụ và chi nhánh"))
+    );
+    if (!alreadyAppended) {
+      updatedNode.content = [...updatedNode.content, ...getLocalServiceBlock(location)];
+    }
+  }
+
+  return updatedNode;
+}
+
 
 

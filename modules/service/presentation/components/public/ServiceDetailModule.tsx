@@ -38,6 +38,7 @@ import {
 import { createClient, setUseStaticClient } from "@/shared/lib/supabase/server";
 import { cn, formatCurrency } from "@/shared/lib/utils";
 import { cacheLife, cacheTag } from "next/cache";
+import { localizeRichText } from "@/shared/lib/seo-utils";
 
 import { District } from "@/shared/lib/districts";
 
@@ -287,7 +288,7 @@ export async function ServiceDetailModule({
 
               <TabsContent value="description" className={STYLES.tabsContent}>
                 <div className={STYLES.descriptionWrapper}>
-                  <ProductDescription content={service.content} />
+                  <ProductDescription content={localizeRichText(service.content, location)} />
                 </div>
               </TabsContent>
             </Tabs>
@@ -404,11 +405,7 @@ export async function ServiceDetailModule({
       >
         <div className="w-full">
           <Breadcrumbs
-            items={location ? [
-              { label: "Dịch vụ", href: "/dich-vu" },
-              { label: service.title, href: `/dich-vu/${service.slug}` },
-              { label: service.title, active: true },
-            ] : [
+            items={[
               { label: "Dịch vụ", href: "/dich-vu" },
               { label: service.title, active: true },
             ]}
