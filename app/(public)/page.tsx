@@ -6,7 +6,6 @@ import { HeroSection } from "@/shared/components/sections/hero";
 import { HeroMediaSection } from "@/shared/components/sections/hero-media";
 import { ProjectMarqueeSection } from "@/shared/components/sections/project-marquee";
 import { ShowcaseSection } from "@/shared/components/sections/showcase";
-import { StickyContactActions } from "@/shared/components/sections/sticky-contact-actions";
 
 import { getBranches } from "@/modules/branch/application";
 import { branchRepo } from "@/modules/branch/infrastructure/branchRepo";
@@ -104,7 +103,6 @@ export default async function Home() {
         <ProjectMarqueeSection
           projects={projects?.filter((p) => p.isFeatured) || []}
           title="Dự án tiêu biểu nổi bật"
-          description="Khám phá sự đa dạng của các hệ thống điều hòa không khí do ELC thi công hoàn thiện, bao gồm từ hệ thống điều hòa trung tâm VRV, hệ thống điều hòa Multi, máy lạnh âm trần Cassette, máy lạnh tủ đứng, máy lạnh treo tường, cho đến hệ thống cấp khí tươi thu hồi nhiệt và lọc không khí chuyên nghiệp."
         />
       ),
     },
@@ -173,7 +171,6 @@ export default async function Home() {
           </GridSection>
         ))}
       </main>
-      <StickyContactActions contacts={contacts || []} />
     </>
   );
 }

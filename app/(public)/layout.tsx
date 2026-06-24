@@ -4,6 +4,7 @@ import { Header } from "@/shared/components/layout/user/header";
 import { ChunkErrorListener } from "@/shared/components/layout/user/chunk-error-listener";
 import { FilterTransitionProvider } from "@/shared/providers/filter-transition-provider";
 import { TopProgressBar } from "@/shared/components/layout/user/top-progress-bar";
+import { StickyContactActions } from "@/shared/components/sections/sticky-contact-actions";
 import Script from "next/script";
 import { headers } from "next/headers";
 
@@ -105,6 +106,7 @@ export default async function PublicLayout({ children }: PublicLayoutProps) {
           projectTypes={projectTypes}
           currentYear={currentYear}
         />
+        <StickyContactActions contacts={contacts || []} />
       </div>
     </FilterTransitionProvider>
   );

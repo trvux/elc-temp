@@ -1,52 +1,32 @@
-"use client";
-
 import { Button } from "@/shared/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuTrigger,
-} from "@/shared/components/ui/dropdown-menu";
-import { useMemo } from "react";
 
-import { Contact, getDisplayContacts } from "@/modules/contact/domain";
-import { ContactLink } from "@/modules/contact/presentation/components/ContactLink";
+import { Contact } from "@/modules/contact/domain";
 
 interface OrderButtonProps {
   contacts: Contact[];
-  include?: string[];
-  exclude?: string[];
 }
 
-export function OrderButton({ contacts, include, exclude }: OrderButtonProps) {
-  const displayContacts = useMemo(
-    () => getDisplayContacts(contacts, { include, exclude }),
-    [contacts, include, exclude],
-  );
+export function OrderButton({ contacts }: OrderButtonProps) {
+  const zaloContact = contacts.find((c) => c.type === "zalo" && c.isActive) ||
+    contacts.find((c) => c.type === "zalo") ||
+    contacts[0];
 
-  if (displayContacts.length === 0) return null;
+  if (!zaloContact) return null;
 
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button variant="default" size="lg">
-          Tư vấn lắp đặt miễn phí
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="center">
-        <DropdownMenuLabel>Phương thức liên lạc</DropdownMenuLabel>
-        {displayContacts.map((contact) => (
-          <DropdownMenuItem key={contact.id}>
-            <ContactLink
-              contact={contact}
-              iconProps={{ size: 20, weight: "bold" }}
-              showValue
-              className="w-full"
-            />
-          </DropdownMenuItem>
-        ))}
-      </DropdownMenuContent>
-    </DropdownMenu>
+    <Button
+      variant="default"
+      size="lg"
+      className="shadow-[0_0.84px_0.84px_-0.31px_rgba(36,36,36,0.15),0_1.99px_1.99px_-0.625px_rgba(36,36,36,0.15),0_3.63px_3.63px_-0.9375px_rgba(36,36,36,0.15),0_6.04px_6.04px_-1.25px_rgba(36,36,36,0.15),0_9.75px_9.75px_-1.56px_rgba(36,36,36,0.15),0_15.96px_15.96px_-1.875px_rgba(36,36,36,0.15),0_27.48px_27.48px_-2.19px_rgba(36,36,36,0.15),0_50px_50px_-2.5px_rgba(36,36,36,0.15)] border-none"
+      asChild
+    >
+      <a
+        href={zaloContact.href}
+        target={zaloContact.isExternal ? "_blank" : undefined}
+        rel={zaloContact.isExternal ? "noopener noreferrer" : undefined}
+      >
+        Tư vấn lắp đặt miễn phí
+      </a>
+    </Button>
   );
 }

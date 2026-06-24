@@ -1,17 +1,16 @@
 "use client";
 
 import { ProjectWithCategory } from "@/modules/project/domain/types";
-
-import { Badge } from "@/shared/components/ui/badge";
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/shared/components/ui/card";
-import { TypographyH1, TypographyP } from "@/shared/components/ui/typography";
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+  type CarouselApi,
+} from "@/shared/components/ui/carousel";
 import { ImageWithSkeleton } from "@/shared/components/ui/image-with-skeleton";
+import { TypographyH1, TypographyP } from "@/shared/components/ui/typography";
 import Link from "next/link";
 import * as React from "react";
 
@@ -23,157 +22,99 @@ interface ProjectMarqueeSectionProps {
 
 export function ProjectMarqueeSection({
   title = "Dự án tiêu biểu nổi bật",
-  description = "Xem qua các dự án điều hòa trung tâm và lọc khí tươi tiêu biểu đã được ELC thi công hoàn thiện.",
+  description = "",
   projects = [],
 }: ProjectMarqueeSectionProps) {
-  // Smart project short-title extractor
-  const getShortTitle = (project: ProjectWithCategory) => {
-    const match =
-      project.title.match(/(?:tại|Tại|cho|Cho)\s+(.+)$/) ||
-      project.title.match(/-\s+([^-]+)$/);
-    return match && match[1]
-      ? match[1].trim().charAt(0).toUpperCase() + match[1].trim().slice(1)
-      : project.title;
-  };
+  const [api, setApi] = React.useState<CarouselApi>();
+
+  React.useEffect(() => {
+    if (!api) return;
+
+    const interval = setInterval(() => {
+      api.scrollNext();
+    }, 2500); // Đứng im 2.5 giây rồi trượt sang 1 nấc
+
+    return () => clearInterval(interval);
+  }, [api]);
 
   const safeProjects = projects || [];
-
-  // Group projects into two separate lists for two marquee rows
-  const row1 = safeProjects.filter((_, idx) => idx % 2 === 0);
-  const row2 = safeProjects.filter((_, idx) => idx % 2 === 1);
-
-  // Target length for the base row to ensure equal physical widths and speeds
-  const TARGET_LENGTH = 18;
-
-  // Build perfectly sized rows with identical length for speed matching
-  const baseRow1 = React.useMemo(() => {
-    if (row1.length === 0) return [];
-    const result: ProjectWithCategory[] = [];
-    while (result.length < TARGET_LENGTH) {
-      result.push(...row1);
-    }
-    return result.slice(0, TARGET_LENGTH);
-  }, [row1]);
-
-  const baseRow2 = React.useMemo(() => {
-    if (row2.length === 0) return [];
-    const result: ProjectWithCategory[] = [];
-    while (result.length < TARGET_LENGTH) {
-      result.push(...row2);
-    }
-    return result.slice(0, TARGET_LENGTH);
-  }, [row2]);
-
-  if (!projects || projects.length === 0) return null;
+  if (safeProjects.length === 0) return null;
 
   const renderCard = (project: ProjectWithCategory, idx: number) => {
-    const shortTitle = getShortTitle(project);
     const firstImage = project.images?.[0] || "/placeholder.png";
     const projectUrl = `/du-an/${project.slug}`;
-    const categoryName =
-      project.category?.name || project.projectType?.name || "Dự án";
 
     return (
       <Link
-        key={`${project.id}-${idx}`}
         href={projectUrl}
-        className="shrink-0 w-64 sm:w-72 md:w-80 hover:-translate-y-1 transition-transform duration-300"
+        className="shrink-0 flex flex-col gap-4 group w-full block"
       >
-        <Card size="sm" className="h-full gap-0 py-0">
-          {/* Title on top */}
-          <CardHeader className="px-3 pt-3 pb-2">
-            <Badge variant="secondary" className="w-fit">
-              {categoryName}
-            </Badge>
-            <CardTitle className="line-clamp-1 leading-snug">
-              {shortTitle}
-            </CardTitle>
-          </CardHeader>
+        {/* Card Background Image without Overlay */}
+        <div className="relative w-full aspect-[4/3] rounded-[24px] overflow-hidden border border-border/40 bg-muted shadow-sm transition-all duration-500 group-hover:shadow-md">
+          {/* Background image */}
+          <ImageWithSkeleton
+            wrapperClassName="w-full h-full"
+            src={firstImage}
+            alt={project.title}
+            fill
+            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 400px"
+            className="object-cover transition-transform duration-700 group-hover:scale-105"
+            priority={idx < 3}
+          />
+        </div>
 
-          {/* Image in the middle */}
-          <CardContent className="px-3 py-0">
-            <div className="relative w-full aspect-video rounded-lg overflow-hidden">
-              <ImageWithSkeleton
-                wrapperClassName="w-full h-full"
-                src={firstImage}
-                alt={project.title}
-                fill
-                sizes="(max-width: 640px) 256px, (max-width: 768px) 288px, 320px"
-                className="object-cover"
-                priority={idx < 3}
-              />
-            </div>
-          </CardContent>
-
-          {/* Description at the bottom */}
-          <CardContent className="px-3 pt-2 pb-3">
-            <CardDescription className="line-clamp-2 text-[11px] leading-relaxed">
-              {project.title}
-            </CardDescription>
-          </CardContent>
-        </Card>
+        {/* Text underneath */}
+        <div className="flex flex-col gap-1.5 px-1">
+          <h3 className="text-lg font-bold tracking-tight text-foreground transition-colors group-hover:text-primary leading-snug line-clamp-1">
+            {project.title}
+          </h3>
+          <p className="text-xs sm:text-sm text-muted-foreground line-clamp-2 leading-relaxed">
+            {project.metaDescription || project.title}
+          </p>
+        </div>
       </Link>
-    );
-  };
-
-  // Row renderer using the shadcn studio multi-track pattern:
-  // 3 identical track divs in a flex container, each animated with translateX(-100%).
-  // CSS mask-image on the parent fades edges without any colored overlay.
-  const renderMarqueeRow = (
-    items: ProjectWithCategory[],
-    isReverse: boolean,
-    durationSeconds: number,
-  ) => {
-    if (items.length === 0) return null;
-
-    const trackClass =
-      "flex shrink-0 justify-around gap-5 animate-marquee-horizontal group-hover:[animation-play-state:paused]";
-
-    const trackStyle: React.CSSProperties = {
-      animationDirection: isReverse ? "reverse" : "normal",
-      animationDuration: `${durationSeconds}s`,
-    };
-
-    return (
-      <div
-        className="group flex gap-5 overflow-hidden p-3 mask-[linear-gradient(to_right,transparent,black_15%,black_85%,transparent)]"
-      >
-        <div className={trackClass} style={trackStyle}>
-          {items.map((project, idx) => renderCard(project, idx))}
-        </div>
-        <div className={trackClass} style={trackStyle}>
-          {items.map((project, idx) =>
-            renderCard(project, idx + TARGET_LENGTH),
-          )}
-        </div>
-        <div className={trackClass} style={trackStyle}>
-          {items.map((project, idx) =>
-            renderCard(project, idx + TARGET_LENGTH * 2),
-          )}
-        </div>
-      </div>
     );
   };
 
   return (
     <div className="w-full flex flex-col items-center justify-center gap-6">
-      <div className="flex flex-col gap-4 w-full">
-        {/* Title */}
-        <div className="flex flex-col items-center text-center gap-3 mb-4 md:mb-10">
-          <TypographyH1>{title}</TypographyH1>
-          <TypographyP className="text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-            {description}
-          </TypographyP>
-        </div>
+      <div className="w-full max-w-7xl mx-auto px-4 md:px-0">
+        <Carousel
+          setApi={setApi}
+          opts={{
+            align: "center",
+            loop: true,
+          }}
+          className="w-full"
+        >
+          {/* Header row with title/description on left, arrows on right */}
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-8 md:mb-12">
+            <div className="flex flex-col gap-3 max-w-3xl">
+              <TypographyH1 className="text-left">{title}</TypographyH1>
+              {description && (
+                <TypographyP className="text-muted-foreground text-left leading-relaxed">
+                  {description}
+                </TypographyP>
+              )}
+            </div>
+            <div className="flex gap-3 shrink-0 self-start md:self-end">
+              <CarouselPrevious className="dark text-foreground static translate-y-0 h-9 w-9 rounded-full border-none flex items-center justify-center cursor-pointer" />
+              <CarouselNext className="dark text-foreground static translate-y-0 h-9 w-9 rounded-full border-none flex items-center justify-center cursor-pointer" />
+            </div>
+          </div>
 
-        {/* Dynamic Double Row Marquee */}
-        <div className="w-full flex flex-col gap-2">
-          {/* Row 1: Right to Left */}
-          {baseRow1.length > 0 && renderMarqueeRow(baseRow1, false, 200)}
-
-          {/* Row 2: Left to Right */}
-          {baseRow2.length > 0 && renderMarqueeRow(baseRow2, true, 200)}
-        </div>
+          {/* Carousel content */}
+          <CarouselContent className="-ml-4 md:-ml-6">
+            {safeProjects.map((project, idx) => (
+              <CarouselItem
+                key={project.id}
+                className="pl-4 md:pl-6 basis-[70%] sm:basis-[38%] lg:basis-[24%]"
+              >
+                {renderCard(project, idx)}
+              </CarouselItem>
+            ))}
+          </CarouselContent>
+        </Carousel>
       </div>
     </div>
   );

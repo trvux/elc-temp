@@ -9,14 +9,13 @@ const supabase = createClient(
 );
 
 async function check() {
-  const { data, error } = await supabase
-    .from("categories")
-    .select("name, slug, content")
-    .eq("slug", "may-lanh-treo-tuong")
+  const { data: groupData, error: groupErr } = await supabase
+    .from("group_categories")
+    .select("name, slug, content, faq")
+    .eq("slug", "may-lanh")
     .single();
 
-  if (error) throw error;
-  console.log("Database Content:", JSON.stringify(data, null, 2));
+  console.log("Group Content and FAQ Data:", JSON.stringify(groupData, null, 2), "Error:", groupErr);
 }
 
 check().catch(console.error);

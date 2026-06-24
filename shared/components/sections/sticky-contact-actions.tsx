@@ -5,7 +5,6 @@ import { ContactLink } from "@/modules/contact/presentation/components/ContactLi
 import { Button } from "@/shared/components/ui/button";
 import { cn } from "@/shared/lib/utils";
 import { AnimatePresence, m, Variants } from "framer-motion";
-import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 
 interface StickyContactActionsProps {
@@ -14,7 +13,6 @@ interface StickyContactActionsProps {
 
 export function StickyContactActions({ contacts }: StickyContactActionsProps) {
   const [isVisible, setIsVisible] = useState(false);
-  const router = useRouter();
 
   const displayContacts = useMemo(
     () => getDisplayContacts(contacts, { include: ["phone", "zalo"] }),
@@ -32,17 +30,22 @@ export function StickyContactActions({ contacts }: StickyContactActionsProps) {
         isFooterVisible = rect.top < window.innerHeight;
       }
 
-      setIsVisible(scrollY > 200 && !isFooterVisible);
+      const isMobile = window.innerWidth < 768;
+      if (isMobile) {
+        setIsVisible(scrollY > 200 && !isFooterVisible);
+      } else {
+        setIsVisible(!isFooterVisible);
+      }
     };
 
     window.addEventListener("scroll", handleScroll, { passive: true });
+    window.addEventListener("resize", handleScroll, { passive: true });
     handleScroll();
-    return () => window.removeEventListener("scroll", handleScroll);
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+      window.removeEventListener("resize", handleScroll);
+    };
   }, []);
-
-  const handleAction = (type: string) => {
-    router.push(`/thank-you?source=sticky_${type}`);
-  };
 
   if (displayContacts.length === 0) return null;
 
@@ -64,7 +67,7 @@ export function StickyContactActions({ contacts }: StickyContactActionsProps) {
           initial="hidden"
           animate="show"
           exit="exit"
-          className="fixed bottom-2 right-4 md:right-6 lg:right-8"
+          className="fixed bottom-2 right-4 md:right-6 lg:right-8 z-[100]"
         >
           <div className="flex items-center gap-2 px-2 py-2 bg-background/10 backdrop-blur-sm backdrop-brightness-125 backdrop-saturate-150 rounded-full border border-border/55 shadow-2xl w-auto">
             {/* <span className="text-sm font-bold">Liên hệ</span> */}
@@ -72,33 +75,31 @@ export function StickyContactActions({ contacts }: StickyContactActionsProps) {
               <Button
                 key={contact.id}
                 asChild
-                variant="ghost"
+                variant={contact.type === "zalo" ? "default" : "ghost"}
                 className={cn(
-                  "h-9 sm:h-10 px-5 rounded-full transition-all active:scale-95 border-none",
+                  "h-9 sm:h-10 px-4 rounded-full transition-all active:scale-95 text-xs sm:text-sm flex items-center gap-1.5 font-semibold",
                   contact.type === "zalo"
-                    ? "bg-blue-500 hover:bg-blue-600 "
+                    ? "bg-[#242424] text-[#f5efe6] hover:bg-[#242424]/90 shadow-[0_0.84px_0.84px_-0.31px_rgba(36,36,36,0.15),0_1.99px_1.99px_-0.625px_rgba(36,36,36,0.15),0_3.63px_3.63px_-0.9375px_rgba(36,36,36,0.15),0_6.04px_6.04px_-1.25px_rgba(36,36,36,0.15),0_9.75px_9.75px_-1.56px_rgba(36,36,36,0.15),0_15.96px_15.96px_-1.875px_rgba(36,36,36,0.15),0_27.48px_27.48px_-2.19px_rgba(36,36,36,0.15),0_50px_50px_-2.5px_rgba(36,36,36,0.15)] border-none"
                     : "",
                 )}
               >
                 <ContactLink
                   contact={contact}
-                  onClick={() => handleAction(contact.type)}
                   iconProps={
                     {
-                      size: contact.type === "zalo" ? 16 : 22,
+                      size: contact.type === "zalo" ? 15 : 18,
                       weight: "fill",
-                      ...(contact.type === "zalo" ? { stroke: 4 } : {}),
-                    } as (React.ComponentProps<typeof ContactLink>["iconProps"] & { stroke?: number })
+                    } as (React.ComponentProps<typeof ContactLink>["iconProps"])
                   }
                   showLabel={false}
                   iconClassName={cn(
                     "flex items-center justify-center shrink-0",
-                    contact.type === "zalo" ? "text-white" : "text-green-600 ",
+                    contact.type === "zalo" ? "text-[#f5efe6]" : ""
                   )}
                 >
-                  {/* <span>
+                  <span className={contact.type === "zalo" ? "text-[#f5efe6]" : ""}>
                     {contact.type === "phone" ? "Gọi ngay" : "Nhắn Zalo"}
-                  </span> */}
+                  </span>
                 </ContactLink>
               </Button>
             ))}
