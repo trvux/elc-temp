@@ -8,7 +8,6 @@ import { categoryRepo } from "@/modules/category/infrastructure/categoryRepo";
 import { Breadcrumbs } from "@/shared/components/layout/user/breadcrumbs";
 import { FilteredGridWrapper } from "@/shared/components/layout/user/filtered-grid-wrapper";
 import { PaginationNav } from "@/shared/components/layout/user/pagination-nav";
-import { ProductSearch } from "@/shared/components/layout/user/product-search";
 import { ScrollToTop } from "@/shared/components/layout/user/scroll-to-top";
 import { GridSection } from "@/shared/components/sections/grid-section";
 import { Skeleton } from "@/shared/components/ui/skeleton";
@@ -236,29 +235,6 @@ async function CachedProductsView({
         </div>
       </GridSection>
 
-      {/* ===== KHỐI 2: THANH TÌM KIẾM + BỘ LỌC + GRID SẢN PHẨM ===== */}
-      <GridSection
-        id="products-search"
-        isFirst={false}
-        showDiamond={true}
-        contentClassName="py-6 md:py-8 lg:py-10"
-      >
-        <div className="flex flex-col gap-8 w-full">
-          {/* Ô Tìm kiếm & Mobile filter */}
-          <div className="flex items-center gap-3 w-full">
-            <div className="flex-1">
-              <Suspense fallback={null}>
-                <ProductSearch />
-              </Suspense>
-            </div>
-            <ProductFilterMobile
-              categories={allCategories}
-              availableFilters={availableFilters}
-            />
-          </div>
-        </div>
-      </GridSection>
-
       {/* Thân trang */}
       <GridSection
         id="products-content"
@@ -277,6 +253,12 @@ async function CachedProductsView({
 
           {/* Lưới sản phẩm */}
           <div className="flex-1 w-full">
+            <div className="lg:hidden mb-6 flex justify-end">
+              <ProductFilterMobile
+                categories={allCategories}
+                availableFilters={availableFilters}
+              />
+            </div>
             <FilteredGridWrapper
               fallback={
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-6 gap-y-6 md:gap-y-16 min-h-[450px]">

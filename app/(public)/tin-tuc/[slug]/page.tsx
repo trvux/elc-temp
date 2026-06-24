@@ -5,18 +5,18 @@ import { DetailPager } from "@/shared/components/layout/user/detail-pager";
 import { PreviewContent } from "@/shared/components/layout/user/preview-content";
 import { ScrollToTop } from "@/shared/components/layout/user/scroll-to-top";
 import { GridSection } from "@/shared/components/sections/grid-section";
+import { ImageWithSkeleton } from "@/shared/components/ui/image-with-skeleton";
 import {
   TypographyH1,
   TypographySmall,
 } from "@/shared/components/ui/typography";
+import { sanitizeAndFormatTitle } from "@/shared/lib/seo-utils";
 import { setUseStaticClient } from "@/shared/lib/supabase/server";
 import { ArrowLeft } from "@phosphor-icons/react/dist/ssr";
+import { Metadata } from "next";
 import { cacheLife, cacheTag } from "next/cache";
-import { ImageWithSkeleton } from "@/shared/components/ui/image-with-skeleton";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { Metadata } from "next";
-import { sanitizeAndFormatTitle } from "@/shared/lib/seo-utils";
 
 // Design System / Style Constants
 const STYLES = {
@@ -32,8 +32,6 @@ interface PageProps {
     slug: string;
   }>;
 }
-
-
 
 async function getCachedNewsDetailData(slug: string) {
   "use cache";
@@ -95,7 +93,10 @@ export async function generateMetadata({
     };
   }
 
-  const title = sanitizeAndFormatTitle(newsItem.metaTitle || newsItem.title, false);
+  const title = sanitizeAndFormatTitle(
+    newsItem.metaTitle || newsItem.title,
+    false,
+  );
   const description = newsItem.metaDescription || newsItem.title;
 
   return {
@@ -135,24 +136,24 @@ export default async function NewsDetailPage({ params }: PageProps) {
   const newsArticleSchema = {
     "@context": "https://schema.org",
     "@type": "NewsArticle",
-    "headline": newsItem.title,
-    "image": newsItem.image ? [newsItem.image] : [],
-    "datePublished": newsItem.createdAt,
-    "dateModified": newsItem.updatedAt || newsItem.createdAt,
-    "author": {
+    headline: newsItem.title,
+    image: newsItem.image ? [newsItem.image] : [],
+    datePublished: newsItem.createdAt,
+    dateModified: newsItem.updatedAt || newsItem.createdAt,
+    author: {
       "@type": "Organization",
-      "name": "Điện máy ELC",
-      "url": "https://dienmayelc.com.vn",
+      name: "Điện máy ELC",
+      url: "https://dienmayelc.com.vn",
     },
-    "publisher": {
+    publisher: {
       "@type": "Organization",
-      "name": "Điện máy ELC",
-      "logo": {
+      name: "Điện máy ELC",
+      logo: {
         "@type": "ImageObject",
-        "url": "https://dienmayelc.com.vn/icon.svg",
+        url: "https://dienmayelc.com.vn/icon.svg",
       },
     },
-    "description": newsItem.metaDescription || newsItem.title,
+    description: newsItem.metaDescription || newsItem.title,
   };
 
   return (

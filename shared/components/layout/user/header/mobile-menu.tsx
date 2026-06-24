@@ -10,14 +10,22 @@ import { usePathname } from "next/navigation";
 import { Portal } from "radix-ui";
 import { useEffect, useRef } from "react";
 import { MobileNavItem } from "./nav-item";
+import { type Contact } from "@/modules/contact/domain";
+import { ContactLink } from "@/modules/contact/presentation/components/ContactLink";
 
 interface MobileMenuProps {
   links: NavLink[];
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
+  socialContacts?: Contact[];
 }
 
-export function MobileMenu({ links, isOpen, onOpenChange }: MobileMenuProps) {
+export function MobileMenu({
+  links,
+  isOpen,
+  onOpenChange,
+  socialContacts = [],
+}: MobileMenuProps) {
   const pathname = usePathname();
 
   // Close menu on route change (skip initial mount)
@@ -79,7 +87,7 @@ export function MobileMenu({ links, isOpen, onOpenChange }: MobileMenuProps) {
       <Portal.Root>
         <div
           className={cn(
-            "fixed inset-x-0 top-16 h-[calc(100svh-64px)] z-150 bg-background",
+            "fixed inset-x-0 top-16 h-[calc(100svh-64px)] z-150 bg-background border-t border-border/40",
             "transition-all duration-300 ease-out",
             isOpen
               ? "translate-y-0 opacity-100 visible pointer-events-auto"
@@ -87,7 +95,8 @@ export function MobileMenu({ links, isOpen, onOpenChange }: MobileMenuProps) {
           )}
           aria-hidden={!isOpen}
         >
-          <div className="flex flex-col gap-12 overflow-auto px-6 py-6">
+          <div className="flex flex-col gap-8 h-full overflow-auto px-6 py-6 pb-12">
+            {/* Menu Links */}
             <div className="flex flex-col gap-4">
               <div className="text-sm font-medium text-muted-foreground">
                 Menu
@@ -103,6 +112,29 @@ export function MobileMenu({ links, isOpen, onOpenChange }: MobileMenuProps) {
                 ))}
               </div>
             </div>
+
+            {/* Contact links */}
+            {socialContacts.length > 0 && (
+              <div className="flex flex-col gap-4 mt-auto pt-6 border-t border-border/40">
+                <div className="text-sm font-medium text-muted-foreground">
+                  Liên hệ
+                </div>
+                <div className="flex flex-wrap items-center gap-2">
+                  {socialContacts.map((contact) => (
+                    <ContactLink
+                      key={contact.id}
+                      contact={contact}
+                      showLabel={true}
+                      showValue={false}
+                      iconProps={{ size: 24, weight: "bold" }}
+                      className="h-10 px-4 text-foreground transition-colors flex items-center justify-center gap-2 cursor-pointer hover:bg-muted border border-border/60 rounded-md"
+                      iconClassName="size-4.5 flex items-center justify-center"
+                      title={contact.label || contact.type}
+                    />
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         </div>
 

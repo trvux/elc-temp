@@ -27,7 +27,6 @@ import Link from "next/link";
 import { Suspense } from "react";
 import { ProjectFilterMobile } from "./ProjectFilterMobile";
 import { ProjectFilters } from "./ProjectFilters";
-import { ProjectSearchInput } from "./ProjectSearchInput";
 import { ImageWithSkeleton } from "@/shared/components/ui/image-with-skeleton";
 import { AspectRatio } from "@/shared/components/ui/aspect-ratio";
 
@@ -343,36 +342,6 @@ export async function ProjectListModule({
       </GridSection>
 
       <GridSection
-        id="projects-search"
-        isFirst={false}
-        showDiamond={true}
-        contentClassName="py-6 md:py-8 lg:py-10"
-      >
-        {/* Filters and Grid Section */}
-        <div className="flex flex-col gap-4">
-          {/* Mobile view search & filter toggle */}
-          <div className="flex items-center gap-3 w-full">
-            <div className="flex-1">
-              <Suspense fallback={null}>
-                <ProjectSearchInput />
-              </Suspense>
-            </div>
-            <Suspense fallback={null}>
-              <ProjectFilterMobile
-                projectTypes={projectTypeItems}
-                currentProjectTypeSlug={projectType?.slug || ""}
-                categories={filterCategories}
-                currentCategorySlugs={categorySlugs}
-                services={serviceItems}
-                currentServiceSlugs={serviceSlugs}
-                currentCondition={conditionVal}
-              />
-            </Suspense>
-          </div>
-        </div>
-      </GridSection>
-
-      <GridSection
         id="projects-content"
         isFirst={false}
         showDiamond={true}
@@ -403,6 +372,19 @@ export async function ProjectListModule({
 
           {/* Project List Area */}
           <div className="flex-1">
+            <div className="lg:hidden mb-6 flex justify-end">
+              <Suspense fallback={null}>
+                <ProjectFilterMobile
+                  projectTypes={projectTypeItems}
+                  currentProjectTypeSlug={projectType?.slug || ""}
+                  categories={filterCategories}
+                  currentCategorySlugs={categorySlugs}
+                  services={serviceItems}
+                  currentServiceSlugs={serviceSlugs}
+                  currentCondition={conditionVal}
+                />
+              </Suspense>
+            </div>
             <FilteredGridWrapper
               fallback={
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-10 md:gap-y-12 min-h-[450px]">
