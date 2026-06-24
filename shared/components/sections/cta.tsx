@@ -5,13 +5,6 @@ import {
   StaggerItem,
 } from "@/shared/components/ui/animate-in";
 import { Button } from "@/shared/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuTrigger,
-} from "@/shared/components/ui/dropdown-menu";
 import { Separator } from "@/shared/components/ui/separator";
 import {
   TypographyH1,
@@ -23,7 +16,6 @@ import Link from "next/link";
 import { useMemo } from "react";
 
 import { Contact, getDisplayContacts } from "@/modules/contact/domain";
-import { ContactLink } from "@/modules/contact/presentation/components/ContactLink";
 
 interface CTASectionProps {
   settings?: Record<string, string>;
@@ -31,8 +23,11 @@ interface CTASectionProps {
 }
 
 export function CTASection({ settings, contacts }: CTASectionProps) {
-  const emailContact = contacts.find((c) => c.type === "email" && c.isActive);
-  const email = emailContact?.value || "elc.jointstock@gmail.com";
+  const phoneContact =
+    contacts.find((c) => c.type === "phone" && c.isActive) ||
+    contacts.find((c) => c.type === "phone");
+  const phone = phoneContact?.value || "0789978898";
+  const phoneHref = phoneContact?.href || `tel:${phone.replace(/\s+/g, "")}`;
   const title = settings?.cta_title || "Nâng tầm chuẩn mực không gian.";
   const description =
     settings?.cta_description ||
@@ -61,28 +56,30 @@ export function CTASection({ settings, contacts }: CTASectionProps) {
         </div>
 
         <StaggerItem>
-          {displayContacts.length > 0 && (
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="default" size="lg">
+          {(() => {
+            const zaloContact =
+              contacts.find((c) => c.type === "zalo" && c.isActive) ||
+              contacts.find((c) => c.type === "zalo") ||
+              displayContacts[0];
+            return zaloContact ? (
+              <Button
+                variant="default"
+                size="lg"
+                className="shadow-[0_0.84px_0.84px_-0.31px_rgba(36,36,36,0.15),0_1.99px_1.99px_-0.625px_rgba(36,36,36,0.15),0_3.63px_3.63px_-0.9375px_rgba(36,36,36,0.15),0_6.04px_6.04px_-1.25px_rgba(36,36,36,0.15),0_9.75px_9.75px_-1.56px_rgba(36,36,36,0.15),0_15.96px_15.96px_-1.875px_rgba(36,36,36,0.15),0_27.48px_27.48px_-2.19px_rgba(36,36,36,0.15),0_50px_50px_-2.5px_rgba(36,36,36,0.15)] border-none"
+                asChild
+              >
+                <a
+                  href={zaloContact.href}
+                  target={zaloContact.isExternal ? "_blank" : undefined}
+                  rel={
+                    zaloContact.isExternal ? "noopener noreferrer" : undefined
+                  }
+                >
                   {settings?.cta_primary_btn_text || "Tư vấn lắp đặt miễn phí"}
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="center" className="w-120">
-                <DropdownMenuLabel>Phương thức liên hệ</DropdownMenuLabel>
-                {displayContacts.map((contact) => (
-                  <DropdownMenuItem key={contact.id}>
-                    <ContactLink
-                      contact={contact}
-                      iconProps={{ size: 20, weight: "regular" }}
-                      showValue
-                      className="w-full"
-                    />
-                  </DropdownMenuItem>
-                ))}
-              </DropdownMenuContent>
-            </DropdownMenu>
-          )}
+                </a>
+              </Button>
+            ) : null;
+          })()}
         </StaggerItem>
 
         <StaggerItem className="w-full flex justify-center">
@@ -91,14 +88,14 @@ export function CTASection({ settings, contacts }: CTASectionProps) {
 
         <StaggerItem>
           <div className="flex flex-col items-center gap-3">
-            <TypographyMuted>Hoặc kết nối trực tiếp qua email</TypographyMuted>
+            <TypographyMuted>
+              Hoặc kết nối trực tiếp qua hotline
+            </TypographyMuted>
             <Link
-              href={`mailto:${email}`}
+              href={phoneHref}
               className="hover:opacity-80 transition-opacity"
             >
-              <TypographyLarge className="italic text-2xl">
-                {email}
-              </TypographyLarge>
+              <TypographyLarge>{phone}</TypographyLarge>
             </Link>
           </div>
         </StaggerItem>
