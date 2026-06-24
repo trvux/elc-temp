@@ -1,18 +1,25 @@
 import { google } from "googleapis";
 import * as fs from "fs";
 import * as path from "path";
+import * as dotenv from 'dotenv';
 
-const KEY_FILE = path.join(process.cwd(), "google-service-account.json");
+dotenv.config({ path: '.env.local' });
+
+const KEY_FILE = path.join(process.cwd(), "service-account.json");
 const URLS_FILE = path.join(process.cwd(), "scratch/urls-to-index.txt");
+
+interface GError extends Error {
+  status?: number;
+}
 
 async function indexUrls() {
   if (!fs.existsSync(KEY_FILE)) {
-    console.error("Missing google-service-account.json file in root directory");
+    console.error(`Missing service-account.json file in root directory: ${KEY_FILE}`);
     return;
   }
   
   if (!fs.existsSync(URLS_FILE)) {
-    console.error("Missing scratch/urls-to-index.txt file. Please create it and add one URL per line.");
+    console.error(`Missing urls file: ${URLS_FILE}. Please run generate-urls.ts first.`);
     return;
   }
 
@@ -35,7 +42,13 @@ async function indexUrls() {
 
   console.log(`Found ${urls.length} URLs to submit.`);
 
-  for (const url of urls) {
+  let successCount = 0;
+  let failCount = 0;
+
+  for (let i = 0; i < urls.length; i++) {
+    const url = urls[i];
+    console.log(`[${i + 1}/${urls.length}] Submitting: ${url}`);
+    
     try {
       const response = await indexing.urlNotifications.publish({
         requestBody: {
@@ -43,14 +56,33 @@ async function indexUrls() {
           type: "URL_UPDATED",
         },
       });
-      console.log(`Successfully submitted: ${url}. Response status: ${response.status}`);
+      console.log(`Success: ${url}. Response status: ${response.status}`);
+      successCount++;
     } catch (error) {
-      const err = error as Error;
+      const err = error as GError;
       console.error(`Failed to submit: ${url}. Error: ${err.message}`);
+      failCount++;
+
+      // If we hit the quota limit (429 or quotaExceeded), stop execution immediately
+      if (err.status === 429 || err.message.includes("quotaExceeded") || err.message.includes("Quota exceeded")) {
+        console.log("\nQuota limit reached or too many requests. Stopping indexing process.");
+        
+        // Remove submitted URLs from urls-to-index.txt so we can resume later
+        const remainingUrls = urls.slice(i);
+        fs.writeFileSync(URLS_FILE, remainingUrls.join("\n"), "utf-8");
+        console.log(`Saved remaining ${remainingUrls.length} URLs back to urls-to-index.txt for the next run.`);
+        break;
+      }
     }
-    // Sleep 1 second to respect Google's API rate limits
-    await new Promise((resolve) => setTimeout(resolve, 1000));
+    
+    // Sleep 500ms to respect rate limit
+    await new Promise((resolve) => setTimeout(resolve, 500));
   }
+
+  console.log("\n--- INDEXING RUN COMPLETED ---");
+  console.log(`Successfully submitted: ${successCount}`);
+  console.log(`Failed to submit: ${failCount}`);
 }
 
 indexUrls().catch(console.error);
+
