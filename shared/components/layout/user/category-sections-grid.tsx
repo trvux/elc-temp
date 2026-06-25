@@ -1,59 +1,54 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
-import { ProductWithRelations as Product } from "@/modules/catalog/domain";
+import type { ProductWithRelations } from "@/modules/catalog/domain";
 import { ProductCard } from "@/modules/catalog/presentation/components/ProductCard";
-import {
-  AnimateIn,
-  StaggerContainer,
-  StaggerItem,
-} from "@/shared/components/ui/animate-in";
+import { Button } from "@/shared/components/ui/button";
+import { Separator } from "@/shared/components/ui/separator";
 import { Skeleton } from "@/shared/components/ui/skeleton";
-import { TypographyMuted } from "@/shared/components/ui/typography";
 import { Spinner } from "@phosphor-icons/react";
-import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 const GRID_CLASS =
   "grid gap-x-4 gap-y-6 md:gap-y-12 content-start [grid-template-columns:repeat(auto-fill,minmax(180px,1fr))]";
 
+// mobile (≤2 cols) → 5 rows | tablet (3–4 cols) → 4 rows | desktop (≥5 cols) → 3 rows
 function getTargetRows(cols: number) {
-  if (cols <= 2) return 5; // mobile
-  if (cols <= 4) return 4; // tablet
-  return 3; // desktop
+  if (cols <= 2) return 5;
+  if (cols <= 4) return 4;
+  return 3;
 }
 
-interface FeaturesSectionProps {
-  title: string;
-  slug: string;
-  products: Product[];
-  categoryId?: string;
-  totalCount?: number;
-}
+export type CategorySectionData = {
+  categoryId: string;
+  initialProducts: ProductWithRelations[];
+  totalCount: number;
+};
 
-export function FeaturesSection({
-  title,
-  slug,
-  products: initialProducts,
+function CategorySection({
   categoryId,
-  totalCount = initialProducts.length,
-}: FeaturesSectionProps) {
+  initialProducts,
+  totalCount,
+  queryTokens,
+}: CategorySectionData & { queryTokens: string[] }) {
   const [products, setProducts] = useState(initialProducts);
+  // Show skeletons immediately on mount if there are products to load
   const [isAutoLoading, setIsAutoLoading] = useState(
-    !!categoryId && initialProducts.length < totalCount,
+    initialProducts.length < totalCount,
   );
   const [isLoadingMore, setIsLoadingMore] = useState(false);
 
   const colsRef = useRef(2);
+  // Default 12 before ResizeObserver measures; updated to cols × targetRows
   const pageSizeRef = useRef(Math.max(initialProducts.length, 12));
   const gridRef = useRef<HTMLDivElement | null>(null);
   const loadedCountRef = useRef(initialProducts.length);
   const hasMoreRef = useRef(initialProducts.length < totalCount);
   const loadingRef = useRef(false);
 
+  // Measure real column count → compute exact target (cols × targetRows)
   useEffect(() => {
-    if (!categoryId || !gridRef.current) return;
     const grid = gridRef.current;
+    if (!grid) return;
     const update = () => {
       const cols = window
         .getComputedStyle(grid)
@@ -65,15 +60,17 @@ export function FeaturesSection({
     const ro = new ResizeObserver(update);
     ro.observe(grid);
     return () => ro.disconnect();
-  }, [categoryId]);
+  }, []);
 
+  // Auto-fill: load exactly enough products to reach cols × targetRows (full rows)
   const autoFill = useCallback(async () => {
-    if (!categoryId || loadingRef.current || !hasMoreRef.current) return;
+    if (loadingRef.current || !hasMoreRef.current) return;
     const toLoad = pageSizeRef.current - loadedCountRef.current;
     if (toLoad <= 0) {
       setIsAutoLoading(false);
       return;
     }
+
     loadingRef.current = true;
     setIsAutoLoading(true);
     try {
@@ -86,7 +83,7 @@ export function FeaturesSection({
       const res = await fetch(`/api/products?${sp.toString()}`);
       if (!res.ok) return;
       const data = (await res.json()) as {
-        products: Product[];
+        products: ProductWithRelations[];
         hasMore: boolean;
       };
       setProducts((prev) => [...prev, ...data.products]);
@@ -96,23 +93,24 @@ export function FeaturesSection({
       loadingRef.current = false;
       setIsAutoLoading(false);
     }
+    // Chain if still under target (API returned fewer than requested)
     if (hasMoreRef.current && loadedCountRef.current < pageSizeRef.current) {
       setTimeout(autoFill, 0);
     }
   }, [categoryId]);
 
+  // ResizeObserver effect runs first → pageSizeRef is set before autoFill reads it
   useEffect(() => {
-    if (categoryId) autoFill();
+    autoFill();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const remaining = totalCount - products.length;
-  const hasMore = !!categoryId && products.length < totalCount;
+  const hasMore = products.length < totalCount;
   // Each click loads exactly cols × targetRows (1 "page" of full rows)
   const loadBatch = colsRef.current * getTargetRows(colsRef.current);
 
   const loadMore = async () => {
-    if (!categoryId) return;
     const toLoad = Math.min(remaining, loadBatch);
     loadingRef.current = true;
     setIsLoadingMore(true);
@@ -126,7 +124,7 @@ export function FeaturesSection({
       const res = await fetch(`/api/products?${sp.toString()}`);
       if (!res.ok) return;
       const data = (await res.json()) as {
-        products: Product[];
+        products: ProductWithRelations[];
         hasMore: boolean;
       };
       setProducts((prev) => [...prev, ...data.products]);
@@ -142,72 +140,79 @@ export function FeaturesSection({
     ? Math.max(pageSizeRef.current - loadedCountRef.current, 2)
     : 0;
 
-  const isShowingProducts = products.length > 0 || isAutoLoading;
+  return (
+    <div className="flex flex-col gap-4">
+      <div ref={gridRef} className={GRID_CLASS}>
+        {products.map((product, i) => (
+          <ProductCard
+            key={product.id}
+            product={product}
+            queryTokens={queryTokens}
+            priority={i < 8}
+          />
+        ))}
+        {isAutoLoading &&
+          Array.from({ length: skeletonCount }).map((_, i) => (
+            <div key={`sk-${i}`} className="flex flex-col gap-4">
+              <Skeleton className="aspect-video w-full rounded-2xl" />
+              <div className="space-y-2">
+                <Skeleton className="h-5 w-full" />
+                <Skeleton className="h-5 w-2/3" />
+              </div>
+              <Skeleton className="h-6 w-1/3" />
+            </div>
+          ))}
+      </div>
+
+      {hasMore && !isAutoLoading && (
+        <div className="flex justify-center pt-1">
+          <Button
+            variant="outline"
+            size="lg"
+            onClick={loadMore}
+            disabled={isLoadingMore}
+            className="gap-2 text-muted-foreground hover:text-foreground"
+          >
+            {isLoadingMore ? (
+              <>
+                <Spinner className="size-3.5 animate-spin" />
+                Đang tải...
+              </>
+            ) : (
+              `Hiển thị thêm ${remaining} sản phẩm`
+            )}
+          </Button>
+        </div>
+      )}
+    </div>
+  );
+}
+
+export function CategorySectionsGrid({
+  sections,
+  queryTokens = [],
+}: {
+  sections: CategorySectionData[];
+  queryTokens?: string[];
+}) {
+  if (sections.length === 0) {
+    return (
+      <div className="py-24 text-center min-h-75 w-full">
+        <p className="text-muted-foreground/60 italic text-sm">
+          Không tìm thấy sản phẩm nào.
+        </p>
+      </div>
+    );
+  }
 
   return (
-    <div className="w-full flex flex-col items-center justify-center gap-8">
-      <StaggerContainer className="w-full" immediate>
-        <div className="flex flex-col gap-3">
-          <StaggerItem>
-            <Button asChild variant="default">
-              <Link
-                href={`/san-pham/${slug}`}
-                className="group relative inline-flex items-center justify-center transition-colors px-8 py-4 text-2xl! font-bold! h-12"
-              >
-                {title}
-              </Link>
-            </Button>
-          </StaggerItem>
+    <div className="flex flex-col gap-6">
+      {sections.map((section, i) => (
+        <div key={section.categoryId} className="flex flex-col gap-6">
+          <CategorySection {...section} queryTokens={queryTokens} />
+          {i < sections.length - 1 && <Separator />}
         </div>
-      </StaggerContainer>
-
-      {isShowingProducts ? (
-        <div className="w-full flex flex-col gap-4">
-          <div ref={gridRef} className={GRID_CLASS}>
-            {products.map((product, i) => (
-              <div key={product.id} className="text-foreground h-full">
-                <ProductCard product={product} priority={i < 8} />
-              </div>
-            ))}
-            {isAutoLoading &&
-              Array.from({ length: skeletonCount }).map((_, i) => (
-                <div key={`sk-${i}`} className="flex flex-col gap-4">
-                  <Skeleton className="aspect-video w-full rounded-2xl" />
-                  <div className="space-y-2">
-                    <Skeleton className="h-5 w-full" />
-                    <Skeleton className="h-5 w-2/3" />
-                  </div>
-                  <Skeleton className="h-6 w-1/3" />
-                </div>
-              ))}
-          </div>
-
-          {hasMore && !isAutoLoading && (
-            <div className="flex justify-center pt-1">
-              <Button
-                variant="outline"
-                size="lg"
-                onClick={loadMore}
-                disabled={isLoadingMore}
-                className="gap-2 text-muted-foreground hover:text-foreground"
-              >
-                {isLoadingMore ? (
-                  <>
-                    <Spinner className="size-3.5 animate-spin" />
-                    Đang tải...
-                  </>
-                ) : (
-                  `Hiển thị thêm ${remaining} sản phẩm`
-                )}
-              </Button>
-            </div>
-          )}
-        </div>
-      ) : (
-        <AnimateIn className="flex flex-col items-center justify-center py-20 gap-4 text-muted-foreground border border-dashed rounded-xl bg-muted/30 w-full">
-          <TypographyMuted>Đang tải sản phẩm...</TypographyMuted>
-        </AnimateIn>
-      )}
+      ))}
     </div>
   );
 }

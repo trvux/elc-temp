@@ -1,5 +1,7 @@
 "use client";
 
+import { type Contact } from "@/modules/contact/domain";
+import { ContactLink } from "@/modules/contact/presentation/components/ContactLink";
 import {
   type NavLink,
   checkActiveLink,
@@ -10,8 +12,6 @@ import { usePathname } from "next/navigation";
 import { Portal } from "radix-ui";
 import { useEffect, useRef } from "react";
 import { MobileNavItem } from "./nav-item";
-import { type Contact } from "@/modules/contact/domain";
-import { ContactLink } from "@/modules/contact/presentation/components/ContactLink";
 
 interface MobileMenuProps {
   links: NavLink[];
@@ -39,14 +39,21 @@ export function MobileMenu({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pathname]);
 
-  // Lock body scroll when open
+  // Lock scroll when open — lock html + body to cover iOS Safari
   useEffect(() => {
+    const html = document.documentElement;
     if (isOpen) {
+      html.style.overflow = "hidden";
+      html.style.overscrollBehavior = "none";
       document.body.style.overflow = "hidden";
     } else {
+      html.style.overflow = "";
+      html.style.overscrollBehavior = "";
       document.body.style.overflow = "";
     }
     return () => {
+      html.style.overflow = "";
+      html.style.overscrollBehavior = "";
       document.body.style.overflow = "";
     };
   }, [isOpen]);
@@ -97,11 +104,11 @@ export function MobileMenu({
         >
           <div className="flex flex-col gap-8 h-full overflow-auto px-6 py-6 pb-12">
             {/* Menu Links */}
-            <div className="flex flex-col gap-4">
+            <div className="flex flex-col gap-4 items-center ">
               <div className="text-sm font-medium text-muted-foreground">
                 Menu
               </div>
-              <div className="flex flex-col gap-3">
+              <div className="flex flex-col gap-3 items-center">
                 {links.map((link) => (
                   <MobileNavItem
                     key={link.name}
@@ -115,11 +122,11 @@ export function MobileMenu({
 
             {/* Contact links */}
             {socialContacts.length > 0 && (
-              <div className="flex flex-col gap-4 mt-auto pt-6 border-t border-border/40">
+              <div className="flex flex-col items-center gap-4 mt-auto pt-6 border-t border-border/40">
                 <div className="text-sm font-medium text-muted-foreground">
                   Liên hệ
                 </div>
-                <div className="flex flex-wrap items-center gap-2">
+                <div className="flex flex-col items-center gap-2">
                   {socialContacts.map((contact) => (
                     <ContactLink
                       key={contact.id}
@@ -127,7 +134,7 @@ export function MobileMenu({
                       showLabel={true}
                       showValue={false}
                       iconProps={{ size: 24, weight: "bold" }}
-                      className="h-10 px-4 text-foreground transition-colors flex items-center justify-center gap-2 cursor-pointer hover:bg-muted border border-border/60 rounded-md"
+                      className="h-10 px-4 text-foreground transition-colors flex items-center justify-center gap-2 cursor-pointer "
                       iconClassName="size-4.5 flex items-center justify-center"
                       title={contact.label || contact.type}
                     />

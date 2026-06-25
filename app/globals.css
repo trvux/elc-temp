@@ -568,3 +568,17 @@
 :root:not(.dark) .tiptap-menu-wrapper .text-red-400 {
   color: oklch(0.75 0.15 27) !important;
 }
+
+/* Sticky sidebar on public product page */
+.public-catalog-page [data-slot=sidebar] {
+  position: sticky !important;
+  top: calc(var(--header-height, 64px)) !important;
+  height: calc(100vh - var(--header-height, 64px)) !important;
+  z-index: 30 !important;
+}
+
+/* Mobile filter sheet: offset below the site header */
+[data-slot=sidebar][data-mobile=true] {
+  top: var(--header-height, 64px) !important;
+  height: calc(100dvh - var(--header-height, 64px)) !important;
+}

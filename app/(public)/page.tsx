@@ -3,16 +3,16 @@ import { CTASection } from "@/shared/components/sections/cta";
 import { FeaturesSection } from "@/shared/components/sections/features";
 import { GridSection } from "@/shared/components/sections/grid-section";
 import { HeroSection } from "@/shared/components/sections/hero";
-import { HeroMediaSection } from "@/shared/components/sections/hero-media";
 import { ProjectMarqueeSection } from "@/shared/components/sections/project-marquee";
-import { ShowcaseSection } from "@/shared/components/sections/showcase";
 
 import { getBranches } from "@/modules/branch/application";
 import { branchRepo } from "@/modules/branch/infrastructure/branchRepo";
 import { getBrands } from "@/modules/brand/application";
 import { brandRepo } from "@/modules/brand/infrastructure/brandRepo";
-import { getProducts } from "@/modules/catalog/application";
+import { searchProducts } from "@/modules/catalog/application";
 import { productRepo } from "@/modules/catalog/infrastructure/SupabaseProductRepository";
+import { getCategories } from "@/modules/category/application";
+import { categoryRepo } from "@/modules/category/infrastructure/categoryRepo";
 import { getContacts } from "@/modules/contact/application";
 import { contactRepo } from "@/modules/contact/infrastructure";
 import { getProjects } from "@/modules/project/application";
@@ -40,22 +40,18 @@ import { cacheLife, cacheTag } from "next/cache";
 async function getCachedHomeData() {
   "use cache";
   cacheLife("days");
-  cacheTag("products-list", "projects-list", "brands", "layout");
+  cacheTag("products-list", "projects-list", "brands", "layout", "categories");
   setUseStaticClient(true);
 
   // Fetch all necessary data for the homepage using the application layer
-  const [settingsData, projects, featuredProducts, contacts, brands, branches] =
+  const [settingsData, projects, categories, contacts, brands, branches] =
     await Promise.all([
       getSiteSettings(settingsRepo),
       getProjects(projectRepo, {
         isPublished: true,
         limit: 200,
       }),
-      getProducts(productRepo, {
-        isPublished: true,
-        isFeatured: true,
-        limit: 12,
-      }),
+      getCategories(categoryRepo),
       getContacts(contactRepo),
       getBrands(brandRepo, { limit: 100 }),
       getBranches(branchRepo, { isPublished: true }),
@@ -67,10 +63,33 @@ async function getCachedHomeData() {
     settings[item.key] = item.value || "";
   });
 
+  // Fetch products for each category in parallel
+  // limit: 10 = mobile minimum (2cols × 5rows); client auto-fills to device target
+  const categoriesWithProducts = await Promise.all(
+    (categories || []).map(async (category) => {
+      const { products, totalCount } = await searchProducts(productRepo, "", {
+        isPublished: true,
+        categoryId: category.id,
+        limit: 10,
+        offset: 0,
+      });
+      return {
+        category,
+        products,
+        totalCount,
+      };
+    })
+  );
+
+  // Only keep categories that have products
+  const activeCategoriesWithProducts = categoriesWithProducts.filter(
+    (item) => item.products && item.products.length > 0
+  );
+
   return {
     settings,
     projects,
-    featuredProducts,
+    categoriesWithProducts: activeCategoriesWithProducts,
     contacts,
     brands,
     branches,
@@ -78,8 +97,23 @@ async function getCachedHomeData() {
 }
 
 export default async function Home() {
-  const { settings, projects, featuredProducts, contacts, brands, branches } =
+  const { settings, projects, categoriesWithProducts, contacts, brands, branches } =
     await getCachedHomeData();
+
+  const categorySections = (categoriesWithProducts || []).map((catData) => ({
+    id: `category-${catData.category.slug}`,
+    className: "",
+    showDiamond: true,
+    component: (
+      <FeaturesSection
+        title={catData.category.name}
+        slug={catData.category.slug}
+        products={catData.products || []}
+        categoryId={catData.category.id}
+        totalCount={catData.totalCount}
+      />
+    ),
+  }));
 
   const sections = [
     {
@@ -95,6 +129,13 @@ export default async function Home() {
       ),
     },
     {
+      id: "brand",
+      className: "",
+      showDiamond: true,
+      component: <BrandShowcase brands={brands || []} />,
+    },
+    ...categorySections,
+    {
       id: "project-marquee",
       className: "",
       showDiamond: true,
@@ -104,36 +145,6 @@ export default async function Home() {
           title="Dự án tiêu biểu nổi bật"
         />
       ),
-    },
-    {
-      id: "hero-media",
-      className: "",
-      showDiamond: true,
-      component: (
-        <HeroMediaSection
-          title="Trải nghiệm không gian sống lý tưởng"
-          description="Khám phá hệ sinh thái giải pháp toàn diện từ ELC, kết hợp hoàn hảo giữa hệ thống điều hòa không khí, hệ thống cấp khí tươi thu hồi nhiệt và lọc không khí cùng giải pháp nhà thông minh (Smart home) hiện đại, tối ưu hóa từng tiện ích và nhịp thở cho ngôi nhà của bạn."
-        />
-      ),
-    },
-    {
-      id: "brand",
-      className: "",
-      showDiamond: true,
-      component: <BrandShowcase brands={brands || []} />,
-    },
-
-    {
-      id: "features",
-      className: "",
-      showDiamond: true,
-      component: <FeaturesSection products={featuredProducts || []} />,
-    },
-    {
-      id: "showcase",
-      className: "", // bg-background text-foreground dark
-      showDiamond: true,
-      component: <ShowcaseSection projects={projects || []} />,
     },
     {
       id: "cta",
@@ -149,6 +160,7 @@ export default async function Home() {
     branches || [],
   );
 
+  // Render layout sections
   return (
     <>
       <script
