@@ -12,7 +12,6 @@ import {
 import { Metadata, ResolvingMetadata } from "next";
 import { notFound } from "next/navigation";
 import { DISTRICTS } from "@/shared/lib/districts";
-import { createStaticClient } from "@/shared/lib/supabase/static";
 
 type Props = {
   params: Promise<{ slug: string; location: string }>;
@@ -20,40 +19,7 @@ type Props = {
 };
 
 export async function generateStaticParams() {
-  const supabase = createStaticClient();
-  
-  // Fetch categories, brands, groups, and published products
-  const [categoriesRes, brandsRes, groupsRes, productsRes] = await Promise.all([
-    supabase.from("categories").select("slug").is("deleted_at", null),
-    supabase.from("brands").select("slug").is("deleted_at", null),
-    supabase.from("group_categories").select("slug").is("deleted_at", null),
-    supabase.from("products").select("slug").eq("is_published", true).is("deleted_at", null),
-  ]);
-
-  const categories = categoriesRes.data || [];
-  const brands = brandsRes.data || [];
-  const groups = groupsRes.data || [];
-  const products = productsRes.data || [];
-
-  const params: Array<{ slug: string; location: string }> = [];
-
-  const slugs = [
-    ...categories.map((c) => c.slug),
-    ...brands.map((b) => b.slug),
-    ...groups.map((g) => g.slug),
-    ...products.map((p) => p.slug),
-  ].filter(Boolean) as string[];
-
-  for (const slug of slugs) {
-    for (const dist of DISTRICTS) {
-      params.push({
-        slug,
-        location: dist.slug,
-      });
-    }
-  }
-
-  return params;
+  return [];
 }
 
 export async function generateMetadata(

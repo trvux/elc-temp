@@ -1,4 +1,4 @@
-import { getServiceBySlug, getServices } from "@/modules/service/application";
+import { getServiceBySlug } from "@/modules/service/application";
 import { serviceRepo } from "@/modules/service/infrastructure/serviceRepo";
 import { ServiceDetailModule } from "@/modules/service";
 import { generateServiceMetadata, generateServiceDetailSchema } from "@/shared/lib/seo-utils";
@@ -28,21 +28,7 @@ async function getCachedService(slug: string) {
 }
 
 export async function generateStaticParams() {
-  const services = await getServices(serviceRepo, { isPublished: true });
-  const params: Array<{ slug: string; location: string }> = [];
-
-  for (const service of services) {
-    if (service.slug) {
-      for (const dist of DISTRICTS) {
-        params.push({
-          slug: service.slug,
-          location: dist.slug,
-        });
-      }
-    }
-  }
-
-  return params;
+  return [];
 }
 
 export async function generateMetadata({
