@@ -42,8 +42,7 @@ import {
   TypographySmall,
 } from "@/shared/components/ui/typography";
 import { cn } from "@/shared/lib/utils";
-import { getSystemPageBySlug } from "@/modules/system-page/application";
-import { systemPageRepo } from "@/modules/system-page/infrastructure/SupabaseSystemPageRepository";
+import { getCachedSystemPage } from "@/shared/lib/cached-system-page";
 import { District } from "@/shared/lib/districts";
 
 const BASE_URL = process.env.NEXT_PUBLIC_APP_URL || "https://dienmayelc.com.vn";
@@ -95,7 +94,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const district = DISTRICTS.find((d) => d.slug === slug);
 
   if (district) {
-    const systemPage = await getSystemPageBySlug(systemPageRepo, "dich-vu");
+    const systemPage = await getCachedSystemPage("dich-vu");
     const base = generateSystemPageMetadata(
       systemPage,
       `Dịch vụ tại ${district.name} | Điện máy ELC`,

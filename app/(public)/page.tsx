@@ -21,12 +21,11 @@ import { getSiteSettings } from "@/modules/settings/application";
 import { settingsRepo } from "@/modules/settings/infrastructure/settingsRepo";
 
 import { generateHomeSchema, generateSystemPageMetadata } from "@/shared/lib/seo-utils";
-import { Metadata } from "next";
-import { getSystemPageBySlug } from "@/modules/system-page/application";
-import { systemPageRepo } from "@/modules/system-page/infrastructure/SupabaseSystemPageRepository";
+import { getCachedSystemPage } from "@/shared/lib/cached-system-page";
+import type { Metadata } from "next";
 
 export async function generateMetadata(): Promise<Metadata> {
-  const systemPage = await getSystemPageBySlug(systemPageRepo, "home");
+  const systemPage = await getCachedSystemPage("home");
   return generateSystemPageMetadata(
     systemPage,
     "Điện máy ELC | Máy lạnh, Hệ thống khí tươi & Dự án trọn gói",

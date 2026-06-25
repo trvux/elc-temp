@@ -23,10 +23,9 @@ import {
 import { setUseStaticClient } from "@/shared/lib/supabase/server";
 import { cn } from "@/shared/lib/utils";
 import { cacheLife, cacheTag } from "next/cache";
-import { getSystemPageBySlug } from "@/modules/system-page/application";
-import { systemPageRepo } from "@/modules/system-page/infrastructure/SupabaseSystemPageRepository";
 import { generateSystemPageMetadata } from "@/shared/lib/seo-utils";
-import { Metadata } from "next";
+import type { Metadata } from "next";
+import { getCachedSystemPage } from "@/shared/lib/cached-system-page";
 
 const STYLES = {
   main: cn("w-full bg-background flex flex-col flex-1"),
@@ -44,7 +43,7 @@ const STYLES = {
 };
 
 export async function generateMetadata(): Promise<Metadata> {
-  const systemPage = await getSystemPageBySlug(systemPageRepo, "dich-vu");
+  const systemPage = await getCachedSystemPage("dich-vu");
   return generateSystemPageMetadata(
     systemPage,
     "Dịch vụ chuyên nghiệp | Điện máy ELC",

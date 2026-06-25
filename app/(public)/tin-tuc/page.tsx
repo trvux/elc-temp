@@ -12,13 +12,12 @@ import {
 import { setUseStaticClient } from "@/shared/lib/supabase/server";
 import { cacheLife, cacheTag } from "next/cache";
 import Link from "next/link";
-import { getSystemPageBySlug } from "@/modules/system-page/application";
-import { systemPageRepo } from "@/modules/system-page/infrastructure/SupabaseSystemPageRepository";
 import { generateSystemPageMetadata } from "@/shared/lib/seo-utils";
-import { Metadata } from "next";
+import type { Metadata } from "next";
+import { getCachedSystemPage } from "@/shared/lib/cached-system-page";
 
 export async function generateMetadata(): Promise<Metadata> {
-  const systemPage = await getSystemPageBySlug(systemPageRepo, "tin-tuc");
+  const systemPage = await getCachedSystemPage("tin-tuc");
   return generateSystemPageMetadata(
     systemPage,
     "Tin tức | Điện máy ELC",

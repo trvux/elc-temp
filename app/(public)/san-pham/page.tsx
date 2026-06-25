@@ -20,11 +20,10 @@ import { getQueryTokens } from "@/shared/lib/search-utils";
 import { generateCollectionSchema, SHOP_NAME, generateSystemPageMetadata } from "@/shared/lib/seo-utils";
 import { setUseStaticClient } from "@/shared/lib/supabase/server";
 import { cn } from "@/shared/lib/utils";
-import { Metadata } from "next";
+import type { Metadata } from "next";
 import { cacheLife, cacheTag } from "next/cache";
 import { Suspense } from "react";
-import { getSystemPageBySlug } from "@/modules/system-page/application";
-import { systemPageRepo } from "@/modules/system-page/infrastructure/SupabaseSystemPageRepository";
+import { getCachedSystemPage } from "@/shared/lib/cached-system-page";
 
 interface Props {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
@@ -72,7 +71,7 @@ export async function generateMetadata({
     };
   }
 
-  const systemPage = await getSystemPageBySlug(systemPageRepo, "san-pham");
+  const systemPage = await getCachedSystemPage("san-pham");
   const meta = generateSystemPageMetadata(
     systemPage,
     `Danh sách sản phẩm Điện máy chính hãng | ${SHOP_NAME}`,
