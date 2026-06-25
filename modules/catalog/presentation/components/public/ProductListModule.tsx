@@ -10,7 +10,6 @@ import { Breadcrumbs } from "@/shared/components/layout/user/breadcrumbs";
 import { FilteredGridWrapper } from "@/shared/components/layout/user/filtered-grid-wrapper";
 import { PreviewContent } from "@/shared/components/layout/user/preview-content";
 import { PaginationNav } from "@/shared/components/layout/user/pagination-nav";
-import { ProductSearch } from "@/shared/components/layout/user/product-search";
 import { ScrollToTop } from "@/shared/components/layout/user/scroll-to-top";
 import { GridSection } from "@/shared/components/sections/grid-section";
 import { Skeleton } from "@/shared/components/ui/skeleton";
@@ -417,20 +416,16 @@ export async function ProductListModule({
         </div>
       </GridSection>
 
-      {/* ===== KHỐI 2: THANH TÌM KIẾM + BỘ LỌC MOBILE ===== */}
+      {/* ===== KHỐI 2: BỘ LỌC MOBILE ===== */}
       <GridSection
         id="products-search"
+        className="lg:hidden"
         isFirst={false}
         showDiamond={true}
         contentClassName="py-6 md:py-8 lg:py-10"
       >
         <div className="flex flex-col gap-8 w-full">
-          <div className="flex items-center gap-3 w-full">
-            <div className="flex-1">
-              <Suspense fallback={null}>
-                <ProductSearch />
-              </Suspense>
-            </div>
+          <div className="flex items-center justify-end w-full">
             <ProductFilterMobile
               categories={allCategories}
               availableFilters={availableFilters}

@@ -7,6 +7,28 @@ import { getServices } from "@/modules/service/application";
 import { createStaticClient } from "@/shared/lib/supabase/static";
 import Fuse from "fuse.js";
 import { getQueryTokens, tokenize } from "@/shared/lib/search-utils";
+import { cacheLife, cacheTag } from "next/cache";
+
+async function getCachedProducts() {
+  "use cache";
+  cacheLife("minutes");
+  cacheTag("products-search");
+  return productRepo.getAll({ isPublished: true });
+}
+
+async function getCachedProjects() {
+  "use cache";
+  cacheLife("minutes");
+  cacheTag("projects-search");
+  return projectRepo.getAll({ isPublished: true });
+}
+
+async function getCachedServices() {
+  "use cache";
+  cacheLife("minutes");
+  cacheTag("services-search");
+  return getServices(serviceRepo, { isPublished: true });
+}
 
 interface SpecSubItem {
   value?: string | number;
@@ -47,6 +69,7 @@ export interface SearchSuggestionItem {
   category?: string;
   image?: string | null;
   price?: string | null;
+  sku?: string | null;
 }
 
 export interface DefaultSearchItem {
@@ -123,9 +146,14 @@ export async function getAutocompleteSuggestionsAction(query: string): Promise<S
   if (queryTokens.length === 0) return [];
 
   try {
-    // 1. Fetch matching products
-    const allProducts = await productRepo.getAll({ isPublished: true });
-    
+    // Parallelize caching data fetch from database
+    const [allProducts, allProjects, allServices] = await Promise.all([
+      getCachedProducts(),
+      getCachedProjects(),
+      getCachedServices(),
+    ]);
+
+    // 1. Process matching products
     const fuseProducts = new Fuse(allProducts, {
       keys: [
         { name: "name", getFn: (p) => tokenize(p.name ?? ""), weight: 0.55 },
@@ -162,12 +190,11 @@ export async function getAutocompleteSuggestionsAction(query: string): Promise<S
         category: p.category?.name || "Sản phẩm",
         image: p.images?.[0] || null,
         price: priceStr,
+        sku: p.sku || null,
       };
     });
 
-    // 2. Fetch matching projects
-    const allProjects = await projectRepo.getAll({ isPublished: true });
-
+    // 2. Process matching projects
     const fuseProjects = new Fuse(allProjects, {
       keys: [
         { name: "title", getFn: (p) => tokenize(p.title ?? ""), weight: 0.8 },
@@ -199,8 +226,7 @@ export async function getAutocompleteSuggestionsAction(query: string): Promise<S
       price: null,
     }));
 
-    // 3. Fetch matching services
-    const allServices = await getServices(serviceRepo, { isPublished: true });
+    // 3. Process matching services
 
     const fuseServices = new Fuse(allServices, {
       keys: [
