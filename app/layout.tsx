@@ -2,6 +2,7 @@ import { ThemeWatcher } from "@/shared/components/layout/user/theme-theme-watche
 import { ThemeProvider } from "@/shared/components/theme-provider";
 import { Toaster } from "@/shared/components/ui/sonner";
 import { TooltipProvider } from "@/shared/components/ui/tooltip";
+import Hotjar from "@/shared/components/layout/user/hotjar";
 import { cn } from "@/shared/lib/utils";
 import { QueryProvider } from "@/shared/providers/query-provider";
 import type { Metadata, Viewport } from "next";
@@ -94,6 +95,7 @@ export default function RootLayout({
         suppressHydrationWarning
         className={cn("min-h-full flex flex-col text-foreground")}
       >
+        <Hotjar id={process.env.NEXT_PUBLIC_HOTJAR_ID || ""} />
 
 
         <TooltipProvider>
