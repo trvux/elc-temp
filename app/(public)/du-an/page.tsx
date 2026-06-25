@@ -1,8 +1,7 @@
 import { ProjectListModule } from "@/modules/project/presentation/components/public/ProjectListModule";
 import { createStaticClient } from "@/shared/lib/supabase/static";
-import { Metadata } from "next";
-import { getSystemPageBySlug } from "@/modules/system-page/application";
-import { systemPageRepo } from "@/modules/system-page/infrastructure/SupabaseSystemPageRepository";
+import type { Metadata } from "next";
+import { getCachedSystemPage } from "@/shared/lib/cached-system-page";
 import { generateSystemPageMetadata } from "@/shared/lib/seo-utils";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -34,7 +33,7 @@ export async function generateMetadata(): Promise<Metadata> {
 
   const ogImage = firstProject?.images?.[0] || "/images/hero-bg.jpg";
 
-  const systemPage = await getSystemPageBySlug(systemPageRepo, "du-an");
+  const systemPage = await getCachedSystemPage("du-an");
   const meta = generateSystemPageMetadata(
     systemPage,
     "Dự án Thi công lắp đặt máy lạnh & hệ thống HVAC | Điện máy ELC",

@@ -19,13 +19,12 @@ import { ArrowUpRight } from "@phosphor-icons/react/dist/ssr";
 import { cacheLife, cacheTag } from "next/cache";
 import Link from "next/link";
 import { ScrollToActiveBranch } from "./ScrollToActiveBranch";
-import { getSystemPageBySlug } from "@/modules/system-page/application";
-import { systemPageRepo } from "@/modules/system-page/infrastructure/SupabaseSystemPageRepository";
 import { generateSystemPageMetadata } from "@/shared/lib/seo-utils";
-import { Metadata } from "next";
+import type { Metadata } from "next";
+import { getCachedSystemPage } from "@/shared/lib/cached-system-page";
 
 export async function generateMetadata(): Promise<Metadata> {
-  const systemPage = await getSystemPageBySlug(systemPageRepo, "thong-tin");
+  const systemPage = await getCachedSystemPage("thong-tin");
   return generateSystemPageMetadata(
     systemPage,
     "Thông tin về ELC | Điện máy ELC",

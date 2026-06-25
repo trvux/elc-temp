@@ -37,3 +37,12 @@ If the website sitemap has changed and you need to rebuild the list of primary U
    npx tsx scratch/generate-urls.ts
    ```
 2. This will re-fetch the online sitemap, filter out district-specific pages, and output a fresh list to `scratch/urls-to-index.txt`.
+   WARNING: Running this script will completely overwrite `scratch/urls-to-index.txt` and reset any current indexing progress. Do NOT run this unless you intend to restart the indexing from scratch.
+
+## Run History and Current Status
+
+Last updated: 2026-06-25
+- Total URLs in sitemap initially: 416
+- Run on 2026-06-25: Successfully submitted 204 URLs. Stopped at URL index 205 due to daily quota limit.
+- Remaining URLs in `scratch/urls-to-index.txt` to index on next run: 212
+
