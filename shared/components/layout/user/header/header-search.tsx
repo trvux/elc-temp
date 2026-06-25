@@ -372,6 +372,44 @@ export function HeaderSearch() {
                       </span>
                     </div>
                   </CommandItem>
+                  <CommandItem
+                    value={`tìm dịch vụ ${inputValue}`}
+                    onSelect={() => {
+                      setOpen(false);
+                      const params = new URLSearchParams();
+                      params.set("search", inputValue.trim());
+                      router.push(`/dich-vu?${params.toString()}`);
+                    }}
+                    className="flex items-center gap-3 p-2 cursor-pointer hover:bg-muted/40 rounded-md transition-colors"
+                  >
+                    <MagnifyingGlass className="size-4 shrink-0" />
+                    <div className="flex-1 min-w-0">
+                      <span className="text-sm font-medium text-foreground">
+                        Tìm{" "}
+                        <span className="font-semibold">"{inputValue}"</span>{" "}
+                        trong Dịch vụ
+                      </span>
+                    </div>
+                  </CommandItem>
+                  <CommandItem
+                    value={`tìm tin tức ${inputValue}`}
+                    onSelect={() => {
+                      setOpen(false);
+                      const params = new URLSearchParams();
+                      params.set("search", inputValue.trim());
+                      router.push(`/tin-tuc?${params.toString()}`);
+                    }}
+                    className="flex items-center gap-3 p-2 cursor-pointer hover:bg-muted/40 rounded-md transition-colors"
+                  >
+                    <MagnifyingGlass className="size-4 shrink-0" />
+                    <div className="flex-1 min-w-0">
+                      <span className="text-sm font-medium text-foreground">
+                        Tìm{" "}
+                        <span className="font-semibold">"{inputValue}"</span>{" "}
+                        trong Tin tức
+                      </span>
+                    </div>
+                  </CommandItem>
                 </CommandGroup>
 
                 {suggestions.length === 0 && !isLoading && (
@@ -404,24 +442,14 @@ export function HeaderSearch() {
                           </div>
                         )}
                         <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-1.5">
-                            <span className="text-sm text-muted-foreground font-medium">
-                              {getTypeLabel(item.type)}
-                            </span>
-                            {item.category && (
-                              <>
-                                <span className="text-sm text-muted-foreground font-medium">
-                                  -
-                                </span>
-                                <span className="text-sm text-muted-foreground font-medium">
-                                  {item.category}
-                                </span>
-                              </>
-                            )}
-                          </div>
-                          <h4 className="text-sm font-medium text-foreground truncate mt-0.5">
+                          <h4 className="text-sm font-medium text-foreground line-clamp-2 mt-0.5">
                             {item.title}
                           </h4>
+                          {item.sku && (
+                            <span className="text-xs text-muted-foreground font-medium block mt-0.5">
+                              SKU: {item.sku}
+                            </span>
+                          )}
                         </div>
                         {item.price && (
                           <span className="text-xs font-semibold text-primary shrink-0">
@@ -459,22 +487,7 @@ export function HeaderSearch() {
                           </div>
                         )}
                         <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-1.5">
-                            <span className="text-sm text-muted-foreground font-medium">
-                              {getTypeLabel(item.type)}
-                            </span>
-                            {item.category && (
-                              <>
-                                <span className="text-sm text-muted-foreground font-medium">
-                                  -
-                                </span>
-                                <span className="text-sm text-muted-foreground font-medium">
-                                  {item.category}
-                                </span>
-                              </>
-                            )}
-                          </div>
-                          <h4 className="text-sm font-medium text-foreground truncate mt-0.5">
+                          <h4 className="text-sm font-medium text-foreground line-clamp-2 mt-0.5">
                             {item.title}
                           </h4>
                         </div>
@@ -509,22 +522,7 @@ export function HeaderSearch() {
                           </div>
                         )}
                         <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-1.5">
-                            <span className="text-sm text-muted-foreground font-medium">
-                              {getTypeLabel(item.type)}
-                            </span>
-                            {item.category && (
-                              <>
-                                <span className="text-sm text-muted-foreground font-medium">
-                                  -
-                                </span>
-                                <span className="text-sm text-muted-foreground font-medium">
-                                  {item.category}
-                                </span>
-                              </>
-                            )}
-                          </div>
-                          <h4 className="text-sm font-medium text-foreground truncate mt-0.5">
+                          <h4 className="text-sm font-medium text-foreground line-clamp-2 mt-0.5">
                             {item.title}
                           </h4>
                         </div>
