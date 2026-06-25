@@ -28,7 +28,7 @@ async function getCachedService(slug: string) {
 }
 
 export async function generateStaticParams() {
-  return [];
+  return [{ slug: "fallback", location: "quan-1" }];
 }
 
 export async function generateMetadata({
