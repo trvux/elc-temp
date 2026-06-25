@@ -36,7 +36,7 @@ export function Header({ contacts = [] }: HeaderProps) {
           isMenuOpen ? "bg-background" : "",
         )}
       >
-        <div className="mx-auto h-16 w-full max-w-350 min-[87.5rem]:border-x min-[112.5rem]:max-w-384 px-4 md:px-6 lg:px-8 relative flex items-center justify-between border-dashed border-muted-foreground/35">
+        <div className="mx-auto h-16 w-full max-w-350 px-4 md:px-6 lg:px-8 relative flex items-center justify-between border-dashed border-muted-foreground/35">
           {/* Left Column: Logo & Nav link */}
           <div className="flex items-center gap-6 xl:gap-8">
             <Link

@@ -44,6 +44,7 @@ import { cacheLife, cacheTag } from "next/cache";
 import { ImageWithSkeleton } from "@/shared/components/ui/image-with-skeleton";
 import { notFound } from "next/navigation";
 import { District } from "@/shared/lib/districts";
+import { TrackProductView } from "@/shared/components/layout/user/track-product-view";
 
 interface SpecSubItem {
   label: string;
@@ -221,6 +222,15 @@ export async function ProductDetailModule({
 
   return (
     <main className={STYLES.main}>
+      <TrackProductView
+        id={product.id}
+        name={product.name}
+        slug={product.slug}
+        image={(product.images as string[])?.[0] ?? null}
+        salePrice={product.salePrice ?? 0}
+        originalPrice={product.originalPrice ?? 0}
+        stockStatus={product.stockStatus ?? null}
+      />
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}

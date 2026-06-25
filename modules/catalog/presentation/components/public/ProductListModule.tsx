@@ -1,38 +1,44 @@
 import { searchProducts } from "@/modules/catalog/application";
-import { productRepo } from "@/modules/catalog/infrastructure/SupabaseProductRepository";
 import { ResolvedEntity } from "@/modules/catalog/application/resolveProductPath";
-import { ProductCard } from "@/modules/catalog/presentation/components/ProductCard";
-import { ProductFilterMobile } from "@/modules/catalog/presentation/components/ProductFilterMobile";
+import { productRepo } from "@/modules/catalog/infrastructure/SupabaseProductRepository";
 import { ProductFilters } from "@/modules/catalog/presentation/components/ProductFilters";
 import { getCategories } from "@/modules/category/application";
 import { categoryRepo } from "@/modules/category/infrastructure/categoryRepo";
 import { Breadcrumbs } from "@/shared/components/layout/user/breadcrumbs";
 import { FilteredGridWrapper } from "@/shared/components/layout/user/filtered-grid-wrapper";
+import { RecentlyViewedSection } from "@/shared/components/layout/user/recently-viewed-section";
+import { InfiniteProductGrid } from "@/shared/components/layout/user/infinite-product-grid";
 import { PreviewContent } from "@/shared/components/layout/user/preview-content";
-import { PaginationNav } from "@/shared/components/layout/user/pagination-nav";
 import { ScrollToTop } from "@/shared/components/layout/user/scroll-to-top";
-import { GridSection } from "@/shared/components/sections/grid-section";
-import { Skeleton } from "@/shared/components/ui/skeleton";
 import {
   Accordion,
+  AccordionContent,
   AccordionItem,
   AccordionTrigger,
-  AccordionContent,
 } from "@/shared/components/ui/accordion";
 import {
-  TypographyH1,
+  Sidebar,
+  SidebarContent,
+  SidebarInset,
+  SidebarProvider,
+  SidebarTrigger,
+} from "@/shared/components/ui/sidebar";
+import { Skeleton } from "@/shared/components/ui/skeleton";
+import {
   TypographyH3,
-  TypographyLarge,
   TypographySmall,
 } from "@/shared/components/ui/typography";
 import { getQueryTokens } from "@/shared/lib/search-utils";
-import { generateCollectionSchema, localizeRichText } from "@/shared/lib/seo-utils";
+import {
+  generateCollectionSchema,
+  localizeRichText,
+} from "@/shared/lib/seo-utils";
 import { createClient, setUseStaticClient } from "@/shared/lib/supabase/server";
 import { cn } from "@/shared/lib/utils";
 import { cacheLife, cacheTag } from "next/cache";
 import { notFound } from "next/navigation";
-import { Suspense } from "react";
 
+import { GridSection } from "@/shared/components/sections/grid-section";
 import { District } from "@/shared/lib/districts";
 
 interface ProductListModuleProps {
@@ -45,12 +51,11 @@ const STYLES = {
   main: cn("w-full bg-background min-h-screen flex flex-col"),
   header: cn("flex flex-col items-center text-center gap-3 w-full"),
   title: cn("w-full max-w-none! text-wrap!"),
-  grid: cn(
-    "grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-6 gap-y-6 md:gap-y-16 min-h-[450px] content-start animate-fade-in-up",
+  skeletonGrid: cn(
+    "grid gap-x-4 gap-y-6 md:gap-y-12 min-h-[450px] [grid-template-columns:repeat(auto-fill,minmax(180px,1fr))]",
   ),
   emptyState: cn("py-24 text-center min-h-[300px] w-full animate-fade-in-up"),
   emptyText: cn("text-muted-foreground/60 italic text-sm"),
-  paginationWrapper: cn("mt-12"),
   footer: cn(
     "w-full flex flex-col md:flex-row justify-between items-center gap-6 text-muted-foreground",
   ),
@@ -66,8 +71,6 @@ async function getCachedListModuleData(
   maxPrice: number | undefined,
   brandSlugs: string[],
   specs: Record<string, string[]>,
-  currentPage: number,
-  pageSize: number,
   condition: string | undefined,
 ) {
   "use cache";
@@ -116,18 +119,22 @@ async function getCachedListModuleData(
 
   const allCategories = await getCategories(categoryRepo);
 
-  const { products, totalCount, availableFilters } = await searchProducts(productRepo, q, {
-    categoryIds,
-    brandIds,
-    brandSlugs,
-    isPublished: true,
-    minPrice,
-    maxPrice,
-    specs,
-    condition,
-    limit: pageSize,
-    offset: (currentPage - 1) * pageSize,
-  });
+  const { products, totalCount, availableFilters } = await searchProducts(
+    productRepo,
+    q,
+    {
+      categoryIds,
+      brandIds,
+      brandSlugs,
+      isPublished: true,
+      minPrice,
+      maxPrice,
+      specs,
+      condition,
+      limit: 30,
+      offset: 0,
+    },
+  );
 
   return {
     products,
@@ -172,33 +179,36 @@ function getFallbackContent(entity: ResolvedEntity, location?: District) {
         content: [
           {
             type: "text",
-            text: title
-          }
-        ]
+            text: title,
+          },
+        ],
       },
       {
         type: "paragraph",
         content: [
           {
             type: "text",
-            text: p1
-          }
-        ]
+            text: p1,
+          },
+        ],
       },
       {
         type: "paragraph",
         content: [
           {
             type: "text",
-            text: p2
-          }
-        ]
-      }
-    ]
+            text: p2,
+          },
+        ],
+      },
+    ],
   };
 }
 
-function getFallbackFaq(entity: ResolvedEntity, location?: District): Array<{ question: string; answer: string }> {
+function getFallbackFaq(
+  entity: ResolvedEntity,
+  location?: District,
+): Array<{ question: string; answer: string }> {
   if (!entity || entity.type === "product") return [];
 
   const name = entity.data.name;
@@ -208,46 +218,46 @@ function getFallbackFaq(entity: ResolvedEntity, location?: District): Array<{ qu
     return [
       {
         question: `Có nên chọn mua ${name} chính hãng tại Điện máy ELC khu vực ${locName} không?`,
-        answer: `Có, Điện máy ELC cam kết phân phối sản phẩm chính hãng 100% kèm đầy đủ giấy tờ chứng nhận nguồn gốc xuất xứ, dịch vụ tư vấn kỹ thuật chuyên sâu và chính sách lắp đặt bảo hành uy tín nhất tại ${locName}.`
+        answer: `Có, Điện máy ELC cam kết phân phối sản phẩm chính hãng 100% kèm đầy đủ giấy tờ chứng nhận nguồn gốc xuất xứ, dịch vụ tư vấn kỹ thuật chuyên sâu và chính sách lắp đặt bảo hành uy tín nhất tại ${locName}.`,
       },
       {
         question: `Sản phẩm ${name} có được hỗ trợ lắp đặt tận nơi tại ${locName} hay không?`,
-        answer: `Điện máy ELC cung cấp dịch vụ giao hàng và thi công lắp đặt trọn gói chuyên nghiệp tại ${locName} bởi đội ngũ kỹ thuật viên giàu kinh nghiệm, tuân thủ nghiêm ngặt quy trình kỹ thuật để đảm bảo máy vận hành tốt nhất.`
+        answer: `Điện máy ELC cung cấp dịch vụ giao hàng và thi công lắp đặt trọn gói chuyên nghiệp tại ${locName} bởi đội ngũ kỹ thuật viên giàu kinh nghiệm, tuân thủ nghiêm ngặt quy trình kỹ thuật để đảm bảo máy vận hành tốt nhất.`,
       },
       {
         question: `Chính sách bảo hành dành cho ${name} tại Điện máy ELC như thế nào?`,
-        answer: `Tất cả sản phẩm đều được áp dụng chính sách bảo hành chính hãng theo đúng quy định của nhà sản xuất. Đồng thời, Điện máy ELC hỗ trợ kỹ thuật nhanh chóng tại ${locName} khi khách hàng gặp sự cố trong quá trình sử dụng.`
-      }
+        answer: `Tất cả sản phẩm đều được áp dụng chính sách bảo hành chính hãng theo đúng quy định của nhà sản xuất. Đồng thời, Điện máy ELC hỗ trợ kỹ thuật nhanh chóng tại ${locName} khi khách hàng gặp sự cố trong quá trình sử dụng.`,
+      },
     ];
   } else if (entity.type === "brand") {
     return [
       {
         question: `Sản phẩm của thương hiệu ${name} tại ${locName} dùng có tốt và bền không?`,
-        answer: `Các thiết bị của hãng nổi tiếng với độ bền vượt trội, khả năng tiết kiệm điện năng xuất sắc và tích hợp nhiều công nghệ tiên tiến nhất, mang đến hiệu suất làm mát ổn định qua nhiều năm sử dụng tại khu vực ${locName}.`
+        answer: `Các thiết bị của hãng nổi tiếng với độ bền vượt trội, khả năng tiết kiệm điện năng xuất sắc và tích hợp nhiều công nghệ tiên tiến nhất, mang đến hiệu suất làm mát ổn định qua nhiều năm sử dụng tại khu vực ${locName}.`,
       },
       {
         question: `Điện máy ELC có phải là đại lý phân phối chính thức của ${name} tại ${locName} không?`,
-        answer: `Đúng vậy, Điện máy ELC là đối tác phân phối chính thức của thương hiệu này tại ${locName}, cam kết cung cấp sản phẩm chính hãng chất lượng cao cùng mức giá cực kỳ ưu đãi.`
+        answer: `Đúng vậy, Điện máy ELC là đối tác phân phối chính thức của thương hiệu này tại ${locName}, cam kết cung cấp sản phẩm chính hãng chất lượng cao cùng mức giá cực kỳ ưu đãi.`,
       },
       {
         question: `Khi mua sản phẩm ${name} thì việc bảo hành tại ${locName} sẽ được thực hiện ở đâu?`,
-        answer: `Sản phẩm sẽ được bảo hành trực tiếp tại các trung tâm bảo hành ủy quyền của hãng trên toàn quốc. Điện máy ELC cũng hỗ trợ tiếp nhận thông tin và phối hợp xử lý bảo hành nhanh nhất cho khách hàng tại ${locName}.`
-      }
+        answer: `Sản phẩm sẽ được bảo hành trực tiếp tại các trung tâm bảo hành ủy quyền của hãng trên toàn quốc. Điện máy ELC cũng hỗ trợ tiếp nhận thông tin và phối hợp xử lý bảo hành nhanh nhất cho khách hàng tại ${locName}.`,
+      },
     ];
   } else if (entity.type === "group") {
     return [
       {
         question: `Làm sao để lựa chọn dòng ${name} phù hợp nhất với nhu cầu sử dụng tại ${locName}?`,
-        answer: `Quý khách nên xác định diện tích không gian cần làm mát để lựa chọn công suất máy phù hợp, đồng thời cân nhắc các yếu tố như tính năng tiết kiệm điện Inverter, kiểu dáng thiết kế và ngân sách đầu tư tại ${locName}.`
+        answer: `Quý khách nên xác định diện tích không gian cần làm mát để lựa chọn công suất máy phù hợp, đồng thời cân nhắc các yếu tố như tính năng tiết kiệm điện Inverter, kiểu dáng thiết kế và ngân sách đầu tư tại ${locName}.`,
       },
       {
         question: `Điện máy ELC có cung cấp đầy đủ các thương hiệu ${name} lớn tại ${locName} không?`,
-        answer: `Chúng tôi cung cấp đa dạng sản phẩm từ các hãng hàng đầu hiện nay như Daikin, Panasonic, LG, Casper, Mitsubishi và nhiều thương hiệu uy tín khác tại ${locName}, đáp ứng tối đa mọi yêu cầu từ phía khách hàng.`
+        answer: `Chúng tôi cung cấp đa dạng sản phẩm từ các hãng hàng đầu hiện nay như Daikin, Panasonic, LG, Casper, Mitsubishi và nhiều thương hiệu uy tín khác tại ${locName}, đáp ứng tối đa mọi yêu cầu từ phía khách hàng.`,
       },
       {
         question: `Giá bán của các dòng ${name} tại Điện máy ELC đã bao gồm chi phí lắp đặt tại ${locName} chưa?`,
-        answer: `Giá hiển thị trên website là giá bán sản phẩm. Tùy thuộc vào vị trí và độ khó khi thi công thực tế, chi phí vật tư và nhân công lắp đặt tại ${locName} sẽ được Điện máy ELC báo giá chi tiết, minh bạch trước khi thực hiện.`
-      }
+        answer: `Giá hiển thị trên website là giá bán sản phẩm. Tùy thuộc vào vị trí và độ khó khi thi công thực tế, chi phí vật tư và nhân công lắp đặt tại ${locName} sẽ được Điện máy ELC báo giá chi tiết, minh bạch trước khi thực hiện.`,
+      },
     ];
   }
 
@@ -277,7 +287,7 @@ export async function ProductListModule({
       ? Number(sParams.maxPrice)
       : undefined;
   const currentPage = Number(sParams.page) || 1;
-  const pageSize = 12;
+  void currentPage; // kept for URL compat, not used directly
   const brandSlugs = Array.isArray(sParams.brands)
     ? sParams.brands
     : typeof sParams.brands === "string"
@@ -316,6 +326,8 @@ export async function ProductListModule({
   }
 
   const displayTitle = pageTitle;
+  // subTitlePrefix kept for potential future empty state use
+  void subTitlePrefix;
 
   const {
     products,
@@ -331,24 +343,46 @@ export async function ProductListModule({
     maxPrice,
     brandSlugs,
     specs,
-    currentPage,
-    pageSize,
     condition,
   );
 
   const queryTokens = getQueryTokens(q);
-  const totalPages = Math.ceil(totalCount / pageSize);
+
+  // Build fetchParams for InfiniteProductGrid
+  const fetchParams = {
+    q: q || undefined,
+    minPrice,
+    maxPrice,
+    brands: brandSlugs.length > 0 ? brandSlugs : undefined,
+    condition,
+    specs: Object.keys(specs).length > 0 ? specs : undefined,
+    entityType: entity.type as "category" | "brand" | "group",
+    entityId: entity.data.id,
+  };
 
   const dbContent = entity.data.content;
-  const typedContent = dbContent as { type?: string; content?: unknown[] } | null | undefined;
-  const hasDbContent = !!(typedContent && typeof typedContent === "object" && typedContent.type === "doc" && Array.isArray(typedContent.content) && typedContent.content.length > 0);
-  const seoContent = localizeRichText(hasDbContent ? dbContent : getFallbackContent(entity, location), location);
+  const typedContent = dbContent as
+    | { type?: string; content?: unknown[] }
+    | null
+    | undefined;
+  const hasDbContent = !!(
+    typedContent &&
+    typeof typedContent === "object" &&
+    typedContent.type === "doc" &&
+    Array.isArray(typedContent.content) &&
+    typedContent.content.length > 0
+  );
+  const seoContent = localizeRichText(
+    hasDbContent ? dbContent : getFallbackContent(entity, location),
+    location,
+  );
 
   const dbFaq = entity.data.faq;
   const hasDbFaq = !!(Array.isArray(dbFaq) && dbFaq.length > 0);
-  let faqList: Array<{ question: string; answer: string }> = (hasDbFaq && dbFaq)
-    ? (dbFaq as unknown as Array<{ question: string; answer: string }>)
-    : getFallbackFaq(entity, location);
+  let faqList: Array<{ question: string; answer: string }> =
+    hasDbFaq && dbFaq
+      ? (dbFaq as unknown as Array<{ question: string; answer: string }>)
+      : getFallbackFaq(entity, location);
 
   if (location && faqList.length > 0) {
     faqList = faqList.map((item) => {
@@ -357,8 +391,14 @@ export async function ProductListModule({
 
       const replaceLocationTerms = (text: string): string => {
         return text
-          .replace(/tất cả các quận huyện thuộc [^.!?]* và lân cận/gi, `khu vực ${location.name}`)
-          .replace(/toàn bộ các quận huyện thuộc [^.!?]* và lân cận/gi, `khu vực ${location.name}`)
+          .replace(
+            /tất cả các quận huyện thuộc [^.!?]* và lân cận/gi,
+            `khu vực ${location.name}`,
+          )
+          .replace(
+            /toàn bộ các quận huyện thuộc [^.!?]* và lân cận/gi,
+            `khu vực ${location.name}`,
+          )
           .replace(/các quận huyện và lân cận/gi, `khu vực ${location.name}`)
           .replace(/Thành phố Hồ Chí Minh/gi, location.name)
           .replace(/TP\.HCM/gi, location.name)
@@ -369,21 +409,38 @@ export async function ProductListModule({
       let newQ = replaceLocationTerms(q);
       let newA = replaceLocationTerms(a);
 
-      if (newQ === q && !newQ.toLowerCase().includes(location.name.toLowerCase())) {
+      if (
+        newQ === q &&
+        !newQ.toLowerCase().includes(location.name.toLowerCase())
+      ) {
         if (newQ.toLowerCase().includes("tại điện máy elc")) {
-          newQ = newQ.replace(/tại Điện máy ELC/gi, `tại Điện máy ELC khu vực ${location.name}`);
+          newQ = newQ.replace(
+            /tại Điện máy ELC/gi,
+            `tại Điện máy ELC khu vực ${location.name}`,
+          );
         } else if (newQ.toLowerCase().includes("chính hãng")) {
-          newQ = newQ.replace(/chính hãng/gi, `chính hãng tại ${location.name}`);
+          newQ = newQ.replace(
+            /chính hãng/gi,
+            `chính hãng tại ${location.name}`,
+          );
         } else if (newQ.toLowerCase().includes("giao hàng")) {
           newQ = newQ.replace(/giao hàng/gi, `giao hàng tại ${location.name}`);
         } else if (newQ.endsWith("?")) {
-          newQ = newQ.substring(0, newQ.length - 1).trim() + ` tại ${location.name}?`;
+          newQ =
+            newQ.substring(0, newQ.length - 1).trim() +
+            ` tại ${location.name}?`;
         }
       }
 
-      if (newA === a && !newA.toLowerCase().includes(location.name.toLowerCase())) {
+      if (
+        newA === a &&
+        !newA.toLowerCase().includes(location.name.toLowerCase())
+      ) {
         if (newA.toLowerCase().includes("tại điện máy elc")) {
-          newA = newA.replace(/tại Điện máy ELC/gi, `tại Điện máy ELC khu vực ${location.name}`);
+          newA = newA.replace(
+            /tại Điện máy ELC/gi,
+            `tại Điện máy ELC khu vực ${location.name}`,
+          );
         } else {
           newA = newA.trim();
           if (!newA.endsWith(".")) newA += ".";
@@ -396,143 +453,110 @@ export async function ProductListModule({
   }
 
   return (
-    <main className={STYLES.main}>
-      {/* ===== KHỐI 1: TIÊU ĐỀ TRANG ===== */}
-      <GridSection
-        id="products-header"
-        isFirst={true}
-        showDiamond={true}
-        contentClassName="py-6 md:py-8 lg:py-10"
-      >
-        <div className="flex flex-col gap-6 w-full">
-          <header className={STYLES.header}>
-            <TypographyH1 className={STYLES.title}>{displayTitle}</TypographyH1>
-            <TypographyLarge className="text-sm! md:text-md! lg:text-lg! text-muted-foreground font-normal">
-              {location 
-                ? `Giao hàng và lắp đặt chuyên nghiệp tại ${location.name}` 
-                : `Danh sách ${totalCount} sản phẩm thuộc ${subTitlePrefix} ${displayTitle}`}
-            </TypographyLarge>
-          </header>
-        </div>
-      </GridSection>
-
-      {/* ===== KHỐI 2: BỘ LỌC MOBILE ===== */}
-      <GridSection
-        id="products-search"
-        className="lg:hidden"
-        isFirst={false}
-        showDiamond={true}
-        contentClassName="py-6 md:py-8 lg:py-10"
-      >
-        <div className="flex flex-col gap-8 w-full">
-          <div className="flex items-center justify-end w-full">
-            <ProductFilterMobile
-              categories={allCategories}
-              availableFilters={availableFilters}
-            />
-          </div>
-        </div>
-      </GridSection>
-
-      {/* ===== KHỐI 3: BỘ LỌC + LƯỚI SẢN PHẨM ===== */}
-      <GridSection
-        id="products-content"
-        isFirst={false}
-        showDiamond={true}
-        contentClassName="py-6 md:py-8 lg:py-10"
-      >
-        <div className="flex flex-col lg:flex-row gap-12 w-full items-start">
-          <aside className="hidden lg:block w-64 shrink-0 sticky top-28 self-start">
-            <ProductFilters
-              categories={allCategories}
-              availableFilters={availableFilters}
-            />
-          </aside>
-
-          <div className="flex-1 w-full">
-            <FilteredGridWrapper
-              fallback={
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-6 gap-y-6 md:gap-y-16 min-h-[450px]">
-                  {Array.from({ length: 8 }).map((_, index) => (
-                    <div key={index} className="flex flex-col gap-4">
-                      <Skeleton className="aspect-square w-full rounded-2xl" />
-                      <div className="space-y-2">
-                        <Skeleton className="h-5 w-full" />
-                        <Skeleton className="h-5 w-2/3" />
-                      </div>
-                      <Skeleton className="h-6 w-1/3" />
-                    </div>
-                  ))}
-                </div>
-              }
-            >
-              {products.length > 0 ? (
-                <div className={STYLES.grid}>
-                  {products.map((product, index) => (
-                    <ProductCard
-                      key={product.id}
-                      product={product}
-                      queryTokens={queryTokens}
-                      priority={index < 8}
-                    />
-                  ))}
-                </div>
-              ) : (
-                <div className={STYLES.emptyState}>
-                  <p className={STYLES.emptyText}>
-                    Hiện chưa có sản phẩm nào trong {subTitlePrefix} này.
-                  </p>
-                </div>
-              )}
-
-              {totalPages > 1 && (
-                <div className={STYLES.paginationWrapper}>
-                  <PaginationNav
-                    currentPage={currentPage}
-                    totalPages={totalPages}
-                    searchParams={sParams}
-                  />
-                </div>
-              )}
-            </FilteredGridWrapper>
-          </div>
-        </div>
-      </GridSection>
-
-      {/* ===== KHỐI 3.5: NỘI DUNG SEO ===== */}
-      {!!seoContent && (
-        <GridSection
-          id="products-seo-content"
-          isFirst={false}
-          showDiamond={true}
-          contentClassName="py-10 border-t border-border/30"
+    <main className="w-full bg-background min-h-screen public-catalog-page">
+      <div className="w-full relative">
+        <SidebarProvider
+          defaultOpen={false}
+          className="min-h-0 relative w-full flex items-start"
         >
-          <div className="w-full max-w-4xl mx-auto">
-            <PreviewContent 
-              content={seoContent} 
-              className="prose-sm md:prose-base text-foreground/80 leading-relaxed" 
-              skipFirstHeadingPromotion={true}
-            />
-          </div>
+          {/* Sidebar */}
+          <Sidebar variant="inset" className="!absolute !h-full">
+            <SidebarContent className="bg-sidebar p-5">
+              <ProductFilters
+                categories={allCategories}
+                availableFilters={availableFilters}
+              />
+            </SidebarContent>
+          </Sidebar>
+
+          {/* Main content inset */}
+          <SidebarInset className="min-w-0 flex-1 bg-background min-h-[calc(100vh-var(--header-height,64px)-16px)] md:m-2 md:ml-0 md:rounded-xl md:shadow-sm md:border md:border-border/40 overflow-hidden">
+            {/* Sticky Header next to Sidebar Trigger */}
+            <header className="flex h-16 shrink-0 items-center gap-2 border-b px-6">
+              <SidebarTrigger className="-ml-1 text-muted-foreground hover:text-foreground" />
+              <div className="h-4 w-px bg-border mx-2" />
+              <div className="flex-1 min-w-0">
+                <Breadcrumbs
+                  items={[
+                    ...(breadcrumbParent ? [breadcrumbParent] : []),
+                    { label: pageTitle, active: true },
+                  ]}
+                />
+              </div>
+            </header>
+
+            {/* Page content container */}
+            <div className="flex flex-col gap-6 p-4 md:p-6 lg:p-8 min-w-0 w-full">
+              {/* Recently Viewed Products */}
+              <RecentlyViewedSection />
+
+              {/* Header Title and Count */}
+              <div className="flex flex-col gap-1.5 pb-4 border-b border-border/40">
+                <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-foreground">
+                  {displayTitle}
+                </h1>
+                <p className="text-sm text-muted-foreground">
+                  {location
+                    ? `Giao hàng và lắp đặt chuyên nghiệp tại ${location.name}`
+                    : `Danh sách ${totalCount} sản phẩm đáp ứng tiêu chí`}
+                </p>
+              </div>
+
+              {/* Grid Wrapper */}
+              <FilteredGridWrapper
+                fallback={
+                  <div className={STYLES.skeletonGrid}>
+                    {Array.from({ length: 8 }).map((_, index) => (
+                      <div key={index} className="flex flex-col gap-4">
+                        <Skeleton className="aspect-video w-full rounded-2xl" />
+                        <div className="space-y-2">
+                          <Skeleton className="h-5 w-full" />
+                          <Skeleton className="h-5 w-2/3" />
+                        </div>
+                        <Skeleton className="h-6 w-1/3" />
+                      </div>
+                    ))}
+                  </div>
+                }
+              >
+                <InfiniteProductGrid
+                  initialProducts={products}
+                  totalCount={totalCount}
+                  fetchParams={fetchParams}
+                  queryTokens={queryTokens}
+                />
+              </FilteredGridWrapper>
+            </div>
+          </SidebarInset>
+        </SidebarProvider>
+      </div>
+
+      {/* SEO Content Section */}
+      {!!seoContent && (
+        <GridSection>
+          <PreviewContent
+            content={seoContent}
+            className="prose-sm md:prose-base text-foreground/80 leading-relaxed max-w-4xl"
+            skipFirstHeadingPromotion={true}
+          />
         </GridSection>
       )}
 
-      {/* ===== KHỐI 3.6: HỎI ĐÁP (FAQ) ===== */}
+      {/* FAQ Section */}
       {faqList && faqList.length > 0 && (
-        <GridSection
-          id="products-faq"
-          isFirst={false}
-          showDiamond={true}
-          contentClassName="py-10 border-t border-border/30"
-        >
-          <div className="w-full max-w-4xl mx-auto space-y-6">
+        <GridSection>
+          <div className="max-w-4xl space-y-6">
             <TypographyH3 className="text-xl md:text-2xl font-bold tracking-tight">
               Câu hỏi thường gặp (FAQ)
             </TypographyH3>
             <Accordion type="single" collapsible className="w-full">
               {faqList.map((item, index) => (
-                <AccordionItem key={index} value={`faq-item-${index}`}>
-                  <AccordionTrigger className="text-sm md:text-base font-semibold text-foreground py-4">
+                <AccordionItem
+                  key={index}
+                  value={`faq-item-${index}`}
+                  className="border-b"
+                >
+                  <AccordionTrigger className="text-sm md:text-base font-semibold text-foreground py-4 hover:no-underline hover:text-primary">
                     {item.question}
                   </AccordionTrigger>
                   <AccordionContent className="text-sm md:text-base text-muted-foreground leading-relaxed pb-4">
@@ -545,41 +569,23 @@ export async function ProductListModule({
         </GridSection>
       )}
 
-      {/* ===== KHỐI 4: FOOTER BẢN QUYỀN ===== */}
-      <GridSection
-        id="products-footer"
-        isFirst={false}
-        showDiamond={true}
-        contentClassName="py-6 md:py-8 lg:py-10"
-      >
-        <footer className={STYLES.footer}>
+      {/* Footer */}
+      <GridSection contentClassName="py-6">
+        <div className="flex flex-col md:flex-row justify-between items-center gap-6 text-muted-foreground">
           <TypographySmall>&copy; {currentYear} Điện máy ELC.</TypographySmall>
           <ScrollToTop className={STYLES.scrollToTop}>
             <TypographySmall>Quay lại đầu trang</TypographySmall>
           </ScrollToTop>
-        </footer>
-      </GridSection>
-
-      {/* ===== KHỐI 5: BREADCRUMBS ===== */}
-      <GridSection
-        id="products-breadcrumbs"
-        isFirst={false}
-        showDiamond={false}
-        contentClassName="py-1"
-      >
-        <div className="w-full">
-          <Breadcrumbs
-            items={[
-              ...(breadcrumbParent ? [breadcrumbParent] : []),
-              { label: pageTitle, active: true },
-            ]}
-          />
         </div>
       </GridSection>
 
-      {/* Dữ liệu cấu trúc Schema SEO */}
+      {/* Schema collections SEO */}
       {(() => {
-        const schema = generateCollectionSchema(entity.data, products, location);
+        const schema = generateCollectionSchema(
+          entity.data,
+          products,
+          location,
+        );
         if (!schema) return null;
         return (
           <script
@@ -589,27 +595,29 @@ export async function ProductListModule({
         );
       })()}
 
-      {/* Dữ liệu cấu trúc FAQ Schema */}
-      {faqList && faqList.length > 0 && (() => {
-        const faqSchema = {
-          "@context": "https://schema.org",
-          "@type": "FAQPage",
-          "mainEntity": faqList.map((item) => ({
-            "@type": "Question",
-            "name": item.question,
-            "acceptedAnswer": {
-              "@type": "Answer",
-              "text": item.answer
-            }
-          }))
-        };
-        return (
-          <script
-            type="application/ld+json"
-            dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
-          />
-        );
-      })()}
+      {/* FAQ Schema */}
+      {faqList &&
+        faqList.length > 0 &&
+        (() => {
+          const faqSchema = {
+            "@context": "https://schema.org",
+            "@type": "FAQPage",
+            mainEntity: faqList.map((item) => ({
+              "@type": "Question",
+              name: item.question,
+              acceptedAnswer: {
+                "@type": "Answer",
+                text: item.answer,
+              },
+            })),
+          };
+          return (
+            <script
+              type="application/ld+json"
+              dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
+            />
+          );
+        })()}
     </main>
   );
 }

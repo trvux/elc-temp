@@ -174,6 +174,13 @@ export function HeaderSearch() {
   const projects = suggestions.filter((item) => item.type === "project");
   const services = suggestions.filter((item) => item.type === "service");
 
+  // If user is on a product category/brand page, extract the category base path
+  // so we can offer "search within this category" as a primary option.
+  // e.g. /san-pham/may-lanh-treo-tuong/ftkb25zmvv → /san-pham/may-lanh-treo-tuong
+  const productContextPath = pathname.startsWith("/san-pham/")
+    ? `/${pathname.split("/").slice(1, 3).join("/")}`
+    : null;
+
   return (
     <>
       <style>{`
@@ -332,24 +339,52 @@ export function HeaderSearch() {
               <>
                 {/* Global Search Options */}
                 <CommandGroup heading="Tìm kiếm">
+                  {/* Context-aware: when inside a product category, search within it first */}
+                  {productContextPath && (
+                    <CommandItem
+                      value={`tìm sản phẩm trong danh mục ${inputValue}`}
+                      onSelect={() => {
+                        setOpen(false);
+                        const params = new URLSearchParams();
+                        params.set("search", inputValue.trim());
+                        startTransition(() => {
+                          router.push(`${productContextPath}?${params.toString()}`);
+                        });
+                      }}
+                      className="flex items-center gap-3 p-2 cursor-pointer hover:bg-muted/40 rounded-md transition-colors"
+                    >
+                      <MagnifyingGlass className="size-4 text-primary shrink-0" />
+                      <div className="flex-1 min-w-0">
+                        <span className="text-sm font-medium text-foreground">
+                          Tìm{" "}
+                          <span className="font-semibold text-primary">
+                            "{inputValue}"
+                          </span>{" "}
+                          trong danh mục này
+                        </span>
+                      </div>
+                    </CommandItem>
+                  )}
                   <CommandItem
                     value={`tìm sản phẩm ${inputValue}`}
                     onSelect={() => {
                       setOpen(false);
                       const params = new URLSearchParams();
                       params.set("search", inputValue.trim());
-                      router.push(`/san-pham?${params.toString()}`);
+                      startTransition(() => {
+                        router.push(`/san-pham?${params.toString()}`);
+                      });
                     }}
                     className="flex items-center gap-3 p-2 cursor-pointer hover:bg-muted/40 rounded-md transition-colors"
                   >
-                    <MagnifyingGlass className="size-4 text-primary shrink-0" />
+                    <MagnifyingGlass className={`size-4 shrink-0 ${productContextPath ? "text-muted-foreground" : "text-primary"}`} />
                     <div className="flex-1 min-w-0">
                       <span className="text-sm font-medium text-foreground">
                         Tìm{" "}
-                        <span className="font-semibold text-primary">
+                        <span className={`font-semibold ${productContextPath ? "text-muted-foreground" : "text-primary"}`}>
                           "{inputValue}"
                         </span>{" "}
-                        trong Sản phẩm
+                        trong tất cả Sản phẩm
                       </span>
                     </div>
                   </CommandItem>

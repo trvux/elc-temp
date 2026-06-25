@@ -1,6 +1,5 @@
 import { formatPrice, ProductWithRelations } from "@/modules/catalog/domain";
 import { HighlightedText } from "@/shared/components/layout/user/highlighted-text";
-import { Badge } from "@/shared/components/ui/badge";
 import {
   Card,
   CardContent,
@@ -8,12 +7,12 @@ import {
   CardHeader,
   CardTitle,
 } from "@/shared/components/ui/card";
+import { ImageWithSkeleton } from "@/shared/components/ui/image-with-skeleton";
 import { StockBadge } from "@/shared/components/ui/stock-badge";
 import {
   TypographyH4,
   TypographySmall,
 } from "@/shared/components/ui/typography";
-import { ImageWithSkeleton } from "@/shared/components/ui/image-with-skeleton";
 import Link from "next/link";
 
 interface ProductCardProps {
@@ -34,7 +33,11 @@ export function ProductCard({
   const displaySku = product.sku ? product.sku.split("/")[0].trim() : "";
 
   return (
-    <Link href={productUrl} className="w-full block group h-full" prefetch={false}>
+    <Link
+      href={productUrl}
+      className="w-full block group h-full"
+      prefetch={false}
+    >
       <Card className="relative mx-auto w-full h-full max-w-sm pt-0 transition-all duration-300 hover:shadow-md cursor-pointer gap-2 md:gap-3 overflow-hidden">
         <div className="absolute inset-0 z-30 aspect-video bg-white" />
         {product.images?.[0] ? (
@@ -53,6 +56,11 @@ export function ProductCard({
           <div className="relative z-30 aspect-video w-full bg-white" />
         )}
         {/* px-3 md:px-6 */}
+        <StockBadge
+          className="w-full"
+          status={product.stockStatus || undefined}
+          // className="text-sm"
+        />
         <CardHeader className="px-2">
           <CardTitle className="line-clamp-2 h-12">
             <HighlightedText text={product.name} queryTokens={queryTokens} />
@@ -81,24 +89,23 @@ export function ProductCard({
                 </span>
               </span>
             )}
-            <StockBadge
-              status={product.stockStatus || undefined}
-              // className="text-sm"
-            />
           </CardDescription>
         </CardHeader>
         {/* px-3 md:px-6 */}
         <CardContent className="flex flex-col gap-2 px-2">
-          <TypographyH4>{formatPrice(currentPrice)}</TypographyH4>
+          <TypographyH4 className="text-destructive">
+            {formatPrice(currentPrice)}
+          </TypographyH4>
           {hasDiscount && (
-            <>
+            <div className="flex gap-2">
               <TypographySmall className="line-through text-muted-foreground">
                 {formatPrice(product.originalPrice)}
               </TypographySmall>
-              <Badge variant="destructive">
-                Ưu đãi tới {product.discountPercent}%
-              </Badge>
-            </>
+
+              <TypographySmall className="text-destructive">
+                -{product.discountPercent}%
+              </TypographySmall>
+            </div>
           )}
         </CardContent>
       </Card>

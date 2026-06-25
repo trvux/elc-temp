@@ -2,19 +2,24 @@
 
 import { ProductPriceFilter } from "@/shared/components/layout/user/product-price-filter";
 import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/shared/components/ui/accordion";
-import { Badge } from "@/shared/components/ui/badge";
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/shared/components/ui/collapsible";
 import { Button } from "@/shared/components/ui/button";
-import { Checkbox } from "@/shared/components/ui/checkbox";
 import { Input } from "@/shared/components/ui/input";
-import { Separator } from "@/shared/components/ui/separator";
-import { cn } from "@/shared/lib/utils";
+import {
+  SidebarGroup,
+  SidebarGroupLabel,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+  SidebarMenuSub,
+  SidebarMenuSubButton,
+  SidebarMenuSubItem,
+} from "@/shared/components/ui/sidebar";
 import { useFilterTransition } from "@/shared/providers/filter-transition-provider";
-import { Check, MagnifyingGlass, X } from "@phosphor-icons/react";
+import { CaretRight, MagnifyingGlass, X } from "@phosphor-icons/react";
 import {
   useParams,
   usePathname,
@@ -28,7 +33,8 @@ export interface ProductFilterCategory {
   name: string;
   slug: string;
   groupId?: string | null;
-  group?: { id: string; name: string; slug: string } | null;
+  orderIndex?: number;
+  group?: { id: string; name: string; slug: string; orderIndex?: number } | null;
 }
 
 interface ProductFiltersProps {
@@ -54,10 +60,8 @@ export function ProductFilters({
   const pathname = usePathname();
   const { isPending, startTransition } = useFilterTransition();
 
-  // Current entity slug from Flat URL path (/san-pham/[slug])
   const slugFromPath = params.slug as string;
 
-  // Mọi slug hợp lệ của danh mục con + nhóm danh mục (để nhận biết trang hiện tại)
   const knownSlugs = useMemo(() => {
     const slugs = new Set<string>();
     categories.forEach((c) => {
@@ -67,17 +71,14 @@ export function ProductFilters({
     return slugs;
   }, [categories]);
 
-  // Local states for optimistic UI updates
   const [localCategory, setLocalCategory] = useState<string>("all");
   const [localBrands, setLocalBrands] = useState<string[]>([]);
   const [localSpecs, setLocalSpecs] = useState<Record<string, string[]>>({});
   const [localCondition, setLocalCondition] = useState<string>("");
   const [openItems, setOpenItems] = useState<string[]>([]);
 
-  // Keep local state in sync with URL changes
   useEffect(() => {
     if (isPending) return;
-    /* eslint-disable react-hooks/set-state-in-effect */
     setLocalCategory(knownSlugs.has(slugFromPath) ? slugFromPath : "all");
 
     const isBrandFromPath = slugFromPath && (availableFilters?.brands || []).some((b) => b.slug === slugFromPath);
@@ -115,7 +116,6 @@ export function ProductFilters({
     });
 
     setOpenItems(activeValues);
-    /* eslint-enable react-hooks/set-state-in-effect */
   }, [searchParams, slugFromPath, knownSlugs, isPending, categories, availableFilters]);
 
   const hasPriceFilter = useMemo(() => {
@@ -132,7 +132,6 @@ export function ProductFilters({
     );
   }, [localBrands, localCategory, localSpecs, localCondition, hasPriceFilter]);
 
-  // Gom danh mục theo nhóm cha (group): mỗi danh mục đã kèm sẵn `group`
   const groups = useMemo(() => {
     const activeCategories = categories.filter(
       (c) => !c.name.toLowerCase().includes("chưa phân loại"),
@@ -144,17 +143,19 @@ export function ProductFilters({
         id: string;
         name: string;
         slug: string;
+        orderIndex: number;
         children: ProductFilterCategory[];
       }
     >();
 
     for (const c of activeCategories) {
-      if (!c.group) continue; // danh mục chưa gán nhóm thì không hiện trong bộ lọc
+      if (!c.group) continue;
       if (!byGroup.has(c.group.id)) {
         byGroup.set(c.group.id, {
           id: c.group.id,
           name: c.group.name,
           slug: c.group.slug,
+          orderIndex: c.group.orderIndex ?? 0,
           children: [],
         });
       }
@@ -164,12 +165,11 @@ export function ProductFilters({
     return Array.from(byGroup.values())
       .map((g) => ({
         ...g,
-        children: g.children.sort((a, b) => a.name.localeCompare(b.name)),
+        children: g.children.sort((a, b) => (a.orderIndex ?? 0) - (b.orderIndex ?? 0)),
       }))
-      .sort((a, b) => a.name.localeCompare(b.name));
+      .sort((a, b) => (a.orderIndex ?? 0) - (b.orderIndex ?? 0));
   }, [categories]);
 
-  // Helper function to push filter updates to query parameters
   const updateFilters = useCallback(
     (updates: Record<string, string | string[] | null>) => {
       const sParams = new URLSearchParams(searchParams.toString());
@@ -197,34 +197,29 @@ export function ProductFilters({
   const handleCategoryChange = (slug: string, checked: boolean) => {
     const sParams = new URLSearchParams(searchParams.toString());
     sParams.delete("page");
-
-    // Clear ALL spec/brand/price/condition query filters on category change
     sParams.delete("brands");
     sParams.delete("minPrice");
     sParams.delete("maxPrice");
     sParams.delete("condition");
+    // Clicking a category is navigation — clear the search query so the user
+    // browses the full category rather than seeing a search-filtered subset.
+    sParams.delete("search");
+    sParams.delete("q");
     Array.from(sParams.keys()).forEach((key) => {
-      if (key.startsWith("spec_")) {
-        sParams.delete(key);
-      }
+      if (key.startsWith("spec_")) sParams.delete(key);
     });
 
-    // Optimistically clear local brands, specs, and condition
     setLocalBrands([]);
     setLocalSpecs({});
     setLocalCondition("");
 
-    // Check if the current page is actually a Brand page (slug not a category/group slug)
     const isCurrentPageABrand = slugFromPath && !knownSlugs.has(slugFromPath);
-
-    // Optimistically update local category
     const nextCategory = checked ? slug : "all";
     setLocalCategory(nextCategory);
 
     startTransition(() => {
       if (checked) {
         if (isCurrentPageABrand) {
-          // Safe-transition: convert brand path parameter to query parameter
           sParams.delete("brands");
           sParams.append("brands", slugFromPath);
         }
@@ -254,29 +249,23 @@ export function ProductFilters({
       existing.forEach((b) => sParams.append("brands", b));
     }
 
-    // Optimistically update local brands
     const localExisting = localBrands.filter((b) => b !== brandSlug);
     const newLocalBrands = checked ? [...localExisting, brandSlug] : localExisting;
     setLocalBrands(newLocalBrands);
 
-    // Determine target URL path and search params
     let targetPath = pathname;
     const isGenericProductPage = pathname === "/san-pham";
     const isCurrentPageABrand = slugFromPath && !knownSlugs.has(slugFromPath);
 
     if (isGenericProductPage && newLocalBrands.length === 1) {
-      // Transition to /san-pham/brandSlug when exactly 1 brand is selected on generic list
       targetPath = `/san-pham/${newLocalBrands[0]}`;
       sParams.delete("brands");
     } else if (isCurrentPageABrand && newLocalBrands.length === 0) {
-      // Transition back to /san-pham when no brands are selected
       targetPath = "/san-pham";
       sParams.delete("brands");
     } else if (isCurrentPageABrand && newLocalBrands.length > 1) {
-      // Transition back to /san-pham with queries when multiple brands are selected
       targetPath = "/san-pham";
     } else if (isCurrentPageABrand && newLocalBrands.length === 1 && newLocalBrands[0] !== slugFromPath) {
-      // Transition to /san-pham/newBrand if toggling brands
       targetPath = `/san-pham/${newLocalBrands[0]}`;
       sParams.delete("brands");
     }
@@ -291,16 +280,12 @@ export function ProductFilters({
   };
 
   const handleSpecChange = (label: string, value: string, checked: boolean) => {
-    // Optimistically update local specs
     setLocalSpecs((prev) => {
       const current = prev[label] || [];
       const updated = checked
         ? [...current.filter((v) => v !== value), value]
         : current.filter((v) => v !== value);
-      return {
-        ...prev,
-        [label]: updated,
-      };
+      return { ...prev, [label]: updated };
     });
 
     const key = `spec_${label}`;
@@ -311,13 +296,9 @@ export function ProductFilters({
   const handleConditionChange = (conditionValue: string, checked: boolean) => {
     const sParams = new URLSearchParams(searchParams.toString());
     sParams.delete("page");
-
     sParams.delete("condition");
-    if (checked) {
-      sParams.set("condition", conditionValue);
-    }
+    if (checked) sParams.set("condition", conditionValue);
 
-    // Optimistically update localCondition
     setLocalCondition(checked ? conditionValue : "");
 
     const queryString = sParams.toString();
@@ -329,14 +310,39 @@ export function ProductFilters({
     if (onFilterChange) onFilterChange();
   };
 
+  const activeSearch =
+    searchParams.get("search") ?? searchParams.get("q") ?? "";
+
+  // Clears only the search query, keeps filters and current category context
+  const clearSearch = () => {
+    const sParams = new URLSearchParams(searchParams.toString());
+    sParams.delete("search");
+    sParams.delete("q");
+    const qs = sParams.toString();
+    startTransition(() => {
+      router.push(`${pathname}${qs ? `?${qs}` : ""}`, { scroll: false });
+      router.refresh();
+    });
+    if (onFilterChange) onFilterChange();
+  };
+
+  // Clears all filters (brand/spec/price/condition) but keeps search + category
   const clearAllFilters = () => {
-    setLocalCategory("all");
     setLocalBrands([]);
     setLocalSpecs({});
     setLocalCondition("");
 
+    const sParams = new URLSearchParams();
+    if (activeSearch) sParams.set("search", activeSearch);
+    const qs = sParams.toString();
+
+    // Stay on category page if we're in one; otherwise go back to /san-pham
+    const isOnCategoryPage = slugFromPath && knownSlugs.has(slugFromPath);
+    const targetPath = isOnCategoryPage ? pathname : "/san-pham";
+    if (!isOnCategoryPage) setLocalCategory("all");
+
     startTransition(() => {
-      router.push("/san-pham");
+      router.push(`${targetPath}${qs ? `?${qs}` : ""}`);
       router.refresh();
     });
     if (onFilterChange) onFilterChange();
@@ -344,23 +350,9 @@ export function ProductFilters({
 
   const [isMounted, setIsMounted] = useState(false);
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsMounted(true);
-    }, 0);
+    const timer = setTimeout(() => setIsMounted(true), 0);
     return () => clearTimeout(timer);
   }, []);
-
-  const activeAccordionValues = useMemo(() => {
-    const values: string[] = [];
-    if (localBrands.length > 0) values.push("Thương hiệu");
-    if (hasPriceFilter) values.push("Khoảng giá");
-    if (localCondition) values.push("Tình trạng sản phẩm");
-    Object.keys(localSpecs).forEach((label) => {
-      if ((localSpecs[label] || []).length > 0) values.push(label);
-    });
-
-    return values;
-  }, [localBrands, hasPriceFilter, localCondition, localSpecs]);
 
   if (!isMounted) {
     return (
@@ -372,199 +364,205 @@ export function ProductFilters({
   }
 
   return (
-    <div className="flex flex-col gap-2">
-      <div className="flex items-center justify-between h-10">
-        <h3 className="font-bold">Bộ lọc</h3>
-        {hasAnyFilter && (
-          <Button
-            variant="secondary"
-            size="sm"
-            onClick={clearAllFilters}
-            disabled={isPending}
-            className="hidden lg:inline-flex"
-          >
-            <X data-icon="inline-start" />
-            Xóa tất cả
-          </Button>
-        )}
-      </div>
-      <Separator />
-
-      <Accordion
-        type="multiple"
-        value={openItems}
-        onValueChange={setOpenItems}
-        className="w-full"
-      >
-        {/* Category Group Accordions */}
-        {groups.map((g) => {
-          if (g.children.length === 0) return null;
-          const hasSelectedChild = g.children.some(
-            (c) => c.slug === localCategory,
-          );
-          return (
-            <FilterGroup
-              key={g.id}
-              label={g.name}
-              items={g.children.map((c) => ({
-                id: c.slug,
-                name: c.name,
-              }))}
-              selectedValues={[localCategory]}
-              selectionCount={hasSelectedChild ? 1 : 0}
-              onToggle={handleCategoryChange}
+    <div className="flex flex-col gap-1">
+      <SidebarGroup className="py-0">
+        <div className="flex items-center justify-between px-2 h-10">
+          <SidebarGroupLabel className="p-0">Bộ lọc sản phẩm</SidebarGroupLabel>
+          {hasAnyFilter && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={clearAllFilters}
               disabled={isPending}
-            />
-          );
-        })}
-
-        {/* Brands Filter List */}
-        {availableFilters.brands.length > 0 && (
-          <FilterGroup
-            label="Thương hiệu"
-            items={availableFilters.brands.map((b) => ({
-              id: b.slug,
-              name: b.name,
-            }))}
-            selectedValues={localBrands}
-            selectionCount={localBrands.length}
-            onToggle={handleBrandChange}
-            disabled={isPending}
-          />
-        )}
-
-        {/* Specs Filters */}
-        {availableFilters.specs
-          .filter(
-            (spec) =>
-              ![
-                "Số chiều",
-                "Công nghệ",
-                "Lọc không khí",
-                "Hiệu suất lọc",
-                "Loại Gas",
-              ].includes(spec.label),
-          )
-          .map((spec) => (
-            <FilterGroup
-              key={spec.label}
-              label={spec.label}
-              items={spec.values.map((v) => ({ id: v, name: v }))}
-              selectedValues={localSpecs[spec.label] || []}
-              selectionCount={(localSpecs[spec.label] || []).length}
-              onToggle={(id, checked) =>
-                handleSpecChange(spec.label, id, checked)
-              }
-              showSearch={spec.label !== "Công suất" && spec.values.length > 8}
-              disabled={isPending}
-            />
-          ))}
-
-        {/* Price Range Slider */}
-        <AccordionFilterWrapper
-          label="Khoảng giá"
-          selectionCount={hasPriceFilter ? 1 : 0}
-        >
-          <ProductPriceFilter
-            hideLabel
-            minPriceLimit={availableFilters.minPrice}
-            maxPriceLimit={availableFilters.maxPrice}
-          />
-        </AccordionFilterWrapper>
-
-        {/* Condition Filter */}
-        <AccordionFilterWrapper
-          label="Tình trạng sản phẩm"
-          selectionCount={localCondition ? 1 : 0}
-        >
-          <div className="flex flex-col gap-1 -mx-6">
-            <label
-              className={cn(
-                "flex items-center gap-2 pr-4 py-2 rounded-md transition-colors group pl-6 hover:bg-muted/50 cursor-pointer"
-              )}
+              className="h-7 text-xs text-muted-foreground hover:text-foreground font-medium px-2 gap-1"
             >
-              <ImmediateCheckbox
-                id="filter-condition-new"
-                checked={localCondition === "new"}
-                disabled={isPending}
-                onCheckedChange={(checked) => handleConditionChange("new", checked)}
-              />
-              <span
-                className={cn(
-                  "text-sm font-medium leading-snug group-hover:text-foreground transition-colors",
-                  localCondition === "new" && "text-foreground font-semibold"
-                )}
-              >
-                Mới
-              </span>
-            </label>
-            <label
-              className={cn(
-                "flex items-center gap-2 pr-4 py-2 rounded-md transition-colors group pl-6 hover:bg-muted/50 cursor-pointer"
-              )}
-            >
-              <ImmediateCheckbox
-                id="filter-condition-used"
-                checked={localCondition === "used"}
-                disabled={isPending}
-                onCheckedChange={(checked) => handleConditionChange("used", checked)}
-              />
-              <span
-                className={cn(
-                  "text-sm font-medium leading-snug group-hover:text-foreground transition-colors",
-                  localCondition === "used" && "text-foreground font-semibold"
-                )}
-              >
-                Cũ
-              </span>
-            </label>
-          </div>
-        </AccordionFilterWrapper>
-      </Accordion>
-
-      {hasAnyFilter && (
-        <div className="mt-4 pt-4 border-t lg:hidden">
-          <Button
-            variant="secondary"
-            className="w-full justify-center gap-2"
-            onClick={clearAllFilters}
-            disabled={isPending}
-          >
-            <X className="size-4" />
-            Xóa tất cả
-          </Button>
+              <X className="size-3" />
+              Xóa lọc
+            </Button>
+          )}
         </div>
-      )}
+
+        {/* Active search chip — shows the current search query with a dismiss button */}
+        {activeSearch && (
+          <div className="px-2 pb-2">
+            <button
+              onClick={clearSearch}
+              disabled={isPending}
+              className="flex items-center gap-1.5 bg-sidebar-primary text-sidebar-primary-foreground rounded-full pl-2.5 pr-2 py-1 text-xs max-w-full hover:opacity-80 transition-opacity disabled:opacity-50"
+            >
+              <MagnifyingGlass className="size-3 shrink-0" />
+              <span className="truncate max-w-[140px]">{activeSearch}</span>
+              <X className="size-3 shrink-0 ml-0.5" />
+            </button>
+          </div>
+        )}
+      </SidebarGroup>
+
+      <SidebarGroup className="py-0">
+        <SidebarMenu>
+          {/* Category Group Accordions */}
+          {groups.map((g) => {
+            if (g.children.length === 0) return null;
+            const hasSelectedChild = g.children.some((c) => c.slug === localCategory);
+            return (
+              <FilterSection
+                key={g.id}
+                label={g.name}
+                selectionCount={hasSelectedChild ? 1 : 0}
+                openItems={openItems}
+                setOpenItems={setOpenItems}
+              >
+                <SidebarMenuSub>
+                  {g.children.map((c) => {
+                    const isSelected = c.slug === localCategory;
+                    return (
+                      <SidebarMenuSubItem key={c.id}>
+                        <SidebarMenuSubButton
+                          isActive={isSelected}
+                          aria-disabled={isPending}
+                          onClick={() => handleCategoryChange(c.slug, !isSelected)}
+                          className="cursor-pointer data-[active=true]:bg-sidebar-primary data-[active=true]:text-sidebar-primary-foreground"
+                        >
+                          <span className="leading-snug">{c.name}</span>
+                        </SidebarMenuSubButton>
+                      </SidebarMenuSubItem>
+                    );
+                  })}
+                </SidebarMenuSub>
+              </FilterSection>
+            );
+          })}
+
+          {/* Brands Filter */}
+          {availableFilters.brands.length > 0 && (
+            <FilterGroup
+              label="Thương hiệu"
+              items={availableFilters.brands.map((b) => ({ id: b.slug, name: b.name }))}
+              selectedValues={localBrands}
+              selectionCount={localBrands.length}
+              onToggle={handleBrandChange}
+              disabled={isPending}
+              openItems={openItems}
+              setOpenItems={setOpenItems}
+            />
+          )}
+
+          {/* Specs Filters */}
+          {availableFilters.specs
+            .filter((spec) =>
+              !["Số chiều", "Công nghệ", "Lọc không khí", "Hiệu suất lọc", "Loại Gas"].includes(spec.label),
+            )
+            .map((spec) => (
+              <FilterGroup
+                key={spec.label}
+                label={spec.label}
+                items={spec.values.map((v) => ({ id: v, name: v }))}
+                selectedValues={localSpecs[spec.label] || []}
+                selectionCount={(localSpecs[spec.label] || []).length}
+                onToggle={(id, checked) => handleSpecChange(spec.label, id, checked)}
+                showSearch={spec.label !== "Công suất" && spec.values.length > 8}
+                disabled={isPending}
+                openItems={openItems}
+                setOpenItems={setOpenItems}
+              />
+            ))}
+
+          {/* Price Range */}
+          <FilterSection
+            label="Khoảng giá"
+            selectionCount={hasPriceFilter ? 1 : 0}
+            openItems={openItems}
+            setOpenItems={setOpenItems}
+          >
+            <div className="px-3 pb-2 pt-1">
+              <ProductPriceFilter
+                hideLabel
+                minPriceLimit={availableFilters.minPrice}
+                maxPriceLimit={availableFilters.maxPrice}
+              />
+            </div>
+          </FilterSection>
+
+          {/* Condition Filter */}
+          <FilterSection
+            label="Tình trạng sản phẩm"
+            selectionCount={localCondition ? 1 : 0}
+            openItems={openItems}
+            setOpenItems={setOpenItems}
+          >
+            <SidebarMenuSub>
+              {(["new", "used"] as const).map((val) => (
+                <SidebarMenuSubItem key={val}>
+                  <SidebarMenuSubButton
+                    isActive={localCondition === val}
+                    aria-disabled={isPending}
+                    onClick={() => handleConditionChange(val, localCondition !== val)}
+                    className="cursor-pointer data-[active=true]:bg-sidebar-primary data-[active=true]:text-sidebar-primary-foreground"
+                  >
+                    {val === "new" ? "Mới" : "Cũ"}
+                  </SidebarMenuSubButton>
+                </SidebarMenuSubItem>
+              ))}
+            </SidebarMenuSub>
+          </FilterSection>
+        </SidebarMenu>
+      </SidebarGroup>
     </div>
   );
 }
 
-function AccordionFilterWrapper({
+function FilterSection({
   label,
   selectionCount = 0,
+  openItems,
+  setOpenItems,
   children,
 }: {
   label: string;
   selectionCount?: number;
+  openItems: string[];
+  setOpenItems: React.Dispatch<React.SetStateAction<string[]>>;
   children: React.ReactNode;
 }) {
+  const isLocked = selectionCount > 0;
+  const isOpen = isLocked || openItems.includes(label);
+
   return (
-    <AccordionItem value={label}>
-      <AccordionTrigger className="hover:no-underline">
-        <div className="flex items-center gap-2">
-          <span className="group-hover/accordion-trigger:underline">
-            {label}
-          </span>
-          {selectionCount > 0 && (
-            <Badge className="bg-blue-50 text-blue-700 dark:bg-blue-950 dark:text-blue-300">
-              <Check data-icon="inline-start" className="w-3 h-3" weight="bold" />
-            </Badge>
-          )}
-        </div>
-      </AccordionTrigger>
-      <AccordionContent className="px-2 h-auto!">{children}</AccordionContent>
-    </AccordionItem>
+    <Collapsible
+      open={isOpen}
+      onOpenChange={(open) => {
+        if (isLocked && !open) return;
+        setOpenItems((prev) =>
+          open ? [...prev, label] : prev.filter((v) => v !== label),
+        );
+      }}
+      className="group/collapsible"
+    >
+      <SidebarMenuItem>
+        <CollapsibleTrigger asChild>
+          <SidebarMenuButton className="font-medium">
+            <span>{label}</span>
+            {!isLocked && (
+              <CaretRight className="ml-auto size-3.5 transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
+            )}
+          </SidebarMenuButton>
+        </CollapsibleTrigger>
+        <CollapsibleContent>{children}</CollapsibleContent>
+      </SidebarMenuItem>
+    </Collapsible>
   );
+}
+
+interface FilterGroupProps {
+  label: string;
+  items: { id: string; name: string }[];
+  selectedValues: string[];
+  selectionCount?: number;
+  onToggle: (id: string, checked: boolean) => void;
+  showSearch?: boolean;
+  disabled?: boolean;
+  openItems: string[];
+  setOpenItems: React.Dispatch<React.SetStateAction<string[]>>;
 }
 
 function FilterGroup({
@@ -575,104 +573,55 @@ function FilterGroup({
   onToggle,
   showSearch = false,
   disabled = false,
-}: {
-  label: string;
-  items: {
-    id: string;
-    name: string;
-    className?: string;
-    rowClassName?: string;
-    hideCheckbox?: boolean;
-  }[];
-  selectedValues: string[];
-  selectionCount?: number;
-  onToggle: (id: string, checked: boolean) => void;
-  showSearch?: boolean;
-  disabled?: boolean;
-}) {
+  openItems,
+  setOpenItems,
+}: FilterGroupProps) {
   const [search, setSearch] = useState("");
 
-  const filteredItems = useMemo(() => {
-    return items.filter((item) =>
-      item.name.toLowerCase().includes(search.toLowerCase()),
-    );
-  }, [items, search]);
-
-  return (
-    <AccordionFilterWrapper label={label} selectionCount={selectionCount}>
-      <div className="flex flex-col gap-5">
-        {showSearch && (
-          <div className="relative">
-            <MagnifyingGlass className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4" />
-            <Input
-              placeholder="Tìm nhanh..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="h-9 pl-9"
-              disabled={disabled}
-            />
-          </div>
-        )}
-
-        <div className="flex flex-col gap-1 -mx-6">
-          {filteredItems.map((item) => {
-            const isSelected = selectedValues.includes(item.id);
-            const id = `filter-${label}-${item.id}`;
-            return (
-              <label
-                key={item.id}
-                className={cn(
-                  "flex items-center gap-2 pr-4 py-2 rounded-md transition-colors group",
-                  !item.hideCheckbox && "hover:bg-muted/50 cursor-pointer",
-                  item.rowClassName || "pl-6",
-                )}
-              >
-                {!item.hideCheckbox && (
-                  <ImmediateCheckbox
-                    id={id}
-                    checked={isSelected}
-                    disabled={disabled}
-                    onCheckedChange={(checked) => onToggle(item.id, checked)}
-                  />
-                )}
-                <span
-                  className={cn(
-                    "text-sm font-medium leading-snug group-hover:text-foreground transition-colors",
-                    item.className,
-                  )}
-                >
-                  {item.name}
-                </span>
-              </label>
-            );
-          })}
-        </div>
-
-        {filteredItems.length === 0 && <p>Không tìm thấy kết quả</p>}
-      </div>
-    </AccordionFilterWrapper>
+  const filteredItems = useMemo(
+    () => items.filter((item) => item.name.toLowerCase().includes(search.toLowerCase())),
+    [items, search],
   );
-}
 
-function ImmediateCheckbox({
-  id,
-  checked,
-  disabled = false,
-  onCheckedChange,
-}: {
-  id: string;
-  checked: boolean;
-  disabled?: boolean;
-  onCheckedChange: (checked: boolean) => void;
-}) {
   return (
-    <Checkbox
-      id={id}
-      checked={checked}
-      disabled={disabled}
-      onCheckedChange={(v) => {
-        onCheckedChange(!!v);
-      }}
-    />
+    <FilterSection
+      label={label}
+      selectionCount={selectionCount}
+      openItems={openItems}
+      setOpenItems={setOpenItems}
+    >
+      {showSearch && (
+        <div className="relative px-2 pt-1 pb-1">
+          <MagnifyingGlass className="absolute left-4.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
+          <Input
+            placeholder="Tìm nhanh..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="h-8 pl-8 text-xs bg-background"
+            disabled={disabled}
+          />
+        </div>
+      )}
+      <SidebarMenuSub>
+        {filteredItems.map((item) => {
+          const isSelected = selectedValues.includes(item.id);
+          return (
+            <SidebarMenuSubItem key={item.id}>
+              <SidebarMenuSubButton
+                isActive={isSelected}
+                aria-disabled={disabled}
+                onClick={() => onToggle(item.id, !isSelected)}
+                className="cursor-pointer data-[active=true]:bg-sidebar-primary data-[active=true]:text-sidebar-primary-foreground"
+              >
+                <span className="leading-snug">{item.name}</span>
+              </SidebarMenuSubButton>
+            </SidebarMenuSubItem>
+          );
+        })}
+        {filteredItems.length === 0 && (
+          <p className="text-xs text-muted-foreground italic px-2 py-1">Không tìm thấy</p>
+        )}
+      </SidebarMenuSub>
+    </FilterSection>
   );
 }
