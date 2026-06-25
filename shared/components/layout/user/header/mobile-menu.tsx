@@ -9,7 +9,6 @@ import {
 import { Button } from "@/shared/components/ui/button";
 import { cn } from "@/shared/lib/utils";
 import { usePathname } from "next/navigation";
-import { Portal } from "radix-ui";
 import { useEffect, useRef } from "react";
 import { MobileNavItem } from "./nav-item";
 
@@ -28,7 +27,6 @@ export function MobileMenu({
 }: MobileMenuProps) {
   const pathname = usePathname();
 
-  // Close menu on route change (skip initial mount)
   const isMounted = useRef(false);
   useEffect(() => {
     if (!isMounted.current) {
@@ -39,28 +37,9 @@ export function MobileMenu({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pathname]);
 
-  // Lock scroll when open — lock html + body to cover iOS Safari
-  useEffect(() => {
-    const html = document.documentElement;
-    if (isOpen) {
-      html.style.overflow = "hidden";
-      html.style.overscrollBehavior = "none";
-      document.body.style.overflow = "hidden";
-    } else {
-      html.style.overflow = "";
-      html.style.overscrollBehavior = "";
-      document.body.style.overflow = "";
-    }
-    return () => {
-      html.style.overflow = "";
-      html.style.overscrollBehavior = "";
-      document.body.style.overflow = "";
-    };
-  }, [isOpen]);
-
   return (
     <>
-      {/* Trigger button */}
+      {/* Trigger */}
       <Button
         variant="ghost"
         size="default"
@@ -90,70 +69,66 @@ export function MobileMenu({
         </span>
       </Button>
 
-      {/* Menu panel - fixed below header, using Portal to stay behind header z-index */}
-      <Portal.Root>
-        <div
-          className={cn(
-            "fixed inset-x-0 top-16 h-[calc(100svh-64px)] z-150 bg-background border-t border-border/40",
-            "transition-all duration-300 ease-out",
-            isOpen
-              ? "translate-y-0 opacity-100 visible pointer-events-auto"
-              : "-translate-y-4 opacity-0 invisible pointer-events-none",
-          )}
-          aria-hidden={!isOpen}
-        >
-          <div className="flex flex-col gap-8 h-full overflow-auto px-6 py-6 pb-12">
-            {/* Menu Links */}
-            <div className="flex flex-col gap-4 items-center ">
+      {/* Menu panel — absolute below sticky header */}
+      <div
+        className={cn(
+          "absolute inset-x-0 top-full h-[calc(100svh-64px)] bg-background border-t border-border/40",
+          "transition-all duration-300 ease-out",
+          isOpen
+            ? "translate-y-0 opacity-100 visible pointer-events-auto"
+            : "-translate-y-4 opacity-0 invisible pointer-events-none",
+        )}
+        aria-hidden={!isOpen}
+      >
+        <div className="flex flex-col gap-8 h-full overflow-auto px-6 py-6 pb-12">
+          <div className="flex flex-col gap-4 items-center">
+            <div className="text-sm font-medium text-muted-foreground">
+              Menu
+            </div>
+            <div className="flex flex-col gap-3 items-center">
+              {links.map((link) => (
+                <MobileNavItem
+                  key={link.name}
+                  link={link}
+                  isActive={checkActiveLink(link.href, pathname)}
+                  onClick={() => onOpenChange(false)}
+                />
+              ))}
+            </div>
+          </div>
+
+          {socialContacts.length > 0 && (
+            <div className="flex flex-col items-center gap-4 mt-auto pt-6 border-t border-border/40">
               <div className="text-sm font-medium text-muted-foreground">
-                Menu
+                Liên hệ
               </div>
-              <div className="flex flex-col gap-3 items-center">
-                {links.map((link) => (
-                  <MobileNavItem
-                    key={link.name}
-                    link={link}
-                    isActive={checkActiveLink(link.href, pathname)}
-                    onClick={() => onOpenChange(false)}
+              <div className="flex flex-col items-center gap-2">
+                {socialContacts.map((contact) => (
+                  <ContactLink
+                    key={contact.id}
+                    contact={contact}
+                    showLabel={true}
+                    showValue={false}
+                    iconProps={{ size: 24, weight: "bold" }}
+                    className="h-10 px-4 text-foreground transition-colors flex items-center justify-center gap-2 cursor-pointer"
+                    iconClassName="size-4.5 flex items-center justify-center"
+                    title={contact.label || contact.type}
                   />
                 ))}
               </div>
             </div>
-
-            {/* Contact links */}
-            {socialContacts.length > 0 && (
-              <div className="flex flex-col items-center gap-4 mt-auto pt-6 border-t border-border/40">
-                <div className="text-sm font-medium text-muted-foreground">
-                  Liên hệ
-                </div>
-                <div className="flex flex-col items-center gap-2">
-                  {socialContacts.map((contact) => (
-                    <ContactLink
-                      key={contact.id}
-                      contact={contact}
-                      showLabel={true}
-                      showValue={false}
-                      iconProps={{ size: 24, weight: "bold" }}
-                      className="h-10 px-4 text-foreground transition-colors flex items-center justify-center gap-2 cursor-pointer "
-                      iconClassName="size-4.5 flex items-center justify-center"
-                      title={contact.label || contact.type}
-                    />
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
+          )}
         </div>
+      </div>
 
-        {/* Click-outside backdrop (transparent, below menu panel) */}
-        {isOpen && (
-          <div
-            className="fixed inset-0 z-[100]"
-            onClick={() => onOpenChange(false)}
-            aria-hidden="true"
-          />
-        )}
-      </Portal.Root>
+      {/* Click-outside backdrop */}
+      {isOpen && (
+        <div
+          className="fixed inset-0 -z-10"
+          onClick={() => onOpenChange(false)}
+          aria-hidden="true"
+        />
+      )}
     </>
   );
 }
