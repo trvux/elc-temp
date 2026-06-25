@@ -9,7 +9,7 @@ import { Spinner } from "@phosphor-icons/react";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 const GRID_CLASS =
-  "grid gap-x-4 gap-y-6 md:gap-y-12 content-start [grid-template-columns:repeat(auto-fill,minmax(180px,1fr))]";
+  "grid gap-x-4 gap-y-6 md:gap-y-12 content-start [grid-template-columns:repeat(auto-fill,minmax(160px,1fr))]";
 
 // mobile (≤2 cols) → 5 rows | tablet (3–4 cols) → 4 rows | desktop (≥5 cols) → 3 rows
 function getTargetRows(cols: number) {

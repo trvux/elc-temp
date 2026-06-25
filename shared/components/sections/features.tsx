@@ -9,13 +9,16 @@ import {
   StaggerItem,
 } from "@/shared/components/ui/animate-in";
 import { Skeleton } from "@/shared/components/ui/skeleton";
-import { TypographyMuted } from "@/shared/components/ui/typography";
+import {
+  TypographyH4,
+  TypographyMuted,
+} from "@/shared/components/ui/typography";
 import { Spinner } from "@phosphor-icons/react";
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 const GRID_CLASS =
-  "grid gap-x-4 gap-y-6 md:gap-y-12 content-start [grid-template-columns:repeat(auto-fill,minmax(180px,1fr))]";
+  "grid gap-x-4 gap-y-6 md:gap-y-12 content-start [grid-template-columns:repeat(auto-fill,minmax(160px,1fr))]";
 
 function getTargetRows(cols: number) {
   if (cols <= 2) return 5; // mobile
@@ -149,12 +152,12 @@ export function FeaturesSection({
       <StaggerContainer className="w-full" immediate>
         <div className="flex flex-col gap-3">
           <StaggerItem>
-            <Button asChild variant="default">
+            <Button asChild variant="secondary">
               <Link
                 href={`/san-pham/${slug}`}
-                className="group relative inline-flex items-center justify-center transition-colors px-8 py-4 text-2xl! font-bold! h-12"
+                className="group relative inline-flex items-center justify-center transition-colors p-2"
               >
-                {title}
+                <TypographyH4>{title}</TypographyH4>
               </Link>
             </Button>
           </StaggerItem>
