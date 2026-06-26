@@ -14,6 +14,7 @@ import {
 } from "../application/index";
 import { CreateProjectInput, UpdateProjectInput, ProjectFilter } from "../domain/index";
 import { submitToIndexNow } from "@/shared/lib/indexnow";
+import { submitToGoogleIndex } from "@/shared/lib/google-indexing";
 import { projectRepo } from "../infrastructure/projectRepo";
 import fs from "fs";
 import path from "path";
@@ -44,9 +45,9 @@ export async function createProjectAction(input: CreateProjectInput) {
 
     revalidatePaths(data?.slug);
     if (data && data.isPublished && data.slug) {
-      submitToIndexNow([`https://dienmayelc.com.vn/du-an/${data.slug}`]).catch((err) => 
-        console.error("IndexNow error during project creation:", err)
-      );
+      const url = `https://dienmayelc.com.vn/du-an/${data.slug}`;
+      submitToIndexNow([url]).catch((err) => console.error("IndexNow project create error:", err));
+      submitToGoogleIndex([url]).catch((err) => console.error("Google Indexing project create error:", err));
     }
     return { data, error: null };
   } catch (error) {
@@ -83,9 +84,9 @@ export async function updateProjectAction(input: UpdateProjectInput) {
 
     revalidatePaths(data?.slug);
     if (data && data.isPublished && data.slug) {
-      submitToIndexNow([`https://dienmayelc.com.vn/du-an/${data.slug}`]).catch((err) => 
-        console.error("IndexNow error during project update:", err)
-      );
+      const url = `https://dienmayelc.com.vn/du-an/${data.slug}`;
+      submitToIndexNow([url]).catch((err) => console.error("IndexNow project update error:", err));
+      submitToGoogleIndex([url]).catch((err) => console.error("Google Indexing project update error:", err));
     }
     return { data, error: null };
   } catch (error) {
@@ -117,12 +118,10 @@ export async function toggleProjectPublishAction(id: string, isPublished: boolea
     await toggleProjectPublish(projectRepo, id, isPublished);
     const proj = await getProjectById(projectRepo, id);
     revalidatePaths(proj?.slug);
-    if (isPublished) {
-      if (proj && proj.slug) {
-        submitToIndexNow([`https://dienmayelc.com.vn/du-an/${proj.slug}`]).catch((err) => 
-          console.error("IndexNow error during project publish toggle:", err)
-        );
-      }
+    if (isPublished && proj?.slug) {
+      const url = `https://dienmayelc.com.vn/du-an/${proj.slug}`;
+      submitToIndexNow([url]).catch((err) => console.error("IndexNow project toggle error:", err));
+      submitToGoogleIndex([url]).catch((err) => console.error("Google Indexing project toggle error:", err));
     }
     return { error: null };
   } catch (error) {
