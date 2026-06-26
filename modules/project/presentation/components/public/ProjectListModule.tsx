@@ -76,11 +76,14 @@ async function getCachedProjectListData(
   cacheTag("projects-list");
   setUseStaticClient(true);
 
+  // Only fetch all published projects separately when filters are active (avoid duplicate query)
+  const hasFilters = !!(projectType?.id || categorySlugs.length > 0 || serviceSlugs.length > 0 || searchVal);
+
   // Fetch independent database calls in parallel to resolve query waterfalls
   const [
     projectsRaw,
     allProjectTypes,
-    allPublishedProjectsRaw,
+    allPublishedProjectsRawOrNull,
     allServices,
     projectTypeCategoriesRaw,
     allCategoriesRaw
@@ -93,13 +96,16 @@ async function getCachedProjectListData(
       search: searchVal,
     }),
     getProjectTypes(projectTypeRepo),
-    getProjects(projectRepo, { isPublished: true }),
+    hasFilters ? getProjects(projectRepo, { isPublished: true }) : Promise.resolve(null),
     getServices(serviceRepo, { isPublished: true }),
     projectType
       ? getCategoriesByProjectTypeId(projectRepo, projectType.id)
       : Promise.resolve(null),
     projectType ? Promise.resolve([]) : getCategories(categoryRepo, { includeDeleted: false })
   ]);
+
+  // Reuse projectsRaw when no filters are active (same query, no need to duplicate)
+  const allPublishedProjectsRaw = allPublishedProjectsRawOrNull ?? projectsRaw;
 
   let projects = projectsRaw;
 
@@ -262,19 +268,33 @@ export async function ProjectListModule({
       }
     : null;
 
+  let cachedData: Awaited<ReturnType<typeof getCachedProjectListData>>;
+  try {
+    cachedData = await getCachedProjectListData(
+      projectTypeData,
+      categorySlugs,
+      serviceSlugs,
+      searchVal,
+      conditionVal,
+    );
+  } catch (err) {
+    console.error("[ProjectListModule] Failed to load project data:", err);
+    cachedData = {
+      sortedProjects: [],
+      projectTypeItems: [],
+      filterCategories: [],
+      serviceItems: [],
+      currentYear: new Date().getFullYear(),
+    };
+  }
+
   const {
     sortedProjects,
     projectTypeItems,
     filterCategories,
     serviceItems,
     currentYear,
-  } = await getCachedProjectListData(
-    projectTypeData,
-    categorySlugs,
-    serviceSlugs,
-    searchVal,
-    conditionVal,
-  );
+  } = cachedData;
 
   // Phân trang (giữ thứ tự featured-first toàn cục bằng cách cắt trang sau khi sắp xếp)
   const currentPage = Number(searchParams.page) || 1;
