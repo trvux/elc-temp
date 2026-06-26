@@ -25,8 +25,7 @@ export async function submitToGoogleIndex(
     scopes: ["https://www.googleapis.com/auth/indexing"],
   });
 
-  const authClient = await auth.getClient();
-  const indexing = google.indexing({ version: "v3", auth: authClient });
+  const indexing = google.indexing({ version: "v3", auth });
 
   const results = await Promise.allSettled(
     urls.map((url) =>
