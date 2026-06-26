@@ -71,19 +71,19 @@ export function Breadcrumbs({ items, className, disableJsonLd }: BreadcrumbsProp
   return (
     <nav aria-label="Breadcrumb" className={className}>
       <Breadcrumb>
-        <BreadcrumbList className="flex gap-2 p-3 text-sm truncate">
-          <BreadcrumbItem>
+        <BreadcrumbList className="flex-nowrap overflow-hidden gap-2 p-3 text-sm">
+          <BreadcrumbItem className="shrink-0">
             <BreadcrumbLink href="/">Trang chủ</BreadcrumbLink>
           </BreadcrumbItem>
 
-          <BreadcrumbSeparator>/</BreadcrumbSeparator>
+          <BreadcrumbSeparator className="shrink-0">/</BreadcrumbSeparator>
 
           {items.map((item, index) => {
             const isLast = index === items.length - 1;
 
             return (
               <React.Fragment key={index}>
-                <BreadcrumbItem>
+                <BreadcrumbItem className={isLast ? "min-w-0 overflow-hidden" : "shrink-0"}>
                   {item.href && !isLast ? (
                     <BreadcrumbLink
                       href={item.href}
@@ -95,13 +95,13 @@ export function Breadcrumbs({ items, className, disableJsonLd }: BreadcrumbsProp
                   ) : (
                     <BreadcrumbPage
                       title={item.label}
-                      className="truncate font-semibold"
+                      className="truncate block font-semibold"
                     >
                       {item.label}
                     </BreadcrumbPage>
                   )}
                 </BreadcrumbItem>
-                {!isLast && <BreadcrumbSeparator>/</BreadcrumbSeparator>}
+                {!isLast && <BreadcrumbSeparator className="shrink-0">/</BreadcrumbSeparator>}
               </React.Fragment>
             );
           })}

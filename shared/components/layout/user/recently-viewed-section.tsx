@@ -7,14 +7,11 @@ import {
   CardHeader,
   CardTitle,
 } from "@/shared/components/ui/card";
+import { formatPrice } from "@/modules/catalog/domain";
 import { useRecentlyViewed } from "@/shared/hooks/use-recently-viewed";
 import { XIcon } from "@phosphor-icons/react";
 import Image from "next/image";
 import Link from "next/link";
-
-function formatPrice(price: number): string {
-  return price.toLocaleString("vi-VN") + "đ";
-}
 
 export function RecentlyViewedSection() {
   const { items, removeProduct, clearAll } = useRecentlyViewed();
@@ -42,7 +39,10 @@ export function RecentlyViewedSection() {
             const isDiscontinued =
               product.stockStatus === "discontinued" ||
               product.stockStatus === "out_of_stock";
-            const price = product.salePrice || product.originalPrice;
+            const price = product.salePrice || product.originalPrice || 0;
+            const priceLabel = isDiscontinued
+              ? "Ngừng kinh doanh"
+              : formatPrice(price);
 
             return (
               // Wrapper div — X button lives here as a sibling to Link
@@ -72,15 +72,9 @@ export function RecentlyViewedSection() {
                     <span className="text-xs font-medium text-foreground line-clamp-2 leading-tight">
                       {product.name}
                     </span>
-                    {isDiscontinued ? (
-                      <span className="text-xs font-semibold text-destructive">
-                        Ngừng kinh doanh
-                      </span>
-                    ) : (
-                      <span className="text-xs font-bold text-destructive">
-                        {formatPrice(price)}
-                      </span>
-                    )}
+                    <span className="text-xs font-bold text-destructive">
+                      {priceLabel}
+                    </span>
                   </div>
                 </Link>
 

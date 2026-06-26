@@ -42,17 +42,17 @@ export function FeaturesSection({
   totalCount = initialProducts.length,
 }: FeaturesSectionProps) {
   const [products, setProducts] = useState(initialProducts);
-  const [isAutoLoading, setIsAutoLoading] = useState(
-    !!categoryId && initialProducts.length < totalCount,
-  );
+  const [isAutoLoading, setIsAutoLoading] = useState(false);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
 
   const colsRef = useRef(2);
   const pageSizeRef = useRef(Math.max(initialProducts.length, 12));
+  const containerRef = useRef<HTMLDivElement | null>(null);
   const gridRef = useRef<HTMLDivElement | null>(null);
   const loadedCountRef = useRef(initialProducts.length);
   const hasMoreRef = useRef(initialProducts.length < totalCount);
   const loadingRef = useRef(false);
+  const triggeredRef = useRef(false);
 
   useEffect(() => {
     if (!categoryId || !gridRef.current) return;
@@ -104,8 +104,25 @@ export function FeaturesSection({
     }
   }, [categoryId]);
 
+  // Only trigger autoFill when section scrolls into viewport (200px lookahead)
   useEffect(() => {
-    if (categoryId) autoFill();
+    if (!categoryId) return;
+    const container = containerRef.current;
+    if (!container || !hasMoreRef.current) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting && !triggeredRef.current) {
+          triggeredRef.current = true;
+          observer.disconnect();
+          autoFill();
+        }
+      },
+      { rootMargin: "200px 0px" },
+    );
+
+    observer.observe(container);
+    return () => observer.disconnect();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -148,7 +165,7 @@ export function FeaturesSection({
   const isShowingProducts = products.length > 0 || isAutoLoading;
 
   return (
-    <div className="w-full flex flex-col items-center justify-center gap-8">
+    <div ref={containerRef} className="w-full flex flex-col items-center justify-center gap-8">
       <StaggerContainer className="w-full" immediate>
         <div className="flex flex-col gap-3">
           <StaggerItem>
