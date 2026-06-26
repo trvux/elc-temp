@@ -1,0 +1,165 @@
+"use client";
+
+import { formatPrice } from "@/modules/catalog/domain";
+import { Contact } from "@/modules/contact/domain";
+import { Button } from "@/shared/components/ui/button";
+import { useProductFloating } from "@/shared/providers/product-floating-provider";
+import { AnimatePresence, m } from "framer-motion";
+import Image from "next/image";
+import { useEffect, useState } from "react";
+
+interface ProductFloatingBarProps {
+  productName: string;
+  salePrice: number;
+  originalPrice: number;
+  discountPercent: number;
+  productImage: string | null;
+  contacts: Contact[];
+}
+
+export function ProductFloatingBar({
+  productName,
+  salePrice,
+  originalPrice,
+  discountPercent,
+  productImage,
+  contacts,
+}: ProductFloatingBarProps) {
+  const { setActive } = useProductFloating();
+  const [visible, setVisible] = useState(false);
+
+  const zaloContact =
+    contacts.find((c) => c.type === "zalo" && c.isActive) ||
+    contacts.find((c) => c.type === "zalo") ||
+    contacts[0];
+
+  useEffect(() => {
+    setActive(true);
+    return () => setActive(false);
+  }, [setActive]);
+
+  useEffect(() => {
+    const target = document.getElementById("product-cta-sentinel");
+    if (!target) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => setVisible(!entry.isIntersecting),
+      { threshold: 0 },
+    );
+
+    observer.observe(target);
+    return () => observer.disconnect();
+  }, []);
+
+  if (!zaloContact) return null;
+
+  const hasDiscount = discountPercent > 0 && originalPrice > salePrice;
+
+  return (
+    <AnimatePresence>
+      {visible && (
+        <m.div
+          initial={{ y: "100%" }}
+          animate={{ y: 0 }}
+          exit={{ y: "100%" }}
+          transition={{ duration: 0.3, ease: [0.23, 1, 0.32, 1] }}
+          className="fixed bottom-4 left-0 right-0 z-110 pointer-events-none px-3 md:px-6 lg:px-8"
+        >
+          <div className="pointer-events-auto mx-auto max-w-4xl bg-background/95 backdrop-blur-md border border-border/50 shadow-[0_8px_32px_rgba(0,0,0,0.12),0_2px_8px_rgba(0,0,0,0.08)] rounded-2xl px-3 py-2.5 md:py-1">
+            {/* ── MOBILE: 2 rows ── */}
+            <div className="flex flex-col gap-2 md:hidden">
+              {/* Row 1: image + name + prices */}
+              <div className="flex items-start gap-2">
+                {productImage && (
+                  <div className="shrink-0 w-11 h-11 overflow-hidden">
+                    <Image
+                      src={productImage}
+                      alt={productName}
+                      width={44}
+                      height={44}
+                      className="w-full h-full object-contain p-0.5"
+                    />
+                  </div>
+                )}
+                <div className="flex flex-1 items-start justify-between gap-2 min-w-0">
+                  <span className="text-sm font-bold leading-tight flex-1">
+                    {productName}
+                  </span>
+                  <div className="text-right shrink-0">
+                    <div className="text-sm font-bold text-destructive leading-tight">
+                      {formatPrice(salePrice)}
+                    </div>
+                    {hasDiscount && (
+                      <div className="text-sm text-muted-foreground line-through leading-tight">
+                        {formatPrice(originalPrice)}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+              {/* Row 2: full-width CTA */}
+              <Button
+                size="sm"
+                className="w-full shadow-none border-none"
+                asChild
+              >
+                <a
+                  href={zaloContact.href}
+                  target={zaloContact.isExternal ? "_blank" : undefined}
+                  rel={
+                    zaloContact.isExternal ? "noopener noreferrer" : undefined
+                  }
+                >
+                  Tư vấn ngay
+                </a>
+              </Button>
+            </div>
+
+            {/* ── TABLET / DESKTOP: 1 row ── */}
+            <div className="hidden md:flex items-center gap-4">
+              {productImage && (
+                <div className="shrink-0 w-20 h-20 overflow-hidden">
+                  <Image
+                    src={productImage}
+                    alt={productName}
+                    width={80}
+                    height={80}
+                    className="w-full h-full object-contain"
+                  />
+                </div>
+              )}
+              <span className="flex-1 text-md font-bold leading-snug line-clamp-2">
+                {productName}
+              </span>
+              <div className="shrink-0 text-right">
+                <div className="text-md font-bold text-destructive leading-tight">
+                  {formatPrice(salePrice)}
+                </div>
+                {hasDiscount && (
+                  <div className="text-sm text-muted-foreground line-through leading-tight">
+                    {formatPrice(originalPrice)}
+                  </div>
+                )}
+              </div>
+              <Button
+                size="lg"
+                className="shrink-0 shadow-[0_0.84px_0.84px_-0.31px_rgba(36,36,36,0.15),0_1.99px_1.99px_-0.625px_rgba(36,36,36,0.15),0_3.63px_3.63px_-0.9375px_rgba(36,36,36,0.15),0_6.04px_6.04px_-1.25px_rgba(36,36,36,0.15),0_9.75px_9.75px_-1.56px_rgba(36,36,36,0.15),0_15.96px_15.96px_-1.875px_rgba(36,36,36,0.15)] border-none"
+                asChild
+              >
+                <a
+                  href={zaloContact.href}
+                  target={zaloContact.isExternal ? "_blank" : undefined}
+                  rel={
+                    zaloContact.isExternal ? "noopener noreferrer" : undefined
+                  }
+                >
+                  Đặt hàng ngay
+                </a>
+              </Button>
+            </div>
+          </div>
+        </m.div>
+      )}
+    </AnimatePresence>
+  );
+}
