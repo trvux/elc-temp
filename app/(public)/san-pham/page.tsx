@@ -139,14 +139,7 @@ async function getCachedCategorySections(): Promise<CategorySectionData[]> {
   cacheTag("products-list", "categories");
   setUseStaticClient(true);
 
-  const [allCategories, { products: allProducts }] = await Promise.all([
-    getCategories(categoryRepo),
-    searchProducts(productRepo, "", {
-      isPublished: true,
-      limit: 10000,
-      offset: 0,
-    }),
-  ]);
+  const allCategories = await getCategories(categoryRepo);
 
   // Build sort order: group.orderIndex * 1000 + category.orderIndex
   const catOrder = new Map<string, number>();
@@ -156,21 +149,17 @@ async function getCachedCategorySections(): Promise<CategorySectionData[]> {
     catOrder.set(cat.id, groupOrder * 1000 + (cat.orderIndex ?? i));
   });
 
-  // Group products by category
-  const grouped = new Map<string, (typeof allProducts)[number][]>();
-  for (const product of allProducts) {
-    const catId = (product as { category?: { id: string } }).category?.id;
-    if (!catId) continue;
-    if (!grouped.has(catId)) grouped.set(catId, []);
-    grouped.get(catId)!.push(product);
-  }
+  // Use COUNT queries (HEAD-only, no data transfer) instead of fetching all products
+  const sections = await Promise.all(
+    allCategories.map(async (cat) => ({
+      categoryId: cat.id,
+      initialProducts: [] as CategorySectionData["initialProducts"],
+      totalCount: await productRepo.count({ categoryId: cat.id, isPublished: true }),
+    })),
+  );
 
-  return [...grouped.entries()]
-    .map(([categoryId, prods]) => ({
-      categoryId,
-      initialProducts: prods.slice(0, INITIAL_PER_SECTION),
-      totalCount: prods.length,
-    }))
+  return sections
+    .filter((s) => s.totalCount > 0)
     .sort(
       (a, b) =>
         (catOrder.get(a.categoryId) ?? 999999) -

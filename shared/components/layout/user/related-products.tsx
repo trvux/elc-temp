@@ -1,9 +1,9 @@
-
 import { TypographyH2 } from "@/shared/components/ui/typography";
-import { createClient } from "@/shared/lib/supabase/server";
+import { createClient, setUseStaticClient } from "@/shared/lib/supabase/server";
 import { cn } from "@/shared/lib/utils";
 import { ProductCard } from "@/modules/catalog/presentation/components/ProductCard";
 import { ProductWithRelations, StockStatus, normalizeProductPrice } from "@/modules/catalog/domain";
+import { cacheLife, cacheTag } from "next/cache";
 
 interface RelatedProductsProps {
   categoryId: string;
@@ -17,34 +17,36 @@ const STYLES = {
   grid: cn("grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"),
 };
 
-export default async function RelatedProducts({
-  categoryId,
-  currentProductId,
-  brandId,
-}: RelatedProductsProps) {
+async function getCachedRelatedProducts(
+  categoryId: string,
+  currentProductId: string,
+  brandId?: string,
+): Promise<ProductWithRelations[]> {
+  "use cache";
+  cacheLife("hours");
+  cacheTag("products-list");
+  setUseStaticClient(true);
+
   const supabase = await createClient();
 
-  // Fetch related products in the same category
   const { data: rawProducts } = await supabase
     .from("products")
-    .select(
-      "*, categories(id, name, slug), brands(id, name, slug)",
-    )
+    .select("*, categories(id, name, slug), brands(id, name, slug)")
     .eq("category_id", categoryId)
     .neq("id", currentProductId)
     .is("deleted_at", null)
     .eq("is_published", true)
     .order("brand_id", { ascending: brandId ? false : true })
-    .order("created_at", { ascending: false });
+    .order("created_at", { ascending: false })
+    .limit(8);
 
-  if (!rawProducts || rawProducts.length === 0) return null;
+  if (!rawProducts) return [];
 
-  // Map snake_case to camelCase for ProductCard compatibility
-  const products: ProductWithRelations[] = rawProducts.map((p) => {
+  return rawProducts.map((p) => {
     const { originalPrice, salePrice, discountPercent } = normalizeProductPrice(
       p.original_price,
       p.sale_price,
-      p.discount_percent
+      p.discount_percent,
     );
 
     const categoryData = Array.isArray(p.categories) ? p.categories[0] : p.categories;
@@ -99,20 +101,24 @@ export default async function RelatedProducts({
           }
         : null,
     };
-
   });
+}
 
+export default async function RelatedProducts({
+  categoryId,
+  currentProductId,
+  brandId,
+}: RelatedProductsProps) {
+  const products = await getCachedRelatedProducts(categoryId, currentProductId, brandId);
+
+  if (products.length === 0) return null;
 
   return (
     <section className={STYLES.section}>
       <TypographyH2 className={STYLES.title}>Sản phẩm liên quan</TypographyH2>
       <div className={STYLES.grid}>
         {products.map((product) => (
-          <ProductCard
-            key={product.id}
-            product={product}
-            priority={false}
-          />
+          <ProductCard key={product.id} product={product} priority={false} />
         ))}
       </div>
     </section>

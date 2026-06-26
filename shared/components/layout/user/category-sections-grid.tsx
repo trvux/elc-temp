@@ -31,19 +31,17 @@ function CategorySection({
   queryTokens,
 }: CategorySectionData & { queryTokens: string[] }) {
   const [products, setProducts] = useState(initialProducts);
-  // Show skeletons immediately on mount if there are products to load
-  const [isAutoLoading, setIsAutoLoading] = useState(
-    initialProducts.length < totalCount,
-  );
+  const [isAutoLoading, setIsAutoLoading] = useState(false);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
 
   const colsRef = useRef(2);
-  // Default 12 before ResizeObserver measures; updated to cols × targetRows
   const pageSizeRef = useRef(Math.max(initialProducts.length, 12));
+  const containerRef = useRef<HTMLDivElement | null>(null);
   const gridRef = useRef<HTMLDivElement | null>(null);
   const loadedCountRef = useRef(initialProducts.length);
   const hasMoreRef = useRef(initialProducts.length < totalCount);
   const loadingRef = useRef(false);
+  const triggeredRef = useRef(false);
 
   // Measure real column count → compute exact target (cols × targetRows)
   useEffect(() => {
@@ -99,9 +97,24 @@ function CategorySection({
     }
   }, [categoryId]);
 
-  // ResizeObserver effect runs first → pageSizeRef is set before autoFill reads it
+  // Only trigger autoFill when section scrolls into viewport (200px lookahead)
   useEffect(() => {
-    autoFill();
+    const container = containerRef.current;
+    if (!container || !hasMoreRef.current) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting && !triggeredRef.current) {
+          triggeredRef.current = true;
+          observer.disconnect();
+          autoFill();
+        }
+      },
+      { rootMargin: "200px 0px" },
+    );
+
+    observer.observe(container);
+    return () => observer.disconnect();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -141,7 +154,7 @@ function CategorySection({
     : 0;
 
   return (
-    <div className="flex flex-col gap-4">
+    <div ref={containerRef} className="flex flex-col gap-4">
       <div ref={gridRef} className={GRID_CLASS}>
         {products.map((product, i) => (
           <ProductCard
