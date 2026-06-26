@@ -11,6 +11,8 @@ import {
 } from "../application/index";
 import { CreateServiceInput, UpdateServiceInput, ServiceFilter } from "../domain/types";
 import { serviceRepo } from "../infrastructure/serviceRepo";
+import { submitToIndexNow } from "@/shared/lib/indexnow";
+import { submitToGoogleIndex } from "@/shared/lib/google-indexing";
 
 export async function getServicesAction(options?: ServiceFilter) {
   try {
@@ -32,6 +34,11 @@ export async function createServiceAction(input: CreateServiceInput) {
     }
     revalidatePath("/dich-vu", "layout");
     revalidatePath("/admin/services");
+    if (data?.isPublished && data?.slug) {
+      const url = `https://dienmayelc.com.vn/dich-vu/${data.slug}`;
+      submitToIndexNow([url]).catch((err) => console.error("IndexNow service create error:", err));
+      submitToGoogleIndex([url]).catch((err) => console.error("Google Indexing service create error:", err));
+    }
     return { data, error: null };
   } catch (error) {
     console.error("createServiceAction error:", error);
@@ -51,6 +58,11 @@ export async function updateServiceAction(input: UpdateServiceInput) {
     }
     revalidatePath("/dich-vu", "layout");
     revalidatePath("/admin/services");
+    if (data?.isPublished && data?.slug) {
+      const url = `https://dienmayelc.com.vn/dich-vu/${data.slug}`;
+      submitToIndexNow([url]).catch((err) => console.error("IndexNow service update error:", err));
+      submitToGoogleIndex([url]).catch((err) => console.error("Google Indexing service update error:", err));
+    }
     return { data, error: null };
   } catch (error) {
     console.error("updateServiceAction error:", error);
@@ -68,6 +80,8 @@ export async function deleteServiceAction(id: string) {
     revalidateTag("services-list", { expire: 0 });
     if (service?.slug) {
       revalidateTag(`service-slug:${service.slug}`, { expire: 0 });
+      submitToGoogleIndex([`https://dienmayelc.com.vn/dich-vu/${service.slug}`], "URL_DELETED")
+        .catch((err) => console.error("Google Indexing service delete error:", err));
     }
     revalidatePath("/dich-vu", "layout");
     revalidatePath("/admin/services");

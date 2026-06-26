@@ -12,6 +12,8 @@ import {
   UpdateNewsInput 
 } from "../domain/index";
 import { newsRepo } from "../infrastructure/SupabaseNewsRepository";
+import { submitToIndexNow } from "@/shared/lib/indexnow";
+import { submitToGoogleIndex } from "@/shared/lib/google-indexing";
 
 export async function getNewsAction(options?: {
   isPublished?: boolean;
@@ -34,6 +36,11 @@ export async function createNewsAction(input: CreateNewsInput) {
     if (data?.slug) {
       revalidateTag(`news-slug:${data.slug}`, { expire: 0 });
     }
+    if (data?.isPublished && data?.slug) {
+      const url = `https://dienmayelc.com.vn/tin-tuc/${data.slug}`;
+      submitToIndexNow([url]).catch((err) => console.error("IndexNow news create error:", err));
+      submitToGoogleIndex([url]).catch((err) => console.error("Google Indexing news create error:", err));
+    }
     return { data, error: null };
   } catch (error) {
     console.error("createNewsAction error:", error);
@@ -54,6 +61,11 @@ export async function updateNewsAction(input: UpdateNewsInput) {
     if (data?.slug) {
       revalidateTag(`news-slug:${data.slug}`, { expire: 0 });
     }
+    if (data?.isPublished && data?.slug) {
+      const url = `https://dienmayelc.com.vn/tin-tuc/${data.slug}`;
+      submitToIndexNow([url]).catch((err) => console.error("IndexNow news update error:", err));
+      submitToGoogleIndex([url]).catch((err) => console.error("Google Indexing news update error:", err));
+    }
     return { data, error: null };
   } catch (error) {
     console.error("updateNewsAction error:", error);
@@ -73,6 +85,8 @@ export async function deleteNewsAction(id: string) {
     revalidateTag("news-list", { expire: 0 });
     if (newsItem?.slug) {
       revalidateTag(`news-slug:${newsItem.slug}`, { expire: 0 });
+      submitToGoogleIndex([`https://dienmayelc.com.vn/tin-tuc/${newsItem.slug}`], "URL_DELETED")
+        .catch((err) => console.error("Google Indexing news delete error:", err));
     }
     return { success: true, error: null };
   } catch (error) {

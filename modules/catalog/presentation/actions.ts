@@ -20,6 +20,8 @@ import {
   UpdateProductInput,
 } from "../domain/index";
 import { productRepo } from "../infrastructure/SupabaseProductRepository";
+import { submitToIndexNow } from "@/shared/lib/indexnow";
+import { submitToGoogleIndex } from "@/shared/lib/google-indexing";
 
 export async function getBrandsAction() {
   try {
@@ -69,6 +71,11 @@ export async function createProductAction(input: CreateProductInput) {
     if (data?.slug) {
       revalidateTag(`slug:${data.slug}`, { expire: 0 });
     }
+    if (data?.isPublished && data?.slug) {
+      const url = `https://dienmayelc.com.vn/san-pham/${data.slug}`;
+      submitToIndexNow([url]).catch((err) => console.error("IndexNow product create error:", err));
+      submitToGoogleIndex([url]).catch((err) => console.error("Google Indexing product create error:", err));
+    }
     return { data, error: null };
   } catch (error) {
     console.error("createProductAction error:", error);
@@ -88,6 +95,11 @@ export async function updateProductAction(input: UpdateProductInput) {
     revalidateTag("products-list", { expire: 0 });
     if (data?.slug) {
       revalidateTag(`slug:${data.slug}`, { expire: 0 });
+    }
+    if (data?.isPublished && data?.slug) {
+      const url = `https://dienmayelc.com.vn/san-pham/${data.slug}`;
+      submitToIndexNow([url]).catch((err) => console.error("IndexNow product update error:", err));
+      submitToGoogleIndex([url]).catch((err) => console.error("Google Indexing product update error:", err));
     }
     return { data, error: null };
   } catch (error) {
@@ -109,6 +121,8 @@ export async function deleteProductAction(id: string) {
     revalidateTag("products-list", { expire: 0 });
     if (product?.slug) {
       revalidateTag(`slug:${product.slug}`, { expire: 0 });
+      submitToGoogleIndex([`https://dienmayelc.com.vn/san-pham/${product.slug}`], "URL_DELETED")
+        .catch((err) => console.error("Google Indexing product delete error:", err));
     }
     return { data: true, error: null };
   } catch (error) {
