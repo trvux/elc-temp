@@ -52,9 +52,13 @@ export async function generateMetadata({
   return {
     title,
     description,
+    alternates: {
+      canonical: `https://dienmayelc.com.vn/${page.slug}`,
+    },
     openGraph: {
       title,
       description,
+      url: `https://dienmayelc.com.vn/${page.slug}`,
       type: "article",
     },
   };
