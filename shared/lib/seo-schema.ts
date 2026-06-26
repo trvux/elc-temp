@@ -217,9 +217,9 @@ export const SEOSchema = {
       "@id": `${BASE_URL}/san-pham/${cat.slug}#product`,
       "name": cat.name,
       "description": cat.metaDescription || undefined,
-      "url": `${BASE_URL}/san-pham/${cat.slug}`,
       "brand": {
-        "@id": `${BASE_URL}/#organization`
+        "@type": "Brand",
+        "name": "Điện máy ELC",
       },
       "offers": {
         "@type": "AggregateOffer",

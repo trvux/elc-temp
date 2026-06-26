@@ -350,6 +350,9 @@ export function generateServiceMetadata(
   return {
     title: finalTitle,
     description: finalDescription,
+    alternates: {
+      canonical: url,
+    },
     openGraph: {
       title: finalTitle,
       description: finalDescription,
@@ -519,7 +522,6 @@ export function generateProductSchema(product: ProductWithRelations, location?: 
     sku: firstSku,
     mpn: mpn || undefined,
     gtin: hasGtin ? gtin : undefined,
-    identifier_exists: hasGtin,
     brand: {
       "@type": "Brand",
       name: product.brand?.name || SHOP_NAME,
@@ -530,13 +532,12 @@ export function generateProductSchema(product: ProductWithRelations, location?: 
       url: productUrl,
       priceCurrency: "VND",
       price: price,
-      priceValidUntil: "2026-12-31",
+      priceValidUntil: new Date(new Date().setFullYear(new Date().getFullYear() + 1)).toISOString().split("T")[0],
       itemCondition: "https://schema.org/NewCondition",
       availability:
         stockStatus === "in_stock"
           ? "https://schema.org/InStock"
           : "https://schema.org/OutOfStock",
-      identifier_exists: hasGtin,
       priceSpecification: hasDiscount
         ? {
             "@type": "UnitPriceSpecification",
@@ -986,9 +987,9 @@ export function generateProjectDetailSchema(
         "@id": `${cleanUrl}#article`,
         "headline": project.title,
         "description": project.metaDescription || project.title,
-        "image": images,
-        "datePublished": project.createdAt,
-        "dateModified": project.updatedAt || project.createdAt,
+        "image": images.length > 0 ? images : [`${BASE_URL}/opengraph-image.png`],
+        "datePublished": project.createdAt || new Date().toISOString(),
+        "dateModified": project.updatedAt || project.createdAt || new Date().toISOString(),
         "author": {
           "@id": `${BASE_URL}/#organization`,
         },
