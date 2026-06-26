@@ -3,6 +3,7 @@ import { Footer } from "@/shared/components/layout/user/footer";
 import { Header } from "@/shared/components/layout/user/header";
 import { ChunkErrorListener } from "@/shared/components/layout/user/chunk-error-listener";
 import { FilterTransitionProvider } from "@/shared/providers/filter-transition-provider";
+import { ProductFloatingProvider } from "@/shared/providers/product-floating-provider";
 import { TopProgressBar } from "@/shared/components/layout/user/top-progress-bar";
 import { StickyContactActions } from "@/shared/components/sections/sticky-contact-actions";
 import Script from "next/script";
@@ -32,6 +33,7 @@ export default async function PublicLayout({ children }: PublicLayoutProps) {
   } = await getPublicLayoutData();
 
   return (
+    <ProductFloatingProvider>
     <FilterTransitionProvider>
       {/* Google Tag Manager (Phần script chỉ kích hoạt ở trang công cộng, loại trừ admin) */}
       {isLighthouse ? (
@@ -109,5 +111,6 @@ export default async function PublicLayout({ children }: PublicLayoutProps) {
         <StickyContactActions contacts={contacts || []} />
       </div>
     </FilterTransitionProvider>
+    </ProductFloatingProvider>
   );
 }

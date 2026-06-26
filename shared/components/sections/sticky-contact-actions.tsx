@@ -3,6 +3,7 @@
 import { Contact, getDisplayContacts } from "@/modules/contact/domain";
 import { ContactLink } from "@/modules/contact/presentation/components/ContactLink";
 import { Button } from "@/shared/components/ui/button";
+import { useProductFloating } from "@/shared/providers/product-floating-provider";
 import { cn } from "@/shared/lib/utils";
 import { AnimatePresence, m, Variants } from "framer-motion";
 import { useEffect, useMemo, useState } from "react";
@@ -12,6 +13,7 @@ interface StickyContactActionsProps {
 }
 
 export function StickyContactActions({ contacts }: StickyContactActionsProps) {
+  const { active: productFloatingActive } = useProductFloating();
   const [isVisible, setIsVisible] = useState(false);
 
   const displayContacts = useMemo(
@@ -47,7 +49,7 @@ export function StickyContactActions({ contacts }: StickyContactActionsProps) {
     };
   }, []);
 
-  if (displayContacts.length === 0) return null;
+  if (displayContacts.length === 0 || productFloatingActive) return null;
 
   const itemVariants: Variants = {
     hidden: { opacity: 0, scale: 0.8 },

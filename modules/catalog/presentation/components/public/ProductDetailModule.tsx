@@ -45,6 +45,7 @@ import { ImageWithSkeleton } from "@/shared/components/ui/image-with-skeleton";
 import { notFound } from "next/navigation";
 import { District } from "@/shared/lib/districts";
 import { TrackProductView } from "@/shared/components/layout/user/track-product-view";
+import { ProductFloatingBar } from "@/shared/components/layout/user/product-floating-bar";
 
 interface SpecSubItem {
   label: string;
@@ -276,7 +277,8 @@ export async function ProductDetailModule({
                               alt={location ? `${product.name} ${product.sku ? `(${product.sku})` : ""} tại ${location.name} - ${product.brand?.name || "ELC"} - Điện máy ELC` : `${product.name} ${product.sku ? `(${product.sku})` : ""} - ${product.brand?.name || "ELC"} - Điện máy ELC`}
                               fill
                               className={STYLES.carouselImage}
-                              priority={i === 0}
+                              loading={i === 0 ? "eager" : "lazy"}
+                              fetchPriority={i === 0 ? "high" : "auto"}
                               sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 800px"
                               wrapperClassName="w-full h-full"
                             />
@@ -347,6 +349,7 @@ export async function ProductDetailModule({
                 )}
               </div>
               <OrderButton contacts={contacts || []} />
+              <div id="product-cta-sentinel" aria-hidden="true" />
             </div>
           </div>
         </div>
@@ -541,6 +544,16 @@ export async function ProductDetailModule({
           />
         </div>
       </GridSection>
+
+      {/* ===== MOBILE FLOATING BAR ===== */}
+      <ProductFloatingBar
+        productName={product.name}
+        salePrice={finalPrice || 0}
+        originalPrice={product.originalPrice || 0}
+        discountPercent={product.discountPercent || 0}
+        productImage={images[0] ?? null}
+        contacts={contacts}
+      />
     </main>
   );
 }
