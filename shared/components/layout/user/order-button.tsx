@@ -7,7 +7,8 @@ interface OrderButtonProps {
 }
 
 export function OrderButton({ contacts }: OrderButtonProps) {
-  const zaloContact = contacts.find((c) => c.type === "zalo" && c.isActive) ||
+  const zaloContact =
+    contacts.find((c) => c.type === "zalo" && c.isActive) ||
     contacts.find((c) => c.type === "zalo") ||
     contacts[0];
 
@@ -25,7 +26,7 @@ export function OrderButton({ contacts }: OrderButtonProps) {
         target={zaloContact.isExternal ? "_blank" : undefined}
         rel={zaloContact.isExternal ? "noopener noreferrer" : undefined}
       >
-        Tư vấn lắp đặt miễn phí
+        Mua ngay
       </a>
     </Button>
   );

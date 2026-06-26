@@ -141,11 +141,7 @@ export function ProductFloatingBar({
                   </div>
                 )}
               </div>
-              <Button
-                size="lg"
-                className="shrink-0 shadow-[0_0.84px_0.84px_-0.31px_rgba(36,36,36,0.15),0_1.99px_1.99px_-0.625px_rgba(36,36,36,0.15),0_3.63px_3.63px_-0.9375px_rgba(36,36,36,0.15),0_6.04px_6.04px_-1.25px_rgba(36,36,36,0.15),0_9.75px_9.75px_-1.56px_rgba(36,36,36,0.15),0_15.96px_15.96px_-1.875px_rgba(36,36,36,0.15)] border-none"
-                asChild
-              >
+              <Button size="lg" asChild className="px-10">
                 <a
                   href={zaloContact.href}
                   target={zaloContact.isExternal ? "_blank" : undefined}
@@ -153,7 +149,7 @@ export function ProductFloatingBar({
                     zaloContact.isExternal ? "noopener noreferrer" : undefined
                   }
                 >
-                  Đặt hàng ngay
+                  Mua ngay
                 </a>
               </Button>
             </div>
