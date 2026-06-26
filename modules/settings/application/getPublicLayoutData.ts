@@ -11,18 +11,18 @@ export async function getPublicLayoutData() {
   const supabase = createStaticClient();
 
   const [
-    { data: settingsData },
-    { data: contacts },
-    { data: branches },
-    { data: projects },
-    { data: pages },
-    { data: groupsData },
-    { data: catsData },
-    { data: minPriceProd },
-    { data: maxPriceProd },
-    { data: brandsData },
-    { data: projectTypesData },
-  ] = await Promise.all([
+    settingsResult,
+    contactsResult,
+    branchesResult,
+    projectsResult,
+    pagesResult,
+    groupsResult,
+    catsResult,
+    minPriceResult,
+    maxPriceResult,
+    brandsResult,
+    projectTypesResult,
+  ] = await Promise.allSettled([
     supabase.from("site_settings").select("*"),
     supabase
       .from("contacts")
@@ -82,6 +82,18 @@ export async function getPublicLayoutData() {
       .is("deleted_at", null)
       .order("order_index", { ascending: true }),
   ]);
+
+  const settingsData = settingsResult.status === "fulfilled" ? settingsResult.value.data : null;
+  const contacts = contactsResult.status === "fulfilled" ? contactsResult.value.data : null;
+  const branches = branchesResult.status === "fulfilled" ? branchesResult.value.data : null;
+  const projects = projectsResult.status === "fulfilled" ? projectsResult.value.data : null;
+  const pages = pagesResult.status === "fulfilled" ? pagesResult.value.data : null;
+  const groupsData = groupsResult.status === "fulfilled" ? groupsResult.value.data : null;
+  const catsData = catsResult.status === "fulfilled" ? catsResult.value.data : null;
+  const minPriceProd = minPriceResult.status === "fulfilled" ? minPriceResult.value.data : null;
+  const maxPriceProd = maxPriceResult.status === "fulfilled" ? maxPriceResult.value.data : null;
+  const brandsData = brandsResult.status === "fulfilled" ? brandsResult.value.data : null;
+  const projectTypesData = projectTypesResult.status === "fulfilled" ? projectTypesResult.value.data : null;
 
   const categories = [
     ...(groupsData || [])
