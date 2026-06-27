@@ -1,5 +1,6 @@
 "use client";
 
+import { formatPrice } from "@/modules/catalog/domain";
 import { Button } from "@/shared/components/ui/button";
 import {
   Card,
@@ -7,7 +8,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/shared/components/ui/card";
-import { formatPrice } from "@/modules/catalog/domain";
 import { useRecentlyViewed } from "@/shared/hooks/use-recently-viewed";
 import { XIcon } from "@phosphor-icons/react";
 import Image from "next/image";
@@ -53,7 +53,7 @@ export function RecentlyViewedSection() {
                   className="flex items-center gap-3 w-full h-full p-2.5 rounded-lg border border-border/40 hover:border-primary/40 hover:bg-muted/30 transition-all"
                 >
                   {/* Product image */}
-                  <div className="w-14 h-14 shrink-0 rounded-md overflow-hidden bg-white border border-border/30">
+                  <div className="w-14 h-14 shrink-0 rounded-md overflow-hidden bg-white ">
                     {product.image ? (
                       <Image
                         src={product.image}

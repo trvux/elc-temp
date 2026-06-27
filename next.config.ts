@@ -54,6 +54,33 @@ const nextConfig: NextConfig = {
         destination: "/thong-tin/:slug",
         permanent: true,
       },
+      // Static assets từ WP cũ (proxy không bắt được file có extension ảnh)
+      {
+        source: "/apple-touch-icon.png",
+        destination: "/apple-icon.svg",
+        permanent: true,
+      },
+      {
+        source: "/logo.png",
+        destination: "/logo/logo.svg",
+        permanent: true,
+      },
+      {
+        source: "/og-image.png",
+        destination: "/opengraph-image",
+        permanent: true,
+      },
+      {
+        source: "/images/hero-bg.jpg",
+        destination: "/",
+        permanent: true,
+      },
+      // WP pagination URL cũ
+      {
+        source: "/thiet-ke-cung-cap-thi-cong-lap-dat/:path*",
+        destination: "/dich-vu",
+        permanent: true,
+      },
     ];
   },
 };

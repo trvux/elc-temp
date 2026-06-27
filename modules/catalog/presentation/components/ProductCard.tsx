@@ -1,4 +1,5 @@
-import { formatPrice, ProductWithRelations } from "@/modules/catalog/domain";
+import { ProductWithRelations } from "@/modules/catalog/domain";
+import { FormattedPrice } from "@/modules/catalog/presentation/components/FormattedPrice";
 import { HighlightedText } from "@/shared/components/layout/user/highlighted-text";
 import {
   Card,
@@ -93,13 +94,13 @@ export function ProductCard({
         </CardHeader>
         {/* px-3 md:px-6 */}
         <CardContent className="flex flex-col gap-2 px-2">
-          <TypographyH4 className="text-destructive">
-            {formatPrice(currentPrice)}
+          <TypographyH4 className="text-foreground">
+            <FormattedPrice price={currentPrice} />
           </TypographyH4>
           {hasDiscount && (
-            <div className="flex gap-2">
-              <TypographySmall className="line-through text-muted-foreground">
-                {formatPrice(product.originalPrice)}
+            <div className="flex items-center gap-2">
+              <TypographySmall className="text-muted-foreground">
+                <FormattedPrice price={product.originalPrice} strikethrough />
               </TypographySmall>
 
               <TypographySmall className="text-destructive">
