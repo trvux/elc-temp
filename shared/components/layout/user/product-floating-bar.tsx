@@ -1,6 +1,6 @@
 "use client";
 
-import { formatPrice } from "@/modules/catalog/domain";
+import { FormattedPrice } from "@/modules/catalog/presentation/components/FormattedPrice";
 import { Contact } from "@/modules/contact/domain";
 import { Button } from "@/shared/components/ui/button";
 import { useProductFloating } from "@/shared/providers/product-floating-provider";
@@ -69,7 +69,7 @@ export function ProductFloatingBar({
             {/* ── MOBILE: 2 rows ── */}
             <div className="flex flex-col gap-2 md:hidden">
               {/* Row 1: image + name + prices */}
-              <div className="flex items-start gap-2">
+              <div className="flex items-center gap-2">
                 {productImage && (
                   <div className="shrink-0 w-11 h-11 overflow-hidden">
                     <Image
@@ -77,21 +77,21 @@ export function ProductFloatingBar({
                       alt={productName}
                       width={44}
                       height={44}
-                      className="w-full h-full object-contain p-0.5"
+                      className="w-full h-full object-contain"
                     />
                   </div>
                 )}
-                <div className="flex flex-1 items-start justify-between gap-2 min-w-0">
+                <div className="flex flex-1 items-center justify-between gap-2 min-w-0 h-full">
                   <span className="text-sm font-bold leading-tight flex-1">
                     {productName}
                   </span>
                   <div className="text-right shrink-0">
                     <div className="text-sm font-bold text-destructive leading-tight">
-                      {formatPrice(salePrice)}
+                      <FormattedPrice price={salePrice} />
                     </div>
                     {hasDiscount && (
                       <div className="text-sm text-muted-foreground line-through leading-tight">
-                        {formatPrice(originalPrice)}
+                        <FormattedPrice price={originalPrice} />
                       </div>
                     )}
                   </div>
@@ -133,11 +133,11 @@ export function ProductFloatingBar({
               </span>
               <div className="shrink-0 text-right">
                 <div className="text-md font-bold text-destructive leading-tight">
-                  {formatPrice(salePrice)}
+                  <FormattedPrice price={salePrice} />
                 </div>
                 {hasDiscount && (
                   <div className="text-sm text-muted-foreground line-through leading-tight">
-                    {formatPrice(originalPrice)}
+                    <FormattedPrice price={originalPrice} />
                   </div>
                 )}
               </div>

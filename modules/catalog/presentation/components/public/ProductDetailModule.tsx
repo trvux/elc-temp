@@ -1,22 +1,24 @@
 import { getAdjacentProducts } from "@/modules/catalog/application/getAdjacentProducts";
-import { productRepo } from "@/modules/catalog/infrastructure/SupabaseProductRepository";
 import { formatPrice, ProductWithRelations } from "@/modules/catalog/domain";
+import { productRepo } from "@/modules/catalog/infrastructure/SupabaseProductRepository";
 import { getContactHref } from "@/modules/contact";
 import { Breadcrumbs } from "@/shared/components/layout/user/breadcrumbs";
 import { DetailPager } from "@/shared/components/layout/user/detail-pager";
 import { OrderButton } from "@/shared/components/layout/user/order-button";
 import { ProductDescription } from "@/shared/components/layout/user/product-description";
+import { ProductFloatingBar } from "@/shared/components/layout/user/product-floating-bar";
 import RelatedProducts from "@/shared/components/layout/user/related-products";
 import { ScrollToTop } from "@/shared/components/layout/user/scroll-to-top";
+import { TrackProductView } from "@/shared/components/layout/user/track-product-view";
 import { GridSection } from "@/shared/components/sections/grid-section";
-import { AspectRatio } from "@/shared/components/ui/aspect-ratio";
-import { Badge } from "@/shared/components/ui/badge";
 import {
   Accordion,
+  AccordionContent,
   AccordionItem,
   AccordionTrigger,
-  AccordionContent,
 } from "@/shared/components/ui/accordion";
+import { AspectRatio } from "@/shared/components/ui/aspect-ratio";
+import { Badge } from "@/shared/components/ui/badge";
 import {
   Carousel,
   CarouselContent,
@@ -24,6 +26,7 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/shared/components/ui/carousel";
+import { ImageWithSkeleton } from "@/shared/components/ui/image-with-skeleton";
 import { StockBadge } from "@/shared/components/ui/stock-badge";
 import {
   Tabs,
@@ -37,15 +40,15 @@ import {
   TypographyH4,
   TypographySmall,
 } from "@/shared/components/ui/typography";
-import { generateProductSchema, localizeRichText } from "@/shared/lib/seo-utils";
+import { District } from "@/shared/lib/districts";
+import {
+  generateProductSchema,
+  localizeRichText,
+} from "@/shared/lib/seo-utils";
 import { createClient, setUseStaticClient } from "@/shared/lib/supabase/server";
 import { cn } from "@/shared/lib/utils";
 import { cacheLife, cacheTag } from "next/cache";
-import { ImageWithSkeleton } from "@/shared/components/ui/image-with-skeleton";
 import { notFound } from "next/navigation";
-import { District } from "@/shared/lib/districts";
-import { TrackProductView } from "@/shared/components/layout/user/track-product-view";
-import { ProductFloatingBar } from "@/shared/components/layout/user/product-floating-bar";
 
 interface SpecSubItem {
   label: string;
@@ -243,12 +246,12 @@ export async function ProductDetailModule({
             __html: JSON.stringify({
               "@context": "https://schema.org",
               "@type": "FAQPage",
-              "mainEntity": faqList.map((item) => ({
+              mainEntity: faqList.map((item) => ({
                 "@type": "Question",
-                "name": item.question,
-                "acceptedAnswer": {
+                name: item.question,
+                acceptedAnswer: {
                   "@type": "Answer",
-                  "text": item.answer,
+                  text: item.answer,
                 },
               })),
             }),
@@ -274,7 +277,11 @@ export async function ProductDetailModule({
                           <AspectRatio ratio={16 / 9}>
                             <ImageWithSkeleton
                               src={img}
-                              alt={location ? `${product.name} ${product.sku ? `(${product.sku})` : ""} tại ${location.name} - ${product.brand?.name || "ELC"} - Điện máy ELC` : `${product.name} ${product.sku ? `(${product.sku})` : ""} - ${product.brand?.name || "ELC"} - Điện máy ELC`}
+                              alt={
+                                location
+                                  ? `${product.name} ${product.sku ? `(${product.sku})` : ""} tại ${location.name} - ${product.brand?.name || "ELC"} - Điện máy ELC`
+                                  : `${product.name} ${product.sku ? `(${product.sku})` : ""} - ${product.brand?.name || "ELC"} - Điện máy ELC`
+                              }
                               fill
                               className={STYLES.carouselImage}
                               loading={i === 0 ? "eager" : "lazy"}
@@ -335,16 +342,16 @@ export async function ProductDetailModule({
 
               <div className={STYLES.priceArea}>
                 <TypographyH3 className={STYLES.price}>
-                  {formatPrice(finalPrice || 0)}
+                  {formatPrice(finalPrice || 0).replace(/\s?₫$/, "đ")}
                 </TypographyH3>
                 {(product.discountPercent || 0) > 0 && (
                   <div className={STYLES.originalPriceWrapper}>
                     <TypographyH4 className={STYLES.originalPrice}>
-                      {formatPrice(product.originalPrice || 0)}
+                      {formatPrice(product.originalPrice || 0).replace(/\s?₫$/, "đ")}
                     </TypographyH4>
-                    <Badge variant="destructive">
-                      Giảm giá: {product.discountPercent}%
-                    </Badge>
+                    <TypographyH4 className="text-destructive">
+                      - {product.discountPercent}%
+                    </TypographyH4>
                   </div>
                 )}
               </div>
@@ -437,7 +444,9 @@ export async function ProductDetailModule({
             {product.description && (
               <TabsContent value="description" className={STYLES.tabsContent}>
                 <div className={STYLES.descriptionWrapper}>
-                  <ProductDescription content={localizeRichText(product.description, location)} />
+                  <ProductDescription
+                    content={localizeRichText(product.description, location)}
+                  />
                 </div>
               </TabsContent>
             )}
