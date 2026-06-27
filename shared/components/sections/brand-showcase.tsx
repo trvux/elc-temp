@@ -43,13 +43,14 @@ export function BrandShowcase({ brands = [] }: BrandShowcaseProps) {
             )}
           >
             <div className={styles.marqueeTrack}>
-              {/* Render multiple times for a seamless loop */}
-              {[...brands, ...brands, ...brands].map((brand, i) => {
+              {/* Render twice for a seamless loop */}
+              {[...brands, ...brands].map((brand, i) => {
                 const url = `/san-pham?brands=${brand.slug}`;
                 return (
                   <Link
                     key={`${brand.id}-${i}`}
                     href={url}
+                    prefetch={false}
                     className="flex items-center justify-center h-12 md:h-16 px-6 shrink-0 select-none group transition-all duration-300"
                     title={`Xem sản phẩm từ thương hiệu ${brand.name}`}
                   >

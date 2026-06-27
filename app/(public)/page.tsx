@@ -100,7 +100,7 @@ export default async function Home() {
   const { settings, projects, categoriesWithProducts, contacts, brands, branches } =
     await getCachedHomeData();
 
-  const categorySections = (categoriesWithProducts || []).map((catData) => ({
+  const categorySections = (categoriesWithProducts || []).map((catData, idx) => ({
     id: `category-${catData.category.slug}`,
     className: "",
     showDiamond: true,
@@ -111,6 +111,7 @@ export default async function Home() {
         products={catData.products || []}
         categoryId={catData.category.id}
         totalCount={catData.totalCount}
+        priorityCount={idx === 0 ? 4 : 0}
       />
     ),
   }));

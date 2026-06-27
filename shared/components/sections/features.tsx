@@ -32,6 +32,7 @@ interface FeaturesSectionProps {
   products: Product[];
   categoryId?: string;
   totalCount?: number;
+  priorityCount?: number;
 }
 
 export function FeaturesSection({
@@ -40,6 +41,7 @@ export function FeaturesSection({
   products: initialProducts,
   categoryId,
   totalCount = initialProducts.length,
+  priorityCount = 0,
 }: FeaturesSectionProps) {
   const [products, setProducts] = useState(initialProducts);
   const [isAutoLoading, setIsAutoLoading] = useState(false);
@@ -186,7 +188,7 @@ export function FeaturesSection({
           <div ref={gridRef} className={GRID_CLASS}>
             {products.map((product, i) => (
               <div key={product.id} className="text-foreground h-full">
-                <ProductCard product={product} priority={i < 8} />
+                <ProductCard product={product} priority={i < priorityCount} />
               </div>
             ))}
             {isAutoLoading &&

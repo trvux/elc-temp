@@ -64,6 +64,14 @@ export default function RootLayout({
           rel="preconnect"
           href="https://gdzihzsjfczuggwpykjk.supabase.co"
         />
+        <link
+          rel="preconnect"
+          href="https://media.dienmayelc.com.vn"
+        />
+        <link
+          rel="dns-prefetch"
+          href="https://media.dienmayelc.com.vn"
+        />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{

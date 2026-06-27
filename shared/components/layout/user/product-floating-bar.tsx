@@ -4,7 +4,7 @@ import { FormattedPrice } from "@/modules/catalog/presentation/components/Format
 import { Contact } from "@/modules/contact/domain";
 import { Button } from "@/shared/components/ui/button";
 import { useProductFloating } from "@/shared/providers/product-floating-provider";
-import { AnimatePresence, m } from "framer-motion";
+import { AnimatePresence, m } from "motion/react";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 

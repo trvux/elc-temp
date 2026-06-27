@@ -1,6 +1,6 @@
 "use client";
 
-import { m, type Variants } from "framer-motion";
+import { m, type Variants } from "motion/react";
 import type { ReactNode } from "react";
 
 // --- ANIMATION VARIANTS ---

@@ -26,15 +26,40 @@ export function ProjectMarqueeSection({
   projects = [],
 }: ProjectMarqueeSectionProps) {
   const [api, setApi] = React.useState<CarouselApi>();
+  const containerRef = React.useRef<HTMLDivElement>(null);
+  const intervalRef = React.useRef<ReturnType<typeof setInterval> | null>(null);
 
   React.useEffect(() => {
     if (!api) return;
 
-    const interval = setInterval(() => {
-      api.scrollNext();
-    }, 2500); // Đứng im 2.5 giây rồi trượt sang 1 nấc
+    const start = () => {
+      if (intervalRef.current) return;
+      intervalRef.current = setInterval(() => api.scrollNext(), 2500);
+    };
 
-    return () => clearInterval(interval);
+    const stop = () => {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+        intervalRef.current = null;
+      }
+    };
+
+    const observer = new IntersectionObserver(
+      ([entry]) => (entry.isIntersecting ? start() : stop()),
+      { threshold: 0.1 },
+    );
+
+    const el = containerRef.current;
+    if (el) observer.observe(el);
+
+    const onVisibility = () => (document.hidden ? stop() : (el && start()));
+    document.addEventListener("visibilitychange", onVisibility);
+
+    return () => {
+      stop();
+      observer.disconnect();
+      document.removeEventListener("visibilitychange", onVisibility);
+    };
   }, [api]);
 
   const safeProjects = projects || [];
@@ -77,7 +102,7 @@ export function ProjectMarqueeSection({
   };
 
   return (
-    <div className="w-full flex flex-col items-center justify-center gap-6">
+    <div ref={containerRef} className="w-full flex flex-col items-center justify-center gap-6">
       <div className="w-full max-w-7xl mx-auto px-4 md:px-0">
         <Carousel
           setApi={setApi}

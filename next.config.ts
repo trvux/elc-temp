@@ -28,8 +28,8 @@ const nextConfig: NextConfig = {
     staticGenerationMinPagesPerWorker: 150,
     staticGenerationMaxConcurrency: 2,
     staleTimes: {
-      dynamic: 5,
-      static: 30,
+      dynamic: 60,
+      static: 300,
     },
     optimizePackageImports: [
       "@phosphor-icons/react",
