@@ -5,7 +5,7 @@ import { ContactLink } from "@/modules/contact/presentation/components/ContactLi
 import { Button } from "@/shared/components/ui/button";
 import { useProductFloating } from "@/shared/providers/product-floating-provider";
 import { cn } from "@/shared/lib/utils";
-import { AnimatePresence, m, Variants } from "framer-motion";
+import { AnimatePresence, m, Variants } from "motion/react";
 import { useEffect, useMemo, useState } from "react";
 
 interface StickyContactActionsProps {

@@ -9,7 +9,6 @@ interface HotjarProps {
 export default function Hotjar({ id }: HotjarProps) {
   if (!id) return null;
 
-  // Check if it is a Contentsquare ID (e.g., "64ddf595f0391")
   const isContentsquare = /^[a-f0-9]+$/i.test(id) && id.length > 8;
 
   if (isContentsquare) {
@@ -17,16 +16,15 @@ export default function Hotjar({ id }: HotjarProps) {
       <Script
         id="contentsquare-analytics"
         src={`https://t.contentsquare.net/uxa/${id}.js`}
-        strategy="afterInteractive"
+        strategy="lazyOnload"
       />
     );
   }
 
-  // Classic Hotjar
   return (
     <Script
       id="hotjar-analytics"
-      strategy="afterInteractive"
+      strategy="lazyOnload"
       dangerouslySetInnerHTML={{
         __html: `
           (function(h,o,t,j,a,r){
@@ -42,4 +40,3 @@ export default function Hotjar({ id }: HotjarProps) {
     />
   );
 }
-

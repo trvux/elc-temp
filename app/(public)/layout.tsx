@@ -7,17 +7,12 @@ import { ProductFloatingProvider } from "@/shared/providers/product-floating-pro
 import { TopProgressBar } from "@/shared/components/layout/user/top-progress-bar";
 import { StickyContactActions } from "@/shared/components/sections/sticky-contact-actions";
 import Script from "next/script";
-import { headers } from "next/headers";
 
 interface PublicLayoutProps {
   children: React.ReactNode;
 }
 
 export default async function PublicLayout({ children }: PublicLayoutProps) {
-  const headersList = await headers();
-  const userAgent = headersList.get("user-agent") || "";
-  const isLighthouse = /Chrome-Lighthouse|Google-PageSpeed|insights/i.test(userAgent);
-
   const {
     settings,
     contacts,
@@ -35,53 +30,34 @@ export default async function PublicLayout({ children }: PublicLayoutProps) {
   return (
     <ProductFloatingProvider>
     <FilterTransitionProvider>
-      {/* Google Tag Manager (Phần script chỉ kích hoạt ở trang công cộng, loại trừ admin) */}
-      {isLighthouse ? (
-        <Script
-          id="gtm-script-lighthouse"
-          strategy="lazyOnload"
-          dangerouslySetInnerHTML={{
-            __html: `
-              (function(w,d,s,l,i){
-                w[l]=w[l]||[];
-                var fired = false;
-                function loadGTM() {
-                  if (fired) return;
-                  fired = true;
-                  w[l].push({'gtm.start': new Date().getTime(),event:'gtm.js'});
-                  var f=d.getElementsByTagName(s)[0],
-                      j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';
-                  j.async=true;
-                  j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;
-                  f.parentNode.insertBefore(j,f);
-                }
-                w.addEventListener('scroll', loadGTM, { passive: true });
-                w.addEventListener('mousemove', loadGTM, { passive: true });
-                w.addEventListener('touchstart', loadGTM, { passive: true });
-                setTimeout(loadGTM, 3500);
-              })(window,document,'script','dataLayer','GTM-TQ9DL8CG');
-            `,
-          }}
-        />
-      ) : (
-        <Script
-          id="gtm-script-normal"
-          strategy="afterInteractive"
-          dangerouslySetInnerHTML={{
-            __html: `
-              (function(w,d,s,l,i){
-                w[l]=w[l]||[];
+      {/* GTM: lazy load on first user interaction or after 3.5s timeout */}
+      <Script
+        id="gtm-script"
+        strategy="lazyOnload"
+        dangerouslySetInnerHTML={{
+          __html: `
+            (function(w,d,s,l,i){
+              w[l]=w[l]||[];
+              var fired = false;
+              function loadGTM() {
+                if (fired) return;
+                fired = true;
                 w[l].push({'gtm.start': new Date().getTime(),event:'gtm.js'});
                 var f=d.getElementsByTagName(s)[0],
                     j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';
                 j.async=true;
                 j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;
                 f.parentNode.insertBefore(j,f);
-              })(window,document,'script','dataLayer','GTM-TQ9DL8CG');
-            `,
-          }}
-        />
-      )}
+              }
+              w.addEventListener('scroll', loadGTM, { once: true, passive: true });
+              w.addEventListener('mousemove', loadGTM, { once: true, passive: true });
+              w.addEventListener('touchstart', loadGTM, { once: true, passive: true });
+              w.addEventListener('keydown', loadGTM, { once: true, passive: true });
+              setTimeout(loadGTM, 3500);
+            })(window,document,'script','dataLayer','GTM-TQ9DL8CG');
+          `,
+        }}
+      />
       <noscript>
         <iframe
           src="https://www.googletagmanager.com/ns.html?id=GTM-TQ9DL8CG"
