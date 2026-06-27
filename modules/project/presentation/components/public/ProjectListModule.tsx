@@ -79,30 +79,41 @@ async function getCachedProjectListData(
   // Only fetch all published projects separately when filters are active (avoid duplicate query)
   const hasFilters = !!(projectType?.id || categorySlugs.length > 0 || serviceSlugs.length > 0 || searchVal);
 
-  // Fetch independent database calls in parallel to resolve query waterfalls
-  const [
-    projectsRaw,
-    allProjectTypes,
-    allPublishedProjectsRawOrNull,
-    allServices,
-    projectTypeCategoriesRaw,
-    allCategoriesRaw
-  ] = await Promise.all([
-    getProjects(projectRepo, {
-      isPublished: true,
-      projectTypeId: projectType?.id || undefined,
-      categorySlugs: categorySlugs.length > 0 ? categorySlugs : undefined,
-      serviceSlugs: serviceSlugs.length > 0 ? serviceSlugs : undefined,
-      search: searchVal,
-    }),
-    getProjectTypes(projectTypeRepo),
-    hasFilters ? getProjects(projectRepo, { isPublished: true }) : Promise.resolve(null),
-    getServices(serviceRepo, { isPublished: true }),
-    projectType
-      ? getCategoriesByProjectTypeId(projectRepo, projectType.id)
-      : Promise.resolve(null),
-    projectType ? Promise.resolve([]) : getCategories(categoryRepo, { includeDeleted: false })
-  ]);
+  // Wrap DB calls in try/catch here — errors from "use cache" bypass try/catch in caller (RSC render error)
+  let projectsRaw: Awaited<ReturnType<typeof getProjects>> = [];
+  let allProjectTypes: Awaited<ReturnType<typeof getProjectTypes>> = [];
+  let allPublishedProjectsRawOrNull: Awaited<ReturnType<typeof getProjects>> | null = null;
+  let allServices: Awaited<ReturnType<typeof getServices>> = [];
+  let projectTypeCategoriesRaw: Awaited<ReturnType<typeof getCategoriesByProjectTypeId>> | null = null;
+  let allCategoriesRaw: Awaited<ReturnType<typeof getCategories>> = [];
+
+  try {
+    [
+      projectsRaw,
+      allProjectTypes,
+      allPublishedProjectsRawOrNull,
+      allServices,
+      projectTypeCategoriesRaw,
+      allCategoriesRaw,
+    ] = await Promise.all([
+      getProjects(projectRepo, {
+        isPublished: true,
+        projectTypeId: projectType?.id || undefined,
+        categorySlugs: categorySlugs.length > 0 ? categorySlugs : undefined,
+        serviceSlugs: serviceSlugs.length > 0 ? serviceSlugs : undefined,
+        search: searchVal,
+      }),
+      getProjectTypes(projectTypeRepo),
+      hasFilters ? getProjects(projectRepo, { isPublished: true }) : Promise.resolve(null),
+      getServices(serviceRepo, { isPublished: true }),
+      projectType
+        ? getCategoriesByProjectTypeId(projectRepo, projectType.id)
+        : Promise.resolve(null),
+      projectType ? Promise.resolve([]) : getCategories(categoryRepo, { includeDeleted: false }),
+    ]);
+  } catch (err) {
+    console.error("[getCachedProjectListData] DB connection error, returning empty fallback:", err);
+  }
 
   // Reuse projectsRaw when no filters are active (same query, no need to duplicate)
   const allPublishedProjectsRaw = allPublishedProjectsRawOrNull ?? projectsRaw;
