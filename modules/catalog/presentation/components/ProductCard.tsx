@@ -48,7 +48,7 @@ export function ProductCard({
             alt={`${product.name} - Chính hãng giá tốt tại Điện máy ELC`}
             title={`${product.name} - Điện máy ELC`}
             fill
-            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+            sizes="(max-width: 640px) calc(50vw - 12px), (max-width: 1024px) calc(33vw - 16px), 25vw"
             className="object-contain"
             loading={priority ? "eager" : "lazy"}
             priority={priority}

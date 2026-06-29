@@ -12,23 +12,22 @@ export function ImageWithSkeleton({
   className,
   wrapperClassName,
   alt,
+  priority,
   ...props
 }: ImageWithSkeletonProps) {
-  const [isLoaded, setIsLoaded] = useState(false);
+  const [isLoaded, setIsLoaded] = useState(!!priority);
 
   return (
     <div className={cn("relative overflow-hidden", wrapperClassName)}>
-      {/* Skeleton / Placeholder */}
       {!isLoaded && (
         <div className="absolute inset-0 bg-muted animate-pulse z-10" />
       )}
-      
-      {/* Actual Image */}
       <Image
         {...props}
+        priority={priority}
         alt={alt || ""}
         className={cn(
-          "transition-opacity duration-300",
+          !priority && "transition-opacity duration-300",
           isLoaded ? "opacity-100" : "opacity-0",
           className
         )}

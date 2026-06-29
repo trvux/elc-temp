@@ -41,9 +41,13 @@ If the website sitemap has changed and you need to rebuild the list of primary U
 
 ## Run History and Current Status
 
-Last updated: 2026-06-26
+Last updated: 2026-06-29
 - Total URLs in sitemap initially: 416
 - Run on 2026-06-25: Successfully submitted 204 URLs. Stopped at URL index 205 due to daily quota limit.
 - Run on 2026-06-26: Successfully submitted 206 URLs. Stopped at URL index 207 due to daily quota limit.
-- Remaining URLs in `scratch/urls-to-index.txt` to index on next run: 6
+- Run on 2026-06-29: Regenerated URL list (sitemap updated after SEO fixes — canonical tags, title location). Successfully submitted 205 URLs. Stopped at URL index 206 due to daily quota limit.
+- Remaining URLs in `scratch/urls-to-index.txt` to index on next run: 211
+
+## TODO
+- [ ] Run indexing tomorrow (2026-06-30): `npx tsx scratch/indexing-api.ts` — 211 URLs remaining.
 
