@@ -38,10 +38,8 @@ export function sanitizeAndFormatTitle(title: string | null | undefined, isHomep
 export function appendLocationToTitle(title: string, location?: District): string {
   if (!location) return title;
   const suffix = ` | ${SHOP_NAME}`;
-  if (title.toLowerCase().endsWith(suffix.toLowerCase())) {
-    title = title.substring(0, title.length - suffix.length);
-  }
-  return `${title} tại ${location.name}${suffix}`;
+  const base = title.endsWith(suffix) ? title.slice(0, -suffix.length) : title;
+  return `${base} tại ${location.name} | ${SHOP_NAME}`;
 }
 
 export function appendLocationToDescription(description: string, location?: District): string {
@@ -1151,6 +1149,9 @@ export function generateSystemPageMetadata(
   return {
     title: finalTitle,
     description,
+    alternates: {
+      canonical: cleanUrl,
+    },
     openGraph: {
       title: finalTitle,
       description,
