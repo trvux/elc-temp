@@ -160,6 +160,9 @@ export function generateProductMetadata(product: ProductWithRelations, location?
   return {
     title,
     description,
+    alternates: {
+      canonical: url,
+    },
     openGraph: {
       title,
       description,
@@ -247,6 +250,9 @@ export function generateCategoryMetadata(
   return {
     title,
     description,
+    alternates: {
+      canonical: url,
+    },
     openGraph: {
       title,
       description,
@@ -304,6 +310,9 @@ export function generateBrandMetadata(
   return {
     title: finalTitle,
     description: finalDescription,
+    alternates: {
+      canonical: url,
+    },
     openGraph: {
       title: finalTitle,
       description: finalDescription,
