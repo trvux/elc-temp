@@ -10,7 +10,7 @@ import {
   TypographyH1,
   TypographySmall,
 } from "@/shared/components/ui/typography";
-import { sanitizeAndFormatTitle } from "@/shared/lib/seo-utils";
+import { sanitizeAndFormatTitle, BASE_URL } from "@/shared/lib/seo-utils";
 import { setUseStaticClient } from "@/shared/lib/supabase/server";
 import { ArrowLeft } from "@phosphor-icons/react/dist/ssr";
 import { Metadata } from "next";
@@ -102,6 +102,9 @@ export async function generateMetadata({
   return {
     title,
     description,
+    alternates: {
+      canonical: `${BASE_URL}/tin-tuc/${slug}`,
+    },
     openGraph: {
       title,
       description,

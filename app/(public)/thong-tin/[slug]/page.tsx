@@ -26,7 +26,7 @@ import { Button } from "@/shared/components/ui/button";
 import Link from "next/link";
 import { Metadata } from "next";
 import { getPublicLayoutData } from "@/modules/settings";
-import { generateBranchDetailSchema, sanitizeAndFormatTitle } from "@/shared/lib/seo-utils";
+import { generateBranchDetailSchema, sanitizeAndFormatTitle, BASE_URL } from "@/shared/lib/seo-utils";
 import { GridSection } from "@/shared/components/sections/grid-section";
 
 // Helper to control Google Maps zoom level
@@ -89,6 +89,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return {
     title,
     description,
+    alternates: {
+      canonical: `${BASE_URL}/thong-tin/${slug}`,
+    },
     openGraph: {
       title,
       description,
