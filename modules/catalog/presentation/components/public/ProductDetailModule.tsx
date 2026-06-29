@@ -381,7 +381,7 @@ export async function ProductDetailModule({
             </TabsList>
 
             {normalizedSpecs.length > 0 && (
-              <TabsContent value="specs" className={STYLES.tabsContent}>
+              <TabsContent value="specs" forceMount className={cn(STYLES.tabsContent, "data-[state=inactive]:hidden")}>
                 <div className={STYLES.specsWrapper}>
                   <div className={STYLES.specsGrid}>
                     {normalizedSpecs
@@ -442,7 +442,7 @@ export async function ProductDetailModule({
             )}
 
             {product.description && (
-              <TabsContent value="description" className={STYLES.tabsContent}>
+              <TabsContent value="description" forceMount className={cn(STYLES.tabsContent, "data-[state=inactive]:hidden")}>
                 <div className={STYLES.descriptionWrapper}>
                   <ProductDescription
                     content={localizeRichText(product.description, location)}
