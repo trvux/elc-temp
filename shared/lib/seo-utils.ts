@@ -400,6 +400,46 @@ export function generateServiceMetadata(
   };
 }
 
+export interface BreadcrumbSchemaItem {
+  label: string;
+  href?: string;
+}
+
+/**
+ * Generates BreadcrumbList JSON-LD for server-side rendering. Always embed this via a
+ * plain <script> tag in the server component's own output (never inject client-side) —
+ * Googlebot's two-phase indexing doesn't reliably wait for client JS, so a client-only
+ * breadcrumb script gets picked up on some crawls and missed on others, causing Google
+ * to fall back to an auto-generated breadcrumb built from raw URL slugs.
+ */
+export function generateBreadcrumbSchema(
+  items: BreadcrumbSchemaItem[],
+  currentUrl: string,
+) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      {
+        "@type": "ListItem",
+        position: 1,
+        name: "Trang chủ",
+        item: BASE_URL,
+      },
+      ...items.map((item, index) => ({
+        "@type": "ListItem",
+        position: index + 2,
+        name: item.label,
+        item: item.href
+          ? item.href.startsWith("http")
+            ? item.href
+            : `${BASE_URL}${item.href}`
+          : currentUrl,
+      })),
+    ],
+  };
+}
+
 /**
  * Generates JSON-LD for Collection pages (Category or Brand) (Price Range)
  * This is what makes Google show "₫4,990,000 to ₫58,640,000"
@@ -488,6 +528,54 @@ export function generateCollectionSchema(
   };
 }
 
+interface ProductSpecSubItem {
+  label?: string;
+  value?: string;
+  unit?: string;
+}
+
+interface ProductSpecItem {
+  label?: string;
+  value?: string;
+  items?: ProductSpecSubItem[];
+}
+
+/**
+ * Flattens the product spec tab (array of {label, value, items?} or a plain
+ * label→value object) into schema.org PropertyValue entries. Without this, the specs
+ * table only exists as visual HTML — Rich Results and AI Overviews have no
+ * machine-readable source for it and fall back to guessing from free-text
+ * descriptions, which is why they surface some specs but not others.
+ */
+function buildSpecProperties(
+  specsRaw: unknown,
+): Array<{ "@type": "PropertyValue"; name: string; value: string }> {
+  const specs: ProductSpecItem[] = Array.isArray(specsRaw)
+    ? (specsRaw as ProductSpecItem[])
+    : specsRaw && typeof specsRaw === "object"
+      ? Object.entries(specsRaw as Record<string, unknown>).map(
+          ([label, value]) => ({ label, value: String(value) }),
+        )
+      : [];
+
+  const properties: Array<{ "@type": "PropertyValue"; name: string; value: string }> = [];
+
+  for (const spec of specs) {
+    if (!spec.label) continue;
+    if (spec.value) {
+      properties.push({ "@type": "PropertyValue", name: spec.label, value: spec.value });
+    }
+    for (const item of spec.items || []) {
+      if (!item.value) continue;
+      const name = item.label ? `${spec.label} - ${item.label}` : spec.label;
+      const value = item.unit ? `${item.value}${item.unit}` : item.value;
+      properties.push({ "@type": "PropertyValue", name, value });
+    }
+  }
+
+  return properties;
+}
+
 /**
  * Generates JSON-LD Structured Data for Google Rich Snippets
  */
@@ -529,9 +617,11 @@ export function generateProductSchema(product: ProductWithRelations, location?: 
     ? `${BASE_URL}/san-pham/${product.slug}/${location.slug}`
     : `${BASE_URL}/san-pham/${product.slug}`;
 
-  const productName = location 
+  const productName = location
     ? `${product.name} tại ${location.name}`
     : product.name;
+
+  const additionalProperty = buildSpecProperties(product.specs);
 
   return {
     "@context": "https://schema.org/",
@@ -558,6 +648,7 @@ export function generateProductSchema(product: ProductWithRelations, location?: 
       name: product.brand?.name || SHOP_NAME,
       logo: (brandLogo || undefined) as string | undefined,
     },
+    ...(additionalProperty.length > 0 ? { additionalProperty } : {}),
     offers: hasPrice ? {
       "@type": "Offer",
       url: productUrl,

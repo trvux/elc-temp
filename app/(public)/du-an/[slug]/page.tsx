@@ -220,6 +220,7 @@ async function ProjectDetailView({
             <PreviewContent
               content={project.description}
               hideFirstHeading={true}
+              fallbackAlt={project.title}
             />
 
             {/* Subsequent gallery images */}
@@ -306,7 +307,7 @@ async function ProjectDetailView({
         contentClassName="py-1"
       >
         <div className="w-full">
-          <Breadcrumbs items={breadcrumbItems} disableJsonLd={true} />
+          <Breadcrumbs items={breadcrumbItems} />
         </div>
       </GridSection>
     </main>

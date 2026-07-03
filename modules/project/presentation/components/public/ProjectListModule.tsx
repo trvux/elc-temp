@@ -21,6 +21,7 @@ import {
   TypographySmall,
 } from "@/shared/components/ui/typography";
 import { getQueryTokens } from "@/shared/lib/search-utils";
+import { generateBreadcrumbSchema } from "@/shared/lib/seo-utils";
 import { setUseStaticClient } from "@/shared/lib/supabase/server";
 import { cacheLife, cacheTag } from "next/cache";
 import Link from "next/link";
@@ -526,6 +527,25 @@ export async function ProjectListModule({
           <script
             type="application/ld+json"
             dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
+          />
+        );
+      })()}
+
+      {/* Breadcrumb schema — server-rendered so Google always sees it, see generateBreadcrumbSchema doc */}
+      {(() => {
+        const baseUrl =
+          process.env.NEXT_PUBLIC_APP_URL || "https://dienmayelc.com.vn";
+        const currentUrl = projectType
+          ? `${baseUrl}/du-an/${projectType.slug}`
+          : `${baseUrl}/du-an`;
+        const breadcrumbSchema = generateBreadcrumbSchema(
+          breadcrumbItems.map(({ label, href }) => ({ label, href })),
+          currentUrl,
+        );
+        return (
+          <script
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
           />
         );
       })()}

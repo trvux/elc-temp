@@ -27,6 +27,9 @@ interface InfiniteProductGridProps {
   totalCount: number;
   fetchParams: FetchParams;
   queryTokens?: string[];
+  /** Offset `initialProducts` starts at (e.g. page 2 of a paginated listing starts at offset 30).
+   * Scroll-loading continues forward from here instead of always assuming page 1. */
+  initialOffset?: number;
 }
 
 function buildSearchParams(params: FetchParams, offset: number, limit: number): URLSearchParams {
@@ -74,15 +77,17 @@ export function InfiniteProductGrid({
   totalCount,
   fetchParams,
   queryTokens = [],
+  initialOffset = 0,
 }: InfiniteProductGridProps) {
+  const initialLoadedCount = initialOffset + initialProducts.length;
   const [products, setProducts] = useState<ProductWithRelations[]>(initialProducts);
-  const [hasMore, setHasMore] = useState(initialProducts.length < totalCount);
+  const [hasMore, setHasMore] = useState(initialLoadedCount < totalCount);
   const [isLoading, setIsLoading] = useState(false);
 
   // Refs so loadMore never becomes stale from state changes
-  const hasMoreRef = useRef(initialProducts.length < totalCount);
+  const hasMoreRef = useRef(initialLoadedCount < totalCount);
   const pageSizeRef = useRef(12);
-  const loadedCountRef = useRef(initialProducts.length);
+  const loadedCountRef = useRef(initialLoadedCount);
   const gridRef = useRef<HTMLDivElement | null>(null);
   const sentinelRef = useRef<HTMLDivElement | null>(null);
   const loadingRef = useRef(false);

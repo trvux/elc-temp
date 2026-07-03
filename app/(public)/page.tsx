@@ -100,6 +100,10 @@ export default async function Home() {
   const { settings, projects, categoriesWithProducts, contacts, brands, branches } =
     await getCachedHomeData();
 
+  const otherProjects = (projects || [])
+    .filter((p) => !p.isFeatured)
+    .slice(0, 8);
+
   const categorySections = (categoriesWithProducts || []).map((catData, idx) => ({
     id: `category-${catData.category.slug}`,
     className: "",
@@ -147,6 +151,24 @@ export default async function Home() {
         />
       ),
     },
+    // Featured projects only cover a handful of the catalog — the rest previously
+    // had almost no internal link into them from anywhere but /du-an's own listing.
+    // This surfaces the next-most-recent non-featured projects too.
+    ...(otherProjects.length > 0
+      ? [
+          {
+            id: "project-marquee-more",
+            className: "",
+            showDiamond: true,
+            component: (
+              <ProjectMarqueeSection
+                projects={otherProjects}
+                title="Dự án khác đã thực hiện"
+              />
+            ),
+          },
+        ]
+      : []),
     {
       id: "cta",
       className: "", // bg-background text-foreground dark

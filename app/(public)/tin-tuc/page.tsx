@@ -13,7 +13,11 @@ import {
 import { setUseStaticClient } from "@/shared/lib/supabase/server";
 import { cacheLife, cacheTag } from "next/cache";
 import Link from "next/link";
-import { generateSystemPageMetadata } from "@/shared/lib/seo-utils";
+import {
+  BASE_URL,
+  generateBreadcrumbSchema,
+  generateSystemPageMetadata,
+} from "@/shared/lib/seo-utils";
 import type { Metadata } from "next";
 import { getCachedSystemPage } from "@/shared/lib/cached-system-page";
 
@@ -250,6 +254,18 @@ export default async function NewsHub() {
           <Breadcrumbs items={[{ label: "Tin tức", active: true }]} />
         </div>
       </GridSection>
+
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(
+            generateBreadcrumbSchema(
+              [{ label: "Tin tức" }],
+              `${BASE_URL}/tin-tuc`,
+            ),
+          ),
+        }}
+      />
     </main>
   );
 }

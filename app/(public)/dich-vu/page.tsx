@@ -23,7 +23,11 @@ import {
 import { setUseStaticClient } from "@/shared/lib/supabase/server";
 import { cn } from "@/shared/lib/utils";
 import { cacheLife, cacheTag } from "next/cache";
-import { generateSystemPageMetadata } from "@/shared/lib/seo-utils";
+import {
+  BASE_URL,
+  generateBreadcrumbSchema,
+  generateSystemPageMetadata,
+} from "@/shared/lib/seo-utils";
 import type { Metadata } from "next";
 import { getCachedSystemPage } from "@/shared/lib/cached-system-page";
 
@@ -171,6 +175,18 @@ export default async function ServicesHub() {
           <Breadcrumbs items={[{ label: "Dịch vụ", active: true }]} />
         </div>
       </GridSection>
+
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(
+            generateBreadcrumbSchema(
+              [{ label: "Dịch vụ" }],
+              `${BASE_URL}/dich-vu`,
+            ),
+          ),
+        }}
+      />
     </main>
   );
 }

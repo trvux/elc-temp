@@ -8,6 +8,35 @@ interface PreviewContentProps {
   hideFirstHeading?: boolean;
   skipFirstHeadingPromotion?: boolean;
   demoteHeadingOne?: boolean;
+  // Editors have an "Alt text" control in the rich-text editor (image bubble menu),
+  // but it's tucked in a popover and easy to skip — most authored images end up with
+  // no alt at all, which is a dead end for image search and screen readers. Rather
+  // than depend on a content backfill across every existing article/product, fall
+  // back to this page-level name (product/article/page title) for any image node
+  // that shipped without one, applied at render time so it covers old content too.
+  fallbackAlt?: string;
+}
+
+function fillMissingImageAlt(
+  node: Record<string, unknown>,
+  fallbackAlt: string,
+): Record<string, unknown> {
+  const attrs = node.attrs as Record<string, unknown> | undefined;
+  const content = Array.isArray(node.content)
+    ? (node.content as Array<Record<string, unknown>>).map((child) =>
+        fillMissingImageAlt(child, fallbackAlt),
+      )
+    : undefined;
+
+  if (node.type === "image" && !(attrs?.alt && String(attrs.alt).trim())) {
+    return {
+      ...node,
+      attrs: { ...attrs, alt: fallbackAlt },
+      ...(content !== undefined ? { content } : {}),
+    };
+  }
+
+  return content !== undefined ? { ...node, content } : node;
 }
 
 function isLevelOneHeading(node: Record<string, unknown>): boolean {
@@ -40,6 +69,7 @@ export const PreviewContent = ({
   hideFirstHeading = false,
   skipFirstHeadingPromotion = false,
   demoteHeadingOne = false,
+  fallbackAlt,
 }: PreviewContentProps) => {
   if (!content) return null;
 
@@ -86,6 +116,10 @@ export const PreviewContent = ({
             contentToRender.content as Array<Record<string, unknown>>,
           ),
         };
+      }
+
+      if (fallbackAlt) {
+        contentToRender = fillMissingImageAlt(contentToRender, fallbackAlt);
       }
 
       html = generateHTML(contentToRender as Parameters<typeof generateHTML>[0], getTiptapExtensions());

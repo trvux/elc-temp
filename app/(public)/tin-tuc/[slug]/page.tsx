@@ -1,3 +1,10 @@
+import { searchProducts } from "@/modules/catalog/application";
+import { productRepo } from "@/modules/catalog/infrastructure/SupabaseProductRepository";
+import { ProductCard } from "@/modules/catalog/presentation/components/ProductCard";
+import { getCategories } from "@/modules/category/application";
+import { categoryRepo } from "@/modules/category/infrastructure/categoryRepo";
+import { getGroups } from "@/modules/group/application";
+import { groupRepo } from "@/modules/group/infrastructure/groupRepo";
 import { getNews, getNewsBySlug } from "@/modules/news/application";
 import { newsRepo } from "@/modules/news/infrastructure/SupabaseNewsRepository";
 import { Breadcrumbs } from "@/shared/components/layout/user/breadcrumbs";
@@ -8,11 +15,20 @@ import { GridSection } from "@/shared/components/sections/grid-section";
 import { ImageWithSkeleton } from "@/shared/components/ui/image-with-skeleton";
 import {
   TypographyH1,
+  TypographyH2,
   TypographySmall,
 } from "@/shared/components/ui/typography";
-import { sanitizeAndFormatTitle, BASE_URL } from "@/shared/lib/seo-utils";
+import {
+  matchLinksByName,
+  type NamedLink,
+} from "@/shared/lib/content-relevance";
+import {
+  BASE_URL,
+  generateBreadcrumbSchema,
+  sanitizeAndFormatTitle,
+} from "@/shared/lib/seo-utils";
 import { setUseStaticClient } from "@/shared/lib/supabase/server";
-import { ArrowLeft } from "@phosphor-icons/react/dist/ssr";
+import { ArrowLeft, ArrowRightIcon } from "@phosphor-icons/react/dist/ssr";
 import { Metadata } from "next";
 import { cacheLife, cacheTag } from "next/cache";
 import Link from "next/link";
@@ -35,7 +51,13 @@ interface PageProps {
 async function getCachedNewsDetailData(slug: string) {
   "use cache";
   cacheLife("hours");
-  cacheTag("news-list", `news-slug:${slug}`);
+  cacheTag(
+    "news-list",
+    "categories",
+    "products",
+    "products-list",
+    `news-slug:${slug}`,
+  );
   setUseStaticClient(true);
 
   const allNews = await getNews(newsRepo, { isPublished: true });
@@ -48,6 +70,9 @@ async function getCachedNewsDetailData(slug: string) {
       prevNews: null,
       nextNews: null,
       relatedNews: [],
+      relatedProducts: [],
+      relatedProductsEntity: null,
+      relatedProductsTotal: 0,
       currentYear: new Date().getFullYear(),
     };
   }
@@ -69,6 +94,69 @@ async function getCachedNewsDetailData(slug: string) {
   );
   const relatedNews = [...sameCategoryNews, ...fallbackNews].slice(0, 3);
 
+  // "Sản phẩm liên quan": ưu tiên category_id nếu admin đã gán trực tiếp (chính
+  // xác tuyệt đối); nếu chưa gán (hiện tại 0/94 bài có category_id — chưa ai gắn
+  // tay), rơi về khớp theo tên category/group xuất hiện nguyên văn trong tiêu đề.
+  // Lấy MỘT category/group khớp tốt nhất rồi hiển thị đầy đủ sản phẩm của nó
+  // (không chặn ở vài sản phẩm) — nếu nhiều hơn ngưỡng preview thì kèm link
+  // "Xem tất cả" sang trang category/group đó, giống hệt cách trang chủ đã làm.
+  const RELATED_PRODUCTS_PREVIEW = 15;
+
+  const [allCategories, allGroups] = await Promise.all([
+    getCategories(categoryRepo),
+    getGroups(groupRepo),
+  ]);
+  type EntityCandidate = NamedLink & { id: string; type: "category" | "group" };
+  const entityCandidates: EntityCandidate[] = [
+    ...allCategories.map((c) => ({
+      id: c.id,
+      name: c.name,
+      slug: c.slug,
+      type: "category" as const,
+    })),
+    ...allGroups.map((g) => ({
+      id: g.id,
+      name: g.name,
+      slug: g.slug,
+      type: "group" as const,
+    })),
+  ];
+  const matchedEntity = newsItem.categoryId
+    ? entityCandidates.find(
+        (c) => c.type === "category" && c.id === newsItem.categoryId,
+      )
+    : matchLinksByName(newsItem.title, entityCandidates, 1)[0];
+
+  let relatedProducts: Awaited<ReturnType<typeof searchProducts>>["products"] =
+    [];
+  let relatedProductsEntity: EntityCandidate | null = null;
+  let relatedProductsTotal = 0;
+
+  if (matchedEntity) {
+    const categoryIds =
+      matchedEntity.type === "category"
+        ? [matchedEntity.id]
+        : allCategories
+            .filter(
+              (c) =>
+                c.groupId === matchedEntity.id &&
+                !c.name.toLowerCase().includes("chưa phân loại"),
+            )
+            .map((c) => c.id);
+
+    if (categoryIds.length > 0) {
+      const { products, totalCount } = await searchProducts(productRepo, "", {
+        categoryIds,
+        isPublished: true,
+        limit: RELATED_PRODUCTS_PREVIEW,
+        offset: 0,
+      });
+      relatedProducts = products;
+      relatedProductsTotal = totalCount;
+      relatedProductsEntity = matchedEntity;
+    }
+  }
+
   const currentYear = new Date().getFullYear();
 
   return {
@@ -76,6 +164,9 @@ async function getCachedNewsDetailData(slug: string) {
     prevNews,
     nextNews,
     relatedNews,
+    relatedProducts,
+    relatedProductsEntity,
+    relatedProductsTotal,
     currentYear,
   };
 }
@@ -117,8 +208,16 @@ export default async function NewsDetailPage({ params }: PageProps) {
   const { slug } = await params;
 
   // Fetch current news detail using the cached helper
-  const { newsItem, prevNews, nextNews, relatedNews, currentYear } =
-    await getCachedNewsDetailData(slug);
+  const {
+    newsItem,
+    prevNews,
+    nextNews,
+    relatedNews,
+    relatedProducts,
+    relatedProductsEntity,
+    relatedProductsTotal,
+    currentYear,
+  } = await getCachedNewsDetailData(slug);
 
   if (!newsItem || !newsItem.isPublished) {
     notFound();
@@ -158,11 +257,20 @@ export default async function NewsDetailPage({ params }: PageProps) {
     description: newsItem.metaDescription || newsItem.title,
   };
 
+  const breadcrumbSchema = generateBreadcrumbSchema(
+    [{ label: "Tin tức", href: "/tin-tuc" }, { label: title }],
+    `${BASE_URL}/tin-tuc/${slug}`,
+  );
+
   return (
     <main className={STYLES.main}>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(newsArticleSchema) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
       />
       {/* Khối 1: Chi tiết bài viết */}
       <GridSection
@@ -191,10 +299,45 @@ export default async function NewsDetailPage({ params }: PageProps) {
             <PreviewContent
               content={newsItem.content}
               hideFirstHeading={true}
+              fallbackAlt={title}
             />
           </article>
         </div>
       </GridSection>
+
+      {/* Khối 2b: Sản phẩm liên quan */}
+      {relatedProducts.length > 0 && (
+        <GridSection
+          id="news-related-products"
+          isFirst={false}
+          showDiamond={true}
+          contentClassName="py-10 md:py-16"
+        >
+          <div className="max-w-4xl mx-auto w-full">
+            <div className="flex items-center justify-between gap-4 mb-6">
+              <TypographyH2 className="text-xl md:text-2xl font-bold tracking-tight font-heading">
+                Sản phẩm liên quan
+              </TypographyH2>
+              {relatedProductsEntity &&
+                relatedProductsTotal > relatedProducts.length && (
+                  <Link
+                    href={`/san-pham/${relatedProductsEntity.slug}`}
+                    prefetch={false}
+                    className="group inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors shrink-0"
+                  >
+                    Xem tất cả {relatedProductsTotal} sản phẩm
+                    <ArrowRightIcon className="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5" />
+                  </Link>
+                )}
+            </div>
+            <div className="grid gap-x-4 gap-y-6 grid-cols-[repeat(auto-fill,minmax(160px,1fr))]">
+              {relatedProducts.map((p) => (
+                <ProductCard key={p.id} product={p} />
+              ))}
+            </div>
+          </div>
+        </GridSection>
+      )}
 
       {/* Khối 3: Bài viết liên quan */}
       {relatedNews.length > 0 && (

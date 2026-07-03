@@ -8,8 +8,10 @@ import { Breadcrumbs } from "@/shared/components/layout/user/breadcrumbs";
 import { FilteredGridWrapper } from "@/shared/components/layout/user/filtered-grid-wrapper";
 import { RecentlyViewedSection } from "@/shared/components/layout/user/recently-viewed-section";
 import { InfiniteProductGrid } from "@/shared/components/layout/user/infinite-product-grid";
+import { ProductPagination } from "@/shared/components/layout/user/product-pagination";
 import { PreviewContent } from "@/shared/components/layout/user/preview-content";
 import { ScrollToTop } from "@/shared/components/layout/user/scroll-to-top";
+import { buildPageHref } from "@/shared/lib/pagination";
 import {
   Accordion,
   AccordionContent,
@@ -31,6 +33,8 @@ import {
 } from "@/shared/components/ui/typography";
 import { getQueryTokens } from "@/shared/lib/search-utils";
 import {
+  BASE_URL,
+  generateBreadcrumbSchema,
   generateCollectionSchema,
   localizeRichText,
 } from "@/shared/lib/seo-utils";
@@ -38,9 +42,14 @@ import { createClient, setUseStaticClient } from "@/shared/lib/supabase/server";
 import { cn } from "@/shared/lib/utils";
 import { cacheLife, cacheTag } from "next/cache";
 import { notFound } from "next/navigation";
+import Link from "next/link";
 
 import { GridSection } from "@/shared/components/sections/grid-section";
 import { District } from "@/shared/lib/districts";
+import { ImageWithSkeleton } from "@/shared/components/ui/image-with-skeleton";
+import { matchNewsByEntityName } from "@/shared/lib/content-relevance";
+import { getNews } from "@/modules/news/application";
+import { newsRepo } from "@/modules/news/infrastructure/SupabaseNewsRepository";
 
 interface ProductListModuleProps {
   entity: ResolvedEntity;
@@ -65,6 +74,11 @@ const STYLES = {
   ),
 };
 
+// One real, crawlable page of products. Every page is server-rendered at its own
+// `?page=N` URL via ProductPagination below — scales to any catalog size, unlike a
+// raised SSR cap. InfiniteProductGrid layers scroll-to-load on top for JS users.
+const PAGE_SIZE = 30;
+
 async function getCachedListModuleData(
   entity: ResolvedEntity,
   q: string,
@@ -73,6 +87,7 @@ async function getCachedListModuleData(
   brandSlugs: string[],
   specs: Record<string, string[]>,
   condition: string | undefined,
+  offset: number,
 ) {
   "use cache";
   cacheLife("days");
@@ -132,8 +147,8 @@ async function getCachedListModuleData(
       maxPrice,
       specs,
       condition,
-      limit: 30,
-      offset: 0,
+      limit: PAGE_SIZE,
+      offset,
     },
   );
 
@@ -145,6 +160,20 @@ async function getCachedListModuleData(
     breadcrumbParent,
     currentYear: new Date().getFullYear(),
   };
+}
+
+// "Bài viết liên quan" — cheap reverse of the same name-substring match used on the
+// news article page (shared/lib/content-relevance.ts). Only meaningful for
+// category/group entities: brand and district-location names essentially never
+// appear verbatim in article titles, so we don't bother fetching for those.
+async function getCachedRelatedNews(entityName: string) {
+  "use cache";
+  cacheLife("hours");
+  cacheTag("news-list");
+  setUseStaticClient(true);
+
+  const allNews = await getNews(newsRepo, { isPublished: true });
+  return matchNewsByEntityName(entityName, allNews ?? [], 3);
 }
 
 function getFallbackContent(entity: ResolvedEntity, location?: District) {
@@ -287,8 +316,8 @@ export async function ProductListModule({
     typeof sParams.maxPrice === "string" && sParams.maxPrice
       ? Number(sParams.maxPrice)
       : undefined;
-  const currentPage = Number(sParams.page) || 1;
-  void currentPage; // kept for URL compat, not used directly
+  const currentPage = Math.max(1, Math.floor(Number(sParams.page)) || 1);
+  const offset = (currentPage - 1) * PAGE_SIZE;
   const brandSlugs = Array.isArray(sParams.brands)
     ? sParams.brands
     : typeof sParams.brands === "string"
@@ -345,9 +374,16 @@ export async function ProductListModule({
     brandSlugs,
     specs,
     condition,
+    offset,
   );
 
+  const totalPages = Math.max(1, Math.ceil(totalCount / PAGE_SIZE));
   const queryTokens = getQueryTokens(q);
+
+  const relatedNews =
+    entity.type === "category" || entity.type === "group"
+      ? await getCachedRelatedNews(entity.data.name)
+      : [];
 
   // Build fetchParams for InfiniteProductGrid
   const fetchParams = {
@@ -387,8 +423,8 @@ export async function ProductListModule({
 
   if (location && faqList.length > 0) {
     faqList = faqList.map((item) => {
-      let q = item.question;
-      let a = item.answer;
+      const q = item.question;
+      const a = item.answer;
 
       const replaceLocationTerms = (text: string): string => {
         return text
@@ -479,6 +515,7 @@ export async function ProductListModule({
               <div className="flex-1 min-w-0">
                 <Breadcrumbs
                   items={[
+                    { label: "Sản phẩm", href: "/san-pham" },
                     ...(breadcrumbParent ? [breadcrumbParent] : []),
                     { label: pageTitle, active: true },
                   ]}
@@ -523,8 +560,15 @@ export async function ProductListModule({
                   totalCount={totalCount}
                   fetchParams={fetchParams}
                   queryTokens={queryTokens}
+                  initialOffset={offset}
                 />
               </FilteredGridWrapper>
+
+              <ProductPagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                buildHref={(page) => buildPageHref(sParams, page)}
+              />
             </div>
           </SidebarInset>
         </SidebarProvider>
@@ -538,6 +582,7 @@ export async function ProductListModule({
             className="prose-sm md:prose-base text-foreground/80 leading-relaxed max-w-4xl"
             skipFirstHeadingPromotion={true}
             demoteHeadingOne={true}
+            fallbackAlt={pageTitle}
           />
         </GridSection>
       )}
@@ -569,6 +614,41 @@ export async function ProductListModule({
         </GridSection>
       )}
 
+      {/* Bài viết liên quan */}
+      {relatedNews.length > 0 && (
+        <GridSection>
+          <div className="max-w-4xl space-y-6">
+            <TypographyH2 className="text-xl md:text-2xl font-bold tracking-tight">
+              Bài viết liên quan
+            </TypographyH2>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+              {relatedNews.map((item) => (
+                <Link
+                  key={item.id}
+                  href={`/tin-tuc/${item.slug}`}
+                  prefetch={false}
+                  className="group flex flex-col gap-3 no-underline"
+                >
+                  {item.image && (
+                    <ImageWithSkeleton
+                      wrapperClassName="relative w-full aspect-video rounded-lg overflow-hidden border bg-muted"
+                      src={item.image}
+                      alt={item.title}
+                      fill
+                      className="object-cover transition-transform duration-500 group-hover:scale-105"
+                      sizes="(max-width: 640px) 100vw, 250px"
+                    />
+                  )}
+                  <h4 className="text-sm font-semibold tracking-tight text-foreground group-hover:text-foreground/70 transition-colors line-clamp-2 leading-snug">
+                    {item.title}
+                  </h4>
+                </Link>
+              ))}
+            </div>
+          </div>
+        </GridSection>
+      )}
+
       {/* Footer */}
       <GridSection contentClassName="py-6">
         <div className="flex flex-col md:flex-row justify-between items-center gap-6 text-muted-foreground">
@@ -591,6 +671,27 @@ export async function ProductListModule({
           <script
             type="application/ld+json"
             dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
+          />
+        );
+      })()}
+
+      {/* Breadcrumb schema — server-rendered so Google always sees it, see generateBreadcrumbSchema doc */}
+      {(() => {
+        const currentUrl = location
+          ? `${BASE_URL}/san-pham/${entity.data.slug}/${location.slug}`
+          : `${BASE_URL}/san-pham/${entity.data.slug}`;
+        const breadcrumbSchema = generateBreadcrumbSchema(
+          [
+            { label: "Sản phẩm", href: "/san-pham" },
+            ...(breadcrumbParent ? [breadcrumbParent] : []),
+            { label: pageTitle },
+          ],
+          currentUrl,
+        );
+        return (
+          <script
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
           />
         );
       })()}
