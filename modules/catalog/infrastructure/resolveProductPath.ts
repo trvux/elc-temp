@@ -52,7 +52,7 @@ export async function resolveProductPathFromDb(slug: string): Promise<ResolvedEn
     case "categories": {
       const { data } = await supabase
         .from("categories")
-        .select("*")
+        .select("*, group:group_categories(*)")
         .eq("id", registryItem.entity_id)
         .is("deleted_at", null)
         .single();

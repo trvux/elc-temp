@@ -484,20 +484,90 @@ export function generateCollectionSchema(
     ? rawEntityDesc.replace(/\bURL:\s*/gi, "").trim() || undefined
     : undefined;
 
-  // Extract first product image to make Product schema valid and warning-free
-  const firstProductWithImage = products.find((p) => {
-    const imgs = p.images;
-    return Array.isArray(imgs) && imgs.length > 0;
-  });
-  const imageUrl = firstProductWithImage ? firstProductWithImage.images?.[0] : undefined;
+  // Gather first images from all products to provide Google with multiple product images
+  const imageUrls = Array.from(
+    new Set(
+      products
+        .map((p) => p.images?.[0])
+        .filter((img): img is string => typeof img === "string" && img.length > 0)
+    )
+  );
+  const images = imageUrls.length > 0 ? imageUrls : undefined;
 
   const url = location 
     ? `${BASE_URL}/san-pham/${entityRecord.slug}/${location.slug}`
     : `${BASE_URL}/san-pham/${entityRecord.slug}`;
 
-  const baseName = entityName && entityName.toLowerCase().includes("chính hãng")
-    ? entityName
-    : `${entityName} chính hãng`;
+  const now = new Date();
+  const month = now.getMonth() + 1;
+  const year = now.getFullYear();
+  const timeStr = `T${month}/${year}`;
+
+  const slug = (entityRecord.slug || "") as string;
+  let baseName = "";
+
+  const overrides: Record<string, string> = {
+    "may-lanh-treo-tuong": `Máy lạnh, điều hòa treo tường tiết kiệm điện, giao nhanh ${timeStr}`,
+    "may-lanh-am-tran-da-huong-thoi": `Máy lạnh âm trần giá tốt - Giao lắp tận nơi ${timeStr}`,
+    "san-pham": `Máy lạnh, điều hòa tiết kiệm điện, giao nhanh ${timeStr}`,
+    "may-lanh": `Máy lạnh, điều hòa tiết kiệm điện, giao nhanh ${timeStr}`,
+  };
+
+  if (overrides[slug]) {
+    baseName = overrides[slug];
+  } else {
+    const templates = [
+      (name: string, date: string) => `${name} tiết kiệm điện, giao nhanh ${date}`,
+      (name: string, date: string) => `${name} giá tốt - Giao lắp tận nơi ${date}`,
+      (name: string, date: string) => `${name} chính hãng, giá tốt nhất ${date}`,
+      (name: string, date: string) => `${name} chính hãng, giao lắp nhanh ${date}`,
+      (name: string, date: string) => `${name} giá kho, lắp đặt trọn gói ${date}`,
+    ];
+
+    const getDeterministicIndex = (str: string, max: number): number => {
+      let hash = 0;
+      for (let i = 0; i < str.length; i++) {
+        hash = str.charCodeAt(i) + ((hash << 5) - hash);
+      }
+      return Math.abs(hash) % max;
+    };
+
+    const getDynamicCategoryName = (name: string, categorySlug: string, group?: Record<string, unknown> | null): string => {
+      let clean = name;
+      
+      // Clean up common trailing long descriptions
+      clean = clean
+        .replace(/(?:đơn hướng thổi|đa hướng thổi|nối ống gió|lọc không khí|đồng bộ của hệ thống cấp gió tươi|RO 3 in 1)/gi, "")
+        .trim()
+        .replace(/,\s*$/, "")
+        .trim();
+
+      if (clean.toLowerCase() === "phụ kiện") {
+        clean = "phụ kiện hệ thống cấp gió tươi";
+      }
+
+      if (group && typeof group.name === "string") {
+        const groupName = group.name;
+        if (!clean.toLowerCase().includes(groupName.toLowerCase())) {
+          clean = `${groupName} ${clean.toLowerCase()}`;
+        }
+      }
+      
+      clean = clean.charAt(0).toUpperCase() + clean.slice(1);
+      
+      const shouldExpand = categorySlug.length % 2 === 0;
+      if (shouldExpand && clean.toLowerCase().startsWith("máy lạnh")) {
+        clean = clean.replace(/^[Mm]áy\s+[L]ạnh/i, "Máy lạnh, điều hòa");
+      }
+      
+      return clean;
+    };
+
+    const group = entityRecord.group as Record<string, unknown> | null | undefined;
+    const cleanName = getDynamicCategoryName(entityName || "", slug, group);
+    const patternIdx = getDeterministicIndex(slug, templates.length);
+    baseName = templates[patternIdx](cleanName, timeStr);
+  }
 
   return {
     "@context": "https://schema.org/",
@@ -507,7 +577,7 @@ export function generateCollectionSchema(
       entityDesc || `Chuyên cung cấp ${baseName} tại Điện máy ELC. Giá tốt nhất thị trường, hỗ trợ lắp đặt chuyên nghiệp, bảo hành uy tín. Xem ngay!`,
       location
     ),
-    image: imageUrl,
+    image: images,
     url: url,
     offers: {
       "@type": "AggregateOffer",
