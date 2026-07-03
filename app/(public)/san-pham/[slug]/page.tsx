@@ -7,6 +7,7 @@ import {
   generateBrandMetadata,
   generateCategoryMetadata,
   generateProductMetadata,
+  extractProductHp,
   SHOP_NAME,
 } from "@/shared/lib/seo-utils";
 import { Metadata, ResolvingMetadata } from "next";
@@ -41,7 +42,8 @@ export async function generateMetadata(
   switch (resolved.type) {
     case "product": {
       const product = resolved.data;
-      const relatedProducts = await getCachedRelatedProducts(product.categoryId, product.id, product.brandId);
+      const currentHp = extractProductHp(product);
+      const relatedProducts = await getCachedRelatedProducts(product.categoryId, product.id, product.brandId, currentHp);
       const seoMetadata = generateProductMetadata(product, undefined, relatedProducts);
       const ogImages = seoMetadata.openGraph?.images;
       const seoImages = Array.isArray(ogImages) ? ogImages : ogImages ? [ogImages] : [];
