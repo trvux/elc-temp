@@ -762,11 +762,75 @@ export function generateProductSchema(product: ProductWithRelations, location?: 
     ? `${BASE_URL}/san-pham/${product.slug}/${location.slug}`
     : `${BASE_URL}/san-pham/${product.slug}`;
 
-  const productName = location
-    ? `${product.name} tại ${location.name}`
-    : product.name;
+  const brandName = product.brand?.name || "";
+  const categoryName = product.category?.name || "Máy lạnh";
+  
+  const cleanCategory = categoryName
+    .replace(/(?:đơn hướng thổi|đa hướng thổi|nối ống gió|lọc không khí|đồng bộ của hệ thống cấp gió tươi|RO 3 in 1)/gi, "")
+    .trim()
+    .replace(/,\s*$/, "")
+    .trim();
+
+  const productSearchText = `${product.name} ${product.metaDescription || ""} ${typeof product.description === "string" ? product.description : ""}`.toLowerCase();
+  const isInverter = productSearchText.includes("inverter");
+  const inverterStr = isInverter ? "Inverter" : "";
 
   const additionalProperty = buildSpecProperties(product.specs);
+
+  const specHp = additionalProperty.find(
+    (s) =>
+      s.name?.toLowerCase().includes("công suất") &&
+      (s.value?.toLowerCase().includes("hp") || s.value?.toLowerCase().includes("ngựa"))
+  );
+  let hpValue = specHp?.value || "";
+
+  if (!hpValue) {
+    const combinedText = `${product.sku} ${product.name}`.toLowerCase();
+    const hpMatch =
+      combinedText.match(/(\d+(\.\d+)?)\s*(hp|ngựa|ngua)/) ||
+      combinedText.match(/(\d{2})hp/);
+
+    if (hpMatch) {
+      const val = hpMatch[1];
+      const isMismatchedSkuCode = hpMatch[0].endsWith("hp") && !hpMatch[0].includes(" ");
+      if (isMismatchedSkuCode && val === "10") hpValue = "1HP";
+      else if (isMismatchedSkuCode && val === "15") hpValue = "1.5HP";
+      else if (isMismatchedSkuCode && val === "20") hpValue = "2HP";
+      else if (isMismatchedSkuCode && val === "25") hpValue = "2.5HP";
+      else if (val.length === 2 && parseInt(val) > 25)
+        hpValue = `${val}HP`;
+      else
+        hpValue = val.includes(".") || val.length === 1 ? `${val}HP` : hpValue;
+    }
+  }
+
+  let formattedHp = hpValue.trim();
+  if (formattedHp) {
+    formattedHp = formattedHp.replace(/hp/gi, "Hp");
+  }
+
+  const mpnVal = product.mpn || (product as unknown as Record<string, unknown>).mpn as string | null | undefined;
+  const skuVal = product.sku || "";
+  const modelVal = mpnVal || skuVal.split(/[\s/]+/)[0] || "";
+
+  const now = new Date();
+  const month = now.getMonth() + 1;
+  const year = now.getFullYear();
+  const timeStr = `T${month}/${year}`;
+
+  const nameParts = [
+    cleanCategory,
+    brandName,
+    inverterStr,
+    formattedHp,
+    modelVal,
+  ].filter((part) => typeof part === "string" && part.trim().length > 0);
+
+  const baseProductName = `${nameParts.join(" ")} chính hãng, giá rẻ ${timeStr}`.replace(/\s+/g, " ").trim();
+
+  const productName = location
+    ? `${baseProductName} tại ${location.name}`
+    : baseProductName;
 
   return {
     "@context": "https://schema.org/",
