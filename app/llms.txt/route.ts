@@ -4,7 +4,7 @@ import { cacheLife } from "next/cache";
 
 const BASE_URL = "https://dienmayelc.com.vn";
 
-export async function GET() {
+async function getLlmMarkdown() {
   "use cache";
   cacheLife("hours");
   const supabase = createStaticClient();
@@ -184,6 +184,11 @@ export async function GET() {
     });
   }
 
+  return markdown;
+}
+
+export async function GET() {
+  const markdown = await getLlmMarkdown();
   return new NextResponse(markdown, {
     headers: {
       "Content-Type": "text/plain; charset=utf-8",

@@ -70,7 +70,7 @@ function tiptapToText(node: unknown): string {
   return "";
 }
 
-export async function GET() {
+async function getLlmFullMarkdown() {
   "use cache";
   cacheLife("hours");
   const supabase = createStaticClient();
@@ -292,6 +292,11 @@ export async function GET() {
     });
   }
 
+  return markdown;
+}
+
+export async function GET() {
+  const markdown = await getLlmFullMarkdown();
   return new NextResponse(markdown, {
     headers: {
       "Content-Type": "text/plain; charset=utf-8",
