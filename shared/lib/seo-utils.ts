@@ -877,6 +877,56 @@ export function extractProductHp(product: unknown): string {
 }
 
 
+function extractPlainTextFromRichContent(node: unknown): string {
+  if (!node || typeof node !== "object") return "";
+  const typedNode = node as { type?: string; text?: string; content?: unknown[] };
+
+  let text = typeof typedNode.text === "string" ? typedNode.text : "";
+  if (Array.isArray(typedNode.content)) {
+    const childText = typedNode.content
+      .map((child) => extractPlainTextFromRichContent(child))
+      .join(" ");
+    text = text ? `${text} ${childText}` : childText;
+  }
+  // Add a separator after block-level nodes so paragraphs/headings don't run together
+  if (typedNode.type && typedNode.type !== "text" && text) {
+    text = `${text} `;
+  }
+  return text;
+}
+
+/**
+ * Turns the product's rich-text (Tiptap JSON) description into a plain-text
+ * excerpt so the real body copy — not just the templated meta description —
+ * ends up in the Product JSON-LD `description`. Structured data is a much
+ * stronger signal to Google/AI systems than description text buried in a
+ * CSS-hidden tab, so this excerpt is what search/AI Overview actually reads.
+ */
+export function getProductDescriptionExcerpt(
+  description: unknown,
+  maxLength: number = 300,
+): string {
+  if (!description) return "";
+
+  let text = "";
+  if (typeof description === "string") {
+    text = description.replace(/<[^>]+>/g, " ");
+  } else if (
+    typeof description === "object" &&
+    (description as Record<string, unknown>).type === "doc"
+  ) {
+    text = extractPlainTextFromRichContent(description);
+  }
+
+  text = text.replace(/\s+/g, " ").trim();
+  if (!text) return "";
+  if (text.length <= maxLength) return text;
+
+  const truncated = text.slice(0, maxLength);
+  const lastSpace = truncated.lastIndexOf(" ");
+  return `${truncated.slice(0, lastSpace > 0 ? lastSpace : maxLength).trim()}...`;
+}
+
 /**
  * Generates JSON-LD Structured Data for Google Rich Snippets
  */
@@ -913,6 +963,7 @@ export function generateProductSchema(
 
   // Reuse the smart metadata logic to get the same description
   const metadata = generateProductMetadata(product, location, relatedProducts);
+  const descriptionExcerpt = getProductDescriptionExcerpt(product.description, 300);
 
   const brandLogo =
     product.brand?.logoUrl ||
@@ -978,7 +1029,7 @@ export function generateProductSchema(
           ? product.images[0]
           : undefined,
     },
-    description: metadata.description || "",
+    description: descriptionExcerpt || metadata.description || "",
     sku: firstSku,
     mpn: mpn || undefined,
     gtin: hasGtin ? gtin : undefined,

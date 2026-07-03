@@ -138,7 +138,7 @@ export async function GET() {
 
     if (!categorySlug || !brandSlug) continue;
 
-    const productUrl = `${BASE_URL}/san-pham/${categorySlug}/${brandSlug}/${prod.slug}`;
+    const productUrl = `${BASE_URL}/san-pham/${prod.slug}`;
     const imageUrl = prod.images?.[0] || "";
     const additionalImages =
       prod.images && prod.images.length > 1 ? prod.images.slice(1) : [];
