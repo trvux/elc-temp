@@ -7,7 +7,7 @@ import { DetailPager } from "@/shared/components/layout/user/detail-pager";
 import { OrderButton } from "@/shared/components/layout/user/order-button";
 import { ProductDescription } from "@/shared/components/layout/user/product-description";
 import { ProductFloatingBar } from "@/shared/components/layout/user/product-floating-bar";
-import RelatedProducts from "@/shared/components/layout/user/related-products";
+import RelatedProducts, { getCachedRelatedProducts } from "@/shared/components/layout/user/related-products";
 import { ScrollToTop } from "@/shared/components/layout/user/scroll-to-top";
 import { TrackProductView } from "@/shared/components/layout/user/track-product-view";
 import { GridSection } from "@/shared/components/sections/grid-section";
@@ -225,7 +225,8 @@ export async function ProductDetailModule({
     !spec.items;
 
   const productWithRelations = product;
-  const jsonLd = generateProductSchema(productWithRelations, location);
+  const relatedProducts = await getCachedRelatedProducts(product.categoryId, product.id, product.brandId);
+  const jsonLd = generateProductSchema(productWithRelations, location, relatedProducts);
   const faqList = getFallbackProductFaq(product, location);
 
   const productUrl = location

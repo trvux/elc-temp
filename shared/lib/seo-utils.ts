@@ -66,7 +66,11 @@ export function appendLocationToDescription(description: string, location?: Dist
 /**
  * Generates SEO-optimized Meta Title and Description to catch all keywords
  */
-export function generateProductMetadata(product: ProductWithRelations, location?: District): Metadata {
+export function generateProductMetadata(
+  product: ProductWithRelations,
+  location?: District,
+  relatedProducts?: ProductWithRelations[],
+): Metadata {
   if (!product) return {};
 
   const brandName = product.brand?.name || "";
@@ -161,6 +165,11 @@ export function generateProductMetadata(product: ProductWithRelations, location?
       .replace(/\s+/g, " ")
       .trim();
   }
+
+  const relatedSummary = relatedProducts && relatedProducts.length > 0
+    ? ` Sản phẩm cùng thương hiệu và công suất liên quan: ${relatedProducts.slice(0, 3).map(rp => `${rp.name} (Giá: ${(rp.salePrice || rp.originalPrice || 0).toLocaleString('vi-VN')}đ)`).join(" | ")}.`
+    : "";
+  description = `${description}${relatedSummary}`;
 
   if (location) {
     title = appendLocationToTitle(title, location);
@@ -832,7 +841,11 @@ function buildSpecProperties(
 /**
  * Generates JSON-LD Structured Data for Google Rich Snippets
  */
-export function generateProductSchema(product: ProductWithRelations, location?: District) {
+export function generateProductSchema(
+  product: ProductWithRelations,
+  location?: District,
+  relatedProducts?: ProductWithRelations[],
+) {
   const rawProduct = product as unknown as Record<string, unknown>;
   const rawSalePrice = (product.salePrice ?? rawProduct.sale_price ?? 0) as number;
   const rawOriginalPrice = (product.originalPrice ??
@@ -860,7 +873,7 @@ export function generateProductSchema(product: ProductWithRelations, location?: 
   const firstSku = product.sku ? product.sku.split(/[\s/]+/)[0] : "";
 
   // Reuse the smart metadata logic to get the same description
-  const metadata = generateProductMetadata(product, location);
+  const metadata = generateProductMetadata(product, location, relatedProducts);
 
   const brandLogo =
     product.brand?.logoUrl ||
@@ -1034,6 +1047,18 @@ export function generateProductSchema(product: ProductWithRelations, location?: 
         ]
       } : {})
     } : undefined,
+    "isRelatedTo": relatedProducts && relatedProducts.length > 0 ? relatedProducts.slice(0, 8).map((rp) => ({
+      "@type": "Product",
+      "name": rp.name,
+      "url": `${BASE_URL}/san-pham/${rp.slug}`,
+      "image": rp.images?.[0] || "",
+      "offers": {
+        "@type": "Offer",
+        "price": rp.salePrice || rp.originalPrice || 0,
+        "priceCurrency": "VND",
+        "availability": "https://schema.org/InStock"
+      }
+    })) : undefined,
   };
 }
 
