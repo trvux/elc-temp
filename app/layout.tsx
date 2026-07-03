@@ -90,7 +90,7 @@ export default function RootLayout({
               },
               sameAs: [
                 "https://www.facebook.com/dienmayelc",
-                "https://www.youtube.com/dienmayelc",
+                "https://www.google.com/maps/place/C%C3%94NG+TY+CP+GI%E1%BA%A2I+PH%C3%81P+C%C3%94NG+NGH%E1%BB%86+TH%C6%AF%C6%A0NG+M%E1%BA%A0I+D%E1%BB%8ACH+V%E1%BB%A4+ELC/@10.8345143,106.6894347,16.27z/data=!4m10!1m2!2m1!1sdien+may+elc!3m6!1s0x317529171b93dae1:0x3a315c7423a116ed!8m2!3d10.8312849!4d106.6937371!15sCgxkaWVuIG1heSBlbGNaDiIMZGllbiBtYXkgZWxjkgEfd2hvbGVzYWxlcl9ob3VzZWhvbGRfYXBwbGlhbmNlc5oBRENpOURRVWxSUVVOdlpFTm9kSGxqUmpsdlQyNXNjMlZHVFRWWmJXUjRZVVpXYkZGdWNFWk5NamxOVlZWU1dGTllZeEFC4AEA-gEECAAQFQ!16s%2Fg%2F11y4syg3tt?entry=ttu&g_ep=EgoyMDI2MDUwNi4wIKXMDSoASAFQAw%3D%3D",
               ],
             }),
           }}
