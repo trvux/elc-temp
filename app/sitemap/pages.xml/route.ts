@@ -1,0 +1,84 @@
+import { NextResponse } from 'next/server';
+import { createStaticClient } from '@/shared/lib/supabase/static';
+import { DISTRICTS } from '@/shared/lib/districts';
+
+
+export async function GET() {
+  const BASE_URL = 'https://dienmayelc.com.vn';
+  const supabase = createStaticClient();
+
+  const { data: pages } = await supabase
+    .from('pages')
+    .select('slug')
+    .eq('is_published', true)
+    .is('deleted_at', null);
+
+  const { data: services } = await supabase
+    .from('services')
+    .select('slug')
+    .eq('is_published', true)
+    .is('deleted_at', null);
+
+  const { data: branches } = await supabase
+    .from('branches')
+    .select('slug')
+    .eq('is_published', true)
+    .is('deleted_at', null);
+
+  const staticRoutes = [
+    '',
+    '/san-pham',
+    '/dich-vu',
+    '/du-an',
+    '/tin-tuc',
+    '/thong-tin',
+  ].map((route) => ({
+    url: `${BASE_URL}${route}`,
+  }));
+
+  const pageRoutes = (pages || [])
+    .filter((p) => p.slug)
+    .map((p) => ({
+      url: `${BASE_URL}/${p.slug}`,
+    }));
+
+  const serviceRoutes = (services || [])
+    .filter((serv) => serv.slug)
+    .map((serv) => ({
+      url: `${BASE_URL}/dich-vu/${serv.slug}`,
+    }));
+
+  const branchRoutes = (branches || [])
+    .filter((b) => b.slug)
+    .map((b) => ({
+      url: `${BASE_URL}/thong-tin/${b.slug}`,
+    }));
+
+  const serviceHubDistrictRoutes = DISTRICTS.map((dist) => ({
+    url: `${BASE_URL}/dich-vu/${dist.slug}`,
+  }));
+
+  const allRoutes = [
+    ...staticRoutes,
+    ...pageRoutes,
+    ...serviceRoutes,
+    ...branchRoutes,
+    ...serviceHubDistrictRoutes,
+  ];
+
+  const xml = `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  ${allRoutes.map(r => `
+  <url>
+    <loc>${r.url}</loc>
+    <lastmod>${new Date().toISOString()}</lastmod>
+  </url>`).join('')}
+</urlset>`;
+
+  return new NextResponse(xml, {
+    headers: {
+      'Content-Type': 'application/xml',
+      'Cache-Control': 'public, max-age=3600, s-maxage=3600',
+    },
+  });
+}
