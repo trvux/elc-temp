@@ -86,8 +86,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   ].map((route) => ({
     url: `${BASE_URL}${route}`,
     lastModified: new Date(),
-    changeFrequency: 'daily' as const,
-    priority: route === '' ? 1.0 : 0.8,
   }));
 
   // Page Routes (from the database)
@@ -96,8 +94,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     .map((p) => ({
       url: `${BASE_URL}/${p.slug}`,
       lastModified: new Date(p.updated_at || Date.now()),
-      changeFrequency: 'weekly' as const,
-      priority: 0.7,
     }));
 
   // Category Routes
@@ -106,8 +102,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     .map((cat) => ({
       url: `${BASE_URL}/san-pham/${cat.slug}`,
       lastModified: new Date(cat.updated_at || Date.now()),
-      changeFrequency: 'weekly' as const,
-      priority: 0.8,
     }));
 
   // Brand Routes
@@ -116,8 +110,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     .map((b) => ({
       url: `${BASE_URL}/san-pham/${b.slug}`,
       lastModified: new Date(b.updated_at || Date.now()),
-      changeFrequency: 'weekly' as const,
-      priority: 0.8,
     }));
 
   // Group Category Routes
@@ -126,8 +118,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     .map((g) => ({
       url: `${BASE_URL}/san-pham/${g.slug}`,
       lastModified: new Date(g.updated_at || Date.now()),
-      changeFrequency: 'weekly' as const,
-      priority: 0.8,
     }));
 
   // Product Routes (Flat!)
@@ -136,8 +126,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     .map((prod) => ({
       url: `${BASE_URL}/san-pham/${prod.slug}`,
       lastModified: new Date(prod.updated_at || Date.now()),
-      changeFrequency: 'daily' as const,
-      priority: 0.9,
     }));
 
   // Service Routes
@@ -146,8 +134,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     .map((serv) => ({
       url: `${BASE_URL}/dich-vu/${serv.slug}`,
       lastModified: new Date(serv.updated_at || Date.now()),
-      changeFrequency: 'weekly' as const,
-      priority: 0.7,
     }));
 
   // Project Routes
@@ -156,8 +142,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     .map((proj) => ({
       url: `${BASE_URL}/du-an/${proj.slug}`,
       lastModified: new Date(proj.updated_at || Date.now()),
-      changeFrequency: 'weekly' as const,
-      priority: 0.7,
     }));
 
   // Project Type Routes
@@ -166,8 +150,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     .map((pt) => ({
       url: `${BASE_URL}/du-an/${pt.slug}`,
       lastModified: new Date(pt.updated_at || Date.now()),
-      changeFrequency: 'weekly' as const,
-      priority: 0.8,
     }));
 
   // News Routes
@@ -176,8 +158,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     .map((n) => ({
       url: `${BASE_URL}/tin-tuc/${n.slug}`,
       lastModified: new Date(n.updated_at || Date.now()),
-      changeFrequency: 'weekly' as const,
-      priority: 0.7,
     }));
 
   // Branch Routes
@@ -186,8 +166,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     .map((b) => ({
       url: `${BASE_URL}/thong-tin/${b.slug}`,
       lastModified: new Date(b.updated_at || Date.now()),
-      changeFrequency: 'weekly' as const,
-      priority: 0.6,
     }));
 
   // NOTE: Category/Brand/Group/Product/Service × District detail pages
@@ -205,8 +183,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const serviceHubDistrictRoutes = DISTRICTS.map((dist) => ({
     url: `${BASE_URL}/dich-vu/${dist.slug}`,
     lastModified: new Date(),
-    changeFrequency: 'weekly' as const,
-    priority: 0.7,
   }));
 
   return [
