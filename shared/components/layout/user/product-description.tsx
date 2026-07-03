@@ -23,17 +23,19 @@ const STYLES = {
 
 interface ProductDescriptionProps {
   content: unknown;
+  fallbackAlt?: string;
 }
 
-export function ProductDescription({ content }: ProductDescriptionProps) {
+export function ProductDescription({ content, fallbackAlt }: ProductDescriptionProps) {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
     <Collapsible open={isOpen} onOpenChange={setIsOpen} className="relative">
       <article>
-        <PreviewContent 
-          content={content} 
+        <PreviewContent
+          content={content}
           hideFirstHeading={true}
+          fallbackAlt={fallbackAlt}
           className={cn(
             STYLES.collapsible,
             isOpen ? "max-h-none" : "max-h-96"

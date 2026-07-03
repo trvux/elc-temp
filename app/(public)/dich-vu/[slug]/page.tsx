@@ -8,6 +8,7 @@ import { serviceRepo } from "@/modules/service/infrastructure/serviceRepo";
 import { serviceGroupRepo } from "@/modules/service-group/infrastructure/serviceGroupRepo";
 import { ServiceDetailModule } from "@/modules/service";
 import {
+  generateBreadcrumbSchema,
   generateServiceMetadata,
   generateServiceDetailSchema,
   generateSystemPageMetadata,
@@ -154,11 +155,20 @@ async function ServiceHubWithLocation({ location }: { location: District }) {
     scrollToTop: cn("flex items-center gap-2 cursor-pointer hover:text-foreground transition-colors"),
   };
 
+  const breadcrumbSchema = generateBreadcrumbSchema(
+    [{ label: "Dịch vụ" }],
+    `${BASE_URL}/dich-vu/${location.slug}`,
+  );
+
   return (
     <main className={STYLES.main}>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
       />
 
       <GridSection

@@ -30,6 +30,11 @@ export async function generateMetadata(
     process.env.NEXT_PUBLIC_APP_URL || "https://dienmayelc.com.vn"
   ).replace(/\/$/, "");
   const previousImages = (await parent).openGraph?.images || [];
+  const sParams = await searchParams;
+  // Page 2+ of a category/brand/group listing is more of the same list, not a
+  // distinct landing page — keep it crawlable (real <Link>s) but out of the index,
+  // canonicalized to page 1, same reasoning as the [location] pages.
+  const isPastFirstPage = Math.floor(Number(sParams.page)) > 1;
 
   switch (resolved.type) {
     case "product": {
@@ -50,7 +55,6 @@ export async function generateMetadata(
     case "group":
     case "category": {
       const category = resolved.data;
-      const sParams = await searchParams;
       const brands =
         typeof sParams.brands === "string"
           ? [sParams.brands]
@@ -93,6 +97,7 @@ export async function generateMetadata(
           images: [...seoImages, ...previousImages],
           url: canonicalUrl,
         },
+        ...(isPastFirstPage ? { robots: { index: false, follow: true } } : {}),
       } as Metadata;
     }
 
@@ -101,6 +106,7 @@ export async function generateMetadata(
       return {
         ...brandMetadata,
         alternates: { canonical: `${baseUrl}/san-pham/${slug}` },
+        ...(isPastFirstPage ? { robots: { index: false, follow: true } } : {}),
       };
     }
   }

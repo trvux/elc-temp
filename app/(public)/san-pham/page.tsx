@@ -10,8 +10,10 @@ import {
 } from "@/shared/components/layout/user/category-sections-grid";
 import { FilteredGridWrapper } from "@/shared/components/layout/user/filtered-grid-wrapper";
 import { InfiniteProductGrid } from "@/shared/components/layout/user/infinite-product-grid";
+import { ProductPagination } from "@/shared/components/layout/user/product-pagination";
 import { ScrollToTop } from "@/shared/components/layout/user/scroll-to-top";
 import { RecentlyViewedSection } from "@/shared/components/layout/user/recently-viewed-section";
+import { buildPageHref } from "@/shared/lib/pagination";
 import {
   Sidebar,
   SidebarContent,
@@ -27,6 +29,8 @@ import {
 import { getCachedSystemPage } from "@/shared/lib/cached-system-page";
 import { getQueryTokens } from "@/shared/lib/search-utils";
 import {
+  BASE_URL,
+  generateBreadcrumbSchema,
   generateCollectionSchema,
   generateSystemPageMetadata,
   SHOP_NAME,
@@ -60,6 +64,11 @@ export async function generateMetadata({
   const baseUrl =
     process.env.NEXT_PUBLIC_APP_URL || "https://dienmayelc.com.vn";
   const canonicalUrl = `${baseUrl}/san-pham`;
+  // Page 2+ is just "more of the same list", not a distinct search landing page —
+  // same reasoning as the [location] pages: keep it crawlable (real <Link>s) but
+  // out of the index, canonicalized to page 1, so it doesn't bloat the index with
+  // thin near-duplicates.
+  const isPastFirstPage = Math.floor(Number(sParams.page)) > 1;
 
   if (q) {
     const title = `Kết quả tìm kiếm cho "${q}" | ${SHOP_NAME}`;
@@ -79,6 +88,7 @@ export async function generateMetadata({
       alternates: {
         canonical: canonicalUrl,
       },
+      ...(isPastFirstPage ? { robots: { index: false, follow: true } } : {}),
     };
   }
 
@@ -133,8 +143,16 @@ async function getCachedCategories() {
   return getCategories(categoryRepo);
 }
 
+// One real, crawlable page of products for the filtered/search view — every page is
+// server-rendered at its own `?page=N` URL via ProductPagination, so this scales to
+// any catalog size instead of hard-capping how much a crawler without JS can see.
 const PAGE_SIZE = 30;
-const INITIAL_PER_SECTION = 0; // products loaded client-side for clean full rows
+// This hub page only needs to show a *preview* per category — the category's own
+// `/san-pham/{slug}` page (now fully paginated) is the authoritative, fully
+// crawlable listing. Keeping this bounded (rather than growing with the catalog)
+// is what makes it scale; the "Xem tất cả" link on each section is the crawl path
+// into the rest.
+const INITIAL_PER_SECTION = 24;
 
 async function getCachedCategorySections(): Promise<CategorySectionData[]> {
   "use cache";
@@ -152,13 +170,22 @@ async function getCachedCategorySections(): Promise<CategorySectionData[]> {
     catOrder.set(cat.id, groupOrder * 1000 + (cat.orderIndex ?? i));
   });
 
-  // Use COUNT queries (HEAD-only, no data transfer) instead of fetching all products
   const sections = await Promise.all(
-    allCategories.map(async (cat) => ({
-      categoryId: cat.id,
-      initialProducts: [] as CategorySectionData["initialProducts"],
-      totalCount: await productRepo.count({ categoryId: cat.id, isPublished: true }),
-    })),
+    allCategories.map(async (cat) => {
+      const { products, totalCount } = await searchProducts(productRepo, "", {
+        categoryId: cat.id,
+        isPublished: true,
+        limit: INITIAL_PER_SECTION,
+        offset: 0,
+      });
+      return {
+        categoryId: cat.id,
+        categoryName: cat.name,
+        categorySlug: cat.slug,
+        initialProducts: products,
+        totalCount,
+      };
+    }),
   );
 
   return sections
@@ -177,6 +204,7 @@ async function getCachedProductsData(
   brandIds: string[],
   brandSlugs: string[],
   specs: Record<string, string[]>,
+  offset: number,
 ) {
   "use cache";
   cacheLife("days");
@@ -191,7 +219,7 @@ async function getCachedProductsData(
     brandSlugs,
     specs,
     limit: PAGE_SIZE,
-    offset: 0,
+    offset,
   });
 }
 
@@ -249,6 +277,9 @@ async function CachedProductsView({
     (typeof params.condition === "string" && params.condition)
   );
 
+  const currentPage = Math.max(1, Math.floor(Number(params.page)) || 1);
+  const offset = (currentPage - 1) * PAGE_SIZE;
+
   const allCategories = await getCachedCategories();
   const queryTokens = getQueryTokens(q);
 
@@ -260,7 +291,10 @@ async function CachedProductsView({
       brandIds,
       brandSlugs,
       specs,
+      offset,
     );
+
+  const totalPages = Math.max(1, Math.ceil(totalCount / PAGE_SIZE));
 
   const sections = hasFiltersOrSearch
     ? null
@@ -345,9 +379,18 @@ async function CachedProductsView({
                     totalCount={totalCount}
                     fetchParams={fetchParams}
                     queryTokens={queryTokens}
+                    initialOffset={offset}
                   />
                 )}
               </FilteredGridWrapper>
+
+              {!sections && (
+                <ProductPagination
+                  currentPage={currentPage}
+                  totalPages={totalPages}
+                  buildHref={(page) => buildPageHref(params, page)}
+                />
+              )}
 
               {/* Footer rights & Back to top */}
               <div className="w-full pt-8 border-t border-border/40 flex flex-col md:flex-row justify-between items-center gap-6 text-muted-foreground">
@@ -384,6 +427,19 @@ async function CachedProductsView({
           />
         );
       })()}
+
+      {/* Breadcrumb schema — server-rendered so Google always sees it, see generateBreadcrumbSchema doc */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(
+            generateBreadcrumbSchema(
+              [{ label: "Sản phẩm" }],
+              `${BASE_URL}/san-pham`,
+            ),
+          ),
+        }}
+      />
     </main>
   );
 }

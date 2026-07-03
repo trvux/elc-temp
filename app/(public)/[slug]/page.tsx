@@ -15,7 +15,11 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Breadcrumbs } from "@/shared/components/layout/user/breadcrumbs";
 import { Metadata } from "next";
-import { sanitizeAndFormatTitle } from "@/shared/lib/seo-utils";
+import {
+  BASE_URL,
+  generateBreadcrumbSchema,
+  sanitizeAndFormatTitle,
+} from "@/shared/lib/seo-utils";
 import { GridSection } from "@/shared/components/sections/grid-section";
 
 interface PageProps {
@@ -81,8 +85,20 @@ export default async function StaticPage({ params }: PageProps) {
 
   const currentYear = await getCachedCurrentYear();
 
+  const breadcrumbSchema = generateBreadcrumbSchema(
+    [
+      { label: "Thông tin", href: "/thong-tin" },
+      { label: page.title },
+    ],
+    `${BASE_URL}/${page.slug}`,
+  );
+
   return (
     <main className="w-full bg-background min-h-screen flex flex-col">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
+      />
       {/* ===== KHỐI 1: CHI TIẾT TRANG ===== */}
       <GridSection
         id="static-page-content"
@@ -113,7 +129,11 @@ export default async function StaticPage({ params }: PageProps) {
             </TypographyH1>
           </div>
           <article>
-            <PreviewContent content={page.content} hideFirstHeading={true} />
+            <PreviewContent
+              content={page.content}
+              hideFirstHeading={true}
+              fallbackAlt={page.title}
+            />
           </article>
         </div>
       </GridSection>
@@ -146,7 +166,6 @@ export default async function StaticPage({ params }: PageProps) {
               { label: "Thông tin", href: "/thong-tin" },
               { label: page.title, active: true },
             ]}
-            disableJsonLd={true}
           />
         </div>
       </GridSection>

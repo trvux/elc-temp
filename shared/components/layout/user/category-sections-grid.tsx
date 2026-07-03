@@ -5,7 +5,8 @@ import { ProductCard } from "@/modules/catalog/presentation/components/ProductCa
 import { Button } from "@/shared/components/ui/button";
 import { Separator } from "@/shared/components/ui/separator";
 import { Skeleton } from "@/shared/components/ui/skeleton";
-import { Spinner } from "@phosphor-icons/react";
+import { ArrowRight, Spinner } from "@phosphor-icons/react";
+import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 const GRID_CLASS =
@@ -20,12 +21,16 @@ function getTargetRows(cols: number) {
 
 export type CategorySectionData = {
   categoryId: string;
+  categoryName: string;
+  categorySlug: string;
   initialProducts: ProductWithRelations[];
   totalCount: number;
 };
 
 function CategorySection({
   categoryId,
+  categoryName,
+  categorySlug,
   initialProducts,
   totalCount,
   queryTokens,
@@ -155,6 +160,19 @@ function CategorySection({
 
   return (
     <div ref={containerRef} className="flex flex-col gap-4">
+      <div className="flex items-center justify-between gap-4">
+        <h2 className="text-lg md:text-xl font-bold tracking-tight text-foreground font-heading">
+          {categoryName}
+        </h2>
+        <Link
+          href={`/san-pham/${categorySlug}`}
+          prefetch={false}
+          className="group inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors shrink-0"
+        >
+          Xem tất cả {totalCount} sản phẩm
+          <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5" />
+        </Link>
+      </div>
       <div ref={gridRef} className={GRID_CLASS}>
         {products.map((product, i) => (
           <ProductCard

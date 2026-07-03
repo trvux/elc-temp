@@ -42,7 +42,9 @@ import {
 } from "@/shared/components/ui/typography";
 import { District } from "@/shared/lib/districts";
 import {
+  BASE_URL,
   extractMainSku,
+  generateBreadcrumbSchema,
   generateProductSchema,
   localizeRichText,
 } from "@/shared/lib/seo-utils";
@@ -226,6 +228,18 @@ export async function ProductDetailModule({
   const jsonLd = generateProductSchema(productWithRelations, location);
   const faqList = getFallbackProductFaq(product, location);
 
+  const productUrl = location
+    ? `${BASE_URL}/san-pham/${product.slug}/${location.slug}`
+    : `${BASE_URL}/san-pham/${product.slug}`;
+  const breadcrumbSchema = generateBreadcrumbSchema(
+    [
+      { label: "Sản phẩm", href: "/san-pham" },
+      { label: category.name, href: `/san-pham/${category.slug}` },
+      { label: product.name },
+    ],
+    productUrl,
+  );
+
   return (
     <main className={STYLES.main}>
       <TrackProductView
@@ -240,6 +254,10 @@ export async function ProductDetailModule({
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
       />
       {faqList.length > 0 && (
         <script
@@ -388,7 +406,7 @@ export async function ProductDetailModule({
             {normalizedSpecs.length > 0 && (
               <TabsContent value="specs" forceMount className={cn(STYLES.tabsContent, "data-[state=inactive]:hidden")}>
                 <div className={STYLES.specsWrapper}>
-                  <div className={STYLES.specsGrid}>
+                  <dl className={STYLES.specsGrid}>
                     {normalizedSpecs
                       .filter(
                         (spec) =>
@@ -409,12 +427,12 @@ export async function ProductDetailModule({
                         }
                         return (
                           <div key={idx} className={STYLES.specRow}>
-                            <div className={STYLES.specLabel}>
+                            <dt className={STYLES.specLabel}>
                               <span className={STYLES.specLabelText}>
                                 {spec.label}
                               </span>
-                            </div>
-                            <div className={STYLES.specValue}>
+                            </dt>
+                            <dd className={STYLES.specValue}>
                               {spec.value && (
                                 <span className={STYLES.specValueMain}>
                                   {spec.value}
@@ -437,11 +455,11 @@ export async function ProductDetailModule({
                                     )}
                                   </span>
                                 ))}
-                            </div>
+                            </dd>
                           </div>
                         );
                       })}
-                  </div>
+                  </dl>
                 </div>
               </TabsContent>
             )}
@@ -451,6 +469,7 @@ export async function ProductDetailModule({
                 <div className={STYLES.descriptionWrapper}>
                   <ProductDescription
                     content={localizeRichText(product.description, location)}
+                    fallbackAlt={product.name}
                   />
                 </div>
               </TabsContent>
@@ -549,6 +568,7 @@ export async function ProductDetailModule({
         <div className="w-full">
           <Breadcrumbs
             items={[
+              { label: "Sản phẩm", href: "/san-pham" },
               {
                 label: category.name,
                 href: `/san-pham/${category.slug}`,

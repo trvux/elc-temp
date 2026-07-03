@@ -117,9 +117,15 @@ export async function proxy(request: NextRequest) {
     }
   }
 
-  // 6. /chi-nhanh/ → /thong-tin (trang thông tin chi nhánh)
+  // 6. /chi-nhanh/{slug} → /thong-tin/{slug} (giữ đúng trang chi nhánh, không dồn về hub
+  // chung — hub chung làm mất internal-link equity của các URL /chi-nhanh cũ)
   if (pathname.startsWith("/chi-nhanh/")) {
-    return NextResponse.redirect(new URL("/thong-tin", request.url), 308);
+    const parts = pathname.split("/").filter(Boolean); // ["chi-nhanh", slug, ...]
+    const slug = parts[parts.length - 1];
+    return NextResponse.redirect(
+      new URL(slug && slug !== "chi-nhanh" ? `/thong-tin/${slug}` : "/thong-tin", request.url),
+      308,
+    );
   }
 
   // 7. Handle old .html URLs (if not matched in static map, fallback to hubs)

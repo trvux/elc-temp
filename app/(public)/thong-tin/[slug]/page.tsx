@@ -236,6 +236,7 @@ export default async function BranchDetail({ params }: Props) {
             <PreviewContent
               content={branch.description}
               hideFirstHeading={true}
+              fallbackAlt={branch.name}
             />
           </article>
         </div>
@@ -269,7 +270,6 @@ export default async function BranchDetail({ params }: Props) {
               { label: "Thông tin", href: "/thong-tin" },
               { label: branch.name, active: true },
             ]}
-            disableJsonLd={true}
           />
         </div>
       </GridSection>
