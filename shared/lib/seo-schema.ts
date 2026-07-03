@@ -50,11 +50,12 @@ export interface BranchInput {
   email?: string | null;
   address: string;
   imageUrl?: string | null;
+  mapsUrl?: string | null;
 }
 
 export const SEOSchema = {
   getOrganization(branches?: Branch[], contacts?: Array<{ type: string; value: string; isActive: boolean }>) {
-    const sameAsLinks = this.getSameAs(contacts);
+    const sameAsLinks = this.getSameAs(contacts, branches);
 
     const mainAddress = contacts?.find((c) => c.type === "address" && c.isActive)?.value || "06 Dương Quảng Hàm, phường An Nhơn, Quận Gò Vấp, Thành phố Hồ Chí Minh";
     const parsedMainAddress = parseAddress(mainAddress);
@@ -118,35 +119,34 @@ export const SEOSchema = {
     };
   },
 
-  getSameAs(contacts?: Array<{ type: string; value: string; isActive: boolean }>) {
-    const sameAsLinks = [
-      "https://www.facebook.com/dienmayelc",
-      "https://www.youtube.com/dienmayelc",
-    ];
+  getSameAs(
+    contacts?: Array<{ type: string; value: string; isActive: boolean }>,
+    branches?: Branch[],
+  ) {
+    const links: string[] = [];
 
-    if (contacts && contacts.length > 0) {
-      const links: string[] = [];
-      const fbContact = contacts.find((c) => c.type === "facebook" && c.isActive);
-      const zaloContact = contacts.find((c) => c.type === "zalo" && c.isActive);
-
-      if (fbContact?.value) {
-        const fbVal = fbContact.value;
-        const fbUrl = fbVal.startsWith("http") ? fbVal : `https://www.facebook.com/${fbVal}`;
-        links.push(fbUrl);
-      } else {
-        links.push("https://www.facebook.com/dienmayelc");
-      }
-
-      if (zaloContact?.value) {
-        const zaloVal = zaloContact.value;
-        const zaloUrl = zaloVal.startsWith("http") ? zaloVal : `https://zalo.me/${zaloVal}`;
-        links.push(zaloUrl);
-      }
-
-      links.push("https://www.youtube.com/dienmayelc");
-      return links;
+    const fbContact = contacts?.find((c) => c.type === "facebook" && c.isActive);
+    if (fbContact?.value) {
+      const fbVal = fbContact.value;
+      links.push(fbVal.startsWith("http") ? fbVal : `https://www.facebook.com/${fbVal}`);
+    } else {
+      links.push("https://www.facebook.com/dienmayelc");
     }
-    return sameAsLinks;
+
+    const zaloContact = contacts?.find((c) => c.type === "zalo" && c.isActive);
+    if (zaloContact?.value) {
+      const zaloVal = zaloContact.value;
+      links.push(zaloVal.startsWith("http") ? zaloVal : `https://zalo.me/${zaloVal}`);
+    }
+
+    // Google Business Profile — sourced from the headquarters branch's verified
+    // Maps listing (the only branch record with a claimed/reviewed GBP entity).
+    const hqBranch = branches?.find((b) => b.slug === "tru-so-van-phong");
+    if (hqBranch?.mapsUrl) {
+      links.push(hqBranch.mapsUrl);
+    }
+
+    return links;
   },
 
   getLocalBusiness(
@@ -154,6 +154,7 @@ export const SEOSchema = {
   ) {
     const parsedAddress = parseAddress(branch.address);
     const companyEmail = "elc.jointstock@gmail.com";
+    const mapsUrl = branch.mapsUrl;
     return {
       "@type": "HVACBusiness",
       "@id": `${BASE_URL}/thong-tin/${branch.slug}#localbusiness`,
@@ -169,6 +170,7 @@ export const SEOSchema = {
         "addressCountry": "VN",
       },
       "url": `${BASE_URL}/thong-tin/${branch.slug}`,
+      ...(mapsUrl ? { "hasMap": mapsUrl, "sameAs": [mapsUrl] } : {}),
       "branchOf": {
         "@id": `${BASE_URL}/#organization`,
       },
