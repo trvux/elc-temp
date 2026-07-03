@@ -512,6 +512,7 @@ export async function ProductDetailModule({
             categoryId={product.categoryId}
             currentProductId={product.id}
             brandId={product.brandId}
+            product={product}
           />
         </div>
       </GridSection>

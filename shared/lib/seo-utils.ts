@@ -81,42 +81,7 @@ export function generateProductMetadata(
     categoryName.toLowerCase().includes("máy lạnh") ||
     categoryName.toLowerCase().includes("điều hòa");
 
-  // 1. Try to get HP from specs
-  interface Spec {
-    label?: string;
-    value?: string;
-  }
-
-  const productSpecs = Array.isArray(product.specs)
-    ? (product.specs as unknown as Spec[])
-    : [];
-  const hpSpec = productSpecs.find(
-    (s) =>
-      s.label?.toLowerCase().includes("công suất") ||
-      s.label?.toLowerCase().includes("hp"),
-  );
-  let hpValue = hpSpec?.value || "";
-
-  // 2. Fallback: Try to extract from SKU or Name (e.g., "15hp" or "1.5hp")
-  if (!hpValue) {
-    const combinedText = `${product.sku} ${product.name}`.toLowerCase();
-    const hpMatch =
-      combinedText.match(/(\d+(\.\d+)?)\s*(hp|ngựa|ngua)/) ||
-      combinedText.match(/(\d{2})hp/);
-
-    if (hpMatch) {
-      const val = hpMatch[1];
-      // Special case: "15hp" -> "1.5HP"
-      if (val === "10") hpValue = "1.0HP";
-      else if (val === "15") hpValue = "1.5HP";
-      else if (val === "20") hpValue = "2.0HP";
-      else if (val === "25") hpValue = "2.5HP";
-      else if (val.length === 2 && parseInt(val) > 25)
-        hpValue = `${val}HP`; // e.g. 50HP
-      else
-        hpValue = val.includes(".") || val.length === 1 ? `${val}HP` : hpValue;
-    }
-  }
+  const hpValue = extractProductHp(product);
 
   // Local terminology mapping pattern: 1HP -> 1 ngựa, 1.5HP -> 1.5 ngựa (1 ngựa rưỡi)
   let hpLocal = "";
@@ -504,6 +469,7 @@ export function generateCollectionSchema(
   entity: unknown,
   products: Array<{
     name?: string;
+    slug?: string;
     salePrice?: number;
     sale_price?: number;
     originalPrice?: number;
@@ -786,7 +752,37 @@ export function generateCollectionSchema(
         ]
       } : {})
     },
-    ...(additionalProperty.length > 0 ? { additionalProperty } : {})
+    ...(additionalProperty.length > 0 ? { additionalProperty } : {}),
+    "isRelatedTo": products.map((p) => {
+      const pRaw = p as unknown as Record<string, unknown>;
+      const pName = p.name || (pRaw.displayName as string | undefined) || "";
+      const pDescVal = p.metaDescription || pRaw.meta_description || p.description;
+      const pDesc = typeof pDescVal === "string" ? pDescVal.replace(/\s+/g, " ").trim() : "";
+      const pSpecs = buildSpecProperties(p.specs).slice(0, 3);
+      
+      const salePrice = p.salePrice ?? p.sale_price ?? 0;
+      const originalPrice = p.originalPrice ?? p.original_price ?? 0;
+      const price = salePrice || originalPrice || 0;
+
+      const pUrl = location
+        ? `${BASE_URL}/san-pham/${p.slug}/${location.slug}`
+        : `${BASE_URL}/san-pham/${p.slug}`;
+
+      return {
+        "@type": "Product",
+        "name": pName,
+        "description": pDesc,
+        "url": pUrl,
+        "image": Array.isArray(p.images) && p.images.length > 0 ? p.images : [],
+        "offers": {
+          "@type": "Offer",
+          "price": price,
+          "priceCurrency": "VND",
+          "availability": "https://schema.org/InStock"
+        },
+        ...(pSpecs.length > 0 ? { "additionalProperty": pSpecs } : {})
+      };
+    }),
   };
 }
 
@@ -837,6 +833,49 @@ function buildSpecProperties(
 
   return properties;
 }
+
+export function extractProductHp(product: unknown): string {
+  if (!product) return "";
+  const p = product as Record<string, unknown>;
+
+  // 1. Try from specs
+  const specsRaw = p.specs;
+  const properties = buildSpecProperties(specsRaw);
+  const specHp = properties.find(
+    (s) =>
+      s.name?.toLowerCase().includes("công suất") &&
+      (s.value?.toLowerCase().includes("hp") || s.value?.toLowerCase().includes("ngựa"))
+  );
+  let hpValue = specHp?.value || "";
+
+  // 2. Try from name/sku
+  if (!hpValue) {
+    const combinedText = `${(p.sku || "") as string} ${(p.name || "") as string}`.toLowerCase();
+    const hpMatch =
+      combinedText.match(/(\d+(\.\d+)?)\s*(hp|ngựa|ngua)/) ||
+      combinedText.match(/(\d{2})hp/);
+
+    if (hpMatch) {
+      const val = hpMatch[1];
+      const isMismatchedSkuCode = hpMatch[0].endsWith("hp") && !hpMatch[0].includes(" ");
+      if (isMismatchedSkuCode && val === "10") hpValue = "1HP";
+      else if (isMismatchedSkuCode && val === "15") hpValue = "1.5HP";
+      else if (isMismatchedSkuCode && val === "20") hpValue = "2HP";
+      else if (isMismatchedSkuCode && val === "25") hpValue = "2.5HP";
+      else if (val.length === 2 && parseInt(val) > 25)
+        hpValue = `${val}HP`;
+      else
+        hpValue = val.includes(".") || val.length === 1 ? `${val}HP` : hpValue;
+    }
+  }
+
+  let formattedHp = hpValue.trim();
+  if (formattedHp) {
+    formattedHp = formattedHp.replace(/hp/gi, "Hp");
+  }
+  return formattedHp;
+}
+
 
 /**
  * Generates JSON-LD Structured Data for Google Rich Snippets
@@ -898,37 +937,7 @@ export function generateProductSchema(
 
   const additionalProperty = buildSpecProperties(product.specs);
 
-  const specHp = additionalProperty.find(
-    (s) =>
-      s.name?.toLowerCase().includes("công suất") &&
-      (s.value?.toLowerCase().includes("hp") || s.value?.toLowerCase().includes("ngựa"))
-  );
-  let hpValue = specHp?.value || "";
-
-  if (!hpValue) {
-    const combinedText = `${product.sku} ${product.name}`.toLowerCase();
-    const hpMatch =
-      combinedText.match(/(\d+(\.\d+)?)\s*(hp|ngựa|ngua)/) ||
-      combinedText.match(/(\d{2})hp/);
-
-    if (hpMatch) {
-      const val = hpMatch[1];
-      const isMismatchedSkuCode = hpMatch[0].endsWith("hp") && !hpMatch[0].includes(" ");
-      if (isMismatchedSkuCode && val === "10") hpValue = "1HP";
-      else if (isMismatchedSkuCode && val === "15") hpValue = "1.5HP";
-      else if (isMismatchedSkuCode && val === "20") hpValue = "2HP";
-      else if (isMismatchedSkuCode && val === "25") hpValue = "2.5HP";
-      else if (val.length === 2 && parseInt(val) > 25)
-        hpValue = `${val}HP`;
-      else
-        hpValue = val.includes(".") || val.length === 1 ? `${val}HP` : hpValue;
-    }
-  }
-
-  let formattedHp = hpValue.trim();
-  if (formattedHp) {
-    formattedHp = formattedHp.replace(/hp/gi, "Hp");
-  }
+  const formattedHp = extractProductHp(product);
 
   const mpnVal = product.mpn || (product as unknown as Record<string, unknown>).mpn as string | null | undefined;
   const skuVal = product.sku || "";
@@ -1047,18 +1056,27 @@ export function generateProductSchema(
         ]
       } : {})
     } : undefined,
-    "isRelatedTo": relatedProducts && relatedProducts.length > 0 ? relatedProducts.slice(0, 8).map((rp) => ({
-      "@type": "Product",
-      "name": rp.name,
-      "url": `${BASE_URL}/san-pham/${rp.slug}`,
-      "image": rp.images?.[0] || "",
-      "offers": {
-        "@type": "Offer",
-        "price": rp.salePrice || rp.originalPrice || 0,
-        "priceCurrency": "VND",
-        "availability": "https://schema.org/InStock"
-      }
-    })) : undefined,
+    "isRelatedTo": relatedProducts && relatedProducts.length > 0 ? relatedProducts.map((rp) => {
+      const rpRaw = rp as unknown as Record<string, unknown>;
+      const rpDescVal = rp.metaDescription || rpRaw.meta_description || rp.description;
+      const rpDesc = typeof rpDescVal === "string" ? rpDescVal : "";
+      const rpSpecs = buildSpecProperties(rp.specs).slice(0, 3);
+
+      return {
+        "@type": "Product",
+        "name": rp.name,
+        "description": rpDesc,
+        "url": `${BASE_URL}/san-pham/${rp.slug}`,
+        "image": Array.isArray(rp.images) && rp.images.length > 0 ? rp.images : [],
+        "offers": {
+          "@type": "Offer",
+          "price": rp.salePrice || rp.originalPrice || 0,
+          "priceCurrency": "VND",
+          "availability": "https://schema.org/InStock"
+        },
+        ...(rpSpecs.length > 0 ? { "additionalProperty": rpSpecs } : {})
+      };
+    }) : undefined,
   };
 }
 
