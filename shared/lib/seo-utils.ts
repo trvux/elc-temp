@@ -444,14 +444,66 @@ export function generateBreadcrumbSchema(
  * Generates JSON-LD for Collection pages (Category or Brand) (Price Range)
  * This is what makes Google show "₫4,990,000 to ₫58,640,000"
  */
+function aggregateProductSpecs(
+  products: Array<{ specs?: unknown }>,
+): Array<{ "@type": "PropertyValue"; name: string; value: string }> {
+  const specMap = new Map<string, Set<string>>();
+
+  for (const product of products) {
+    if (!product.specs) continue;
+    const properties = buildSpecProperties(product.specs);
+    for (const prop of properties) {
+      if (!prop.name || !prop.value) continue;
+      const nameKey = prop.name.trim();
+      const val = prop.value.trim();
+      if (!val) continue;
+
+      if (!specMap.has(nameKey)) {
+        specMap.set(nameKey, new Set<string>());
+      }
+      specMap.get(nameKey)!.add(val);
+    }
+  }
+
+  const result: Array<{ "@type": "PropertyValue"; name: string; value: string }> = [];
+  for (const [name, valueSet] of specMap.entries()) {
+    const valuesArray = Array.from(valueSet).sort((a, b) => {
+      const numA = parseFloat(a.replace(/[^\d.]/g, ""));
+      const numB = parseFloat(b.replace(/[^\d.]/g, ""));
+      if (!isNaN(numA) && !isNaN(numB)) {
+        return numA - numB;
+      }
+      return a.localeCompare(b, "vi");
+    });
+    if (valuesArray.length > 0) {
+      result.push({
+        "@type": "PropertyValue",
+        name,
+        value: valuesArray.join(", "),
+      });
+    }
+  }
+
+  return result;
+}
+
+/**
+ * Generates JSON-LD for Collection pages (Category or Brand) (Price Range)
+ * This is what makes Google show "₫4,990,000 to ₫58,640,000"
+ */
 export function generateCollectionSchema(
   entity: unknown,
   products: Array<{
+    name?: string;
     salePrice?: number;
     sale_price?: number;
     originalPrice?: number;
     original_price?: number;
     images?: string[];
+    specs?: unknown;
+    metaDescription?: string | null;
+    meta_description?: string | null;
+    description?: unknown;
   }>,
   location?: District,
   totalCount?: number,
@@ -569,14 +621,33 @@ export function generateCollectionSchema(
     baseName = templates[patternIdx](cleanName, timeStr);
   }
 
+  const baseDescription = appendLocationToDescription(
+    entityDesc || `Chuyên cung cấp ${baseName} tại Điện máy ELC. Giá tốt nhất thị trường, hỗ trợ lắp đặt chuyên nghiệp, bảo hành uy tín. Xem ngay!`,
+    location
+  );
+
+  const productSummaries = products
+    .map((p) => {
+      const pName = p.name || (p as Record<string, unknown>).displayName as string | undefined;
+      const rawDescVal = p.metaDescription || (p as Record<string, unknown>).meta_description || p.description;
+      const rawDesc = typeof rawDescVal === "string" ? rawDescVal : "";
+      const cleanDesc = rawDesc.replace(/\s+/g, " ").replace(/Điện máy ELC\s*-\s*/gi, "").trim();
+      return pName && cleanDesc ? `${pName}: ${cleanDesc}` : pName || "";
+    })
+    .filter(Boolean)
+    .slice(0, 10);
+
+  const richDescription = productSummaries.length > 0
+    ? `${baseDescription} Danh sách sản phẩm nổi bật: ${productSummaries.join(" | ")}`
+    : baseDescription;
+
+  const additionalProperty = aggregateProductSpecs(products);
+
   return {
     "@context": "https://schema.org/",
     "@type": "Product",
     name: location ? `${baseName} tại ${location.name}` : baseName,
-    description: appendLocationToDescription(
-      entityDesc || `Chuyên cung cấp ${baseName} tại Điện máy ELC. Giá tốt nhất thị trường, hỗ trợ lắp đặt chuyên nghiệp, bảo hành uy tín. Xem ngay!`,
-      location
-    ),
+    description: richDescription,
     image: images,
     url: url,
     offers: {
@@ -598,6 +669,7 @@ export function generateCollectionSchema(
         ]
       } : {})
     },
+    ...(additionalProperty.length > 0 ? { additionalProperty } : {})
   };
 }
 
