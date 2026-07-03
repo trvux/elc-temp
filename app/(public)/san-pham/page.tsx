@@ -85,8 +85,8 @@ export async function generateMetadata({
   const systemPage = await getCachedSystemPage("san-pham");
   const meta = generateSystemPageMetadata(
     systemPage,
-    `Danh sách sản phẩm Điện máy chính hãng | ${SHOP_NAME}`,
-    `Khám phá hàng ngàn sản phẩm điện máy chính hãng tại ${SHOP_NAME}. Máy lạnh, điều hòa, tủ lạnh, máy giặt giá tốt nhất, bảo hành uy tín.`,
+    `Danh sách Máy lạnh, Máy lọc không khí, Máy lọc nước chính hãng | ${SHOP_NAME}`,
+    `Khám phá hàng ngàn sản phẩm chính hãng tại ${SHOP_NAME}: máy lạnh, điều hòa, máy lọc không khí, máy lọc nước, thiết bị nhà thông minh giá tốt nhất, bảo hành uy tín.`,
     "/san-pham",
   );
   return {

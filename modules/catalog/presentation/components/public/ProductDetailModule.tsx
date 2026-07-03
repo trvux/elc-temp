@@ -42,6 +42,7 @@ import {
 } from "@/shared/components/ui/typography";
 import { District } from "@/shared/lib/districts";
 import {
+  extractMainSku,
   generateProductSchema,
   localizeRichText,
 } from "@/shared/lib/seo-utils";
@@ -213,6 +214,7 @@ export async function ProductDetailModule({
 
   const finalPrice = product.salePrice || product.originalPrice;
   const images = (product.images as string[]) || [];
+  const mainSku = extractMainSku(product.sku);
 
   const isSectionHeader = (spec: SpecItem) =>
     spec.label === spec.label.toUpperCase() &&
@@ -326,6 +328,9 @@ export async function ProductDetailModule({
 
               <TypographyH1 className={STYLES.productName}>
                 {product.name}
+                {mainSku && !product.name.toLowerCase().includes(mainSku.toLowerCase())
+                  ? ` - ${mainSku}`
+                  : ""}
               </TypographyH1>
 
               <div className={STYLES.subInfo}>

@@ -35,6 +35,16 @@ export function sanitizeAndFormatTitle(title: string | null | undefined, isHomep
   }
 }
 
+/**
+ * Extracts the primary indoor-unit model code from a compound SKU string
+ * like "FBA50BVMA9 / RZF50DVM + BRC1E63" -> "FBA50BVMA9". This is the exact
+ * code customers search for, so it needs to stay prominent (title, H1) —
+ * not buried after brand/category text.
+ */
+export function extractMainSku(sku?: string | null): string {
+  return sku?.split(/[\/\+]/)[0].trim() || "";
+}
+
 export function appendLocationToTitle(title: string, location?: District): string {
   if (!location) return title;
   const suffix = ` | ${SHOP_NAME}`;
@@ -62,11 +72,10 @@ export function generateProductMetadata(product: ProductWithRelations, location?
   const brandName = product.brand?.name || "";
   const categoryName = product.category?.name || "Máy lạnh";
 
-  // Synonym logic: If it's "Máy lạnh", add "Điều hòa" and vice-versa
+  // Synonym logic: If it's "Máy lạnh", the description should also mention "Điều hòa"
   const isAirCon =
     categoryName.toLowerCase().includes("máy lạnh") ||
     categoryName.toLowerCase().includes("điều hòa");
-  const synonyms = isAirCon ? "(Điều hòa)" : "";
 
   // 1. Try to get HP from specs
   interface Spec {
@@ -122,7 +131,7 @@ export function generateProductMetadata(product: ProductWithRelations, location?
   }
 
   // Clean SKU (main part only)
-  const mainSku = product.sku?.split(/[\/\+]/)[0].trim() || "";
+  const mainSku = extractMainSku(product.sku);
 
   const metaTitle = product.metaTitle || (product as unknown as Record<string, unknown>).meta_title as string | null | undefined;
   const metaDescription = product.metaDescription || (product as unknown as Record<string, unknown>).meta_description as string | null | undefined;
@@ -131,8 +140,12 @@ export function generateProductMetadata(product: ProductWithRelations, location?
   if (metaTitle) {
     title = metaTitle;
   } else {
-    // Strategy: [Category] [Synonym] [Brand] [HP] [SKU] [Tech]
-    title = `${categoryName} ${synonyms} ${brandName} ${hpValue} ${mainSku} Inverter`
+    // Strategy: [Brand] [SKU] [Category] [HP] [Tech] — brand+SKU lead because
+    // that's the exact string buyers search for a specific model; a synonym
+    // stuffed in parentheses mid-title (e.g. "(Điều hòa)") reads as unnatural
+    // and is a common trigger for Google to discard the <title> tag and
+    // rewrite the SERP snippet from the page's H1 instead.
+    title = `${brandName} ${mainSku} ${categoryName} ${hpValue} Inverter`
       .replace(/\s+/g, " ")
       .trim();
   }
@@ -143,7 +156,8 @@ export function generateProductMetadata(product: ProductWithRelations, location?
   if (metaDescription) {
     description = metaDescription;
   } else {
-    description = `Điện máy ELC - Chuyên cung cấp ${categoryName} ${brandName} ${mainSku} ${hpValue}${hpLocal} chính hãng. Máy lạnh giá tốt nhất thị trường, tiết kiệm điện vượt trội, hỗ trợ thi công lắp đặt máy lạnh chuyên nghiệp. Xem ngay!`
+    const synonymPhrase = isAirCon ? "Điều hòa" : categoryName;
+    description = `Điện máy ELC - Chuyên cung cấp ${categoryName} ${brandName} ${mainSku} ${hpValue}${hpLocal} chính hãng. ${synonymPhrase} giá tốt nhất thị trường, tiết kiệm điện vượt trội, hỗ trợ thi công lắp đặt chuyên nghiệp. Xem ngay!`
       .replace(/\s+/g, " ")
       .trim();
   }
@@ -204,8 +218,8 @@ export function generateCategoryMetadata(
     fullName = `${parentName} ${name}`;
   }
 
-  const synonym = fullName.toLowerCase().includes("máy lạnh") ? "Điều hòa" : "";
-  const displayName = synonym ? `${fullName} (${synonym})` : fullName;
+  const isAirCon = fullName.toLowerCase().includes("máy lạnh");
+  const synonymPhrase = isAirCon ? "Điều hòa" : fullName;
 
   let title = "";
   let description = "";
@@ -224,19 +238,23 @@ export function generateCategoryMetadata(
     description = `Khám phá các công trình ${name} thực tế do ELC thực hiện. Giải pháp không khí chuyên nghiệp, thẩm mỹ và bền bỉ. Xem ngay các dự án tiêu biểu!`;
   } else {
     // 1. Use meta_title if provided in DB
-    // 2. Fallback to smart generated displayName
-    title = metaTitle || `Danh sách ${displayName} chính hãng, giá tốt nhất`;
+    // 2. Fallback to smart generated name — no parenthetical synonym stuffing
+    // (e.g. "Máy lạnh (Điều hòa)"): that reads as unnatural and is a common
+    // trigger for Google to discard the <title> tag and rewrite the SERP
+    // snippet from the page's H1 instead. Synonym coverage goes in the
+    // description as a natural sentence instead.
+    title = metaTitle || `Danh sách ${fullName} chính hãng, giá tốt nhất`;
 
     if (
       !metaTitle &&
       (name.toLowerCase().includes("âm trần") ||
         name.toLowerCase().includes("giấu trần"))
     ) {
-      title = `Danh sách ${displayName} cho hệ thống VRV/VRF chính hãng`;
+      title = `Danh sách ${fullName} cho hệ thống VRV/VRF chính hãng`;
     }
     description =
       metaDescription ||
-      `Chuyên cung cấp ${displayName} chính hãng tại Điện máy ELC. Máy lạnh giá tốt nhất thị trường, hỗ trợ thi công lắp đặt máy lạnh chuyên nghiệp, bảo hành uy tín. Xem ngay!`;
+      `Chuyên cung cấp ${fullName} chính hãng tại Điện máy ELC. ${synonymPhrase} giá tốt nhất thị trường, hỗ trợ thi công lắp đặt chuyên nghiệp, bảo hành uy tín. Xem ngay!`;
   }
 
   title = sanitizeAndFormatTitle(title, false);
@@ -281,10 +299,8 @@ export function generateBrandMetadata(
   const brandName = (brand.name || "") as string;
   const categoryName = (category?.name || "Máy lạnh") as string;
 
-  const synonym = categoryName.toLowerCase().includes("máy lạnh")
-    ? " (Điều hòa)"
-    : "";
-  const displayName = `${categoryName}${synonym} ${brandName}`;
+  const isAirCon = categoryName.toLowerCase().includes("máy lạnh");
+  const displayName = `${categoryName} ${brandName}`;
 
   const metaTitle = (brand.metaTitle || brand.meta_title) as string | undefined;
   const metaDescription = (brand.metaDescription || brand.meta_description) as
@@ -293,11 +309,12 @@ export function generateBrandMetadata(
   const logo = (brand.logoUrl || brand.logo_url) as string | undefined;
 
   // 1. Use meta_title if provided in DB
-  // 2. Fallback to smart generated name
+  // 2. Fallback to smart generated name — no parenthetical synonym stuffing,
+  // see generateCategoryMetadata for why (Google title-rewrite risk).
   const title = metaTitle || `${displayName} chính hãng, giá tốt nhất`;
   const description =
     metaDescription ||
-    `Chuyên cung cấp ${displayName} chính hãng tại Điện máy ELC. Cam kết chất lượng cao, bảo hành uy tín, thi công lắp đặt chuyên nghiệp. Xem ngay!`;
+    `Chuyên cung cấp ${displayName}${isAirCon ? " (Điều hòa)" : ""} chính hãng tại Điện máy ELC. Cam kết chất lượng cao, bảo hành uy tín, thi công lắp đặt chuyên nghiệp. Xem ngay!`;
 
   let finalTitle = sanitizeAndFormatTitle(title, false);
 
