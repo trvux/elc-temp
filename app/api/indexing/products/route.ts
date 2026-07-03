@@ -4,8 +4,6 @@ import { google } from "googleapis";
 import * as fs from "fs";
 import * as path from "path";
 
-export const dynamic = "force-dynamic";
-
 interface IndexResult {
   url: string;
   success: boolean;
