@@ -665,6 +665,7 @@ export async function ProductListModule({
           entity.data,
           products,
           location,
+          totalCount,
         );
         if (!schema) return null;
         return (
