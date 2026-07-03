@@ -257,9 +257,9 @@ export function HeaderSearch() {
                       >
                         <CircleDashed className="size-4 text-muted-foreground/70 shrink-0" />
                         <div className="flex-1 min-w-0">
-                          <h4 className="text-sm font-medium text-foreground truncate">
+                          <div className="text-sm font-medium text-foreground truncate">
                             {item.title}
-                          </h4>
+                          </div>
                         </div>
                       </CommandItem>
                     ))}
@@ -280,9 +280,9 @@ export function HeaderSearch() {
                       >
                         <CircleDashed className="size-4 text-muted-foreground/70 shrink-0" />
                         <div className="flex-1 min-w-0">
-                          <h4 className="text-sm font-medium text-foreground truncate">
+                          <div className="text-sm font-medium text-foreground truncate">
                             {item.title}
-                          </h4>
+                          </div>
                         </div>
                       </CommandItem>
                     ))}
@@ -303,9 +303,9 @@ export function HeaderSearch() {
                       >
                         <CircleDashed className="size-4 text-muted-foreground/70 shrink-0" />
                         <div className="flex-1 min-w-0">
-                          <h4 className="text-sm font-medium text-foreground truncate">
+                          <div className="text-sm font-medium text-foreground truncate">
                             {item.title}
-                          </h4>
+                          </div>
                         </div>
                       </CommandItem>
                     ))}
@@ -326,9 +326,9 @@ export function HeaderSearch() {
                       >
                         <CircleDashed className="size-4 text-muted-foreground/70 shrink-0" />
                         <div className="flex-1 min-w-0">
-                          <h4 className="text-sm font-medium text-foreground truncate">
+                          <div className="text-sm font-medium text-foreground truncate">
                             {item.title}
-                          </h4>
+                          </div>
                         </div>
                       </CommandItem>
                     ))}
@@ -477,9 +477,9 @@ export function HeaderSearch() {
                           </div>
                         )}
                         <div className="flex-1 min-w-0">
-                          <h4 className="text-sm font-medium text-foreground line-clamp-2 mt-0.5">
+                          <div className="text-sm font-medium text-foreground line-clamp-2 mt-0.5">
                             {item.title}
-                          </h4>
+                          </div>
                           {item.sku && (
                             <span className="text-xs text-muted-foreground font-medium block mt-0.5">
                               SKU: {item.sku}
@@ -522,9 +522,9 @@ export function HeaderSearch() {
                           </div>
                         )}
                         <div className="flex-1 min-w-0">
-                          <h4 className="text-sm font-medium text-foreground line-clamp-2 mt-0.5">
+                          <div className="text-sm font-medium text-foreground line-clamp-2 mt-0.5">
                             {item.title}
-                          </h4>
+                          </div>
                         </div>
                       </CommandItem>
                     ))}
@@ -557,9 +557,9 @@ export function HeaderSearch() {
                           </div>
                         )}
                         <div className="flex-1 min-w-0">
-                          <h4 className="text-sm font-medium text-foreground line-clamp-2 mt-0.5">
+                          <div className="text-sm font-medium text-foreground line-clamp-2 mt-0.5">
                             {item.title}
-                          </h4>
+                          </div>
                         </div>
                         {item.price && (
                           <span className="text-xs font-semibold text-primary shrink-0">

@@ -6,6 +6,7 @@ import { GridSection } from "@/shared/components/sections/grid-section";
 import { ImageWithSkeleton } from "@/shared/components/ui/image-with-skeleton";
 import {
   TypographyH1,
+  TypographyH2,
   TypographyLead,
   TypographySmall,
 } from "@/shared/components/ui/typography";
@@ -29,7 +30,6 @@ export async function generateMetadata(): Promise<Metadata> {
 const STYLES = {
   main: "w-full bg-background min-h-screen",
   header: "flex flex-col items-center text-center gap-4 max-w-2xl mx-auto",
-  title: "text-3xl md:text-4xl font-extrabold tracking-tight",
   list: "flex flex-col w-full min-h-[400px] animate-fade-in-up",
   article:
     "group flex flex-row justify-between items-center gap-4 sm:gap-6 md:gap-8 py-8 border-b border-border/60 last:border-b-0 no-underline transition-all duration-300 w-full",
@@ -136,7 +136,7 @@ export default async function NewsHub() {
       <main className={STYLES.main}>
         <GridSection id="news-header-empty" isFirst={true} showDiamond={true}>
           <header className={STYLES.header}>
-            <TypographyH1 className={STYLES.title}>Tin tức</TypographyH1>
+            <TypographyH1>Tin tức</TypographyH1>
             <p className="text-muted-foreground">
               Hiện tại chưa có tin tức nào được đăng tải.
             </p>
@@ -198,7 +198,9 @@ export default async function NewsHub() {
                     {formattedDate && (
                       <span className={STYLES.date}>{formattedDate}</span>
                     )}
-                    <h2 className={STYLES.articleTitle}>{news.title}</h2>
+                    <TypographyH2 className={STYLES.articleTitle}>
+                      {news.title}
+                    </TypographyH2>
                     {excerpt && (
                       <p className={STYLES.articleDescription}>{excerpt}</p>
                     )}

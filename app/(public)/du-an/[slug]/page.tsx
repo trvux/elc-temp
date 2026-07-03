@@ -12,7 +12,7 @@ import { ScrollToTop } from "@/shared/components/layout/user/scroll-to-top";
 import { GridSection } from "@/shared/components/sections/grid-section";
 import { AspectRatio } from "@/shared/components/ui/aspect-ratio";
 import { Badge } from "@/shared/components/ui/badge";
-import { TypographySmall } from "@/shared/components/ui/typography";
+import { TypographyH1, TypographySmall } from "@/shared/components/ui/typography";
 import { Sparkle } from "@phosphor-icons/react/dist/ssr";
 import { Metadata } from "next";
 import { ImageWithSkeleton } from "@/shared/components/ui/image-with-skeleton";
@@ -183,9 +183,7 @@ async function ProjectDetailView({
       >
         <div className="max-w-3xl mx-auto flex flex-col gap-6 animate-fade-in-up">
           {/* Title */}
-          <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight text-foreground leading-tight">
-            {project.title}
-          </h1>
+          <TypographyH1>{project.title}</TypographyH1>
 
           {/* Badge */}
           <div className="flex items-center">

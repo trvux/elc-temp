@@ -18,6 +18,10 @@ import { useMemo } from "react";
 import { Contact, getDisplayContacts } from "@/modules/contact/domain";
 import { ContactLink } from "@/modules/contact/presentation/components/ContactLink";
 import { sortByOrderIndex } from "@/shared/lib/helpers";
+import {
+  TypographyH2,
+  TypographyH3,
+} from "@/shared/components/ui/typography";
 
 export interface BrandFooter {
   id: string;
@@ -189,9 +193,9 @@ export function Footer({
 
           {/* Cơ sở hạ tầng */}
           <div className="flex flex-col gap-4">
-            <h3 className="text-sm font-semibold text-foreground tracking-tight">
+            <TypographyH2 className="text-sm font-semibold text-foreground tracking-tight">
               Cơ sở hạ tầng
-            </h3>
+            </TypographyH2>
             <nav className="flex flex-col gap-2.5">
               {branches.length ? (
                 sortByOrderIndex(branches).map((b) => (
@@ -213,9 +217,9 @@ export function Footer({
 
           {/* Thông tin */}
           <div className="flex flex-col gap-4">
-            <h3 className="text-sm font-semibold text-foreground tracking-tight">
+            <TypographyH2 className="text-sm font-semibold text-foreground tracking-tight">
               Thông tin
-            </h3>
+            </TypographyH2>
             <nav className="flex flex-col gap-2.5">
               {pages.length ? (
                 sortByOrderIndex(pages).slice(0, 8).map((p) => (
@@ -243,9 +247,9 @@ export function Footer({
 
             <div className="flex flex-col gap-8">
               <div className="flex items-center justify-between">
-                <h2 className="text-lg md:text-xl font-bold tracking-tight text-foreground font-heading">
+                <TypographyH2 className="text-lg md:text-xl font-bold tracking-tight text-foreground font-heading">
                   Thương hiệu đối tác
-                </h2>
+                </TypographyH2>
                 <Link
                   href="/san-pham"
                   className="text-sm font-medium text-muted-foreground hover:text-foreground transition-all flex items-center gap-1 group"
@@ -307,9 +311,9 @@ export function Footer({
 
             <div className="flex flex-col gap-8">
               <div className="flex items-center justify-between">
-                <h2 className="text-lg md:text-xl font-bold tracking-tight text-foreground font-heading">
+                <TypographyH2 className="text-lg md:text-xl font-bold tracking-tight text-foreground font-heading">
                   Danh mục Sản phẩm
-                </h2>
+                </TypographyH2>
                 <Link
                   href="/san-pham"
                   className="text-sm font-medium text-muted-foreground hover:text-foreground transition-all flex items-center gap-1 group"
@@ -330,9 +334,9 @@ export function Footer({
                       href={`/san-pham/${group.slug}`}
                       className="text-xs font-bold text-foreground tracking-wider hover:text-primary transition-colors"
                     >
-                      <h3 className="text-sm font-semibold text-foreground tracking-tight">
+                      <TypographyH3 className="text-sm font-semibold text-foreground tracking-tight">
                         {group.name}
-                      </h3>
+                      </TypographyH3>
                     </Link>
                     <nav className="flex flex-col gap-2">
                       {children.length ? (
@@ -368,9 +372,9 @@ export function Footer({
 
             <div className="flex flex-col gap-8">
               <div className="flex items-center justify-between">
-                <h2 className="text-lg md:text-xl font-bold tracking-tight text-foreground font-heading">
+                <TypographyH2 className="text-lg md:text-xl font-bold tracking-tight text-foreground font-heading">
                   Dự án nổi bật
-                </h2>
+                </TypographyH2>
                 <Link
                   href="/du-an"
                   className="text-sm font-medium text-muted-foreground hover:text-foreground transition-all flex items-center gap-1 group"
@@ -431,9 +435,9 @@ export function Footer({
                           href={`/du-an/${col.slug}`}
                           className="text-xs font-bold text-foreground tracking-wider hover:text-primary transition-colors"
                         >
-                          <h3 className="text-sm font-semibold text-foreground tracking-tight">
+                          <TypographyH3 className="text-sm font-semibold text-foreground tracking-tight">
                             {col.name}
-                          </h3>
+                          </TypographyH3>
                         </Link>
                         <nav className="flex flex-col gap-2">
                           {col.items.map((p) => {

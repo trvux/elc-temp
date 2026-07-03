@@ -11,7 +11,7 @@ import {
 import { ImageWithSkeleton } from "@/shared/components/ui/image-with-skeleton";
 import { StockBadge } from "@/shared/components/ui/stock-badge";
 import {
-  TypographyH4,
+  TypographyLarge,
   TypographySmall,
 } from "@/shared/components/ui/typography";
 import Link from "next/link";
@@ -94,9 +94,9 @@ export function ProductCard({
         </CardHeader>
         {/* px-3 md:px-6 */}
         <CardContent className="flex flex-col gap-2 px-2">
-          <TypographyH4 className="text-foreground">
+          <TypographyLarge className="text-foreground">
             <FormattedPrice price={currentPrice} />
-          </TypographyH4>
+          </TypographyLarge>
           {hasDiscount && (
             <div className="flex items-center gap-2">
               <TypographySmall className="text-muted-foreground">

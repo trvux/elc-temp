@@ -25,7 +25,8 @@ import {
 } from "@/shared/components/ui/sidebar";
 import { Skeleton } from "@/shared/components/ui/skeleton";
 import {
-  TypographyH3,
+  TypographyH1,
+  TypographyH2,
   TypographySmall,
 } from "@/shared/components/ui/typography";
 import { getQueryTokens } from "@/shared/lib/search-utils";
@@ -492,9 +493,7 @@ export async function ProductListModule({
 
               {/* Header Title and Count */}
               <div className="flex flex-col gap-1.5 pb-4 border-b border-border/40">
-                <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-foreground">
-                  {displayTitle}
-                </h1>
+                <TypographyH1>{displayTitle}</TypographyH1>
                 <p className="text-sm text-muted-foreground">
                   {location
                     ? `Giao hàng và lắp đặt chuyên nghiệp tại ${location.name}`
@@ -538,6 +537,7 @@ export async function ProductListModule({
             content={seoContent}
             className="prose-sm md:prose-base text-foreground/80 leading-relaxed max-w-4xl"
             skipFirstHeadingPromotion={true}
+            demoteHeadingOne={true}
           />
         </GridSection>
       )}
@@ -546,9 +546,9 @@ export async function ProductListModule({
       {faqList && faqList.length > 0 && (
         <GridSection>
           <div className="max-w-4xl space-y-6">
-            <TypographyH3 className="text-xl md:text-2xl font-bold tracking-tight">
+            <TypographyH2 className="text-xl md:text-2xl font-bold tracking-tight">
               Câu hỏi thường gặp (FAQ)
-            </TypographyH3>
+            </TypographyH2>
             <Accordion type="single" collapsible className="w-full">
               {faqList.map((item, index) => (
                 <AccordionItem

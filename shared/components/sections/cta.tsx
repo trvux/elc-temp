@@ -7,7 +7,7 @@ import {
 import { Button } from "@/shared/components/ui/button";
 import { Separator } from "@/shared/components/ui/separator";
 import {
-  TypographyH1,
+  TypographyH2,
   TypographyLarge,
   TypographyMuted,
   TypographyP,
@@ -46,7 +46,7 @@ export function CTASection({ settings, contacts }: CTASectionProps) {
       >
         <div className="space-y-4">
           <StaggerItem>
-            <TypographyH1>{title}</TypographyH1>
+            <TypographyH2>{title}</TypographyH2>
           </StaggerItem>
           <StaggerItem>
             <TypographyP className="text-muted-foreground max-w-2xl mx-auto">

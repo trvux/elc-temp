@@ -7,7 +7,7 @@ import { ScrollToTop } from "@/shared/components/layout/user/scroll-to-top";
 import { GridSection } from "@/shared/components/sections/grid-section";
 import {
   TypographyH1,
-  TypographyH4,
+  TypographyH2,
   TypographyLead,
   TypographyP,
   TypographySmall,
@@ -120,7 +120,9 @@ export default async function InformationHub({
                 prefetch={false}
               >
                 <div className={STYLES.articleHeader}>
-                  <TypographyH4>{page.title}</TypographyH4>
+                  <TypographyH2 className="text-lg font-semibold md:text-xl">
+                    {page.title}
+                  </TypographyH2>
                   <ArrowUpRight className={STYLES.articleIcon} />
                 </div>
               </Link>
@@ -137,7 +139,7 @@ export default async function InformationHub({
         contentClassName="py-12 md:py-16 lg:py-20 flex flex-col gap-12"
       >
         <header className={STYLES.header}>
-          <TypographyH1>Cơ sở hạ tầng</TypographyH1>
+          <TypographyH2>Cơ sở hạ tầng</TypographyH2>
           <TypographyLead>
             Hệ thống không gian trưng bày và trạm dịch vụ của ELC được mở rộng
             trên toàn quốc với triết lý kiến tạo giá trị đồng nhất

@@ -21,8 +21,7 @@ import { notFound } from "next/navigation";
 // Design System / Style Constants
 const STYLES = {
   main: "w-full bg-background min-h-screen",
-  title:
-    "w-full max-w-none! text-wrap! text-3xl md:text-4xl lg:text-5xl font-extrabold tracking-tight font-heading leading-tight",
+  title: "w-full max-w-none! text-wrap! font-heading leading-tight",
   footer:
     "w-full flex flex-col md:flex-row justify-between items-center gap-6 text-muted-foreground",
 };

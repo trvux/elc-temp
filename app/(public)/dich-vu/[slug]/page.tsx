@@ -37,7 +37,7 @@ import {
 } from "@/shared/components/ui/tabs";
 import {
   TypographyH1,
-  TypographyH3,
+  TypographyH2,
   TypographyLead,
   TypographySmall,
 } from "@/shared/components/ui/typography";
@@ -229,9 +229,9 @@ async function ServiceHubWithLocation({ location }: { location: District }) {
         contentClassName="py-10 border-t border-border/30"
       >
         <div className="w-full max-w-4xl mx-auto space-y-6">
-          <TypographyH3 className="text-xl md:text-2xl font-bold tracking-tight">
+          <TypographyH2 className="text-xl md:text-2xl font-bold tracking-tight">
             Câu hỏi thường gặp (FAQ)
-          </TypographyH3>
+          </TypographyH2>
           <Accordion type="single" collapsible className="w-full">
             {faqList.map((item, index) => (
               <AccordionItem key={index} value={`faq-item-${index}`}>

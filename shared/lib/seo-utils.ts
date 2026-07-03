@@ -153,13 +153,17 @@ export function generateProductMetadata(product: ProductWithRelations, location?
     description = appendLocationToDescription(description, location);
   }
 
-  const url = location 
+  const url = location
     ? `${BASE_URL}/san-pham/${product.slug}/${location.slug}`
     : `${BASE_URL}/san-pham/${product.slug}`;
 
   return {
     title,
     description,
+    // Location variants are near-duplicate content by design (same product, district swapped
+    // into text) — keep them crawlable so link equity flows, but out of the index so they
+    // don't compete with the parent page or trigger doorway-page quality penalties.
+    ...(location ? { robots: { index: false, follow: true } } : {}),
     alternates: {
       canonical: url,
     },
@@ -243,13 +247,14 @@ export function generateCategoryMetadata(
   }
 
   const categorySlug = (category.slug || "") as string;
-  const url = location 
+  const url = location
     ? `${BASE_URL}/san-pham/${categorySlug}/${location.slug}`
     : `${BASE_URL}/san-pham/${categorySlug}`;
 
   return {
     title,
     description,
+    ...(location ? { robots: { index: false, follow: true } } : {}),
     alternates: {
       canonical: url,
     },
@@ -303,13 +308,14 @@ export function generateBrandMetadata(
   }
 
   const brandSlug = (brand.slug || "") as string;
-  const url = location 
+  const url = location
     ? `${BASE_URL}/san-pham/${brandSlug}/${location.slug}`
     : `${BASE_URL}/san-pham/${brandSlug}`;
 
   return {
     title: finalTitle,
     description: finalDescription,
+    ...(location ? { robots: { index: false, follow: true } } : {}),
     alternates: {
       canonical: url,
     },
@@ -350,13 +356,14 @@ export function generateServiceMetadata(
   }
 
   const serviceSlug = (service.slug || "") as string;
-  const url = location 
+  const url = location
     ? `${BASE_URL}/dich-vu/${serviceSlug}/${location.slug}`
     : `${BASE_URL}/dich-vu/${serviceSlug}`;
 
   return {
     title: finalTitle,
     description: finalDescription,
+    ...(location ? { robots: { index: false, follow: true } } : {}),
     alternates: {
       canonical: url,
     },
