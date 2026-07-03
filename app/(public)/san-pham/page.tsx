@@ -420,7 +420,7 @@ async function CachedProductsView({
       {(() => {
         const schema = generateCollectionSchema(
           {
-            name: "Sản phẩm Điện máy ELC | Máy lạnh & Hệ thống khí tươi chính hãng",
+            name: "Máy lạnh & Hệ thống khí tươi chính hãng | Điện máy ELC",
             slug: "san-pham",
             description:
               "Máy lạnh, điều hòa trung tâm và hệ thống khí tươi chính hãng tại Điện máy ELC. Đầy đủ dịch vụ thi công lắp đặt, bảo trì, cho thuê và thu cũ đổi mới uy tín.",

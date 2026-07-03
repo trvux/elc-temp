@@ -495,14 +495,16 @@ export function generateCollectionSchema(
     ? `${BASE_URL}/san-pham/${entityRecord.slug}/${location.slug}`
     : `${BASE_URL}/san-pham/${entityRecord.slug}`;
 
+  const baseName = entityName && entityName.toLowerCase().includes("chính hãng")
+    ? entityName
+    : `${entityName} chính hãng`;
+
   return {
     "@context": "https://schema.org/",
     "@type": "Product",
-    name: location
-      ? `${entityName} chính hãng tại ${location.name}`
-      : `${entityName} chính hãng`,
+    name: location ? `${baseName} tại ${location.name}` : baseName,
     description: appendLocationToDescription(
-      entityDesc || `Chuyên cung cấp ${entityName} chính hãng tại Điện máy ELC. Giá tốt nhất thị trường, hỗ trợ lắp đặt chuyên nghiệp, bảo hành uy tín. Xem ngay!`,
+      entityDesc || `Chuyên cung cấp ${baseName} tại Điện máy ELC. Giá tốt nhất thị trường, hỗ trợ lắp đặt chuyên nghiệp, bảo hành uy tín. Xem ngay!`,
       location
     ),
     image: imageUrl,
