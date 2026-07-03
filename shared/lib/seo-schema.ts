@@ -56,6 +56,11 @@ export const SEOSchema = {
   getOrganization(branches?: Branch[], contacts?: Array<{ type: string; value: string; isActive: boolean }>) {
     const sameAsLinks = this.getSameAs(contacts);
 
+    const mainAddress = contacts?.find((c) => c.type === "address" && c.isActive)?.value || "06 Dương Quảng Hàm, phường An Nhơn, Quận Gò Vấp, Thành phố Hồ Chí Minh";
+    const parsedMainAddress = parseAddress(mainAddress);
+    const phoneVal = contacts?.find((c) => c.type === "phone" && c.isActive)?.value || "0789978898";
+    const formattedPhone = formatPhone(phoneVal);
+
     const companyBranchCoverage = (branches || [])
       .filter((b) => b.isPublished)
       .map((b) => {
@@ -93,6 +98,20 @@ export const SEOSchema = {
         "height": 112,
       },
       "image": `${BASE_URL}/opengraph-image.png`,
+      "address": {
+        "@type": "PostalAddress",
+        "streetAddress": parsedMainAddress.streetAddress,
+        "addressLocality": parsedMainAddress.addressLocality || "Gò Vấp",
+        "addressRegion": parsedMainAddress.addressRegion || "Thành phố Hồ Chí Minh",
+        "addressCountry": "VN",
+      },
+      "contactPoint": {
+        "@type": "ContactPoint",
+        "telephone": formattedPhone,
+        "contactType": "customer service",
+        "areaServed": "VN",
+        "availableLanguage": ["Vietnamese"]
+      },
       "sameAs": sameAsLinks,
       "areaServed": companyBranchCoverage,
       ...(subOrganizations.length > 0 ? { "subOrganization": subOrganizations } : {})
