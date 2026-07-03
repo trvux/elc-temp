@@ -504,6 +504,10 @@ export function generateCollectionSchema(
     metaDescription?: string | null;
     meta_description?: string | null;
     description?: unknown;
+    brand?: {
+      name?: string;
+      logoUrl?: string | null;
+    } | null;
   }>,
   location?: District,
   totalCount?: number,
@@ -626,20 +630,124 @@ export function generateCollectionSchema(
     location
   );
 
+  const brandGroups = new Map<string, string[]>();
+  const hpGroups = new Map<string, string[]>();
+
+  for (const p of products) {
+    const pName = p.name || (p as Record<string, unknown>).displayName as string | undefined;
+    if (!pName) continue;
+
+    const rawBrandObj = (p as Record<string, unknown>).brand as Record<string, unknown> | null | undefined;
+    const pBrand = p.brand?.name || (rawBrandObj?.name as string | undefined) || "";
+    if (pBrand) {
+      if (!brandGroups.has(pBrand)) {
+        brandGroups.set(pBrand, []);
+      }
+      brandGroups.get(pBrand)!.push(pName);
+    }
+
+    const specHp = buildSpecProperties(p.specs).find(
+      (s) =>
+        s.name?.toLowerCase().includes("công suất") &&
+        (s.value?.toLowerCase().includes("hp") || s.value?.toLowerCase().includes("ngựa"))
+    );
+    let hpKey = "";
+    if (specHp?.value) {
+      const parsed = parseFloat(specHp.value.replace(/[^\d.]/g, ""));
+      if (!isNaN(parsed)) {
+        hpKey = `${parsed} Hp`;
+      }
+    }
+    if (hpKey) {
+      if (!hpGroups.has(hpKey)) {
+        hpGroups.set(hpKey, []);
+      }
+      hpGroups.get(hpKey)!.push(pName);
+    }
+  }
+
+  let hpGuideText = "";
+  if (baseName.toLowerCase().includes("máy lạnh") || baseName.toLowerCase().includes("điều hòa")) {
+    const hpValues = Array.from(
+      new Set(
+        products
+          .map((p) => {
+            const specHp = buildSpecProperties(p.specs).find(
+              (s) =>
+                s.name?.toLowerCase().includes("công suất") &&
+                (s.value?.toLowerCase().includes("hp") || s.value?.toLowerCase().includes("ngựa"))
+            );
+            if (!specHp?.value) return null;
+            const parsed = parseFloat(specHp.value.replace(/[^\d.]/g, ""));
+            return isNaN(parsed) ? null : parsed;
+          })
+          .filter((hp): hp is number => hp !== null)
+      )
+    ).sort((a, b) => a - b);
+
+    if (hpValues.length > 0) {
+      const hpGuideParts = hpValues.map((hp) => {
+        let area = "";
+        if (hp === 1) area = "dưới 15m2";
+        else if (hp === 1.5) area = "15-20m2";
+        else if (hp === 2) area = "20-30m2";
+        else if (hp === 2.5) area = "30-40m2";
+        else if (hp >= 3 && hp <= 4) area = "40-60m2";
+        else area = "không gian lớn";
+        return `${hp} Hp (${area})`;
+      });
+      hpGuideText = ` Hướng dẫn chọn công suất phù hợp diện tích phòng: ${hpGuideParts.join(", ")}.`;
+    }
+  }
+
+  let brandGroupText = "";
+  if (brandGroups.size > 0) {
+    const brandParts: string[] = [];
+    for (const [brand, pNames] of brandGroups.entries()) {
+      const list = pNames.slice(0, 3).join(", ");
+      brandParts.push(`${brand} (${list})`);
+    }
+    brandGroupText = ` Phân loại sản phẩm theo hãng bán chạy: ${brandParts.join(" | ")}.`;
+  }
+
+  let hpGroupText = "";
+  if (hpGroups.size > 0) {
+    const hpParts: string[] = [];
+    const sortedHpKeys = Array.from(hpGroups.keys()).sort((a, b) => {
+      const numA = parseFloat(a.replace(/[^\d.]/g, ""));
+      const numB = parseFloat(b.replace(/[^\d.]/g, ""));
+      return numA - numB;
+    });
+
+    for (const hpKey of sortedHpKeys) {
+      const pNames = hpGroups.get(hpKey)!;
+      const list = pNames.slice(0, 3).join(", ");
+      hpParts.push(`${hpKey} (${list})`);
+    }
+    hpGroupText = ` Phân loại sản phẩm theo công suất bán chạy: ${hpParts.join(" | ")}.`;
+  }
+
   const productSummaries = products
     .map((p) => {
       const pName = p.name || (p as Record<string, unknown>).displayName as string | undefined;
       const rawDescVal = p.metaDescription || (p as Record<string, unknown>).meta_description || p.description;
       const rawDesc = typeof rawDescVal === "string" ? rawDescVal : "";
       const cleanDesc = rawDesc.replace(/\s+/g, " ").replace(/Điện máy ELC\s*-\s*/gi, "").trim();
-      return pName && cleanDesc ? `${pName}: ${cleanDesc}` : pName || "";
+      
+      const pSpecs = buildSpecProperties(p.specs)
+        .slice(0, 3)
+        .map((s) => `${s.name}: ${s.value}`)
+        .join(", ");
+      const specSuffix = pSpecs ? ` (Thông số: ${pSpecs})` : "";
+      
+      return pName && cleanDesc ? `${pName}: ${cleanDesc}${specSuffix}` : pName || "";
     })
     .filter(Boolean)
-    .slice(0, 10);
+    .slice(0, 5);
 
   const richDescription = productSummaries.length > 0
-    ? `${baseDescription} Danh sách sản phẩm nổi bật: ${productSummaries.join(" | ")}`
-    : baseDescription;
+    ? `${baseDescription}${hpGuideText}${brandGroupText}${hpGroupText} Danh sách sản phẩm nổi bật: ${productSummaries.join(" | ")}`
+    : `${baseDescription}${hpGuideText}${brandGroupText}${hpGroupText}`;
 
   const additionalProperty = aggregateProductSpecs(products);
 
