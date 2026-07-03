@@ -31,8 +31,8 @@ import {
 } from "@/shared/components/ui/tabs";
 import {
   TypographyH1,
-  TypographyH3,
-  TypographyH4,
+  TypographyH2,
+  TypographyLarge,
   TypographySmall,
 } from "@/shared/components/ui/typography";
 import { createClient, setUseStaticClient } from "@/shared/lib/supabase/server";
@@ -244,19 +244,19 @@ export async function ServiceDetailModule({
 
               <div className={STYLES.priceArea}>
                 {service.priceDisplayText ? (
-                  <TypographyH3 className={STYLES.price}>
+                  <TypographyLarge className={STYLES.price}>
                     {service.priceDisplayText}
-                  </TypographyH3>
+                  </TypographyLarge>
                 ) : (
                   <>
-                    <TypographyH3 className={STYLES.price}>
+                    <TypographyLarge className={STYLES.price}>
                       {formatCurrency(finalPrice)}
-                    </TypographyH3>
+                    </TypographyLarge>
                     {(service.discountPercent || 0) > 0 && (
                       <div className={STYLES.originalPriceWrapper}>
-                        <TypographyH4 className={STYLES.originalPrice}>
+                        <TypographySmall className={STYLES.originalPrice}>
                           {formatCurrency(service.originalPrice)}
-                        </TypographyH4>
+                        </TypographySmall>
                         <Badge variant="destructive">
                           Giảm giá: {service.discountPercent}%
                         </Badge>
@@ -360,9 +360,9 @@ export async function ServiceDetailModule({
               contentClassName="py-10 border-t border-border/30"
             >
               <div className="w-full max-w-4xl mx-auto space-y-6">
-                <TypographyH3 className="text-xl md:text-2xl font-bold tracking-tight">
+                <TypographyH2 className="text-xl md:text-2xl font-bold tracking-tight">
                   Câu hỏi thường gặp (FAQ)
-                </TypographyH3>
+                </TypographyH2>
                 <Accordion type="single" collapsible className="w-full">
                   {faqList.map((item, index) => (
                     <AccordionItem key={index} value={`faq-item-${index}`}>

@@ -10,7 +10,7 @@ import {
   type CarouselApi,
 } from "@/shared/components/ui/carousel";
 import { ImageWithSkeleton } from "@/shared/components/ui/image-with-skeleton";
-import { TypographyH1, TypographyP } from "@/shared/components/ui/typography";
+import { TypographyH2, TypographyP } from "@/shared/components/ui/typography";
 import Link from "next/link";
 import * as React from "react";
 
@@ -115,7 +115,7 @@ export function ProjectMarqueeSection({
           {/* Header row with title/description on left, arrows on right */}
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-8 md:mb-12">
             <div className="flex flex-col gap-3 max-w-3xl">
-              <TypographyH1 className="text-left">{title}</TypographyH1>
+              <TypographyH2 className="text-left">{title}</TypographyH2>
               {description && (
                 <TypographyP className="text-muted-foreground text-left leading-relaxed">
                   {description}

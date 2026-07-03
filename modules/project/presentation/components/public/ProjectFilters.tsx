@@ -10,6 +10,7 @@ import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
 import { Checkbox } from "@/shared/components/ui/checkbox";
 import { Separator } from "@/shared/components/ui/separator";
+import { TypographyLarge } from "@/shared/components/ui/typography";
 import { cn } from "@/shared/lib/utils";
 import { useFilterTransition } from "@/shared/providers/filter-transition-provider";
 import { Check, X } from "@phosphor-icons/react";
@@ -252,7 +253,7 @@ export function ProjectFilters({
   return (
     <div className="flex flex-col gap-2">
       <div className="flex items-center justify-between h-10">
-        <h3 className="font-bold">Bộ lọc dự án</h3>
+        <TypographyLarge>Bộ lọc dự án</TypographyLarge>
         {hasAnyFilter && (
           <Button
             variant="secondary"

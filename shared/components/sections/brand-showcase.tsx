@@ -5,7 +5,7 @@ import {
   StaggerContainer,
   StaggerItem,
 } from "@/shared/components/ui/animate-in";
-import { TypographyH1 } from "@/shared/components/ui/typography";
+import { TypographyH2 } from "@/shared/components/ui/typography";
 import { cn } from "@/shared/lib/utils";
 import { ImageWithSkeleton } from "@/shared/components/ui/image-with-skeleton";
 import Link from "next/link";
@@ -32,7 +32,7 @@ export function BrandShowcase({ brands = [] }: BrandShowcaseProps) {
     <div className={styles.section}>
       <StaggerContainer className={styles.container} immediate>
         <StaggerItem className={styles.header}>
-          <TypographyH1>Đối tác thương hiệu</TypographyH1>
+          <TypographyH2>Đối tác thương hiệu</TypographyH2>
         </StaggerItem>
 
         <StaggerItem>

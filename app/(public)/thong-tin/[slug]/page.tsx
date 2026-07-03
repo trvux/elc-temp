@@ -12,7 +12,6 @@ import { AspectRatio } from "@/shared/components/ui/aspect-ratio";
 import { Card, CardContent } from "@/shared/components/ui/card";
 import {
   TypographyH1,
-  TypographyH4,
   TypographySmall,
 } from "@/shared/components/ui/typography";
 import { setUseStaticClient } from "@/shared/lib/supabase/server";
@@ -187,7 +186,7 @@ export default async function BranchDetail({ params }: Props) {
               <ArrowLeft className="w-3 h-3 transition-transform group-hover:-translate-x-0.5" />
               <span>Quay lại danh mục</span>
             </Link>
-            <TypographyH1 className="w-full max-w-none! text-wrap! text-3xl md:text-4xl lg:text-5xl font-extrabold tracking-tight font-heading leading-tight">
+            <TypographyH1 className="w-full max-w-none! text-wrap! font-heading leading-tight">
               {branch.name}
             </TypographyH1>
             {branch.imageUrl && (
@@ -221,8 +220,8 @@ export default async function BranchDetail({ params }: Props) {
                     value={item.value}
                     className={STYLES.accordionItem}
                   >
-                    <AccordionTrigger>
-                      <TypographyH4>{item.trigger}</TypographyH4>
+                    <AccordionTrigger className="text-lg font-semibold">
+                      {item.trigger}
                     </AccordionTrigger>
                     <AccordionContent>
                       <div className={STYLES.accordionContent}>{item.content}</div>

@@ -20,7 +20,10 @@ import {
   SidebarTrigger,
 } from "@/shared/components/ui/sidebar";
 import { Skeleton } from "@/shared/components/ui/skeleton";
-import { TypographySmall } from "@/shared/components/ui/typography";
+import {
+  TypographyH1,
+  TypographySmall,
+} from "@/shared/components/ui/typography";
 import { getCachedSystemPage } from "@/shared/lib/cached-system-page";
 import { getQueryTokens } from "@/shared/lib/search-utils";
 import {
@@ -306,9 +309,9 @@ async function CachedProductsView({
 
               {/* Header Title and Count */}
               <div className="flex flex-col gap-1.5 pb-4 border-b border-border/40">
-                <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-foreground">
+                <TypographyH1>
                   {q ? `Kết quả cho "${q}"` : "Tất cả sản phẩm"}
-                </h1>
+                </TypographyH1>
                 <p className="text-sm text-muted-foreground">
                   Danh sách {totalCount} sản phẩm đáp ứng tiêu chí
                 </p>

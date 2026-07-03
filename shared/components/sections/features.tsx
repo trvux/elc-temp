@@ -10,7 +10,7 @@ import {
 } from "@/shared/components/ui/animate-in";
 import { Skeleton } from "@/shared/components/ui/skeleton";
 import {
-  TypographyH4,
+  TypographyH3,
   TypographyMuted,
 } from "@/shared/components/ui/typography";
 import { Spinner } from "@phosphor-icons/react";
@@ -176,7 +176,7 @@ export function FeaturesSection({
                 href={`/san-pham/${slug}`}
                 className="group relative inline-flex items-center justify-center transition-colors p-2"
               >
-                <TypographyH4>{title}</TypographyH4>
+                <TypographyH3>{title}</TypographyH3>
               </Link>
             </Button>
           </StaggerItem>

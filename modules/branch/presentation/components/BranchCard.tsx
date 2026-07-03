@@ -1,6 +1,7 @@
 import { Branch } from "@/modules/branch";
 import { Buildings } from "@phosphor-icons/react/dist/ssr";
 import { ImageWithSkeleton } from "@/shared/components/ui/image-with-skeleton";
+import { TypographyH3 } from "@/shared/components/ui/typography";
 import Link from "next/link";
 import React from "react";
 
@@ -17,9 +18,9 @@ export const BranchCard: React.FC<BranchCardProps> = ({ branch, priority = false
     <div id={branch.slug} className="group flex flex-row justify-between items-center gap-4 sm:gap-6 md:gap-8 py-8 border-b border-border/60 last:border-b-0 w-full rounded-md transition-colors duration-500">
       <div className="flex-1 min-w-0 flex flex-col gap-1.5 md:gap-2">
         <Link href={`/thong-tin/${branch.slug}`} className="no-underline">
-          <h2 className="text-base sm:text-lg md:text-xl font-bold tracking-tight text-foreground group-hover:text-foreground/60 transition-colors line-clamp-2 leading-snug font-heading">
+          <TypographyH3 className="text-base sm:text-lg md:text-xl font-bold tracking-tight text-foreground group-hover:text-foreground/60 transition-colors line-clamp-2 leading-snug font-heading">
             {branch.name}
-          </h2>
+          </TypographyH3>
         </Link>
 
         <div className="flex flex-col gap-1 md:gap-1.5 mt-1 text-xs sm:text-sm md:text-base text-muted-foreground">

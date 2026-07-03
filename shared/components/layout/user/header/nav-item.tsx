@@ -47,7 +47,7 @@ export const MobileNavItem = ({ link, isActive, onClick }: NavItemProps) => {
           : "text-muted-foreground hover:text-foreground",
       )}
     >
-      <h1 className="text-2xl font-semibold">{link.name}</h1>
+      <span className="text-2xl font-semibold">{link.name}</span>
     </Link>
   );
 };

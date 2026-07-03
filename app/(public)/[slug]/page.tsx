@@ -108,7 +108,7 @@ export default async function StaticPage({ params }: PageProps) {
                 year: "numeric",
               })}
             </TypographySmall>
-            <TypographyH1 className="w-full max-w-none! text-wrap! text-3xl md:text-4xl lg:text-5xl font-extrabold tracking-tight font-heading leading-tight">
+            <TypographyH1 className="w-full max-w-none! text-wrap! font-heading leading-tight">
               {page.title}
             </TypographyH1>
           </div>

@@ -190,67 +190,18 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.6,
     }));
 
-  // Category + District
-  const categoryDistrictRoutes = (categories || [])
-    .filter((cat) => cat.slug)
-    .flatMap((cat) =>
-      DISTRICTS.map((dist) => ({
-        url: `${BASE_URL}/san-pham/${cat.slug}/${dist.slug}`,
-        lastModified: new Date(cat.updated_at || Date.now()),
-        changeFrequency: 'weekly' as const,
-        priority: 0.7,
-      }))
-    );
+  // NOTE: Category/Brand/Group/Product/Service × District detail pages
+  // (e.g. /san-pham/may-lanh/quan-1, /dich-vu/lap-dat/quan-1) are intentionally
+  // excluded from the sitemap. They're marked `robots: noindex, follow` in
+  // seo-utils.ts because their content is ~90% identical to the parent page
+  // with only the district name swapped in — submitting thousands of those to
+  // Google as indexable created a doorway-page pattern that was dragging down
+  // the whole site's ranking. The pages still exist for users/internal links,
+  // just not offered to Google as index candidates.
 
-  // Brand + District
-  const brandDistrictRoutes = (brands || [])
-    .filter((b) => b.slug)
-    .flatMap((b) =>
-      DISTRICTS.map((dist) => ({
-        url: `${BASE_URL}/san-pham/${b.slug}/${dist.slug}`,
-        lastModified: new Date(b.updated_at || Date.now()),
-        changeFrequency: 'weekly' as const,
-        priority: 0.7,
-      }))
-    );
-
-  // Group Category + District
-  const groupDistrictRoutes = (groupCategories || [])
-    .filter((g) => g.slug)
-    .flatMap((g) =>
-      DISTRICTS.map((dist) => ({
-        url: `${BASE_URL}/san-pham/${g.slug}/${dist.slug}`,
-        lastModified: new Date(g.updated_at || Date.now()),
-        changeFrequency: 'weekly' as const,
-        priority: 0.7,
-      }))
-    );
-
-  // Product + District (local SEO pages)
-  const productDistrictRoutes = (products || [])
-    .filter((prod) => prod.slug)
-    .flatMap((prod) =>
-      DISTRICTS.map((dist) => ({
-        url: `${BASE_URL}/san-pham/${prod.slug}/${dist.slug}`,
-        lastModified: new Date(prod.updated_at || Date.now()),
-        changeFrequency: 'weekly' as const,
-        priority: 0.65,
-      }))
-    );
-
-  // Service + District
-  const serviceDistrictRoutes = (services || [])
-    .filter((serv) => serv.slug)
-    .flatMap((serv) =>
-      DISTRICTS.map((dist) => ({
-        url: `${BASE_URL}/dich-vu/${serv.slug}/${dist.slug}`,
-        lastModified: new Date(serv.updated_at || Date.now()),
-        changeFrequency: 'weekly' as const,
-        priority: 0.6,
-      }))
-    );
-
-  // Service hub pages per district (/dich-vu/[district])
+  // Service hub pages per district (/dich-vu/[district]) — kept indexable:
+  // this is a genuine location landing page (all services + local FAQ), not a
+  // near-duplicate of a single detail page.
   const serviceHubDistrictRoutes = DISTRICTS.map((dist) => ({
     url: `${BASE_URL}/dich-vu/${dist.slug}`,
     lastModified: new Date(),
@@ -262,16 +213,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...staticRoutes,
     ...pageRoutes,
     ...categoryRoutes,
-    ...categoryDistrictRoutes,
     ...brandRoutes,
-    ...brandDistrictRoutes,
     ...groupRoutes,
-    ...groupDistrictRoutes,
     ...productRoutes,
-    ...productDistrictRoutes,
     ...serviceRoutes,
     ...serviceHubDistrictRoutes,
-    ...serviceDistrictRoutes,
     ...projectRoutes,
     ...projectTypeRoutes,
     ...newsRoutes,

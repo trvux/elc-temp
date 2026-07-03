@@ -7,6 +7,27 @@ interface PreviewContentProps {
   className?: string;
   hideFirstHeading?: boolean;
   skipFirstHeadingPromotion?: boolean;
+  demoteHeadingOne?: boolean;
+}
+
+function isLevelOneHeading(node: Record<string, unknown>): boolean {
+  return (
+    node.type === "heading" &&
+    (node.attrs as Record<string, unknown> | undefined)?.level === 1
+  );
+}
+
+function demoteLevelOneHeadings(
+  nodes: Array<Record<string, unknown>>,
+): Array<Record<string, unknown>> {
+  return nodes.map((node) =>
+    isLevelOneHeading(node)
+      ? {
+          ...node,
+          attrs: { ...(node.attrs as Record<string, unknown>), level: 2 },
+        }
+      : node,
+  );
 }
 
 /**
@@ -18,6 +39,7 @@ export const PreviewContent = ({
   className,
   hideFirstHeading = false,
   skipFirstHeadingPromotion = false,
+  demoteHeadingOne = false,
 }: PreviewContentProps) => {
   if (!content) return null;
 
@@ -34,21 +56,36 @@ export const PreviewContent = ({
       // Normalize heading nodes that were stored without attrs.level (legacy DB records)
       let contentToRender = normalizeTiptapJson(content, { skipFirstHeadingPromotion }) as Record<string, unknown>;
 
-      // Logic: If hideFirstHeading is true, remove the first H1 node
+      // hideFirstHeading: this content sits under a page whose own <h1> already
+      // duplicates the CMS's auto-promoted first heading (e.g. article title) —
+      // drop that first H1 node entirely, then demote any other stray H1 an
+      // editor may have picked further down in the body to H2.
       if (hideFirstHeading && Array.isArray(contentToRender.content)) {
         const nodes = contentToRender.content as Array<Record<string, unknown>>;
-        const firstH1Index = nodes.findIndex(
-          (node) =>
-            node.type === "heading" &&
-            (node.attrs as Record<string, unknown> | undefined)?.level === 1,
-        );
+        const firstH1Index = nodes.findIndex(isLevelOneHeading);
 
-        if (firstH1Index !== -1) {
-          contentToRender = {
-            ...contentToRender,
-            content: nodes.filter((_, index) => index !== firstH1Index),
-          };
-        }
+        const withoutFirstH1 =
+          firstH1Index !== -1
+            ? nodes.filter((_, index) => index !== firstH1Index)
+            : nodes;
+
+        contentToRender = {
+          ...contentToRender,
+          content: demoteLevelOneHeadings(withoutFirstH1),
+        };
+      }
+
+      // demoteHeadingOne: this content is a secondary block on a page that has
+      // its own <h1> elsewhere, but (unlike hideFirstHeading) any H1 authored
+      // here is real, distinct copy — not a duplicate of the page title — so it
+      // should stay visible, just demoted to H2 instead of being deleted.
+      if (demoteHeadingOne && Array.isArray(contentToRender.content)) {
+        contentToRender = {
+          ...contentToRender,
+          content: demoteLevelOneHeadings(
+            contentToRender.content as Array<Record<string, unknown>>,
+          ),
+        };
       }
 
       html = generateHTML(contentToRender as Parameters<typeof generateHTML>[0], getTiptapExtensions());
