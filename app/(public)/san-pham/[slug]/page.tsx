@@ -12,6 +12,8 @@ import {
 import { Metadata, ResolvingMetadata } from "next";
 import { notFound } from "next/navigation";
 
+import { getCachedRelatedProducts } from "@/shared/components/layout/user/related-products";
+
 type Props = {
   params: Promise<{ slug: string }>;
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
@@ -39,7 +41,8 @@ export async function generateMetadata(
   switch (resolved.type) {
     case "product": {
       const product = resolved.data;
-      const seoMetadata = generateProductMetadata(product);
+      const relatedProducts = await getCachedRelatedProducts(product.categoryId, product.id, product.brandId);
+      const seoMetadata = generateProductMetadata(product, undefined, relatedProducts);
       const ogImages = seoMetadata.openGraph?.images;
       const seoImages = Array.isArray(ogImages) ? ogImages : ogImages ? [ogImages] : [];
       return {
