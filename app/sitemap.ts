@@ -93,7 +93,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     .filter((p) => p.slug)
     .map((p) => ({
       url: `${BASE_URL}/${p.slug}`,
-      lastModified: new Date(p.updated_at || Date.now()),
+      lastModified: new Date(),
     }));
 
   // Category Routes
@@ -101,7 +101,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     .filter((cat) => cat.slug)
     .map((cat) => ({
       url: `${BASE_URL}/san-pham/${cat.slug}`,
-      lastModified: new Date(cat.updated_at || Date.now()),
+      lastModified: new Date(),
     }));
 
   // Brand Routes
@@ -109,7 +109,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     .filter((b) => b.slug)
     .map((b) => ({
       url: `${BASE_URL}/san-pham/${b.slug}`,
-      lastModified: new Date(b.updated_at || Date.now()),
+      lastModified: new Date(),
     }));
 
   // Group Category Routes
@@ -117,7 +117,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     .filter((g) => g.slug)
     .map((g) => ({
       url: `${BASE_URL}/san-pham/${g.slug}`,
-      lastModified: new Date(g.updated_at || Date.now()),
+      lastModified: new Date(),
     }));
 
   // Product Routes (Flat!)
@@ -125,7 +125,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     .filter((prod) => prod.slug)
     .map((prod) => ({
       url: `${BASE_URL}/san-pham/${prod.slug}`,
-      lastModified: new Date(prod.updated_at || Date.now()),
+      lastModified: new Date(),
     }));
 
   // Service Routes
@@ -133,7 +133,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     .filter((serv) => serv.slug)
     .map((serv) => ({
       url: `${BASE_URL}/dich-vu/${serv.slug}`,
-      lastModified: new Date(serv.updated_at || Date.now()),
+      lastModified: new Date(),
     }));
 
   // Project Routes
@@ -141,7 +141,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     .filter((proj) => proj.slug && proj.meta_title && proj.meta_description)
     .map((proj) => ({
       url: `${BASE_URL}/du-an/${proj.slug}`,
-      lastModified: new Date(proj.updated_at || Date.now()),
+      lastModified: new Date(),
     }));
 
   // Project Type Routes
@@ -149,7 +149,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     .filter((pt) => pt.slug && pt.meta_title && pt.meta_description)
     .map((pt) => ({
       url: `${BASE_URL}/du-an/${pt.slug}`,
-      lastModified: new Date(pt.updated_at || Date.now()),
+      lastModified: new Date(),
     }));
 
   // News Routes
@@ -157,7 +157,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     .filter((n) => n.slug)
     .map((n) => ({
       url: `${BASE_URL}/tin-tuc/${n.slug}`,
-      lastModified: new Date(n.updated_at || Date.now()),
+      lastModified: new Date(),
     }));
 
   // Branch Routes
@@ -165,7 +165,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     .filter((b) => b.slug)
     .map((b) => ({
       url: `${BASE_URL}/thong-tin/${b.slug}`,
-      lastModified: new Date(b.updated_at || Date.now()),
+      lastModified: new Date(),
     }));
 
   // NOTE: Category/Brand/Group/Product/Service × District detail pages
