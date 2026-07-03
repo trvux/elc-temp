@@ -83,6 +83,7 @@ export async function GET() {
 
   let markdown = `# Dien may ELC - Sitemap for LLMs & AI Search Bot\n\n`;
   markdown += `Dien may ELC (Cong ty Co phan Giai phap Cong nghe TMDV ELC) specializes in supplying and installing genuine air conditioning systems, VRV/VRF central air conditioning, fresh air ventilation systems, and water purifiers in Ho Chi Minh City and nationwide.\n\n`;
+  markdown += `For a comprehensive directory including detailed product specifications, pricing, stock statuses, and descriptions, see the [Full Specification](${BASE_URL}/llms-full.txt).\n\n`;
 
   // Contact Information Section
   markdown += `## Contact & Branch Information\n\n`;
