@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
 import { createStaticClient } from "@/shared/lib/supabase/static";
-import { cacheLife } from "next/cache";
 
 const BASE_URL = "https://dienmayelc.com.vn";
 
@@ -70,9 +69,7 @@ function tiptapToText(node: unknown): string {
   return "";
 }
 
-async function getLlmFullMarkdown() {
-  "use cache";
-  cacheLife("hours");
+export async function GET() {
   const supabase = createStaticClient();
 
   // Fetch Contacts
@@ -226,7 +223,6 @@ async function getLlmFullMarkdown() {
       markdown += `- **Stock Status**: ${stockStr}\n`;
       markdown += `- **Overview**: ${p.meta_description || "Genuine product supplied by Dien may ELC."}\n`;
       if (detailedDesc) {
-        // Clean double spaces and trim
         const cleanDesc = detailedDesc.replace(/\s+/g, " ").trim();
         markdown += `- **Detailed Description**: ${cleanDesc}\n`;
       }
@@ -292,15 +288,10 @@ async function getLlmFullMarkdown() {
     });
   }
 
-  return markdown;
-}
-
-export async function GET() {
-  const markdown = await getLlmFullMarkdown();
   return new NextResponse(markdown, {
     headers: {
       "Content-Type": "text/plain; charset=utf-8",
-      "Cache-Control": "public, max-age=3600",
+      "Cache-Control": "public, max-age=3600, stale-while-revalidate=86400",
     },
   });
 }

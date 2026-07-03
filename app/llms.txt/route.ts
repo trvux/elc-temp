@@ -1,12 +1,13 @@
 import { NextResponse } from "next/server";
 import { createStaticClient } from "@/shared/lib/supabase/static";
-import { cacheLife } from "next/cache";
 
 const BASE_URL = "https://dienmayelc.com.vn";
 
-async function getLlmMarkdown() {
-  "use cache";
-  cacheLife("hours");
+export async function GET(request: Request) {
+  // Accessing request properties forces the route to be evaluated dynamically at runtime
+  const url = new URL(request.url);
+  const cacheBuster = url.searchParams.get("cb");
+
   const supabase = createStaticClient();
 
   // Fetch Contacts
@@ -184,15 +185,10 @@ async function getLlmMarkdown() {
     });
   }
 
-  return markdown;
-}
-
-export async function GET() {
-  const markdown = await getLlmMarkdown();
   return new NextResponse(markdown, {
     headers: {
       "Content-Type": "text/plain; charset=utf-8",
-      "Cache-Control": "public, max-age=3600",
+      "Cache-Control": "public, max-age=3600, stale-while-revalidate=86400",
     },
   });
 }
