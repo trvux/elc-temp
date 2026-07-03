@@ -1,11 +1,12 @@
 import { NextResponse } from "next/server";
 import { createStaticClient } from "@/shared/lib/supabase/static";
-
-export const revalidate = 3600; // Cache for 1 hour
+import { cacheLife } from "next/cache";
 
 const BASE_URL = "https://dienmayelc.com.vn";
 
 export async function GET() {
+  "use cache";
+  cacheLife("hours");
   const supabase = createStaticClient();
 
   // Fetch Contacts
