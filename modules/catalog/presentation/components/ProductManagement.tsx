@@ -23,6 +23,7 @@ import {
   deleteProductAction,
   getBrandsAction,
   getProductsAction,
+  triggerGoogleIndexingAction,
 } from "../actions";
 import { getProductColumns } from "./ProductColumns";
 import { useProductForm, AC_TEMPLATE } from "../hooks/useProductForm";
@@ -37,6 +38,7 @@ export function ProductManagement() {
   const queryClient = useQueryClient();
   const [activeProduct, setActiveProduct] = useState<ProductWithRelations | "new" | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [isIndexing, setIsIndexing] = useState(false);
 
   // Filters
   const [filterGroupId, setFilterGroupId] = useState<string>("all");
@@ -170,6 +172,39 @@ export function ProductManagement() {
     [form]
   );
 
+  const handleGoogleIndexing = async () => {
+    const ok = window.confirm("Bạn có chắc chắn muốn gửi tất cả sản phẩm đang đăng để yêu cầu Google cập nhật lập chỉ mục ngay lập tức không?");
+    if (!ok) return;
+
+    setIsIndexing(true);
+    const toastId = toast.loading("Đang gửi yêu cầu lập chỉ mục lên Google...");
+
+    try {
+      const res = await triggerGoogleIndexingAction();
+      if (!res.success) {
+        toast.error(res.error || "Gửi yêu cầu lập chỉ mục thất bại", { id: toastId });
+        return;
+      }
+
+      const successCount = res.successCount ?? 0;
+      const failCount = res.failCount ?? 0;
+      let message = `Đã gửi thành công ${successCount} sản phẩm.`;
+      if (failCount > 0) {
+        message += ` Thất bại: ${failCount}.`;
+      }
+      if (res.quotaExceeded) {
+        message += " Đã đạt giới hạn quota hàng ngày của Google.";
+      }
+
+      toast.success(message, { id: toastId });
+    } catch (err) {
+      console.error(err);
+      toast.error("Đã xảy ra lỗi khi gửi yêu cầu", { id: toastId });
+    } finally {
+      setIsIndexing(false);
+    }
+  };
+
   function openCreate() {
     setActiveProduct("new");
     form.reset({
@@ -207,9 +242,19 @@ export function ProductManagement() {
             Quản lý danh sách sản phẩm, giá bán và thông số kỹ thuật.
           </p>
         </div>
-        <Button onClick={openCreate} className="h-9">
-          <Plus size={16} className="mr-2" /> Thêm sản phẩm
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button
+            onClick={handleGoogleIndexing}
+            variant="outline"
+            className="h-9"
+            disabled={isIndexing}
+          >
+            {isIndexing ? "Đang gửi Google..." : "Gửi Google Index"}
+          </Button>
+          <Button onClick={openCreate} className="h-9">
+            <Plus size={16} className="mr-2" /> Thêm sản phẩm
+          </Button>
+        </div>
       </div>
 
       <div className="flex flex-wrap items-center gap-4 mb-4">
