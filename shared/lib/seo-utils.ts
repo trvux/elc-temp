@@ -454,6 +454,7 @@ export function generateCollectionSchema(
     images?: string[];
   }>,
   location?: District,
+  totalCount?: number,
 ) {
   if (!entity || !products || products.length === 0) return null;
 
@@ -511,7 +512,7 @@ export function generateCollectionSchema(
       lowPrice: lowPrice,
       highPrice: highPrice,
       priceCurrency: "VND",
-      offerCount: prices.length,
+      offerCount: totalCount ?? prices.length,
       ...(location ? {
         areaServed: [
           {

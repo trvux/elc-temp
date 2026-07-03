@@ -426,6 +426,8 @@ async function CachedProductsView({
               "Máy lạnh, điều hòa trung tâm và hệ thống khí tươi chính hãng tại Điện máy ELC. Đầy đủ dịch vụ thi công lắp đặt, bảo trì, cho thuê và thu cũ đổi mới uy tín.",
           },
           products,
+          undefined,
+          totalCount,
         );
         if (!schema) return null;
         return (
