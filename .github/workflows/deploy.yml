@@ -70,6 +70,18 @@ jobs:
             python3 -c 'import os,json; cfg={"apps":[{"name":"elc-tem","script":"server.js","env":{"PORT":"3000","NODE_ENV":"production","GOOGLE_SERVICE_ACCOUNT_JSON":os.environ.get("GOOGLE_SERVICE_ACCOUNT_JSON",""),"GO_API_URL":"http://localhost:8090"}}]}; open("ecosystem.config.js","w").write("module.exports = "+json.dumps(cfg)+";\n")'
             # Xoa cache cu cua Next.js (Full Route Cache / Data Cache) de tranh ket cache
             rm -rf .next/cache
+            # Doi Go API san sang truoc khi start Next.js
+            # Tranh race condition: Next.js start truoc Go -> cache rong bi giu lai
+            echo "Waiting for Go API to be ready..."
+            for i in $(seq 1 30); do
+              if curl -sf http://localhost:8090/brands > /dev/null 2>&1; then
+                echo "Go API is ready after ${i}x2s"
+                break
+              fi
+              echo "  attempt $i/30..."
+              sleep 2
+            done
             # Tao hoac cap nhat PM2 process
             pm2 delete elc-tem 2>/dev/null || true
-            pm2 start ecosystem.config.js </dev/null >/dev/null 2>&1
+            pm2 start ecosystem.config.js
+
