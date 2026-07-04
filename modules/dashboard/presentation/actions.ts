@@ -2,7 +2,6 @@
 
 import { getDashboardStats } from "../application/getDashboardStats";
 import { newsRepo } from "@/modules/news/infrastructure";
-import { pageRepo } from "@/modules/page/infrastructure";
 import { getContactsAction } from "@/modules/contact/presentation/actions";
 import { getBrandsAction } from "@/modules/brand/presentation/actions";
 import { productRepo } from "@/modules/catalog/infrastructure";
@@ -13,19 +12,30 @@ const GO_API_URL = process.env.GO_API_URL;
 
 export async function getDashboardStatsAction() {
   try {
-    // contact/service/brand/branch modules da migrate sang Go — lay data qua Go API
-    // thay vi contactRepo/serviceRepo/brandRepo/branchRepo.
-    const [{ data: contacts }, servicesCountRes, { data: brands }, branchesCountRes] = await Promise.all([
+    // contact/service/brand/branch/page modules da migrate sang Go — lay data qua Go API
+    // thay vi contactRepo/serviceRepo/brandRepo/branchRepo/pageRepo.
+    const [
+      { data: contacts },
+      servicesCountRes,
+      { data: brands },
+      branchesCountRes,
+      pagesCountRes,
+    ] = await Promise.all([
       getContactsAction(),
       fetch(`${GO_API_URL}/services/count`, { cache: "no-store" }),
       getBrandsAction(),
       fetch(`${GO_API_URL}/branches/count`, { cache: "no-store" }),
+      fetch(`${GO_API_URL}/pages/count`, { cache: "no-store" }),
     ]);
+
     const servicesCount = servicesCountRes.ok
       ? ((await servicesCountRes.json()) as { count: number }).count
       : 0;
     const branchesCount = branchesCountRes.ok
       ? ((await branchesCountRes.json()) as { count: number }).count
+      : 0;
+    const pagesCount = pagesCountRes.ok
+      ? ((await pagesCountRes.json()) as { count: number }).count
       : 0;
 
     const data = await getDashboardStats(
@@ -34,11 +44,11 @@ export async function getDashboardStatsAction() {
         categoryRepo,
         projectRepo,
         newsRepo,
-        pageRepo,
       },
       contacts.length,
       servicesCount,
       branchesCount,
+      pagesCount,
       brands
     );
     return { data, error: null };

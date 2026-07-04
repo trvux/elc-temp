@@ -1,7 +1,6 @@
 import { BranchList } from "@/modules/branch";
 import { getBranchesAction } from "@/modules/branch/presentation/actions";
-import { getPages } from "@/modules/page/application";
-import { pageRepo } from "@/modules/page/infrastructure/SupabasePageRepository";
+import { getPagesAction } from "@/modules/page/presentation/actions";
 import { ScrollToTop } from "@/shared/components/layout/user/scroll-to-top";
 import { GridSection } from "@/shared/components/sections/grid-section";
 import {
@@ -63,7 +62,7 @@ async function getCachedInformationData() {
   cacheTag("layout");
   setUseStaticClient(true);
 
-  const allPages = await getPages(pageRepo, { isPublished: true });
+  const allPages = await getPagesAction().then((res) => res.data.filter((p) => p.isPublished));
   const allBranches = await getBranchesAction({ isPublished: true }).then((res) => res.data);
   const currentYear = new Date().getFullYear();
 
