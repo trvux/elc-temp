@@ -14,8 +14,7 @@ import { categoryRepo } from "@/modules/category/infrastructure/categoryRepo";
 import { getContactsAction } from "@/modules/contact/presentation/actions";
 import { getProjects } from "@/modules/project/application";
 import { projectRepo } from "@/modules/project/infrastructure/projectRepo";
-import { getSiteSettings } from "@/modules/settings/application";
-import { settingsRepo } from "@/modules/settings/infrastructure/settingsRepo";
+import { getSiteSettingsAction } from "@/modules/settings/presentation/actions";
 
 import { generateHomeSchema, generateSystemPageMetadata } from "@/shared/lib/seo-utils";
 import { getCachedSystemPage } from "@/shared/lib/cached-system-page";
@@ -43,7 +42,7 @@ async function getCachedHomeData() {
   // Fetch all necessary data for the homepage using the application layer
   const [settingsData, projects, categories, contacts, brands, branches] =
     await Promise.all([
-      getSiteSettings(settingsRepo),
+      getSiteSettingsAction().then((res) => res.data),
       getProjects(projectRepo, {
         isPublished: true,
         limit: 200,
