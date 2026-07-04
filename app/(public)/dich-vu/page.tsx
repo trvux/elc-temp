@@ -56,12 +56,18 @@ export async function generateMetadata(): Promise<Metadata> {
 
 async function getCachedServicesData() {
   "use cache";
-  cacheLife("days");
   cacheTag("services-list");
   setUseStaticClient(true);
 
   const groupedServices = await getPublishedServicesGroupedAction();
   const currentYear = new Date().getFullYear();
+
+  // Neu Go API chua san sang (data rong), cache ngan 30s de retry nhanh.
+  if (!groupedServices || groupedServices.length === 0) {
+    cacheLife({ revalidate: 30, expire: 60 });
+  } else {
+    cacheLife("days");
+  }
 
   return {
     groupedServices: groupedServices ?? [],

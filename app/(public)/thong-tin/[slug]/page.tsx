@@ -56,12 +56,13 @@ interface Props {
 
 async function getBranchData(slug: string) {
   "use cache";
-  cacheLife("hours");
   cacheTag("layout");
   setUseStaticClient(true);
   const branch = await getBranchBySlugAction(slug).then((res) => res.data);
   const currentYear = new Date().getFullYear();
   const { settings, contacts, branches } = await getPublicLayoutData();
+  // Neu Go API chua san sang (branch null, branches rong), cache ngan 30s
+  cacheLife(branch || branches?.length > 0 ? "hours" : { revalidate: 30, expire: 60 });
   return {
     branch,
     branches,

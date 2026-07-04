@@ -35,7 +35,6 @@ import { cacheLife, cacheTag } from "next/cache";
 
 async function getCachedHomeData() {
   "use cache";
-  cacheLife("days");
   cacheTag("products-list", "projects-list", "brands", "layout", "categories");
   setUseStaticClient(true);
 
@@ -52,6 +51,15 @@ async function getCachedHomeData() {
       getBrandsAction({ limit: 100 }).then((res) => res.data),
       getBranchesAction({ isPublished: true }).then((res) => res.data),
     ]);
+
+  // Neu Go API chua san sang (contacts va brands deu rong), cache ngan 30s de retry nhanh.
+  // contacts va brands la data tu Go API -- neu ca 2 rong la dau hieu Go API chua san sang.
+  const isGoApiReady = (contacts && contacts.length > 0) || (brands && brands.length > 0);
+  if (!isGoApiReady) {
+    cacheLife({ revalidate: 30, expire: 60 });
+  } else {
+    cacheLife("days");
+  }
 
   // Convert settings array to a more usable object
   const settings: Record<string, string> = {};

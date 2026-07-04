@@ -69,19 +69,20 @@ export async function generateStaticParams() {
 
 async function getCachedService(slug: string) {
   "use cache";
-  cacheLife("days");
   cacheTag("services-list", `service-slug:${slug}`);
   setUseStaticClient(true);
-  return getServiceBySlugAction(slug);
+  const data = await getServiceBySlugAction(slug);
+  cacheLife(data ? "days" : { revalidate: 30, expire: 60 });
+  return data;
 }
 
 async function getCachedServicesGrouped() {
   "use cache";
-  cacheLife("days");
   cacheTag("services-list");
   setUseStaticClient(true);
   const groupedServices = await getPublishedServicesGroupedAction();
   const currentYear = new Date().getFullYear();
+  cacheLife(groupedServices && groupedServices.length > 0 ? "days" : { revalidate: 30, expire: 60 });
   return { groupedServices: groupedServices ?? [], currentYear };
 }
 

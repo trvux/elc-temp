@@ -137,10 +137,11 @@ export default async function ProductsPage({
 
 async function getCachedCategories() {
   "use cache";
-  cacheLife("days");
   cacheTag("products-list", "categories");
   setUseStaticClient(true);
-  return getCategories(categoryRepo);
+  const cats = await getCategories(categoryRepo);
+  cacheLife(cats && cats.length > 0 ? "days" : { revalidate: 30, expire: 60 });
+  return cats;
 }
 
 // One real, crawlable page of products for the filtered/search view — every page is
@@ -156,7 +157,6 @@ const INITIAL_PER_SECTION = 24;
 
 async function getCachedCategorySections(): Promise<CategorySectionData[]> {
   "use cache";
-  cacheLife("days");
   cacheTag("products-list", "categories");
   setUseStaticClient(true);
 
@@ -188,13 +188,17 @@ async function getCachedCategorySections(): Promise<CategorySectionData[]> {
     }),
   );
 
-  return sections
+  const result = sections
     .filter((s) => s.totalCount > 0)
     .sort(
       (a, b) =>
         (catOrder.get(a.categoryId) ?? 999999) -
         (catOrder.get(b.categoryId) ?? 999999),
     );
+
+  // Neu Supabase chua san sang (khong co category), cache ngan 30s
+  cacheLife(result.length > 0 ? "days" : { revalidate: 30, expire: 60 });
+  return result;
 }
 
 async function getCachedProductsData(
