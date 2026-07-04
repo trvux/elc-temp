@@ -1,5 +1,4 @@
-import { searchProducts } from "@/modules/catalog/application";
-import { productRepo } from "@/modules/catalog/infrastructure/SupabaseProductRepository";
+import { getProductsAction } from "@/modules/catalog/presentation/actions";
 import { ProductCard } from "@/modules/catalog/presentation/components/ProductCard";
 import { getCategories } from "@/modules/category/application";
 import { categoryRepo } from "@/modules/category/infrastructure/categoryRepo";
@@ -127,7 +126,7 @@ async function getCachedNewsDetailData(slug: string) {
       )
     : matchLinksByName(newsItem.title, entityCandidates, 1)[0];
 
-  let relatedProducts: Awaited<ReturnType<typeof searchProducts>>["products"] =
+  let relatedProducts: Awaited<ReturnType<typeof getProductsAction>>["data"] =
     [];
   let relatedProductsEntity: EntityCandidate | null = null;
   let relatedProductsTotal = 0;
@@ -145,7 +144,7 @@ async function getCachedNewsDetailData(slug: string) {
             .map((c) => c.id);
 
     if (categoryIds.length > 0) {
-      const { products, totalCount } = await searchProducts(productRepo, "", {
+      const { data: products, totalCount } = await getProductsAction({
         categoryIds,
         isPublished: true,
         limit: RELATED_PRODUCTS_PREVIEW,

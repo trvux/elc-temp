@@ -2,7 +2,7 @@ import { createClient, setUseStaticClient } from "@/shared/lib/supabase/server";
 import { Group } from "@/modules/group/domain/types";
 import { Category } from "@/modules/category/domain/types";
 import { Brand, ProductWithRelations } from "@/modules/catalog/domain/types";
-import { productRepo } from "@/modules/catalog/infrastructure/SupabaseProductRepository";
+import { getProductByIdAction } from "./actions";
 import { cacheLife, cacheTag } from "next/cache";
 
 export type ResolvedEntity =
@@ -14,7 +14,11 @@ export type ResolvedEntity =
 
 /**
  * Tra cuu loai thuc the tu slug_registry.
- * Ham nay thuoc lop ha tang vi truy cap truc tiep vao Supabase.
+ *
+ * group/category/brand van doc truc tiep tu Supabase (cac module do chua migrate
+ * sang Go trong dot nay) — day la orchestration cross-entity o phia Next.js, khong
+ * phai trach nhiem cua catalog module. Rieng nhanh "product" goi qua Go API bang
+ * getProductByIdAction thay vi productRepo.getById truc tiep.
  */
 export async function resolveProductPathFromDb(slug: string): Promise<ResolvedEntity> {
   "use cache";
@@ -70,7 +74,7 @@ export async function resolveProductPathFromDb(slug: string): Promise<ResolvedEn
     }
 
     case "product": {
-      const product = await productRepo.getById(registryItem.entity_id);
+      const { data: product } = await getProductByIdAction(registryItem.entity_id);
       return product ? { type: "product", data: product } : null;
     }
 

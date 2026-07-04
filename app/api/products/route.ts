@@ -1,5 +1,4 @@
-import { searchProducts } from "@/modules/catalog/application";
-import { productRepo } from "@/modules/catalog/infrastructure/SupabaseProductRepository";
+import { getProductsAction } from "@/modules/catalog/presentation/actions";
 import { createClient } from "@/shared/lib/supabase/server";
 import { unstable_cache } from "next/cache";
 import type { NextRequest } from "next/server";
@@ -20,39 +19,6 @@ const getCachedGroupCategoryIds = unstable_cache(
   },
   ["group-category-ids"],
   { revalidate: 86400, tags: ["categories"] },
-);
-
-type FilterParams = {
-  q: string;
-  categoryIds: string[];
-  brandIds: string[];
-  brandSlugs: string[];
-  minPrice: number | null;
-  maxPrice: number | null;
-  specs: Record<string, string[]>;
-  condition: string | null;
-};
-
-// Cache ALL products for a given filter combo — pagination is done in-memory after.
-// One cache entry covers every offset/limit page of the same filter set.
-const getAllFilteredProducts = unstable_cache(
-  async (params: FilterParams) => {
-    const { products } = await searchProducts(productRepo, params.q, {
-      isPublished: true,
-      categoryIds: params.categoryIds.length > 0 ? params.categoryIds : undefined,
-      brandIds: params.brandIds.length > 0 ? params.brandIds : undefined,
-      brandSlugs: params.brandSlugs.length > 0 ? params.brandSlugs : undefined,
-      minPrice: params.minPrice ?? undefined,
-      maxPrice: params.maxPrice ?? undefined,
-      specs: params.specs,
-      condition: params.condition ?? undefined,
-      limit: 10000,
-      offset: 0,
-    });
-    return products;
-  },
-  ["api-products-filtered"],
-  { revalidate: 3600, tags: ["products"] },
 );
 
 export async function GET(request: NextRequest) {
@@ -92,21 +58,30 @@ export async function GET(request: NextRequest) {
 
   const allBrandIds = [...repoBrandIds, ...brandIds];
 
-  const filterParams: FilterParams = {
-    q,
-    categoryIds,
-    brandIds: allBrandIds,
-    brandSlugs,
-    minPrice: sp.has("minPrice") ? Number(sp.get("minPrice")) : null,
-    maxPrice: sp.has("maxPrice") ? Number(sp.get("maxPrice")) : null,
-    specs,
-    condition: sp.get("condition"),
-  };
-
   try {
-    const allProducts = await getAllFilteredProducts(filterParams);
-    const totalCount = allProducts.length;
-    const products = allProducts.slice(offset, offset + limit);
+    // Go handles filtered LIMIT/OFFSET pagination efficiently at the SQL layer
+    // (unlike the old fetch-everything-then-slice-in-memory approach this route
+    // used to need), so each page is queried directly per request rather than
+    // caching the whole filtered set — a per-offset unstable_cache key here
+    // would just multiply cache entries for little benefit.
+    const { data: products, totalCount, error } = await getProductsAction({
+      search: q || undefined,
+      categoryIds: categoryIds.length > 0 ? categoryIds : undefined,
+      brandIds: allBrandIds.length > 0 ? allBrandIds : undefined,
+      brandSlugs: brandSlugs.length > 0 ? brandSlugs : undefined,
+      minPrice: sp.has("minPrice") ? Number(sp.get("minPrice")) : undefined,
+      maxPrice: sp.has("maxPrice") ? Number(sp.get("maxPrice")) : undefined,
+      specs,
+      condition: sp.get("condition") || undefined,
+      isPublished: true,
+      limit,
+      offset,
+    });
+
+    if (error) {
+      throw new Error(error);
+    }
+
     const hasMore = offset + products.length < totalCount;
 
     return Response.json(

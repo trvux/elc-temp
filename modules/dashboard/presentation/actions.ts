@@ -4,7 +4,6 @@ import { getDashboardStats } from "../application/getDashboardStats";
 import { newsRepo } from "@/modules/news/infrastructure";
 import { getContactsAction } from "@/modules/contact/presentation/actions";
 import { getBrandsAction } from "@/modules/brand/presentation/actions";
-import { productRepo } from "@/modules/catalog/infrastructure";
 import { categoryRepo } from "@/modules/category/infrastructure/categoryRepo";
 import { projectRepo } from "@/modules/project/infrastructure";
 
@@ -40,7 +39,6 @@ export async function getDashboardStatsAction() {
 
     const data = await getDashboardStats(
       {
-        productRepo,
         categoryRepo,
         projectRepo,
         newsRepo,

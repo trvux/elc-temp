@@ -1,6 +1,6 @@
 "use server";
 
-import { productRepo } from "@/modules/catalog/infrastructure/SupabaseProductRepository";
+import { getProductsAction } from "@/modules/catalog/presentation/actions";
 import { projectRepo } from "@/modules/project/infrastructure/projectRepo";
 import { getServicesAction } from "@/modules/service/presentation/actions";
 import { createStaticClient } from "@/shared/lib/supabase/static";
@@ -12,7 +12,9 @@ async function getCachedProducts() {
   "use cache";
   cacheLife("minutes");
   cacheTag("products-search");
-  return productRepo.getAll({ isPublished: true });
+  // limit covers the full live catalog (196 products as of writing) with headroom.
+  const { data } = await getProductsAction({ isPublished: true, limit: 1000 });
+  return data;
 }
 
 async function getCachedProjects() {

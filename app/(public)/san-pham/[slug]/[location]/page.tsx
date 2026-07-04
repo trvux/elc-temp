@@ -1,5 +1,4 @@
-import { resolveProductPath } from "@/modules/catalog/application/resolveProductPath";
-import { resolveProductPathFromDb } from "@/modules/catalog/infrastructure/resolveProductPath";
+import { resolveProductPathFromDb } from "@/modules/catalog/presentation/resolveProductPath";
 import { ProductWithRelations } from "@/modules/catalog/domain";
 import { ProductDetailModule } from "@/modules/catalog/presentation/components/public/ProductDetailModule";
 import { ProductListModule } from "@/modules/catalog/presentation/components/public/ProductListModule";
@@ -30,7 +29,7 @@ export async function generateMetadata(
   parent: ResolvingMetadata,
 ): Promise<Metadata> {
   const { slug, location: locationSlug } = await params;
-  const resolved = await resolveProductPath(resolveProductPathFromDb, slug);
+  const resolved = await resolveProductPathFromDb(slug);
   const district = DISTRICTS.find((d) => d.slug === locationSlug);
 
   if (!resolved || !district) return {};
@@ -127,7 +126,7 @@ export default async function FlatSlugLocationPage({ params, searchParams }: Pro
     notFound();
   }
 
-  const resolved = await resolveProductPath(resolveProductPathFromDb, slug);
+  const resolved = await resolveProductPathFromDb(slug);
 
   if (!resolved) {
     notFound();

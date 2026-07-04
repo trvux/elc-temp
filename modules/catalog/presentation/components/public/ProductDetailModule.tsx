@@ -1,6 +1,5 @@
-import { getAdjacentProducts } from "@/modules/catalog/application/getAdjacentProducts";
+import { getAdjacentProductsAction } from "@/modules/catalog/presentation/actions";
 import { formatPrice, ProductWithRelations } from "@/modules/catalog/domain";
-import { productRepo } from "@/modules/catalog/infrastructure/SupabaseProductRepository";
 import { getContactHref } from "@/modules/contact";
 import { Breadcrumbs } from "@/shared/components/layout/user/breadcrumbs";
 import { DetailPager } from "@/shared/components/layout/user/detail-pager";
@@ -200,7 +199,7 @@ export async function ProductDetailModule({
   const { contacts, currentYear } = await getCachedProductDetailData(
     product.slug,
   );
-  const { prev, next } = await getAdjacentProducts(productRepo, product);
+  const { prev, next } = await getAdjacentProductsAction(product.id);
 
   const category = product.category;
   if (!category) notFound();
