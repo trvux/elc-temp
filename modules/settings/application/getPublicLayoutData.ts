@@ -2,6 +2,7 @@ import { createStaticClient } from "@/shared/lib/supabase/static";
 import { getContactHref } from "@/modules/contact";
 import { cacheLife, cacheTag } from "next/cache";
 import { Branch } from "@/modules/branch/domain";
+import { getSiteSettingsAction } from "@/modules/settings/presentation/actions";
 
 export async function getPublicLayoutData() {
   "use cache";
@@ -23,7 +24,7 @@ export async function getPublicLayoutData() {
     brandsResult,
     projectTypesResult,
   ] = await Promise.allSettled([
-    supabase.from("site_settings").select("*"),
+    getSiteSettingsAction(),
     supabase
       .from("contacts")
       .select("*")
@@ -83,7 +84,7 @@ export async function getPublicLayoutData() {
       .order("order_index", { ascending: true }),
   ]);
 
-  const settingsData = settingsResult.status === "fulfilled" ? settingsResult.value.data : null;
+  const settingsData = settingsResult.status === "fulfilled" && !settingsResult.value.error ? settingsResult.value.data : null;
   const contacts = contactsResult.status === "fulfilled" ? contactsResult.value.data : null;
   const branches = branchesResult.status === "fulfilled" ? branchesResult.value.data : null;
   const projects = projectsResult.status === "fulfilled" ? projectsResult.value.data : null;

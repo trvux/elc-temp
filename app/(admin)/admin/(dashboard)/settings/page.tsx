@@ -1,10 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { createClient } from "@/shared/lib/supabase/client";
 import { Button } from "@/shared/components/ui/button";
 import { Input } from "@/shared/components/ui/input";
-// Import the "Beautiful" Field components
 import { Textarea } from "@/shared/components/ui/textarea";
 import {
   Card,
@@ -17,6 +15,7 @@ import { Field, FieldLabel, FieldContent } from "@/shared/components/ui/field";
 import { Separator } from "@/shared/components/ui/separator";
 import { toast } from "sonner";
 import { capitalize } from "@/shared/lib/helpers";
+import { getSiteSettingsAction, updateSettingsAction } from "@/modules/settings/presentation/actions";
 
 type Settings = Record<string, string>;
 
@@ -46,15 +45,19 @@ export default function SettingsPage() {
   const [settings, setSettings] = useState<Settings>({});
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const supabase = createClient();
 
   useEffect(() => {
     let active = true;
     async function fetchSettings() {
-      const { data } = await supabase.from("site_settings").select("*");
+      const res = await getSiteSettingsAction();
       if (!active) return;
+      if (res.error) {
+        toast.error(res.error);
+        setLoading(false);
+        return;
+      }
       const map: Settings = {};
-      data?.forEach((row) => {
+      res.data.forEach((row) => {
         map[row.key] = row.value || "";
       });
       setSettings(map);
@@ -64,7 +67,7 @@ export default function SettingsPage() {
     return () => {
       active = false;
     };
-  }, [supabase]);
+  }, []);
 
   function handleChange(key: string, value: string) {
     // Tự động viết hoa chữ cái đầu cho các trường văn bản, trừ các trường kỹ thuật
@@ -81,14 +84,15 @@ export default function SettingsPage() {
   async function handleSave() {
     setSaving(true);
 
-    const upserts = Object.entries(settings).map(([key, value]) => ({
+    const payload = Object.entries(settings).map(([key, value]) => ({
       key,
       value,
     }));
-    const { error } = await supabase.from("site_settings").upsert(upserts);
+    
+    const res = await updateSettingsAction(payload);
 
-    if (error) {
-      toast.error("Lỗi lưu cài đặt");
+    if (res.error) {
+      toast.error(res.error);
     } else {
       toast.success("Đã lưu tất cả cài đặt");
     }
