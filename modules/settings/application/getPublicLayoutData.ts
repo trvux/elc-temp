@@ -3,6 +3,7 @@ import { getContactHref } from "@/modules/contact";
 import { cacheLife, cacheTag } from "next/cache";
 import { Branch } from "@/modules/branch/domain";
 import { getSiteSettingsAction } from "@/modules/settings/presentation/actions";
+import { getPagesAction } from "@/modules/page/presentation/actions";
 
 export async function getPublicLayoutData() {
   "use cache";
@@ -34,14 +35,8 @@ export async function getPublicLayoutData() {
     supabase
       .from("projects")
       .select("id, title, slug, project_type_id, project_type(id, name, slug)")
-      .eq("is_published", true)
-      .is("deleted_at", null)
       .limit(40),
-    supabase
-      .from("pages")
-      .select("id, title, slug")
-      .eq("is_published", true)
-      .is("deleted_at", null),
+    getPagesAction(),
     supabase
       .from("group_categories")
       .select("id, name, slug")
@@ -88,7 +83,7 @@ export async function getPublicLayoutData() {
   const contacts = contactsResult.status === "fulfilled" ? contactsResult.value.data : null;
   const branches = branchesResult.status === "fulfilled" ? branchesResult.value.data : null;
   const projects = projectsResult.status === "fulfilled" ? projectsResult.value.data : null;
-  const pages = pagesResult.status === "fulfilled" ? pagesResult.value.data : null;
+  const pages = pagesResult.status === "fulfilled" && !pagesResult.value.error ? pagesResult.value.data : null;
   const groupsData = groupsResult.status === "fulfilled" ? groupsResult.value.data : null;
   const catsData = catsResult.status === "fulfilled" ? catsResult.value.data : null;
   const minPriceProd = minPriceResult.status === "fulfilled" ? minPriceResult.value.data : null;

@@ -3,7 +3,6 @@ import { CategoryRepository } from "@/modules/category/domain/repository";
 import { Brand } from "@/modules/brand/domain";
 import { ProjectRepository } from "@/modules/project/domain/repository";
 import { NewsRepository } from "@/modules/news/domain/repository";
-import { PageRepository } from "@/modules/page/domain/repository";
 import {
   DashboardStats,
   DashboardActivityItem,
@@ -16,13 +15,12 @@ export interface DashboardRepositories {
   categoryRepo: CategoryRepository;
   projectRepo: ProjectRepository;
   newsRepo: NewsRepository;
-  pageRepo: PageRepository;
 }
 
 /**
  * Tong hop thong ke toan bo he thong cho Dashboard.
  * Ham nay la use case duy nhat cua module, nhan cac repository qua DIP.
- * contactsCount/servicesCount/allBrands duoc truyen rieng vi cac module do
+ * contactsCount/servicesCount/allBrands/pagesCount duoc truyen rieng vi cac module do
  * da migrate sang Go — xem modules/dashboard/presentation/actions.ts.
  */
 export async function getDashboardStats(
@@ -30,6 +28,7 @@ export async function getDashboardStats(
   contactsCount: number,
   servicesCount: number,
   branchesCount: number,
+  pagesCount: number,
   allBrands: Brand[]
 ): Promise<DashboardStats> {
   const {
@@ -37,7 +36,6 @@ export async function getDashboardStats(
     categoryRepo,
     projectRepo,
     newsRepo,
-    pageRepo,
   } = repos;
 
   const [
@@ -45,7 +43,6 @@ export async function getDashboardStats(
     categoriesCount,
     projectsCount,
     newsCount,
-    pagesCount,
     recentProducts,
     recentProjects,
     recentNews,
@@ -57,7 +54,6 @@ export async function getDashboardStats(
     categoryRepo.count(),
     projectRepo.count(),
     newsRepo.count(),
-    pageRepo.count(),
     productRepo.getAll({ limit: 5, sortBy: "newest" }),
     projectRepo.getAll({ limit: 5, orderBy: "createdAt", orderDirection: "desc" }),
     newsRepo.getAll({ limit: 5 }),
