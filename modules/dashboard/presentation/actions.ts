@@ -4,9 +4,9 @@ import { getDashboardStats } from "../application/getDashboardStats";
 import { newsRepo } from "@/modules/news/infrastructure";
 import { pageRepo } from "@/modules/page/infrastructure";
 import { getContactsAction } from "@/modules/contact/presentation/actions";
+import { getBrandsAction } from "@/modules/brand/presentation/actions";
 import { productRepo } from "@/modules/catalog/infrastructure";
 import { categoryRepo } from "@/modules/category/infrastructure/categoryRepo";
-import { brandRepo } from "@/modules/brand/infrastructure";
 import { branchRepo } from "@/modules/branch/infrastructure";
 import { projectRepo } from "@/modules/project/infrastructure";
 
@@ -14,11 +14,12 @@ const GO_API_URL = process.env.GO_API_URL;
 
 export async function getDashboardStatsAction() {
   try {
-    // contact/service modules da migrate sang Go — lay count qua Go API
-    // thay vi contactRepo/serviceRepo.
-    const [{ data: contacts }, servicesCountRes] = await Promise.all([
+    // contact/service/brand modules da migrate sang Go — lay data qua Go API
+    // thay vi contactRepo/serviceRepo/brandRepo.
+    const [{ data: contacts }, servicesCountRes, { data: brands }] = await Promise.all([
       getContactsAction(),
       fetch(`${GO_API_URL}/services/count`, { cache: "no-store" }),
+      getBrandsAction(),
     ]);
     const servicesCount = servicesCountRes.ok
       ? ((await servicesCountRes.json()) as { count: number }).count
@@ -28,14 +29,14 @@ export async function getDashboardStatsAction() {
       {
         productRepo,
         categoryRepo,
-        brandRepo,
         projectRepo,
         newsRepo,
         pageRepo,
         branchRepo,
       },
       contacts.length,
-      servicesCount
+      servicesCount,
+      brands
     );
     return { data, error: null };
   } catch (error) {

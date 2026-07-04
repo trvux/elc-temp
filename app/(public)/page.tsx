@@ -7,8 +7,7 @@ import { ProjectMarqueeSection } from "@/shared/components/sections/project-marq
 
 import { getBranches } from "@/modules/branch/application";
 import { branchRepo } from "@/modules/branch/infrastructure/branchRepo";
-import { getBrands } from "@/modules/brand/application";
-import { brandRepo } from "@/modules/brand/infrastructure/brandRepo";
+import { getBrandsAction } from "@/modules/brand/presentation/actions";
 import { searchProducts } from "@/modules/catalog/application";
 import { productRepo } from "@/modules/catalog/infrastructure/SupabaseProductRepository";
 import { getCategories } from "@/modules/category/application";
@@ -52,7 +51,7 @@ async function getCachedHomeData() {
       }),
       getCategories(categoryRepo),
       getContactsAction().then((res) => res.data),
-      getBrands(brandRepo, { limit: 100 }),
+      getBrandsAction({ limit: 100 }).then((res) => res.data),
       getBranches(branchRepo, { isPublished: true }),
     ]);
 

@@ -206,12 +206,17 @@ export async function updateServiceAction(input: UpdateServiceInput) {
 }
 
 export async function getServiceBySlugAction(slug: string): Promise<ServiceWithRelations | null> {
-  const res = await fetch(`${GO_API_URL}/services/slug/${slug}`, { cache: "no-store" });
-  if (!res.ok) {
+  try {
+    const res = await fetch(`${GO_API_URL}/services/slug/${slug}`, { cache: "no-store" });
+    if (!res.ok) {
+      return null;
+    }
+    const row = (await res.json()) as GoServiceResponse;
+    return mapGoService(row);
+  } catch (error) {
+    console.error("getServiceBySlugAction error:", error);
     return null;
   }
-  const row = (await res.json()) as GoServiceResponse;
-  return mapGoService(row);
 }
 
 export interface AdjacentService {

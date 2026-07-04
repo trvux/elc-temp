@@ -1,6 +1,6 @@
 import { ProductRepository } from "@/modules/catalog/domain/repository";
 import { CategoryRepository } from "@/modules/category/domain/repository";
-import { BrandRepository } from "@/modules/brand/domain/repository";
+import { Brand } from "@/modules/brand/domain";
 import { ProjectRepository } from "@/modules/project/domain/repository";
 import { NewsRepository } from "@/modules/news/domain/repository";
 import { PageRepository } from "@/modules/page/domain/repository";
@@ -15,7 +15,6 @@ import {
 export interface DashboardRepositories {
   productRepo: ProductRepository;
   categoryRepo: CategoryRepository;
-  brandRepo: BrandRepository;
   projectRepo: ProjectRepository;
   newsRepo: NewsRepository;
   pageRepo: PageRepository;
@@ -25,18 +24,18 @@ export interface DashboardRepositories {
 /**
  * Tong hop thong ke toan bo he thong cho Dashboard.
  * Ham nay la use case duy nhat cua module, nhan cac repository qua DIP.
- * contactsCount/servicesCount duoc truyen rieng vi 2 module do da migrate
- * sang Go — xem modules/dashboard/presentation/actions.ts.
+ * contactsCount/servicesCount/allBrands duoc truyen rieng vi cac module do
+ * da migrate sang Go — xem modules/dashboard/presentation/actions.ts.
  */
 export async function getDashboardStats(
   repos: DashboardRepositories,
   contactsCount: number,
-  servicesCount: number
+  servicesCount: number,
+  allBrands: Brand[]
 ): Promise<DashboardStats> {
   const {
     productRepo,
     categoryRepo,
-    brandRepo,
     projectRepo,
     newsRepo,
     pageRepo,
@@ -46,7 +45,6 @@ export async function getDashboardStats(
   const [
     productsCount,
     categoriesCount,
-    brandsCount,
     projectsCount,
     newsCount,
     pagesCount,
@@ -57,11 +55,9 @@ export async function getDashboardStats(
     allCategories,
     allProducts,
     featuredProjectsRaw,
-    allBrands,
   ] = await Promise.all([
     productRepo.count(),
     categoryRepo.count(),
-    brandRepo.count(),
     projectRepo.count(),
     newsRepo.count(),
     pageRepo.count(),
@@ -72,8 +68,9 @@ export async function getDashboardStats(
     categoryRepo.getAll(),
     productRepo.getAll(),
     projectRepo.getAll({ isFeatured: true }),
-    brandRepo.getAll(),
   ]);
+
+  const brandsCount = allBrands.length;
 
   // Phan bo danh muc
   const categoryDistribution: DashboardCategoryDistributionItem[] = allCategories
