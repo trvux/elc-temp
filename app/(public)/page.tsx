@@ -7,8 +7,7 @@ import { ProjectMarqueeSection } from "@/shared/components/sections/project-marq
 
 import { getBranchesAction } from "@/modules/branch/presentation/actions";
 import { getBrandsAction } from "@/modules/brand/presentation/actions";
-import { searchProducts } from "@/modules/catalog/application";
-import { productRepo } from "@/modules/catalog/infrastructure/SupabaseProductRepository";
+import { getProductsAction } from "@/modules/catalog/presentation/actions";
 import { getCategories } from "@/modules/category/application";
 import { categoryRepo } from "@/modules/category/infrastructure/categoryRepo";
 import { getContactsAction } from "@/modules/contact/presentation/actions";
@@ -71,7 +70,7 @@ async function getCachedHomeData() {
   // limit: 10 = mobile minimum (2cols × 5rows); client auto-fills to device target
   const categoriesWithProducts = await Promise.all(
     (categories || []).map(async (category) => {
-      const { products, totalCount } = await searchProducts(productRepo, "", {
+      const { data: products, totalCount } = await getProductsAction({
         isPublished: true,
         categoryId: category.id,
         limit: 10,

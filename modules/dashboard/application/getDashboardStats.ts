@@ -1,4 +1,4 @@
-import { ProductRepository } from "@/modules/catalog/domain/repository";
+import { getProductsAction } from "@/modules/catalog/presentation/actions";
 import { CategoryRepository } from "@/modules/category/domain/repository";
 import { Brand } from "@/modules/brand/domain";
 import { ProjectRepository } from "@/modules/project/domain/repository";
@@ -11,7 +11,6 @@ import {
 } from "../domain/types";
 
 export interface DashboardRepositories {
-  productRepo: ProductRepository;
   categoryRepo: CategoryRepository;
   projectRepo: ProjectRepository;
   newsRepo: NewsRepository;
@@ -21,7 +20,8 @@ export interface DashboardRepositories {
  * Tong hop thong ke toan bo he thong cho Dashboard.
  * Ham nay la use case duy nhat cua module, nhan cac repository qua DIP.
  * contactsCount/servicesCount/allBrands/pagesCount duoc truyen rieng vi cac module do
- * da migrate sang Go — xem modules/dashboard/presentation/actions.ts.
+ * da migrate sang Go — xem modules/dashboard/presentation/actions.ts. products cung
+ * da migrate sang Go nen goi truc tiep getProductsAction thay vi qua productRepo.
  */
 export async function getDashboardStats(
   repos: DashboardRepositories,
@@ -32,35 +32,36 @@ export async function getDashboardStats(
   allBrands: Brand[]
 ): Promise<DashboardStats> {
   const {
-    productRepo,
     categoryRepo,
     projectRepo,
     newsRepo,
   } = repos;
 
   const [
-    productsCount,
+    allProductsRes,
     categoriesCount,
     projectsCount,
     newsCount,
-    recentProducts,
+    recentProductsRes,
     recentProjects,
     recentNews,
     allCategories,
-    allProducts,
     featuredProjectsRaw,
   ] = await Promise.all([
-    productRepo.count(),
+    getProductsAction({}),
     categoryRepo.count(),
     projectRepo.count(),
     newsRepo.count(),
-    productRepo.getAll({ limit: 5, sortBy: "newest" }),
+    getProductsAction({ limit: 5, sortBy: "newest" }),
     projectRepo.getAll({ limit: 5, orderBy: "createdAt", orderDirection: "desc" }),
     newsRepo.getAll({ limit: 5 }),
     categoryRepo.getAll(),
-    productRepo.getAll(),
     projectRepo.getAll({ isFeatured: true }),
   ]);
+
+  const productsCount = allProductsRes.totalCount;
+  const allProducts = allProductsRes.data;
+  const recentProducts = recentProductsRes.data;
 
   const brandsCount = allBrands.length;
 

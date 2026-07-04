@@ -1,5 +1,4 @@
-import { searchProducts } from "@/modules/catalog/application";
-import { productRepo } from "@/modules/catalog/infrastructure/SupabaseProductRepository";
+import { getProductsAction } from "@/modules/catalog/presentation/actions";
 import { ProductFilters } from "@/modules/catalog/presentation/components/ProductFilters";
 import { getCategories } from "@/modules/category/application";
 import { categoryRepo } from "@/modules/category/infrastructure/categoryRepo";
@@ -176,7 +175,7 @@ async function getCachedCategorySections(): Promise<CategorySectionData[]> {
 
   const sections = await Promise.all(
     allCategories.map(async (cat) => {
-      const { products, totalCount } = await searchProducts(productRepo, "", {
+      const { data: products, totalCount } = await getProductsAction({
         categoryId: cat.id,
         isPublished: true,
         limit: INITIAL_PER_SECTION,
@@ -223,8 +222,9 @@ async function getCachedProductsData(
   cacheTag("products-list");
   setUseStaticClient(true);
 
-  return searchProducts(productRepo, q, {
+  const { data: products, totalCount, facets: availableFilters } = await getProductsAction({
     isPublished: true,
+    search: q,
     minPrice,
     maxPrice,
     brandIds,
@@ -233,6 +233,8 @@ async function getCachedProductsData(
     limit: PAGE_SIZE,
     offset,
   });
+
+  return { products, totalCount, availableFilters };
 }
 
 async function CachedProductsView({

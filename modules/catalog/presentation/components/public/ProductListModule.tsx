@@ -1,6 +1,5 @@
-import { searchProducts } from "@/modules/catalog/application";
-import { ResolvedEntity } from "@/modules/catalog/application/resolveProductPath";
-import { productRepo } from "@/modules/catalog/infrastructure/SupabaseProductRepository";
+import { getProductsAction } from "@/modules/catalog/presentation/actions";
+import { ResolvedEntity } from "@/modules/catalog/presentation/resolveProductPath";
 import { ProductFilters } from "@/modules/catalog/presentation/components/ProductFilters";
 import { getCategories } from "@/modules/category/application";
 import { categoryRepo } from "@/modules/category/infrastructure/categoryRepo";
@@ -135,22 +134,19 @@ async function getCachedListModuleData(
 
   const allCategories = await getCategories(categoryRepo);
 
-  const { products, totalCount, availableFilters } = await searchProducts(
-    productRepo,
-    q,
-    {
-      categoryIds,
-      brandIds,
-      brandSlugs,
-      isPublished: true,
-      minPrice,
-      maxPrice,
-      specs,
-      condition,
-      limit: PAGE_SIZE,
-      offset,
-    },
-  );
+  const { data: products, totalCount, facets: availableFilters } = await getProductsAction({
+    categoryIds,
+    brandIds,
+    brandSlugs,
+    isPublished: true,
+    search: q,
+    minPrice,
+    maxPrice,
+    specs,
+    condition,
+    limit: PAGE_SIZE,
+    offset,
+  });
 
   return {
     products,
