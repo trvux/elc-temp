@@ -3,6 +3,7 @@
 import { revalidatePath, revalidateTag } from "next/cache";
 import { Contact, CreateContactInput, UpdateContactInput, ContactFilter } from "../domain";
 import { toSnakeCaseBody } from "@/shared/lib/go-api";
+import { purgeCloudflareCache } from "@/shared/lib/cloudflare-purge";
 
 const GO_API_URL = process.env.GO_API_URL;
 
@@ -86,6 +87,7 @@ export async function createContactAction(input: CreateContactInput) {
     const row = (await res.json()) as GoContactResponse;
     revalidatePath("/admin/contacts");
     revalidateTag("layout", { expire: 0 });
+    await purgeCloudflareCache();
     return { data: mapGoContact(row), error: null };
   } catch (error) {
     console.error("createContactAction error:", error);
@@ -114,6 +116,7 @@ export async function updateContactAction(input: UpdateContactInput) {
     const row = (await res.json()) as GoContactResponse;
     revalidatePath("/admin/contacts");
     revalidateTag("layout", { expire: 0 });
+    await purgeCloudflareCache();
     return { data: mapGoContact(row), error: null };
   } catch (error) {
     console.error("updateContactAction error:", error);
@@ -136,6 +139,7 @@ export async function deleteContactAction(id: string) {
 
     revalidatePath("/admin/contacts");
     revalidateTag("layout", { expire: 0 });
+    await purgeCloudflareCache();
     return { success: true, error: null };
   } catch (error) {
     console.error("deleteContactAction error:", error);

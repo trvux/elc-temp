@@ -3,6 +3,7 @@
 import { revalidatePath, revalidateTag } from "next/cache";
 import { ServiceGroup, CreateServiceGroupInput, UpdateServiceGroupInput } from "../domain/types";
 import { toSnakeCaseBody } from "@/shared/lib/go-api";
+import { purgeCloudflareCache } from "@/shared/lib/cloudflare-purge";
 
 const GO_API_URL = process.env.GO_API_URL;
 
@@ -89,6 +90,7 @@ export async function createServiceGroupAction(input: CreateServiceGroupInput) {
     revalidatePath("/admin/service-groups");
     revalidateTag("layout", { expire: 0 });
     revalidateTag("services", { expire: 0 });
+    await purgeCloudflareCache();
     return { data: mapGoServiceGroup(row), error: null };
   } catch (error) {
     console.error("createServiceGroupAction error:", error);
@@ -118,6 +120,7 @@ export async function updateServiceGroupAction(input: UpdateServiceGroupInput) {
     revalidatePath("/admin/service-groups");
     revalidateTag("layout", { expire: 0 });
     revalidateTag("services", { expire: 0 });
+    await purgeCloudflareCache();
     return { data: mapGoServiceGroup(row), error: null };
   } catch (error) {
     console.error("updateServiceGroupAction error:", error);
@@ -141,6 +144,7 @@ export async function deleteServiceGroupAction(id: string) {
     revalidatePath("/admin/service-groups");
     revalidateTag("layout", { expire: 0 });
     revalidateTag("services", { expire: 0 });
+    await purgeCloudflareCache();
     return { error: null };
   } catch (error) {
     console.error("deleteServiceGroupAction error:", error);

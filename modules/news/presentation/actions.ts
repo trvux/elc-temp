@@ -14,6 +14,7 @@ import {
 import { newsRepo } from "../infrastructure/SupabaseNewsRepository";
 import { submitToIndexNow } from "@/shared/lib/indexnow";
 import { submitToGoogleIndex } from "@/shared/lib/google-indexing";
+import { purgeCloudflareCache } from "@/shared/lib/cloudflare-purge";
 
 export async function getNewsAction(options?: {
   isPublished?: boolean;
@@ -33,6 +34,7 @@ export async function createNewsAction(input: CreateNewsInput) {
     revalidatePath("/admin/news");
     revalidatePath("/tin-tuc");
     revalidateTag("news-list", { expire: 0 });
+    await purgeCloudflareCache();
     if (data?.slug) {
       revalidateTag(`news-slug:${data.slug}`, { expire: 0 });
     }
@@ -58,6 +60,7 @@ export async function updateNewsAction(input: UpdateNewsInput) {
     revalidatePath("/tin-tuc");
     revalidatePath(`/tin-tuc/${data.slug}`);
     revalidateTag("news-list", { expire: 0 });
+    await purgeCloudflareCache();
     if (data?.slug) {
       revalidateTag(`news-slug:${data.slug}`, { expire: 0 });
     }
@@ -83,6 +86,7 @@ export async function deleteNewsAction(id: string) {
     revalidatePath("/admin/news");
     revalidatePath("/tin-tuc");
     revalidateTag("news-list", { expire: 0 });
+    await purgeCloudflareCache();
     if (newsItem?.slug) {
       revalidateTag(`news-slug:${newsItem.slug}`, { expire: 0 });
       submitToGoogleIndex([`https://dienmayelc.com.vn/tin-tuc/${newsItem.slug}`], "URL_DELETED")

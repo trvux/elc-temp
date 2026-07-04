@@ -3,6 +3,7 @@
 import { revalidatePath, revalidateTag } from "next/cache";
 import { Group, GroupFilter, CreateGroupInput, UpdateGroupInput } from "../domain";
 import { toSnakeCaseBody } from "@/shared/lib/go-api";
+import { purgeCloudflareCache } from "@/shared/lib/cloudflare-purge";
 
 const GO_API_URL = process.env.GO_API_URL;
 
@@ -99,6 +100,7 @@ export async function createGroupAction(input: CreateGroupInput) {
     revalidatePath("/admin/group-categories");
     revalidateTag("layout", { expire: 0 });
     revalidateTag("products", { expire: 0 });
+    await purgeCloudflareCache();
     return { data: mapGoGroup(row), error: null };
   } catch (error) {
     console.error("createGroupAction error:", error);
@@ -128,6 +130,7 @@ export async function updateGroupAction(input: UpdateGroupInput) {
     revalidatePath("/admin/group-categories");
     revalidateTag("layout", { expire: 0 });
     revalidateTag("products", { expire: 0 });
+    await purgeCloudflareCache();
     return { data: mapGoGroup(row), error: null };
   } catch (error) {
     console.error("updateGroupAction error:", error);
@@ -151,6 +154,7 @@ export async function deleteGroupAction(id: string) {
     revalidatePath("/admin/group-categories");
     revalidateTag("layout", { expire: 0 });
     revalidateTag("products", { expire: 0 });
+    await purgeCloudflareCache();
     return { error: null };
   } catch (error) {
     console.error("deleteGroupAction error:", error);

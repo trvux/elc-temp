@@ -35,7 +35,11 @@ async function getCachedPageData(slug: string) {
   setUseStaticClient(true);
   const data = await getPageBySlugAction(slug).then((res) => res.data);
   // Neu Go API chua san sang, cache ngan 30s de retry nhanh
-  cacheLife(data ? "hours" : { revalidate: 30, expire: 60 });
+  if (data) {
+    cacheLife("hours");
+  } else {
+    cacheLife("retry");
+  }
   return data;
 }
 

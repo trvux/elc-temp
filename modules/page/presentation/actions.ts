@@ -2,6 +2,7 @@
 
 import { revalidatePath, revalidateTag } from "next/cache";
 import { CreatePageInput, Page, UpdatePageInput } from "../domain";
+import { purgeCloudflareCache } from "@/shared/lib/cloudflare-purge";
 
 const GO_API_URL = process.env.GO_API_URL;
 
@@ -130,6 +131,7 @@ export async function createPageAction(input: CreatePageInput) {
     revalidatePath("/admin/pages");
     revalidatePath(`/${domainPage.slug}`);
     revalidateTag("layout", { expire: 0 });
+    await purgeCloudflareCache();
     return { data: domainPage, error: null };
   } catch (error) {
     if (isPrerenderError(error)) throw error;
@@ -168,6 +170,7 @@ export async function updatePageAction(input: UpdatePageInput) {
     revalidatePath("/admin/pages");
     revalidatePath(`/${domainPage.slug}`);
     revalidateTag("layout", { expire: 0 });
+    await purgeCloudflareCache();
     return { data: domainPage, error: null };
   } catch (error) {
     if (isPrerenderError(error)) throw error;
@@ -193,6 +196,7 @@ export async function deletePageAction(id: string) {
 
     revalidatePath("/admin/pages");
     revalidateTag("layout", { expire: 0 });
+    await purgeCloudflareCache();
     return { success: true, error: null };
   } catch (error) {
     if (isPrerenderError(error)) throw error;

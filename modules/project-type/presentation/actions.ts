@@ -9,6 +9,7 @@ import {
 } from "../application/index";
 import { CreateProjectTypeInput, UpdateProjectTypeInput } from "../domain/types";
 import { projectTypeRepo } from "../infrastructure/projectTypeRepo";
+import { purgeCloudflareCache } from "@/shared/lib/cloudflare-purge";
 
 export async function getProjectTypesAction() {
   try {
@@ -26,6 +27,7 @@ export async function createProjectTypeAction(input: CreateProjectTypeInput) {
     revalidatePath("/admin/project-types");
     revalidateTag("layout", { expire: 0 });
     revalidateTag("projects", { expire: 0 });
+    await purgeCloudflareCache();
     return { data, error: null };
   } catch (error) {
     console.error("createProjectTypeAction error:", error);
@@ -42,6 +44,7 @@ export async function updateProjectTypeAction(input: UpdateProjectTypeInput) {
     revalidatePath("/admin/project-types");
     revalidateTag("layout", { expire: 0 });
     revalidateTag("projects", { expire: 0 });
+    await purgeCloudflareCache();
     return { data, error: null };
   } catch (error) {
     console.error("updateProjectTypeAction error:", error);
@@ -58,6 +61,7 @@ export async function deleteProjectTypeAction(id: string) {
     revalidatePath("/admin/project-types");
     revalidateTag("layout", { expire: 0 });
     revalidateTag("projects", { expire: 0 });
+    await purgeCloudflareCache();
     return { error: null };
   } catch (error) {
     console.error("deleteProjectTypeAction error:", error);
