@@ -38,3 +38,10 @@ export interface UpdateGroupInput {
   content?: unknown | null;
   faq?: Array<{ question: string; answer: string }> | null;
 }
+
+export interface GroupFilter {
+  search?: string;
+  limit?: number;
+  offset?: number;
+  includeDeleted?: boolean;
+}

@@ -119,6 +119,9 @@ function buildFilterParams(options?: ServiceFilter): URLSearchParams {
 }
 
 export async function getServicesAction(options?: ServiceFilter) {
+  if (!GO_API_URL) {
+    return { data: [] as ServiceWithRelations[], error: null };
+  }
   try {
     const params = buildFilterParams(options);
     const res = await fetch(`${GO_API_URL}/services?${params.toString()}`, { cache: "no-store" });
@@ -135,6 +138,9 @@ export async function getServicesAction(options?: ServiceFilter) {
 }
 
 export async function createServiceAction(input: CreateServiceInput) {
+  if (!GO_API_URL) {
+    return { data: null, error: "GO_API_URL is not configured" };
+  }
   try {
     const res = await fetch(`${GO_API_URL}/services`, {
       method: "POST",
@@ -170,6 +176,9 @@ export async function createServiceAction(input: CreateServiceInput) {
 }
 
 export async function updateServiceAction(input: UpdateServiceInput) {
+  if (!GO_API_URL) {
+    return { data: null, error: "GO_API_URL is not configured" };
+  }
   try {
     const { id, ...rest } = input;
     const res = await fetch(`${GO_API_URL}/services/${id}`, {
@@ -206,6 +215,9 @@ export async function updateServiceAction(input: UpdateServiceInput) {
 }
 
 export async function getServiceBySlugAction(slug: string): Promise<ServiceWithRelations | null> {
+  if (!GO_API_URL) {
+    return null;
+  }
   try {
     const res = await fetch(`${GO_API_URL}/services/slug/${slug}`, { cache: "no-store" });
     if (!res.ok) {
@@ -330,6 +342,9 @@ export async function getPublishedServicesGroupedAction(): Promise<GroupedServic
 }
 
 export async function deleteServiceAction(id: string) {
+  if (!GO_API_URL) {
+    return { error: "GO_API_URL is not configured" };
+  }
   try {
     const getRes = await fetch(`${GO_API_URL}/services/${id}`, { cache: "no-store" });
     const slug = getRes.ok ? ((await getRes.json()) as GoServiceResponse).slug : null;

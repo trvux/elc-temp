@@ -3,8 +3,7 @@ import { productRepo } from "@/modules/catalog/infrastructure/SupabaseProductRep
 import { ProductCard } from "@/modules/catalog/presentation/components/ProductCard";
 import { getCategories } from "@/modules/category/application";
 import { categoryRepo } from "@/modules/category/infrastructure/categoryRepo";
-import { getGroups } from "@/modules/group/application";
-import { groupRepo } from "@/modules/group/infrastructure/groupRepo";
+import { getGroupsAction } from "@/modules/group/presentation/actions";
 import { getNews, getNewsBySlug } from "@/modules/news/application";
 import { newsRepo } from "@/modules/news/infrastructure/SupabaseNewsRepository";
 import { Breadcrumbs } from "@/shared/components/layout/user/breadcrumbs";
@@ -102,10 +101,11 @@ async function getCachedNewsDetailData(slug: string) {
   // "Xem tất cả" sang trang category/group đó, giống hệt cách trang chủ đã làm.
   const RELATED_PRODUCTS_PREVIEW = 15;
 
-  const [allCategories, allGroups] = await Promise.all([
+  const [allCategories, groupsRes] = await Promise.all([
     getCategories(categoryRepo),
-    getGroups(groupRepo),
+    getGroupsAction(),
   ]);
+  const allGroups = groupsRes.data || [];
   type EntityCandidate = NamedLink & { id: string; type: "category" | "group" };
   const entityCandidates: EntityCandidate[] = [
     ...allCategories.map((c) => ({
