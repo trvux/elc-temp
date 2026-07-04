@@ -24,8 +24,7 @@ import {
   generateProjectDetailMetadata,
   generateProjectDetailSchema
 } from "@/shared/lib/seo-utils";
-import { getBranches } from "@/modules/branch/application";
-import { branchRepo } from "@/modules/branch/infrastructure/branchRepo";
+import { getBranchesAction } from "@/modules/branch/presentation/actions";
 
 // Generate dynamic SEO Metadata
 export async function generateMetadata({
@@ -164,7 +163,7 @@ async function ProjectDetailView({
     { label: project.title, active: true },
   ];
 
-  const branches = await getBranches(branchRepo, { isPublished: true });
+  const branches = await getBranchesAction({ isPublished: true }).then((res) => res.data);
   const articleSchema = generateProjectDetailSchema(project, branches);
 
   return (

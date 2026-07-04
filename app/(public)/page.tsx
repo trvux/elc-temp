@@ -5,8 +5,7 @@ import { GridSection } from "@/shared/components/sections/grid-section";
 import { HeroSection } from "@/shared/components/sections/hero";
 import { ProjectMarqueeSection } from "@/shared/components/sections/project-marquee";
 
-import { getBranches } from "@/modules/branch/application";
-import { branchRepo } from "@/modules/branch/infrastructure/branchRepo";
+import { getBranchesAction } from "@/modules/branch/presentation/actions";
 import { getBrandsAction } from "@/modules/brand/presentation/actions";
 import { searchProducts } from "@/modules/catalog/application";
 import { productRepo } from "@/modules/catalog/infrastructure/SupabaseProductRepository";
@@ -52,7 +51,7 @@ async function getCachedHomeData() {
       getCategories(categoryRepo),
       getContactsAction().then((res) => res.data),
       getBrandsAction({ limit: 100 }).then((res) => res.data),
-      getBranches(branchRepo, { isPublished: true }),
+      getBranchesAction({ isPublished: true }).then((res) => res.data),
     ]);
 
   // Convert settings array to a more usable object

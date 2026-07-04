@@ -4,7 +4,6 @@ import { Brand } from "@/modules/brand/domain";
 import { ProjectRepository } from "@/modules/project/domain/repository";
 import { NewsRepository } from "@/modules/news/domain/repository";
 import { PageRepository } from "@/modules/page/domain/repository";
-import { BranchRepository } from "@/modules/branch/domain/repository";
 import {
   DashboardStats,
   DashboardActivityItem,
@@ -18,7 +17,6 @@ export interface DashboardRepositories {
   projectRepo: ProjectRepository;
   newsRepo: NewsRepository;
   pageRepo: PageRepository;
-  branchRepo: BranchRepository;
 }
 
 /**
@@ -31,6 +29,7 @@ export async function getDashboardStats(
   repos: DashboardRepositories,
   contactsCount: number,
   servicesCount: number,
+  branchesCount: number,
   allBrands: Brand[]
 ): Promise<DashboardStats> {
   const {
@@ -39,7 +38,6 @@ export async function getDashboardStats(
     projectRepo,
     newsRepo,
     pageRepo,
-    branchRepo,
   } = repos;
 
   const [
@@ -48,7 +46,6 @@ export async function getDashboardStats(
     projectsCount,
     newsCount,
     pagesCount,
-    branchesCount,
     recentProducts,
     recentProjects,
     recentNews,
@@ -61,7 +58,6 @@ export async function getDashboardStats(
     projectRepo.count(),
     newsRepo.count(),
     pageRepo.count(),
-    branchRepo.count(),
     productRepo.getAll({ limit: 5, sortBy: "newest" }),
     projectRepo.getAll({ limit: 5, orderBy: "createdAt", orderDirection: "desc" }),
     newsRepo.getAll({ limit: 5 }),

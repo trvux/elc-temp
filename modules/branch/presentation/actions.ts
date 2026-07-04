@@ -1,77 +1,223 @@
 "use server";
 
 import { revalidatePath, revalidateTag } from "next/cache";
-import {
-  createBranch,
-  deleteBranch,
-  getBranches,
-  updateBranch,
-  countBranches,
-  updateBranchOrder,
-} from "../application";
-import { CreateBranchInput, UpdateBranchInput, BranchFilter } from "../domain";
-import { branchRepo } from "../infrastructure/branchRepo";
+import { Branch, CreateBranchInput, UpdateBranchInput, BranchFilter, Json } from "../domain";
+import { toSnakeCaseBody } from "@/shared/lib/go-api";
+
+const GO_API_URL = process.env.GO_API_URL;
+
+interface GoBranchResponse {
+  id: string;
+  name: string;
+  slug: string;
+  address: string;
+  phone: string;
+  email: string;
+  maps_url: string;
+  maps_embed: string;
+  description: Json;
+  image_url: string | null;
+  is_published: boolean;
+  order_index: number;
+  meta_title: string | null;
+  meta_description: string | null;
+  created_at: string;
+  updated_at: string;
+  deleted_at: string | null;
+}
+
+interface GoErrorResponse {
+  code: string;
+  message: string;
+  fields?: Record<string, string[]>;
+}
+
+function mapGoBranch(row: GoBranchResponse): Branch {
+  return {
+    id: row.id,
+    name: row.name,
+    slug: row.slug,
+    address: row.address,
+    phone: row.phone,
+    email: row.email,
+    mapsUrl: row.maps_url,
+    mapsEmbed: row.maps_embed,
+    description: row.description,
+    imageUrl: row.image_url,
+    isPublished: row.is_published,
+    orderIndex: row.order_index,
+    metaTitle: row.meta_title,
+    metaDescription: row.meta_description,
+    createdAt: row.created_at,
+    updatedAt: row.updated_at,
+    deletedAt: row.deleted_at,
+  };
+}
+
+async function extractErrorMessage(res: Response, fallback: string): Promise<string> {
+  try {
+    const body = (await res.json()) as GoErrorResponse;
+    return body.message || fallback;
+  } catch {
+    return fallback;
+  }
+}
 
 export async function getBranchesAction(options?: BranchFilter) {
+  if (!GO_API_URL) {
+    return { data: [] as Branch[], error: null };
+  }
   try {
-    const data = await getBranches(branchRepo, options);
-    return { data, error: null };
+    const params = new URLSearchParams();
+    if (options?.isPublished !== undefined) params.set("is_published", String(options.isPublished));
+    if (options?.search) params.set("search", options.search);
+    if (options?.limit) params.set("limit", String(options.limit));
+    if (options?.offset) params.set("offset", String(options.offset));
+
+    const res = await fetch(`${GO_API_URL}/branches?${params.toString()}`, {
+      cache: "no-store",
+    });
+    if (!res.ok) {
+      return { data: [], error: await extractErrorMessage(res, "Không thể tải danh sách chi nhánh") };
+    }
+
+    const rows = (await res.json()) as GoBranchResponse[] | null;
+    return { data: (rows ?? []).map(mapGoBranch), error: null };
   } catch (error) {
     console.error("getBranchesAction error:", error);
-    return { data: [], error: "Failed to fetch branches" };
+    return { data: [], error: "Không thể tải danh sách chi nhánh" };
   }
 }
 
 export async function getBranchesWithCountAction(options?: BranchFilter) {
+  if (!GO_API_URL) {
+    return { data: [] as Branch[], total: 0, error: null };
+  }
   try {
-    const [data, total] = await Promise.all([
-      getBranches(branchRepo, options),
-      countBranches(branchRepo, options),
+    const params = new URLSearchParams();
+    if (options?.isPublished !== undefined) params.set("is_published", String(options.isPublished));
+    if (options?.search) params.set("search", options.search);
+    if (options?.limit) params.set("limit", String(options.limit));
+    if (options?.offset) params.set("offset", String(options.offset));
+
+    const [listRes, countRes] = await Promise.all([
+      fetch(`${GO_API_URL}/branches?${params.toString()}`, { cache: "no-store" }),
+      fetch(`${GO_API_URL}/branches/count?${params.toString()}`, { cache: "no-store" }),
     ]);
-    return { data, total, error: null };
+
+    if (!listRes.ok) {
+      return { data: [], total: 0, error: await extractErrorMessage(listRes, "Không thể tải danh sách chi nhánh") };
+    }
+    if (!countRes.ok) {
+      return { data: [], total: 0, error: await extractErrorMessage(countRes, "Không thể đếm số lượng chi nhánh") };
+    }
+
+    const [rows, countData] = await Promise.all([
+      listRes.json() as Promise<GoBranchResponse[] | null>,
+      countRes.json() as Promise<{ count: number }>,
+    ]);
+
+    return {
+      data: (rows ?? []).map(mapGoBranch),
+      total: countData.count,
+      error: null,
+    };
   } catch (error) {
     console.error("getBranchesWithCountAction error:", error);
-    return { data: [], total: 0, error: "Failed to fetch branches with count" };
+    return { data: [], total: 0, error: "Không thể tải danh sách chi nhánh" };
+  }
+}
+
+export async function getBranchBySlugAction(slug: string) {
+  if (!GO_API_URL) {
+    return { data: null, error: null };
+  }
+  try {
+    const res = await fetch(`${GO_API_URL}/branches/slug/${slug}`, { cache: "no-store" });
+    if (res.status === 404) {
+      return { data: null, error: null };
+    }
+    if (!res.ok) {
+      return { data: null, error: await extractErrorMessage(res, "Không thể tải thông tin chi nhánh") };
+    }
+
+    const row = (await res.json()) as GoBranchResponse;
+    return { data: mapGoBranch(row), error: null };
+  } catch (error) {
+    console.error("getBranchBySlugAction error:", error);
+    return { data: null, error: "Không thể tải thông tin chi nhánh" };
   }
 }
 
 export async function createBranchAction(input: CreateBranchInput) {
+  if (!GO_API_URL) {
+    return { data: null, error: "GO_API_URL is not configured" };
+  }
   try {
-    const data = await createBranch(branchRepo, input);
+    const res = await fetch(`${GO_API_URL}/branches`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(toSnakeCaseBody(input)),
+    });
+    if (!res.ok) {
+      return { data: null, error: await extractErrorMessage(res, "Không thể tạo chi nhánh") };
+    }
+
+    const row = (await res.json()) as GoBranchResponse;
     revalidatePath("/admin/branches");
     revalidatePath("/co-so-ha-tang");
     revalidatePath("/thong-tin");
     revalidateTag("layout", { expire: 0 });
-    return { data, error: null };
+    return { data: mapGoBranch(row), error: null };
   } catch (error) {
     console.error("createBranchAction error:", error);
     return {
       data: null,
-      error: error instanceof Error ? error.message : "Failed to create branch",
+      error: error instanceof Error ? error.message : "Không thể tạo chi nhánh",
     };
   }
 }
 
 export async function updateBranchAction(input: UpdateBranchInput) {
+  if (!GO_API_URL) {
+    return { data: null, error: "GO_API_URL is not configured" };
+  }
   try {
-    const data = await updateBranch(branchRepo, input);
+    const { id, ...rest } = input;
+    const res = await fetch(`${GO_API_URL}/branches/${id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(toSnakeCaseBody(rest)),
+    });
+    if (!res.ok) {
+      return { data: null, error: await extractErrorMessage(res, "Không thể cập nhật chi nhánh") };
+    }
+
+    const row = (await res.json()) as GoBranchResponse;
     revalidatePath("/admin/branches");
     revalidatePath("/co-so-ha-tang");
     revalidatePath("/thong-tin");
     revalidateTag("layout", { expire: 0 });
-    return { data, error: null };
+    return { data: mapGoBranch(row), error: null };
   } catch (error) {
     console.error("updateBranchAction error:", error);
     return {
       data: null,
-      error: error instanceof Error ? error.message : "Failed to update branch",
+      error: error instanceof Error ? error.message : "Không thể cập nhật chi nhánh",
     };
   }
 }
 
 export async function deleteBranchAction(id: string) {
+  if (!GO_API_URL) {
+    return { success: false, error: "GO_API_URL is not configured" };
+  }
   try {
-    await deleteBranch(branchRepo, id);
+    const res = await fetch(`${GO_API_URL}/branches/${id}`, { method: "DELETE" });
+    if (!res.ok) {
+      return { success: false, error: await extractErrorMessage(res, "Không thể xóa chi nhánh") };
+    }
+
     revalidatePath("/admin/branches");
     revalidatePath("/co-so-ha-tang");
     revalidatePath("/thong-tin");
@@ -81,14 +227,25 @@ export async function deleteBranchAction(id: string) {
     console.error("deleteBranchAction error:", error);
     return {
       success: false,
-      error: error instanceof Error ? error.message : "Failed to delete branch",
+      error: error instanceof Error ? error.message : "Không thể xóa chi nhánh",
     };
   }
 }
 
 export async function updateBranchOrderAction(id: string, orderIndex: number) {
+  if (!GO_API_URL) {
+    return { success: false, error: "GO_API_URL is not configured" };
+  }
   try {
-    await updateBranchOrder(branchRepo, id, orderIndex);
+    const res = await fetch(`${GO_API_URL}/branches/${id}/order`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ order_index: orderIndex }),
+    });
+    if (!res.ok) {
+      return { success: false, error: await extractErrorMessage(res, "Không thể cập nhật thứ tự chi nhánh") };
+    }
+
     revalidatePath("/admin/branches");
     revalidateTag("layout", { expire: 0 });
     return { success: true, error: null };
@@ -96,7 +253,7 @@ export async function updateBranchOrderAction(id: string, orderIndex: number) {
     console.error("updateBranchOrderAction error:", error);
     return {
       success: false,
-      error: error instanceof Error ? orderIndex.toString() : "Failed to update order",
+      error: error instanceof Error ? error.message : "Không thể cập nhật thứ tự chi nhánh",
     };
   }
 }

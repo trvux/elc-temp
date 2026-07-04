@@ -1,6 +1,5 @@
 import { BranchList } from "@/modules/branch";
-import { getBranches } from "@/modules/branch/application";
-import { branchRepo } from "@/modules/branch/infrastructure/branchRepo";
+import { getBranchesAction } from "@/modules/branch/presentation/actions";
 import { getPages } from "@/modules/page/application";
 import { pageRepo } from "@/modules/page/infrastructure/SupabasePageRepository";
 import { ScrollToTop } from "@/shared/components/layout/user/scroll-to-top";
@@ -65,7 +64,7 @@ async function getCachedInformationData() {
   setUseStaticClient(true);
 
   const allPages = await getPages(pageRepo, { isPublished: true });
-  const allBranches = await getBranches(branchRepo, { isPublished: true });
+  const allBranches = await getBranchesAction({ isPublished: true }).then((res) => res.data);
   const currentYear = new Date().getFullYear();
 
   return {

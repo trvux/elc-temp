@@ -15,8 +15,7 @@ import { setUseStaticClient } from "@/shared/lib/supabase/server";
 import { Metadata } from "next";
 import { cacheLife, cacheTag } from "next/cache";
 import { notFound } from "next/navigation";
-import { getBranches } from "@/modules/branch/application";
-import { branchRepo } from "@/modules/branch/infrastructure/branchRepo";
+import { getBranchesAction } from "@/modules/branch/presentation/actions";
 import { DISTRICTS } from "@/shared/lib/districts";
 import { createStaticClient } from "@/shared/lib/supabase/static";
 import { Breadcrumbs } from "@/shared/components/layout/user/breadcrumbs";
@@ -304,7 +303,7 @@ export default async function ServiceSlugPage({ params }: PageProps) {
     notFound();
   }
 
-  const branches = await getBranches(branchRepo, { isPublished: true });
+  const branches = await getBranchesAction({ isPublished: true }).then((res) => res.data);
   const serviceSchema = generateServiceDetailSchema(service, branches);
 
   return (
