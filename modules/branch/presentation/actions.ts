@@ -63,6 +63,21 @@ async function extractErrorMessage(res: Response, fallback: string): Promise<str
   }
 }
 
+function isPrerenderError(error: unknown): boolean {
+  if (error instanceof Error) {
+    const msg = error.message.toLowerCase();
+    const name = error.name;
+    return (
+      name === "AbortError" ||
+      msg.includes("aborted") ||
+      msg.includes("abort") ||
+      msg.includes("prerendering") ||
+      msg.includes("prerender")
+    );
+  }
+  return false;
+}
+
 export async function getBranchesAction(options?: BranchFilter) {
   if (!GO_API_URL) {
     return { data: [] as Branch[], error: null };
@@ -84,6 +99,7 @@ export async function getBranchesAction(options?: BranchFilter) {
     const rows = (await res.json()) as GoBranchResponse[] | null;
     return { data: (rows ?? []).map(mapGoBranch), error: null };
   } catch (error) {
+    if (isPrerenderError(error)) throw error;
     console.error("getBranchesAction error:", error);
     return { data: [], error: "Không thể tải danh sách chi nhánh" };
   }
@@ -123,6 +139,7 @@ export async function getBranchesWithCountAction(options?: BranchFilter) {
       error: null,
     };
   } catch (error) {
+    if (isPrerenderError(error)) throw error;
     console.error("getBranchesWithCountAction error:", error);
     return { data: [], total: 0, error: "Không thể tải danh sách chi nhánh" };
   }
@@ -144,6 +161,7 @@ export async function getBranchBySlugAction(slug: string) {
     const row = (await res.json()) as GoBranchResponse;
     return { data: mapGoBranch(row), error: null };
   } catch (error) {
+    if (isPrerenderError(error)) throw error;
     console.error("getBranchBySlugAction error:", error);
     return { data: null, error: "Không thể tải thông tin chi nhánh" };
   }
@@ -170,6 +188,7 @@ export async function createBranchAction(input: CreateBranchInput) {
     revalidateTag("layout", { expire: 0 });
     return { data: mapGoBranch(row), error: null };
   } catch (error) {
+    if (isPrerenderError(error)) throw error;
     console.error("createBranchAction error:", error);
     return {
       data: null,
@@ -200,6 +219,7 @@ export async function updateBranchAction(input: UpdateBranchInput) {
     revalidateTag("layout", { expire: 0 });
     return { data: mapGoBranch(row), error: null };
   } catch (error) {
+    if (isPrerenderError(error)) throw error;
     console.error("updateBranchAction error:", error);
     return {
       data: null,
@@ -224,6 +244,7 @@ export async function deleteBranchAction(id: string) {
     revalidateTag("layout", { expire: 0 });
     return { success: true, error: null };
   } catch (error) {
+    if (isPrerenderError(error)) throw error;
     console.error("deleteBranchAction error:", error);
     return {
       success: false,
@@ -250,6 +271,7 @@ export async function updateBranchOrderAction(id: string, orderIndex: number) {
     revalidateTag("layout", { expire: 0 });
     return { success: true, error: null };
   } catch (error) {
+    if (isPrerenderError(error)) throw error;
     console.error("updateBranchOrderAction error:", error);
     return {
       success: false,
