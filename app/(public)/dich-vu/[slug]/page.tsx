@@ -1,12 +1,10 @@
-import { getServiceBySlug } from "@/modules/service/application";
 import {
   CardService,
-  getPublishedServicesGrouped,
+  getServiceBySlugAction,
+  getPublishedServicesGroupedAction,
   mapServiceToCardData,
+  ServiceDetailModule,
 } from "@/modules/service";
-import { serviceRepo } from "@/modules/service/infrastructure/serviceRepo";
-import { serviceGroupRepo } from "@/modules/service-group/infrastructure/serviceGroupRepo";
-import { ServiceDetailModule } from "@/modules/service";
 import {
   generateBreadcrumbSchema,
   generateServiceMetadata,
@@ -75,7 +73,7 @@ async function getCachedService(slug: string) {
   cacheLife("days");
   cacheTag("services-list", `service-slug:${slug}`);
   setUseStaticClient(true);
-  return getServiceBySlug(serviceRepo, slug);
+  return getServiceBySlugAction(slug);
 }
 
 async function getCachedServicesGrouped() {
@@ -83,7 +81,7 @@ async function getCachedServicesGrouped() {
   cacheLife("days");
   cacheTag("services-list");
   setUseStaticClient(true);
-  const groupedServices = await getPublishedServicesGrouped(serviceRepo, serviceGroupRepo);
+  const groupedServices = await getPublishedServicesGroupedAction();
   const currentYear = new Date().getFullYear();
   return { groupedServices: groupedServices ?? [], currentYear };
 }

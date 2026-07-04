@@ -2,7 +2,6 @@ import { ProductRepository } from "@/modules/catalog/domain/repository";
 import { CategoryRepository } from "@/modules/category/domain/repository";
 import { BrandRepository } from "@/modules/brand/domain/repository";
 import { ProjectRepository } from "@/modules/project/domain/repository";
-import { ServiceRepository } from "@/modules/service/domain/repository";
 import { NewsRepository } from "@/modules/news/domain/repository";
 import { PageRepository } from "@/modules/page/domain/repository";
 import { BranchRepository } from "@/modules/branch/domain/repository";
@@ -18,7 +17,6 @@ export interface DashboardRepositories {
   categoryRepo: CategoryRepository;
   brandRepo: BrandRepository;
   projectRepo: ProjectRepository;
-  serviceRepo: ServiceRepository;
   newsRepo: NewsRepository;
   pageRepo: PageRepository;
   branchRepo: BranchRepository;
@@ -27,19 +25,19 @@ export interface DashboardRepositories {
 /**
  * Tong hop thong ke toan bo he thong cho Dashboard.
  * Ham nay la use case duy nhat cua module, nhan cac repository qua DIP.
- * contactsCount duoc truyen rieng vi module contact da migrate sang Go —
- * xem modules/dashboard/presentation/actions.ts.
+ * contactsCount/servicesCount duoc truyen rieng vi 2 module do da migrate
+ * sang Go — xem modules/dashboard/presentation/actions.ts.
  */
 export async function getDashboardStats(
   repos: DashboardRepositories,
-  contactsCount: number
+  contactsCount: number,
+  servicesCount: number
 ): Promise<DashboardStats> {
   const {
     productRepo,
     categoryRepo,
     brandRepo,
     projectRepo,
-    serviceRepo,
     newsRepo,
     pageRepo,
     branchRepo,
@@ -50,7 +48,6 @@ export async function getDashboardStats(
     categoriesCount,
     brandsCount,
     projectsCount,
-    servicesCount,
     newsCount,
     pagesCount,
     branchesCount,
@@ -66,7 +63,6 @@ export async function getDashboardStats(
     categoryRepo.count(),
     brandRepo.count(),
     projectRepo.count(),
-    serviceRepo.count(),
     newsRepo.count(),
     pageRepo.count(),
     branchRepo.count(),
