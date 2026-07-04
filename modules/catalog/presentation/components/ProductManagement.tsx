@@ -21,7 +21,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/shared/components/ui
 import { STOCK_STATUS, STOCK_STATUS_MAP, ProductWithRelations, PRODUCT_LABELS, SpecItem, PRODUCT_CONDITION } from "../../domain";
 import {
   deleteProductAction,
-  getBrandsAction,
   getProductsAction,
   triggerGoogleIndexingAction,
 } from "../actions";
@@ -33,6 +32,7 @@ import { ProductGalleryTab } from "./form/ProductGalleryTab";
 import { ProductDescriptionTab } from "./form/ProductDescriptionTab";
 import { getGroupsAction } from "@/modules/group/presentation/actions";
 import { getCategoriesAction } from "@/modules/category/presentation/actions";
+import { getBrandsAction } from "@/modules/brand/presentation/actions";
 
 export function ProductManagement() {
   const queryClient = useQueryClient();

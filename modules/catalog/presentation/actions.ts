@@ -2,19 +2,11 @@
 
 import { revalidatePath, revalidateTag } from "next/cache";
 import {
-  createBrand,
-  getBrands,
-} from "../../brand";
-import { brandRepo } from "../../brand/infrastructure/brandRepo";
-import {
   createProduct,
   getProducts,
   updateProduct,
   deleteProduct,
 } from "../application/index";
-import {
-  CreateBrandInput,
-} from "../../brand";
 import {
   CreateProductInput,
   UpdateProductInput,
@@ -24,30 +16,6 @@ import { submitToIndexNow } from "@/shared/lib/indexnow";
 import { submitToGoogleIndex } from "@/shared/lib/google-indexing";
 import { google } from "googleapis";
 import { createStaticClient } from "@/shared/lib/supabase/static";
-
-export async function getBrandsAction() {
-  try {
-    const data = await getBrands(brandRepo);
-    return { data, error: null };
-  } catch (error) {
-    console.error("getBrandsAction error:", error);
-    return { data: [], error: "Failed to fetch brands" };
-  }
-}
-
-export async function createBrandAction(input: CreateBrandInput) {
-  try {
-    const data = await createBrand(brandRepo, input);
-    revalidatePath("/admin/brands");
-    return { data, error: null };
-  } catch (error) {
-    console.error("createBrandAction error:", error);
-    return {
-      data: null,
-      error: error instanceof Error ? error.message : "Failed to create brand",
-    };
-  }
-}
 
 export async function getProductsAction(options?: {
   categoryId?: string;
