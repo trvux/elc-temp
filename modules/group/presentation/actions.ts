@@ -1,32 +1,105 @@
 "use server";
 
 import { revalidatePath, revalidateTag } from "next/cache";
-import {
-  createGroup,
-  deleteGroup,
-  getGroups,
-  updateGroup,
-} from "../application/index";
-import { CreateGroupInput, UpdateGroupInput } from "../domain/types";
-import { groupRepo } from "../infrastructure/groupRepo";
+import { Group, GroupFilter, CreateGroupInput, UpdateGroupInput } from "../domain";
+import { toSnakeCaseBody } from "@/shared/lib/go-api";
 
-export async function getGroupsAction() {
+const GO_API_URL = process.env.GO_API_URL;
+
+interface GoGroupResponse {
+  id: string;
+  name: string;
+  slug: string;
+  image_url: string | null;
+  meta_title: string | null;
+  meta_description: string | null;
+  is_featured: boolean;
+  order_index: number;
+  content: unknown | null;
+  faq: Array<{ question: string; answer: string }> | null;
+  created_at: string;
+  updated_at: string;
+  deleted_at: string | null;
+}
+
+interface GoErrorResponse {
+  code: string;
+  message: string;
+  fields?: Record<string, string[]>;
+}
+
+function mapGoGroup(row: GoGroupResponse): Group {
+  return {
+    id: row.id,
+    name: row.name,
+    slug: row.slug,
+    imageUrl: row.image_url,
+    metaTitle: row.meta_title,
+    metaDescription: row.meta_description,
+    isFeatured: row.is_featured,
+    orderIndex: row.order_index,
+    content: row.content,
+    faq: row.faq,
+    createdAt: row.created_at,
+    updatedAt: row.updated_at,
+    deletedAt: row.deleted_at,
+  };
+}
+
+async function extractErrorMessage(res: Response, fallback: string): Promise<string> {
   try {
-    const data = await getGroups(groupRepo);
-    return { data, error: null };
+    const body = (await res.json()) as GoErrorResponse;
+    return body.message || fallback;
+  } catch {
+    return fallback;
+  }
+}
+
+export async function getGroupsAction(options?: GroupFilter) {
+  if (!GO_API_URL) {
+    return { data: [] as Group[], error: null };
+  }
+  try {
+    const params = new URLSearchParams();
+    if (options?.search) params.set("search", options.search);
+    if (options?.limit) params.set("limit", String(options.limit));
+    if (options?.offset) params.set("offset", String(options.offset));
+    if (options?.includeDeleted) params.set("include_deleted", "true");
+
+    const res = await fetch(`${GO_API_URL}/groups?${params.toString()}`, {
+      cache: "no-store",
+    });
+    if (!res.ok) {
+      return { data: [] as Group[], error: await extractErrorMessage(res, "Failed to fetch groups") };
+    }
+
+    const rows = (await res.json()) as GoGroupResponse[] | null;
+    return { data: (rows ?? []).map(mapGoGroup), error: null };
   } catch (error) {
     console.error("getGroupsAction error:", error);
-    return { data: [], error: "Failed to fetch groups" };
+    return { data: [] as Group[], error: "Failed to fetch groups" };
   }
 }
 
 export async function createGroupAction(input: CreateGroupInput) {
+  if (!GO_API_URL) {
+    return { data: null, error: "GO_API_URL is not configured" };
+  }
   try {
-    const data = await createGroup(groupRepo, input);
+    const res = await fetch(`${GO_API_URL}/groups`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(toSnakeCaseBody(input)),
+    });
+    if (!res.ok) {
+      return { data: null, error: await extractErrorMessage(res, "Failed to create group") };
+    }
+
+    const row = (await res.json()) as GoGroupResponse;
     revalidatePath("/admin/group-categories");
     revalidateTag("layout", { expire: 0 });
     revalidateTag("products", { expire: 0 });
-    return { data, error: null };
+    return { data: mapGoGroup(row), error: null };
   } catch (error) {
     console.error("createGroupAction error:", error);
     return {
@@ -37,12 +110,25 @@ export async function createGroupAction(input: CreateGroupInput) {
 }
 
 export async function updateGroupAction(input: UpdateGroupInput) {
+  if (!GO_API_URL) {
+    return { data: null, error: "GO_API_URL is not configured" };
+  }
   try {
-    const data = await updateGroup(groupRepo, input);
+    const { id, ...rest } = input;
+    const res = await fetch(`${GO_API_URL}/groups/${id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(toSnakeCaseBody(rest)),
+    });
+    if (!res.ok) {
+      return { data: null, error: await extractErrorMessage(res, "Failed to update group") };
+    }
+
+    const row = (await res.json()) as GoGroupResponse;
     revalidatePath("/admin/group-categories");
     revalidateTag("layout", { expire: 0 });
     revalidateTag("products", { expire: 0 });
-    return { data, error: null };
+    return { data: mapGoGroup(row), error: null };
   } catch (error) {
     console.error("updateGroupAction error:", error);
     return {
@@ -53,8 +139,15 @@ export async function updateGroupAction(input: UpdateGroupInput) {
 }
 
 export async function deleteGroupAction(id: string) {
+  if (!GO_API_URL) {
+    return { error: "GO_API_URL is not configured" };
+  }
   try {
-    await deleteGroup(groupRepo, id);
+    const res = await fetch(`${GO_API_URL}/groups/${id}`, { method: "DELETE" });
+    if (!res.ok) {
+      return { error: await extractErrorMessage(res, "Failed to delete group") };
+    }
+
     revalidatePath("/admin/group-categories");
     revalidateTag("layout", { expire: 0 });
     revalidateTag("products", { expire: 0 });

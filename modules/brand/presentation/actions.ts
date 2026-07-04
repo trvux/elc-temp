@@ -56,6 +56,9 @@ async function extractErrorMessage(res: Response, fallback: string): Promise<str
 }
 
 export async function getBrandsAction(options?: BrandFilter) {
+  if (!GO_API_URL) {
+    return { data: [] as Brand[], error: null };
+  }
   try {
     const params = new URLSearchParams();
     if (options?.search) params.set("search", options.search);
@@ -79,6 +82,9 @@ export async function getBrandsAction(options?: BrandFilter) {
 }
 
 export async function getBrandByIdAction(id: string) {
+  if (!GO_API_URL) {
+    return { data: null, error: null };
+  }
   try {
     const res = await fetch(`${GO_API_URL}/brands/${id}`, { cache: "no-store" });
     if (res.status === 404) {
@@ -97,6 +103,9 @@ export async function getBrandByIdAction(id: string) {
 }
 
 export async function createBrandAction(input: CreateBrandInput) {
+  if (!GO_API_URL) {
+    return { data: null, error: "GO_API_URL is not configured" };
+  }
   try {
     const res = await fetch(`${GO_API_URL}/brands`, {
       method: "POST",
@@ -121,6 +130,9 @@ export async function createBrandAction(input: CreateBrandInput) {
 }
 
 export async function updateBrandAction(input: UpdateBrandInput) {
+  if (!GO_API_URL) {
+    return { data: null, error: "GO_API_URL is not configured" };
+  }
   try {
     const { id, ...rest } = input;
     const res = await fetch(`${GO_API_URL}/brands/${id}`, {
@@ -146,6 +158,9 @@ export async function updateBrandAction(input: UpdateBrandInput) {
 }
 
 export async function deleteBrandAction(id: string) {
+  if (!GO_API_URL) {
+    return { success: false, error: "GO_API_URL is not configured" };
+  }
   try {
     const res = await fetch(`${GO_API_URL}/brands/${id}`, { method: "DELETE" });
     if (!res.ok) {

@@ -54,6 +54,9 @@ async function extractErrorMessage(res: Response): Promise<string> {
 }
 
 export async function getServiceGroupsAction() {
+  if (!GO_API_URL) {
+    return { data: [] as ServiceGroup[], error: null };
+  }
   try {
     const res = await fetch(`${GO_API_URL}/service-groups`, { cache: "no-store" });
     if (!res.ok) {
@@ -69,6 +72,9 @@ export async function getServiceGroupsAction() {
 }
 
 export async function createServiceGroupAction(input: CreateServiceGroupInput) {
+  if (!GO_API_URL) {
+    return { data: null, error: "GO_API_URL is not configured" };
+  }
   try {
     const res = await fetch(`${GO_API_URL}/service-groups`, {
       method: "POST",
@@ -94,6 +100,9 @@ export async function createServiceGroupAction(input: CreateServiceGroupInput) {
 }
 
 export async function updateServiceGroupAction(input: UpdateServiceGroupInput) {
+  if (!GO_API_URL) {
+    return { data: null, error: "GO_API_URL is not configured" };
+  }
   try {
     const { id, ...rest } = input;
     const res = await fetch(`${GO_API_URL}/service-groups/${id}`, {
@@ -120,6 +129,9 @@ export async function updateServiceGroupAction(input: UpdateServiceGroupInput) {
 }
 
 export async function deleteServiceGroupAction(id: string) {
+  if (!GO_API_URL) {
+    return { error: "GO_API_URL is not configured" };
+  }
   try {
     const res = await fetch(`${GO_API_URL}/service-groups/${id}`, { method: "DELETE" });
     if (!res.ok) {

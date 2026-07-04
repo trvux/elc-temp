@@ -46,6 +46,9 @@ async function extractErrorMessage(res: Response): Promise<string> {
 }
 
 export async function getContactsAction(options?: ContactFilter) {
+  if (!GO_API_URL) {
+    return { data: [] as Contact[], error: null };
+  }
   try {
     const params = new URLSearchParams();
     if (options?.type) params.set("type", options.type);
@@ -67,6 +70,9 @@ export async function getContactsAction(options?: ContactFilter) {
 }
 
 export async function createContactAction(input: CreateContactInput) {
+  if (!GO_API_URL) {
+    return { data: null, error: "GO_API_URL is not configured" };
+  }
   try {
     const res = await fetch(`${GO_API_URL}/contacts`, {
       method: "POST",
@@ -91,6 +97,9 @@ export async function createContactAction(input: CreateContactInput) {
 }
 
 export async function updateContactAction(input: UpdateContactInput) {
+  if (!GO_API_URL) {
+    return { data: null, error: "GO_API_URL is not configured" };
+  }
   try {
     const { id, ...rest } = input;
     const res = await fetch(`${GO_API_URL}/contacts/${id}`, {
@@ -116,6 +125,9 @@ export async function updateContactAction(input: UpdateContactInput) {
 }
 
 export async function deleteContactAction(id: string) {
+  if (!GO_API_URL) {
+    return { success: false, error: "GO_API_URL is not configured" };
+  }
   try {
     const res = await fetch(`${GO_API_URL}/contacts/${id}`, { method: "DELETE" });
     if (!res.ok) {
