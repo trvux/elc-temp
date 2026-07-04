@@ -2,6 +2,7 @@
 
 import { revalidatePath, revalidateTag } from "next/cache";
 import { Contact, CreateContactInput, UpdateContactInput, ContactFilter } from "../domain";
+import { toSnakeCaseBody } from "@/shared/lib/go-api";
 
 const GO_API_URL = process.env.GO_API_URL;
 
@@ -70,7 +71,7 @@ export async function createContactAction(input: CreateContactInput) {
     const res = await fetch(`${GO_API_URL}/contacts`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(input),
+      body: JSON.stringify(toSnakeCaseBody(input)),
     });
     if (!res.ok) {
       return { data: null, error: await extractErrorMessage(res) };
@@ -95,7 +96,7 @@ export async function updateContactAction(input: UpdateContactInput) {
     const res = await fetch(`${GO_API_URL}/contacts/${id}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(rest),
+      body: JSON.stringify(toSnakeCaseBody(rest)),
     });
     if (!res.ok) {
       return { data: null, error: await extractErrorMessage(res) };
