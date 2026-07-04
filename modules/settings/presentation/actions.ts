@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath, revalidateTag } from "next/cache";
+import { purgeCloudflareCache } from "@/shared/lib/cloudflare-purge";
 import { SiteSetting } from "../domain";
 
 const GO_API_URL = process.env.GO_API_URL;
@@ -74,6 +75,9 @@ export async function updateSettingsAction(settings: SiteSetting[]) {
     revalidatePath("/admin/settings");
     revalidatePath("/", "layout");
     revalidateTag("layout", { expire: 0 });
+    // "layout" anh huong header/footer tren toan site -> khong the liet ke het URL,
+    // purge_everything la lua chon dung va don gian nhat (xem shared/lib/cloudflare-purge.ts)
+    await purgeCloudflareCache();
     return { success: true, error: null };
   } catch (error) {
     if (isPrerenderError(error)) throw error;

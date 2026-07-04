@@ -10,6 +10,7 @@ import {
 } from "../application";
 import { CreateCategoryInput, UpdateCategoryInput } from "../domain";
 import { categoryRepo } from "../infrastructure/categoryRepo";
+import { purgeCloudflareCache } from "@/shared/lib/cloudflare-purge";
 
 export async function getCategoriesAction() {
   try {
@@ -28,6 +29,7 @@ export async function createCategoryAction(input: CreateCategoryInput) {
     revalidatePath("/admin/categories");
     revalidateTag("layout", { expire: 0 });
     revalidateTag("products", { expire: 0 });
+    await purgeCloudflareCache();
     return { data, error: null };
   } catch (error) {
     console.error("createCategoryAction error:", error);
@@ -44,6 +46,7 @@ export async function updateCategoryAction(input: UpdateCategoryInput) {
     revalidatePath("/admin/categories");
     revalidateTag("layout", { expire: 0 });
     revalidateTag("products", { expire: 0 });
+    await purgeCloudflareCache();
     return { data, error: null };
   } catch (error) {
     console.error("updateCategoryAction error:", error);
@@ -60,6 +63,7 @@ export async function deleteCategoryAction(id: string) {
     revalidatePath("/admin/categories");
     revalidateTag("layout", { expire: 0 });
     revalidateTag("products", { expire: 0 });
+    await purgeCloudflareCache();
     return { error: null };
   } catch (error) {
     console.error("deleteCategoryAction error:", error);

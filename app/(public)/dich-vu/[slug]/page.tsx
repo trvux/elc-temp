@@ -72,7 +72,11 @@ async function getCachedService(slug: string) {
   cacheTag("services-list", `service-slug:${slug}`);
   setUseStaticClient(true);
   const data = await getServiceBySlugAction(slug);
-  cacheLife(data ? "days" : { revalidate: 30, expire: 60 });
+  if (data) {
+    cacheLife("days");
+  } else {
+    cacheLife("retry");
+  }
   return data;
 }
 
@@ -82,7 +86,11 @@ async function getCachedServicesGrouped() {
   setUseStaticClient(true);
   const groupedServices = await getPublishedServicesGroupedAction();
   const currentYear = new Date().getFullYear();
-  cacheLife(groupedServices && groupedServices.length > 0 ? "days" : { revalidate: 30, expire: 60 });
+  if (groupedServices && groupedServices.length > 0) {
+    cacheLife("days");
+  } else {
+    cacheLife("retry");
+  }
   return { groupedServices: groupedServices ?? [], currentYear };
 }
 

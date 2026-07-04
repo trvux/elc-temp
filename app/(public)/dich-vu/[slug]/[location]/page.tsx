@@ -21,7 +21,11 @@ async function getCachedService(slug: string) {
   setUseStaticClient(true);
 
   const data = await getServiceBySlugAction(slug);
-  cacheLife(data ? "days" : { revalidate: 30, expire: 60 });
+  if (data) {
+    cacheLife("days");
+  } else {
+    cacheLife("retry");
+  }
   return data;
 }
 

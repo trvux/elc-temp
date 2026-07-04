@@ -3,6 +3,10 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   staticPageGenerationTimeout: 300,
   cacheComponents: true,
+  cacheLife: {
+    // Go API/Supabase chua san sang luc startup: retry ngan thay vi cache dai han
+    retry: { stale: 30, revalidate: 30, expire: 300 },
+  },
   output: "standalone",
   allowedDevOrigins: ["192.168.1.238"],
   images: {

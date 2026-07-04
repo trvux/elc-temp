@@ -16,6 +16,7 @@ import { CreateProjectInput, UpdateProjectInput, ProjectFilter } from "../domain
 import { submitToIndexNow } from "@/shared/lib/indexnow";
 import { submitToGoogleIndex } from "@/shared/lib/google-indexing";
 import { projectRepo } from "../infrastructure/projectRepo";
+import { purgeCloudflareCache } from "@/shared/lib/cloudflare-purge";
 import fs from "fs";
 import path from "path";
 
@@ -161,4 +162,5 @@ function revalidatePaths(slug?: string) {
   if (slug) {
     revalidateTag(`slug:${slug}`, { expire: 0 });
   }
+  void purgeCloudflareCache();
 }

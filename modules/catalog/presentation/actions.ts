@@ -16,6 +16,7 @@ import { submitToIndexNow } from "@/shared/lib/indexnow";
 import { submitToGoogleIndex } from "@/shared/lib/google-indexing";
 import { google } from "googleapis";
 import { createStaticClient } from "@/shared/lib/supabase/static";
+import { purgeCloudflareCache } from "@/shared/lib/cloudflare-purge";
 
 export async function getProductsAction(options?: {
   categoryId?: string;
@@ -38,6 +39,7 @@ export async function createProductAction(input: CreateProductInput) {
     revalidatePath("/san-pham", "layout");
     revalidatePath("/", "layout");
     revalidateTag("products-list", { expire: 0 });
+    await purgeCloudflareCache();
     if (data?.slug) {
       revalidateTag(`slug:${data.slug}`, { expire: 0 });
     }
@@ -63,6 +65,7 @@ export async function updateProductAction(input: UpdateProductInput) {
     revalidatePath("/san-pham", "layout");
     revalidatePath("/", "layout");
     revalidateTag("products-list", { expire: 0 });
+    await purgeCloudflareCache();
     if (data?.slug) {
       revalidateTag(`slug:${data.slug}`, { expire: 0 });
     }
@@ -89,6 +92,7 @@ export async function deleteProductAction(id: string) {
     revalidatePath("/san-pham", "layout");
     revalidatePath("/", "layout");
     revalidateTag("products-list", { expire: 0 });
+    await purgeCloudflareCache();
     if (product?.slug) {
       revalidateTag(`slug:${product.slug}`, { expire: 0 });
       submitToGoogleIndex([`https://dienmayelc.com.vn/san-pham/${product.slug}`], "URL_DELETED")

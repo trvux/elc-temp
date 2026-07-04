@@ -59,15 +59,17 @@ jobs:
         uses: appleboy/ssh-action@v1.0.3
         env:
           GOOGLE_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}
+          CLOUDFLARE_ZONE_ID: ${{ secrets.CLOUDFLARE_ZONE_ID }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
         with:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_SSH_KEY }}
-          envs: GOOGLE_SERVICE_ACCOUNT_JSON
+          envs: GOOGLE_SERVICE_ACCOUNT_JSON,CLOUDFLARE_ZONE_ID,CLOUDFLARE_API_TOKEN
           script: |
             cd /var/www/elc-tem
             # Ghi runtime env vars vao ecosystem.config.js (nam trong thu muc project)
-            python3 -c 'import os,json; cfg={"apps":[{"name":"elc-tem","script":"server.js","env":{"PORT":"3000","NODE_ENV":"production","GOOGLE_SERVICE_ACCOUNT_JSON":os.environ.get("GOOGLE_SERVICE_ACCOUNT_JSON",""),"GO_API_URL":"http://localhost:8090"}}]}; open("ecosystem.config.js","w").write("module.exports = "+json.dumps(cfg)+";\n")'
+            python3 -c 'import os,json; cfg={"apps":[{"name":"elc-tem","script":"server.js","env":{"PORT":"3000","NODE_ENV":"production","GOOGLE_SERVICE_ACCOUNT_JSON":os.environ.get("GOOGLE_SERVICE_ACCOUNT_JSON",""),"GO_API_URL":"http://localhost:8090","CLOUDFLARE_ZONE_ID":os.environ.get("CLOUDFLARE_ZONE_ID",""),"CLOUDFLARE_API_TOKEN":os.environ.get("CLOUDFLARE_API_TOKEN","")}}]}; open("ecosystem.config.js","w").write("module.exports = "+json.dumps(cfg)+";\n")'
             # Xoa cache cu cua Next.js (Full Route Cache / Data Cache) de tranh ket cache
             rm -rf .next/cache
             # Doi Go API san sang truoc khi start Next.js

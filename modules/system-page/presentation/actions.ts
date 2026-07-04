@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { getSystemPages, updateSystemPage, UpdateSystemPageInput } from "@/modules/system-page";
 import { systemPageRepo } from "../infrastructure/SupabaseSystemPageRepository";
+import { purgeCloudflareCache } from "@/shared/lib/cloudflare-purge";
 
 export async function getSystemPagesAction() {
   try {
@@ -25,6 +26,7 @@ export async function updateSystemPageAction(input: UpdateSystemPageInput) {
     } else {
       revalidatePath(`/${data.slug}`);
     }
+    await purgeCloudflareCache();
 
     return { data, error: null };
   } catch (error) {

@@ -140,7 +140,11 @@ async function getCachedCategories() {
   cacheTag("products-list", "categories");
   setUseStaticClient(true);
   const cats = await getCategories(categoryRepo);
-  cacheLife(cats && cats.length > 0 ? "days" : { revalidate: 30, expire: 60 });
+  if (cats && cats.length > 0) {
+    cacheLife("days");
+  } else {
+    cacheLife("retry");
+  }
   return cats;
 }
 
@@ -197,7 +201,11 @@ async function getCachedCategorySections(): Promise<CategorySectionData[]> {
     );
 
   // Neu Supabase chua san sang (khong co category), cache ngan 30s
-  cacheLife(result.length > 0 ? "days" : { revalidate: 30, expire: 60 });
+  if (result.length > 0) {
+    cacheLife("days");
+  } else {
+    cacheLife("retry");
+  }
   return result;
 }
 
@@ -232,6 +240,9 @@ async function CachedProductsView({
 }: {
   params: { [key: string]: string | string[] | undefined };
 }) {
+  "use cache";
+  cacheTag("products-list", "categories");
+
   const q =
     typeof params.search === "string"
       ? params.search.trim()
@@ -285,6 +296,14 @@ async function CachedProductsView({
   const offset = (currentPage - 1) * PAGE_SIZE;
 
   const allCategories = await getCachedCategories();
+  // Danh cacheLife tuong minh o day (ke ca khi cac fetcher con da tu quyet dinh
+  // cacheLife rieng) de tranh loi "nested short-lived cache" va giu dung hanh vi
+  // retry-nhanh-khi-rong o toan bo cache cua trang, khong chi rieng fetcher con.
+  if (allCategories && allCategories.length > 0) {
+    cacheLife("hours");
+  } else {
+    cacheLife("retry");
+  }
   const queryTokens = getQueryTokens(q);
 
   // H1 must track the SEO <title> (system_pages.metaTitle) instead of a hardcoded

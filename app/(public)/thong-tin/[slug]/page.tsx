@@ -62,7 +62,11 @@ async function getBranchData(slug: string) {
   const currentYear = new Date().getFullYear();
   const { settings, contacts, branches } = await getPublicLayoutData();
   // Neu Go API chua san sang (branch null, branches rong), cache ngan 30s
-  cacheLife(branch || branches?.length > 0 ? "hours" : { revalidate: 30, expire: 60 });
+  if (branch || (branches?.length ?? 0) > 0) {
+    cacheLife("hours");
+  } else {
+    cacheLife("retry");
+  }
   return {
     branch,
     branches,
