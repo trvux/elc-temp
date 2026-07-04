@@ -40,6 +40,8 @@ jobs:
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
           NEXT_PUBLIC_HOTJAR_ID: ${{ secrets.NEXT_PUBLIC_HOTJAR_ID }}
           GOOGLE_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}
+          # Can thiet de "use cache" fetch duoc data tu Go API trong luc build
+          GO_API_URL: ${{ secrets.GO_API_URL }}
 
       - name: Prepare standalone files
         run: |
