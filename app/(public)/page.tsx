@@ -13,8 +13,7 @@ import { searchProducts } from "@/modules/catalog/application";
 import { productRepo } from "@/modules/catalog/infrastructure/SupabaseProductRepository";
 import { getCategories } from "@/modules/category/application";
 import { categoryRepo } from "@/modules/category/infrastructure/categoryRepo";
-import { getContacts } from "@/modules/contact/application";
-import { contactRepo } from "@/modules/contact/infrastructure";
+import { getContactsAction } from "@/modules/contact/presentation/actions";
 import { getProjects } from "@/modules/project/application";
 import { projectRepo } from "@/modules/project/infrastructure/projectRepo";
 import { getSiteSettings } from "@/modules/settings/application";
@@ -52,7 +51,7 @@ async function getCachedHomeData() {
         limit: 200,
       }),
       getCategories(categoryRepo),
-      getContacts(contactRepo),
+      getContactsAction().then((res) => res.data),
       getBrands(brandRepo, { limit: 100 }),
       getBranches(branchRepo, { isPublished: true }),
     ]);

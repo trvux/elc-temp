@@ -5,7 +5,6 @@ import { ProjectRepository } from "@/modules/project/domain/repository";
 import { ServiceRepository } from "@/modules/service/domain/repository";
 import { NewsRepository } from "@/modules/news/domain/repository";
 import { PageRepository } from "@/modules/page/domain/repository";
-import { ContactRepository } from "@/modules/contact/domain/repository";
 import { BranchRepository } from "@/modules/branch/domain/repository";
 import {
   DashboardStats,
@@ -22,15 +21,19 @@ export interface DashboardRepositories {
   serviceRepo: ServiceRepository;
   newsRepo: NewsRepository;
   pageRepo: PageRepository;
-  contactRepo: ContactRepository;
   branchRepo: BranchRepository;
 }
 
 /**
  * Tong hop thong ke toan bo he thong cho Dashboard.
  * Ham nay la use case duy nhat cua module, nhan cac repository qua DIP.
+ * contactsCount duoc truyen rieng vi module contact da migrate sang Go —
+ * xem modules/dashboard/presentation/actions.ts.
  */
-export async function getDashboardStats(repos: DashboardRepositories): Promise<DashboardStats> {
+export async function getDashboardStats(
+  repos: DashboardRepositories,
+  contactsCount: number
+): Promise<DashboardStats> {
   const {
     productRepo,
     categoryRepo,
@@ -39,7 +42,6 @@ export async function getDashboardStats(repos: DashboardRepositories): Promise<D
     serviceRepo,
     newsRepo,
     pageRepo,
-    contactRepo,
     branchRepo,
   } = repos;
 
@@ -51,7 +53,6 @@ export async function getDashboardStats(repos: DashboardRepositories): Promise<D
     servicesCount,
     newsCount,
     pagesCount,
-    contactsCount,
     branchesCount,
     recentProducts,
     recentProjects,
@@ -68,7 +69,6 @@ export async function getDashboardStats(repos: DashboardRepositories): Promise<D
     serviceRepo.count(),
     newsRepo.count(),
     pageRepo.count(),
-    contactRepo.count(),
     branchRepo.count(),
     productRepo.getAll({ limit: 5, sortBy: "newest" }),
     projectRepo.getAll({ limit: 5, orderBy: "createdAt", orderDirection: "desc" }),

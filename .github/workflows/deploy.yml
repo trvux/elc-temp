@@ -65,7 +65,7 @@ jobs:
           script: |
             cd /var/www/elc-tem
             # Ghi runtime env vars vao ecosystem.config.js (nam trong thu muc project)
-            python3 -c 'import os,json; cfg={"apps":[{"name":"elc-tem","script":"server.js","env":{"PORT":"3000","NODE_ENV":"production","GOOGLE_SERVICE_ACCOUNT_JSON":os.environ.get("GOOGLE_SERVICE_ACCOUNT_JSON","")}}]}; open("ecosystem.config.js","w").write("module.exports = "+json.dumps(cfg)+";\n")'
+            python3 -c 'import os,json; cfg={"apps":[{"name":"elc-tem","script":"server.js","env":{"PORT":"3000","NODE_ENV":"production","GOOGLE_SERVICE_ACCOUNT_JSON":os.environ.get("GOOGLE_SERVICE_ACCOUNT_JSON",""),"GO_API_URL":"http://localhost:8090"}}]}; open("ecosystem.config.js","w").write("module.exports = "+json.dumps(cfg)+";\n")'
             # Xoa cache cu cua Next.js (Full Route Cache / Data Cache) de tranh ket cache
             rm -rf .next/cache
             # Tao hoac cap nhat PM2 process
