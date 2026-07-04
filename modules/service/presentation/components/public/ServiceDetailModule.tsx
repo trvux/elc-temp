@@ -1,7 +1,6 @@
 import { getContactHref } from "@/modules/contact";
-import { getAdjacentServices } from "@/modules/service/application";
+import { getAdjacentServicesAction } from "@/modules/service/presentation/actions";
 import { ServiceWithRelations } from "@/modules/service/domain/types";
-import { serviceRepo } from "@/modules/service/infrastructure/serviceRepo";
 import { Breadcrumbs } from "@/shared/components/layout/user/breadcrumbs";
 import { DetailPager } from "@/shared/components/layout/user/detail-pager";
 import { OrderButton } from "@/shared/components/layout/user/order-button";
@@ -162,7 +161,7 @@ export async function ServiceDetailModule({
   const { contacts, currentYear } = await getCachedServiceDetailModuleData(
     service.slug,
   );
-  const { prev, next } = await getAdjacentServices(serviceRepo, service);
+  const { prev, next } = await getAdjacentServicesAction(service);
 
   const images = service.image ? [service.image] : [];
   const finalPrice = service.salePrice || service.originalPrice;

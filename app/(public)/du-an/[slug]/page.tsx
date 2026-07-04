@@ -17,8 +17,7 @@ import { Sparkle } from "@phosphor-icons/react/dist/ssr";
 import { Metadata } from "next";
 import { ImageWithSkeleton } from "@/shared/components/ui/image-with-skeleton";
 import { notFound } from "next/navigation";
-import { getServiceBySlug } from "@/modules/service/application";
-import { serviceRepo } from "@/modules/service/infrastructure/serviceRepo";
+import { getServiceBySlugAction } from "@/modules/service/presentation/actions";
 import { createStaticClient } from "@/shared/lib/supabase/static";
 import { 
   generateProjectTypeMetadata, 
@@ -58,7 +57,7 @@ export async function generateMetadata({
     let categoryName: string | undefined = undefined;
 
     if (serviceSlug) {
-      const service = await getServiceBySlug(serviceRepo, serviceSlug);
+      const service = await getServiceBySlugAction(serviceSlug);
       if (service) {
         serviceName = service.title;
       }

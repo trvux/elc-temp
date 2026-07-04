@@ -1,6 +1,4 @@
-import { getServiceBySlug } from "@/modules/service/application";
-import { serviceRepo } from "@/modules/service/infrastructure/serviceRepo";
-import { ServiceDetailModule } from "@/modules/service";
+import { getServiceBySlugAction, ServiceDetailModule } from "@/modules/service";
 import { generateServiceMetadata, generateServiceDetailSchema } from "@/shared/lib/seo-utils";
 import { setUseStaticClient } from "@/shared/lib/supabase/server";
 import { Metadata } from "next";
@@ -24,7 +22,7 @@ async function getCachedService(slug: string) {
   cacheTag("services-list", `service-slug:${slug}`);
   setUseStaticClient(true);
 
-  return getServiceBySlug(serviceRepo, slug);
+  return getServiceBySlugAction(slug);
 }
 
 export async function generateStaticParams() {

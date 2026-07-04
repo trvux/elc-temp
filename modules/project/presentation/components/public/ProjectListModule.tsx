@@ -7,8 +7,8 @@ import { getProjects } from "@/modules/project/application/getProjects";
 import { getCategoriesByProjectTypeId } from "@/modules/project/application/getCategoriesByProjectTypeId";
 import { projectRepo } from "@/modules/project/infrastructure/projectRepo";
 import { ProjectCard } from "@/modules/project/presentation/components/ProjectCard";
-import { getServices } from "@/modules/service/application";
-import { serviceRepo } from "@/modules/service/infrastructure/serviceRepo";
+import { getServicesAction } from "@/modules/service/presentation/actions";
+import { ServiceWithRelations } from "@/modules/service/domain/types";
 import { Breadcrumbs } from "@/shared/components/layout/user/breadcrumbs";
 import { FilteredGridWrapper } from "@/shared/components/layout/user/filtered-grid-wrapper";
 import { PaginationNav } from "@/shared/components/layout/user/pagination-nav";
@@ -84,7 +84,7 @@ async function getCachedProjectListData(
   let projectsRaw: Awaited<ReturnType<typeof getProjects>> = [];
   let allProjectTypes: Awaited<ReturnType<typeof getProjectTypes>> = [];
   let allPublishedProjectsRawOrNull: Awaited<ReturnType<typeof getProjects>> | null = null;
-  let allServices: Awaited<ReturnType<typeof getServices>> = [];
+  let allServices: ServiceWithRelations[] = [];
   let projectTypeCategoriesRaw: Awaited<ReturnType<typeof getCategoriesByProjectTypeId>> | null = null;
   let allCategoriesRaw: Awaited<ReturnType<typeof getCategories>> = [];
 
@@ -106,7 +106,7 @@ async function getCachedProjectListData(
       }),
       getProjectTypes(projectTypeRepo),
       hasFilters ? getProjects(projectRepo, { isPublished: true }) : Promise.resolve(null),
-      getServices(serviceRepo, { isPublished: true }),
+      getServicesAction({ isPublished: true }).then((res) => res.data),
       projectType
         ? getCategoriesByProjectTypeId(projectRepo, projectType.id)
         : Promise.resolve(null),

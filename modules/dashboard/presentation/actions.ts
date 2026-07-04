@@ -2,7 +2,6 @@
 
 import { getDashboardStats } from "../application/getDashboardStats";
 import { newsRepo } from "@/modules/news/infrastructure";
-import { serviceRepo } from "@/modules/service/infrastructure/serviceRepo";
 import { pageRepo } from "@/modules/page/infrastructure";
 import { getContactsAction } from "@/modules/contact/presentation/actions";
 import { productRepo } from "@/modules/catalog/infrastructure";
@@ -11,10 +10,19 @@ import { brandRepo } from "@/modules/brand/infrastructure";
 import { branchRepo } from "@/modules/branch/infrastructure";
 import { projectRepo } from "@/modules/project/infrastructure";
 
+const GO_API_URL = process.env.GO_API_URL;
+
 export async function getDashboardStatsAction() {
   try {
-    // contact module da migrate sang Go — lay count qua Go API thay vi contactRepo
-    const { data: contacts } = await getContactsAction();
+    // contact/service modules da migrate sang Go — lay count qua Go API
+    // thay vi contactRepo/serviceRepo.
+    const [{ data: contacts }, servicesCountRes] = await Promise.all([
+      getContactsAction(),
+      fetch(`${GO_API_URL}/services/count`, { cache: "no-store" }),
+    ]);
+    const servicesCount = servicesCountRes.ok
+      ? ((await servicesCountRes.json()) as { count: number }).count
+      : 0;
 
     const data = await getDashboardStats(
       {
@@ -22,12 +30,12 @@ export async function getDashboardStatsAction() {
         categoryRepo,
         brandRepo,
         projectRepo,
-        serviceRepo,
         newsRepo,
         pageRepo,
         branchRepo,
       },
-      contacts.length
+      contacts.length,
+      servicesCount
     );
     return { data, error: null };
   } catch (error) {

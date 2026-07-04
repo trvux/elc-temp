@@ -2,8 +2,7 @@
 
 import { productRepo } from "@/modules/catalog/infrastructure/SupabaseProductRepository";
 import { projectRepo } from "@/modules/project/infrastructure/projectRepo";
-import { serviceRepo } from "@/modules/service/infrastructure/serviceRepo";
-import { getServices } from "@/modules/service/application";
+import { getServicesAction } from "@/modules/service/presentation/actions";
 import { createStaticClient } from "@/shared/lib/supabase/static";
 import Fuse from "fuse.js";
 import { getQueryTokens, tokenize } from "@/shared/lib/search-utils";
@@ -27,7 +26,8 @@ async function getCachedServices() {
   "use cache";
   cacheLife("minutes");
   cacheTag("services-search");
-  return getServices(serviceRepo, { isPublished: true });
+  const { data } = await getServicesAction({ isPublished: true });
+  return data;
 }
 
 interface SpecSubItem {
