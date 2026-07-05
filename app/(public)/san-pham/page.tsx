@@ -62,12 +62,9 @@ export async function generateMetadata({
 
   const baseUrl =
     process.env.NEXT_PUBLIC_APP_URL || "https://dienmayelc.com.vn";
-  const canonicalUrl = `${baseUrl}/san-pham`;
-  // Page 2+ is just "more of the same list", not a distinct search landing page —
-  // same reasoning as the [location] pages: keep it crawlable (real <Link>s) but
-  // out of the index, canonicalized to page 1, so it doesn't bloat the index with
-  // thin near-duplicates.
-  const isPastFirstPage = Math.floor(Number(sParams.page)) > 1;
+  const currentPage = Math.max(1, Math.floor(Number(sParams.page)) || 1);
+  const pageSuffix = currentPage > 1 ? `?page=${currentPage}` : "";
+  const canonicalUrl = `${baseUrl}/san-pham${pageSuffix}`;
 
   if (q) {
     const title = `Kết quả tìm kiếm cho "${q}" | ${SHOP_NAME}`;
@@ -87,7 +84,6 @@ export async function generateMetadata({
       alternates: {
         canonical: canonicalUrl,
       },
-      ...(isPastFirstPage ? { robots: { index: false, follow: true } } : {}),
     };
   }
 
