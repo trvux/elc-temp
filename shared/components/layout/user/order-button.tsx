@@ -4,8 +4,8 @@ import { useState } from "react";
 import { Button } from "@/shared/components/ui/button";
 import { Contact } from "@/modules/contact/domain";
 import {
+  buildZaloProductMessage,
   isMobileDevice,
-  openZaloOnMobile,
   ZaloProductInfo,
 } from "@/shared/lib/zalo-message";
 import { ZaloContactModal } from "@/shared/components/layout/user/zalo-contact-modal";
@@ -32,17 +32,19 @@ export function OrderButton({ contacts, productInfo }: OrderButtonProps) {
 
   const handleClick = async (e: React.MouseEvent<HTMLAnchorElement>) => {
     if (!productInfo) return;
-    e.preventDefault();
 
     if (isMobileDevice()) {
-      const copied = await openZaloOnMobile(zaloContact.href, productInfo);
-      if (copied) {
-        toast.success("Thông tin sản phẩm đã được sao chép", {
-          description: "Paste vào Zalo để gửi cho tư vấn viên.",
-          duration: 4000,
-        });
-      }
+      // Mobile: let the <a href> navigate naturally to Zalo (preserves user gesture).
+      // Copy clipboard fire-and-forget - do NOT await (would lose the gesture).
+      const message = buildZaloProductMessage(productInfo);
+      navigator.clipboard.writeText(message).catch(() => {});
+      toast.success("Thông tin sản phẩm đã được sao chép", {
+        description: "Paste vào Zalo để gửi cho tư vấn viên.",
+        duration: 4000,
+      });
+      // No e.preventDefault() - let href open Zalo app
     } else {
+      e.preventDefault();
       setModalOpen(true);
     }
   };

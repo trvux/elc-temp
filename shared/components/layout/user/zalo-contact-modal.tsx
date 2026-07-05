@@ -4,6 +4,7 @@ import { useState } from "react";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
 } from "@/shared/components/ui/dialog";
@@ -66,9 +67,9 @@ export function ZaloContactModal({
               <DialogTitle className="text-sm font-bold leading-tight">
                 Liên hệ tư vấn qua Zalo
               </DialogTitle>
-              <p className="text-xs text-muted-foreground mt-0.5 line-clamp-1">
+              <DialogDescription className="text-xs text-muted-foreground mt-0.5 line-clamp-1">
                 {productInfo.productName}
-              </p>
+              </DialogDescription>
             </div>
           </div>
         </DialogHeader>

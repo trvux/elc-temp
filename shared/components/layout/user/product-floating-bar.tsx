@@ -6,8 +6,8 @@ import { Contact } from "@/modules/contact/domain";
 import { Button } from "@/shared/components/ui/button";
 import { useProductFloating } from "@/shared/providers/product-floating-provider";
 import {
+  buildZaloProductMessage,
   isMobileDevice,
-  openZaloOnMobile,
   ZaloProductInfo,
 } from "@/shared/lib/zalo-message";
 import { ZaloContactModal } from "@/shared/components/layout/user/zalo-contact-modal";
@@ -76,18 +76,19 @@ export function ProductFloatingBar({
     productSlug,
   };
 
-  const handleZaloClick = async (e: React.MouseEvent<HTMLAnchorElement>) => {
-    e.preventDefault();
-
+  const handleZaloClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
     if (isMobileDevice()) {
-      const copied = await openZaloOnMobile(zaloContact.href, productInfo);
-      if (copied) {
-        toast.success("Thông tin sản phẩm đã được sao chép", {
-          description: "Paste vào Zalo để gửi cho tư vấn viên.",
-          duration: 4000,
-        });
-      }
+      // Mobile: let href navigate naturally (preserves user gesture for Zalo deep link).
+      // Copy clipboard fire-and-forget - do NOT await.
+      const message = buildZaloProductMessage(productInfo);
+      navigator.clipboard.writeText(message).catch(() => {});
+      toast.success("Thông tin sản phẩm đã được sao chép", {
+        description: "Paste vào Zalo để gửi cho tư vấn viên.",
+        duration: 4000,
+      });
+      // No e.preventDefault() - let href open Zalo app
     } else {
+      e.preventDefault();
       setModalOpen(true);
     }
   };
