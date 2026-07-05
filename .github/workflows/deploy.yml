@@ -53,7 +53,11 @@ jobs:
           mkdir -p ~/.ssh
           echo "${{ secrets.VPS_SSH_KEY }}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
-          rsync -az --delete -e "ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no" .next/standalone/ ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}:/var/www/elc-tem/
+          # --exclude .next/cache: day la Data/ISR cache duoc app tu populate luc chay,
+          # khong nam trong build output. Loai tru de rsync --delete khong xoa cache
+          # dang "am" tren VPS qua moi lan deploy -- day la dieu kien tien quyet de dat
+          # tinh san sang cao (stale-while-revalidate), tranh cold-start moi lan deploy.
+          rsync -az --delete --exclude='.next/cache' -e "ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no" .next/standalone/ ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}:/var/www/elc-tem/
 
       - name: Restart PM2 on VPS
         uses: appleboy/ssh-action@v1.0.3
@@ -70,8 +74,11 @@ jobs:
             cd /var/www/elc-tem
             # Ghi runtime env vars vao ecosystem.config.js (nam trong thu muc project)
             python3 -c 'import os,json; cfg={"apps":[{"name":"elc-tem","script":"server.js","env":{"PORT":"3000","NODE_ENV":"production","GOOGLE_SERVICE_ACCOUNT_JSON":os.environ.get("GOOGLE_SERVICE_ACCOUNT_JSON",""),"GO_API_URL":"http://localhost:8090","CLOUDFLARE_ZONE_ID":os.environ.get("CLOUDFLARE_ZONE_ID",""),"CLOUDFLARE_API_TOKEN":os.environ.get("CLOUDFLARE_API_TOKEN","")}}]}; open("ecosystem.config.js","w").write("module.exports = "+json.dumps(cfg)+";\n")'
-            # Xoa cache cu cua Next.js (Full Route Cache / Data Cache) de tranh ket cache
-            rm -rf .next/cache
+            # KHONG xoa .next/cache: day la Data/ISR cache chua data that da fetch tu
+            # Go API. Xoa no moi lan deploy khien lan load dau tien luon bi cache-miss
+            # va hien trang thai rong neu Go API chua kip san sang -- day chinh la loi
+            # "mat data lan dau" da gap. Giu cache lai de request dau tien sau deploy
+            # van duoc phuc vu tu cache cu (stale-while-revalidate) thay vi rong.
             # Doi Go API san sang truoc khi start Next.js
             # Tranh race condition: Next.js start truoc Go -> cache rong bi giu lai
             echo "Waiting for Go API to be ready..."
