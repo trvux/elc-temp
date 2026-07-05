@@ -135,7 +135,7 @@ export default async function ServicesHub() {
             {groupedServices.map((group, idx) => (
               <TabsContent key={idx} value={group.name}>
                 {group.items.length > 0 ? (
-                  <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-6">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
                     {group.items.map((service) => {
                       const cardProps = mapServiceToCardData(service);
                       return <CardService key={service.id} {...cardProps} />;
