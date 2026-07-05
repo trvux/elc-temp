@@ -2,7 +2,7 @@ import { getProductsAction } from "@/modules/catalog/presentation/actions";
 import { CategoryWithGroup } from "@/modules/category/domain/types";
 import { Brand } from "@/modules/brand/domain";
 import { getProjectsAction, countProjectsAction } from "@/modules/project/presentation/actions";
-import { NewsRepository } from "@/modules/news/domain/repository";
+import { getNewsAction, countNewsAction } from "@/modules/news/presentation/actions";
 import {
   DashboardStats,
   DashboardActivityItem,
@@ -10,20 +10,15 @@ import {
   DashboardDistributionItem,
 } from "../domain/types";
 
-export interface DashboardRepositories {
-  newsRepo: NewsRepository;
-}
-
 /**
  * Tong hop thong ke toan bo he thong cho Dashboard.
- * Ham nay la use case duy nhat cua module, nhan cac repository qua DIP.
  * contactsCount/servicesCount/allBrands/pagesCount/categoriesCount/allCategories duoc
  * truyen rieng vi cac module do da migrate sang Go — xem
- * modules/dashboard/presentation/actions.ts. products/project cung da migrate sang Go
- * nen goi truc tiep getProductsAction/getProjectsAction thay vi qua productRepo/projectRepo.
+ * modules/dashboard/presentation/actions.ts. products/project/news cung da migrate sang Go
+ * nen goi truc tiep getProductsAction/getProjectsAction/getNewsAction thay vi qua
+ * productRepo/projectRepo/newsRepo.
  */
 export async function getDashboardStats(
-  repos: DashboardRepositories,
   contactsCount: number,
   servicesCount: number,
   branchesCount: number,
@@ -32,23 +27,21 @@ export async function getDashboardStats(
   categoriesCount: number,
   allCategories: CategoryWithGroup[]
 ): Promise<DashboardStats> {
-  const { newsRepo } = repos;
-
   const [
     allProductsRes,
     { data: projectsCount },
-    newsCount,
+    { data: newsCount },
     recentProductsRes,
     { data: recentProjects },
-    recentNews,
+    { data: recentNews },
     { data: featuredProjectsRaw },
   ] = await Promise.all([
     getProductsAction({}),
     countProjectsAction(),
-    newsRepo.count(),
+    countNewsAction(),
     getProductsAction({ limit: 5, sortBy: "newest" }),
     getProjectsAction({ limit: 5, orderBy: "createdAt", orderDirection: "desc" }),
-    newsRepo.getAll({ limit: 5 }),
+    getNewsAction({ limit: 5 }),
     getProjectsAction({ isFeatured: true }),
   ]);
 
