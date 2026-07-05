@@ -1,6 +1,5 @@
 import { getCategoriesAction } from "@/modules/category/presentation/actions";
-import { getProjectTypes } from "@/modules/project-type/application";
-import { projectTypeRepo } from "@/modules/project-type/infrastructure/projectTypeRepo";
+import { getProjectTypesAction } from "@/modules/project-type/presentation/actions";
 import { ProjectTypeWithCategories } from "@/modules/project-type/domain/types";
 import { getProjectsAction, getCategoriesByProjectTypeIdAction } from "@/modules/project/presentation/actions";
 import { ProjectCard } from "@/modules/project/presentation/components/ProjectCard";
@@ -95,7 +94,7 @@ async function getCachedProjectListData(
       serviceSlugs: serviceSlugs.length > 0 ? serviceSlugs : undefined,
       search: searchVal,
     }).then(unwrapActionResult),
-    getProjectTypes(projectTypeRepo),
+    getProjectTypesAction().then(unwrapActionResult),
     hasFilters ? getProjectsAction({ isPublished: true }).then(unwrapActionResult) : Promise.resolve(null),
     getServicesAction({ isPublished: true }).then(unwrapActionResult),
     projectType
