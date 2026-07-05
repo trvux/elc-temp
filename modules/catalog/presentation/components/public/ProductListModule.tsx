@@ -547,7 +547,6 @@ export async function ProductListModule({
               <ProductPagination
                 currentPage={currentPage}
                 totalPages={totalPages}
-                buildHref={(page) => buildPageHref(sParams, page)}
               />
             </div>
           </SidebarInset>

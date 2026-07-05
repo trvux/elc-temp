@@ -4,6 +4,7 @@ import type { ProductWithRelations } from "@/modules/catalog/domain";
 import { ProductCard } from "@/modules/catalog/presentation/components/ProductCard";
 import { Skeleton } from "@/shared/components/ui/skeleton";
 import { Button } from "@/shared/components/ui/button";
+import { Spinner } from "@phosphor-icons/react";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 const GRID_CLASS =
@@ -135,6 +136,8 @@ export function InfiniteProductGrid({
 
   const remainingCount = Math.min(totalCount - products.length, pageSizeRef.current);
 
+  const remaining = totalCount - products.length;
+
   return (
     <div className="w-full flex flex-col gap-8">
       {products.length > 0 || isLoading ? (
@@ -171,11 +174,19 @@ export function InfiniteProductGrid({
         <div className="flex justify-center pt-8 pb-4">
           <Button
             variant="outline"
+            size="lg"
             onClick={loadMore}
             disabled={isLoading}
-            className="px-8 py-5 text-sm font-semibold rounded-full border border-border/80 hover:bg-accent transition-colors"
+            className="gap-2 text-muted-foreground hover:text-foreground"
           >
-            {isLoading ? "Đang tải..." : "Xem thêm sản phẩm"}
+            {isLoading ? (
+              <>
+                <Spinner className="size-3.5 animate-spin" />
+                Đang tải...
+              </>
+            ) : (
+              `Xem thêm ${remaining} sản phẩm`
+            )}
           </Button>
         </div>
       )}
