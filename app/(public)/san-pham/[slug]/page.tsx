@@ -33,10 +33,9 @@ export async function generateMetadata(
   ).replace(/\/$/, "");
   const previousImages = (await parent).openGraph?.images || [];
   const sParams = await searchParams;
-  // Page 2+ of a category/brand/group listing is more of the same list, not a
-  // distinct landing page — keep it crawlable (real <Link>s) but out of the index,
-  // canonicalized to page 1, same reasoning as the [location] pages.
-  const isPastFirstPage = Math.floor(Number(sParams.page)) > 1;
+
+  const currentPage = Math.max(1, Math.floor(Number(sParams.page)) || 1);
+  const pageSuffix = currentPage > 1 ? `?page=${currentPage}` : "";
 
   switch (resolved.type) {
     case "product": {
@@ -68,7 +67,7 @@ export async function generateMetadata(
 
       let seoMetadata = generateCategoryMetadata(category as unknown as Record<string, unknown>, 0); // Count can be added if needed
 
-      const canonicalUrl = `${baseUrl}/san-pham/${slug}`;
+      const canonicalUrl = `${baseUrl}/san-pham/${slug}${pageSuffix}`;
 
       if (brands.length === 1) {
         const brandName = brands[0]; // Normally we'd fetch the exact brand name here, simplified for now
@@ -101,16 +100,15 @@ export async function generateMetadata(
           images: [...seoImages, ...previousImages],
           url: canonicalUrl,
         },
-        ...(isPastFirstPage ? { robots: { index: false, follow: true } } : {}),
       } as Metadata;
     }
 
     case "brand": {
       const brandMetadata = generateBrandMetadata(resolved.data as unknown as Record<string, unknown>);
+      const canonicalUrl = `${baseUrl}/san-pham/${slug}${pageSuffix}`;
       return {
         ...brandMetadata,
-        alternates: { canonical: `${baseUrl}/san-pham/${slug}` },
-        ...(isPastFirstPage ? { robots: { index: false, follow: true } } : {}),
+        alternates: { canonical: canonicalUrl },
       };
     }
   }
