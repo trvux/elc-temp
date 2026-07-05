@@ -1271,18 +1271,6 @@ export function generateProjectTypeMetadata(
   const metaDescription = projectType.metaDescription;
   const image = projectType.image;
 
-  // Rule: If metaTitle or metaDescription is null or empty, set robots to noindex
-  if (!metaTitle || !metaDescription) {
-    return {
-      title: `${projectType.name} | ${SHOP_NAME}`,
-      description: "",
-      robots: {
-        index: false,
-        follow: false,
-      },
-    };
-  }
-
   const titleParts: string[] = [];
   const descParts: string[] = [];
 
@@ -1302,8 +1290,8 @@ export function generateProjectTypeMetadata(
     descParts.push(`tình trạng ${conditionText}`);
   }
 
-  let title = metaTitle;
-  let description = metaDescription;
+  let title = metaTitle || `Dự án thi công lắp đặt máy lạnh cho ${projectType.name}`;
+  let description = metaDescription || `Tổng hợp các dự án, công trình thực tế thi công lắp đặt máy lạnh, hệ thống điều hòa HVAC cho ${projectType.name} chuyên nghiệp, uy tín bởi Điện máy ELC.`;
 
   if (titleParts.length > 0) {
     title = `Dự án ${titleParts.join(" - ")} cho ${projectType.name}`;
@@ -1347,26 +1335,15 @@ export function generateProjectDetailMetadata(
   const metaTitle = project.metaTitle;
   const metaDescription = project.metaDescription;
 
-  // Rule: If metaTitle or metaDescription is null or empty, set robots to noindex
-  if (!metaTitle || !metaDescription) {
-    return {
-      title: sanitizeAndFormatTitle(project.title, false),
-      description: "",
-      robots: {
-        index: false,
-        follow: false,
-      },
-    };
-  }
-
-  let title = sanitizeAndFormatTitle(metaTitle, false);
+  const title = sanitizeAndFormatTitle(metaTitle || project.title, false);
+  const description = metaDescription || `Tham khảo công trình thực tế: ${project.title}. Tư vấn thiết kế, thi công lắp đặt hệ thống máy lạnh, HVAC uy tín hàng đầu bởi Điện máy ELC.`;
 
   const cleanUrl = `${BASE_URL}/du-an/${project.slug}`;
   const representativeImage = project.images?.[0] || extractFirstImageFromDescription(project.description);
 
   return {
     title,
-    description: metaDescription,
+    description,
     robots: {
       index: true,
       follow: true,
@@ -1376,7 +1353,7 @@ export function generateProjectDetailMetadata(
     },
     openGraph: {
       title,
-      description: metaDescription,
+      description,
       url: cleanUrl,
       type: "article",
       images: representativeImage ? [{ url: representativeImage }] : [],

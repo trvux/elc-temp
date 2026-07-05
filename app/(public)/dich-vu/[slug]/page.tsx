@@ -178,7 +178,7 @@ async function ServiceHubWithLocation({ location }: { location: District }) {
         contentClassName="py-6 md:py-8 lg:py-10"
       >
         <header className={STYLES.header}>
-          <TypographyH1>Dịch vụ</TypographyH1>
+          <TypographyH1>Dịch vụ tại {location.name}</TypographyH1>
           <TypographyLead>
             Giải pháp lắp đặt, bảo trì và sửa chữa hệ thống điều hòa chuyên nghiệp tại {location.name}
           </TypographyLead>

@@ -30,13 +30,13 @@ export async function GET() {
     }));
 
   const projectRoutes = (projects || [])
-    .filter((proj) => proj.slug && proj.meta_title && proj.meta_description)
+    .filter((proj) => proj.slug)
     .map((proj) => ({
       url: `${BASE_URL}/du-an/${proj.slug}`,
     }));
 
   const projectTypeRoutes = (projectTypes || [])
-    .filter((pt) => pt.slug && pt.meta_title && pt.meta_description)
+    .filter((pt) => pt.slug)
     .map((pt) => ({
       url: `${BASE_URL}/du-an/${pt.slug}`,
     }));
