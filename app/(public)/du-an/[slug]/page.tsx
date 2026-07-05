@@ -1,7 +1,5 @@
-import { getAdjacentProjects } from "@/modules/project/application/getAdjacentProjects";
-import { projectRepo } from "@/modules/project/infrastructure/projectRepo";
-import { resolveProjectPath } from "@/modules/project/application/resolveProjectPath";
-import { resolveProjectPathFromDb } from "@/modules/project/infrastructure/resolveProjectPath";
+import { getAdjacentProjectsAction } from "@/modules/project/presentation/actions";
+import { resolveProjectPathFromDb } from "@/modules/project/presentation/resolveProjectPath";
 import { ProjectWithCategory } from "@/modules/project/domain/types";
 import { ProjectListModule } from "@/modules/project/presentation/components/public/ProjectListModule";
 import { RelatedProjects } from "@/modules/project/presentation/components/public/RelatedProjects";
@@ -36,7 +34,7 @@ export async function generateMetadata({
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }): Promise<Metadata> {
   const { slug } = await params;
-  const entity = await resolveProjectPath(resolveProjectPathFromDb, slug);
+  const entity = await resolveProjectPathFromDb(slug);
 
   if (!entity) {
     return {
@@ -107,7 +105,7 @@ export default async function ProjectDetailPage({
   const { slug } = await params;
 
   // Resolve the slug via the database slug registry
-  const entity = await resolveProjectPath(resolveProjectPathFromDb, slug);
+  const entity = await resolveProjectPathFromDb(slug);
 
   if (!entity) {
     notFound();
@@ -147,7 +145,7 @@ async function ProjectDetailView({
     project.categories?.[0]?.name || project.projectType?.name || "Dự án";
 
   const currentYear = await getCachedCurrentYear();
-  const { prev, next } = await getAdjacentProjects(projectRepo, project);
+  const { data: { prev, next } } = await getAdjacentProjectsAction(project.id, project.projectTypeId);
 
   const breadcrumbItems = [
     { label: "Dự án", href: "/du-an" },
@@ -277,7 +275,6 @@ async function ProjectDetailView({
         contentClassName="py-6 md:py-8 lg:py-10"
       >
         <RelatedProjects
-          projectRepo={projectRepo}
           projectTypeId={project.projectTypeId}
           currentProjectId={project.id}
         />

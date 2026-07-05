@@ -10,8 +10,7 @@ import { getBrandsAction } from "@/modules/brand/presentation/actions";
 import { getProductsAction } from "@/modules/catalog/presentation/actions";
 import { getCategoriesAction } from "@/modules/category/presentation/actions";
 import { getContactsAction } from "@/modules/contact/presentation/actions";
-import { getProjects } from "@/modules/project/application";
-import { projectRepo } from "@/modules/project/infrastructure/projectRepo";
+import { getProjectsAction } from "@/modules/project/presentation/actions";
 import { getSiteSettingsAction } from "@/modules/settings/presentation/actions";
 
 import { generateHomeSchema, generateSystemPageMetadata } from "@/shared/lib/seo-utils";
@@ -44,10 +43,10 @@ async function getCachedHomeData() {
   const [settingsData, projects, categories, contacts, brands, branches] =
     await Promise.all([
       getSiteSettingsAction().then(unwrapActionResult),
-      getProjects(projectRepo, {
+      getProjectsAction({
         isPublished: true,
         limit: 200,
-      }),
+      }).then(unwrapActionResult),
       getCategoriesAction().then(unwrapActionResult),
       getContactsAction().then(unwrapActionResult),
       getBrandsAction({ limit: 100 }).then(unwrapActionResult),

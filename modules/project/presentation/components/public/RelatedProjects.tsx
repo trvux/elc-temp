@@ -1,11 +1,9 @@
-import { getProjects } from "@/modules/project/application/getProjects";
-import { ProjectRepository } from "@/modules/project/domain/repository";
+import { getProjectsAction } from "@/modules/project/presentation/actions";
 import { ProjectCard } from "@/modules/project/presentation/components/ProjectCard";
 import { TypographyH2 } from "@/shared/components/ui/typography";
 import { cn } from "@/shared/lib/utils";
 
 interface RelatedProjectsProps {
-  projectRepo: ProjectRepository;
   projectTypeId: string | null;
   currentProjectId: string;
   limit?: number;
@@ -22,13 +20,12 @@ const STYLES = {
  * trinh (projectType), bo du an hien tai, uu tien noi bat roi toi orderIndex.
  */
 export async function RelatedProjects({
-  projectRepo,
   projectTypeId,
   currentProjectId,
   limit = 3,
 }: RelatedProjectsProps) {
   // Uu tien cac du an cung loai cong trinh.
-  const siblings = await getProjects(projectRepo, {
+  const { data: siblings } = await getProjectsAction({
     isPublished: true,
     projectTypeId: projectTypeId || undefined,
   });
@@ -36,7 +33,7 @@ export async function RelatedProjects({
 
   // Fallback: neu khong co du an cung loai, gom toan bo du an da xuat ban.
   if (pool.length === 0) {
-    const all = await getProjects(projectRepo, { isPublished: true });
+    const { data: all } = await getProjectsAction({ isPublished: true });
     pool = all.filter((p) => p.id !== currentProjectId);
   }
 
