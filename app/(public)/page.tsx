@@ -60,13 +60,13 @@ async function getCachedHomeData() {
   });
 
   // Fetch products for each category in parallel
-  // limit: 10 = mobile minimum (2cols × 5rows); client auto-fills to device target
+  // limit: 12 = highly divisible for responsive grids (2, 3, 4, 6 columns)
   const categoriesWithProducts = await Promise.all(
     (categories || []).map(async (category) => {
       const { data: products, totalCount } = await getProductsAction({
         isPublished: true,
         categoryId: category.id,
-        limit: 10,
+        limit: 12,
         offset: 0,
       });
       return {

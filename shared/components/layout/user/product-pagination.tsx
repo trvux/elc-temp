@@ -1,8 +1,12 @@
+"use client";
+
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { cn } from "@/shared/lib/utils";
+import { Suspense } from "react";
 
 interface ProductPaginationProps {
-  currentPage: number;
+  currentPage?: number;
   totalPages: number;
   buildHref: (page: number) => string;
 }
@@ -10,21 +14,13 @@ interface ProductPaginationProps {
 const linkBase =
   "min-w-9 h-9 px-3 inline-flex items-center justify-center text-sm rounded-md border transition-colors";
 
-/**
- * Real crawlable pagination — every page is a plain `<Link href>`, so search/AI
- * crawlers that don't execute JS can reach the full catalog regardless of size.
- * `InfiniteProductGrid` layers scroll-to-load on top of whichever page loaded, and
- * for a scrolling JS user it always loads the next batch before they'd ever reach
- * this nav — so it's `sr-only` by default (present for crawlers + screen readers,
- * invisible to sighted mouse/touch use) and only reveals if a keyboard user tabs
- * into it, same pattern as a skip-to-content link. Not `display:none` / removed
- * from the DOM — it's a real, always-present navigational aid, just visually quiet.
- */
-export function ProductPagination({
-  currentPage,
+function ProductPaginationContent({
   totalPages,
   buildHref,
 }: ProductPaginationProps) {
+  const searchParams = useSearchParams();
+  const currentPage = Math.max(1, Math.floor(Number(searchParams.get("page"))) || 1);
+
   if (totalPages <= 1) return null;
 
   const pageSet = new Set<number>([1, totalPages]);
@@ -44,7 +40,7 @@ export function ProductPagination({
   return (
     <nav
       aria-label="Phân trang sản phẩm"
-      className="sr-only focus-within:not-sr-only flex items-center justify-center gap-1.5 pt-6 focus-within:pb-2"
+      className="flex items-center justify-center gap-1.5 pt-6 pb-2"
     >
       <Link
         href={buildHref(Math.max(1, currentPage - 1))}
@@ -99,5 +95,13 @@ export function ProductPagination({
         Sau
       </Link>
     </nav>
+  );
+}
+
+export function ProductPagination(props: ProductPaginationProps) {
+  return (
+    <Suspense fallback={null}>
+      <ProductPaginationContent {...props} />
+    </Suspense>
   );
 }

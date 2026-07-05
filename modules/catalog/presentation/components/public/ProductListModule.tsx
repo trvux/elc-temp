@@ -60,7 +60,7 @@ const STYLES = {
   header: cn("flex flex-col items-center text-center gap-3 w-full"),
   title: cn("w-full max-w-none! text-wrap!"),
   skeletonGrid: cn(
-    "grid gap-x-4 gap-y-6 md:gap-y-12 min-h-[450px] [grid-template-columns:repeat(auto-fill,minmax(160px,1fr))]",
+    "grid gap-x-4 gap-y-6 md:gap-y-12 min-h-[450px] grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6",
   ),
   emptyState: cn("py-24 text-center min-h-[300px] w-full animate-fade-in-up"),
   emptyText: cn("text-muted-foreground/60 italic text-sm"),
