@@ -47,3 +47,11 @@ export interface UpdateCategoryInput {
   content?: unknown | null;
   faq?: Array<{ question: string; answer: string }> | null;
 }
+
+export interface CategoryFilter {
+  groupId?: string;
+  search?: string;
+  limit?: number;
+  offset?: number;
+  includeDeleted?: boolean;
+}

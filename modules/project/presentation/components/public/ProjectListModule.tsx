@@ -1,5 +1,4 @@
-import { getCategories } from "@/modules/category/application";
-import { categoryRepo } from "@/modules/category/infrastructure/categoryRepo";
+import { getCategoriesAction } from "@/modules/category/presentation/actions";
 import { getProjectTypes } from "@/modules/project-type/application";
 import { projectTypeRepo } from "@/modules/project-type/infrastructure/projectTypeRepo";
 import { ProjectTypeWithCategories } from "@/modules/project-type/domain/types";
@@ -104,7 +103,9 @@ async function getCachedProjectListData(
     projectType
       ? getCategoriesByProjectTypeId(projectRepo, projectType.id)
       : Promise.resolve(null),
-    projectType ? Promise.resolve([]) : getCategories(categoryRepo, { includeDeleted: false }),
+    projectType
+      ? Promise.resolve([])
+      : getCategoriesAction({ includeDeleted: false }).then(unwrapActionResult),
   ]);
 
   // Reuse projectsRaw when no filters are active (same query, no need to duplicate)

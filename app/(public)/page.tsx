@@ -8,8 +8,7 @@ import { ProjectMarqueeSection } from "@/shared/components/sections/project-marq
 import { getBranchesAction } from "@/modules/branch/presentation/actions";
 import { getBrandsAction } from "@/modules/brand/presentation/actions";
 import { getProductsAction } from "@/modules/catalog/presentation/actions";
-import { getCategories } from "@/modules/category/application";
-import { categoryRepo } from "@/modules/category/infrastructure/categoryRepo";
+import { getCategoriesAction } from "@/modules/category/presentation/actions";
 import { getContactsAction } from "@/modules/contact/presentation/actions";
 import { getProjects } from "@/modules/project/application";
 import { projectRepo } from "@/modules/project/infrastructure/projectRepo";
@@ -49,7 +48,7 @@ async function getCachedHomeData() {
         isPublished: true,
         limit: 200,
       }),
-      getCategories(categoryRepo),
+      getCategoriesAction().then(unwrapActionResult),
       getContactsAction().then(unwrapActionResult),
       getBrandsAction({ limit: 100 }).then(unwrapActionResult),
       getBranchesAction({ isPublished: true }).then(unwrapActionResult),

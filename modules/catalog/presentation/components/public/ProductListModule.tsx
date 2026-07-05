@@ -1,8 +1,7 @@
 import { getProductsAction } from "@/modules/catalog/presentation/actions";
 import { ResolvedEntity } from "@/modules/catalog/presentation/resolveProductPath";
 import { ProductFilters } from "@/modules/catalog/presentation/components/ProductFilters";
-import { getCategories } from "@/modules/category/application";
-import { categoryRepo } from "@/modules/category/infrastructure/categoryRepo";
+import { getCategoriesAction } from "@/modules/category/presentation/actions";
 import { Breadcrumbs } from "@/shared/components/layout/user/breadcrumbs";
 import { FilteredGridWrapper } from "@/shared/components/layout/user/filtered-grid-wrapper";
 import { RecentlyViewedSection } from "@/shared/components/layout/user/recently-viewed-section";
@@ -31,13 +30,14 @@ import {
   TypographySmall,
 } from "@/shared/components/ui/typography";
 import { getQueryTokens } from "@/shared/lib/search-utils";
+import { unwrapActionResult } from "@/shared/lib/action-result";
 import {
   BASE_URL,
   generateBreadcrumbSchema,
   generateCollectionSchema,
   localizeRichText,
 } from "@/shared/lib/seo-utils";
-import { createClient, setUseStaticClient } from "@/shared/lib/supabase/server";
+import { setUseStaticClient } from "@/shared/lib/supabase/server";
 import { cn } from "@/shared/lib/utils";
 import { cacheLife, cacheTag } from "next/cache";
 import { notFound } from "next/navigation";
@@ -101,38 +101,23 @@ async function getCachedListModuleData(
   let brandIds: string[] | undefined;
   let breadcrumbParent: { label: string; href: string } | null = null;
 
-  const supabase = await createClient();
+  const allCategories = await getCategoriesAction().then(unwrapActionResult);
 
   if (entity.type === "brand") {
     brandIds = [entity.data.id];
   } else if (entity.type === "category") {
     categoryIds = [entity.data.id];
-    if (entity.data.groupId) {
-      const { data: parentGroup } = await supabase
-        .from("group_categories")
-        .select("name, slug")
-        .eq("id", entity.data.groupId)
-        .is("deleted_at", null)
-        .single();
-      if (parentGroup) {
-        breadcrumbParent = {
-          label: parentGroup.name,
-          href: `/san-pham/${parentGroup.slug}`,
-        };
-      }
+    if (entity.data.group) {
+      breadcrumbParent = {
+        label: entity.data.group.name,
+        href: `/san-pham/${entity.data.group.slug}`,
+      };
     }
   } else if (entity.type === "group") {
-    const { data: groupCategories } = await supabase
-      .from("categories")
-      .select("id, name")
-      .eq("group_id", entity.data.id)
-      .is("deleted_at", null);
-    categoryIds = (groupCategories || [])
-      .filter((c) => !c.name.toLowerCase().includes("chưa phân loại"))
+    categoryIds = allCategories
+      .filter((c) => c.groupId === entity.data.id && !c.name.toLowerCase().includes("chưa phân loại"))
       .map((c) => c.id);
   }
-
-  const allCategories = await getCategories(categoryRepo);
 
   const { data: products, totalCount, facets: availableFilters } = await getProductsAction({
     categoryIds,

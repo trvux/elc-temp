@@ -1,5 +1,5 @@
 import { getProductsAction } from "@/modules/catalog/presentation/actions";
-import { CategoryRepository } from "@/modules/category/domain/repository";
+import { CategoryWithGroup } from "@/modules/category/domain/types";
 import { Brand } from "@/modules/brand/domain";
 import { ProjectRepository } from "@/modules/project/domain/repository";
 import { NewsRepository } from "@/modules/news/domain/repository";
@@ -11,7 +11,6 @@ import {
 } from "../domain/types";
 
 export interface DashboardRepositories {
-  categoryRepo: CategoryRepository;
   projectRepo: ProjectRepository;
   newsRepo: NewsRepository;
 }
@@ -19,9 +18,10 @@ export interface DashboardRepositories {
 /**
  * Tong hop thong ke toan bo he thong cho Dashboard.
  * Ham nay la use case duy nhat cua module, nhan cac repository qua DIP.
- * contactsCount/servicesCount/allBrands/pagesCount duoc truyen rieng vi cac module do
- * da migrate sang Go — xem modules/dashboard/presentation/actions.ts. products cung
- * da migrate sang Go nen goi truc tiep getProductsAction thay vi qua productRepo.
+ * contactsCount/servicesCount/allBrands/pagesCount/categoriesCount/allCategories duoc
+ * truyen rieng vi cac module do da migrate sang Go — xem
+ * modules/dashboard/presentation/actions.ts. products cung da migrate sang Go nen goi
+ * truc tiep getProductsAction thay vi qua productRepo.
  */
 export async function getDashboardStats(
   repos: DashboardRepositories,
@@ -29,33 +29,27 @@ export async function getDashboardStats(
   servicesCount: number,
   branchesCount: number,
   pagesCount: number,
-  allBrands: Brand[]
+  allBrands: Brand[],
+  categoriesCount: number,
+  allCategories: CategoryWithGroup[]
 ): Promise<DashboardStats> {
-  const {
-    categoryRepo,
-    projectRepo,
-    newsRepo,
-  } = repos;
+  const { projectRepo, newsRepo } = repos;
 
   const [
     allProductsRes,
-    categoriesCount,
     projectsCount,
     newsCount,
     recentProductsRes,
     recentProjects,
     recentNews,
-    allCategories,
     featuredProjectsRaw,
   ] = await Promise.all([
     getProductsAction({}),
-    categoryRepo.count(),
     projectRepo.count(),
     newsRepo.count(),
     getProductsAction({ limit: 5, sortBy: "newest" }),
     projectRepo.getAll({ limit: 5, orderBy: "createdAt", orderDirection: "desc" }),
     newsRepo.getAll({ limit: 5 }),
-    categoryRepo.getAll(),
     projectRepo.getAll({ isFeatured: true }),
   ]);
 
