@@ -1,7 +1,6 @@
 import { getProductsAction } from "@/modules/catalog/presentation/actions";
 import { ProductCard } from "@/modules/catalog/presentation/components/ProductCard";
-import { getCategories } from "@/modules/category/application";
-import { categoryRepo } from "@/modules/category/infrastructure/categoryRepo";
+import { getCategoriesAction } from "@/modules/category/presentation/actions";
 import { getGroupsAction } from "@/modules/group/presentation/actions";
 import { getNews, getNewsBySlug } from "@/modules/news/application";
 import { newsRepo } from "@/modules/news/infrastructure/SupabaseNewsRepository";
@@ -25,6 +24,7 @@ import {
   generateBreadcrumbSchema,
   sanitizeAndFormatTitle,
 } from "@/shared/lib/seo-utils";
+import { unwrapActionResult } from "@/shared/lib/action-result";
 import { setUseStaticClient } from "@/shared/lib/supabase/server";
 import { ArrowLeft, ArrowRightIcon } from "@phosphor-icons/react/dist/ssr";
 import { Metadata } from "next";
@@ -101,7 +101,7 @@ async function getCachedNewsDetailData(slug: string) {
   const RELATED_PRODUCTS_PREVIEW = 15;
 
   const [allCategories, groupsRes] = await Promise.all([
-    getCategories(categoryRepo),
+    getCategoriesAction().then(unwrapActionResult),
     getGroupsAction(),
   ]);
   const allGroups = groupsRes.data || [];

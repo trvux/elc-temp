@@ -1,7 +1,6 @@
 import { getProductsAction } from "@/modules/catalog/presentation/actions";
 import { ProductFilters } from "@/modules/catalog/presentation/components/ProductFilters";
-import { getCategories } from "@/modules/category/application";
-import { categoryRepo } from "@/modules/category/infrastructure/categoryRepo";
+import { getCategoriesAction } from "@/modules/category/presentation/actions";
 import { Breadcrumbs } from "@/shared/components/layout/user/breadcrumbs";
 import {
   CategorySectionsGrid,
@@ -26,6 +25,7 @@ import {
   TypographySmall,
 } from "@/shared/components/ui/typography";
 import { getCachedSystemPage } from "@/shared/lib/cached-system-page";
+import { unwrapActionResult } from "@/shared/lib/action-result";
 import { getQueryTokens } from "@/shared/lib/search-utils";
 import {
   BASE_URL,
@@ -139,7 +139,7 @@ async function getCachedCategories() {
   cacheLife("days");
   cacheTag("products-list", "categories");
   setUseStaticClient(true);
-  return getCategories(categoryRepo);
+  return getCategoriesAction().then(unwrapActionResult);
 }
 
 // One real, crawlable page of products for the filtered/search view — every page is
@@ -159,7 +159,7 @@ async function getCachedCategorySections(): Promise<CategorySectionData[]> {
   cacheTag("products-list", "categories");
   setUseStaticClient(true);
 
-  const allCategories = await getCategories(categoryRepo);
+  const allCategories = await getCategoriesAction().then(unwrapActionResult);
 
   // Build sort order: group.orderIndex * 1000 + category.orderIndex
   const catOrder = new Map<string, number>();

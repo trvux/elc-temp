@@ -1,13 +1,14 @@
 import { createClient, setUseStaticClient } from "@/shared/lib/supabase/server";
 import { Group } from "@/modules/group/domain/types";
-import { Category } from "@/modules/category/domain/types";
+import { CategoryWithGroup } from "@/modules/category/domain/types";
+import { getCategoryByIdAction } from "@/modules/category/presentation/actions";
 import { Brand, ProductWithRelations } from "@/modules/catalog/domain/types";
 import { getProductByIdAction } from "./actions";
 import { cacheLife, cacheTag } from "next/cache";
 
 export type ResolvedEntity =
   | { type: "group"; data: Group }
-  | { type: "category"; data: Category }
+  | { type: "category"; data: CategoryWithGroup }
   | { type: "brand"; data: Brand }
   | { type: "product"; data: ProductWithRelations }
   | null;
@@ -15,10 +16,10 @@ export type ResolvedEntity =
 /**
  * Tra cuu loai thuc the tu slug_registry.
  *
- * group/category/brand van doc truc tiep tu Supabase (cac module do chua migrate
- * sang Go trong dot nay) — day la orchestration cross-entity o phia Next.js, khong
- * phai trach nhiem cua catalog module. Rieng nhanh "product" goi qua Go API bang
- * getProductByIdAction thay vi productRepo.getById truc tiep.
+ * group/brand van doc truc tiep tu Supabase (cac module do chua migrate sang Go
+ * trong dot nay) — day la orchestration cross-entity o phia Next.js, khong phai
+ * trach nhiem cua catalog module. Nhanh "category"/"product" goi qua Go API bang
+ * getCategoryByIdAction/getProductByIdAction thay vi doc truc tiep Supabase.
  */
 export async function resolveProductPathFromDb(slug: string): Promise<ResolvedEntity> {
   "use cache";
@@ -54,13 +55,8 @@ export async function resolveProductPathFromDb(slug: string): Promise<ResolvedEn
 
     case "category":
     case "categories": {
-      const { data } = await supabase
-        .from("categories")
-        .select("*, group:group_categories(*)")
-        .eq("id", registryItem.entity_id)
-        .is("deleted_at", null)
-        .single();
-      return data ? { type: "category", data: data as unknown as Category } : null;
+      const { data } = await getCategoryByIdAction(registryItem.entity_id);
+      return data ? { type: "category", data } : null;
     }
 
     case "brand": {
