@@ -174,7 +174,7 @@ export async function generateMetadata({
   params,
 }: PageProps): Promise<Metadata> {
   const { slug } = await params;
-  const { newsItem } = await getCachedNewsDetailData(slug);
+  const { newsItem, relatedProducts, relatedNews } = await getCachedNewsDetailData(slug);
 
   if (!newsItem) {
     return {
@@ -186,7 +186,17 @@ export async function generateMetadata({
     newsItem.metaTitle || newsItem.title,
     false,
   );
-  const description = newsItem.metaDescription || getProductDescriptionExcerpt(newsItem.content, 180) || newsItem.title;
+  const baseDescription = newsItem.metaDescription || getProductDescriptionExcerpt(newsItem.content, 180) || newsItem.title;
+
+  const productSummary = relatedProducts && relatedProducts.length > 0
+    ? ` Sản phẩm liên quan: ${relatedProducts.slice(0, 3).map(p => `${p.name} (Giá: ${(p.salePrice || p.originalPrice || 0).toLocaleString('vi-VN')}đ)`).join(" | ")}.`
+    : "";
+
+  const newsSummary = relatedNews && relatedNews.length > 0
+    ? ` Bài viết khác: ${relatedNews.slice(0, 2).map(n => n.title).join(" | ")}.`
+    : "";
+
+  const description = `${baseDescription}${productSummary}${newsSummary}`.slice(0, 320);
 
   return {
     title,
@@ -253,7 +263,24 @@ export default async function NewsDetailPage({ params }: PageProps) {
         url: "https://dienmayelc.com.vn/icon.svg",
       },
     },
-    description: newsItem.metaDescription || newsItem.title,
+    description: newsItem.metaDescription || getProductDescriptionExcerpt(newsItem.content, 180) || newsItem.title,
+    ...(relatedProducts && relatedProducts.length > 0 ? {
+      about: relatedProducts.slice(0, 5).map((p) => ({
+        "@type": "Product",
+        name: p.name,
+        image: Array.isArray(p.images) && p.images.length > 0 ? p.images : [],
+        url: `${BASE_URL}/san-pham/${p.slug}`,
+        offers: {
+          "@type": "Offer",
+          price: p.salePrice || p.originalPrice || 0,
+          priceCurrency: "VND",
+          availability: "https://schema.org/InStock",
+        }
+      }))
+    } : {}),
+    ...(relatedNews && relatedNews.length > 0 ? {
+      relatedLink: relatedNews.map((n) => `${BASE_URL}/tin-tuc/${n.slug}`)
+    } : {}),
   };
 
   const breadcrumbSchema = generateBreadcrumbSchema(
