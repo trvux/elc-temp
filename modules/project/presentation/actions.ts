@@ -7,7 +7,7 @@ import {
   ProjectFilter,
   ProjectWithCategory,
 } from "../domain/index";
-import { toSnakeCaseBody } from "@/shared/lib/go-api";
+import { authHeaders, toSnakeCaseBody } from "@/shared/lib/go-api";
 import { submitToIndexNow } from "@/shared/lib/indexnow";
 import { submitToGoogleIndex } from "@/shared/lib/google-indexing";
 import { purgeCloudflareCache } from "@/shared/lib/cloudflare-purge";
@@ -331,7 +331,7 @@ export async function createProjectAction(input: CreateProjectInput) {
     const { categories, ...rest } = input;
     const res = await fetch(`${GO_API_URL}/projects`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: { "Content-Type": "application/json", ...(await authHeaders()) },
       body: JSON.stringify({
         ...toSnakeCaseBody(rest),
         categories: toGoCategoryConditions(categories),
@@ -367,7 +367,7 @@ export async function updateProjectAction(input: UpdateProjectInput) {
     const { id, categories, ...rest } = input;
     const res = await fetch(`${GO_API_URL}/projects/${id}`, {
       method: "PUT",
-      headers: { "Content-Type": "application/json" },
+      headers: { "Content-Type": "application/json", ...(await authHeaders()) },
       body: JSON.stringify({
         ...toSnakeCaseBody(rest),
         // `categories` must stay a key present in the JSON body (even as
@@ -407,7 +407,7 @@ export async function deleteProjectAction(id: string) {
   }
   try {
     const proj = await getProjectByIdAction(id).then((r) => r.data);
-    const res = await fetch(`${GO_API_URL}/projects/${id}`, { method: "DELETE" });
+    const res = await fetch(`${GO_API_URL}/projects/${id}`, { method: "DELETE", headers: await authHeaders() });
     if (!res.ok) {
       return { error: await extractErrorMessage(res, "Failed to delete project") };
     }
@@ -426,7 +426,7 @@ export async function toggleProjectPublishAction(id: string, isPublished: boolea
   try {
     const res = await fetch(`${GO_API_URL}/projects/${id}/publish`, {
       method: "PATCH",
-      headers: { "Content-Type": "application/json" },
+      headers: { "Content-Type": "application/json", ...(await authHeaders()) },
       body: JSON.stringify({ value: isPublished }),
     });
     if (!res.ok) {
@@ -454,7 +454,7 @@ export async function toggleProjectFeaturedAction(id: string, isFeatured: boolea
     const proj = await getProjectByIdAction(id).then((r) => r.data);
     const res = await fetch(`${GO_API_URL}/projects/${id}/featured`, {
       method: "PATCH",
-      headers: { "Content-Type": "application/json" },
+      headers: { "Content-Type": "application/json", ...(await authHeaders()) },
       body: JSON.stringify({ value: isFeatured }),
     });
     if (!res.ok) {
@@ -476,7 +476,7 @@ export async function updateProjectOrderAction(id: string, orderIndex: number) {
     const proj = await getProjectByIdAction(id).then((r) => r.data);
     const res = await fetch(`${GO_API_URL}/projects/${id}/order`, {
       method: "PATCH",
-      headers: { "Content-Type": "application/json" },
+      headers: { "Content-Type": "application/json", ...(await authHeaders()) },
       body: JSON.stringify({ order_index: orderIndex }),
     });
     if (!res.ok) {

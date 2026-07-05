@@ -2,7 +2,7 @@
 
 import { revalidatePath, revalidateTag } from "next/cache";
 import { Brand, BrandFilter, CreateBrandInput, UpdateBrandInput } from "../domain";
-import { toSnakeCaseBody } from "@/shared/lib/go-api";
+import { authHeaders, toSnakeCaseBody } from "@/shared/lib/go-api";
 import { purgeCloudflareCache } from "@/shared/lib/cloudflare-purge";
 
 const GO_API_URL = process.env.GO_API_URL;
@@ -110,7 +110,7 @@ export async function createBrandAction(input: CreateBrandInput) {
   try {
     const res = await fetch(`${GO_API_URL}/brands`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: { "Content-Type": "application/json", ...(await authHeaders()) },
       body: JSON.stringify(toSnakeCaseBody(input)),
     });
     if (!res.ok) {
@@ -139,7 +139,7 @@ export async function updateBrandAction(input: UpdateBrandInput) {
     const { id, ...rest } = input;
     const res = await fetch(`${GO_API_URL}/brands/${id}`, {
       method: "PUT",
-      headers: { "Content-Type": "application/json" },
+      headers: { "Content-Type": "application/json", ...(await authHeaders()) },
       body: JSON.stringify(toSnakeCaseBody(rest)),
     });
     if (!res.ok) {
@@ -165,7 +165,7 @@ export async function deleteBrandAction(id: string) {
     return { success: false, error: "GO_API_URL is not configured" };
   }
   try {
-    const res = await fetch(`${GO_API_URL}/brands/${id}`, { method: "DELETE" });
+    const res = await fetch(`${GO_API_URL}/brands/${id}`, { method: "DELETE", headers: await authHeaders() });
     if (!res.ok) {
       return { success: false, error: await extractErrorMessage(res, "Không thể xóa thương hiệu") };
     }

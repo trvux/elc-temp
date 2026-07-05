@@ -1,70 +1,81 @@
 "use client";
 
 import { useState } from "react";
-import { loginAction } from "@/modules/auth";
+import Link from "next/link";
+import { Controller, useForm } from "react-hook-form";
+import { standardSchemaResolver } from "@hookform/resolvers/standard-schema";
+import { toast } from "sonner";
+
+import { loginAction, loginSchema, type LoginInput } from "@/modules/auth";
 import { Button } from "@/shared/components/ui/button";
 import { Input } from "@/shared/components/ui/input";
-import { Label } from "@/shared/components/ui/label";
-import { Card, CardContent, CardHeader, CardTitle } from "@/shared/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/shared/components/ui/card";
+import { Field, FieldError, FieldGroup, FieldLabel } from "@/shared/components/ui/field";
 
 export default function LoginPage() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const form = useForm<LoginInput>({
+    resolver: standardSchemaResolver(loginSchema),
+    defaultValues: { identifier: "", password: "" },
+    // onTouched: no error shown while first typing into a field, but once a
+    // field has been visited once it re-validates live on every keystroke —
+    // the standard pattern for login forms (validate late, then live).
+    mode: "onTouched",
+  });
 
-  async function handleLogin(e: React.FormEvent) {
-    e.preventDefault();
+  async function onSubmit(values: LoginInput) {
     setLoading(true);
-    setError("");
-
-    const { error } = await loginAction({ email, password });
-
-    if (error) {
-      setError(error);
+    const result = await loginAction(values);
+    // On success loginAction redirects server-side and never returns here.
+    if (result?.error) {
+      toast.error(result.error);
       setLoading(false);
-      return;
     }
-
-    window.location.href = "/admin";
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
+    <div className="min-h-screen flex items-center justify-center bg-muted">
       <Card className="w-full max-w-md">
         <CardHeader>
           <CardTitle className="text-2xl text-center">Đăng nhập Quản trị</CardTitle>
+          <CardDescription className="text-center">
+            Đăng nhập bằng tên đăng nhập hoặc email
+          </CardDescription>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleLogin} className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
-              <Input
-                id="email"
-                type="email"
-                placeholder="admin@example.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-                className="break-all"
+          <form onSubmit={form.handleSubmit(onSubmit)}>
+            <FieldGroup>
+              <Controller
+                control={form.control}
+                name="identifier"
+                render={({ field, fieldState }) => (
+                  <Field>
+                    <FieldLabel htmlFor="identifier">Tên đăng nhập hoặc email</FieldLabel>
+                    <Input id="identifier" autoComplete="username" autoFocus {...field} />
+                    <FieldError errors={[fieldState.error]} />
+                  </Field>
+                )}
               />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="password">Mật khẩu</Label>
-              <Input
-                id="password"
-                type="password"
-                placeholder="••••••••"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                className="break-all"
+              <Controller
+                control={form.control}
+                name="password"
+                render={({ field, fieldState }) => (
+                  <Field>
+                    <FieldLabel htmlFor="password">Mật khẩu</FieldLabel>
+                    <Input id="password" type="password" autoComplete="current-password" {...field} />
+                    <FieldError errors={[fieldState.error]} />
+                  </Field>
+                )}
               />
-            </div>
-            {error && <p className="text-sm text-red-500">{error}</p>}
-            <Button type="submit" className="w-full" disabled={loading}>
-              {loading ? "Đang đăng nhập..." : "Đăng nhập"}
-            </Button>
+              <div className="flex justify-end -mt-2">
+                <Link href="/admin/forgot-password" className="text-sm text-muted-foreground hover:text-primary">
+                  Quên mật khẩu?
+                </Link>
+              </div>
+              <Button type="submit" className="w-full" disabled={loading}>
+                {loading ? "Đang đăng nhập..." : "Đăng nhập"}
+              </Button>
+            </FieldGroup>
           </form>
         </CardContent>
       </Card>

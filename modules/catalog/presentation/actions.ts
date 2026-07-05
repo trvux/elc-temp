@@ -16,7 +16,7 @@ import {
   updateProductSchema,
   normalizeProductPrice,
 } from "../domain";
-import { toSnakeCaseBody } from "@/shared/lib/go-api";
+import { authHeaders, toSnakeCaseBody } from "@/shared/lib/go-api";
 import { submitToIndexNow } from "@/shared/lib/indexnow";
 import { submitToGoogleIndex } from "@/shared/lib/google-indexing";
 import { google } from "googleapis";
@@ -338,6 +338,7 @@ export async function getProductsByIdsAction(ids: string[]) {
   }
   try {
     const res = await fetch(`${GO_API_URL}/products/by-ids`, {
+      // Public read-only route (batch fetch by ID) — no auth header needed.
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ ids }),
@@ -386,7 +387,7 @@ export async function createProductAction(input: CreateProductInput) {
 
     const res = await fetch(`${GO_API_URL}/products`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: { "Content-Type": "application/json", ...(await authHeaders()) },
       body: JSON.stringify(body),
     });
     if (!res.ok) {
@@ -434,7 +435,7 @@ export async function updateProductAction(input: UpdateProductInput) {
 
     const res = await fetch(`${GO_API_URL}/products/${id}`, {
       method: "PUT",
-      headers: { "Content-Type": "application/json" },
+      headers: { "Content-Type": "application/json", ...(await authHeaders()) },
       body: JSON.stringify(body),
     });
     if (!res.ok) {
@@ -475,7 +476,7 @@ export async function deleteProductAction(id: string) {
   try {
     const { data: product } = await getProductByIdAction(id);
 
-    const res = await fetch(`${GO_API_URL}/products/${id}`, { method: "DELETE" });
+    const res = await fetch(`${GO_API_URL}/products/${id}`, { method: "DELETE", headers: await authHeaders() });
     if (!res.ok) {
       return { data: null, error: await extractErrorMessage(res, "Không thể xóa sản phẩm") };
     }

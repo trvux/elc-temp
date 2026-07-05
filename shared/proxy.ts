@@ -1,4 +1,4 @@
-import { updateSession } from "@/shared/lib/supabase/session";
+import { updateSession } from "@/shared/lib/auth/session";
 import { type NextRequest, NextResponse } from "next/server";
 import redirectsMap from "./redirects-map.json";
 

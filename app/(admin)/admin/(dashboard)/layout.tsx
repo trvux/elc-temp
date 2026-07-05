@@ -28,9 +28,10 @@ export default async function AdminLayout({
       <SidebarProvider>
         <AdminSidebar
           user={{
-            name: user.user_metadata?.full_name ?? user.email?.split("@")[0] ?? "Admin",
-            email: user.email ?? "",
-            avatar: user.user_metadata?.avatar_url ?? "",
+            name: user.name || user.username,
+            email: user.email,
+            avatar: "",
+            role: user.role,
           }}
         />
         <SidebarInset className="min-w-0 flex-1">

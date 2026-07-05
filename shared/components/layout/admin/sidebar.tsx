@@ -26,9 +26,9 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/shared/components/ui/sidebar";
-import { Medal, CaretUpDown, FileText, Kanban, Gauge, SignOut, MapPin, Package, Phone, Gear, ShieldCheck, GridFour, List, Stack, Briefcase, SquaresFour, Newspaper, Globe } from "@phosphor-icons/react";
+import { Medal, CaretUpDown, FileText, Kanban, Gauge, SignOut, MapPin, Package, Phone, Gear, ShieldCheck, GridFour, List, Stack, Briefcase, SquaresFour, Newspaper, Globe, UsersThree } from "@phosphor-icons/react";
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 
 const navItems = [
   { href: "/admin", label: "Tổng quan", icon: Gauge },
@@ -48,19 +48,24 @@ const navItems = [
   { href: "/admin/settings", label: "Cài đặt", icon: Gear },
 ];
 
-type UserInfo = { name: string; email: string; avatar: string };
+// Only shown to admin/super_admin — a plain "user" role account can't reach
+// its underlying page anyway (server-side redirect + Go API 403), but
+// hiding the link avoids a dead-end click for them.
+const usersNavItem = { href: "/admin/users", label: "Quản lý người dùng", icon: UsersThree };
+
+type UserInfo = { name: string; email: string; avatar: string; role: string };
 
 function NavUser({ user }: { user: UserInfo }) {
   const { isMobile } = useSidebar();
-  const router = useRouter();
 
   async function handleLogout() {
-    const { success, error } = await logoutAction();
-    if (success) {
-      router.push("/admin/login");
-      router.refresh();
-    } else {
-      console.error("Logout failed:", error);
+    // logoutAction redirects to /admin/login itself on success (server-side,
+    // same pattern as loginAction) — no client-side router.push/refresh
+    // needed, and doing so was racing with the admin layout's own redirect
+    // once it noticed the session cookie was gone.
+    const result = await logoutAction();
+    if (result?.error) {
+      console.error("Logout failed:", result.error);
     }
   }
 
@@ -131,6 +136,7 @@ function NavUser({ user }: { user: UserInfo }) {
 
 export default function AdminSidebar({ user }: { user: UserInfo }) {
   const pathname = usePathname();
+  const items = user.role === "user" ? navItems : [...navItems, usersNavItem];
 
   return (
     <Sidebar variant="inset">
@@ -160,7 +166,7 @@ export default function AdminSidebar({ user }: { user: UserInfo }) {
         <SidebarGroup>
           <SidebarGroupLabel>Menu</SidebarGroupLabel>
           <SidebarMenu>
-            {navItems.map((item) => (
+            {items.map((item) => (
               <SidebarMenuItem key={item.href}>
                 <SidebarMenuButton
                   asChild

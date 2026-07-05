@@ -3,6 +3,7 @@
 import { revalidatePath, revalidateTag } from "next/cache";
 import { CreatePageInput, Page, UpdatePageInput } from "../domain";
 import { purgeCloudflareCache } from "@/shared/lib/cloudflare-purge";
+import { authHeaders } from "@/shared/lib/go-api";
 
 const GO_API_URL = process.env.GO_API_URL;
 
@@ -111,7 +112,7 @@ export async function createPageAction(input: CreatePageInput) {
   try {
     const res = await fetch(`${GO_API_URL}/pages`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: { "Content-Type": "application/json", ...(await authHeaders()) },
       body: JSON.stringify({
         title: input.title,
         slug: input.slug,
@@ -150,7 +151,7 @@ export async function updatePageAction(input: UpdatePageInput) {
   try {
     const res = await fetch(`${GO_API_URL}/pages/${input.id}`, {
       method: "PUT",
-      headers: { "Content-Type": "application/json" },
+      headers: { "Content-Type": "application/json", ...(await authHeaders()) },
       body: JSON.stringify({
         title: input.title,
         slug: input.slug,
@@ -189,6 +190,7 @@ export async function deletePageAction(id: string) {
   try {
     const res = await fetch(`${GO_API_URL}/pages/${id}`, {
       method: "DELETE",
+      headers: await authHeaders(),
     });
     if (!res.ok) {
       return { success: false, error: await extractErrorMessage(res, "Không thể xóa trang") };

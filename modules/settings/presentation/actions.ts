@@ -2,6 +2,7 @@
 
 import { revalidatePath, revalidateTag } from "next/cache";
 import { purgeCloudflareCache } from "@/shared/lib/cloudflare-purge";
+import { authHeaders } from "@/shared/lib/go-api";
 import { SiteSetting } from "../domain";
 
 const GO_API_URL = process.env.GO_API_URL;
@@ -65,7 +66,7 @@ export async function updateSettingsAction(settings: SiteSetting[]) {
   try {
     const res = await fetch(`${GO_API_URL}/settings`, {
       method: "PUT",
-      headers: { "Content-Type": "application/json" },
+      headers: { "Content-Type": "application/json", ...(await authHeaders()) },
       body: JSON.stringify(settings.map(s => ({ key: s.key, value: s.value }))),
     });
     if (!res.ok) {

@@ -1,3 +1,7 @@
+import { cookies } from "next/headers";
+
+import { ACCESS_TOKEN_COOKIE } from "@/shared/lib/auth/cookies";
+
 /**
  * Helpers for Server Actions that call the Go backend (elc-go).
  *
@@ -15,4 +19,16 @@ export function toSnakeCaseBody<T extends object>(input: T): Record<string, unkn
     body[snakeKey] = value;
   }
   return body;
+}
+
+/**
+ * Every write route (POST/PUT/PATCH/DELETE) on the Go API now requires a
+ * bearer token — see elc-go's httpserver.RequireAuth/RequirePermission,
+ * wired onto every module in cmd/server/main.go. Spread this into any write
+ * call's headers: `{ ...( await authHeaders()) }`. Read (GET) calls stay
+ * public and don't need this.
+ */
+export async function authHeaders(): Promise<Record<string, string>> {
+  const token = (await cookies()).get(ACCESS_TOKEN_COOKIE)?.value;
+  return token ? { Authorization: `Bearer ${token}` } : {};
 }
