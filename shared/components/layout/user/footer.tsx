@@ -193,7 +193,7 @@ export function Footer({
 
           {/* Cơ sở hạ tầng */}
           <div className="flex flex-col gap-4">
-            <TypographyH2 className="text-sm font-semibold text-foreground tracking-tight">
+            <TypographyH2 className="text-sm md:text-sm font-semibold text-foreground tracking-tight">
               Cơ sở hạ tầng
             </TypographyH2>
             <nav className="flex flex-col gap-2.5">
@@ -217,7 +217,7 @@ export function Footer({
 
           {/* Thông tin */}
           <div className="flex flex-col gap-4">
-            <TypographyH2 className="text-sm font-semibold text-foreground tracking-tight">
+            <TypographyH2 className="text-sm md:text-sm font-semibold text-foreground tracking-tight">
               Thông tin
             </TypographyH2>
             <nav className="flex flex-col gap-2.5">
@@ -334,7 +334,7 @@ export function Footer({
                       href={`/san-pham/${group.slug}`}
                       className="text-xs font-bold text-foreground tracking-wider hover:text-primary transition-colors"
                     >
-                      <TypographyH3 className="text-sm font-semibold text-foreground tracking-tight">
+                      <TypographyH3 className="text-sm md:text-sm font-semibold text-foreground tracking-tight">
                         {group.name}
                       </TypographyH3>
                     </Link>
@@ -435,7 +435,7 @@ export function Footer({
                           href={`/du-an/${col.slug}`}
                           className="text-xs font-bold text-foreground tracking-wider hover:text-primary transition-colors"
                         >
-                          <TypographyH3 className="text-sm font-semibold text-foreground tracking-tight">
+                          <TypographyH3 className="text-sm md:text-sm font-semibold text-foreground tracking-tight">
                             {col.name}
                           </TypographyH3>
                         </Link>

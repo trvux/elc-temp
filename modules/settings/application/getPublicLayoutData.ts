@@ -30,10 +30,16 @@ export async function getPublicLayoutData() {
       .select("*")
       .eq("is_active", true)
       .order("order_index", { ascending: true }),
-    supabase.from("branches").select("*").is("deleted_at", null),
+    supabase
+      .from("branches")
+      .select("*")
+      .eq("is_published", true)
+      .is("deleted_at", null),
     supabase
       .from("projects")
       .select("id, title, slug, project_type_id, project_type(id, name, slug)")
+      .eq("is_published", true)
+      .is("deleted_at", null)
       .limit(40),
     getPagesAction(),
     supabase
