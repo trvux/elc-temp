@@ -1,7 +1,7 @@
 "use server";
 
 import { getProductsAction } from "@/modules/catalog/presentation/actions";
-import { projectRepo } from "@/modules/project/infrastructure/projectRepo";
+import { getProjectsAction } from "@/modules/project/presentation/actions";
 import { getServicesAction } from "@/modules/service/presentation/actions";
 import { createStaticClient } from "@/shared/lib/supabase/static";
 import Fuse from "fuse.js";
@@ -21,7 +21,8 @@ async function getCachedProjects() {
   "use cache";
   cacheLife("minutes");
   cacheTag("projects-search");
-  return projectRepo.getAll({ isPublished: true });
+  const { data } = await getProjectsAction({ isPublished: true });
+  return data;
 }
 
 async function getCachedServices() {

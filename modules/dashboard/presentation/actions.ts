@@ -5,7 +5,6 @@ import { newsRepo } from "@/modules/news/infrastructure";
 import { getContactsAction } from "@/modules/contact/presentation/actions";
 import { getBrandsAction } from "@/modules/brand/presentation/actions";
 import { getCategoriesAction } from "@/modules/category/presentation/actions";
-import { projectRepo } from "@/modules/project/infrastructure";
 
 const GO_API_URL = process.env.GO_API_URL;
 
@@ -46,7 +45,6 @@ export async function getDashboardStatsAction() {
 
     const data = await getDashboardStats(
       {
-        projectRepo,
         newsRepo,
       },
       contacts.length,

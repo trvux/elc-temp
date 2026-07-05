@@ -1,7 +1,8 @@
 import { createClient, setUseStaticClient } from "@/shared/lib/supabase/server";
-import { ProjectWithCategory, Json } from "@/modules/project/domain/types";
+import { ProjectWithCategory } from "@/modules/project/domain/types";
 import { ProjectTypeWithCategories } from "@/modules/project-type/domain/types";
 import { cacheLife, cacheTag } from "next/cache";
+import { resolveProjectDetailAction } from "./actions";
 
 export type ResolvedProjectEntity =
   | { type: "project_type"; data: ProjectTypeWithCategories }
@@ -10,7 +11,12 @@ export type ResolvedProjectEntity =
 
 /**
  * Tra cuu loai thuc the (project_type hoac project) tu slug_registry.
- * Ham nay thuoc lop ha tang vi truy cap truc tiep vao Supabase.
+ *
+ * `project_type` van truy van Supabase truc tiep (module project-type chua
+ * migrate sang Go). Nhanh `project` da chuyen sang goi Go qua
+ * resolveProjectDetailAction (xem docs/project.md) — day la ham duy nhat
+ * con lai cua modules/project sau khi cutover con truy van Supabase truc
+ * tiep, vi no phai xu ly ca 2 loai thuc the trong cung 1 lookup slug_registry.
  */
 export async function resolveProjectPathFromDb(slug: string): Promise<ResolvedProjectEntity> {
   "use cache";
@@ -151,165 +157,10 @@ export async function resolveProjectPathFromDb(slug: string): Promise<ResolvedPr
   }
 
   if (registryItem.entity_type === "project") {
-    const { data: projectRow, error: projectError } = await supabase
-      .from("projects")
-      .select(`
-        *,
-        projectType:project_type(id, name, slug),
-        project_category(
-          condition,
-          category:categories(
-            *,
-            group_categories(*),
-            products(sale_price, original_price, is_published, deleted_at)
-          )
-        ),
-        project_service(
-          service:services(id, title, slug, group:service_groups(id, name, slug))
-        )
-      `)
-      .eq("id", registryItem.entity_id)
-      .is("deleted_at", null)
-      .maybeSingle();
-
-    if (projectError || !projectRow) {
+    const { data: project, error } = await resolveProjectDetailAction(slug);
+    if (error || !project) {
       return null;
     }
-
-    const row = projectRow as {
-      id: string;
-      title: string;
-      slug: string;
-      description: string | Record<string, unknown> | null;
-      images: string[];
-      is_featured: boolean;
-      is_published: boolean;
-      meta_title: string | null;
-      meta_description: string | null;
-      order_index: number;
-      category_id: string;
-      project_type_id: string | null;
-      created_at: string;
-      updated_at: string;
-      deleted_at: string | null;
-      projectType: {
-        id: string;
-        name: string;
-        slug: string;
-      } | null;
-      project_category: {
-        condition: "new" | "used";
-        category: {
-          id: string;
-          name: string;
-          slug: string | null;
-          group_id: string | null;
-          group_categories: {
-            id: string;
-            name: string;
-          } | null;
-          products: {
-            sale_price: number;
-            original_price: number;
-            is_published: boolean;
-            deleted_at: string | null;
-          }[] | null;
-        } | null;
-      }[] | null;
-      project_service: {
-        service: {
-          id: string;
-          title: string;
-          slug: string;
-          group: {
-            id: string;
-            name: string;
-            slug: string;
-          } | null;
-        } | null;
-      }[] | null;
-    };
-
-    const categories = (row.project_category || [])
-      .map((pc) => {
-        const cat = pc.category;
-        if (!cat) return null;
-
-        const catProducts = (cat.products || []).filter((p) => p.is_published && !p.deleted_at);
-        const prices = catProducts
-          .map((p) => p.sale_price || p.original_price || 0)
-          .filter((p) => p > 0);
-
-        const lowPrice = prices.length > 0 ? Math.min(...prices) : 0;
-        const highPrice = prices.length > 0 ? Math.max(...prices) : 0;
-        const offerCount = prices.length;
-
-        return {
-          id: cat.id,
-          name: cat.name,
-          slug: cat.slug || "",
-          groupId: cat.group_id,
-          condition: pc.condition || "new",
-          group: cat.group_categories
-            ? {
-                id: cat.group_categories.id,
-                name: cat.group_categories.name,
-              }
-            : null,
-          lowPrice,
-          highPrice,
-          offerCount,
-        };
-      })
-      .filter((c): c is NonNullable<typeof c> => c !== null);
-
-    const services = (row.project_service || [])
-      .map((ps) => {
-        const svc = ps.service;
-        if (!svc) return null;
-        return {
-          id: svc.id,
-          title: svc.title,
-          slug: svc.slug || "",
-          group: svc.group
-            ? {
-                id: svc.group.id,
-                name: svc.group.name,
-                slug: svc.group.slug || "",
-              }
-            : null,
-        };
-      })
-      .filter((s): s is NonNullable<typeof s> => s !== null);
-
-    const project: ProjectWithCategory = {
-      id: row.id,
-      title: row.title,
-      slug: row.slug || "",
-      description: (row.description as Json) || null,
-      images: row.images || [],
-      isFeatured: row.is_featured || false,
-      isPublished: row.is_published || false,
-      metaTitle: row.meta_title,
-      metaDescription: row.meta_description,
-      orderIndex: row.order_index || 0,
-      categoryId: row.category_id || "",
-      projectTypeId: row.project_type_id,
-      createdAt: row.created_at,
-      updatedAt: row.updated_at,
-      deletedAt: row.deleted_at,
-      category: null,
-      projectType: row.projectType
-        ? {
-            id: row.projectType.id,
-            name: row.projectType.name,
-            slug: row.projectType.slug,
-          }
-        : null,
-      services,
-      categories,
-    };
-
     return { type: "project", data: project };
   }
 

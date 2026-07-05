@@ -2,9 +2,7 @@ import { getCategoriesAction } from "@/modules/category/presentation/actions";
 import { getProjectTypes } from "@/modules/project-type/application";
 import { projectTypeRepo } from "@/modules/project-type/infrastructure/projectTypeRepo";
 import { ProjectTypeWithCategories } from "@/modules/project-type/domain/types";
-import { getProjects } from "@/modules/project/application/getProjects";
-import { getCategoriesByProjectTypeId } from "@/modules/project/application/getCategoriesByProjectTypeId";
-import { projectRepo } from "@/modules/project/infrastructure/projectRepo";
+import { getProjectsAction, getCategoriesByProjectTypeIdAction } from "@/modules/project/presentation/actions";
 import { ProjectCard } from "@/modules/project/presentation/components/ProjectCard";
 import { getServicesAction } from "@/modules/service/presentation/actions";
 import { unwrapActionResult } from "@/shared/lib/action-result";
@@ -90,18 +88,18 @@ async function getCachedProjectListData(
     projectTypeCategoriesRaw,
     allCategoriesRaw,
   ] = await Promise.all([
-    getProjects(projectRepo, {
+    getProjectsAction({
       isPublished: true,
       projectTypeId: projectType?.id || undefined,
       categorySlugs: categorySlugs.length > 0 ? categorySlugs : undefined,
       serviceSlugs: serviceSlugs.length > 0 ? serviceSlugs : undefined,
       search: searchVal,
-    }),
+    }).then(unwrapActionResult),
     getProjectTypes(projectTypeRepo),
-    hasFilters ? getProjects(projectRepo, { isPublished: true }) : Promise.resolve(null),
+    hasFilters ? getProjectsAction({ isPublished: true }).then(unwrapActionResult) : Promise.resolve(null),
     getServicesAction({ isPublished: true }).then(unwrapActionResult),
     projectType
-      ? getCategoriesByProjectTypeId(projectRepo, projectType.id)
+      ? getCategoriesByProjectTypeIdAction(projectType.id).then(unwrapActionResult)
       : Promise.resolve(null),
     projectType
       ? Promise.resolve([])

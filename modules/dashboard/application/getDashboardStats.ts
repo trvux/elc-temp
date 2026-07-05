@@ -1,7 +1,7 @@
 import { getProductsAction } from "@/modules/catalog/presentation/actions";
 import { CategoryWithGroup } from "@/modules/category/domain/types";
 import { Brand } from "@/modules/brand/domain";
-import { ProjectRepository } from "@/modules/project/domain/repository";
+import { getProjectsAction, countProjectsAction } from "@/modules/project/presentation/actions";
 import { NewsRepository } from "@/modules/news/domain/repository";
 import {
   DashboardStats,
@@ -11,7 +11,6 @@ import {
 } from "../domain/types";
 
 export interface DashboardRepositories {
-  projectRepo: ProjectRepository;
   newsRepo: NewsRepository;
 }
 
@@ -20,8 +19,8 @@ export interface DashboardRepositories {
  * Ham nay la use case duy nhat cua module, nhan cac repository qua DIP.
  * contactsCount/servicesCount/allBrands/pagesCount/categoriesCount/allCategories duoc
  * truyen rieng vi cac module do da migrate sang Go — xem
- * modules/dashboard/presentation/actions.ts. products cung da migrate sang Go nen goi
- * truc tiep getProductsAction thay vi qua productRepo.
+ * modules/dashboard/presentation/actions.ts. products/project cung da migrate sang Go
+ * nen goi truc tiep getProductsAction/getProjectsAction thay vi qua productRepo/projectRepo.
  */
 export async function getDashboardStats(
   repos: DashboardRepositories,
@@ -33,24 +32,24 @@ export async function getDashboardStats(
   categoriesCount: number,
   allCategories: CategoryWithGroup[]
 ): Promise<DashboardStats> {
-  const { projectRepo, newsRepo } = repos;
+  const { newsRepo } = repos;
 
   const [
     allProductsRes,
-    projectsCount,
+    { data: projectsCount },
     newsCount,
     recentProductsRes,
-    recentProjects,
+    { data: recentProjects },
     recentNews,
-    featuredProjectsRaw,
+    { data: featuredProjectsRaw },
   ] = await Promise.all([
     getProductsAction({}),
-    projectRepo.count(),
+    countProjectsAction(),
     newsRepo.count(),
     getProductsAction({ limit: 5, sortBy: "newest" }),
-    projectRepo.getAll({ limit: 5, orderBy: "createdAt", orderDirection: "desc" }),
+    getProjectsAction({ limit: 5, orderBy: "createdAt", orderDirection: "desc" }),
     newsRepo.getAll({ limit: 5 }),
-    projectRepo.getAll({ isFeatured: true }),
+    getProjectsAction({ isFeatured: true }),
   ]);
 
   const productsCount = allProductsRes.totalCount;
