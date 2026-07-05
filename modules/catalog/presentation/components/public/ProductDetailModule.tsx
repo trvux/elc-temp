@@ -4,6 +4,7 @@ import { getContactHref } from "@/modules/contact";
 import { Breadcrumbs } from "@/shared/components/layout/user/breadcrumbs";
 import { DetailPager } from "@/shared/components/layout/user/detail-pager";
 import { OrderButton } from "@/shared/components/layout/user/order-button";
+import { ZaloProductInfo } from "@/shared/lib/zalo-message";
 import { ProductDescription } from "@/shared/components/layout/user/product-description";
 import { ProductFloatingBar } from "@/shared/components/layout/user/product-floating-bar";
 import RelatedProducts, { getCachedRelatedProducts } from "@/shared/components/layout/user/related-products";
@@ -378,7 +379,14 @@ export async function ProductDetailModule({
                   </div>
                 )}
               </div>
-              <OrderButton contacts={contacts || []} />
+              <OrderButton
+                contacts={contacts || []}
+                productInfo={{
+                  productName: product.name,
+                  salePrice: finalPrice || 0,
+                  productSlug: product.slug,
+                } satisfies ZaloProductInfo}
+              />
               <div id="product-cta-sentinel" aria-hidden="true" />
             </div>
           </div>
@@ -587,6 +595,7 @@ export async function ProductDetailModule({
         originalPrice={product.originalPrice || 0}
         discountPercent={product.discountPercent || 0}
         productImage={images[0] ?? null}
+        productSlug={product.slug}
         contacts={contacts}
       />
     </main>
