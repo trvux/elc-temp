@@ -16,8 +16,8 @@ import { Metadata } from "next";
 import { ImageWithSkeleton } from "@/shared/components/ui/image-with-skeleton";
 import { notFound } from "next/navigation";
 import { getServiceBySlugAction } from "@/modules/service/presentation/actions";
-import { createStaticClient } from "@/shared/lib/supabase/static";
-import { 
+import { getCategoryBySlugAction } from "@/modules/category/presentation/actions";
+import {
   generateProjectTypeMetadata, 
   generateProjectDetailMetadata,
   generateProjectDetailSchema
@@ -62,13 +62,7 @@ export async function generateMetadata({
     }
 
     if (categorySlug) {
-      const supabase = createStaticClient();
-      const { data: catData } = await supabase
-        .from("categories")
-        .select("name")
-        .eq("slug", categorySlug)
-        .is("deleted_at", null)
-        .maybeSingle();
+      const { data: catData } = await getCategoryBySlugAction(categorySlug);
       if (catData) {
         categoryName = catData.name;
       }

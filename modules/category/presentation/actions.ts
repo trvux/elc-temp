@@ -167,6 +167,28 @@ export async function getCategoryByIdAction(id: string) {
   }
 }
 
+export async function getCategoryBySlugAction(slug: string) {
+  if (!GO_API_URL) {
+    return { data: null, error: null };
+  }
+  try {
+    const res = await fetch(`${GO_API_URL}/categories/slug/${encodeURIComponent(slug)}`, { cache: "no-store" });
+    if (res.status === 404) {
+      return { data: null, error: null };
+    }
+    if (!res.ok) {
+      return { data: null, error: await extractErrorMessage(res, "Failed to fetch category") };
+    }
+
+    const row = (await res.json()) as GoCategoryResponse;
+    return { data: mapGoCategory(row), error: null };
+  } catch (error) {
+    if (isPrerenderError(error)) throw error;
+    console.error("getCategoryBySlugAction error:", error);
+    return { data: null, error: "Failed to fetch category" };
+  }
+}
+
 export async function createCategoryAction(input: CreateCategoryInput) {
   if (!GO_API_URL) {
     return { data: null, error: "GO_API_URL is not configured" };

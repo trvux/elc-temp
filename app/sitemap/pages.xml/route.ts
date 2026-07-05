@@ -1,29 +1,20 @@
 import { NextResponse } from 'next/server';
-import { createStaticClient } from '@/shared/lib/supabase/static';
+import { getPagesAction } from '@/modules/page/presentation/actions';
+import { getServicesAction } from '@/modules/service/presentation/actions';
+import { getBranchesAction } from '@/modules/branch/presentation/actions';
 import { DISTRICTS } from '@/shared/lib/districts';
 
 
 export async function GET() {
   const BASE_URL = 'https://dienmayelc.com.vn';
-  const supabase = createStaticClient();
 
-  const { data: pages } = await supabase
-    .from('pages')
-    .select('slug')
-    .eq('is_published', true)
-    .is('deleted_at', null);
+  const [{ data: allPages }, { data: services }, { data: branches }] = await Promise.all([
+    getPagesAction(),
+    getServicesAction({ isPublished: true }),
+    getBranchesAction({ isPublished: true }),
+  ]);
 
-  const { data: services } = await supabase
-    .from('services')
-    .select('slug')
-    .eq('is_published', true)
-    .is('deleted_at', null);
-
-  const { data: branches } = await supabase
-    .from('branches')
-    .select('slug')
-    .eq('is_published', true)
-    .is('deleted_at', null);
+  const pages = allPages.filter((p) => p.isPublished);
 
   const staticRoutes = [
     '',
@@ -36,19 +27,19 @@ export async function GET() {
     url: `${BASE_URL}${route}`,
   }));
 
-  const pageRoutes = (pages || [])
+  const pageRoutes = pages
     .filter((p) => p.slug)
     .map((p) => ({
       url: `${BASE_URL}/${p.slug}`,
     }));
 
-  const serviceRoutes = (services || [])
+  const serviceRoutes = services
     .filter((serv) => serv.slug)
     .map((serv) => ({
       url: `${BASE_URL}/dich-vu/${serv.slug}`,
     }));
 
-  const branchRoutes = (branches || [])
+  const branchRoutes = branches
     .filter((b) => b.slug)
     .map((b) => ({
       url: `${BASE_URL}/thong-tin/${b.slug}`,
@@ -58,7 +49,7 @@ export async function GET() {
     url: `${BASE_URL}/dich-vu/${dist.slug}`,
   }));
 
-  const serviceLocationRoutes = (services || [])
+  const serviceLocationRoutes = services
     .filter((serv) => serv.slug)
     .flatMap((serv) =>
       DISTRICTS.map((dist) => ({
