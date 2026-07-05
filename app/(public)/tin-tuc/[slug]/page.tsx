@@ -22,6 +22,7 @@ import {
   BASE_URL,
   generateBreadcrumbSchema,
   sanitizeAndFormatTitle,
+  getProductDescriptionExcerpt,
 } from "@/shared/lib/seo-utils";
 import { unwrapActionResult } from "@/shared/lib/action-result";
 import { setUseStaticClient } from "@/shared/lib/supabase/server";
@@ -185,7 +186,7 @@ export async function generateMetadata({
     newsItem.metaTitle || newsItem.title,
     false,
   );
-  const description = newsItem.metaDescription || newsItem.title;
+  const description = newsItem.metaDescription || getProductDescriptionExcerpt(newsItem.content, 180) || newsItem.title;
 
   return {
     title,
