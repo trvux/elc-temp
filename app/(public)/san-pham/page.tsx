@@ -394,7 +394,6 @@ async function CachedProductsView({
                 <ProductPagination
                   currentPage={currentPage}
                   totalPages={totalPages}
-                  buildHref={(page) => buildPageHref(params, page)}
                 />
               )}
 

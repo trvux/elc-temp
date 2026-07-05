@@ -1,14 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import { cn } from "@/shared/lib/utils";
 import { Suspense } from "react";
 
 interface ProductPaginationProps {
   currentPage?: number;
   totalPages: number;
-  buildHref: (page: number) => string;
 }
 
 const linkBase =
@@ -16,12 +15,23 @@ const linkBase =
 
 function ProductPaginationContent({
   totalPages,
-  buildHref,
 }: ProductPaginationProps) {
+  const pathname = usePathname();
   const searchParams = useSearchParams();
   const currentPage = Math.max(1, Math.floor(Number(searchParams.get("page"))) || 1);
 
   if (totalPages <= 1) return null;
+
+  function buildHref(page: number): string {
+    const sp = new URLSearchParams(searchParams.toString());
+    if (page > 1) {
+      sp.set("page", String(page));
+    } else {
+      sp.delete("page");
+    }
+    const qs = sp.toString();
+    return qs ? `${pathname}?${qs}` : pathname;
+  }
 
   const pageSet = new Set<number>([1, totalPages]);
   for (let p = currentPage - 1; p <= currentPage + 1; p++) {
@@ -40,7 +50,7 @@ function ProductPaginationContent({
   return (
     <nav
       aria-label="Phân trang sản phẩm"
-      className="flex items-center justify-center gap-1.5 pt-6 pb-2"
+      className="sr-only focus-within:not-sr-only flex items-center justify-center gap-1.5 pt-6 focus-within:pb-2"
     >
       <Link
         href={buildHref(Math.max(1, currentPage - 1))}
