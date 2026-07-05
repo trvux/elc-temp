@@ -73,14 +73,19 @@ jobs:
           script: |
             cd /var/www/elc-tem
             # Ghi runtime env vars vao ecosystem.config.js (nam trong thu muc project)
-            python3 -c 'import os,json; cfg={"apps":[{"name":"elc-tem","script":"server.js","env":{"PORT":"3000","NODE_ENV":"production","GOOGLE_SERVICE_ACCOUNT_JSON":os.environ.get("GOOGLE_SERVICE_ACCOUNT_JSON",""),"GO_API_URL":"http://localhost:8090","CLOUDFLARE_ZONE_ID":os.environ.get("CLOUDFLARE_ZONE_ID",""),"CLOUDFLARE_API_TOKEN":os.environ.get("CLOUDFLARE_API_TOKEN","")}}]}; open("ecosystem.config.js","w").write("module.exports = "+json.dumps(cfg)+";\n")'
+            # instances:2 + exec_mode:cluster la dieu kien de "pm2 reload" dat duoc
+            # zero-downtime that su -- PM2 khoi dong worker moi, cho no listen xong
+            # roi moi tat worker cu, luon co it nhat 1 worker phuc vu request. Ca 2
+            # worker dung chung .next/cache tren dia nen Data Cache van nhat quan.
+            python3 -c 'import os,json; cfg={"apps":[{"name":"elc-tem","script":"server.js","instances":2,"exec_mode":"cluster","listen_timeout":10000,"kill_timeout":5000,"env":{"PORT":"3000","NODE_ENV":"production","GOOGLE_SERVICE_ACCOUNT_JSON":os.environ.get("GOOGLE_SERVICE_ACCOUNT_JSON",""),"GO_API_URL":"http://localhost:8090","CLOUDFLARE_ZONE_ID":os.environ.get("CLOUDFLARE_ZONE_ID",""),"CLOUDFLARE_API_TOKEN":os.environ.get("CLOUDFLARE_API_TOKEN","")}}]}; open("ecosystem.config.js","w").write("module.exports = "+json.dumps(cfg)+";\n")'
             # KHONG xoa .next/cache: day la Data/ISR cache chua data that da fetch tu
             # Go API. Xoa no moi lan deploy khien lan load dau tien luon bi cache-miss
             # va hien trang thai rong neu Go API chua kip san sang -- day chinh la loi
             # "mat data lan dau" da gap. Giu cache lai de request dau tien sau deploy
             # van duoc phuc vu tu cache cu (stale-while-revalidate) thay vi rong.
-            # Doi Go API san sang truoc khi start Next.js
-            # Tranh race condition: Next.js start truoc Go -> cache rong bi giu lai
+            # Doi Go API san sang truoc khi start Next.js (chi can thiet cho lan
+            # deploy dau tien / VPS moi khoi dong lai tu dau, khi chua co PM2 process
+            # nao dang chay ca)
             echo "Waiting for Go API to be ready..."
             for i in $(seq 1 30); do
               if curl -sf http://localhost:8090/brands > /dev/null 2>&1; then
@@ -90,7 +95,42 @@ jobs:
               echo "  attempt $i/30..."
               sleep 2
             done
-            # Tao hoac cap nhat PM2 process
-            pm2 delete elc-tem 2>/dev/null || true
-            pm2 start ecosystem.config.js
+            # Deploy dau tien (chua co process) thi start; cac lan sau dung reload
+            # de rolling-restart tung worker mot -- khong bao gio ca 2 worker cung
+            # down cung luc (zero-downtime that su, khong chi la restart nhanh).
+            # Rieng lan chuyen tu fork-mode (cu) sang cluster-mode (moi) thi reload
+            # co the khong ap dung duoc thay doi exec_mode -- fallback delete+start
+            # cho DUY NHAT lan chuyen doi nay, cac lan sau se luon reload duoc.
+            if pm2 describe elc-tem > /dev/null 2>&1; then
+              pm2 reload ecosystem.config.js --update-env || (pm2 delete elc-tem && pm2 start ecosystem.config.js)
+            else
+              pm2 start ecosystem.config.js
+            fi
+            pm2 save
+
+            # Cho Next.js thuc su san sang phuc vu truoc khi purge Cloudflare --
+            # purge som khi app chua len se khien Cloudflare crawl lai va dinh
+            # frozen mot ban loi/rong khac vao edge cache.
+            echo "Waiting for Next.js to be ready..."
+            for i in $(seq 1 30); do
+              if curl -sf http://localhost:3000/ > /dev/null 2>&1; then
+                echo "Next.js is ready after ${i}x2s"
+                break
+              fi
+              echo "  attempt $i/30..."
+              sleep 2
+            done
+
+            # Purge Cloudflare cache sau moi lan deploy -- khong doi den lan admin
+            # sua noi dung tiep theo moi purge. Deploy la nguon gay rong pho bien
+            # nhat (Go API/Next.js restart trong luc build/swap), Cloudflare free
+            # plan khong ho tro purge theo tag nen phai purge_everything.
+            if [ -n "$CLOUDFLARE_ZONE_ID" ] && [ -n "$CLOUDFLARE_API_TOKEN" ]; then
+              curl -sf -X POST "https://api.cloudflare.com/client/v4/zones/${CLOUDFLARE_ZONE_ID}/purge_cache" \
+                -H "Authorization: Bearer ${CLOUDFLARE_API_TOKEN}" \
+                -H "Content-Type: application/json" \
+                --data '{"purge_everything":true}' \
+                && echo "Cloudflare cache purged" \
+                || echo "Cloudflare purge failed (non-fatal)"
+            fi
 

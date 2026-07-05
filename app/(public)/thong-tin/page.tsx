@@ -20,6 +20,7 @@ import { ScrollToActiveBranch } from "./ScrollToActiveBranch";
 import { generateSystemPageMetadata } from "@/shared/lib/seo-utils";
 import type { Metadata } from "next";
 import { getCachedSystemPage } from "@/shared/lib/cached-system-page";
+import { unwrapActionResult } from "@/shared/lib/action-result";
 
 export async function generateMetadata(): Promise<Metadata> {
   const systemPage = await getCachedSystemPage("thong-tin");
@@ -58,20 +59,15 @@ const STYLES = {
 
 async function getCachedInformationData() {
   "use cache";
+  cacheLife("hours");
   cacheTag("layout");
   setUseStaticClient(true);
 
-  const allPages = await getPagesAction().then((res) => res.data.filter((p) => p.isPublished));
-  const allBranches = await getBranchesAction({ isPublished: true }).then((res) => res.data);
+  const allPages = await getPagesAction()
+    .then(unwrapActionResult)
+    .then((pages) => pages.filter((p) => p.isPublished));
+  const allBranches = await getBranchesAction({ isPublished: true }).then(unwrapActionResult);
   const currentYear = new Date().getFullYear();
-
-  // Neu Go API chua san sang (data rong), cache ngan 30s de retry nhanh.
-  // Neu co data that, cache binh thuong theo hours.
-  if (allPages.length === 0 && allBranches.length === 0) {
-    cacheLife({ revalidate: 30, expire: 60 });
-  } else {
-    cacheLife("hours");
-  }
 
   return {
     allPages: sortByOrderIndex(allPages ?? []),

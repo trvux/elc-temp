@@ -115,6 +115,7 @@ function getExcerptFromContent(
 
 async function getCachedNewsHubData() {
   "use cache";
+  cacheLife("hours");
   cacheTag("news-list");
   setUseStaticClient(true);
 
@@ -124,13 +125,6 @@ async function getCachedNewsHubData() {
     sortOrder: "desc",
   });
   const currentYear = new Date().getFullYear();
-
-  // Neu Supabase / Go API chua san sang, cache ngan 30s de retry
-  if (!allNews || allNews.length === 0) {
-    cacheLife({ revalidate: 30, expire: 60 });
-  } else {
-    cacheLife("hours");
-  }
 
   return {
     allNews: allNews ?? [],

@@ -20,6 +20,7 @@ import {
   sanitizeAndFormatTitle,
 } from "@/shared/lib/seo-utils";
 import { GridSection } from "@/shared/components/sections/grid-section";
+import { unwrapActionResult } from "@/shared/lib/action-result";
 
 interface PageProps {
   params: Promise<{
@@ -31,16 +32,12 @@ interface PageProps {
 
 async function getCachedPageData(slug: string) {
   "use cache";
+  cacheLife("hours");
   cacheTag("layout");
   setUseStaticClient(true);
-  const data = await getPageBySlugAction(slug).then((res) => res.data);
-  // Neu Go API chua san sang, cache ngan 30s de retry nhanh
-  if (data) {
-    cacheLife("hours");
-  } else {
-    cacheLife("retry");
-  }
-  return data;
+  // null = trang khong ton tai (404 that su, action da phan biet voi loi that).
+  // Loi that se throw va giu nguyen ban cache cu (stale-if-error).
+  return getPageBySlugAction(slug).then(unwrapActionResult);
 }
 
 export async function generateMetadata({

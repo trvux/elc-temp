@@ -7,6 +7,7 @@ import { submitToIndexNow } from "@/shared/lib/indexnow";
 import { submitToGoogleIndex } from "@/shared/lib/google-indexing";
 import { getServiceGroupsAction } from "@/modules/service-group/presentation/actions";
 import { purgeCloudflareCache } from "@/shared/lib/cloudflare-purge";
+import { unwrapActionResult } from "@/shared/lib/action-result";
 
 const GO_API_URL = process.env.GO_API_URL;
 
@@ -221,17 +222,15 @@ export async function getServiceBySlugAction(slug: string): Promise<ServiceWithR
   if (!GO_API_URL) {
     return null;
   }
-  try {
-    const res = await fetch(`${GO_API_URL}/services/slug/${slug}`, { cache: "no-store" });
-    if (!res.ok) {
-      return null;
-    }
-    const row = (await res.json()) as GoServiceResponse;
-    return mapGoService(row);
-  } catch (error) {
-    console.error("getServiceBySlugAction error:", error);
+  const res = await fetch(`${GO_API_URL}/services/slug/${slug}`, { cache: "no-store" });
+  if (res.status === 404) {
     return null;
   }
+  if (!res.ok) {
+    throw new Error(await extractErrorMessage(res));
+  }
+  const row = (await res.json()) as GoServiceResponse;
+  return mapGoService(row);
 }
 
 export interface AdjacentService {
@@ -291,10 +290,12 @@ export interface GroupedServices {
 // Mirrors the old modules/service/application/index.ts getPublishedServicesGrouped,
 // but composes two already-Go-backed Server Actions instead of two repos.
 export async function getPublishedServicesGroupedAction(): Promise<GroupedServices[]> {
-  const [{ data: allServices }, { data: allGroups }] = await Promise.all([
+  const [servicesResult, groupsResult] = await Promise.all([
     getServicesAction({ isPublished: true }),
     getServiceGroupsAction(),
   ]);
+  const allServices = unwrapActionResult(servicesResult);
+  const allGroups = unwrapActionResult(groupsResult);
 
   const groupsMap = new Map<
     string,
