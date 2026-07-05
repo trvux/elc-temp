@@ -3,12 +3,11 @@
 import type { ProductWithRelations } from "@/modules/catalog/domain";
 import { ProductCard } from "@/modules/catalog/presentation/components/ProductCard";
 import { Skeleton } from "@/shared/components/ui/skeleton";
+import { Button } from "@/shared/components/ui/button";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 const GRID_CLASS =
-  "grid gap-x-4 gap-y-6 md:gap-y-12 content-start [grid-template-columns:repeat(auto-fill,minmax(160px,1fr))]";
-
-const PREFETCH_ROWS = 5;
+  "grid gap-x-4 gap-y-6 md:gap-y-12 content-start grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6";
 
 interface FetchParams {
   q?: string;
@@ -86,26 +85,11 @@ export function InfiniteProductGrid({
 
   // Refs so loadMore never becomes stale from state changes
   const hasMoreRef = useRef(initialLoadedCount < totalCount);
-  const pageSizeRef = useRef(12);
+  const pageSizeRef = useRef(30); // 30 matching the server PAGE_SIZE for exact URL state sync
   const loadedCountRef = useRef(initialLoadedCount);
   const gridRef = useRef<HTMLDivElement | null>(null);
-  const sentinelRef = useRef<HTMLDivElement | null>(null);
   const loadingRef = useRef(false);
   const paramsKeyRef = useRef(serializeParams(fetchParams));
-
-  // Measure actual column count to compute dynamic page size
-  useEffect(() => {
-    const grid = gridRef.current;
-    if (!grid) return;
-    const update = () => {
-      const cols = window.getComputedStyle(grid).gridTemplateColumns.split(" ").length;
-      pageSizeRef.current = cols * PREFETCH_ROWS;
-    };
-    update();
-    const ro = new ResizeObserver(update);
-    ro.observe(grid);
-    return () => ro.disconnect();
-  }, []);
 
   const loadMore = useCallback(async () => {
     if (loadingRef.current || !hasMoreRef.current) return;
@@ -124,60 +108,30 @@ export function InfiniteProductGrid({
       loadedCountRef.current += data.products.length;
       hasMoreRef.current = data.hasMore;
       setHasMore(data.hasMore);
+
+      // Sync active page state in the browser search parameters (shallow routing)
+      const nextPage = Math.ceil(loadedCountRef.current / 30);
+      const currentUrlParams = new URLSearchParams(window.location.search);
+      currentUrlParams.set("page", String(nextPage));
+      window.history.pushState(null, "", `?${currentUrlParams.toString()}`);
     } finally {
       loadingRef.current = false;
       setIsLoading(false);
     }
-    // IntersectionObserver only fires on state CHANGE — if sentinel stays in range
-    // after a load it won't fire again. Chain next load automatically.
-    if (hasMoreRef.current) {
-      setTimeout(loadMore, 0);
-    }
   }, [fetchParams]);
 
-  // Reset when filters/search change and kick off loading immediately.
-  // The mount-time effect below only runs once — route-level navigation with the same
-  // layout reuses the component instance, so we must trigger here on param changes too.
-  // IO won't re-fire if the sentinel stays intersecting across the param change.
+  // Reset state when filters or search term changes
   useEffect(() => {
     const newKey = serializeParams(fetchParams);
     if (newKey !== paramsKeyRef.current) {
       paramsKeyRef.current = newKey;
       setProducts(initialProducts);
       loadedCountRef.current = initialProducts.length;
-      loadingRef.current = false; // cancel any in-progress load from previous params
+      loadingRef.current = false;
       hasMoreRef.current = initialProducts.length < totalCount;
       setHasMore(initialProducts.length < totalCount);
-      if (initialProducts.length < totalCount) {
-        setTimeout(loadMore, 0);
-      }
     }
-  }, [fetchParams, initialProducts, totalCount, loadMore]);
-
-  // Kick off the first load immediately on mount — don't wait for IO
-  // (IO only fires on intersection *change*, so if sentinel is already in view on load it may miss)
-  useEffect(() => {
-    loadMore();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  // IntersectionObserver as the ongoing trigger when user scrolls near bottom
-  useEffect(() => {
-    const sentinel = sentinelRef.current;
-    if (!sentinel) return;
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries[0]?.isIntersecting) {
-          loadMore();
-        }
-      },
-      { rootMargin: "0px 0px 1600px 0px", threshold: 0 },
-    );
-
-    observer.observe(sentinel);
-    return () => observer.disconnect();
-  }, [loadMore]);
+  }, [fetchParams, initialProducts, totalCount]);
 
   const remainingCount = Math.min(totalCount - products.length, pageSizeRef.current);
 
@@ -213,7 +167,18 @@ export function InfiniteProductGrid({
         </div>
       )}
 
-      {hasMore && <div ref={sentinelRef} className="h-1 w-full" aria-hidden />}
+      {hasMore && (
+        <div className="flex justify-center pt-8 pb-4">
+          <Button
+            variant="outline"
+            onClick={loadMore}
+            disabled={isLoading}
+            className="px-8 py-5 text-sm font-semibold rounded-full border border-border/80 hover:bg-accent transition-colors"
+          >
+            {isLoading ? "Đang tải..." : "Xem thêm sản phẩm"}
+          </Button>
+        </div>
+      )}
     </div>
   );
 }
