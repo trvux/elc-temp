@@ -33,21 +33,3 @@ export function isMobileDevice(): boolean {
   );
 }
 
-/**
- * On mobile: copy product message to clipboard + open Zalo app via deep link.
- * Returns true if clipboard write succeeded.
- */
-export async function openZaloOnMobile(
-  zaloHref: string,
-  info: ZaloProductInfo,
-): Promise<boolean> {
-  const message = buildZaloProductMessage(info);
-  try {
-    await navigator.clipboard.writeText(message);
-    window.open(zaloHref, "_blank", "noopener,noreferrer");
-    return true;
-  } catch {
-    window.open(zaloHref, "_blank", "noopener,noreferrer");
-    return false;
-  }
-}
