@@ -1,7 +1,6 @@
 "use server";
 
 import { getDashboardStats } from "../application/getDashboardStats";
-import { newsRepo } from "@/modules/news/infrastructure";
 import { getContactsAction } from "@/modules/contact/presentation/actions";
 import { getBrandsAction } from "@/modules/brand/presentation/actions";
 import { getCategoriesAction } from "@/modules/category/presentation/actions";
@@ -44,9 +43,6 @@ export async function getDashboardStatsAction() {
       : 0;
 
     const data = await getDashboardStats(
-      {
-        newsRepo,
-      },
       contacts.length,
       servicesCount,
       branchesCount,

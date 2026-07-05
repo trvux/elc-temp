@@ -1,5 +1,4 @@
-import { getNews } from "@/modules/news/application";
-import { newsRepo } from "@/modules/news/infrastructure/SupabaseNewsRepository";
+import { getNewsAction } from "@/modules/news/presentation/actions";
 import { Breadcrumbs } from "@/shared/components/layout/user/breadcrumbs";
 import { ScrollToTop } from "@/shared/components/layout/user/scroll-to-top";
 import { GridSection } from "@/shared/components/sections/grid-section";
@@ -20,6 +19,7 @@ import {
 } from "@/shared/lib/seo-utils";
 import type { Metadata } from "next";
 import { getCachedSystemPage } from "@/shared/lib/cached-system-page";
+import { unwrapActionResult } from "@/shared/lib/action-result";
 
 export async function generateMetadata(): Promise<Metadata> {
   const systemPage = await getCachedSystemPage("tin-tuc");
@@ -119,11 +119,11 @@ async function getCachedNewsHubData() {
   cacheTag("news-list");
   setUseStaticClient(true);
 
-  const allNews = await getNews(newsRepo, {
+  const allNews = await getNewsAction({
     isPublished: true,
     sortBy: "created_at",
     sortOrder: "desc",
-  });
+  }).then(unwrapActionResult);
   const currentYear = new Date().getFullYear();
 
   return {

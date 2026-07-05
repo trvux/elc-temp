@@ -2,8 +2,7 @@ import { getProductsAction } from "@/modules/catalog/presentation/actions";
 import { ProductCard } from "@/modules/catalog/presentation/components/ProductCard";
 import { getCategoriesAction } from "@/modules/category/presentation/actions";
 import { getGroupsAction } from "@/modules/group/presentation/actions";
-import { getNews, getNewsBySlug } from "@/modules/news/application";
-import { newsRepo } from "@/modules/news/infrastructure/SupabaseNewsRepository";
+import { getNewsAction, getNewsBySlugAction } from "@/modules/news/presentation/actions";
 import { Breadcrumbs } from "@/shared/components/layout/user/breadcrumbs";
 import { DetailPager } from "@/shared/components/layout/user/detail-pager";
 import { PreviewContent } from "@/shared/components/layout/user/preview-content";
@@ -58,11 +57,11 @@ async function getCachedNewsDetailData(slug: string) {
   );
   setUseStaticClient(true);
 
-  const allNews = await getNews(newsRepo, { isPublished: true });
+  const allNews = await getNewsAction({ isPublished: true }).then(unwrapActionResult);
   const newsItemIndex = (allNews ?? []).findIndex((n) => n.slug === slug);
 
   if (newsItemIndex === -1) {
-    const newsItem = await getNewsBySlug(newsRepo, slug);
+    const newsItem = await getNewsBySlugAction(slug).then(unwrapActionResult);
     return {
       newsItem,
       prevNews: null,

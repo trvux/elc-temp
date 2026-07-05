@@ -1,44 +1,171 @@
 "use server";
 
 import { revalidatePath, revalidateTag } from "next/cache";
-import { 
-  getNews, 
-  createNews, 
-  updateNews, 
-  deleteNews 
-} from "../application/index";
-import { 
-  CreateNewsInput, 
-  UpdateNewsInput 
-} from "../domain/index";
-import { newsRepo } from "../infrastructure/SupabaseNewsRepository";
+import { News, CreateNewsInput, UpdateNewsInput, NewsFilter } from "../domain";
+import { toSnakeCaseBody } from "@/shared/lib/go-api";
 import { submitToIndexNow } from "@/shared/lib/indexnow";
 import { submitToGoogleIndex } from "@/shared/lib/google-indexing";
 import { purgeCloudflareCache } from "@/shared/lib/cloudflare-purge";
 
-export async function getNewsAction(options?: {
-  isPublished?: boolean;
-}) {
+const GO_API_URL = process.env.GO_API_URL;
+
+interface GoNewsResponse {
+  id: string;
+  title: string;
+  slug: string;
+  image: string;
+  content: unknown;
+  category_id: string | null;
+  is_published: boolean;
+  meta_title: string | null;
+  meta_description: string | null;
+  order_index: number;
+  created_at: string;
+  updated_at: string;
+  deleted_at: string | null;
+}
+
+interface GoErrorResponse {
+  code: string;
+  message: string;
+  fields?: Record<string, string[]>;
+}
+
+function mapGoNews(row: GoNewsResponse): News {
+  return {
+    id: row.id,
+    title: row.title,
+    slug: row.slug,
+    image: row.image,
+    content: row.content as News["content"],
+    categoryId: row.category_id,
+    isPublished: row.is_published,
+    metaTitle: row.meta_title,
+    metaDescription: row.meta_description,
+    orderIndex: row.order_index,
+    createdAt: row.created_at,
+    updatedAt: row.updated_at,
+    deletedAt: row.deleted_at,
+  };
+}
+
+async function extractErrorMessage(res: Response, fallback: string): Promise<string> {
   try {
-    const data = await getNews(newsRepo, options);
-    return { data, error: null };
+    const body = (await res.json()) as GoErrorResponse;
+    return body.message || fallback;
+  } catch {
+    return fallback;
+  }
+}
+
+// isPrerenderError lets a real fetch failure propagate out of "use cache"
+// render functions instead of being swallowed — see
+// modules/category/presentation/actions.ts's identical helper.
+function isPrerenderError(error: unknown): boolean {
+  if (error instanceof Error) {
+    const msg = error.message.toLowerCase();
+    return (
+      error.name === "AbortError" ||
+      msg.includes("aborted") ||
+      msg.includes("abort") ||
+      msg.includes("prerendering") ||
+      msg.includes("prerender")
+    );
+  }
+  return false;
+}
+
+function buildNewsFilterParams(filter?: NewsFilter): URLSearchParams {
+  const params = new URLSearchParams();
+  if (!filter) return params;
+  if (filter.isPublished !== undefined) params.set("is_published", String(filter.isPublished));
+  if (filter.search) params.set("search", filter.search);
+  if (filter.categoryId) params.set("category_id", filter.categoryId);
+  if (filter.excludeId) params.set("exclude_id", filter.excludeId);
+  if (filter.limit !== undefined) params.set("limit", String(filter.limit));
+  if (filter.offset !== undefined) params.set("offset", String(filter.offset));
+  if (filter.includeDeleted) params.set("include_deleted", "true");
+  if (filter.sortBy) params.set("sort_by", filter.sortBy);
+  if (filter.sortOrder) params.set("sort_order", filter.sortOrder);
+  return params;
+}
+
+export async function getNewsAction(options?: NewsFilter) {
+  if (!GO_API_URL) {
+    return { data: [] as News[], error: null };
+  }
+  try {
+    const params = buildNewsFilterParams(options);
+    const res = await fetch(`${GO_API_URL}/news?${params.toString()}`, { cache: "no-store" });
+    if (!res.ok) {
+      return { data: [] as News[], error: await extractErrorMessage(res, "Failed to fetch news") };
+    }
+    const rows = (await res.json()) as GoNewsResponse[] | null;
+    return { data: (rows ?? []).map(mapGoNews), error: null };
   } catch (error) {
+    if (isPrerenderError(error)) throw error;
     console.error("getNewsAction error:", error);
-    return { data: [], error: "Failed to fetch news" };
+    return { data: [] as News[], error: "Failed to fetch news" };
+  }
+}
+
+export async function countNewsAction(options?: NewsFilter) {
+  if (!GO_API_URL) {
+    return { data: 0, error: null };
+  }
+  try {
+    const params = buildNewsFilterParams(options);
+    const res = await fetch(`${GO_API_URL}/news/count?${params.toString()}`, { cache: "no-store" });
+    if (!res.ok) {
+      return { data: 0, error: await extractErrorMessage(res, "Failed to count news") };
+    }
+    const body = (await res.json()) as { count: number };
+    return { data: body.count, error: null };
+  } catch (error) {
+    console.error("countNewsAction error:", error);
+    return { data: 0, error: "Failed to count news" };
+  }
+}
+
+export async function getNewsBySlugAction(slug: string) {
+  if (!GO_API_URL) {
+    return { data: null, error: null };
+  }
+  try {
+    const res = await fetch(`${GO_API_URL}/news/slug/${slug}`, { cache: "no-store" });
+    if (res.status === 404) {
+      return { data: null, error: null };
+    }
+    if (!res.ok) {
+      return { data: null, error: await extractErrorMessage(res, "Failed to fetch news") };
+    }
+    const row = (await res.json()) as GoNewsResponse;
+    return { data: mapGoNews(row), error: null };
+  } catch (error) {
+    if (isPrerenderError(error)) throw error;
+    console.error("getNewsBySlugAction error:", error);
+    return { data: null, error: "Failed to fetch news" };
   }
 }
 
 export async function createNewsAction(input: CreateNewsInput) {
+  if (!GO_API_URL) {
+    return { data: null, error: "GO_API_URL is not configured" };
+  }
   try {
-    const data = await createNews(newsRepo, input);
-    revalidatePath("/admin/news");
-    revalidatePath("/tin-tuc");
-    revalidateTag("news-list", { expire: 0 });
-    await purgeCloudflareCache();
-    if (data?.slug) {
-      revalidateTag(`news-slug:${data.slug}`, { expire: 0 });
+    const res = await fetch(`${GO_API_URL}/news`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(toSnakeCaseBody(input)),
+    });
+    if (!res.ok) {
+      return { data: null, error: await extractErrorMessage(res, "Failed to create news") };
     }
-    if (data?.isPublished && data?.slug) {
+    const row = (await res.json()) as GoNewsResponse;
+    const data = mapGoNews(row);
+
+    revalidatePaths(data.slug);
+    if (data.isPublished && data.slug) {
       const url = `https://dienmayelc.com.vn/tin-tuc/${data.slug}`;
       submitToIndexNow([url]).catch((err) => console.error("IndexNow news create error:", err));
       submitToGoogleIndex([url]).catch((err) => console.error("Google Indexing news create error:", err));
@@ -54,17 +181,24 @@ export async function createNewsAction(input: CreateNewsInput) {
 }
 
 export async function updateNewsAction(input: UpdateNewsInput) {
+  if (!GO_API_URL) {
+    return { data: null, error: "GO_API_URL is not configured" };
+  }
   try {
-    const data = await updateNews(newsRepo, input);
-    revalidatePath("/admin/news");
-    revalidatePath("/tin-tuc");
-    revalidatePath(`/tin-tuc/${data.slug}`);
-    revalidateTag("news-list", { expire: 0 });
-    await purgeCloudflareCache();
-    if (data?.slug) {
-      revalidateTag(`news-slug:${data.slug}`, { expire: 0 });
+    const { id, ...rest } = input;
+    const res = await fetch(`${GO_API_URL}/news/${id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(toSnakeCaseBody(rest)),
+    });
+    if (!res.ok) {
+      return { data: null, error: await extractErrorMessage(res, "Failed to update news") };
     }
-    if (data?.isPublished && data?.slug) {
+    const row = (await res.json()) as GoNewsResponse;
+    const data = mapGoNews(row);
+
+    revalidatePaths(data.slug);
+    if (data.isPublished && data.slug) {
       const url = `https://dienmayelc.com.vn/tin-tuc/${data.slug}`;
       submitToIndexNow([url]).catch((err) => console.error("IndexNow news update error:", err));
       submitToGoogleIndex([url]).catch((err) => console.error("Google Indexing news update error:", err));
@@ -80,16 +214,18 @@ export async function updateNewsAction(input: UpdateNewsInput) {
 }
 
 export async function deleteNewsAction(id: string) {
+  if (!GO_API_URL) {
+    return { success: false, error: "GO_API_URL is not configured" };
+  }
   try {
-    const newsItem = await newsRepo.getById(id);
-    await deleteNews(newsRepo, id);
-    revalidatePath("/admin/news");
-    revalidatePath("/tin-tuc");
-    revalidateTag("news-list", { expire: 0 });
-    await purgeCloudflareCache();
-    if (newsItem?.slug) {
-      revalidateTag(`news-slug:${newsItem.slug}`, { expire: 0 });
-      submitToGoogleIndex([`https://dienmayelc.com.vn/tin-tuc/${newsItem.slug}`], "URL_DELETED")
+    const existing = await getNewsByIdAction(id).then((r) => r.data);
+    const res = await fetch(`${GO_API_URL}/news/${id}`, { method: "DELETE" });
+    if (!res.ok) {
+      return { success: false, error: await extractErrorMessage(res, "Failed to delete news") };
+    }
+    revalidatePaths(existing?.slug);
+    if (existing?.slug) {
+      submitToGoogleIndex([`https://dienmayelc.com.vn/tin-tuc/${existing.slug}`], "URL_DELETED")
         .catch((err) => console.error("Google Indexing news delete error:", err));
     }
     return { success: true, error: null };
@@ -99,5 +235,36 @@ export async function deleteNewsAction(id: string) {
       success: false,
       error: error instanceof Error ? error.message : "Failed to delete news",
     };
+  }
+}
+
+async function getNewsByIdAction(id: string) {
+  if (!GO_API_URL) {
+    return { data: null, error: null };
+  }
+  try {
+    const res = await fetch(`${GO_API_URL}/news/${id}`, { cache: "no-store" });
+    if (res.status === 404) {
+      return { data: null, error: null };
+    }
+    if (!res.ok) {
+      return { data: null, error: await extractErrorMessage(res, "Failed to fetch news") };
+    }
+    const row = (await res.json()) as GoNewsResponse;
+    return { data: mapGoNews(row), error: null };
+  } catch (error) {
+    console.error("getNewsByIdAction error:", error);
+    return { data: null, error: "Failed to fetch news" };
+  }
+}
+
+function revalidatePaths(slug?: string) {
+  revalidatePath("/admin/news");
+  revalidatePath("/tin-tuc");
+  revalidateTag("news-list", { expire: 0 });
+  void purgeCloudflareCache();
+  if (slug) {
+    revalidatePath(`/tin-tuc/${slug}`);
+    revalidateTag(`news-slug:${slug}`, { expire: 0 });
   }
 }

@@ -47,8 +47,7 @@ import { GridSection } from "@/shared/components/sections/grid-section";
 import { District } from "@/shared/lib/districts";
 import { ImageWithSkeleton } from "@/shared/components/ui/image-with-skeleton";
 import { matchNewsByEntityName } from "@/shared/lib/content-relevance";
-import { getNews } from "@/modules/news/application";
-import { newsRepo } from "@/modules/news/infrastructure/SupabaseNewsRepository";
+import { getNewsAction } from "@/modules/news/presentation/actions";
 
 interface ProductListModuleProps {
   entity: ResolvedEntity;
@@ -153,7 +152,7 @@ async function getCachedRelatedNews(entityName: string) {
   cacheTag("news-list");
   setUseStaticClient(true);
 
-  const allNews = await getNews(newsRepo, { isPublished: true });
+  const allNews = await getNewsAction({ isPublished: true }).then(unwrapActionResult);
   return matchNewsByEntityName(entityName, allNews ?? [], 3);
 }
 
