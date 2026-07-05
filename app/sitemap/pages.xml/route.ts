@@ -58,12 +58,21 @@ export async function GET() {
     url: `${BASE_URL}/dich-vu/${dist.slug}`,
   }));
 
+  const serviceLocationRoutes = (services || [])
+    .filter((serv) => serv.slug)
+    .flatMap((serv) =>
+      DISTRICTS.map((dist) => ({
+        url: `${BASE_URL}/dich-vu/${serv.slug}/${dist.slug}`,
+      }))
+    );
+
   const allRoutes = [
     ...staticRoutes,
     ...pageRoutes,
     ...serviceRoutes,
     ...branchRoutes,
     ...serviceHubDistrictRoutes,
+    ...serviceLocationRoutes,
   ];
 
   const xml = `<?xml version="1.0" encoding="UTF-8"?>
