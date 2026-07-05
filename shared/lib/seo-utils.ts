@@ -354,7 +354,7 @@ export function generateServiceMetadata(
   return {
     title: finalTitle,
     description: finalDescription,
-    ...(location ? { robots: { index: false, follow: true } } : {}),
+    ...(location ? { robots: { index: true, follow: true } } : {}),
     alternates: {
       canonical: url,
     },

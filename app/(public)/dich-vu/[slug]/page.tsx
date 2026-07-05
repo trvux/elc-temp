@@ -98,7 +98,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     const systemPage = await getCachedSystemPage("dich-vu");
     const base = generateSystemPageMetadata(
       systemPage,
-      `Dịch vụ tại ${district.name} | Điện máy ELC`,
+      `Dịch vụ máy lạnh, thi công HVAC tại ${district.name} | Điện máy ELC`,
       `Giải pháp thi công lắp đặt, bảo trì hệ thống điều hòa chuyên nghiệp tại ${district.name}. Liên hệ ngay để nhận báo giá!`,
       `/dich-vu/${district.slug}`,
     ) as Metadata;
@@ -178,7 +178,7 @@ async function ServiceHubWithLocation({ location }: { location: District }) {
         contentClassName="py-6 md:py-8 lg:py-10"
       >
         <header className={STYLES.header}>
-          <TypographyH1>Dịch vụ tại {location.name}</TypographyH1>
+          <TypographyH1>Dịch vụ thi công, lắp đặt & sửa chữa máy lạnh tại {location.name}</TypographyH1>
           <TypographyLead>
             Giải pháp lắp đặt, bảo trì và sửa chữa hệ thống điều hòa chuyên nghiệp tại {location.name}
           </TypographyLead>
