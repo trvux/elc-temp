@@ -336,7 +336,12 @@ export function generateServiceMetadata(
   const metaDescription = (service.metaDescription || service.meta_description) as string | undefined;
 
   const title = metaTitle || `${serviceTitle} - Dịch vụ chuyên nghiệp | ${SHOP_NAME}`;
-  const description = metaDescription || `Cung cấp dịch vụ ${serviceTitle} uy tín, giá tốt tại ${SHOP_NAME}. Đội ngũ kỹ thuật tay nghề cao, thi công nhanh chóng, hỗ trợ 24/7. Click để nhận báo giá chi tiết!`;
+  const rawDescription = (service.description || (service as Record<string, unknown>).description) as string | undefined;
+  const contentExcerpt = getProductDescriptionExcerpt(service.content || (service as Record<string, unknown>).content, 180);
+  const description = metaDescription 
+    || rawDescription 
+    || contentExcerpt 
+    || `Cung cấp dịch vụ ${serviceTitle} uy tín, giá tốt tại ${SHOP_NAME}. Đội ngũ kỹ thuật tay nghề cao, thi công nhanh chóng, hỗ trợ 24/7. Click để nhận báo giá chi tiết!`;
 
   let finalTitle = sanitizeAndFormatTitle(title, false);
 
