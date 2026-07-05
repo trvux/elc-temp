@@ -1,49 +1,12 @@
-import { createStaticClient } from "@/shared/lib/supabase/static";
+import { getProductsAction } from "@/modules/catalog/presentation/actions";
 import { NextResponse } from "next/server";
 
-interface FeedProduct {
-  id: string;
-  name: string;
-  sku: string;
-  slug: string;
-  original_price: number | null;
-  sale_price: number | null;
-  images: string[] | null;
-  description: unknown;
-  stock_status: string | null;
-  category: { slug: string } | null;
-  brand: { name: string; slug: string } | null;
-}
-
 export async function GET() {
-  const supabase = createStaticClient();
+  const { data: products, error } = await getProductsAction({ isPublished: true });
 
-  // Fetch all published products with brand and category slug
-  const { data: rawProducts, error } = await supabase
-    .from("products")
-    .select(
-      `
-      id,
-      name,
-      sku,
-      slug,
-      original_price,
-      sale_price,
-      images,
-      description,
-      stock_status,
-      category:categories(slug),
-      brand:brands(name, slug)
-    `,
-    )
-    .eq("is_published", true)
-    .is("deleted_at", null);
-
-  if (error || !rawProducts) {
+  if (error) {
     return new NextResponse("Error fetching products", { status: 500 });
   }
-
-  const products = rawProducts as unknown as FeedProduct[];
 
   const BASE_URL = "https://dienmayelc.com.vn";
 
@@ -149,21 +112,21 @@ export async function GET() {
       getProductDescription(prod.description, prod.name).substring(0, 1000),
     );
 
-    const priceVal = prod.original_price || prod.sale_price || 0;
+    const priceVal = prod.originalPrice || prod.salePrice || 0;
 
     // Case 3: Giá Liên hệ (original_price & sale_price <= 0 hoặc rỗng)
     // Google Shopping bắt buộc phải có giá lớn hơn 0, nếu gửi giá 0 hoặc rỗng sẽ bị khóa tài khoản GMC.
     // Vì vậy, ta bắt buộc phải bỏ qua các sản phẩm "Liên hệ" khỏi Google Shopping Feed.
     if (priceVal <= 0) continue;
 
-    const salePriceVal = prod.sale_price;
+    const salePriceVal = prod.salePrice;
 
     const price = `${priceVal} VND`;
 
     let availability = "in_stock";
-    if (prod.stock_status === "out_of_stock") {
+    if (prod.stockStatus === "out_of_stock") {
       availability = "out_of_stock";
-    } else if (prod.stock_status === "pre_order") {
+    } else if (prod.stockStatus === "pre_order") {
       availability = "preorder";
     }
 

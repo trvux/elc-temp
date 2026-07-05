@@ -1,5 +1,5 @@
 import { ProjectListModule } from "@/modules/project/presentation/components/public/ProjectListModule";
-import { createStaticClient } from "@/shared/lib/supabase/static";
+import { getFeaturedProjectsAction, getProjectsAction } from "@/modules/project/presentation/actions";
 import type { Metadata } from "next";
 import { getCachedSystemPage } from "@/shared/lib/cached-system-page";
 import { generateSystemPageMetadata } from "@/shared/lib/seo-utils";
@@ -12,28 +12,10 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 
   try {
-    const supabase = createStaticClient();
-
-    let { data: firstProject } = await supabase
-      .from('projects')
-      .select('images')
-      .eq('is_published', true)
-      .eq('is_featured', true)
-      .is('deleted_at', null)
-      .order('order_index', { ascending: true })
-      .limit(1)
-      .maybeSingle();
+    let firstProject = (await getFeaturedProjectsAction(1)).data[0];
 
     if (!firstProject || !firstProject.images || firstProject.images.length === 0) {
-      const { data: fallbackProj } = await supabase
-        .from('projects')
-        .select('images')
-        .eq('is_published', true)
-        .is('deleted_at', null)
-        .order('order_index', { ascending: true })
-        .limit(1)
-        .maybeSingle();
-      firstProject = fallbackProj;
+      firstProject = (await getProjectsAction({ isPublished: true, limit: 1 })).data[0];
     }
 
     const ogImage = firstProject?.images?.[0] || "/images/hero-bg.jpg";

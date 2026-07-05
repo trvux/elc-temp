@@ -1,39 +1,30 @@
 import { NextResponse } from 'next/server';
-import { createStaticClient } from '@/shared/lib/supabase/static';
-
+import { getCategoriesAction } from '@/modules/category/presentation/actions';
+import { getBrandsAction } from '@/modules/brand/presentation/actions';
+import { getGroupsAction } from '@/modules/group/presentation/actions';
 
 export async function GET() {
   const BASE_URL = 'https://dienmayelc.com.vn';
-  const supabase = createStaticClient();
 
-  const { data: categories } = await supabase
-    .from('categories')
-    .select('slug')
-    .is('deleted_at', null);
+  const [{ data: categories }, { data: brands }, { data: groupCategories }] = await Promise.all([
+    getCategoriesAction(),
+    getBrandsAction(),
+    getGroupsAction(),
+  ]);
 
-  const { data: brands } = await supabase
-    .from('brands')
-    .select('slug')
-    .is('deleted_at', null);
-
-  const { data: groupCategories } = await supabase
-    .from('group_categories')
-    .select('slug')
-    .is('deleted_at', null);
-
-  const categoryRoutes = (categories || [])
+  const categoryRoutes = categories
     .filter((cat) => cat.slug)
     .map((cat) => ({
       url: `${BASE_URL}/san-pham/${cat.slug}`,
     }));
 
-  const brandRoutes = (brands || [])
+  const brandRoutes = brands
     .filter((b) => b.slug)
     .map((b) => ({
       url: `${BASE_URL}/san-pham/${b.slug}`,
     }));
 
-  const groupRoutes = (groupCategories || [])
+  const groupRoutes = groupCategories
     .filter((g) => g.slug)
     .map((g) => ({
       url: `${BASE_URL}/san-pham/${g.slug}`,

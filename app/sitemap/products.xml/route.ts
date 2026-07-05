@@ -1,18 +1,12 @@
 import { NextResponse } from 'next/server';
-import { createStaticClient } from '@/shared/lib/supabase/static';
-
+import { getProductsAction } from '@/modules/catalog/presentation/actions';
 
 export async function GET() {
   const BASE_URL = 'https://dienmayelc.com.vn';
-  const supabase = createStaticClient();
 
-  const { data: products } = await supabase
-    .from('products')
-    .select('slug')
-    .eq('is_published', true)
-    .is('deleted_at', null);
+  const { data: products } = await getProductsAction({ isPublished: true });
 
-  const productRoutes = (products || [])
+  const productRoutes = products
     .filter((prod) => prod.slug)
     .map((prod) => ({
       url: `${BASE_URL}/san-pham/${prod.slug}`,

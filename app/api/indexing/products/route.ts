@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createStaticClient } from "@/shared/lib/supabase/static";
+import { getProductBySlugAction, getProductsAction } from "@/modules/catalog/presentation/actions";
 import { google } from "googleapis";
 import * as fs from "fs";
 import * as path from "path";
@@ -20,7 +20,7 @@ async function handleIndexing(request: NextRequest) {
     // Authorization check
     const expectedSecret = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.INDEXING_SECRET;
     const isDev = process.env.NODE_ENV === "development";
-    
+
     if (expectedSecret && secret !== expectedSecret && !isDev) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
@@ -30,26 +30,18 @@ async function handleIndexing(request: NextRequest) {
     const limit = parseInt(searchParams.get("limit") || "200", 10);
     const offset = parseInt(searchParams.get("offset") || "0", 10);
 
-    const supabase = createStaticClient();
-
     // 1. Fetch published products
-    let dbQuery = supabase
-      .from("products")
-      .select("slug")
-      .eq("is_published", true)
-      .is("deleted_at", null);
-
+    let products: { slug: string }[];
     if (slug) {
-      dbQuery = dbQuery.eq("slug", slug);
+      const { data } = await getProductBySlugAction(slug);
+      products = data ? [{ slug: data.slug }] : [];
     } else {
-      dbQuery = dbQuery.range(offset, offset + limit - 1);
-    }
-
-    const { data: products, error: dbError } = await dbQuery;
-
-    if (dbError) {
-      console.error("Database error fetching products:", dbError);
-      return NextResponse.json({ error: "Failed to fetch products from database" }, { status: 500 });
+      const { data, error } = await getProductsAction({ isPublished: true, limit, offset });
+      if (error) {
+        console.error("Database error fetching products:", error);
+        return NextResponse.json({ error: "Failed to fetch products from database" }, { status: 500 });
+      }
+      products = data.map((p) => ({ slug: p.slug }));
     }
 
     if (!products || products.length === 0) {

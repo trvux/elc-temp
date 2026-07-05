@@ -1,41 +1,31 @@
 import { NextResponse } from 'next/server';
-import { createStaticClient } from '@/shared/lib/supabase/static';
+import { getNewsAction } from '@/modules/news/presentation/actions';
+import { getProjectsAction } from '@/modules/project/presentation/actions';
+import { getProjectTypesAction } from '@/modules/project-type/presentation/actions';
 
 
 export async function GET() {
   const BASE_URL = 'https://dienmayelc.com.vn';
-  const supabase = createStaticClient();
 
-  const { data: news } = await supabase
-    .from('news')
-    .select('slug')
-    .eq('is_published', true)
-    .is('deleted_at', null);
+  const [{ data: news }, { data: projects }, { data: projectTypes }] = await Promise.all([
+    getNewsAction({ isPublished: true }),
+    getProjectsAction({ isPublished: true }),
+    getProjectTypesAction(),
+  ]);
 
-  const { data: projects } = await supabase
-    .from('projects')
-    .select('slug, meta_title, meta_description')
-    .eq('is_published', true)
-    .is('deleted_at', null);
-
-  const { data: projectTypes } = await supabase
-    .from('project_type')
-    .select('slug, meta_title, meta_description')
-    .is('deleted_at', null);
-
-  const newsRoutes = (news || [])
+  const newsRoutes = news
     .filter((n) => n.slug)
     .map((n) => ({
       url: `${BASE_URL}/tin-tuc/${n.slug}`,
     }));
 
-  const projectRoutes = (projects || [])
+  const projectRoutes = projects
     .filter((proj) => proj.slug)
     .map((proj) => ({
       url: `${BASE_URL}/du-an/${proj.slug}`,
     }));
 
-  const projectTypeRoutes = (projectTypes || [])
+  const projectTypeRoutes = projectTypes
     .filter((pt) => pt.slug)
     .map((pt) => ({
       url: `${BASE_URL}/du-an/${pt.slug}`,

@@ -1,19 +1,14 @@
 import { getProductsAction } from "@/modules/catalog/presentation/actions";
-import { createClient } from "@/shared/lib/supabase/server";
+import { getCategoriesAction } from "@/modules/category/presentation/actions";
 import { unstable_cache } from "next/cache";
 import type { NextRequest } from "next/server";
 
 // Cache category IDs for a group (stable — changes only on admin edit)
 const getCachedGroupCategoryIds = unstable_cache(
   async (groupId: string): Promise<string[]> => {
-    const supabase = await createClient();
-    const { data } = await supabase
-      .from("categories")
-      .select("id, name")
-      .eq("group_id", groupId)
-      .is("deleted_at", null);
+    const { data } = await getCategoriesAction({ groupId });
 
-    return (data ?? [])
+    return data
       .filter((c) => !c.name.toLowerCase().includes("chưa phân loại"))
       .map((c) => c.id);
   },

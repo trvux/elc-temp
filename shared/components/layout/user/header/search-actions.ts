@@ -3,7 +3,9 @@
 import { getProductsAction } from "@/modules/catalog/presentation/actions";
 import { getProjectsAction } from "@/modules/project/presentation/actions";
 import { getServicesAction } from "@/modules/service/presentation/actions";
-import { createStaticClient } from "@/shared/lib/supabase/static";
+import { getCategoriesAction } from "@/modules/category/presentation/actions";
+import { getProjectTypesAction } from "@/modules/project-type/presentation/actions";
+import { getNewsAction } from "@/modules/news/presentation/actions";
 import Fuse from "fuse.js";
 import { getQueryTokens, tokenize } from "@/shared/lib/search-utils";
 import { cacheLife, cacheTag } from "next/cache";
@@ -89,37 +91,44 @@ export async function getDefaultSearchItemsAction(): Promise<{
   news: DefaultSearchItem[];
 }> {
   try {
-    const supabase = createStaticClient();
-    
     const [catsRes, projTypesRes, servicesRes, newsRes] = await Promise.all([
-      supabase.from("categories").select("id, name, slug").is("deleted_at", null).order("name", { ascending: true }).limit(8),
-      supabase.from("project_type").select("id, name, slug").is("deleted_at", null).order("name", { ascending: true }).limit(8),
-      supabase.from("services").select("id, title, slug").eq("is_published", true).is("deleted_at", null).order("title", { ascending: true }).limit(8),
-      supabase.from("news").select("id, title, slug").eq("is_published", true).is("deleted_at", null).order("created_at", { ascending: false }).limit(8),
+      getCategoriesAction(),
+      getProjectTypesAction(),
+      getServicesAction({ isPublished: true }),
+      getNewsAction({ isPublished: true, limit: 8, sortBy: "created_at", sortOrder: "desc" }),
     ]);
 
-    const productCategories = (catsRes.data || []).map((c) => ({
-      id: c.id,
-      title: c.name,
-      type: "product_category" as const,
-      slug: c.slug,
-    }));
+    const productCategories = [...catsRes.data]
+      .sort((a, b) => a.name.localeCompare(b.name))
+      .slice(0, 8)
+      .map((c) => ({
+        id: c.id,
+        title: c.name,
+        type: "product_category" as const,
+        slug: c.slug,
+      }));
 
-    const projectTypes = (projTypesRes.data || []).map((pt) => ({
-      id: pt.id,
-      title: pt.name,
-      type: "project_type" as const,
-      slug: pt.slug,
-    }));
+    const projectTypes = [...projTypesRes.data]
+      .sort((a, b) => a.name.localeCompare(b.name))
+      .slice(0, 8)
+      .map((pt) => ({
+        id: pt.id,
+        title: pt.name,
+        type: "project_type" as const,
+        slug: pt.slug,
+      }));
 
-    const services = (servicesRes.data || []).map((s) => ({
-      id: s.id,
-      title: s.title,
-      type: "service_item" as const,
-      slug: s.slug,
-    }));
+    const services = [...servicesRes.data]
+      .sort((a, b) => a.title.localeCompare(b.title))
+      .slice(0, 8)
+      .map((s) => ({
+        id: s.id,
+        title: s.title,
+        type: "service_item" as const,
+        slug: s.slug,
+      }));
 
-    const news = (newsRes.data || []).map((n) => ({
+    const news = newsRes.data.map((n) => ({
       id: n.id,
       title: n.title,
       type: "news_item" as const,

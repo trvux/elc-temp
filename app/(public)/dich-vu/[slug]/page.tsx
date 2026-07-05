@@ -2,6 +2,7 @@ import {
   CardService,
   getServiceBySlugAction,
   getPublishedServicesGroupedAction,
+  getServicesAction,
   mapServiceToCardData,
   ServiceDetailModule,
 } from "@/modules/service";
@@ -18,7 +19,6 @@ import { notFound } from "next/navigation";
 import { getBranchesAction } from "@/modules/branch/presentation/actions";
 import { unwrapActionResult } from "@/shared/lib/action-result";
 import { DISTRICTS } from "@/shared/lib/districts";
-import { createStaticClient } from "@/shared/lib/supabase/static";
 import { Breadcrumbs } from "@/shared/components/layout/user/breadcrumbs";
 import { ScrollToTop } from "@/shared/components/layout/user/scroll-to-top";
 import { GridSection } from "@/shared/components/sections/grid-section";
@@ -51,14 +51,9 @@ interface PageProps {
 }
 
 export async function generateStaticParams() {
-  const supabase = createStaticClient();
-  const { data: services } = await supabase
-    .from("services")
-    .select("slug")
-    .eq("is_published", true)
-    .is("deleted_at", null);
+  const { data: services } = await getServicesAction({ isPublished: true });
 
-  const serviceSlugs = (services || [])
+  const serviceSlugs = services
     .map((s) => s.slug)
     .filter(Boolean) as string[];
   const districtSlugs = DISTRICTS.map((d) => d.slug);
