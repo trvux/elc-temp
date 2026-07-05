@@ -293,16 +293,6 @@ async function CachedProductsView({
   cacheLife("hours");
   const queryTokens = getQueryTokens(q);
 
-  // H1 must track the SEO <title> (system_pages.metaTitle) instead of a hardcoded
-  // generic string — a big gap between what users read as the page heading and what
-  // the <title> tag claims is exactly what makes Google discard the <title> and
-  // substitute the H1 into the search snippet instead (this page ranked with H1
-  // "Tất cả sản phẩm" showing up in place of the real SEO title for that reason).
-  const systemPage = q ? null : await getCachedSystemPage("san-pham");
-  const seoH1 = systemPage?.metaTitle
-    ?.replace(/\s*\|\s*Điện máy ELC\s*$/i, "")
-    .trim();
-
   const { products, totalCount, availableFilters } =
     await getCachedProductsData(
       q,
@@ -334,7 +324,7 @@ async function CachedProductsView({
       {/* Main sidebar + grid section */}
       <div className="w-full relative">
         <SidebarProvider
-          defaultOpen={false}
+          defaultOpen={true}
           className="min-h-0 relative w-full flex items-start"
         >
           <Sidebar variant="inset" className="absolute! h-full!">
@@ -364,7 +354,7 @@ async function CachedProductsView({
               {/* Header Title and Count */}
               <div className="flex flex-col gap-1.5 pb-4 border-b border-border/40">
                 <TypographyH1>
-                  {q ? `Kết quả cho "${q}"` : seoH1 || "Tất cả sản phẩm"}
+                  {q ? `Kết quả cho "${q}"` : "Tất cả sản phẩm"}
                 </TypographyH1>
                 <p className="text-sm text-muted-foreground">
                   Danh sách {totalCount} sản phẩm đáp ứng tiêu chí
