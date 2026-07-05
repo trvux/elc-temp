@@ -8,7 +8,7 @@ import {
   CreateCategoryInput,
   UpdateCategoryInput,
 } from "../domain/types";
-import { toSnakeCaseBody } from "@/shared/lib/go-api";
+import { authHeaders, toSnakeCaseBody } from "@/shared/lib/go-api";
 import { purgeCloudflareCache } from "@/shared/lib/cloudflare-purge";
 
 const GO_API_URL = process.env.GO_API_URL;
@@ -196,7 +196,7 @@ export async function createCategoryAction(input: CreateCategoryInput) {
   try {
     const res = await fetch(`${GO_API_URL}/categories`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: { "Content-Type": "application/json", ...(await authHeaders()) },
       body: JSON.stringify(toSnakeCaseBody(input)),
     });
     if (!res.ok) {
@@ -226,7 +226,7 @@ export async function updateCategoryAction(input: UpdateCategoryInput) {
     const { id, ...rest } = input;
     const res = await fetch(`${GO_API_URL}/categories/${id}`, {
       method: "PUT",
-      headers: { "Content-Type": "application/json" },
+      headers: { "Content-Type": "application/json", ...(await authHeaders()) },
       body: JSON.stringify(toSnakeCaseBody(rest)),
     });
     if (!res.ok) {
@@ -253,7 +253,7 @@ export async function deleteCategoryAction(id: string) {
     return { error: "GO_API_URL is not configured" };
   }
   try {
-    const res = await fetch(`${GO_API_URL}/categories/${id}`, { method: "DELETE" });
+    const res = await fetch(`${GO_API_URL}/categories/${id}`, { method: "DELETE", headers: await authHeaders() });
     if (!res.ok) {
       return { error: await extractErrorMessage(res, "Failed to delete category") };
     }

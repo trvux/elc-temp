@@ -2,7 +2,7 @@
 
 import { revalidatePath, revalidateTag } from "next/cache";
 import { Contact, CreateContactInput, UpdateContactInput, ContactFilter } from "../domain";
-import { toSnakeCaseBody } from "@/shared/lib/go-api";
+import { authHeaders, toSnakeCaseBody } from "@/shared/lib/go-api";
 import { purgeCloudflareCache } from "@/shared/lib/cloudflare-purge";
 
 const GO_API_URL = process.env.GO_API_URL;
@@ -77,7 +77,7 @@ export async function createContactAction(input: CreateContactInput) {
   try {
     const res = await fetch(`${GO_API_URL}/contacts`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: { "Content-Type": "application/json", ...(await authHeaders()) },
       body: JSON.stringify(toSnakeCaseBody(input)),
     });
     if (!res.ok) {
@@ -106,7 +106,7 @@ export async function updateContactAction(input: UpdateContactInput) {
     const { id, ...rest } = input;
     const res = await fetch(`${GO_API_URL}/contacts/${id}`, {
       method: "PUT",
-      headers: { "Content-Type": "application/json" },
+      headers: { "Content-Type": "application/json", ...(await authHeaders()) },
       body: JSON.stringify(toSnakeCaseBody(rest)),
     });
     if (!res.ok) {
@@ -132,7 +132,7 @@ export async function deleteContactAction(id: string) {
     return { success: false, error: "GO_API_URL is not configured" };
   }
   try {
-    const res = await fetch(`${GO_API_URL}/contacts/${id}`, { method: "DELETE" });
+    const res = await fetch(`${GO_API_URL}/contacts/${id}`, { method: "DELETE", headers: await authHeaders() });
     if (!res.ok) {
       return { success: false, error: await extractErrorMessage(res) };
     }

@@ -2,7 +2,7 @@
 
 import { revalidatePath, revalidateTag } from "next/cache";
 import { News, CreateNewsInput, UpdateNewsInput, NewsFilter } from "../domain";
-import { toSnakeCaseBody } from "@/shared/lib/go-api";
+import { authHeaders, toSnakeCaseBody } from "@/shared/lib/go-api";
 import { submitToIndexNow } from "@/shared/lib/indexnow";
 import { submitToGoogleIndex } from "@/shared/lib/google-indexing";
 import { purgeCloudflareCache } from "@/shared/lib/cloudflare-purge";
@@ -155,7 +155,7 @@ export async function createNewsAction(input: CreateNewsInput) {
   try {
     const res = await fetch(`${GO_API_URL}/news`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: { "Content-Type": "application/json", ...(await authHeaders()) },
       body: JSON.stringify(toSnakeCaseBody(input)),
     });
     if (!res.ok) {
@@ -188,7 +188,7 @@ export async function updateNewsAction(input: UpdateNewsInput) {
     const { id, ...rest } = input;
     const res = await fetch(`${GO_API_URL}/news/${id}`, {
       method: "PUT",
-      headers: { "Content-Type": "application/json" },
+      headers: { "Content-Type": "application/json", ...(await authHeaders()) },
       body: JSON.stringify(toSnakeCaseBody(rest)),
     });
     if (!res.ok) {
@@ -219,7 +219,7 @@ export async function deleteNewsAction(id: string) {
   }
   try {
     const existing = await getNewsByIdAction(id).then((r) => r.data);
-    const res = await fetch(`${GO_API_URL}/news/${id}`, { method: "DELETE" });
+    const res = await fetch(`${GO_API_URL}/news/${id}`, { method: "DELETE", headers: await authHeaders() });
     if (!res.ok) {
       return { success: false, error: await extractErrorMessage(res, "Failed to delete news") };
     }

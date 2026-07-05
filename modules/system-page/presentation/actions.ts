@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { SystemPage, UpdateSystemPageInput } from "../domain";
 import { purgeCloudflareCache } from "@/shared/lib/cloudflare-purge";
-import { toSnakeCaseBody } from "@/shared/lib/go-api";
+import { authHeaders, toSnakeCaseBody } from "@/shared/lib/go-api";
 
 const GO_API_URL = process.env.GO_API_URL;
 
@@ -104,7 +104,7 @@ export async function updateSystemPageAction(input: UpdateSystemPageInput) {
   try {
     const res = await fetch(`${GO_API_URL}/system-pages/${input.id}`, {
       method: "PUT",
-      headers: { "Content-Type": "application/json" },
+      headers: { "Content-Type": "application/json", ...(await authHeaders()) },
       body: JSON.stringify(toSnakeCaseBody({ metaTitle: input.metaTitle, metaDescription: input.metaDescription })),
     });
     if (!res.ok) {

@@ -2,7 +2,7 @@
 
 import { revalidatePath, revalidateTag } from "next/cache";
 import { Service, CreateServiceInput, UpdateServiceInput, ServiceFilter, ServiceWithRelations } from "../domain/types";
-import { toSnakeCaseBody } from "@/shared/lib/go-api";
+import { authHeaders, toSnakeCaseBody } from "@/shared/lib/go-api";
 import { submitToIndexNow } from "@/shared/lib/indexnow";
 import { submitToGoogleIndex } from "@/shared/lib/google-indexing";
 import { getServiceGroupsAction } from "@/modules/service-group/presentation/actions";
@@ -146,7 +146,7 @@ export async function createServiceAction(input: CreateServiceInput) {
   try {
     const res = await fetch(`${GO_API_URL}/services`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: { "Content-Type": "application/json", ...(await authHeaders()) },
       body: JSON.stringify(toSnakeCaseBody(input)),
     });
     if (!res.ok) {
@@ -186,7 +186,7 @@ export async function updateServiceAction(input: UpdateServiceInput) {
     const { id, ...rest } = input;
     const res = await fetch(`${GO_API_URL}/services/${id}`, {
       method: "PUT",
-      headers: { "Content-Type": "application/json" },
+      headers: { "Content-Type": "application/json", ...(await authHeaders()) },
       body: JSON.stringify(toSnakeCaseBody(rest)),
     });
     if (!res.ok) {
@@ -353,7 +353,7 @@ export async function deleteServiceAction(id: string) {
     const getRes = await fetch(`${GO_API_URL}/services/${id}`, { cache: "no-store" });
     const slug = getRes.ok ? ((await getRes.json()) as GoServiceResponse).slug : null;
 
-    const res = await fetch(`${GO_API_URL}/services/${id}`, { method: "DELETE" });
+    const res = await fetch(`${GO_API_URL}/services/${id}`, { method: "DELETE", headers: await authHeaders() });
     if (!res.ok) {
       return { error: await extractErrorMessage(res) };
     }
