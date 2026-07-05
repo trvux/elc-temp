@@ -26,6 +26,7 @@ import { Metadata } from "next";
 import { getPublicLayoutData } from "@/modules/settings";
 import { generateBranchDetailSchema, sanitizeAndFormatTitle, BASE_URL } from "@/shared/lib/seo-utils";
 import { GridSection } from "@/shared/components/sections/grid-section";
+import { unwrapActionResult } from "@/shared/lib/action-result";
 
 // Helper to control Google Maps zoom level
 const getZoomedUrl = (url: string, zoomLevel = "15") => {
@@ -56,17 +57,14 @@ interface Props {
 
 async function getBranchData(slug: string) {
   "use cache";
+  cacheLife("hours");
   cacheTag("layout");
   setUseStaticClient(true);
-  const branch = await getBranchBySlugAction(slug).then((res) => res.data);
+  // null = chi nhanh khong ton tai (404 that su). Loi that se throw va giu
+  // nguyen ban cache cu (stale-if-error).
+  const branch = await getBranchBySlugAction(slug).then(unwrapActionResult);
   const currentYear = new Date().getFullYear();
   const { settings, contacts, branches } = await getPublicLayoutData();
-  // Neu Go API chua san sang (branch null, branches rong), cache ngan 30s
-  if (branch || (branches?.length ?? 0) > 0) {
-    cacheLife("hours");
-  } else {
-    cacheLife("retry");
-  }
   return {
     branch,
     branches,

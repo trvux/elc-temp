@@ -31,34 +31,29 @@ export async function generateMetadata(): Promise<Metadata> {
 
 import { setUseStaticClient } from "@/shared/lib/supabase/server";
 import { cacheLife, cacheTag } from "next/cache";
+import { unwrapActionResult } from "@/shared/lib/action-result";
 
 async function getCachedHomeData() {
   "use cache";
+  cacheLife("days");
   cacheTag("products-list", "projects-list", "brands", "layout", "categories");
   setUseStaticClient(true);
 
-  // Fetch all necessary data for the homepage using the application layer
+  // Cac action goi Go API throw khi that su loi (mang, 5xx, timeout) thay vi
+  // tra ve mang rong -- nho vay "use cache" giu nguyen ban cache cu con tot
+  // (stale-if-error) thay vi ghi de bang trang thai rong.
   const [settingsData, projects, categories, contacts, brands, branches] =
     await Promise.all([
-      getSiteSettingsAction().then((res) => res.data),
+      getSiteSettingsAction().then(unwrapActionResult),
       getProjects(projectRepo, {
         isPublished: true,
         limit: 200,
       }),
       getCategories(categoryRepo),
-      getContactsAction().then((res) => res.data),
-      getBrandsAction({ limit: 100 }).then((res) => res.data),
-      getBranchesAction({ isPublished: true }).then((res) => res.data),
+      getContactsAction().then(unwrapActionResult),
+      getBrandsAction({ limit: 100 }).then(unwrapActionResult),
+      getBranchesAction({ isPublished: true }).then(unwrapActionResult),
     ]);
-
-  // Neu Go API chua san sang (contacts va brands deu rong), cache ngan 30s de retry nhanh.
-  // contacts va brands la data tu Go API -- neu ca 2 rong la dau hieu Go API chua san sang.
-  const isGoApiReady = (contacts && contacts.length > 0) || (brands && brands.length > 0);
-  if (!isGoApiReady) {
-    cacheLife({ revalidate: 30, expire: 60 });
-  } else {
-    cacheLife("days");
-  }
 
   // Convert settings array to a more usable object
   const settings: Record<string, string> = {};

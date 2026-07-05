@@ -7,7 +7,6 @@ import { getPagesAction } from "@/modules/page/presentation/actions";
 
 export async function getPublicLayoutData() {
   "use cache";
-  cacheLife("days");
   cacheTag("layout");
   
   const supabase = createStaticClient();
@@ -79,17 +78,56 @@ export async function getPublicLayoutData() {
       .order("order_index", { ascending: true }),
   ]);
 
-  const settingsData = settingsResult.status === "fulfilled" && !settingsResult.value.error ? settingsResult.value.data : null;
-  const contacts = contactsResult.status === "fulfilled" ? contactsResult.value.data : null;
-  const branches = branchesResult.status === "fulfilled" ? branchesResult.value.data : null;
-  const projects = projectsResult.status === "fulfilled" ? projectsResult.value.data : null;
-  const pages = pagesResult.status === "fulfilled" && !pagesResult.value.error ? pagesResult.value.data : null;
-  const groupsData = groupsResult.status === "fulfilled" ? groupsResult.value.data : null;
-  const catsData = catsResult.status === "fulfilled" ? catsResult.value.data : null;
-  const minPriceProd = minPriceResult.status === "fulfilled" ? minPriceResult.value.data : null;
-  const maxPriceProd = maxPriceResult.status === "fulfilled" ? maxPriceResult.value.data : null;
-  const brandsData = brandsResult.status === "fulfilled" ? brandsResult.value.data : null;
-  const projectTypesData = projectTypesResult.status === "fulfilled" ? projectTypesResult.value.data : null;
+  // Ham nay gop nhieu nguon doc lap (Go API + nhieu bang Supabase) cho 1 cache
+  // dung chung cho toan bo layout (header/footer/sticky button) -- neu throw
+  // thang khi 1 nguon loi se lam sap ca site. Nen giu graceful-degrade: nguon
+  // nao loi thi tra ve rong cho phan do, nhung PHAI danh dau lai de quyet dinh
+  // cacheLife dung (retry nhanh khi co loi that, khong phai "days" nhu the
+  // moi thu deu binh thuong) -- neu khong se dong bang trang thai loi ca ngay.
+  let hadError = false;
+  const markError = () => {
+    hadError = true;
+  };
+
+  const settingsData = settingsResult.status === "fulfilled" && !settingsResult.value.error
+    ? settingsResult.value.data
+    : (markError(), null);
+  const contacts = contactsResult.status === "fulfilled" && !contactsResult.value.error
+    ? contactsResult.value.data
+    : (markError(), null);
+  const branches = branchesResult.status === "fulfilled" && !branchesResult.value.error
+    ? branchesResult.value.data
+    : (markError(), null);
+  const projects = projectsResult.status === "fulfilled" && !projectsResult.value.error
+    ? projectsResult.value.data
+    : (markError(), null);
+  const pages = pagesResult.status === "fulfilled" && !pagesResult.value.error
+    ? pagesResult.value.data
+    : (markError(), null);
+  const groupsData = groupsResult.status === "fulfilled" && !groupsResult.value.error
+    ? groupsResult.value.data
+    : (markError(), null);
+  const catsData = catsResult.status === "fulfilled" && !catsResult.value.error
+    ? catsResult.value.data
+    : (markError(), null);
+  const minPriceProd = minPriceResult.status === "fulfilled" && !minPriceResult.value.error
+    ? minPriceResult.value.data
+    : (markError(), null);
+  const maxPriceProd = maxPriceResult.status === "fulfilled" && !maxPriceResult.value.error
+    ? maxPriceResult.value.data
+    : (markError(), null);
+  const brandsData = brandsResult.status === "fulfilled" && !brandsResult.value.error
+    ? brandsResult.value.data
+    : (markError(), null);
+  const projectTypesData = projectTypesResult.status === "fulfilled" && !projectTypesResult.value.error
+    ? projectTypesResult.value.data
+    : (markError(), null);
+
+  if (hadError) {
+    cacheLife("retry");
+  } else {
+    cacheLife("days");
+  }
 
   const categories = [
     ...(groupsData || [])

@@ -16,6 +16,7 @@ import { Metadata } from "next";
 import { cacheLife, cacheTag } from "next/cache";
 import { notFound } from "next/navigation";
 import { getBranchesAction } from "@/modules/branch/presentation/actions";
+import { unwrapActionResult } from "@/shared/lib/action-result";
 import { DISTRICTS } from "@/shared/lib/districts";
 import { createStaticClient } from "@/shared/lib/supabase/static";
 import { Breadcrumbs } from "@/shared/components/layout/user/breadcrumbs";
@@ -69,28 +70,21 @@ export async function generateStaticParams() {
 
 async function getCachedService(slug: string) {
   "use cache";
+  cacheLife("days");
   cacheTag("services-list", `service-slug:${slug}`);
   setUseStaticClient(true);
-  const data = await getServiceBySlugAction(slug);
-  if (data) {
-    cacheLife("days");
-  } else {
-    cacheLife("retry");
-  }
-  return data;
+  // null = khong tim thay (404 that su). Loi mang/Go API se throw va giu
+  // nguyen ban cache cu thay vi bi hieu nham la "khong ton tai".
+  return getServiceBySlugAction(slug);
 }
 
 async function getCachedServicesGrouped() {
   "use cache";
+  cacheLife("days");
   cacheTag("services-list");
   setUseStaticClient(true);
   const groupedServices = await getPublishedServicesGroupedAction();
   const currentYear = new Date().getFullYear();
-  if (groupedServices && groupedServices.length > 0) {
-    cacheLife("days");
-  } else {
-    cacheLife("retry");
-  }
   return { groupedServices: groupedServices ?? [], currentYear };
 }
 
@@ -312,7 +306,7 @@ export default async function ServiceSlugPage({ params }: PageProps) {
     notFound();
   }
 
-  const branches = await getBranchesAction({ isPublished: true }).then((res) => res.data);
+  const branches = await getBranchesAction({ isPublished: true }).then(unwrapActionResult);
   const serviceSchema = generateServiceDetailSchema(service, branches);
 
   return (

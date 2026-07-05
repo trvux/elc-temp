@@ -8,7 +8,7 @@ import { getCategoriesByProjectTypeId } from "@/modules/project/application/getC
 import { projectRepo } from "@/modules/project/infrastructure/projectRepo";
 import { ProjectCard } from "@/modules/project/presentation/components/ProjectCard";
 import { getServicesAction } from "@/modules/service/presentation/actions";
-import { ServiceWithRelations } from "@/modules/service/domain/types";
+import { unwrapActionResult } from "@/shared/lib/action-result";
 import { Breadcrumbs } from "@/shared/components/layout/user/breadcrumbs";
 import { FilteredGridWrapper } from "@/shared/components/layout/user/filtered-grid-wrapper";
 import { PaginationNav } from "@/shared/components/layout/user/pagination-nav";
@@ -80,41 +80,32 @@ async function getCachedProjectListData(
   // Only fetch all published projects separately when filters are active (avoid duplicate query)
   const hasFilters = !!(projectType?.id || categorySlugs.length > 0 || serviceSlugs.length > 0 || searchVal);
 
-  // Wrap DB calls in try/catch here — errors from "use cache" bypass try/catch in caller (RSC render error)
-  let projectsRaw: Awaited<ReturnType<typeof getProjects>> = [];
-  let allProjectTypes: Awaited<ReturnType<typeof getProjectTypes>> = [];
-  let allPublishedProjectsRawOrNull: Awaited<ReturnType<typeof getProjects>> | null = null;
-  let allServices: ServiceWithRelations[] = [];
-  let projectTypeCategoriesRaw: Awaited<ReturnType<typeof getCategoriesByProjectTypeId>> | null = null;
-  let allCategoriesRaw: Awaited<ReturnType<typeof getCategories>> = [];
-
-  try {
-    [
-      projectsRaw,
-      allProjectTypes,
-      allPublishedProjectsRawOrNull,
-      allServices,
-      projectTypeCategoriesRaw,
-      allCategoriesRaw,
-    ] = await Promise.all([
-      getProjects(projectRepo, {
-        isPublished: true,
-        projectTypeId: projectType?.id || undefined,
-        categorySlugs: categorySlugs.length > 0 ? categorySlugs : undefined,
-        serviceSlugs: serviceSlugs.length > 0 ? serviceSlugs : undefined,
-        search: searchVal,
-      }),
-      getProjectTypes(projectTypeRepo),
-      hasFilters ? getProjects(projectRepo, { isPublished: true }) : Promise.resolve(null),
-      getServicesAction({ isPublished: true }).then((res) => res.data),
-      projectType
-        ? getCategoriesByProjectTypeId(projectRepo, projectType.id)
-        : Promise.resolve(null),
-      projectType ? Promise.resolve([]) : getCategories(categoryRepo, { includeDeleted: false }),
-    ]);
-  } catch (err) {
-    console.error("[getCachedProjectListData] DB connection error, returning empty fallback:", err);
-  }
+  // Loi that (Supabase/Go API down) phai throw ra ngoai de "use cache" giu
+  // nguyen ban cache cu con tot (stale-if-error) thay vi nuot loi va dong bang
+  // ket qua rong vao cache trong ca ngay (cacheLife "days" o tren).
+  const [
+    projectsRaw,
+    allProjectTypes,
+    allPublishedProjectsRawOrNull,
+    allServices,
+    projectTypeCategoriesRaw,
+    allCategoriesRaw,
+  ] = await Promise.all([
+    getProjects(projectRepo, {
+      isPublished: true,
+      projectTypeId: projectType?.id || undefined,
+      categorySlugs: categorySlugs.length > 0 ? categorySlugs : undefined,
+      serviceSlugs: serviceSlugs.length > 0 ? serviceSlugs : undefined,
+      search: searchVal,
+    }),
+    getProjectTypes(projectTypeRepo),
+    hasFilters ? getProjects(projectRepo, { isPublished: true }) : Promise.resolve(null),
+    getServicesAction({ isPublished: true }).then(unwrapActionResult),
+    projectType
+      ? getCategoriesByProjectTypeId(projectRepo, projectType.id)
+      : Promise.resolve(null),
+    projectType ? Promise.resolve([]) : getCategories(categoryRepo, { includeDeleted: false }),
+  ]);
 
   // Reuse projectsRaw when no filters are active (same query, no need to duplicate)
   const allPublishedProjectsRaw = allPublishedProjectsRawOrNull ?? projectsRaw;

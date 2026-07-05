@@ -136,15 +136,10 @@ export default async function ProductsPage({
 
 async function getCachedCategories() {
   "use cache";
+  cacheLife("days");
   cacheTag("products-list", "categories");
   setUseStaticClient(true);
-  const cats = await getCategories(categoryRepo);
-  if (cats && cats.length > 0) {
-    cacheLife("days");
-  } else {
-    cacheLife("retry");
-  }
-  return cats;
+  return getCategories(categoryRepo);
 }
 
 // One real, crawlable page of products for the filtered/search view — every page is
@@ -160,6 +155,7 @@ const INITIAL_PER_SECTION = 24;
 
 async function getCachedCategorySections(): Promise<CategorySectionData[]> {
   "use cache";
+  cacheLife("days");
   cacheTag("products-list", "categories");
   setUseStaticClient(true);
 
@@ -175,12 +171,15 @@ async function getCachedCategorySections(): Promise<CategorySectionData[]> {
 
   const sections = await Promise.all(
     allCategories.map(async (cat) => {
-      const { data: products, totalCount } = await getProductsAction({
+      const { data: products, totalCount, error } = await getProductsAction({
         categoryId: cat.id,
         isPublished: true,
         limit: INITIAL_PER_SECTION,
         offset: 0,
       });
+      // Loi that su (Go API down/timeout) phai throw de "use cache" giu ban
+      // cache cu thay vi coi nhu category nay khong co san pham.
+      if (error) throw new Error(error);
       return {
         categoryId: cat.id,
         categoryName: cat.name,
@@ -191,21 +190,13 @@ async function getCachedCategorySections(): Promise<CategorySectionData[]> {
     }),
   );
 
-  const result = sections
+  return sections
     .filter((s) => s.totalCount > 0)
     .sort(
       (a, b) =>
         (catOrder.get(a.categoryId) ?? 999999) -
         (catOrder.get(b.categoryId) ?? 999999),
     );
-
-  // Neu Supabase chua san sang (khong co category), cache ngan 30s
-  if (result.length > 0) {
-    cacheLife("days");
-  } else {
-    cacheLife("retry");
-  }
-  return result;
 }
 
 async function getCachedProductsData(
@@ -222,7 +213,7 @@ async function getCachedProductsData(
   cacheTag("products-list");
   setUseStaticClient(true);
 
-  const { data: products, totalCount, facets: availableFilters } = await getProductsAction({
+  const { data: products, totalCount, facets: availableFilters, error } = await getProductsAction({
     isPublished: true,
     search: q,
     minPrice,
@@ -233,6 +224,7 @@ async function getCachedProductsData(
     limit: PAGE_SIZE,
     offset,
   });
+  if (error) throw new Error(error);
 
   return { products, totalCount, availableFilters };
 }
@@ -298,14 +290,7 @@ async function CachedProductsView({
   const offset = (currentPage - 1) * PAGE_SIZE;
 
   const allCategories = await getCachedCategories();
-  // Danh cacheLife tuong minh o day (ke ca khi cac fetcher con da tu quyet dinh
-  // cacheLife rieng) de tranh loi "nested short-lived cache" va giu dung hanh vi
-  // retry-nhanh-khi-rong o toan bo cache cua trang, khong chi rieng fetcher con.
-  if (allCategories && allCategories.length > 0) {
-    cacheLife("hours");
-  } else {
-    cacheLife("retry");
-  }
+  cacheLife("hours");
   const queryTokens = getQueryTokens(q);
 
   // H1 must track the SEO <title> (system_pages.metaTitle) instead of a hardcoded
