@@ -2,6 +2,7 @@ import { ThemeWatcher } from "@/shared/components/layout/user/theme-theme-watche
 import { ThemeProvider } from "@/shared/components/theme-provider";
 import { Toaster } from "@/shared/components/ui/sonner";
 import { TooltipProvider } from "@/shared/components/ui/tooltip";
+import GoogleAnalytics from "@/shared/components/analytics/GoogleAnalytics";
 import Hotjar from "@/shared/components/layout/user/hotjar";
 import { cn } from "@/shared/lib/utils";
 import { QueryProvider } from "@/shared/providers/query-provider";
@@ -101,6 +102,9 @@ export default function RootLayout({
         className={cn("min-h-full flex flex-col text-foreground")}
       >
         <Hotjar id={process.env.NEXT_PUBLIC_HOTJAR_ID || ""} />
+        <Suspense fallback={null}>
+          <GoogleAnalytics />
+        </Suspense>
 
 
         <TooltipProvider>

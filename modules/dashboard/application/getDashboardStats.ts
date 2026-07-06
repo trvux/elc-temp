@@ -25,7 +25,9 @@ export async function getDashboardStats(
   pagesCount: number,
   allBrands: Brand[],
   categoriesCount: number,
-  allCategories: CategoryWithGroup[]
+  allCategories: CategoryWithGroup[],
+  inquiriesCount: number,
+  topViewedProductsRaw: { entityId: string; count: number }[]
 ): Promise<DashboardStats> {
   const [
     allProductsRes,
@@ -115,6 +117,18 @@ export async function getDashboardStats(
     .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
     .slice(0, 8);
 
+  // San pham duoc xem nhieu nhat — join view_item counts (modules/event)
+  // against the already-fetched product list. An entityId that no longer
+  // resolves (product deleted since the event was logged) is dropped
+  // rather than shown with a blank name — the event table has no FK to
+  // products by design (see elc-go internal/event), so this is expected.
+  const topViewedProducts: DashboardDistributionItem[] = topViewedProductsRaw
+    .map((row) => {
+      const product = allProducts.find((p) => p.id === row.entityId);
+      return product ? { name: product.name, count: row.count } : null;
+    })
+    .filter((item): item is DashboardDistributionItem => item !== null);
+
   return {
     counts: {
       products: productsCount,
@@ -126,11 +140,13 @@ export async function getDashboardStats(
       pages: pagesCount,
       contacts: contactsCount,
       branches: branchesCount,
+      inquiries: inquiriesCount,
     },
     categoryDistribution,
     brandDistribution,
     featuredProducts,
     featuredProjects,
     recentActivities,
+    topViewedProducts,
   };
 }

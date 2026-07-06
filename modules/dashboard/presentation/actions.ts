@@ -4,6 +4,8 @@ import { getDashboardStats } from "../application/getDashboardStats";
 import { getContactsAction } from "@/modules/contact/presentation/actions";
 import { getBrandsAction } from "@/modules/brand/presentation/actions";
 import { getCategoriesAction } from "@/modules/category/presentation/actions";
+import { countInquiriesAction } from "@/modules/inquiry";
+import { getTopViewedAction } from "@/modules/event";
 
 const GO_API_URL = process.env.GO_API_URL;
 
@@ -19,6 +21,8 @@ export async function getDashboardStatsAction() {
       pagesCountRes,
       categoriesCountRes,
       { data: allCategories },
+      { data: inquiriesCount },
+      { data: topViewedProductsRaw },
     ] = await Promise.all([
       getContactsAction(),
       fetch(`${GO_API_URL}/services/count`, { cache: "no-store" }),
@@ -27,6 +31,10 @@ export async function getDashboardStatsAction() {
       fetch(`${GO_API_URL}/pages/count`, { cache: "no-store" }),
       fetch(`${GO_API_URL}/categories/count`, { cache: "no-store" }),
       getCategoriesAction(),
+      // Admin-gated (unlike the counts above) — inquiries are business data,
+      // not public site content, so this goes through authHeaders().
+      countInquiriesAction({ status: "new" }),
+      getTopViewedAction("product"),
     ]);
 
     const servicesCount = servicesCountRes.ok
@@ -49,7 +57,9 @@ export async function getDashboardStatsAction() {
       pagesCount,
       brands,
       categoriesCount,
-      allCategories
+      allCategories,
+      inquiriesCount ?? 0,
+      topViewedProductsRaw
     );
     return { data, error: null };
   } catch (error) {

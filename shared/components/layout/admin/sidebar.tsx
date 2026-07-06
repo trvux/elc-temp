@@ -1,6 +1,8 @@
 "use client";
 
+import { useQuery } from "@tanstack/react-query";
 import { logoutAction } from "@/modules/auth";
+import { countInquiriesAction } from "@/modules/inquiry";
 import {
   Avatar,
   AvatarFallback,
@@ -22,11 +24,12 @@ import {
   SidebarGroupLabel,
   SidebarHeader,
   SidebarMenu,
+  SidebarMenuBadge,
   SidebarMenuButton,
   SidebarMenuItem,
   useSidebar,
 } from "@/shared/components/ui/sidebar";
-import { Medal, CaretUpDown, FileText, Kanban, Gauge, SignOut, MapPin, Package, Phone, Gear, ShieldCheck, GridFour, List, Stack, Briefcase, SquaresFour, Newspaper, Globe, UsersThree } from "@phosphor-icons/react";
+import { Medal, CaretUpDown, FileText, Kanban, Gauge, SignOut, MapPin, Package, Phone, ChatCircleText, Gear, ShieldCheck, GridFour, List, Stack, Briefcase, SquaresFour, Newspaper, Globe, UsersThree } from "@phosphor-icons/react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
@@ -40,6 +43,7 @@ const navItems = [
   { href: "/admin/products", label: "Sản phẩm", icon: Package },
   { href: "/admin/service-groups", label: "Nhóm dịch vụ", icon: SquaresFour },
   { href: "/admin/services", label: "Dịch vụ", icon: Briefcase },
+  { href: "/admin/inquiries", label: "Yêu cầu tư vấn", icon: ChatCircleText },
   { href: "/admin/news", label: "Tin tức", icon: Newspaper },
   { href: "/admin/pages", label: "Trang tĩnh", icon: FileText },
   { href: "/admin/contacts", label: "Liên hệ", icon: Phone },
@@ -138,6 +142,17 @@ export default function AdminSidebar({ user }: { user: UserInfo }) {
   const pathname = usePathname();
   const items = user.role === "user" ? navItems : [...navItems, usersNavItem];
 
+  // Polls rather than pushing — no websocket/SSE infra exists yet for this.
+  // 60s is frequent enough to notice a new lead without hammering the API.
+  const { data: newInquiriesCount } = useQuery({
+    queryKey: ["inquiries-new-count"],
+    queryFn: async () => {
+      const { data } = await countInquiriesAction({ status: "new" });
+      return data;
+    },
+    refetchInterval: 60_000,
+  });
+
   return (
     <Sidebar variant="inset">
       <SidebarHeader>
@@ -179,6 +194,11 @@ export default function AdminSidebar({ user }: { user: UserInfo }) {
                     <span>{item.label}</span>
                   </Link>
                 </SidebarMenuButton>
+                {item.href === "/admin/inquiries" && !!newInquiriesCount && (
+                  <SidebarMenuBadge className="bg-primary text-primary-foreground">
+                    {newInquiriesCount}
+                  </SidebarMenuBadge>
+                )}
               </SidebarMenuItem>
             ))}
           </SidebarMenu>
