@@ -307,7 +307,12 @@ export function DashboardOverview() {
                       dataKey="count"
                       position="right"
                       className="fill-foreground text-xs font-semibold"
-                      formatter={(v: number) => v.toLocaleString()}
+                      formatter={(v: string | number | boolean | null | undefined) => {
+                        if (typeof v === "number") {
+                          return v.toLocaleString();
+                        }
+                        return v?.toString() ?? "";
+                      }}
                     />
                   </Bar>
                 </BarChart>
@@ -435,9 +440,12 @@ export function DashboardOverview() {
                     dataKey="count"
                     position="right"
                     className="fill-foreground text-xs font-semibold"
-                    formatter={(v: number) =>
-                      `${v.toLocaleString()} lượt${v === topViewedData[0]?.count ? " 🔥" : ""}`
-                    }
+                    formatter={(v: string | number | boolean | null | undefined) => {
+                      if (typeof v === "number") {
+                        return `${v.toLocaleString()} lượt${v === topViewedData[0]?.count ? " 🔥" : ""}`;
+                      }
+                      return v?.toString() ?? "";
+                    }}
                   />
                 </Bar>
               </BarChart>
