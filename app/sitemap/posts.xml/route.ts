@@ -1,12 +1,11 @@
-export const dynamic = 'force-dynamic';
-
-import { NextResponse } from 'next/server';
+import { NextResponse, connection } from 'next/server';
 import { getNewsAction } from '@/modules/news/presentation/actions';
 import { getProjectsAction } from '@/modules/project/presentation/actions';
 import { getProjectTypesAction } from '@/modules/project-type/presentation/actions';
 
 
 export async function GET() {
+  await connection();
   const BASE_URL = 'https://dienmayelc.com.vn';
 
   const [{ data: news }, { data: projects }, { data: projectTypes }] = await Promise.all([

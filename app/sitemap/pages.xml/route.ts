@@ -1,6 +1,4 @@
-export const dynamic = 'force-dynamic';
-
-import { NextResponse } from 'next/server';
+import { NextResponse, connection } from 'next/server';
 import { getPagesAction } from '@/modules/page/presentation/actions';
 import { getServicesAction } from '@/modules/service/presentation/actions';
 import { getBranchesAction } from '@/modules/branch/presentation/actions';
@@ -8,6 +6,7 @@ import { DISTRICTS } from '@/shared/lib/districts';
 
 
 export async function GET() {
+  await connection();
   const BASE_URL = 'https://dienmayelc.com.vn';
 
   const [{ data: allPages }, { data: services }, { data: branches }] = await Promise.all([
