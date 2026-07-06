@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic';
+
 import { NextResponse } from 'next/server';
 import { getCategoriesAction } from '@/modules/category/presentation/actions';
 import { getBrandsAction } from '@/modules/brand/presentation/actions';
