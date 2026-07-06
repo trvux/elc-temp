@@ -129,7 +129,9 @@ export async function proxy(request: NextRequest) {
   }
 
   // 7. Handle old .html URLs (if not matched in static map, fallback to hubs)
-  if (pathname.endsWith(".html")) {
+  // Loại trừ file xác thực domain của bên thứ 3 (ví dụ Zalo) nằm trong public/,
+  // nếu không sẽ bị redirect về "/" trước khi Next.js kịp serve static file.
+  if (pathname.endsWith(".html") && !pathname.startsWith("/zalo_verifier")) {
     if (pathname.startsWith("/san-pham/")) {
       return NextResponse.redirect(new URL("/san-pham", request.url), 308);
     } else if (pathname.startsWith("/du-an/")) {
