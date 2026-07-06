@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic';
+
 import { NextResponse } from 'next/server';
 import { getPagesAction } from '@/modules/page/presentation/actions';
 import { getServicesAction } from '@/modules/service/presentation/actions';

@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import { NextResponse } from "next/server";
 import { getContactsAction } from "@/modules/contact/presentation/actions";
 import { getBranchesAction } from "@/modules/branch/presentation/actions";
