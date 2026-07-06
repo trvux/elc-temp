@@ -1,9 +1,8 @@
-export const dynamic = 'force-dynamic';
-
-import { NextResponse } from 'next/server';
+import { NextResponse, connection } from 'next/server';
 import { getProductsAction } from '@/modules/catalog/presentation/actions';
 
 export async function GET() {
+  await connection();
   const BASE_URL = 'https://dienmayelc.com.vn';
 
   const { data: products } = await getProductsAction({ isPublished: true });

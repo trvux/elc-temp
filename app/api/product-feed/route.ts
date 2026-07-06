@@ -1,9 +1,8 @@
-export const dynamic = "force-dynamic";
-
 import { getProductsAction } from "@/modules/catalog/presentation/actions";
-import { NextResponse } from "next/server";
+import { NextResponse, connection } from "next/server";
 
 export async function GET() {
+  await connection();
   const { data: products, error } = await getProductsAction({ isPublished: true });
 
   if (error) {

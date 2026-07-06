@@ -1,6 +1,4 @@
-export const dynamic = "force-dynamic";
-
-import { NextResponse } from "next/server";
+import { NextResponse, connection } from "next/server";
 import { getContactsAction } from "@/modules/contact/presentation/actions";
 import { getBranchesAction } from "@/modules/branch/presentation/actions";
 import { getCategoriesAction } from "@/modules/category/presentation/actions";
@@ -50,6 +48,7 @@ function tiptapToText(node: unknown): string {
 }
 
 export async function GET() {
+  await connection();
   const [
     { data: allContacts },
     { data: branches },
