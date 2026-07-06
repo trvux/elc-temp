@@ -1,6 +1,8 @@
 import { getAdjacentProductsAction } from "@/modules/catalog/presentation/actions";
 import { formatPrice, ProductWithRelations } from "@/modules/catalog/domain";
 import { getContactHref } from "@/modules/contact";
+import { TrackView } from "@/modules/event";
+import { LeadForm } from "@/modules/inquiry/presentation/components/LeadForm";
 import { Breadcrumbs } from "@/shared/components/layout/user/breadcrumbs";
 import { DetailPager } from "@/shared/components/layout/user/detail-pager";
 import { OrderButton } from "@/shared/components/layout/user/order-button";
@@ -252,6 +254,7 @@ export async function ProductDetailModule({
         originalPrice={product.originalPrice ?? 0}
         stockStatus={product.stockStatus ?? null}
       />
+      <TrackView entityType="product" entityId={product.id} entityName={product.name} />
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
@@ -379,14 +382,17 @@ export async function ProductDetailModule({
                   </div>
                 )}
               </div>
-              <OrderButton
-                contacts={contacts || []}
-                productInfo={{
-                  productName: product.name,
-                  salePrice: finalPrice || 0,
-                  productSlug: product.slug,
-                } satisfies ZaloProductInfo}
-              />
+              <div className="flex flex-wrap items-center gap-3">
+                <OrderButton
+                  contacts={contacts || []}
+                  productInfo={{
+                    productName: product.name,
+                    salePrice: finalPrice || 0,
+                    productSlug: product.slug,
+                  } satisfies ZaloProductInfo}
+                />
+                <LeadForm productId={product.id} entityName={product.name} entityKind="product" />
+              </div>
               <div id="product-cta-sentinel" aria-hidden="true" />
             </div>
           </div>

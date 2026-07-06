@@ -1,3 +1,5 @@
+import { TrackView } from "@/modules/event";
+import { LeadForm } from "@/modules/inquiry/presentation/components/LeadForm";
 import { getAdjacentProjectsAction } from "@/modules/project/presentation/actions";
 import { resolveProjectPathFromDb } from "@/modules/project/presentation/resolveProjectPath";
 import { ProjectWithCategory } from "@/modules/project/domain/types";
@@ -161,6 +163,7 @@ async function ProjectDetailView({
 
   return (
     <main className="w-full bg-background min-h-screen flex flex-col">
+      <TrackView entityType="project" entityId={project.id} entityName={project.title} />
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(articleSchema) }}
@@ -237,6 +240,19 @@ async function ProjectDetailView({
               </div>
             )}
           </article>
+
+          {/* CTA placed after the case study content, not before it — by
+              this point the visitor has seen the finished work and is the
+              most likely to want something similar, not before they've read
+              anything. */}
+          <div className="mt-4 pt-6 border-t border-border/40">
+            <LeadForm
+              projectId={project.id}
+              entityName={project.title}
+              entityKind="project"
+              triggerLabel="Yêu cầu tư vấn dự án tương tự"
+            />
+          </div>
         </div>
       </GridSection>
 

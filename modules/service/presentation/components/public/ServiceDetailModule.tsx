@@ -1,4 +1,6 @@
 import { getContactHref } from "@/modules/contact";
+import { TrackView } from "@/modules/event";
+import { LeadForm } from "@/modules/inquiry/presentation/components/LeadForm";
 import { getAdjacentServicesAction } from "@/modules/service/presentation/actions";
 import { ServiceWithRelations } from "@/modules/service/domain/types";
 import { Breadcrumbs } from "@/shared/components/layout/user/breadcrumbs";
@@ -168,6 +170,7 @@ export async function ServiceDetailModule({
 
   return (
     <main className={STYLES.main}>
+      <TrackView entityType="service" entityId={service.id} entityName={service.title} />
       {/* ===== SECTION 1: IMAGE + SERVICE INFO ===== */}
       <GridSection
         id="service-detail-top"
@@ -265,7 +268,10 @@ export async function ServiceDetailModule({
                 )}
               </div>
 
-              <OrderButton contacts={contacts || []} />
+              <div className="flex flex-wrap items-center gap-3">
+                <OrderButton contacts={contacts || []} />
+                <LeadForm serviceId={service.id} entityName={service.title} entityKind="service" />
+              </div>
             </div>
           </div>
         </div>
