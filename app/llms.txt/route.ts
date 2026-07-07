@@ -10,8 +10,7 @@ import { getPagesAction } from "@/modules/page/presentation/actions";
 import { getProjectsAction } from "@/modules/project/presentation/actions";
 import { getProjectTypesAction } from "@/modules/project-type/presentation/actions";
 import { getNewsAction } from "@/modules/news/presentation/actions";
-
-const BASE_URL = "https://dienmayelc.com.vn";
+import { BASE_URL } from "@/shared/lib/seo-schema";
 
 export async function GET(request: Request) {
   await connection();
