@@ -10,6 +10,8 @@ import { toast } from "sonner";
 import { AdminDialog } from "@/shared/components/layout/admin/admin-dialog";
 import { DeleteDialog } from "@/shared/components/layout/admin/delete-dialog";
 import { Button } from "@/shared/components/ui/button";
+import { Checkbox } from "@/shared/components/ui/checkbox";
+import { SeoSnippetPreview } from "@/shared/components/layout/admin/seo-snippet-preview";
 import {
   Card,
   CardContent,
@@ -162,6 +164,11 @@ export function ProjectManagement() {
     () => setActiveProject(null),
   );
 
+  const previewTitle = form.watch("title");
+  const previewSlug = form.watch("slug");
+  const previewSeoTitle = form.watch("seo.title");
+  const previewSeoDescription = form.watch("seo.description");
+
   // Delete Mutation
   const deleteMutation = useMutation({
     mutationFn: deleteProjectAction,
@@ -264,6 +271,11 @@ export function ProjectManagement() {
             isFeatured: p.isFeatured || false,
             metaTitle: p.metaTitle || "",
             metaDescription: p.metaDescription || "",
+            seo: {
+              title: p.seo?.title || "",
+              description: p.seo?.description || "",
+              noindex: p.seo?.noindex || false,
+            },
             orderIndex: p.orderIndex,
           });
         },
@@ -288,6 +300,7 @@ export function ProjectManagement() {
       isFeatured: false,
       metaTitle: "",
       metaDescription: "",
+      seo: { title: "", description: "", noindex: false },
       orderIndex: 0,
     });
   }
@@ -683,10 +696,13 @@ export function ProjectManagement() {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <Controller
                         control={form.control}
-                        name="metaTitle"
+                        name="seo.title"
                         render={({ field, fieldState }) => (
                           <Field>
-                            <FieldLabel>Tiêu đề SEO</FieldLabel>
+                            <div className="flex items-center justify-between">
+                              <FieldLabel>Tiêu đề SEO</FieldLabel>
+                              <span className="text-[11px] text-muted-foreground">{(field.value || "").length}/70</span>
+                            </div>
                             <Input
                               {...field}
                               value={field.value || ""}
@@ -699,10 +715,13 @@ export function ProjectManagement() {
 
                       <Controller
                         control={form.control}
-                        name="metaDescription"
+                        name="seo.description"
                         render={({ field, fieldState }) => (
                           <Field>
-                            <FieldLabel>Mô tả SEO</FieldLabel>
+                            <div className="flex items-center justify-between">
+                              <FieldLabel>Mô tả SEO</FieldLabel>
+                              <span className="text-[11px] text-muted-foreground">{(field.value || "").length}/160</span>
+                            </div>
                             <Textarea
                               {...field}
                               value={field.value || ""}
@@ -714,6 +733,23 @@ export function ProjectManagement() {
                         )}
                       />
                     </div>
+                    <Controller
+                      control={form.control}
+                      name="seo.noindex"
+                      render={({ field }) => (
+                        <Field>
+                          <label className="flex items-center space-x-2 text-sm cursor-pointer">
+                            <Checkbox checked={field.value || false} onCheckedChange={(v) => field.onChange(!!v)} />
+                            <span>Ẩn khỏi kết quả tìm kiếm (noindex)</span>
+                          </label>
+                        </Field>
+                      )}
+                    />
+                    <SeoSnippetPreview
+                      title={previewSeoTitle || previewTitle || ""}
+                      description={previewSeoDescription || ""}
+                      url={`dienmayelc.com.vn/du-an/${previewSlug || ""}`}
+                    />
                   </div>
                 </TabsContent>
 

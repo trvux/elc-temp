@@ -1,3 +1,6 @@
+import type { Seo } from "@/shared/lib/seo-schema";
+export type { Seo };
+
 export type Json =
   | string
   | number
@@ -16,6 +19,7 @@ export interface Project {
   isPublished: boolean;
   metaTitle?: string | null;
   metaDescription?: string | null;
+  seo?: Seo;
   orderIndex: number;
   categoryId: string;
   projectTypeId: string | null;
@@ -64,6 +68,7 @@ export interface CreateProjectInput {
   isPublished?: boolean;
   metaTitle?: string | null;
   metaDescription?: string | null;
+  seo?: Seo;
   orderIndex?: number;
   categoryId: string;
   projectTypeId?: string | null;
