@@ -1,6 +1,8 @@
 import { ServiceGroup } from "@/modules/service-group/domain/types";
 import { CategoryWithGroup } from "@/modules/category/domain/types";
 import { Database } from "@/database.types";
+import type { Seo } from "@/shared/lib/seo-schema";
+export type { Seo };
 
 export interface Service {
   id: string;
@@ -18,6 +20,7 @@ export interface Service {
   image: string | null;
   metaTitle: string | null;
   metaDescription: string | null;
+  seo?: Seo;
   isFeatured: boolean;
   isPublished: boolean;
   orderIndex: number;
@@ -46,6 +49,7 @@ export interface CreateServiceInput {
   image?: string | null;
   metaTitle?: string | null;
   metaDescription?: string | null;
+  seo?: Seo;
   isFeatured?: boolean;
   isPublished?: boolean;
   orderIndex?: number;

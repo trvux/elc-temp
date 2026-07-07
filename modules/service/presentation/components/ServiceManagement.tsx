@@ -23,6 +23,8 @@ import { AdminDialog } from "@/shared/components/layout/admin/admin-dialog";
 import { DeleteDialog } from "@/shared/components/layout/admin/delete-dialog";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
+import { Checkbox } from "@/shared/components/ui/checkbox";
+import { SeoSnippetPreview } from "@/shared/components/layout/admin/seo-snippet-preview";
 import { DataTable } from "@/shared/components/ui/data-table";
 import {
   Field,
@@ -117,6 +119,10 @@ export function ServiceManagement({
   } = useServiceForm(activeService === "new" ? null : activeService);
 
   const watchGroupId = form.watch("groupId");
+  const previewTitle = form.watch("title");
+  const previewSlug = form.watch("slug");
+  const previewSeoTitle = form.watch("seo.title");
+  const previewSeoDescription = form.watch("seo.description");
 
   const filteredCategories = useMemo(() => {
     if (!watchGroupId || watchGroupId === "none") return [];
@@ -757,12 +763,15 @@ export function ServiceManagement({
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <Controller
                       control={form.control}
-                      name="metaTitle"
+                      name="seo.title"
                       render={({ field, fieldState }) => (
                         <Field>
-                          <FieldLabel className="text-xs">
-                            Tiêu đề SEO
-                          </FieldLabel>
+                          <div className="flex items-center justify-between">
+                            <FieldLabel className="text-xs">
+                              Tiêu đề SEO
+                            </FieldLabel>
+                            <span className="text-[11px] text-muted-foreground">{(field.value || "").length}/70</span>
+                          </div>
                           <Input
                             {...field}
                             value={field.value || ""}
@@ -775,10 +784,13 @@ export function ServiceManagement({
 
                     <Controller
                       control={form.control}
-                      name="metaDescription"
+                      name="seo.description"
                       render={({ field, fieldState }) => (
                         <Field>
-                          <FieldLabel className="text-xs">Mô tả SEO</FieldLabel>
+                          <div className="flex items-center justify-between">
+                            <FieldLabel className="text-xs">Mô tả SEO</FieldLabel>
+                            <span className="text-[11px] text-muted-foreground">{(field.value || "").length}/160</span>
+                          </div>
                           <Textarea
                             {...field}
                             value={field.value || ""}
@@ -790,6 +802,23 @@ export function ServiceManagement({
                       )}
                     />
                   </div>
+                  <Controller
+                    control={form.control}
+                    name="seo.noindex"
+                    render={({ field }) => (
+                      <Field>
+                        <label className="flex items-center space-x-2 text-sm cursor-pointer">
+                          <Checkbox checked={field.value || false} onCheckedChange={(v) => field.onChange(!!v)} />
+                          <span>Ẩn khỏi kết quả tìm kiếm (noindex)</span>
+                        </label>
+                      </Field>
+                    )}
+                  />
+                  <SeoSnippetPreview
+                    title={previewSeoTitle || previewTitle || ""}
+                    description={previewSeoDescription || ""}
+                    url={`dienmayelc.com.vn/dich-vu/${previewSlug || ""}`}
+                  />
                 </div>
 
                 {/* Editor Section */}
