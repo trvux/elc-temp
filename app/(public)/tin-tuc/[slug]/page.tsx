@@ -23,6 +23,7 @@ import {
   generateBreadcrumbSchema,
   sanitizeAndFormatTitle,
   getProductDescriptionExcerpt,
+  assembleMetadata,
 } from "@/shared/lib/seo-utils";
 import { unwrapActionResult } from "@/shared/lib/action-result";
 import { ArrowLeft, ArrowRightIcon } from "@phosphor-icons/react/dist/ssr";
@@ -181,10 +182,10 @@ export async function generateMetadata({
   }
 
   const title = sanitizeAndFormatTitle(
-    newsItem.metaTitle || newsItem.title,
+    newsItem.seo?.title || newsItem.metaTitle || newsItem.title,
     false,
   );
-  const baseDescription = newsItem.metaDescription || getProductDescriptionExcerpt(newsItem.content, 180) || newsItem.title;
+  const baseDescription = newsItem.seo?.description || newsItem.metaDescription || getProductDescriptionExcerpt(newsItem.content, 180) || newsItem.title;
 
   const productSummary = relatedProducts && relatedProducts.length > 0
     ? ` Sản phẩm liên quan: ${relatedProducts.slice(0, 3).map(p => `${p.name} (Giá: ${(p.salePrice || p.originalPrice || 0).toLocaleString('vi-VN')}đ)`).join(" | ")}.`
@@ -196,19 +197,15 @@ export async function generateMetadata({
 
   const description = `${baseDescription}${productSummary}${newsSummary}`.slice(0, 320);
 
-  return {
+  return assembleMetadata({
     title,
     description,
-    alternates: {
-      canonical: `${BASE_URL}/tin-tuc/${slug}`,
-    },
-    openGraph: {
-      title,
-      description,
-      images: newsItem.image ? [newsItem.image] : [],
-      type: "article",
-    },
-  };
+    url: `${BASE_URL}/tin-tuc/${slug}`,
+    image: newsItem.image,
+    ogType: "article",
+    noindex: !!newsItem.seo?.noindex,
+    includeTwitter: false,
+  });
 }
 
 export default async function NewsDetailPage({ params }: PageProps) {
