@@ -4,10 +4,17 @@ import { revalidatePath, revalidateTag } from "next/cache";
 import { News, CreateNewsInput, UpdateNewsInput, NewsFilter } from "../domain";
 import { authHeaders, toSnakeCaseBody } from "@/shared/lib/go-api";
 import { submitToIndexNow } from "@/shared/lib/indexnow";
-import { submitToGoogleIndex } from "@/shared/lib/google-indexing";
+import { warmCache } from "@/shared/lib/cache-warm";
 import { purgeCloudflareCache } from "@/shared/lib/cloudflare-purge";
+import { BASE_URL } from "@/shared/lib/seo-schema";
 
 const GO_API_URL = process.env.GO_API_URL;
+
+interface GoSeo {
+  title?: string;
+  description?: string;
+  noindex?: boolean;
+}
 
 interface GoNewsResponse {
   id: string;
@@ -19,6 +26,7 @@ interface GoNewsResponse {
   is_published: boolean;
   meta_title: string | null;
   meta_description: string | null;
+  seo: GoSeo;
   order_index: number;
   created_at: string;
   updated_at: string;
@@ -42,6 +50,7 @@ function mapGoNews(row: GoNewsResponse): News {
     isPublished: row.is_published,
     metaTitle: row.meta_title,
     metaDescription: row.meta_description,
+    seo: row.seo,
     orderIndex: row.order_index,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
@@ -166,9 +175,9 @@ export async function createNewsAction(input: CreateNewsInput) {
 
     revalidatePaths(data.slug);
     if (data.isPublished && data.slug) {
-      const url = `https://dienmayelc.com.vn/tin-tuc/${data.slug}`;
+      const url = `${BASE_URL}/tin-tuc/${data.slug}`;
       submitToIndexNow([url]).catch((err) => console.error("IndexNow news create error:", err));
-      submitToGoogleIndex([url]).catch((err) => console.error("Google Indexing news create error:", err));
+      warmCache([url]);
     }
     return { data, error: null };
   } catch (error) {
@@ -199,9 +208,9 @@ export async function updateNewsAction(input: UpdateNewsInput) {
 
     revalidatePaths(data.slug);
     if (data.isPublished && data.slug) {
-      const url = `https://dienmayelc.com.vn/tin-tuc/${data.slug}`;
+      const url = `${BASE_URL}/tin-tuc/${data.slug}`;
       submitToIndexNow([url]).catch((err) => console.error("IndexNow news update error:", err));
-      submitToGoogleIndex([url]).catch((err) => console.error("Google Indexing news update error:", err));
+      warmCache([url]);
     }
     return { data, error: null };
   } catch (error) {
@@ -224,10 +233,6 @@ export async function deleteNewsAction(id: string) {
       return { success: false, error: await extractErrorMessage(res, "Failed to delete news") };
     }
     revalidatePaths(existing?.slug);
-    if (existing?.slug) {
-      submitToGoogleIndex([`https://dienmayelc.com.vn/tin-tuc/${existing.slug}`], "URL_DELETED")
-        .catch((err) => console.error("Google Indexing news delete error:", err));
-    }
     return { success: true, error: null };
   } catch (error) {
     console.error("deleteNewsAction error:", error);

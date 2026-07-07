@@ -1,3 +1,6 @@
+import type { Seo } from "@/shared/lib/seo-schema";
+export type { Seo };
+
 export type Json =
   | string
   | number
@@ -16,6 +19,7 @@ export interface News {
   isPublished: boolean;
   metaTitle?: string | null;
   metaDescription?: string | null;
+  seo?: Seo;
   orderIndex: number;
   createdAt: string;
   updatedAt: string;
@@ -31,6 +35,7 @@ export interface CreateNewsInput {
   isPublished?: boolean;
   metaTitle?: string | null;
   metaDescription?: string | null;
+  seo?: Seo;
   orderIndex?: number;
 }
 
