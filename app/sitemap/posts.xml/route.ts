@@ -2,11 +2,11 @@ import { NextResponse, connection } from 'next/server';
 import { getNewsAction } from '@/modules/news/presentation/actions';
 import { getProjectsAction } from '@/modules/project/presentation/actions';
 import { getProjectTypesAction } from '@/modules/project-type/presentation/actions';
-
+import { toSitemapLastmod } from '@/shared/lib/sitemap-lastmod';
+import { BASE_URL } from '@/shared/lib/seo-schema';
 
 export async function GET() {
   await connection();
-  const BASE_URL = 'https://dienmayelc.com.vn';
 
   const [{ data: news }, { data: projects }, { data: projectTypes }] = await Promise.all([
     getNewsAction({ isPublished: true }),
@@ -18,18 +18,21 @@ export async function GET() {
     .filter((n) => n.slug)
     .map((n) => ({
       url: `${BASE_URL}/tin-tuc/${n.slug}`,
+      lastmod: n.updatedAt,
     }));
 
   const projectRoutes = projects
     .filter((proj) => proj.slug)
     .map((proj) => ({
       url: `${BASE_URL}/du-an/${proj.slug}`,
+      lastmod: proj.updatedAt,
     }));
 
   const projectTypeRoutes = projectTypes
     .filter((pt) => pt.slug)
     .map((pt) => ({
       url: `${BASE_URL}/du-an/${pt.slug}`,
+      lastmod: pt.updatedAt,
     }));
 
   const allRoutes = [
@@ -43,7 +46,7 @@ export async function GET() {
   ${allRoutes.map(r => `
   <url>
     <loc>${r.url}</loc>
-    <lastmod>${new Date().toISOString()}</lastmod>
+    <lastmod>${toSitemapLastmod(r.lastmod)}</lastmod>
   </url>`).join('')}
 </urlset>`;
 

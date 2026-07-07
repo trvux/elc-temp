@@ -1,9 +1,10 @@
 import { NextResponse, connection } from 'next/server';
 import { getProductsAction } from '@/modules/catalog/presentation/actions';
+import { toSitemapLastmod } from '@/shared/lib/sitemap-lastmod';
+import { BASE_URL } from '@/shared/lib/seo-schema';
 
 export async function GET() {
   await connection();
-  const BASE_URL = 'https://dienmayelc.com.vn';
 
   const { data: products } = await getProductsAction({ isPublished: true });
 
@@ -11,6 +12,7 @@ export async function GET() {
     .filter((prod) => prod.slug)
     .map((prod) => ({
       url: `${BASE_URL}/san-pham/${prod.slug}`,
+      lastmod: prod.updatedAt,
     }));
 
   const xml = `<?xml version="1.0" encoding="UTF-8"?>
@@ -18,7 +20,7 @@ export async function GET() {
   ${productRoutes.map(r => `
   <url>
     <loc>${r.url}</loc>
-    <lastmod>${new Date().toISOString()}</lastmod>
+    <lastmod>${toSitemapLastmod(r.lastmod)}</lastmod>
   </url>`).join('')}
 </urlset>`;
 
