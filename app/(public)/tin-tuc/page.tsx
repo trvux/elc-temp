@@ -9,7 +9,6 @@ import {
   TypographyLead,
   TypographySmall,
 } from "@/shared/components/ui/typography";
-import { setUseStaticClient } from "@/shared/lib/supabase/server";
 import { cacheLife, cacheTag } from "next/cache";
 import Link from "next/link";
 import {
@@ -117,7 +116,6 @@ async function getCachedNewsHubData() {
   "use cache";
   cacheLife("hours");
   cacheTag("news-list");
-  setUseStaticClient(true);
 
   const allNews = await getNewsAction({
     isPublished: true,

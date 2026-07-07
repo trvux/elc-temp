@@ -3,8 +3,6 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 
-import { createClient } from "@/shared/lib/supabase/client";
-
 import { Branch, createBranchSchema, Json, CreateBranchInput, UpdateBranchInput } from "../../domain";
 import { createBranchAction, updateBranchAction } from "../actions";
 import type { z } from "zod";
@@ -16,7 +14,6 @@ export function useBranchForm(
   onClose: () => void
 ) {
   const queryClient = useQueryClient();
-  const supabase = createClient();
 
   const form = useForm<BranchFormValues>({
     resolver: standardSchemaResolver(createBranchSchema),
@@ -71,6 +68,5 @@ export function useBranchForm(
   return {
     form,
     saveMutation,
-    supabase,
   };
 }

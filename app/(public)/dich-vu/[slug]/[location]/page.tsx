@@ -1,6 +1,5 @@
 import { getServiceBySlugAction, ServiceDetailModule } from "@/modules/service";
 import { generateServiceMetadata, generateServiceDetailSchema } from "@/shared/lib/seo-utils";
-import { setUseStaticClient } from "@/shared/lib/supabase/server";
 import { Metadata } from "next";
 import { cacheLife, cacheTag } from "next/cache";
 import { notFound } from "next/navigation";
@@ -20,7 +19,6 @@ async function getCachedService(slug: string) {
   "use cache";
   cacheLife("days");
   cacheTag("services-list", `service-slug:${slug}`);
-  setUseStaticClient(true);
 
   // null = khong tim thay (404 that su). Loi mang/Go API se throw va giu
   // nguyen ban cache cu thay vi bi hieu nham la "khong ton tai".

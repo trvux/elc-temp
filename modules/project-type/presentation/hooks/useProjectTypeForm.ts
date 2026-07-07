@@ -4,8 +4,8 @@ import { useForm } from "react-hook-form";
 import type { Resolver } from "react-hook-form";
 import { toast } from "sonner";
 import { useState } from "react";
-import { createClient } from "@/shared/lib/supabase/client";
 import { convertToWebP } from "@/shared/lib/image";
+import { uploadImageFile } from "@/shared/lib/upload-image";
 import { generateSlug } from "@/shared/lib/helpers";
 
 import { createProjectTypeSchema, ProjectTypeWithCategories } from "../../domain";
@@ -28,7 +28,6 @@ export function useProjectTypeForm(
 ) {
   const queryClient = useQueryClient();
   const [uploading, setUploading] = useState(false);
-  const supabase = createClient();
 
   const form = useForm<ProjectTypeFormValues>({
     resolver: standardSchemaResolver(createProjectTypeSchema) as unknown as Resolver<ProjectTypeFormValues>,
@@ -91,15 +90,8 @@ export function useProjectTypeForm(
     setUploading(true);
     try {
       const webpFile = await convertToWebP(file);
-      const fileName = `project-types/${Date.now()}-${Math.random().toString(36).slice(2)}.webp`;
-      const { error } = await supabase.storage
-        .from("images")
-        .upload(fileName, webpFile, { contentType: "image/webp" });
-      
-      if (error) throw error;
-      
-      const { data } = supabase.storage.from("images").getPublicUrl(fileName);
-      form.setValue("image", data.publicUrl, { shouldDirty: true, shouldValidate: true });
+      const url = await uploadImageFile(webpFile, "project-types", webpFile.name);
+      form.setValue("image", url, { shouldDirty: true, shouldValidate: true });
       toast.success("Đã tải lên ảnh đại diện SEO");
     } catch {
       toast.error(`Lỗi upload: ${file.name}`);

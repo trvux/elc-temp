@@ -27,7 +27,6 @@ export async function generateMetadata(): Promise<Metadata> {
   ) as Metadata;
 }
 
-import { setUseStaticClient } from "@/shared/lib/supabase/server";
 import { cacheLife, cacheTag } from "next/cache";
 import { unwrapActionResult } from "@/shared/lib/action-result";
 
@@ -35,7 +34,6 @@ async function getCachedHomeData() {
   "use cache";
   cacheLife("days");
   cacheTag("products-list", "projects-list", "brands", "layout", "categories");
-  setUseStaticClient(true);
 
   // Cac action goi Go API throw khi that su loi (mang, 5xx, timeout) thay vi
   // tra ve mang rong -- nho vay "use cache" giu nguyen ban cache cu con tot

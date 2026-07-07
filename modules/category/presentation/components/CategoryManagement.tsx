@@ -7,7 +7,7 @@ import { Controller, useFieldArray } from "react-hook-form";
 import { toast } from "sonner";
 import { TiptapEditor } from "@/shared/components/ui/tiptap-editor";
 import { convertToWebP } from "@/shared/lib/image";
-import { createClient } from "@/shared/lib/supabase/client";
+import { uploadImageFile } from "@/shared/lib/upload-image";
 import { generateHTML } from "@tiptap/html";
 import { getTiptapExtensions } from "@/shared/lib/tiptap-shared";
 
@@ -84,8 +84,6 @@ export function CategoryManagement() {
       queryClient.invalidateQueries({ queryKey: ["projects"] });
     },
   });
-
-  const supabase = createClient();
 
   const sortedCategories = useMemo(() => {
     return [...categories].sort((a, b) => {
@@ -409,13 +407,7 @@ export function CategoryManagement() {
                       placeholder="Bắt đầu viết bài viết tối ưu SEO tại đây..."
                       uploadImage={async (file) => {
                         const webpFile = await convertToWebP(file);
-                        const fileName = `categories/${Date.now()}-${Math.random().toString(36).slice(2)}.webp`;
-                        const { error } = await supabase.storage
-                          .from("images")
-                          .upload(fileName, webpFile, { contentType: "image/webp" });
-                        if (error) throw error;
-                        const { data } = supabase.storage.from("images").getPublicUrl(fileName);
-                        return data.publicUrl;
+                        return uploadImageFile(webpFile, "categories", webpFile.name);
                       }}
                     />
                   )}

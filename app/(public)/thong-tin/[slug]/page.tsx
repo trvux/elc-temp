@@ -13,7 +13,6 @@ import {
   TypographyH1,
   TypographySmall,
 } from "@/shared/components/ui/typography";
-import { setUseStaticClient } from "@/shared/lib/supabase/server";
 import { cn } from "@/shared/lib/utils";
 import { cacheLife, cacheTag } from "next/cache";
 import { ImageWithSkeleton } from "@/shared/components/ui/image-with-skeleton";
@@ -59,7 +58,6 @@ async function getBranchData(slug: string) {
   "use cache";
   cacheLife("hours");
   cacheTag("layout");
-  setUseStaticClient(true);
   // null = chi nhanh khong ton tai (404 that su). Loi that se throw va giu
   // nguyen ban cache cu (stale-if-error).
   const branch = await getBranchBySlugAction(slug).then(unwrapActionResult);

@@ -2,23 +2,20 @@ import { useState, useCallback } from "react";
 import { UseFormSetValue, FieldValues, Path, PathValue } from "react-hook-form";
 import { toast } from "sonner";
 import { convertToWebP } from "@/shared/lib/image";
-import { createClient } from "@/shared/lib/supabase/client";
+import { uploadImageFile } from "@/shared/lib/upload-image";
 
 interface UseFeaturedImageUploadProps<TFieldValues extends FieldValues> {
   setValue: UseFormSetValue<TFieldValues>;
   imageField: Path<TFieldValues>;
   folderPath: string;
-  bucketName?: string;
 }
 
 export function useFeaturedImageUpload<TFieldValues extends FieldValues>({
   setValue,
   imageField,
   folderPath,
-  bucketName = "images",
 }: UseFeaturedImageUploadProps<TFieldValues>) {
   const [uploading, setUploading] = useState(false);
-  const supabase = createClient();
 
   const handleImageUpload = useCallback(
     async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -28,17 +25,8 @@ export function useFeaturedImageUpload<TFieldValues extends FieldValues>({
 
       try {
         const webpFile = await convertToWebP(file);
-        const uniqueId = `${Date.now()}-${Math.random().toString(36).slice(2)}`;
-        const fileName = `${folderPath}/${uniqueId}.webp`;
-
-        const { error } = await supabase.storage
-          .from(bucketName)
-          .upload(fileName, webpFile, { contentType: "image/webp" });
-
-        if (error) throw error;
-
-        const { data } = supabase.storage.from(bucketName).getPublicUrl(fileName);
-        setValue(imageField, data.publicUrl as PathValue<TFieldValues, Path<TFieldValues>>, {
+        const url = await uploadImageFile(webpFile, folderPath, webpFile.name);
+        setValue(imageField, url as PathValue<TFieldValues, Path<TFieldValues>>, {
           shouldDirty: true,
           shouldValidate: true,
         });
@@ -50,7 +38,7 @@ export function useFeaturedImageUpload<TFieldValues extends FieldValues>({
         setUploading(false);
       }
     },
-    [setValue, imageField, folderPath, bucketName, supabase]
+    [setValue, imageField, folderPath]
   );
 
   return {

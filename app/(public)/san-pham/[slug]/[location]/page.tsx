@@ -9,6 +9,7 @@ import {
   extractProductHp,
   SHOP_NAME,
 } from "@/shared/lib/seo-utils";
+import { BASE_URL } from "@/shared/lib/seo-schema";
 import { Metadata, ResolvingMetadata } from "next";
 import { notFound } from "next/navigation";
 import { DISTRICTS } from "@/shared/lib/districts";
@@ -34,9 +35,7 @@ export async function generateMetadata(
 
   if (!resolved || !district) return {};
 
-  const baseUrl = (
-    process.env.NEXT_PUBLIC_APP_URL || "https://dienmayelc.com.vn"
-  ).replace(/\/$/, "");
+  const baseUrl = BASE_URL.replace(/\/$/, "");
   const previousImages = (await parent).openGraph?.images || [];
 
   switch (resolved.type) {

@@ -25,7 +25,6 @@ import {
   getProductDescriptionExcerpt,
 } from "@/shared/lib/seo-utils";
 import { unwrapActionResult } from "@/shared/lib/action-result";
-import { setUseStaticClient } from "@/shared/lib/supabase/server";
 import { ArrowLeft, ArrowRightIcon } from "@phosphor-icons/react/dist/ssr";
 import { Metadata } from "next";
 import { cacheLife, cacheTag } from "next/cache";
@@ -56,7 +55,6 @@ async function getCachedNewsDetailData(slug: string) {
     "products-list",
     `news-slug:${slug}`,
   );
-  setUseStaticClient(true);
 
   const allNews = await getNewsAction({ isPublished: true }).then(unwrapActionResult);
   const newsItemIndex = (allNews ?? []).findIndex((n) => n.slug === slug);
@@ -253,14 +251,14 @@ export default async function NewsDetailPage({ params }: PageProps) {
     author: {
       "@type": "Organization",
       name: "Điện máy ELC",
-      url: "https://dienmayelc.com.vn",
+      url: BASE_URL,
     },
     publisher: {
       "@type": "Organization",
       name: "Điện máy ELC",
       logo: {
         "@type": "ImageObject",
-        url: "https://dienmayelc.com.vn/icon.svg",
+        url: `${BASE_URL}/icon.svg`,
       },
     },
     description: newsItem.metaDescription || getProductDescriptionExcerpt(newsItem.content, 180) || newsItem.title,

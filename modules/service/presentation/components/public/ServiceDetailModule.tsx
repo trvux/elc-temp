@@ -1,4 +1,4 @@
-import { getContactHref } from "@/modules/contact";
+import { getContactsAction } from "@/modules/contact/presentation/actions";
 import { TrackView } from "@/modules/event";
 import { LeadForm } from "@/modules/inquiry/presentation/components/LeadForm";
 import { getAdjacentServicesAction } from "@/modules/service/presentation/actions";
@@ -36,7 +36,6 @@ import {
   TypographyLarge,
   TypographySmall,
 } from "@/shared/components/ui/typography";
-import { createClient, setUseStaticClient } from "@/shared/lib/supabase/server";
 import { cn, formatCurrency } from "@/shared/lib/utils";
 import { cacheLife, cacheTag } from "next/cache";
 import { localizeRichText } from "@/shared/lib/seo-utils";
@@ -126,29 +125,9 @@ async function getCachedServiceDetailModuleData(slug: string) {
   "use cache";
   cacheLife("days");
   cacheTag("services-list", `service-slug:${slug}`);
-  setUseStaticClient(true);
 
-  const supabase = await createClient();
-
-  const { data: rawContacts } = await supabase
-    .from("contacts")
-    .select("*")
-    .eq("is_active", true)
-    .order("order_index");
-
-  const contacts = (rawContacts || []).map((row) => {
-    const href = getContactHref(row.type || "", row.value || "");
-    return {
-      id: row.id,
-      type: row.type || "",
-      label: row.label || null,
-      value: row.value || "",
-      isActive: row.is_active ?? true,
-      orderIndex: row.order_index || 0,
-      href,
-      isExternal: !href.startsWith("tel:") && !href.startsWith("mailto:"),
-    };
-  });
+  const { data: rawContacts } = await getContactsAction();
+  const contacts = (rawContacts || []).filter((c) => c.isActive);
 
   return {
     contacts,

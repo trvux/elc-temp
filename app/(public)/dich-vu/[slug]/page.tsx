@@ -12,7 +12,6 @@ import {
   generateServiceDetailSchema,
   generateSystemPageMetadata,
 } from "@/shared/lib/seo-utils";
-import { setUseStaticClient } from "@/shared/lib/supabase/server";
 import { Metadata } from "next";
 import { cacheLife, cacheTag } from "next/cache";
 import { notFound } from "next/navigation";
@@ -43,8 +42,7 @@ import {
 import { cn } from "@/shared/lib/utils";
 import { getCachedSystemPage } from "@/shared/lib/cached-system-page";
 import { District } from "@/shared/lib/districts";
-
-const BASE_URL = process.env.NEXT_PUBLIC_APP_URL || "https://dienmayelc.com.vn";
+import { BASE_URL } from "@/shared/lib/seo-schema";
 
 interface PageProps {
   params: Promise<{ slug: string }>;
@@ -67,7 +65,6 @@ async function getCachedService(slug: string) {
   "use cache";
   cacheLife("days");
   cacheTag("services-list", `service-slug:${slug}`);
-  setUseStaticClient(true);
   // null = khong tim thay (404 that su). Loi mang/Go API se throw va giu
   // nguyen ban cache cu thay vi bi hieu nham la "khong ton tai".
   return getServiceBySlugAction(slug);
@@ -77,7 +74,6 @@ async function getCachedServicesGrouped() {
   "use cache";
   cacheLife("days");
   cacheTag("services-list");
-  setUseStaticClient(true);
   const groupedServices = await getPublishedServicesGroupedAction();
   const currentYear = new Date().getFullYear();
   return { groupedServices: groupedServices ?? [], currentYear };
