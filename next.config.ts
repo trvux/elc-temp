@@ -20,6 +20,13 @@ const nextConfig: NextConfig = {
         protocol: "https",
         hostname: "media.dienmayelc.com.vn",
       },
+      {
+        // Cloudflare R2 public bucket — images uploaded/migrated after the
+        // Supabase Storage cutover (see cmd/migrate-images in elc-go) live
+        // here now.
+        protocol: "https",
+        hostname: "pub-d68f2955d9cf48a697d203e342f5ac2b.r2.dev",
+      },
     ],
     localPatterns: [
       {
