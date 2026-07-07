@@ -63,6 +63,46 @@ export function appendLocationToDescription(description: string, location?: Dist
   return `${description} Hỗ trợ nhanh tại ${location.name}.`;
 }
 
+interface AssembleMetadataOptions {
+  title: string;
+  description: string;
+  url: string;
+  image?: string | null;
+  ogType?: "website" | "article";
+  noindex?: boolean;
+  includeTwitter?: boolean;
+}
+
+// The one place that turns (title, description, url, image) into the actual
+// Next.js Metadata shape (canonical, OpenGraph, Twitter, robots). Every
+// generate*Metadata function below only computes its own type-specific
+// title/description fallback text (that part genuinely differs per content
+// type — a product's ideal fallback copy has nothing in common with a news
+// article's), then hands off to this single assembler instead of each
+// duplicating the OG/canonical/robots wiring — previously ~7 near-identical
+// copies of this object literal. See docs/SEO-REDESIGN.md #4.
+export function assembleMetadata({
+  title,
+  description,
+  url,
+  image,
+  ogType = "website",
+  noindex = false,
+  includeTwitter = true,
+}: AssembleMetadataOptions): Metadata {
+  const images = image ? [image] : [];
+  return {
+    title,
+    description,
+    ...(noindex ? { robots: { index: false, follow: true } } : {}),
+    alternates: { canonical: url },
+    openGraph: { title, description, images, url, type: ogType },
+    ...(includeTwitter
+      ? { twitter: { card: "summary_large_image" as const, title, description, images } }
+      : {}),
+  };
+}
+
 /**
  * Generates SEO-optimized Meta Title and Description to catch all keywords
  */
@@ -102,8 +142,8 @@ export function generateProductMetadata(
   // Clean SKU (main part only)
   const mainSku = extractMainSku(product.sku);
 
-  const metaTitle = product.metaTitle || (product as unknown as Record<string, unknown>).meta_title as string | null | undefined;
-  const metaDescription = product.metaDescription || (product as unknown as Record<string, unknown>).meta_description as string | null | undefined;
+  const metaTitle = product.seo?.title || product.metaTitle || (product as unknown as Record<string, unknown>).meta_title as string | null | undefined;
+  const metaDescription = product.seo?.description || product.metaDescription || (product as unknown as Record<string, unknown>).meta_description as string | null | undefined;
 
   let title = "";
   if (metaTitle) {
@@ -145,30 +185,16 @@ export function generateProductMetadata(
     ? `${BASE_URL}/san-pham/${product.slug}/${location.slug}`
     : `${BASE_URL}/san-pham/${product.slug}`;
 
-  return {
+  // Location variants are near-duplicate content by design (same product, district swapped
+  // into text) — keep them crawlable so link equity flows, but out of the index so they
+  // don't compete with the parent page or trigger doorway-page quality penalties.
+  return assembleMetadata({
     title,
     description,
-    // Location variants are near-duplicate content by design (same product, district swapped
-    // into text) — keep them crawlable so link equity flows, but out of the index so they
-    // don't compete with the parent page or trigger doorway-page quality penalties.
-    ...(location ? { robots: { index: false, follow: true } } : {}),
-    alternates: {
-      canonical: url,
-    },
-    openGraph: {
-      title,
-      description,
-      images: product.images?.[0] ? [product.images[0]] : [],
-      url: url,
-      type: "website",
-    },
-    twitter: {
-      card: "summary_large_image",
-      title,
-      description,
-      images: product.images?.[0] ? [product.images[0]] : [],
-    },
-  };
+    url,
+    image: product.images?.[0],
+    noindex: location ? true : !!product.seo?.noindex,
+  });
 }
 
 /**
@@ -243,21 +269,14 @@ export function generateCategoryMetadata(
     ? `${BASE_URL}/san-pham/${categorySlug}/${location.slug}`
     : `${BASE_URL}/san-pham/${categorySlug}`;
 
-  return {
+  return assembleMetadata({
     title,
     description,
-    ...(location ? { robots: { index: false, follow: true } } : {}),
-    alternates: {
-      canonical: url,
-    },
-    openGraph: {
-      title,
-      description,
-      images: imageUrl ? [imageUrl] : [],
-      url: url,
-      type: "website",
-    },
-  };
+    url,
+    image: imageUrl,
+    noindex: !!location,
+    includeTwitter: false,
+  });
 }
 
 /**
@@ -303,21 +322,14 @@ export function generateBrandMetadata(
     ? `${BASE_URL}/san-pham/${brandSlug}/${location.slug}`
     : `${BASE_URL}/san-pham/${brandSlug}`;
 
-  return {
+  return assembleMetadata({
     title: finalTitle,
     description: finalDescription,
-    ...(location ? { robots: { index: false, follow: true } } : {}),
-    alternates: {
-      canonical: url,
-    },
-    openGraph: {
-      title: finalTitle,
-      description: finalDescription,
-      images: logo ? [logo] : [],
-      url: url,
-      type: "website",
-    },
-  };
+    url,
+    image: logo,
+    noindex: !!location,
+    includeTwitter: false,
+  });
 }
 
 /**
@@ -332,8 +344,9 @@ export function generateServiceMetadata(
   const serviceTitle = (service.title || "") as string;
   const image = (service.image || service.image_url) as string | undefined;
 
-  const metaTitle = (service.metaTitle || service.meta_title) as string | undefined;
-  const metaDescription = (service.metaDescription || service.meta_description) as string | undefined;
+  const seo = service.seo as { title?: string | null; description?: string | null; noindex?: boolean } | undefined;
+  const metaTitle = (seo?.title || service.metaTitle || service.meta_title) as string | undefined;
+  const metaDescription = (seo?.description || service.metaDescription || service.meta_description) as string | undefined;
 
   const title = metaTitle || `${serviceTitle} - Dịch vụ chuyên nghiệp | ${SHOP_NAME}`;
   const rawDescription = (service.description || (service as Record<string, unknown>).description) as string | undefined;
@@ -356,27 +369,19 @@ export function generateServiceMetadata(
     ? `${BASE_URL}/dich-vu/${serviceSlug}/${location.slug}`
     : `${BASE_URL}/dich-vu/${serviceSlug}`;
 
-  return {
+  // location was previously left indexable here (robots: {index: true}) while
+  // the equivalent /san-pham/[slug]/[location] variant was noindexed — an
+  // inconsistency with the documented doorway-page policy (docs/SITEMAP.md
+  // §4: location combo pages are near-duplicate by design and must stay out
+  // of the index). Aligned with product/category/brand here.
+  return assembleMetadata({
     title: finalTitle,
     description: finalDescription,
-    ...(location ? { robots: { index: true, follow: true } } : {}),
-    alternates: {
-      canonical: url,
-    },
-    openGraph: {
-      title: finalTitle,
-      description: finalDescription,
-      images: image ? [image] : [],
-      url: url,
-      type: "article",
-    },
-    twitter: {
-      card: "summary_large_image",
-      title: finalTitle,
-      description: finalDescription,
-      images: image ? [image] : [],
-    },
-  };
+    url,
+    image,
+    ogType: "article",
+    noindex: location ? true : !!seo?.noindex,
+  });
 }
 
 export interface BreadcrumbSchemaItem {
@@ -1307,38 +1312,28 @@ export function generateProjectTypeMetadata(
 
   const cleanUrl = `${BASE_URL}/du-an/${projectType.slug}`;
 
-  return {
+  return assembleMetadata({
     title,
     description,
-    robots: {
-      index: true,
-      follow: true,
-    },
-    alternates: {
-      canonical: cleanUrl,
-    },
-    openGraph: {
-      title,
-      description,
-      url: cleanUrl,
-      type: "website",
-      images: image ? [{ url: image }] : [],
-    },
-  };
+    url: cleanUrl,
+    image,
+    includeTwitter: false,
+  });
 }
 
 export function generateProjectDetailMetadata(
-  project: { 
-    title: string; 
-    slug: string; 
-    metaTitle?: string | null; 
-    metaDescription?: string | null; 
-    images?: string[]; 
+  project: {
+    title: string;
+    slug: string;
+    metaTitle?: string | null;
+    metaDescription?: string | null;
+    seo?: { title?: string | null; description?: string | null; noindex?: boolean };
+    images?: string[];
     description?: unknown;
   }
 ) {
-  const metaTitle = project.metaTitle;
-  const metaDescription = project.metaDescription;
+  const metaTitle = project.seo?.title || project.metaTitle;
+  const metaDescription = project.seo?.description || project.metaDescription;
 
   const title = sanitizeAndFormatTitle(metaTitle || project.title, false);
   const description = metaDescription || `Tham khảo công trình thực tế: ${project.title}. Tư vấn thiết kế, thi công lắp đặt hệ thống máy lạnh, HVAC uy tín hàng đầu bởi Điện máy ELC.`;
@@ -1346,24 +1341,15 @@ export function generateProjectDetailMetadata(
   const cleanUrl = `${BASE_URL}/du-an/${project.slug}`;
   const representativeImage = project.images?.[0] || extractFirstImageFromDescription(project.description);
 
-  return {
+  return assembleMetadata({
     title,
     description,
-    robots: {
-      index: true,
-      follow: true,
-    },
-    alternates: {
-      canonical: cleanUrl,
-    },
-    openGraph: {
-      title,
-      description,
-      url: cleanUrl,
-      type: "article",
-      images: representativeImage ? [{ url: representativeImage }] : [],
-    },
-  };
+    url: cleanUrl,
+    image: representativeImage,
+    ogType: "article",
+    noindex: !!project.seo?.noindex,
+    includeTwitter: false,
+  });
 }
 
 export interface ProjectDetailSchemaInput {
@@ -1663,24 +1649,11 @@ export function generateSystemPageMetadata(
   const isHome = path === "/" || path === "";
   const finalTitle = sanitizeAndFormatTitle(title, isHome);
 
-  return {
+  return assembleMetadata({
     title: finalTitle,
     description,
-    alternates: {
-      canonical: cleanUrl,
-    },
-    openGraph: {
-      title: finalTitle,
-      description,
-      url: cleanUrl,
-      type: "website",
-    },
-    twitter: {
-      card: "summary_large_image",
-      title: finalTitle,
-      description,
-    },
-  };
+    url: cleanUrl,
+  });
 }
 
 interface RichTextNode {
