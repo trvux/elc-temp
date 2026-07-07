@@ -4,16 +4,23 @@ import { revalidatePath, revalidateTag } from "next/cache";
 import { Service, CreateServiceInput, UpdateServiceInput, ServiceFilter, ServiceWithRelations } from "../domain/types";
 import { authHeaders, toSnakeCaseBody } from "@/shared/lib/go-api";
 import { submitToIndexNow } from "@/shared/lib/indexnow";
-import { submitToGoogleIndex } from "@/shared/lib/google-indexing";
+import { warmCache } from "@/shared/lib/cache-warm";
 import { getServiceGroupsAction } from "@/modules/service-group/presentation/actions";
 import { purgeCloudflareCache } from "@/shared/lib/cloudflare-purge";
 import { unwrapActionResult } from "@/shared/lib/action-result";
+import { BASE_URL } from "@/shared/lib/seo-schema";
 
 const GO_API_URL = process.env.GO_API_URL;
 
 interface GoRefResponse {
   id: string;
   name: string;
+}
+
+interface GoSeo {
+  title?: string;
+  description?: string;
+  noindex?: boolean;
 }
 
 interface GoServiceResponse {
@@ -32,6 +39,7 @@ interface GoServiceResponse {
   image: string | null;
   meta_title: string | null;
   meta_description: string | null;
+  seo: GoSeo;
   is_featured: boolean;
   is_published: boolean;
   order_index: number;
@@ -65,6 +73,7 @@ function mapGoService(row: GoServiceResponse): ServiceWithRelations {
     image: row.image,
     metaTitle: row.meta_title,
     metaDescription: row.meta_description,
+    seo: row.seo,
     isFeatured: row.is_featured,
     isPublished: row.is_published,
     orderIndex: row.order_index,
@@ -164,9 +173,9 @@ export async function createServiceAction(input: CreateServiceInput) {
     revalidatePath("/admin/services");
     await purgeCloudflareCache();
     if (data.isPublished && data.slug) {
-      const url = `https://dienmayelc.com.vn/dich-vu/${data.slug}`;
+      const url = `${BASE_URL}/dich-vu/${data.slug}`;
       submitToIndexNow([url]).catch((err) => console.error("IndexNow service create error:", err));
-      submitToGoogleIndex([url]).catch((err) => console.error("Google Indexing service create error:", err));
+      warmCache([url]);
     }
     return { data, error: null };
   } catch (error) {
@@ -204,9 +213,9 @@ export async function updateServiceAction(input: UpdateServiceInput) {
     revalidatePath("/admin/services");
     await purgeCloudflareCache();
     if (data.isPublished && data.slug) {
-      const url = `https://dienmayelc.com.vn/dich-vu/${data.slug}`;
+      const url = `${BASE_URL}/dich-vu/${data.slug}`;
       submitToIndexNow([url]).catch((err) => console.error("IndexNow service update error:", err));
-      submitToGoogleIndex([url]).catch((err) => console.error("Google Indexing service update error:", err));
+      warmCache([url]);
     }
     return { data, error: null };
   } catch (error) {
@@ -361,9 +370,6 @@ export async function deleteServiceAction(id: string) {
     revalidateTag("services-list", { expire: 0 });
     if (slug) {
       revalidateTag(`service-slug:${slug}`, { expire: 0 });
-      submitToGoogleIndex([`https://dienmayelc.com.vn/dich-vu/${slug}`], "URL_DELETED").catch((err) =>
-        console.error("Google Indexing service delete error:", err)
-      );
     }
     revalidatePath("/dich-vu", "layout");
     revalidatePath("/admin/services");
