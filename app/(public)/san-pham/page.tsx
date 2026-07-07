@@ -74,13 +74,16 @@ export async function generateMetadata({
   }
 
   if (brands.length === 1) {
+    // `/san-pham/{brand-slug}` (resolveProductPath, see docs/SITEMAP.md §3) is
+    // the canonical, indexable brand page — this querystring filter on the
+    // list view is a duplicate of that intent, so it stays out of the index
+    // instead of contradicting itself (unique title/description + indexable
+    // but canonical pointing elsewhere) like it did before.
     const brandName = brands[0].charAt(0).toUpperCase() + brands[0].slice(1);
     return {
       title: `Danh sách sản phẩm ${brandName} chính hãng | ${SHOP_NAME}`,
       description: `Khám phá các sản phẩm ${brandName} chính hãng tại ${SHOP_NAME}. Cam kết giá tốt nhất, bảo hành uy tín, hỗ trợ lắp đặt chuyên nghiệp.`,
-      alternates: {
-        canonical: canonicalUrl,
-      },
+      robots: { index: false, follow: true },
     };
   }
 

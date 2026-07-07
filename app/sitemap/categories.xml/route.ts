@@ -2,10 +2,11 @@ import { NextResponse, connection } from 'next/server';
 import { getCategoriesAction } from '@/modules/category/presentation/actions';
 import { getBrandsAction } from '@/modules/brand/presentation/actions';
 import { getGroupsAction } from '@/modules/group/presentation/actions';
+import { toSitemapLastmod } from '@/shared/lib/sitemap-lastmod';
+import { BASE_URL } from '@/shared/lib/seo-schema';
 
 export async function GET() {
   await connection();
-  const BASE_URL = 'https://dienmayelc.com.vn';
 
   const [{ data: categories }, { data: brands }, { data: groupCategories }] = await Promise.all([
     getCategoriesAction(),
@@ -17,18 +18,21 @@ export async function GET() {
     .filter((cat) => cat.slug)
     .map((cat) => ({
       url: `${BASE_URL}/san-pham/${cat.slug}`,
+      lastmod: cat.updatedAt,
     }));
 
   const brandRoutes = brands
     .filter((b) => b.slug)
     .map((b) => ({
       url: `${BASE_URL}/san-pham/${b.slug}`,
+      lastmod: b.updatedAt,
     }));
 
   const groupRoutes = groupCategories
     .filter((g) => g.slug)
     .map((g) => ({
       url: `${BASE_URL}/san-pham/${g.slug}`,
+      lastmod: g.updatedAt,
     }));
 
   const allRoutes = [
@@ -42,7 +46,7 @@ export async function GET() {
   ${allRoutes.map(r => `
   <url>
     <loc>${r.url}</loc>
-    <lastmod>${new Date().toISOString()}</lastmod>
+    <lastmod>${toSitemapLastmod(r.lastmod)}</lastmod>
   </url>`).join('')}
 </urlset>`;
 
