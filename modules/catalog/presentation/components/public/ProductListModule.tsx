@@ -37,7 +37,6 @@ import {
   generateCollectionSchema,
   localizeRichText,
 } from "@/shared/lib/seo-utils";
-import { setUseStaticClient } from "@/shared/lib/supabase/server";
 import { cn } from "@/shared/lib/utils";
 import { cacheLife, cacheTag } from "next/cache";
 import { notFound } from "next/navigation";
@@ -90,7 +89,6 @@ async function getCachedListModuleData(
   "use cache";
   cacheLife("days");
   cacheTag("products");
-  setUseStaticClient(true);
 
   if (!entity) {
     throw new Error("Entity is required");
@@ -150,7 +148,6 @@ async function getCachedRelatedNews(entityName: string) {
   "use cache";
   cacheLife("hours");
   cacheTag("news-list");
-  setUseStaticClient(true);
 
   const allNews = await getNewsAction({ isPublished: true }).then(unwrapActionResult);
   return matchNewsByEntityName(entityName, allNews ?? [], 3);

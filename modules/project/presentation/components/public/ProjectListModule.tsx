@@ -18,7 +18,7 @@ import {
 } from "@/shared/components/ui/typography";
 import { getQueryTokens } from "@/shared/lib/search-utils";
 import { generateBreadcrumbSchema } from "@/shared/lib/seo-utils";
-import { setUseStaticClient } from "@/shared/lib/supabase/server";
+import { BASE_URL } from "@/shared/lib/seo-schema";
 import { cacheLife, cacheTag } from "next/cache";
 import Link from "next/link";
 import { Suspense } from "react";
@@ -71,7 +71,6 @@ async function getCachedProjectListData(
   // This prevents blank page caused by cache cold-start race condition.
   cacheLife("days");
   cacheTag("projects-list");
-  setUseStaticClient(true);
 
   // Only fetch all published projects separately when filters are active (avoid duplicate query)
   const hasFilters = !!(projectType?.id || categorySlugs.length > 0 || serviceSlugs.length > 0 || searchVal);
@@ -493,8 +492,7 @@ export async function ProjectListModule({
 
       {/* JSON-LD Schema markup for Google Rich Snippets */}
       {(() => {
-        const baseUrl =
-          process.env.NEXT_PUBLIC_APP_URL || "https://dienmayelc.com.vn";
+        const baseUrl = BASE_URL;
         const schema = {
           "@context": "https://schema.org",
           "@type": "ItemList",
@@ -522,8 +520,7 @@ export async function ProjectListModule({
 
       {/* Breadcrumb schema — server-rendered so Google always sees it, see generateBreadcrumbSchema doc */}
       {(() => {
-        const baseUrl =
-          process.env.NEXT_PUBLIC_APP_URL || "https://dienmayelc.com.vn";
+        const baseUrl = BASE_URL;
         const currentUrl = projectType
           ? `${baseUrl}/du-an/${projectType.slug}`
           : `${baseUrl}/du-an`;

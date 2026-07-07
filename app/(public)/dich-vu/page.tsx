@@ -18,7 +18,6 @@ import {
   TypographyP,
   TypographySmall,
 } from "@/shared/components/ui/typography";
-import { setUseStaticClient } from "@/shared/lib/supabase/server";
 import { cn } from "@/shared/lib/utils";
 import { cacheLife, cacheTag } from "next/cache";
 import {
@@ -58,7 +57,6 @@ async function getCachedServicesData() {
   "use cache";
   cacheLife("days");
   cacheTag("services-list");
-  setUseStaticClient(true);
 
   // Neu Go API loi that (khong phai rong hop le), ham nay throw thay vi tra
   // ve mang rong -- "use cache" se giu nguyen ban cache cu (stale-if-error)

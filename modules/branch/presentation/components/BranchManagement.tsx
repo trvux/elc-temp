@@ -22,6 +22,7 @@ import { Switch } from "@/shared/components/ui/switch";
 import { Textarea } from "@/shared/components/ui/textarea";
 import { TiptapEditor } from "@/shared/components/ui/tiptap-editor";
 import { capitalize, generateSlug } from "@/shared/lib/helpers";
+import { uploadImageFile } from "@/shared/lib/upload-image";
 
 import { Branch } from "../../domain";
 import { deleteBranchAction, getBranchesAction } from "../actions";
@@ -44,7 +45,7 @@ export function BranchManagement() {
   });
 
   // Custom Form Hook
-  const { form, saveMutation, supabase } =
+  const { form, saveMutation } =
     useBranchForm(activeBranch, () => setActiveBranch(null));
 
   // Delete Mutation
@@ -408,19 +409,7 @@ export function BranchManagement() {
                       value={field.value}
                       onChange={field.onChange}
                       placeholder="Viết nội dung giới thiệu cơ sở hạ tầng..."
-                      uploadImage={async (file) => {
-                        const fileName = `branches/${Date.now()}-${Math.random().toString(36).slice(2)}.webp`;
-                        const { error } = await supabase.storage
-                          .from("images")
-                          .upload(fileName, file, {
-                            contentType: "image/webp",
-                          });
-                        if (error) throw error;
-                        const { data } = supabase.storage
-                          .from("images")
-                          .getPublicUrl(fileName);
-                        return data.publicUrl;
-                      }}
+                      uploadImage={async (file) => uploadImageFile(file, "branches")}
                     />
                   )}
                 />

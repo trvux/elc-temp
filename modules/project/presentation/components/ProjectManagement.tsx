@@ -25,6 +25,7 @@ import {
   FieldLabel,
 } from "@/shared/components/ui/field";
 import { ImageUpload } from "@/shared/components/ui/image-upload";
+import { uploadImageFile } from "@/shared/lib/upload-image";
 import { Input } from "@/shared/components/ui/input";
 import { ScrollArea } from "@/shared/components/ui/scroll-area";
 import {
@@ -156,7 +157,7 @@ export function ProjectManagement() {
   }, [categories]);
 
   // Custom Form Hook
-  const { form, saveMutation, handleContentChange, supabase } = useProjectForm(
+  const { form, saveMutation, handleContentChange } = useProjectForm(
     activeProject,
     () => setActiveProject(null),
   );
@@ -1147,19 +1148,7 @@ export function ProjectManagement() {
                           value={field.value}
                           onChange={handleContentChange}
                           placeholder="Viết nội dung chi tiết dự án ở đây..."
-                          uploadImage={async (file) => {
-                            const fileName = `projects/${Date.now()}-${Math.random().toString(36).slice(2)}.webp`;
-                            const { error } = await supabase.storage
-                              .from("images")
-                              .upload(fileName, file, {
-                                contentType: "image/webp",
-                              });
-                            if (error) throw error;
-                            const { data } = supabase.storage
-                              .from("images")
-                              .getPublicUrl(fileName);
-                            return data.publicUrl;
-                          }}
+                          uploadImage={async (file) => uploadImageFile(file, "projects")}
                         />
                       )}
                     />

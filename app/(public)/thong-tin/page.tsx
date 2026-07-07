@@ -11,7 +11,6 @@ import {
   TypographySmall,
 } from "@/shared/components/ui/typography";
 import { sortByOrderIndex } from "@/shared/lib/helpers";
-import { setUseStaticClient } from "@/shared/lib/supabase/server";
 import { cn } from "@/shared/lib/utils";
 import { ArrowUpRight } from "@phosphor-icons/react/dist/ssr";
 import { cacheLife, cacheTag } from "next/cache";
@@ -61,7 +60,6 @@ async function getCachedInformationData() {
   "use cache";
   cacheLife("hours");
   cacheTag("layout");
-  setUseStaticClient(true);
 
   const allPages = await getPagesAction()
     .then(unwrapActionResult)

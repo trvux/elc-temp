@@ -34,7 +34,6 @@ import {
   generateSystemPageMetadata,
   SHOP_NAME,
 } from "@/shared/lib/seo-utils";
-import { setUseStaticClient } from "@/shared/lib/supabase/server";
 import { cn } from "@/shared/lib/utils";
 import type { Metadata } from "next";
 import { cacheLife, cacheTag } from "next/cache";
@@ -60,11 +59,9 @@ export async function generateMetadata({
         ? sParams.brands
         : [];
 
-  const baseUrl =
-    process.env.NEXT_PUBLIC_APP_URL || "https://dienmayelc.com.vn";
   const currentPage = Math.max(1, Math.floor(Number(sParams.page)) || 1);
   const pageSuffix = currentPage > 1 ? `?page=${currentPage}` : "";
-  const canonicalUrl = `${baseUrl}/san-pham${pageSuffix}`;
+  const canonicalUrl = `${BASE_URL}/san-pham${pageSuffix}`;
 
   if (q) {
     const title = `Kết quả tìm kiếm cho "${q}" | ${SHOP_NAME}`;
@@ -134,7 +131,6 @@ async function getCachedCategories() {
   "use cache";
   cacheLife("days");
   cacheTag("products-list", "categories");
-  setUseStaticClient(true);
   return getCategoriesAction().then(unwrapActionResult);
 }
 
@@ -153,7 +149,6 @@ async function getCachedCategorySections(): Promise<CategorySectionData[]> {
   "use cache";
   cacheLife("days");
   cacheTag("products-list", "categories");
-  setUseStaticClient(true);
 
   const allCategories = await getCategoriesAction().then(unwrapActionResult);
 
@@ -207,7 +202,6 @@ async function getCachedProductsData(
   "use cache";
   cacheLife("days");
   cacheTag("products-list");
-  setUseStaticClient(true);
 
   const { data: products, totalCount, facets: availableFilters, error } = await getProductsAction({
     isPublished: true,

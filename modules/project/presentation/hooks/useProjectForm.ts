@@ -5,8 +5,8 @@ import { useForm } from "react-hook-form";
 import type { Resolver } from "react-hook-form";
 import { toast } from "sonner";
 
-import { createClient } from "@/shared/lib/supabase/client";
 import { convertToWebP } from "@/shared/lib/image";
+import { uploadImageFile } from "@/shared/lib/upload-image";
 import { useTiptapTitleSlugSync } from "@/shared/hooks/use-tiptap-title-slug-sync";
 
 
@@ -36,7 +36,6 @@ export function useProjectForm(
 ) {
   const queryClient = useQueryClient();
   const [uploading, setUploading] = useState(false);
-  const supabase = createClient();
 
   const form = useForm<ProjectFormValues>({
     resolver: standardSchemaResolver(createProjectSchema) as unknown as Resolver<ProjectFormValues>,
@@ -109,17 +108,8 @@ export function useProjectForm(
     for (const file of Array.from(files)) {
       try {
         const webpFile = await convertToWebP(file);
-        const fileName = `projects/${Date.now()}-${Math.random()
-          .toString(36)
-          .slice(2)}.webp`;
-        const { error } = await supabase.storage
-          .from("images")
-          .upload(fileName, webpFile, { contentType: "image/webp" });
-        
-        if (error) throw error;
-        
-        const { data } = supabase.storage.from("images").getPublicUrl(fileName);
-        uploaded.push(data.publicUrl);
+        const url = await uploadImageFile(webpFile, "projects", webpFile.name);
+        uploaded.push(url);
       } catch {
         toast.error(`Lỗi upload: ${file.name}`);
       }
@@ -137,6 +127,5 @@ export function useProjectForm(
     handleUpload,
     handleContentChange,
     uploading,
-    supabase,
   };
 }

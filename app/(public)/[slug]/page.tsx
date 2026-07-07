@@ -6,7 +6,6 @@ import {
   TypographyH1,
   TypographySmall,
 } from "@/shared/components/ui/typography";
-import { setUseStaticClient } from "@/shared/lib/supabase/server";
 import { cn } from "@/shared/lib/utils";
 import { ArrowLeft } from "@phosphor-icons/react/dist/ssr";
 import { cacheLife, cacheTag } from "next/cache";
@@ -34,7 +33,6 @@ async function getCachedPageData(slug: string) {
   "use cache";
   cacheLife("hours");
   cacheTag("layout");
-  setUseStaticClient(true);
   // null = trang khong ton tai (404 that su, action da phan biet voi loi that).
   // Loi that se throw va giu nguyen ban cache cu (stale-if-error).
   return getPageBySlugAction(slug).then(unwrapActionResult);
@@ -59,12 +57,12 @@ export async function generateMetadata({
     title,
     description,
     alternates: {
-      canonical: `https://dienmayelc.com.vn/${page.slug}`,
+      canonical: `${BASE_URL}/${page.slug}`,
     },
     openGraph: {
       title,
       description,
-      url: `https://dienmayelc.com.vn/${page.slug}`,
+      url: `${BASE_URL}/${page.slug}`,
       type: "article",
     },
   };

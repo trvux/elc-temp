@@ -4,7 +4,6 @@ import { useForm } from "react-hook-form";
 import type { Resolver } from "react-hook-form";
 import { toast } from "sonner";
 
-import { createClient } from "@/shared/lib/supabase/client";
 import { useFeaturedImageUpload } from "@/shared/hooks/use-featured-image-upload";
 import { useTiptapTitleSlugSync } from "@/shared/hooks/use-tiptap-title-slug-sync";
 
@@ -28,7 +27,6 @@ export function useNewsForm(
   onClose: () => void
 ) {
   const queryClient = useQueryClient();
-  const supabase = createClient();
 
   const form = useForm<NewsFormValues>({
     resolver: standardSchemaResolver(createNewsSchema) as unknown as Resolver<NewsFormValues>,
@@ -92,6 +90,5 @@ export function useNewsForm(
     handleImageUpload,
     handleContentChange,
     uploading,
-    supabase,
   };
 }

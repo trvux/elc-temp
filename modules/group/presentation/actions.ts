@@ -82,6 +82,27 @@ export async function getGroupsAction(options?: GroupFilter) {
   }
 }
 
+export async function getGroupByIdAction(id: string) {
+  if (!GO_API_URL) {
+    return { data: null, error: null };
+  }
+  try {
+    const res = await fetch(`${GO_API_URL}/groups/${id}`, { cache: "no-store" });
+    if (res.status === 404) {
+      return { data: null, error: null };
+    }
+    if (!res.ok) {
+      return { data: null, error: await extractErrorMessage(res, "Failed to fetch group") };
+    }
+
+    const row = (await res.json()) as GoGroupResponse;
+    return { data: mapGoGroup(row), error: null };
+  } catch (error) {
+    console.error("getGroupByIdAction error:", error);
+    return { data: null, error: "Failed to fetch group" };
+  }
+}
+
 export async function createGroupAction(input: CreateGroupInput) {
   if (!GO_API_URL) {
     return { data: null, error: "GO_API_URL is not configured" };

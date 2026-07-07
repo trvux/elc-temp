@@ -1,9 +1,11 @@
-import { createClient, setUseStaticClient } from "@/shared/lib/supabase/server";
 import { Group } from "@/modules/group/domain/types";
+import { getGroupByIdAction } from "@/modules/group/presentation/actions";
 import { CategoryWithGroup } from "@/modules/category/domain/types";
 import { getCategoryByIdAction } from "@/modules/category/presentation/actions";
 import { Brand, ProductWithRelations } from "@/modules/catalog/domain/types";
+import { getBrandByIdAction } from "@/modules/brand/presentation/actions";
 import { getProductByIdAction } from "./actions";
+import { getSlugRegistryEntry } from "@/shared/lib/go-api";
 import { cacheLife, cacheTag } from "next/cache";
 
 export type ResolvedEntity =
@@ -14,63 +16,38 @@ export type ResolvedEntity =
   | null;
 
 /**
- * Tra cuu loai thuc the tu slug_registry.
- *
- * group/brand van doc truc tiep tu Supabase (cac module do chua migrate sang Go
- * trong dot nay) — day la orchestration cross-entity o phia Next.js, khong phai
- * trach nhiem cua catalog module. Nhanh "category"/"product" goi qua Go API bang
- * getCategoryByIdAction/getProductByIdAction thay vi doc truc tiep Supabase.
+ * Tra cuu loai thuc the tu slug_registry (qua Go API), roi dispatch sang
+ * action Go-backed tuong ung cua tung entity.
  */
 export async function resolveProductPathFromDb(slug: string): Promise<ResolvedEntity> {
   "use cache";
   cacheLife("days");
   cacheTag(`slug:${slug}`);
-  setUseStaticClient(true);
 
-  const supabase = await createClient();
-
-  const { data: registryItemRow, error: registryError } = await supabase
-    .from("slug_registry")
-    .select("entity_type, entity_id")
-    .eq("slug", slug)
-    .is("deleted_at", null)
-    .single();
-
-  const registryItem = registryItemRow as { entity_type: string; entity_id: string } | null;
-
-  if (registryError || !registryItem) {
+  const registryItem = await getSlugRegistryEntry(slug);
+  if (!registryItem) {
     return null;
   }
 
-  switch (registryItem.entity_type) {
+  switch (registryItem.entityType) {
     case "group": {
-      const { data } = await supabase
-        .from("group_categories")
-        .select("*")
-        .eq("id", registryItem.entity_id)
-        .is("deleted_at", null)
-        .single();
-      return data ? { type: "group", data: data as unknown as Group } : null;
+      const { data } = await getGroupByIdAction(registryItem.entityId);
+      return data ? { type: "group", data } : null;
     }
 
     case "category":
     case "categories": {
-      const { data } = await getCategoryByIdAction(registryItem.entity_id);
+      const { data } = await getCategoryByIdAction(registryItem.entityId);
       return data ? { type: "category", data } : null;
     }
 
     case "brand": {
-      const { data } = await supabase
-        .from("brands")
-        .select("*")
-        .eq("id", registryItem.entity_id)
-        .is("deleted_at", null)
-        .single();
-      return data ? { type: "brand", data: data as unknown as Brand } : null;
+      const { data } = await getBrandByIdAction(registryItem.entityId);
+      return data ? { type: "brand", data } : null;
     }
 
     case "product": {
-      const { data: product } = await getProductByIdAction(registryItem.entity_id);
+      const { data: product } = await getProductByIdAction(registryItem.entityId);
       return product ? { type: "product", data: product } : null;
     }
 

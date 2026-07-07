@@ -8,14 +8,13 @@ import { toast } from "sonner";
 import { AspectRatio } from "@/shared/components/ui/aspect-ratio";
 import { Button } from "@/shared/components/ui/button";
 import { convertToWebP } from "@/shared/lib/image";
-import { createClient } from "@/shared/lib/supabase/client";
+import { uploadImageFile } from "@/shared/lib/upload-image";
 import { cn } from "@/shared/lib/utils";
 
 interface ImageUploadProps {
   value?: string;
   onChange: (url: string) => void;
   aspectRatio?: "1:1" | "16:9" | "19:9" | "2:1" | "portrait" | number;
-  bucketName?: string;
   folderPath: string;
   maxSizeMB?: number;
   className?: string;
@@ -26,7 +25,6 @@ export function ImageUpload({
   value,
   onChange,
   aspectRatio = "16:9",
-  bucketName = "images",
   folderPath,
   maxSizeMB = 5,
   className,
@@ -34,7 +32,6 @@ export function ImageUpload({
 }: ImageUploadProps) {
   const [uploading, setUploading] = useState(false);
   const [isDragOver, setIsDragOver] = useState(false);
-  const supabase = createClient();
 
   // Resolve numeric ratio
   const ratio = React.useMemo(() => {
@@ -71,19 +68,8 @@ export function ImageUpload({
     try {
       // Automatic WebP compression on client side
       const webpFile = await convertToWebP(file);
-      const cleanFolder = folderPath.replace(/\/+$/, "");
-      const fileName = `${cleanFolder}/${Date.now()}-${Math.random()
-        .toString(36)
-        .slice(2)}.webp`;
-
-      const { error } = await supabase.storage
-        .from(bucketName)
-        .upload(fileName, webpFile, { contentType: "image/webp" });
-
-      if (error) throw error;
-
-      const { data } = supabase.storage.from(bucketName).getPublicUrl(fileName);
-      onChange(data.publicUrl);
+      const url = await uploadImageFile(webpFile, folderPath, webpFile.name);
+      onChange(url);
       toast.success("Tải ảnh lên thành công");
     } catch (err) {
       console.error("[ImageUpload] Error:", err);

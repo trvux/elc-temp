@@ -38,6 +38,7 @@ import { getCategoriesAction } from "@/modules/category/presentation/actions";
 import { getNewsColumns } from "./NewsColumns";
 import { useNewsForm } from "../hooks/useNewsForm";
 import { convertToWebP } from "@/shared/lib/image";
+import { uploadImageFile } from "@/shared/lib/upload-image";
 import { generateSlug } from "@/shared/lib/helpers";
 
 export function NewsManagement() {
@@ -75,7 +76,6 @@ export function NewsManagement() {
     handleImageUpload,
     handleContentChange,
     uploading,
-    supabase,
   } = useNewsForm(editing, () => setIsDialogOpen(false));
 
   // Delete Mutation
@@ -381,13 +381,7 @@ export function NewsManagement() {
                       placeholder="Bắt đầu viết nội dung bài viết..."
                       uploadImage={async (file) => {
                         const webpFile = await convertToWebP(file);
-                        const fileName = `news/${Date.now()}-${Math.random().toString(36).slice(2)}.webp`;
-                        const { error } = await supabase.storage
-                          .from("images")
-                          .upload(fileName, webpFile, { contentType: "image/webp" });
-                        if (error) throw error;
-                        const { data } = supabase.storage.from("images").getPublicUrl(fileName);
-                        return data.publicUrl;
+                        return uploadImageFile(webpFile, "news", webpFile.name);
                       }}
                     />
                   )}

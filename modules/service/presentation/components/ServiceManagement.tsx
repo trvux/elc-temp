@@ -48,7 +48,7 @@ import { Textarea } from "@/shared/components/ui/textarea";
 import { Plus, X } from "@phosphor-icons/react";
 import { Controller } from "react-hook-form";
 import { TiptapEditor } from "@/shared/components/ui/tiptap-editor";
-import { createClient } from "@/shared/lib/supabase/client";
+import { uploadImageFile } from "@/shared/lib/upload-image";
 
 interface ServiceManagementProps {
   initialData: ServiceWithRelations[];
@@ -61,7 +61,6 @@ export function ServiceManagement({
   groups,
   categories,
 }: ServiceManagementProps) {
-  const supabase = createClient();
   const [activeService, setActiveService] = useState<
     ServiceWithRelations | "new" | null
   >(null);
@@ -808,21 +807,7 @@ export function ServiceManagement({
                         value={field.value}
                         onChange={field.onChange}
                         placeholder="Bắt đầu viết nội dung chi tiết dịch vụ..."
-                        uploadImage={async (file: File) => {
-                          const fileName = `services/${Date.now()}-${Math.random()
-                            .toString(36)
-                            .slice(2)}.webp`;
-                          const { error } = await supabase.storage
-                            .from("images")
-                            .upload(fileName, file, {
-                              contentType: "image/webp",
-                            });
-                          if (error) throw error;
-                          const { data } = supabase.storage
-                            .from("images")
-                            .getPublicUrl(fileName);
-                          return data.publicUrl;
-                        }}
+                        uploadImage={async (file: File) => uploadImageFile(file, "services")}
                       />
                     )}
                   />

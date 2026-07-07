@@ -4,8 +4,8 @@ import { useForm } from "react-hook-form";
 import type { Resolver } from "react-hook-form";
 import { toast } from "sonner";
 import { useState } from "react";
-import { createClient } from "@/shared/lib/supabase/client";
 import { convertToWebP } from "@/shared/lib/image";
+import { uploadImageFile } from "@/shared/lib/upload-image";
 import { generateSlug } from "@/shared/lib/helpers";
 
 import { createCategorySchema, Category } from "../../domain";
@@ -30,7 +30,6 @@ export function useCategoryForm(
 ) {
   const queryClient = useQueryClient();
   const [uploading, setUploading] = useState(false);
-  const supabase = createClient();
 
   const form = useForm<CategoryFormValues>({
     resolver: standardSchemaResolver(createCategorySchema) as unknown as Resolver<CategoryFormValues>,
@@ -96,15 +95,8 @@ export function useCategoryForm(
     setUploading(true);
     try {
       const webpFile = await convertToWebP(file);
-      const fileName = `categories-new/${Date.now()}-${Math.random().toString(36).slice(2)}.webp`;
-      const { error } = await supabase.storage
-        .from("images")
-        .upload(fileName, webpFile, { contentType: "image/webp" });
-      
-      if (error) throw error;
-      
-      const { data } = supabase.storage.from("images").getPublicUrl(fileName);
-      form.setValue("imageUrl", data.publicUrl);
+      const url = await uploadImageFile(webpFile, "categories-new", webpFile.name);
+      form.setValue("imageUrl", url);
       toast.success("Đã tải lên ảnh đại diện");
     } catch {
       toast.error(`Lỗi upload: ${file.name}`);

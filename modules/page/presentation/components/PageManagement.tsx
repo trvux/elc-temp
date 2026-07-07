@@ -36,6 +36,7 @@ import {
 import { getPageColumns } from "./PageColumns";
 import { usePageForm } from "../hooks/usePageForm";
 import { convertToWebP } from "@/shared/lib/image";
+import { uploadImageFile } from "@/shared/lib/upload-image";
 import { generateSlug } from "@/shared/lib/helpers";
 
 export function PageManagement() {
@@ -62,7 +63,6 @@ export function PageManagement() {
     form,
     saveMutation,
     handleContentChange,
-    supabase,
   } = usePageForm(editing, () => setIsDialogOpen(false));
 
   // Delete Mutation
@@ -291,13 +291,7 @@ export function PageManagement() {
                       placeholder="Bắt đầu viết nội dung trang..."
                       uploadImage={async (file) => {
                         const webpFile = await convertToWebP(file);
-                        const fileName = `pages/${Date.now()}-${Math.random().toString(36).slice(2)}.webp`;
-                        const { error } = await supabase.storage
-                          .from("images")
-                          .upload(fileName, webpFile, { contentType: "image/webp" });
-                        if (error) throw error;
-                        const { data } = supabase.storage.from("images").getPublicUrl(fileName);
-                        return data.publicUrl;
+                        return uploadImageFile(webpFile, "pages", webpFile.name);
                       }}
                     />
                   )}

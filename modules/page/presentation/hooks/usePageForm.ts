@@ -4,7 +4,6 @@ import { useForm } from "react-hook-form";
 import type { Resolver } from "react-hook-form";
 import { toast } from "sonner";
 
-import { createClient } from "@/shared/lib/supabase/client";
 import { useTiptapTitleSlugSync } from "@/shared/hooks/use-tiptap-title-slug-sync";
 
 import { Page, createPageSchema, Json } from "../../domain";
@@ -25,7 +24,6 @@ export function usePageForm(
   onClose: () => void
 ) {
   const queryClient = useQueryClient();
-  const supabase = createClient();
 
   const form = useForm<PageFormValues>({
     resolver: standardSchemaResolver(createPageSchema) as unknown as Resolver<PageFormValues>,
@@ -78,6 +76,5 @@ export function usePageForm(
     form,
     saveMutation,
     handleContentChange,
-    supabase,
   };
 }

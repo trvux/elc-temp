@@ -1,6 +1,6 @@
 import { getAdjacentProductsAction } from "@/modules/catalog/presentation/actions";
 import { formatPrice, ProductWithRelations } from "@/modules/catalog/domain";
-import { getContactHref } from "@/modules/contact";
+import { getContactsAction } from "@/modules/contact/presentation/actions";
 import { TrackView } from "@/modules/event";
 import { LeadForm } from "@/modules/inquiry/presentation/components/LeadForm";
 import { Breadcrumbs } from "@/shared/components/layout/user/breadcrumbs";
@@ -50,7 +50,6 @@ import {
   generateProductSchema,
   localizeRichText,
 } from "@/shared/lib/seo-utils";
-import { createClient, setUseStaticClient } from "@/shared/lib/supabase/server";
 import { cn } from "@/shared/lib/utils";
 import { cacheLife, cacheTag } from "next/cache";
 import { notFound } from "next/navigation";
@@ -162,29 +161,9 @@ async function getCachedProductDetailData(productSlug: string) {
   "use cache";
   cacheLife("days");
   cacheTag("products-list", `slug:${productSlug}`);
-  setUseStaticClient(true);
 
-  const supabase = await createClient();
-
-  const { data: rawContacts } = await supabase
-    .from("contacts")
-    .select("*")
-    .eq("is_active", true)
-    .order("order_index");
-
-  const contacts = (rawContacts || []).map((row) => {
-    const href = getContactHref(row.type || "", row.value || "");
-    return {
-      id: row.id,
-      type: row.type || "",
-      label: row.label || null,
-      value: row.value || "",
-      isActive: row.is_active ?? true,
-      orderIndex: row.order_index || 0,
-      href,
-      isExternal: !href.startsWith("tel:") && !href.startsWith("mailto:"),
-    };
-  });
+  const { data: rawContacts } = await getContactsAction();
+  const contacts = (rawContacts || []).filter((c) => c.isActive);
 
   return {
     contacts,

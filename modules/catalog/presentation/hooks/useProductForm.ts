@@ -6,7 +6,7 @@ import { toast } from "sonner";
 import type { z } from "zod";
 
 import { convertToWebP } from "@/shared/lib/image";
-import { createClient } from "@/shared/lib/supabase/client";
+import { uploadImageFile } from "@/shared/lib/upload-image";
 import { generateSlug } from "@/shared/lib/helpers";
 
 import { createProductSchema, ProductWithRelations, STOCK_STATUS, PRODUCT_CONDITION, SpecItem, SpecSubItem, CreateProductInput, UpdateProductInput } from "../../domain";
@@ -50,7 +50,6 @@ export function useProductForm(
 ) {
   const queryClient = useQueryClient();
   const [uploading, setUploading] = useState(false);
-  const supabase = createClient();
 
   const form = useForm<ProductFormValues>({
     resolver: standardSchemaResolver(createProductSchema) as unknown as Resolver<ProductFormValues>,
@@ -151,18 +150,8 @@ export function useProductForm(
     for (const file of Array.from(files)) {
       try {
         const webpFile = await convertToWebP(file);
-        const fileName = `products/${Date.now()}-${Math.random()
-          .toString(36)
-          .slice(2)}.webp`;
-        const { error } = await supabase.storage
-          .from("images")
-          .upload(fileName, webpFile, { contentType: "image/webp" });
-        if (error) {
-          toast.error(`Lỗi upload: ${file.name}`);
-          continue;
-        }
-        const { data } = supabase.storage.from("images").getPublicUrl(fileName);
-        uploaded.push(data.publicUrl);
+        const url = await uploadImageFile(webpFile, "products", webpFile.name);
+        uploaded.push(url);
       } catch {
         toast.error(`Lỗi xử lý ảnh: ${file.name}`);
       }

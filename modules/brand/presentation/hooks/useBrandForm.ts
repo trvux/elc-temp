@@ -6,7 +6,7 @@ import { toast } from "sonner";
 import type { z } from "zod";
 
 import { convertToWebP } from "@/shared/lib/image";
-import { createClient } from "@/shared/lib/supabase/client";
+import { uploadImageFile } from "@/shared/lib/upload-image";
 import { generateSlug } from "@/shared/lib/helpers";
 
 import { createBrandSchema, Brand, CreateBrandInput, UpdateBrandInput } from "../../domain";
@@ -20,7 +20,6 @@ export function useBrandForm(
 ) {
   const queryClient = useQueryClient();
   const [uploading, setUploading] = useState(false);
-  const supabase = createClient();
 
   const form = useForm<BrandFormValues>({
     resolver: standardSchemaResolver(createBrandSchema),
@@ -67,17 +66,8 @@ export function useBrandForm(
 
     try {
       const webpFile = await convertToWebP(file);
-      const fileName = `brands/${Date.now()}-${Math.random()
-        .toString(36)
-        .slice(2)}.webp`;
-      const { error } = await supabase.storage
-        .from("images")
-        .upload(fileName, webpFile, { contentType: "image/webp" });
-
-      if (error) throw error;
-
-      const { data } = supabase.storage.from("images").getPublicUrl(fileName);
-      form.setValue("logoUrl", data.publicUrl);
+      const url = await uploadImageFile(webpFile, "brands", webpFile.name);
+      form.setValue("logoUrl", url);
       toast.success("Đã tải logo lên thành công");
     } catch {
       toast.error("Lỗi upload logo");
