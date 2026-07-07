@@ -9,8 +9,9 @@ import {
 } from "../domain/index";
 import { authHeaders, toSnakeCaseBody } from "@/shared/lib/go-api";
 import { submitToIndexNow } from "@/shared/lib/indexnow";
-import { submitToGoogleIndex } from "@/shared/lib/google-indexing";
+import { warmCache } from "@/shared/lib/cache-warm";
 import { purgeCloudflareCache } from "@/shared/lib/cloudflare-purge";
+import { BASE_URL } from "@/shared/lib/seo-schema";
 
 const GO_API_URL = process.env.GO_API_URL;
 
@@ -50,6 +51,12 @@ interface GoProjectServiceResponse {
   group: GoServiceGroupRefResponse | null;
 }
 
+interface GoSeo {
+  title?: string;
+  description?: string;
+  noindex?: boolean;
+}
+
 interface GoProjectResponse {
   id: string;
   title: string;
@@ -60,6 +67,7 @@ interface GoProjectResponse {
   is_published: boolean;
   meta_title: string | null;
   meta_description: string | null;
+  seo: GoSeo;
   order_index: number;
   category_id: string;
   project_type_id: string | null;
@@ -115,6 +123,7 @@ function mapGoProject(row: GoProjectResponse): ProjectWithCategory {
     isPublished: row.is_published,
     metaTitle: row.meta_title,
     metaDescription: row.meta_description,
+    seo: row.seo,
     orderIndex: row.order_index,
     categoryId: row.category_id,
     projectTypeId: row.project_type_id,
@@ -345,9 +354,9 @@ export async function createProjectAction(input: CreateProjectInput) {
 
     revalidatePaths(data.slug);
     if (data.isPublished && data.slug) {
-      const url = `https://dienmayelc.com.vn/du-an/${data.slug}`;
+      const url = `${BASE_URL}/du-an/${data.slug}`;
       submitToIndexNow([url]).catch((err) => console.error("IndexNow project create error:", err));
-      submitToGoogleIndex([url]).catch((err) => console.error("Google Indexing project create error:", err));
+      warmCache([url]);
     }
     return { data, error: null };
   } catch (error) {
@@ -387,9 +396,9 @@ export async function updateProjectAction(input: UpdateProjectInput) {
 
     revalidatePaths(data.slug);
     if (data.isPublished && data.slug) {
-      const url = `https://dienmayelc.com.vn/du-an/${data.slug}`;
+      const url = `${BASE_URL}/du-an/${data.slug}`;
       submitToIndexNow([url]).catch((err) => console.error("IndexNow project update error:", err));
-      submitToGoogleIndex([url]).catch((err) => console.error("Google Indexing project update error:", err));
+      warmCache([url]);
     }
     return { data, error: null };
   } catch (error) {
@@ -435,9 +444,9 @@ export async function toggleProjectPublishAction(id: string, isPublished: boolea
     const proj = await getProjectByIdAction(id).then((r) => r.data);
     revalidatePaths(proj?.slug);
     if (isPublished && proj?.slug) {
-      const url = `https://dienmayelc.com.vn/du-an/${proj.slug}`;
+      const url = `${BASE_URL}/du-an/${proj.slug}`;
       submitToIndexNow([url]).catch((err) => console.error("IndexNow project toggle error:", err));
-      submitToGoogleIndex([url]).catch((err) => console.error("Google Indexing project toggle error:", err));
+      warmCache([url]);
     }
     return { error: null };
   } catch (error) {

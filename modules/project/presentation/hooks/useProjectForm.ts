@@ -10,7 +10,7 @@ import { uploadImageFile } from "@/shared/lib/upload-image";
 import { useTiptapTitleSlugSync } from "@/shared/hooks/use-tiptap-title-slug-sync";
 
 
-import { createProjectSchema, ProjectWithCategory, Json } from "../../domain";
+import { createProjectSchema, ProjectWithCategory, Json, Seo } from "../../domain";
 import { createProjectAction, updateProjectAction } from "../actions";
 
 export type ProjectFormValues = {
@@ -22,6 +22,7 @@ export type ProjectFormValues = {
   isPublished: boolean;
   metaTitle: string;
   metaDescription: string;
+  seo: Seo;
   orderIndex: number;
   categoryId: string;
   projectTypeId: string;
@@ -53,6 +54,7 @@ export function useProjectForm(
       isFeatured: false,
       metaTitle: "",
       metaDescription: "",
+      seo: { title: "", description: "", noindex: false },
       orderIndex: 0,
     },
   });
