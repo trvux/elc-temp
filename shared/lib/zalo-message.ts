@@ -1,10 +1,10 @@
+import { BASE_URL as SITE_URL } from "@/shared/lib/seo-schema";
+
 export interface ZaloProductInfo {
   productName: string;
   salePrice: number;
   productSlug: string;
 }
-
-const SITE_URL = "https://dienmayelc.com.vn";
 
 /**
  * Build a pre-formatted Zalo message for a product inquiry.

@@ -1,4 +1,5 @@
 import { MetadataRoute } from "next";
+import { BASE_URL } from "@/shared/lib/seo-schema";
 
 export default function robots(): MetadataRoute.Robots {
   return {
@@ -57,6 +58,6 @@ export default function robots(): MetadataRoute.Robots {
         disallow: ["/admin/", "/api/", "/cdn-cgi/"],
       },
     ],
-    sitemap: "https://dienmayelc.com.vn/sitemap.xml",
+    sitemap: `${BASE_URL}/sitemap.xml`,
   };
 }

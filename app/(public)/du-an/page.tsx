@@ -3,12 +3,13 @@ import { getFeaturedProjectsAction, getProjectsAction } from "@/modules/project/
 import type { Metadata } from "next";
 import { getCachedSystemPage } from "@/shared/lib/cached-system-page";
 import { generateSystemPageMetadata } from "@/shared/lib/seo-utils";
+import { BASE_URL } from "@/shared/lib/seo-schema";
 
 export async function generateMetadata(): Promise<Metadata> {
   const defaultMeta: Metadata = {
     title: "Dự án Thi công lắp đặt máy lạnh & hệ thống HVAC | Điện máy ELC",
     description: "Tổng hợp các dự án, công trình thi công lắp đặt máy lạnh, hệ thống điều hòa không khí trung tâm VRV/VRF và HVAC tiêu biểu do Điện máy ELC thực hiện toàn quốc.",
-    alternates: { canonical: "https://dienmayelc.com.vn/du-an" },
+    alternates: { canonical: `${BASE_URL}/du-an` },
   };
 
   try {
@@ -34,7 +35,7 @@ export async function generateMetadata(): Promise<Metadata> {
 
     return {
       ...meta,
-      alternates: { canonical: "https://dienmayelc.com.vn/du-an" },
+      alternates: { canonical: `${BASE_URL}/du-an` },
     } as Metadata;
   } catch {
     return defaultMeta;

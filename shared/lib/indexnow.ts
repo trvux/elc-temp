@@ -1,5 +1,7 @@
+import { BASE_URL } from "@/shared/lib/seo-schema";
+
 export async function submitToIndexNow(urls: string[]): Promise<boolean> {
-  const host = "dienmayelc.com.vn";
+  const host = new URL(BASE_URL).host;
   const key = "5526e838bca84144ad7c1a84f3eb7d82";
   const keyLocation = `https://${host}/${key}.txt`;
 

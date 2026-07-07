@@ -6,6 +6,7 @@ import GoogleAnalytics from "@/shared/components/analytics/GoogleAnalytics";
 import Hotjar from "@/shared/components/layout/user/hotjar";
 import { cn } from "@/shared/lib/utils";
 import { QueryProvider } from "@/shared/providers/query-provider";
+import { BASE_URL } from "@/shared/lib/seo-schema";
 import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import { Suspense } from "react";
@@ -14,9 +15,7 @@ import "./globals.css";
 const inter = Inter({subsets:['latin'],variable:'--font-sans'});
 
 export const metadata: Metadata = {
-  metadataBase: new URL(
-    process.env.NEXT_PUBLIC_APP_URL || "https://dienmayelc.com.vn",
-  ),
+  metadataBase: new URL(BASE_URL),
   title: "Điện máy ELC | Máy lạnh, Hệ thống khí tươi & Dự án trọn gói",
   description:
     "Điện máy ELC chuyên cung cấp, lắp đặt & thi công máy lạnh, hệ thống khí tươi chính hãng. Đầy đủ dịch vụ: bảo trì, cho thuê, thu cũ đổi mới uy tín hàng đầu.",
@@ -24,7 +23,7 @@ export const metadata: Metadata = {
     title: "Điện máy ELC - Máy lạnh chính hãng, giá tốt",
     description:
       "Giải pháp không khí chuyên nghiệp cho gia đình và doanh nghiệp. Lắp đặt nhanh, bảo hành tận tâm.",
-    url: "https://dienmayelc.com.vn",
+    url: BASE_URL,
     siteName: "Điện máy ELC",
     locale: "vi_VN",
     type: "website",
@@ -80,8 +79,8 @@ export default function RootLayout({
               "@context": "https://schema.org",
               "@type": "Organization",
               name: "Điện máy ELC",
-              url: "https://dienmayelc.com.vn",
-              logo: "https://dienmayelc.com.vn/icon.svg",
+              url: BASE_URL,
+              logo: `${BASE_URL}/icon.svg`,
               contactPoint: {
                 "@type": "ContactPoint",
                 telephone: "+84789978898",

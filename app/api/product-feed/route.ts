@@ -1,5 +1,6 @@
 import { getProductsAction } from "@/modules/catalog/presentation/actions";
 import { NextResponse, connection } from "next/server";
+import { BASE_URL } from "@/shared/lib/seo-schema";
 
 export async function GET() {
   await connection();
@@ -8,8 +9,6 @@ export async function GET() {
   if (error) {
     return new NextResponse("Error fetching products", { status: 500 });
   }
-
-  const BASE_URL = "https://dienmayelc.com.vn";
 
   // Helper to escape special XML characters
   const escapeXml = (unsafe: string) => {
