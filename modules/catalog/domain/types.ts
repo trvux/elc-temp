@@ -2,6 +2,8 @@
 import { Brand, CreateBrandInput, UpdateBrandInput } from "../../brand/domain";
 export type { Brand, CreateBrandInput, UpdateBrandInput };
 import { StockStatus, ProductCondition } from "./constants";
+import type { Seo } from "@/shared/lib/seo-schema";
+export type { Seo };
 
 export type Json =
     | string
@@ -19,6 +21,7 @@ export interface Product {
     shortDescription?: string;
     metaTitle?: string | null;
     metaDescription?: string | null;
+    seo?: Seo;
     description: Json;
     specs: Json;
     originalPrice: number;
@@ -58,6 +61,7 @@ export interface CreateProductInput {
     shortDescription?: string;
     metaTitle?: string | null;
     metaDescription?: string | null;
+    seo?: Seo;
     description?: Json;
     specs?: Json;
     originalPrice: number;

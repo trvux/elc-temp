@@ -27,6 +27,7 @@ import { CategoryWithGroup } from "@/modules/category/domain/types";
 import { Checkbox } from "@/shared/components/ui/checkbox";
 import { Brand, formatPrice, PRODUCT_LABELS, PRODUCT_CONDITION, PRODUCT_CONDITION_MAP } from "@/modules/catalog/domain";
 import { ProductFormValues } from "../../hooks/useProductForm";
+import { SeoSnippetPreview } from "@/shared/components/layout/admin/seo-snippet-preview";
 
 interface ProductGeneralTabProps {
   form: UseFormReturn<ProductFormValues>;
@@ -44,6 +45,10 @@ export function ProductGeneralTab({
   updateAutoSlug,
 }: ProductGeneralTabProps) {
   const currentCategoryId = form.watch("categoryId");
+  const previewName = form.watch("name");
+  const previewSlug = form.watch("slug");
+  const previewSeoTitle = form.watch("seo.title");
+  const previewSeoDescription = form.watch("seo.description");
   const [selectedGroupId, setSelectedGroupId] = useState<string>(() => {
     if (currentCategoryId) {
       const cat = categories.find((c) => c.id === currentCategoryId);
@@ -521,10 +526,13 @@ export function ProductGeneralTab({
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <Controller
               control={form.control}
-              name="metaTitle"
+              name="seo.title"
               render={({ field, fieldState }) => (
                 <Field>
-                  <FieldLabel>Tiêu đề SEO</FieldLabel>
+                  <div className="flex items-center justify-between">
+                    <FieldLabel>Tiêu đề SEO</FieldLabel>
+                    <span className="text-[11px] text-muted-foreground">{(field.value || "").length}/70</span>
+                  </div>
                   <Input {...field} value={field.value || ""} placeholder="Để trống sẽ tự động dùng tên sản phẩm..." />
                   <FieldError errors={[fieldState.error]} />
                 </Field>
@@ -533,16 +541,36 @@ export function ProductGeneralTab({
 
             <Controller
               control={form.control}
-              name="metaDescription"
+              name="seo.description"
               render={({ field, fieldState }) => (
                 <Field>
-                  <FieldLabel>Mô tả SEO</FieldLabel>
+                  <div className="flex items-center justify-between">
+                    <FieldLabel>Mô tả SEO</FieldLabel>
+                    <span className="text-[11px] text-muted-foreground">{(field.value || "").length}/160</span>
+                  </div>
                   <Textarea {...field} value={field.value || ""} placeholder="Mô tả tóm tắt sản phẩm để hiển thị trên Google..." className="min-h-[80px]" />
                   <FieldError errors={[fieldState.error]} />
                 </Field>
               )}
             />
           </div>
+          <Controller
+            control={form.control}
+            name="seo.noindex"
+            render={({ field }) => (
+              <Field>
+                <label className="flex items-center space-x-2 text-sm cursor-pointer">
+                  <Checkbox checked={field.value || false} onCheckedChange={(v) => field.onChange(!!v)} />
+                  <span>Ẩn khỏi kết quả tìm kiếm (noindex)</span>
+                </label>
+              </Field>
+            )}
+          />
+          <SeoSnippetPreview
+            title={previewSeoTitle || previewName || ""}
+            description={previewSeoDescription || ""}
+            url={`dienmayelc.com.vn/san-pham/${previewSlug || ""}`}
+          />
         </div>
       </FieldSet>
     </FieldGroup>
