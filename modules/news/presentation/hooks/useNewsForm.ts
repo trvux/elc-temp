@@ -7,7 +7,7 @@ import { toast } from "sonner";
 import { useFeaturedImageUpload } from "@/shared/hooks/use-featured-image-upload";
 import { useTiptapTitleSlugSync } from "@/shared/hooks/use-tiptap-title-slug-sync";
 
-import { News, createNewsSchema, Json } from "../../domain";
+import { News, createNewsSchema, Json, Seo } from "../../domain";
 import { createNewsAction, updateNewsAction } from "../actions";
 
 export type NewsFormValues = {
@@ -19,6 +19,7 @@ export type NewsFormValues = {
   isPublished: boolean;
   metaTitle: string;
   metaDescription: string;
+  seo: Seo;
   orderIndex: number;
 };
 
@@ -39,6 +40,7 @@ export function useNewsForm(
       isPublished: true,
       metaTitle: "",
       metaDescription: "",
+      seo: { title: "", description: "", noindex: false },
       orderIndex: 0,
     },
   });
