@@ -36,7 +36,8 @@ export async function updateSession(request: NextRequest) {
   const expiry = accessToken ? decodeJwtExpiry(accessToken) : null;
   // 30s leeway so a request in flight doesn't get a token that expires
   // before it reaches elc-go.
-  const isAccessTokenFresh = expiry !== null && expiry * 1000 > Date.now() + 30_000;
+  const isAccessTokenFresh =
+    expiry !== null && expiry * 1000 > Date.now() + 30_000;
 
   if (isAccessTokenFresh) {
     return NextResponse.next({ request });
@@ -63,8 +64,16 @@ export async function updateSession(request: NextRequest) {
         request.cookies.set(REFRESH_TOKEN_COOKIE, session.refresh_token);
 
         const response = NextResponse.next({ request });
-        response.cookies.set(ACCESS_TOKEN_COOKIE, session.access_token, accessTokenCookieOptions(session.expires_in));
-        response.cookies.set(REFRESH_TOKEN_COOKIE, session.refresh_token, refreshTokenCookieOptions());
+        response.cookies.set(
+          ACCESS_TOKEN_COOKIE,
+          session.access_token,
+          accessTokenCookieOptions(session.expires_in),
+        );
+        response.cookies.set(
+          REFRESH_TOKEN_COOKIE,
+          session.refresh_token,
+          refreshTokenCookieOptions(),
+        );
         return response;
       }
     } catch (error) {
@@ -74,6 +83,11 @@ export async function updateSession(request: NextRequest) {
 
   const url = request.nextUrl.clone();
   url.pathname = "/admin/login";
+
+  if (request.headers.has("rsc")) {
+    url.searchParams.set("rsc", "1");
+  }
+
   const response = NextResponse.redirect(url);
   response.cookies.delete(ACCESS_TOKEN_COOKIE);
   response.cookies.delete(REFRESH_TOKEN_COOKIE);
