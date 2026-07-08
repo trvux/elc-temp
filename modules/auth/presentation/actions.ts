@@ -3,17 +3,29 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
-import { acceptInvite, forgotPassword, login, logout, resetPassword } from "../application";
+import {
+  acceptInvite,
+  changePassword,
+  forgotPassword,
+  login,
+  logout,
+  resetPassword,
+  updateProfile,
+} from "../application";
 import { authRepo } from "../infrastructure/authRepo";
 import {
   AcceptInviteInput,
   acceptInviteSchema,
+  ChangePasswordInput,
+  changePasswordSchema,
   ForgotPasswordInput,
   forgotPasswordSchema,
   LoginInput,
   loginSchema,
   ResetPasswordInput,
   resetPasswordSchema,
+  UpdateProfileInput,
+  updateProfileSchema,
 } from "../domain/types";
 
 export async function loginAction(input: LoginInput) {
@@ -93,4 +105,41 @@ export async function acceptInviteAction(input: AcceptInviteInput) {
       error: error instanceof Error ? error.message : "Đã có lỗi xảy ra",
     };
   }
+}
+
+export async function updateProfileAction(input: UpdateProfileInput) {
+  try {
+    const validated = updateProfileSchema.parse(input);
+    const result = await updateProfile(authRepo, validated);
+    if (!result.error) {
+      revalidatePath("/", "layout");
+    }
+    return result;
+  } catch (error) {
+    console.error("[updateProfileAction] Exception:", error);
+    return {
+      user: null,
+      error: error instanceof Error ? error.message : "Đã có lỗi xảy ra",
+    };
+  }
+}
+
+export async function changePasswordAction(input: ChangePasswordInput) {
+  let result: { error: string | null };
+  try {
+    const validated = changePasswordSchema.parse(input);
+    result = await changePassword(authRepo, validated);
+  } catch (error) {
+    console.error("[changePasswordAction] Exception:", error);
+    return { error: error instanceof Error ? error.message : "Đã có lỗi xảy ra" };
+  }
+
+  if (result.error) {
+    return result;
+  }
+
+  // Every session (including this one) was just revoked server-side — same
+  // reasoning as logoutAction for redirecting outside the try/catch instead
+  // of letting the client orchestrate navigation.
+  redirect("/admin/login");
 }

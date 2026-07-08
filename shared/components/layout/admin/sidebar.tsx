@@ -30,37 +30,109 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/shared/components/ui/sidebar";
-import { Medal, CaretUpDown, FileText, Kanban, Gauge, SignOut, MapPin, Package, Phone, ChatCircleText, Gear, ShieldCheck, GridFour, List, Stack, Briefcase, SquaresFour, Newspaper, Globe, UsersThree, MagnifyingGlass, PenNib, TagSimple, Star } from "@phosphor-icons/react";
+import { Medal, CaretUpDown, FileText, Kanban, Gauge, SignOut, MapPin, Package, Phone, ChatCircleText, Gear, ShieldCheck, GridFour, List, Stack, Briefcase, SquaresFour, Newspaper, Globe, UsersThree, MagnifyingGlass, PenNib, TagSimple, Star, UserCircle } from "@phosphor-icons/react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-const navItems = [
-  { href: "/admin", label: "Tổng quan", icon: Gauge },
-  { href: "/admin/group-categories", label: "Nhóm danh mục", icon: GridFour },
-  { href: "/admin/categories", label: "Danh mục", icon: List },
-  { href: "/admin/project-types", label: "Loại hình công trình", icon: Stack },
-  { href: "/admin/brands", label: "Thương hiệu", icon: Medal },
-  { href: "/admin/projects", label: "Dự án", icon: Kanban },
-  { href: "/admin/products", label: "Sản phẩm", icon: Package },
-  { href: "/admin/service-groups", label: "Nhóm dịch vụ", icon: SquaresFour },
-  { href: "/admin/services", label: "Dịch vụ", icon: Briefcase },
-  { href: "/admin/inquiries", label: "Yêu cầu tư vấn", icon: ChatCircleText },
-  { href: "/admin/reviews", label: "Đánh giá", icon: Star },
-  { href: "/admin/news", label: "Tin tức", icon: Newspaper },
-  { href: "/admin/authors", label: "Tác giả", icon: PenNib },
-  { href: "/admin/tags", label: "Thẻ (Tags)", icon: TagSimple },
-  { href: "/admin/pages", label: "Trang tĩnh", icon: FileText },
-  { href: "/admin/contacts", label: "Liên hệ", icon: Phone },
-  { href: "/admin/branches", label: "Chi nhánh", icon: MapPin },
-  { href: "/admin/system-pages", label: "SEO Trang hệ thống", icon: Globe },
-  { href: "/admin/seo-audit", label: "Kiểm tra SEO", icon: MagnifyingGlass },
-  { href: "/admin/settings", label: "Cài đặt", icon: Gear },
+type NavItemDef = { href: string; label: string; icon: typeof Gauge };
+
+const dashboardItem: NavItemDef = { href: "/admin", label: "Tổng quan", icon: Gauge };
+
+// Grouped by domain rather than one flat list — a flat 20-item menu made it
+// hard for staff to locate related screens (e.g. "Nhóm dịch vụ"/"Dịch vụ"
+// scattered among unrelated items). Group boundaries mirror how the data
+// itself relates (catalog taxonomy, project/service delivery, customer
+// touchpoints, content, system-level config).
+const navGroups: { label: string; items: NavItemDef[] }[] = [
+  {
+    label: "Danh mục sản phẩm",
+    items: [
+      { href: "/admin/group-categories", label: "Nhóm danh mục", icon: GridFour },
+      { href: "/admin/categories", label: "Danh mục", icon: List },
+      { href: "/admin/project-types", label: "Loại hình công trình", icon: Stack },
+      { href: "/admin/brands", label: "Thương hiệu", icon: Medal },
+      { href: "/admin/products", label: "Sản phẩm", icon: Package },
+    ],
+  },
+  {
+    label: "Dự án & Dịch vụ",
+    items: [
+      { href: "/admin/projects", label: "Dự án", icon: Kanban },
+      { href: "/admin/service-groups", label: "Nhóm dịch vụ", icon: SquaresFour },
+      { href: "/admin/services", label: "Dịch vụ", icon: Briefcase },
+    ],
+  },
+  {
+    label: "Khách hàng",
+    items: [
+      { href: "/admin/inquiries", label: "Yêu cầu tư vấn", icon: ChatCircleText },
+      { href: "/admin/reviews", label: "Đánh giá", icon: Star },
+      { href: "/admin/contacts", label: "Liên hệ", icon: Phone },
+    ],
+  },
+  {
+    label: "Nội dung",
+    items: [
+      { href: "/admin/news", label: "Tin tức", icon: Newspaper },
+      { href: "/admin/authors", label: "Tác giả", icon: PenNib },
+      { href: "/admin/tags", label: "Thẻ (Tags)", icon: TagSimple },
+      { href: "/admin/pages", label: "Trang tĩnh", icon: FileText },
+    ],
+  },
+  {
+    label: "Hệ thống",
+    items: [
+      { href: "/admin/branches", label: "Chi nhánh", icon: MapPin },
+      { href: "/admin/system-pages", label: "SEO Trang hệ thống", icon: Globe },
+      { href: "/admin/seo-audit", label: "Kiểm tra SEO", icon: MagnifyingGlass },
+      { href: "/admin/settings", label: "Cài đặt", icon: Gear },
+    ],
+  },
 ];
 
 // Only shown to admin/super_admin — a plain "user" role account can't reach
 // its underlying page anyway (server-side redirect + Go API 403), but
-// hiding the link avoids a dead-end click for them.
-const usersNavItem = { href: "/admin/users", label: "Quản lý người dùng", icon: UsersThree };
+// hiding the link avoids a dead-end click for them. Lives in "Hệ thống"
+// alongside the other admin-facing config screens.
+const usersNavItem: NavItemDef = { href: "/admin/users", label: "Quản lý người dùng", icon: UsersThree };
+
+function NavItemRow({
+  item,
+  pathname,
+  newInquiriesCount,
+  hiddenReviewsCount,
+}: {
+  item: NavItemDef;
+  pathname: string;
+  newInquiriesCount?: number;
+  hiddenReviewsCount?: number;
+}) {
+  return (
+    <SidebarMenuItem>
+      <SidebarMenuButton
+        asChild
+        tooltip={item.label}
+        isActive={pathname === item.href}
+        className="text-sm transition-all data-[active=true]:bg-primary data-[active=true]:text-primary-foreground data-[active=true]:font-medium active:scale-[0.98]"
+      >
+        <Link href={item.href}>
+          <item.icon className="size-4" />
+          <span>{item.label}</span>
+        </Link>
+      </SidebarMenuButton>
+      {item.href === "/admin/inquiries" && !!newInquiriesCount && (
+        <SidebarMenuBadge className="bg-primary text-primary-foreground">
+          {newInquiriesCount}
+        </SidebarMenuBadge>
+      )}
+      {item.href === "/admin/reviews" && !!hiddenReviewsCount && (
+        <SidebarMenuBadge className="bg-destructive text-destructive-foreground">
+          {hiddenReviewsCount}
+        </SidebarMenuBadge>
+      )}
+    </SidebarMenuItem>
+  );
+}
 
 type UserInfo = { name: string; email: string; avatar: string; role: string };
 
@@ -129,6 +201,13 @@ function NavUser({ user }: { user: UserInfo }) {
               </div>
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
+            <DropdownMenuItem asChild>
+              <Link href="/admin/account">
+                <UserCircle className="mr-2 size-4" />
+                Tài khoản của tôi
+              </Link>
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
             <DropdownMenuItem
               onClick={handleLogout}
               className="text-destructive focus:text-destructive focus:bg-destructive/10"
@@ -145,7 +224,14 @@ function NavUser({ user }: { user: UserInfo }) {
 
 export default function AdminSidebar({ user }: { user: UserInfo }) {
   const pathname = usePathname();
-  const items = user.role === "user" ? navItems : [...navItems, usersNavItem];
+  const groups =
+    user.role === "user"
+      ? navGroups
+      : navGroups.map((group, index) =>
+          index === navGroups.length - 1
+            ? { ...group, items: [...group.items, usersNavItem] }
+            : group,
+        );
 
   // Polls rather than pushing — no websocket/SSE infra exists yet for this.
   // 60s is frequent enough to notice a new lead without hammering the API.
@@ -196,35 +282,27 @@ export default function AdminSidebar({ user }: { user: UserInfo }) {
 
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel>Menu</SidebarGroupLabel>
           <SidebarMenu>
-            {items.map((item) => (
-              <SidebarMenuItem key={item.href}>
-                <SidebarMenuButton
-                  asChild
-                  tooltip={item.label}
-                  isActive={pathname === item.href}
-                  className="text-sm transition-all data-[active=true]:bg-primary data-[active=true]:text-primary-foreground data-[active=true]:font-medium active:scale-[0.98]"
-                >
-                  <Link href={item.href}>
-                    <item.icon className="size-4" />
-                    <span>{item.label}</span>
-                  </Link>
-                </SidebarMenuButton>
-                {item.href === "/admin/inquiries" && !!newInquiriesCount && (
-                  <SidebarMenuBadge className="bg-primary text-primary-foreground">
-                    {newInquiriesCount}
-                  </SidebarMenuBadge>
-                )}
-                {item.href === "/admin/reviews" && !!hiddenReviewsCount && (
-                  <SidebarMenuBadge className="bg-destructive text-destructive-foreground">
-                    {hiddenReviewsCount}
-                  </SidebarMenuBadge>
-                )}
-              </SidebarMenuItem>
-            ))}
+            <NavItemRow item={dashboardItem} pathname={pathname} />
           </SidebarMenu>
         </SidebarGroup>
+
+        {groups.map((group) => (
+          <SidebarGroup key={group.label}>
+            <SidebarGroupLabel>{group.label}</SidebarGroupLabel>
+            <SidebarMenu>
+              {group.items.map((item) => (
+                <NavItemRow
+                  key={item.href}
+                  item={item}
+                  pathname={pathname}
+                  newInquiriesCount={newInquiriesCount}
+                  hiddenReviewsCount={hiddenReviewsCount}
+                />
+              ))}
+            </SidebarMenu>
+          </SidebarGroup>
+        ))}
       </SidebarContent>
 
       <SidebarFooter>

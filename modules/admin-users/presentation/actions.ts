@@ -15,6 +15,7 @@ interface GoUserResponse {
   email: string;
   name: string;
   phone: string;
+  avatar_url: string;
   role: string;
   status: string;
   last_login_at: string | null;
@@ -33,6 +34,7 @@ function mapGoUser(row: GoUserResponse): AdminUser {
     email: row.email,
     name: row.name,
     phone: row.phone,
+    avatarUrl: row.avatar_url,
     role: row.role as Role,
     status: row.status as AdminUser["status"],
     lastLoginAt: row.last_login_at,

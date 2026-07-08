@@ -30,7 +30,7 @@ export default async function AdminLayout({
           user={{
             name: user.name || user.username,
             email: user.email,
-            avatar: "",
+            avatar: user.avatarUrl,
             role: user.role,
           }}
         />
