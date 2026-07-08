@@ -1,6 +1,6 @@
 import { cookies } from "next/headers";
 
-import { toSnakeCaseBody } from "@/shared/lib/go-api";
+import { authHeaders, toSnakeCaseBody } from "@/shared/lib/go-api";
 import {
   ACCESS_TOKEN_COOKIE,
   REFRESH_TOKEN_COOKIE,
@@ -12,9 +12,11 @@ import {
   AcceptInviteInput,
   AuthRepository,
   AuthUser,
+  ChangePasswordInput,
   ForgotPasswordInput,
   LoginInput,
   ResetPasswordInput,
+  UpdateProfileInput,
 } from "../domain";
 
 const GO_API_URL = process.env.GO_API_URL;
@@ -37,6 +39,7 @@ interface GoUserResponse {
   email: string;
   name: string;
   phone: string;
+  avatar_url: string;
   role: string;
   last_login_at: string | null;
 }
@@ -61,6 +64,7 @@ function mapGoUser(row: GoUserResponse): AuthUser {
     email: row.email,
     name: row.name,
     phone: row.phone,
+    avatarUrl: row.avatar_url,
     role: row.role as AuthUser["role"],
     lastLoginAt: row.last_login_at,
   };
@@ -220,6 +224,58 @@ export class GoAuthRepository implements AuthRepository {
     } catch (error) {
       console.error("[GoAuthRepository] acceptInvite error:", error);
       return { user: null, error: friendlyErrorMessage(error, "Không thể kết nối máy chủ") };
+    }
+  }
+
+  async updateProfile(input: UpdateProfileInput): Promise<{ user: AuthUser | null; error: string | null }> {
+    if (!GO_API_URL) {
+      return { user: null, error: "GO_API_URL is not configured" };
+    }
+    try {
+      const res = await fetch(`${GO_API_URL}/auth/me`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json", ...(await authHeaders()) },
+        body: JSON.stringify(toSnakeCaseBody(input)),
+        signal: AbortSignal.timeout(GO_API_TIMEOUT_MS),
+      });
+      if (!res.ok) {
+        return { user: null, error: await extractErrorMessage(res) };
+      }
+
+      const row = (await res.json()) as GoUserResponse;
+      return { user: mapGoUser(row), error: null };
+    } catch (error) {
+      console.error("[GoAuthRepository] updateProfile error:", error);
+      return { user: null, error: friendlyErrorMessage(error, "Không thể kết nối máy chủ") };
+    }
+  }
+
+  // On success, elc-go revokes every session for this user (including the
+  // one making this request) — see internal/auth/application/change_password.go.
+  // Clear the local cookies too so this tab doesn't keep sending a now-dead
+  // access token, then let the caller redirect to login.
+  async changePassword(input: ChangePasswordInput): Promise<{ error: string | null }> {
+    if (!GO_API_URL) {
+      return { error: "GO_API_URL is not configured" };
+    }
+    try {
+      const res = await fetch(`${GO_API_URL}/auth/me/change-password`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", ...(await authHeaders()) },
+        body: JSON.stringify(toSnakeCaseBody(input)),
+        signal: AbortSignal.timeout(GO_API_TIMEOUT_MS),
+      });
+      if (!res.ok) {
+        return { error: await extractErrorMessage(res) };
+      }
+
+      const cookieStore = await cookies();
+      cookieStore.delete(ACCESS_TOKEN_COOKIE);
+      cookieStore.delete(REFRESH_TOKEN_COOKIE);
+      return { error: null };
+    } catch (error) {
+      console.error("[GoAuthRepository] changePassword error:", error);
+      return { error: friendlyErrorMessage(error, "Không thể kết nối máy chủ") };
     }
   }
 }

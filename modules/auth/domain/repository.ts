@@ -1,9 +1,11 @@
 import {
   AcceptInviteInput,
   AuthUser,
+  ChangePasswordInput,
   ForgotPasswordInput,
   LoginInput,
   ResetPasswordInput,
+  UpdateProfileInput,
 } from "./types";
 
 export interface AuthRepository {
@@ -22,4 +24,10 @@ export interface AuthRepository {
   acceptInvite(
     input: AcceptInviteInput,
   ): Promise<{ user: AuthUser | null; error: string | null }>;
+
+  updateProfile(
+    input: UpdateProfileInput,
+  ): Promise<{ user: AuthUser | null; error: string | null }>;
+
+  changePassword(input: ChangePasswordInput): Promise<{ error: string | null }>;
 }
