@@ -12,6 +12,7 @@ import { DeleteDialog } from "@/shared/components/layout/admin/delete-dialog";
 import { Button } from "@/shared/components/ui/button";
 import { Checkbox } from "@/shared/components/ui/checkbox";
 import { SeoSnippetPreview } from "@/shared/components/layout/admin/seo-snippet-preview";
+import { TagMultiSelect } from "@/shared/components/ui/tag-multi-select";
 import {
   Card,
   CardContent,
@@ -53,7 +54,7 @@ import { getGroupsAction } from "@/modules/group/presentation/actions";
 import { getProjectTypesAction } from "@/modules/project-type/presentation/actions";
 import { getServiceGroupsAction } from "@/modules/service-group/presentation/actions";
 import { getServicesAction } from "@/modules/service/presentation/actions";
-import { ProjectWithCategory } from "../../domain";
+import { ProjectWithCategory, ImageAsset } from "../../domain";
 import { deleteProjectAction, getProjectsAction } from "../actions";
 import { useProjectForm } from "../hooks/useProjectForm";
 import { getColumns } from "./ProjectColumns";
@@ -261,7 +262,6 @@ export function ProjectManagement() {
             title: p.title,
             slug: p.slug || "",
             description: p.description,
-            categoryId: "00000000-0000-0000-0000-000000000000",
             projectTypeId: p.projectTypeId || "",
             serviceGroupId: p.services?.[0]?.group?.id || "",
             serviceIds: (p.services || []).map((s) => s.id),
@@ -277,6 +277,12 @@ export function ProjectManagement() {
               noindex: p.seo?.noindex || false,
             },
             orderIndex: p.orderIndex,
+            tagIds: (p.tags || []).map((t) => t.id),
+            clientName: p.clientName || "",
+            location: p.location || "",
+            completedAt: p.completedAt ? p.completedAt.slice(0, 10) : "",
+            testimonialQuote: p.testimonialQuote || "",
+            testimonialAuthor: p.testimonialAuthor || "",
           });
         },
         onDelete: setDeletingId,
@@ -290,7 +296,6 @@ export function ProjectManagement() {
       title: "",
       slug: "",
       description: null,
-      categoryId: "00000000-0000-0000-0000-000000000000",
       projectTypeId: "",
       serviceGroupId: "",
       serviceIds: [],
@@ -302,6 +307,12 @@ export function ProjectManagement() {
       metaDescription: "",
       seo: { title: "", description: "", noindex: false },
       orderIndex: 0,
+      tagIds: [],
+      clientName: "",
+      location: "",
+      completedAt: "",
+      testimonialQuote: "",
+      testimonialAuthor: "",
     });
   }
 
@@ -622,60 +633,154 @@ export function ProjectManagement() {
                       <Controller
                         control={form.control}
                         name="images"
-                        render={({ field }) => (
-                          <Field>
-                            <FieldLabel>
-                              Upload ảnh ({field.value?.length || 0})
-                            </FieldLabel>
-                            <div className="space-y-4">
-                              <ImageUpload
-                                value=""
-                                onChange={(url) => {
-                                  if (url) {
-                                    field.onChange([
-                                      ...(field.value || []),
-                                      url,
-                                    ]);
-                                  }
-                                }}
-                                aspectRatio={2.5}
-                                folderPath="projects"
-                              />
+                        render={({ field }) => {
+                          const images: ImageAsset[] = field.value || [];
+                          return (
+                            <Field>
+                              <FieldLabel>
+                                Upload ảnh ({images.length})
+                              </FieldLabel>
+                              <div className="space-y-4">
+                                <ImageUpload
+                                  value=""
+                                  onChange={(url) => {
+                                    if (url) {
+                                      field.onChange([...images, { url }]);
+                                    }
+                                  }}
+                                  aspectRatio={2.5}
+                                  folderPath="projects"
+                                />
 
-                              {field.value && field.value.length > 0 && (
-                                <div className="grid grid-cols-4 sm:grid-cols-6 lg:grid-cols-8 gap-3 mt-3">
-                                  {field.value.map((url: string, i: number) => (
-                                    <div
-                                      key={i}
-                                      className="relative aspect-square rounded-xl overflow-hidden group border bg-muted/20"
-                                    >
-                                      <Image
-                                        src={url}
-                                        alt=""
-                                        fill
-                                        className="object-cover"
-                                        sizes="(max-width: 640px) 25vw, (max-width: 1024px) 16vw, 100px"
-                                      />
-                                      <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                                        <Button
-                                          size="icon"
-                                          variant="destructive"
-                                          type="button"
-                                          className="h-7 w-7 rounded-full shadow-lg"
-                                          onClick={() => {
-                                            const next = [...field.value];
-                                            next.splice(i, 1);
+                                {images.length > 0 && (
+                                  <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 mt-3">
+                                    {images.map((img, i) => (
+                                      <div
+                                        key={i}
+                                        className="relative rounded-xl overflow-hidden group border bg-muted/20"
+                                      >
+                                        <div className="relative aspect-square">
+                                          <Image
+                                            src={img.url}
+                                            alt={img.alt || ""}
+                                            fill
+                                            className="object-cover"
+                                            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                                          />
+                                          <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                            <Button
+                                              size="icon"
+                                              variant="destructive"
+                                              type="button"
+                                              className="h-7 w-7 rounded-full shadow-lg"
+                                              onClick={() => {
+                                                const next = [...images];
+                                                next.splice(i, 1);
+                                                field.onChange(next);
+                                              }}
+                                            >
+                                              <X size={14} />
+                                            </Button>
+                                          </div>
+                                        </div>
+                                        <Input
+                                          value={img.alt || ""}
+                                          onChange={(e) => {
+                                            const next = [...images];
+                                            next[i] = { ...next[i], alt: e.target.value };
                                             field.onChange(next);
                                           }}
-                                        >
-                                          <X size={14} />
-                                        </Button>
+                                          placeholder="Mô tả ảnh (alt text)"
+                                          className="rounded-none border-0 border-t text-xs h-8"
+                                        />
                                       </div>
-                                    </div>
-                                  ))}
-                                </div>
-                              )}
-                            </div>
+                                    ))}
+                                  </div>
+                                )}
+                              </div>
+                            </Field>
+                          );
+                        }}
+                      />
+                    </div>
+                  </div>
+
+                  <Controller
+                    control={form.control}
+                    name="tagIds"
+                    render={({ field }) => (
+                      <Field>
+                        <FieldLabel>Thẻ (Tags)</FieldLabel>
+                        <TagMultiSelect value={field.value || []} onChange={field.onChange} />
+                        <FieldDescription>
+                          Dùng để liên kết dự án với sản phẩm/tin tức cùng chủ đề.
+                        </FieldDescription>
+                      </Field>
+                    )}
+                  />
+
+                  {/* Portfolio / Case-study Section */}
+                  <div className="space-y-6 border p-6 rounded-2xl bg-muted/10">
+                    <div className="border-b pb-2">
+                      <h3 className="text-sm font-semibold tracking-tight">Thông tin công trình</h3>
+                      <p className="text-[11px] text-muted-foreground">
+                        Tăng độ tin cậy khi hiển thị công khai — theo chuẩn portfolio các nhà thầu lớn.
+                      </p>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <Controller
+                        control={form.control}
+                        name="clientName"
+                        render={({ field }) => (
+                          <Field>
+                            <FieldLabel>Tên khách hàng</FieldLabel>
+                            <Input {...field} placeholder="VD: Anh Minh (Quận 2)" />
+                          </Field>
+                        )}
+                      />
+                      <Controller
+                        control={form.control}
+                        name="location"
+                        render={({ field }) => (
+                          <Field>
+                            <FieldLabel>Địa điểm công trình</FieldLabel>
+                            <Input {...field} placeholder="VD: Quận 2, TP.HCM" />
+                          </Field>
+                        )}
+                      />
+                      <Controller
+                        control={form.control}
+                        name="completedAt"
+                        render={({ field }) => (
+                          <Field>
+                            <FieldLabel>Ngày hoàn thành</FieldLabel>
+                            <Input {...field} type="date" />
+                          </Field>
+                        )}
+                      />
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <Controller
+                        control={form.control}
+                        name="testimonialQuote"
+                        render={({ field }) => (
+                          <Field>
+                            <FieldLabel>Nhận xét khách hàng</FieldLabel>
+                            <Textarea
+                              {...field}
+                              placeholder="VD: Đội thi công rất chuyên nghiệp, đúng tiến độ..."
+                              className="min-h-[80px]"
+                            />
+                          </Field>
+                        )}
+                      />
+                      <Controller
+                        control={form.control}
+                        name="testimonialAuthor"
+                        render={({ field }) => (
+                          <Field>
+                            <FieldLabel>Người nhận xét</FieldLabel>
+                            <Input {...field} placeholder="VD: Anh Minh" />
                           </Field>
                         )}
                       />

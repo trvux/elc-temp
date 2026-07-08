@@ -26,6 +26,7 @@ import { ProjectFilterMobile } from "./ProjectFilterMobile";
 import { ProjectFilters } from "./ProjectFilters";
 import { ImageWithSkeleton } from "@/shared/components/ui/image-with-skeleton";
 import { AspectRatio } from "@/shared/components/ui/aspect-ratio";
+import { primaryImageUrl } from "@/shared/lib/image-asset";
 
 interface ProjectListModuleProps {
   projectType?: ProjectTypeWithCategories | null;
@@ -507,7 +508,7 @@ export async function ProjectListModule({
             position: idx + 1,
             url: `${baseUrl}/du-an/${p.slug}`,
             name: p.title,
-            image: p.images?.[0] || "",
+            image: primaryImageUrl(p.images),
           })),
         };
         return (

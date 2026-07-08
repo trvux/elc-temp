@@ -1,5 +1,7 @@
 import type { Seo } from "@/shared/lib/seo-schema";
 export type { Seo };
+import type { ImageAsset } from "@/shared/lib/image-asset";
+export type { ImageAsset };
 
 export type Json =
   | string
@@ -13,14 +15,17 @@ export interface News {
   id: string;
   title: string;
   slug: string;
-  image: string;
+  images: ImageAsset[];
   content: Json;
+  excerpt?: string;
   categoryId?: string | null;
+  authorId?: string | null;
   isPublished: boolean;
   metaTitle?: string | null;
   metaDescription?: string | null;
   seo?: Seo;
   orderIndex: number;
+  tags?: { id: string; name: string; slug: string }[];
   createdAt: string;
   updatedAt: string;
   deletedAt: string | null;
@@ -29,14 +34,17 @@ export interface News {
 export interface CreateNewsInput {
   title: string;
   slug: string;
-  image?: string;
+  images?: ImageAsset[];
   content?: Json;
+  excerpt?: string;
   categoryId?: string | null;
+  authorId?: string | null;
   isPublished?: boolean;
   metaTitle?: string | null;
   metaDescription?: string | null;
   seo?: Seo;
   orderIndex?: number;
+  tagIds?: string[];
 }
 
 export interface UpdateNewsInput extends Partial<CreateNewsInput> {

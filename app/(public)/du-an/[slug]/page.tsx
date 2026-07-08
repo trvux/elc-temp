@@ -198,8 +198,8 @@ async function ProjectDetailView({
               <AspectRatio ratio={16 / 9}>
                 <ImageWithSkeleton
                   wrapperClassName="w-full h-full"
-                  src={images[0]}
-                  alt={project.title}
+                  src={images[0].url}
+                  alt={images[0].alt || project.title}
                   fill
                   className="object-cover"
                   priority
@@ -220,7 +220,7 @@ async function ProjectDetailView({
             {/* Subsequent gallery images */}
             {images.length > 1 && (
               <div className="mt-12 flex flex-col gap-8">
-                {images.slice(1).map((img: string, i: number) => (
+                {images.slice(1).map((img, i) => (
                   <div
                     key={i}
                     className="w-full overflow-hidden rounded-sm border border-border/40"
@@ -228,8 +228,8 @@ async function ProjectDetailView({
                     <AspectRatio ratio={3 / 2}>
                       <ImageWithSkeleton
                         wrapperClassName="w-full h-full"
-                        src={img}
-                        alt={`${project.title} - ảnh ${i + 2}`}
+                        src={img.url}
+                        alt={img.alt || `${project.title} - ảnh ${i + 2}`}
                         fill
                         className="object-contain bg-muted/10"
                         sizes="(max-width: 768px) 100vw, 768px"

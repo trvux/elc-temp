@@ -4,6 +4,7 @@ import type { Metadata } from "next";
 import { getCachedSystemPage } from "@/shared/lib/cached-system-page";
 import { generateSystemPageMetadata } from "@/shared/lib/seo-utils";
 import { BASE_URL } from "@/shared/lib/seo-schema";
+import { primaryImageUrl } from "@/shared/lib/image-asset";
 
 export async function generateMetadata(): Promise<Metadata> {
   const defaultMeta: Metadata = {
@@ -19,7 +20,7 @@ export async function generateMetadata(): Promise<Metadata> {
       firstProject = (await getProjectsAction({ isPublished: true, limit: 1 })).data[0];
     }
 
-    const ogImage = firstProject?.images?.[0] || "/images/hero-bg.jpg";
+    const ogImage = primaryImageUrl(firstProject?.images) || "/images/hero-bg.jpg";
 
     const systemPage = await getCachedSystemPage("du-an");
     const meta = generateSystemPageMetadata(

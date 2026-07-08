@@ -1,5 +1,7 @@
 import type { Seo } from "@/shared/lib/seo-schema";
 export type { Seo };
+import type { ImageAsset } from "@/shared/lib/image-asset";
+export type { ImageAsset };
 
 export type Json =
   | string
@@ -14,15 +16,19 @@ export interface Project {
   title: string;
   slug: string;
   description: Json;
-  images: string[];
+  images: ImageAsset[];
   isFeatured: boolean;
   isPublished: boolean;
   metaTitle?: string | null;
   metaDescription?: string | null;
   seo?: Seo;
   orderIndex: number;
-  categoryId: string;
   projectTypeId: string | null;
+  clientName?: string;
+  location?: string;
+  completedAt?: string | null;
+  testimonialQuote?: string;
+  testimonialAuthor?: string;
   createdAt: string;
   updatedAt: string;
   deletedAt: string | null;
@@ -57,23 +63,29 @@ export interface ProjectWithCategory extends Project {
     highPrice?: number;
     offerCount?: number;
   }[];
+  tags?: { id: string; name: string; slug: string }[];
 }
 
 export interface CreateProjectInput {
   title: string;
   slug: string;
   description?: Json;
-  images?: string[];
+  images?: ImageAsset[];
   isFeatured?: boolean;
   isPublished?: boolean;
   metaTitle?: string | null;
   metaDescription?: string | null;
   seo?: Seo;
   orderIndex?: number;
-  categoryId: string;
   projectTypeId?: string | null;
   serviceIds?: string[];
   categories?: { id: string; condition: "new" | "used" }[];
+  tagIds?: string[];
+  clientName?: string;
+  location?: string;
+  completedAt?: string | null;
+  testimonialQuote?: string;
+  testimonialAuthor?: string;
 }
 
 export interface UpdateProjectInput extends Partial<CreateProjectInput> {

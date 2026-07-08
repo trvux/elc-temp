@@ -2,6 +2,7 @@ import { Branch } from "@/modules/branch";
 import { Buildings } from "@phosphor-icons/react/dist/ssr";
 import { ImageWithSkeleton } from "@/shared/components/ui/image-with-skeleton";
 import { TypographyH3 } from "@/shared/components/ui/typography";
+import { primaryImageUrl } from "@/shared/lib/image-asset";
 import Link from "next/link";
 import React from "react";
 
@@ -13,6 +14,7 @@ interface BranchCardProps {
 export const BranchCard: React.FC<BranchCardProps> = ({ branch, priority = false }) => {
   const cleanPhone = branch.phone ? branch.phone.replace(/\s/g, "") : "";
   const zaloUrl = cleanPhone ? `https://zalo.me/${cleanPhone}` : "";
+  const imageUrl = primaryImageUrl(branch.images);
 
   return (
     <div id={branch.slug} className="group flex flex-row justify-between items-center gap-4 sm:gap-6 md:gap-8 py-8 border-b border-border/60 last:border-b-0 w-full rounded-md transition-colors duration-500">
@@ -61,14 +63,14 @@ export const BranchCard: React.FC<BranchCardProps> = ({ branch, priority = false
         </div>
       </div>
 
-      {branch.imageUrl ? (
+      {imageUrl ? (
         <Link
           href={`/thong-tin/${branch.slug}`}
           className="shrink-0 relative w-36 aspect-video sm:w-48 md:w-64 rounded-lg overflow-hidden"
         >
           <ImageWithSkeleton
             wrapperClassName="w-full h-full"
-            src={branch.imageUrl}
+            src={imageUrl}
             alt={branch.name}
             fill
             className="object-cover"

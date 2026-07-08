@@ -1,7 +1,7 @@
 "use server";
 
 import { revalidatePath, revalidateTag } from "next/cache";
-import { News, CreateNewsInput, UpdateNewsInput, NewsFilter } from "../domain";
+import { News, CreateNewsInput, UpdateNewsInput, NewsFilter, ImageAsset } from "../domain";
 import { authHeaders, toSnakeCaseBody } from "@/shared/lib/go-api";
 import { submitToIndexNow } from "@/shared/lib/indexnow";
 import { warmCache } from "@/shared/lib/cache-warm";
@@ -20,14 +20,17 @@ interface GoNewsResponse {
   id: string;
   title: string;
   slug: string;
-  image: string;
+  images: ImageAsset[];
   content: unknown;
+  excerpt: string;
   category_id: string | null;
+  author_id: string | null;
   is_published: boolean;
   meta_title: string | null;
   meta_description: string | null;
   seo: GoSeo;
   order_index: number;
+  tags: { id: string; name: string; slug: string }[] | null;
   created_at: string;
   updated_at: string;
   deleted_at: string | null;
@@ -44,14 +47,17 @@ function mapGoNews(row: GoNewsResponse): News {
     id: row.id,
     title: row.title,
     slug: row.slug,
-    image: row.image,
+    images: row.images || [],
     content: row.content as News["content"],
+    excerpt: row.excerpt,
     categoryId: row.category_id,
+    authorId: row.author_id,
     isPublished: row.is_published,
     metaTitle: row.meta_title,
     metaDescription: row.meta_description,
     seo: row.seo,
     orderIndex: row.order_index,
+    tags: row.tags ?? [],
     createdAt: row.created_at,
     updatedAt: row.updated_at,
     deletedAt: row.deleted_at,

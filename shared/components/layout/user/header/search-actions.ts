@@ -9,6 +9,7 @@ import { getNewsAction } from "@/modules/news/presentation/actions";
 import Fuse from "fuse.js";
 import { getQueryTokens, tokenize } from "@/shared/lib/search-utils";
 import { cacheLife, cacheTag } from "next/cache";
+import { primaryImageUrl } from "@/shared/lib/image-asset";
 
 async function getCachedProducts() {
   "use cache";
@@ -200,7 +201,7 @@ export async function getAutocompleteSuggestionsAction(query: string): Promise<S
         type: "product" as const,
         slug: p.slug,
         category: p.category?.name || "Sản phẩm",
-        image: p.images?.[0] || null,
+        image: primaryImageUrl(p.images) || null,
         price: priceStr,
         sku: p.sku || null,
       };
@@ -234,7 +235,7 @@ export async function getAutocompleteSuggestionsAction(query: string): Promise<S
       type: "project" as const,
       slug: p.slug,
       category: p.projectType?.name || "Dự án",
-      image: p.images?.[0] || null,
+      image: primaryImageUrl(p.images) || null,
       price: null,
     }));
 
@@ -270,7 +271,7 @@ export async function getAutocompleteSuggestionsAction(query: string): Promise<S
         type: "service" as const,
         slug: s.slug,
         category: s.group?.name || "Dịch vụ",
-        image: s.image || null,
+        image: primaryImageUrl(s.images) || null,
         price: priceStr,
       };
     });

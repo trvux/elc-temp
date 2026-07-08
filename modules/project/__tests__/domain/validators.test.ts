@@ -7,11 +7,10 @@ describe("Project Domain Validators", () => {
     title: "Eco Green Tower",
     slug: "eco-green-tower",
     description: { content: "Modern apartment complex" },
-    images: ["https://example.com/image1.jpg"],
+    images: [{ url: "https://example.com/image1.jpg" }],
     isFeatured: true,
     isPublished: true,
     orderIndex: 1,
-    categoryId: "660e8400-e29b-41d4-a716-446655441111",
     createdAt: "2024-01-01T00:00:00Z",
     updatedAt: "2024-01-01T00:00:00Z",
     deletedAt: null,
@@ -42,12 +41,7 @@ describe("Project Domain Validators", () => {
     });
 
     it("should fail if images are not URLs", () => {
-      const result = projectSchema.safeParse({ ...validProject, images: ["not-a-url"] });
-      expect(result.success).toBe(false);
-    });
-
-    it("should fail if categoryId is not a UUID", () => {
-      const result = projectSchema.safeParse({ ...validProject, categoryId: "not-a-uuid" });
+      const result = projectSchema.safeParse({ ...validProject, images: [{ url: "not-a-url" }] });
       expect(result.success).toBe(false);
     });
 
@@ -61,17 +55,11 @@ describe("Project Domain Validators", () => {
     const validCreateInput = {
       title: "New Project",
       slug: "new-project",
-      categoryId: "660e8400-e29b-41d4-a716-446655441111",
     };
 
     it("should validate a correct create input", () => {
       const result = createProjectSchema.safeParse(validCreateInput);
       expect(result.success).toBe(true);
-    });
-
-    it("should fail if categoryId is missing", () => {
-      const result = createProjectSchema.safeParse({ title: "No Category", slug: "no-cat" });
-      expect(result.success).toBe(false);
     });
   });
 

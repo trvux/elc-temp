@@ -6,6 +6,7 @@ import { notFound } from "next/navigation";
 import { getBranchesAction } from "@/modules/branch/presentation/actions";
 import { unwrapActionResult } from "@/shared/lib/action-result";
 import { DISTRICTS } from "@/shared/lib/districts";
+import { getReviewSummaryAction } from "@/modules/review";
 
 interface PageProps {
   params: Promise<{
@@ -51,7 +52,8 @@ export default async function ServiceDetailLocationPage({ params }: PageProps) {
   }
 
   const branches = await getBranchesAction({ isPublished: true }).then(unwrapActionResult);
-  const serviceSchema = generateServiceDetailSchema(service, branches, undefined, district);
+  const { data: reviewSummary } = await getReviewSummaryAction({ serviceId: service.id });
+  const serviceSchema = generateServiceDetailSchema(service, branches, undefined, district, reviewSummary);
 
   return (
     <>

@@ -16,6 +16,7 @@ import { Metadata } from "next";
 import { cacheLife, cacheTag } from "next/cache";
 import { notFound } from "next/navigation";
 import { getBranchesAction } from "@/modules/branch/presentation/actions";
+import { getReviewSummaryAction } from "@/modules/review";
 import { unwrapActionResult } from "@/shared/lib/action-result";
 import { DISTRICTS } from "@/shared/lib/districts";
 import { Breadcrumbs } from "@/shared/components/layout/user/breadcrumbs";
@@ -298,7 +299,8 @@ export default async function ServiceSlugPage({ params }: PageProps) {
   }
 
   const branches = await getBranchesAction({ isPublished: true }).then(unwrapActionResult);
-  const serviceSchema = generateServiceDetailSchema(service, branches);
+  const { data: reviewSummary } = await getReviewSummaryAction({ serviceId: service.id });
+  const serviceSchema = generateServiceDetailSchema(service, branches, undefined, undefined, reviewSummary);
 
   return (
     <>

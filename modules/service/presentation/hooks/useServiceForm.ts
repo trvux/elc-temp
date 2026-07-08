@@ -5,6 +5,12 @@ import { useEffect, useState, useRef } from "react";
 import { CreateServiceInput, ServiceWithRelations } from "../../domain/types";
 import { generateSlug } from "@/shared/lib/helpers";
 
+const imageAssetSchema = z.object({
+  url: z.string(),
+  alt: z.string().optional(),
+  caption: z.string().optional(),
+});
+
 const serviceSchema = z.object({
   title: z.string().min(1, "Vui lòng nhập tên dịch vụ"),
   slug: z.string().min(1, "Vui lòng nhập slug"),
@@ -21,7 +27,7 @@ const serviceSchema = z.object({
   labels: z.array(z.string()).optional(),
   description: z.string().nullable().optional(),
   content: z.any().nullable().optional(),
-  image: z.string().nullable().optional(),
+  images: z.array(imageAssetSchema).optional(),
   metaTitle: z.string().nullable().optional(),
   metaDescription: z.string().nullable().optional(),
   seo: z.object({
@@ -51,7 +57,7 @@ export function useServiceForm(initialData?: ServiceWithRelations | null) {
       labels: [],
       description: null,
       content: null,
-      image: null,
+      images: [],
       metaTitle: null,
       metaDescription: null,
       seo: { title: "", description: "", noindex: false },
@@ -79,7 +85,7 @@ export function useServiceForm(initialData?: ServiceWithRelations | null) {
         labels: initialData.labels || [],
         description: initialData.description,
         content: initialData.content,
-        image: initialData.image,
+        images: initialData.images,
         metaTitle: initialData.metaTitle,
         metaDescription: initialData.metaDescription,
         seo: {
@@ -105,7 +111,7 @@ export function useServiceForm(initialData?: ServiceWithRelations | null) {
         labels: [],
         description: null,
         content: null,
-        image: null,
+        images: [],
         metaTitle: null,
         metaDescription: null,
         seo: { title: "", description: "", noindex: false },
@@ -168,7 +174,7 @@ export function useServiceForm(initialData?: ServiceWithRelations | null) {
       labels: values.labels,
       description: values.description,
       content: values.content,
-      image: values.image,
+      images: values.images,
       metaTitle: values.metaTitle,
       metaDescription: values.metaDescription,
       seo: values.seo,

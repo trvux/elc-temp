@@ -1,6 +1,7 @@
 import { getProductsAction } from "@/modules/catalog/presentation/actions";
 import { NextResponse, connection } from "next/server";
 import { BASE_URL } from "@/shared/lib/seo-schema";
+import { imageUrls } from "@/shared/lib/image-asset";
 
 export async function GET() {
   await connection();
@@ -102,9 +103,9 @@ export async function GET() {
     if (!categorySlug || !brandSlug) continue;
 
     const productUrl = `${BASE_URL}/san-pham/${prod.slug}`;
-    const imageUrl = prod.images?.[0] || "";
-    const additionalImages =
-      prod.images && prod.images.length > 1 ? prod.images.slice(1) : [];
+    const productImageUrls = imageUrls(prod.images);
+    const imageUrl = productImageUrls[0] || "";
+    const additionalImages = productImageUrls.slice(1);
 
     const id = prod.sku || prod.id;
     const title = escapeXml(`${prod.name} | Điện máy ELC`);

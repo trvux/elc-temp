@@ -11,6 +11,7 @@ import { Sparkle } from "@phosphor-icons/react/dist/ssr";
 import { ImageWithSkeleton } from "@/shared/components/ui/image-with-skeleton";
 import Link from "next/link";
 import { ProjectWithCategory } from "../../domain/types";
+import { primaryImageUrl } from "@/shared/lib/image-asset";
 
 interface ProjectCardProps {
   project: ProjectWithCategory;
@@ -23,7 +24,7 @@ export function ProjectCard({
   queryTokens = [],
   priority = false,
 }: ProjectCardProps) {
-  const firstImage = project.images?.[0] || "/placeholder.png";
+  const firstImage = primaryImageUrl(project.images) || "/placeholder.png";
 
   // Smartly extract the project name/location for a premium short title
   const match =

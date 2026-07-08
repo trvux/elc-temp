@@ -1,6 +1,12 @@
 import {z} from "zod";
 import { Json } from "./types";
 
+const imageAssetSchema = z.object({
+    url: z.string(),
+    alt: z.string().optional(),
+    caption: z.string().optional(),
+});
+
 export const newsSchema = z.object({
     id: z.uuid({message: "ID không đúng định dạng UUID"}),
     title: z
@@ -14,9 +20,11 @@ export const newsSchema = z.object({
         .regex(/^[a-z0-9-]+$/, {
             message: "Slug chỉ được chứa chữ thường, số và dấu gạch ngang",
         }),
-    image: z.url({message: "URL ảnh không hợp lệ"}).or(z.literal("")).default(""),
+    images: z.array(imageAssetSchema).default([]),
     content: z.custom<Json>().default({}),
+    excerpt: z.string().max(300, { message: "Tóm tắt không nên quá 300 ký tự" }).optional(),
     categoryId: z.string().nullable().optional().or(z.literal("")),
+    authorId: z.string().nullable().optional().or(z.literal("")),
     isPublished: z.boolean().default(false),
     metaTitle: z.string().max(70, { message: "Tiêu đề SEO không nên quá 70 ký tự" }).nullable().optional(),
     metaDescription: z.string().max(160, { message: "Mô tả SEO không nên quá 160 ký tự" }).nullable().optional(),
@@ -28,6 +36,7 @@ export const newsSchema = z.object({
         })
         .optional(),
     orderIndex: z.number().int().default(0),
+    tagIds: z.array(z.string()).optional(),
     createdAt: z.iso.datetime({
         message: "Thời gian tạo không đúng định dạng ISO",
     }),

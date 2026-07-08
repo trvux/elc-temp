@@ -4,6 +4,8 @@ export type { Brand, CreateBrandInput, UpdateBrandInput };
 import { StockStatus, ProductCondition } from "./constants";
 import type { Seo } from "@/shared/lib/seo-schema";
 export type { Seo };
+import type { ImageAsset } from "@/shared/lib/image-asset";
+export type { ImageAsset };
 
 export type Json =
     | string
@@ -27,7 +29,7 @@ export interface Product {
     originalPrice: number;
     salePrice: number;
     discountPercent: number;
-    images: string[];
+    images: ImageAsset[];
     labels: string[];
     isFeatured: boolean;
     isPublished: boolean;
@@ -52,6 +54,7 @@ export interface ProductWithRelations extends Product {
         metaDescription?: string | null;
     } | null;
     brand?: Brand | null;
+    tags?: { id: string; name: string; slug: string }[];
 }
 
 export interface CreateProductInput {
@@ -66,7 +69,7 @@ export interface CreateProductInput {
     specs?: Json;
     originalPrice: number;
     salePrice?: number;
-    images?: string[];
+    images?: ImageAsset[];
     labels?: string[];
     isFeatured?: boolean;
     isPublished?: boolean;
@@ -77,6 +80,7 @@ export interface CreateProductInput {
     condition?: ProductCondition;
     mpn?: string | null;
     gtin?: string | null;
+    tagIds?: string[];
 }
 
 export interface UpdateProductInput extends Partial<CreateProductInput> {

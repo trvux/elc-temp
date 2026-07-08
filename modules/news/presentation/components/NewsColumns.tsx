@@ -7,6 +7,7 @@ import { ButtonGroup } from "@/shared/components/ui/button-group";
 import { PencilSimple, Trash, ArrowSquareOut } from "@phosphor-icons/react";
 import Image from "next/image";
 import { News } from "../../domain";
+import { primaryImageUrl } from "@/shared/lib/image-asset";
 
 interface ColumnProps {
   onEdit: (news: News) => void;
@@ -18,24 +19,27 @@ export const getNewsColumns = ({
   onDelete,
 }: ColumnProps): ColumnDef<News>[] => [
   {
-    accessorKey: "image",
+    accessorKey: "images",
     header: "Ảnh",
-    cell: ({ row }) => (
-      <div className="relative h-10 w-16 rounded overflow-hidden border bg-muted">
-        {row.original.image ? (
-          <Image
-            src={row.original.image}
-            alt={row.original.title}
-            fill
-            className="object-cover"
-          />
-        ) : (
-          <div className="flex h-full w-full items-center justify-center text-[10px] text-muted-foreground">
-            No image
-          </div>
-        )}
-      </div>
-    ),
+    cell: ({ row }) => {
+      const imageUrl = primaryImageUrl(row.original.images);
+      return (
+        <div className="relative h-10 w-16 rounded overflow-hidden border bg-muted">
+          {imageUrl ? (
+            <Image
+              src={imageUrl}
+              alt={row.original.title}
+              fill
+              className="object-cover"
+            />
+          ) : (
+            <div className="flex h-full w-full items-center justify-center text-[10px] text-muted-foreground">
+              No image
+            </div>
+          )}
+        </div>
+      );
+    },
   },
   {
     accessorKey: "title",

@@ -6,7 +6,7 @@ describe("News Domain Validators", () => {
     id: "550e8400-e29b-41d4-a716-446655440000",
     title: "Project Launch",
     slug: "project-launch",
-    image: "https://example.com/image.jpg",
+    images: [{ url: "https://example.com/image.jpg" }],
     content: { blocks: [] },
     isPublished: true,
     orderIndex: 1,
@@ -36,7 +36,7 @@ describe("News Domain Validators", () => {
     const validCreateInput = {
       title: "New Article",
       slug: "new-article",
-      image: "https://example.com/img.png",
+      images: [{ url: "https://example.com/img.png" }],
       content: {},
       isPublished: false,
       orderIndex: 0,

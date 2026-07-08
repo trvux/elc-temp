@@ -1,6 +1,7 @@
 import { getContactsAction } from "@/modules/contact/presentation/actions";
 import { TrackView } from "@/modules/event";
 import { LeadForm } from "@/modules/inquiry/presentation/components/LeadForm";
+import { ReviewList } from "@/modules/review";
 import { getAdjacentServicesAction } from "@/modules/service/presentation/actions";
 import { ServiceWithRelations } from "@/modules/service/domain/types";
 import { Breadcrumbs } from "@/shared/components/layout/user/breadcrumbs";
@@ -144,7 +145,7 @@ export async function ServiceDetailModule({
   );
   const { prev, next } = await getAdjacentServicesAction(service);
 
-  const images = service.image ? [service.image] : [];
+  const images = service.images || [];
   const finalPrice = service.salePrice || service.originalPrice;
 
   return (
@@ -164,12 +165,12 @@ export async function ServiceDetailModule({
                 <Carousel className="w-full">
                   <CarouselContent>
                     {images.length > 0 ? (
-                      images.map((img: string, i: number) => (
+                      images.map((img, i) => (
                         <CarouselItem key={i}>
                           <AspectRatio ratio={16 / 9}>
                             <ImageWithSkeleton
-                              src={img}
-                              alt={location ? `${service.title} tại ${location.name} - Điện máy ELC` : `${service.title} - Điện máy ELC`}
+                              src={img.url}
+                              alt={img.alt || (location ? `${service.title} tại ${location.name} - Điện máy ELC` : `${service.title} - Điện máy ELC`)}
                               fill
                               className={STYLES.carouselImage}
                               priority={i === 0}
@@ -364,6 +365,18 @@ export async function ServiceDetailModule({
           </>
         );
       })()}
+
+      {/* ===== SECTION 4.5: DANH GIA KHACH HANG ===== */}
+      <GridSection
+        id="service-detail-reviews"
+        isFirst={false}
+        showDiamond={true}
+        contentClassName="py-10 border-t border-border/30"
+      >
+        <div className="w-full max-w-4xl mx-auto">
+          <ReviewList serviceId={service.id} entityName={service.title} />
+        </div>
+      </GridSection>
 
       {/* ===== SECTION 5: FOOTER ===== */}
       <GridSection

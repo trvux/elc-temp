@@ -1,7 +1,7 @@
 "use server";
 
 import { revalidatePath, revalidateTag } from "next/cache";
-import { Branch, CreateBranchInput, UpdateBranchInput, BranchFilter, Json } from "../domain";
+import { Branch, CreateBranchInput, UpdateBranchInput, BranchFilter, Json, ImageAsset } from "../domain";
 import { authHeaders, toSnakeCaseBody } from "@/shared/lib/go-api";
 import { purgeCloudflareCache } from "@/shared/lib/cloudflare-purge";
 
@@ -17,7 +17,7 @@ interface GoBranchResponse {
   maps_url: string;
   maps_embed: string;
   description: Json;
-  image_url: string | null;
+  images: ImageAsset[];
   is_published: boolean;
   order_index: number;
   meta_title: string | null;
@@ -44,7 +44,7 @@ function mapGoBranch(row: GoBranchResponse): Branch {
     mapsUrl: row.maps_url,
     mapsEmbed: row.maps_embed,
     description: row.description,
-    imageUrl: row.image_url,
+    images: row.images || [],
     isPublished: row.is_published,
     orderIndex: row.order_index,
     metaTitle: row.meta_title,

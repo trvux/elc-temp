@@ -13,6 +13,9 @@ export type Json =
   | { [key: string]: Json | undefined }
   | Json[];
 
+import type { ImageAsset } from "@/shared/lib/image-asset";
+export type { ImageAsset };
+
 export interface Branch {
   id: string;
   name: string;
@@ -23,7 +26,7 @@ export interface Branch {
   mapsUrl: string;
   mapsEmbed: string;
   description: Json;
-  imageUrl?: string | null;
+  images: ImageAsset[];
   isPublished: boolean;
   metaTitle?: string | null;
   metaDescription?: string | null;
@@ -42,7 +45,7 @@ export interface CreateBranchInput {
   mapsUrl: string;
   mapsEmbed: string;
   description: Json;
-  imageUrl?: string | null;
+  images?: ImageAsset[];
   isPublished: boolean;
   metaTitle?: string | null;
   metaDescription?: string | null;

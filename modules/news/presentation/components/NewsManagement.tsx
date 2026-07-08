@@ -37,6 +37,8 @@ import {
   getNewsAction,
 } from "../actions";
 import { getCategoriesAction } from "@/modules/category/presentation/actions";
+import { getAuthorsAction } from "@/modules/author";
+import { TagMultiSelect } from "@/shared/components/ui/tag-multi-select";
 import { getNewsColumns } from "./NewsColumns";
 import { useNewsForm } from "../hooks/useNewsForm";
 import { convertToWebP } from "@/shared/lib/image";
@@ -66,6 +68,15 @@ export function NewsManagement() {
     queryKey: ["categories"],
     queryFn: async () => {
       const { data, error } = await getCategoriesAction();
+      if (error) throw new Error(error);
+      return data || [];
+    },
+  });
+
+  const { data: authors = [] } = useQuery({
+    queryKey: ["authors"],
+    queryFn: async () => {
+      const { data, error } = await getAuthorsAction();
       if (error) throw new Error(error);
       return data || [];
     },
@@ -116,9 +127,11 @@ export function NewsManagement() {
           form.reset({
             title: n.title,
             slug: n.slug,
-            image: n.image,
+            images: n.images || [],
             content: n.content as unknown,
+            excerpt: n.excerpt || "",
             categoryId: n.categoryId || "",
+            authorId: n.authorId || "",
             isPublished: n.isPublished,
             metaTitle: n.metaTitle || "",
             metaDescription: n.metaDescription || "",
@@ -128,6 +141,7 @@ export function NewsManagement() {
               noindex: n.seo?.noindex || false,
             },
             orderIndex: n.orderIndex,
+            tagIds: (n.tags || []).map((t) => t.id),
           });
           setIsDialogOpen(true);
         },
@@ -141,14 +155,17 @@ export function NewsManagement() {
     form.reset({
       title: "",
       slug: "",
-      image: "",
+      images: [],
       content: "",
+      excerpt: "",
       categoryId: "",
+      authorId: "",
       isPublished: true,
       metaTitle: "",
       metaDescription: "",
       seo: { title: "", description: "", noindex: false },
       orderIndex: 0,
+      tagIds: [],
     });
     setIsDialogOpen(true);
   }
@@ -218,51 +235,64 @@ export function NewsManagement() {
                 <div className="lg:col-span-4 space-y-8">
                   <Controller
                     control={form.control}
-                    name="image"
-                    render={({ field }) => (
-                      <Field>
-                        <FieldLabel>Ảnh bìa bài viết</FieldLabel>
-                        <div className="flex flex-col gap-4">
-                          <div className="relative w-full aspect-video rounded-2xl overflow-hidden border-2 border-dashed bg-muted/5 group transition-colors hover:bg-muted/10">
-                            {field.value ? (
-                              <>
-                                <Image
-                                  src={field.value}
-                                  alt="Thumbnail"
-                                  fill
-                                  className="object-cover"
-                                  sizes="(max-width: 1024px) 100vw, 350px"
-                                />
-                                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                                  <Button
-                                    size="icon"
-                                    variant="destructive"
-                                    className="h-8 w-8 rounded-full"
-                                    onClick={() => field.onChange("")}
-                                  >
-                                    <X size={16} />
-                                  </Button>
-                                </div>
-                              </>
-                            ) : (
-                              <label className="flex flex-col items-center justify-center h-full w-full cursor-pointer">
-                                <Upload size={24} className="text-muted-foreground mb-2" />
-                                <span className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
-                                  {uploading ? "Đang tải..." : "Tải ảnh lên"}
-                                </span>
-                                <input
-                                  type="file"
-                                  className="hidden"
-                                  accept="image/*"
-                                  onChange={handleImageUpload}
-                                  disabled={uploading}
-                                />
-                              </label>
+                    name="images"
+                    render={({ field }) => {
+                      const current = field.value?.[0];
+                      return (
+                        <Field>
+                          <FieldLabel>Ảnh bìa bài viết</FieldLabel>
+                          <div className="flex flex-col gap-4">
+                            <div className="relative w-full aspect-video rounded-2xl overflow-hidden border-2 border-dashed bg-muted/5 group transition-colors hover:bg-muted/10">
+                              {current?.url ? (
+                                <>
+                                  <Image
+                                    src={current.url}
+                                    alt="Thumbnail"
+                                    fill
+                                    className="object-cover"
+                                    sizes="(max-width: 1024px) 100vw, 350px"
+                                  />
+                                  <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                    <Button
+                                      size="icon"
+                                      variant="destructive"
+                                      className="h-8 w-8 rounded-full"
+                                      onClick={() => field.onChange([])}
+                                    >
+                                      <X size={16} />
+                                    </Button>
+                                  </div>
+                                </>
+                              ) : (
+                                <label className="flex flex-col items-center justify-center h-full w-full cursor-pointer">
+                                  <Upload size={24} className="text-muted-foreground mb-2" />
+                                  <span className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
+                                    {uploading ? "Đang tải..." : "Tải ảnh lên"}
+                                  </span>
+                                  <input
+                                    type="file"
+                                    className="hidden"
+                                    accept="image/*"
+                                    onChange={handleImageUpload}
+                                    disabled={uploading}
+                                  />
+                                </label>
+                              )}
+                            </div>
+                            {current?.url && (
+                              <Input
+                                value={current.alt || ""}
+                                onChange={(e) =>
+                                  field.onChange([{ ...current, alt: e.target.value }])
+                                }
+                                placeholder="Mô tả ảnh (alt text)"
+                                className="text-xs h-8"
+                              />
                             )}
                           </div>
-                        </div>
-                      </Field>
-                    )}
+                        </Field>
+                      );
+                    }}
                   />
 
                   <div className="space-y-5">
@@ -317,6 +347,49 @@ export function NewsManagement() {
                         </Field>
                       )}
                     />
+
+                    <Controller
+                      control={form.control}
+                      name="authorId"
+                      render={({ field }) => (
+                        <Field>
+                          <FieldLabel>Tác giả</FieldLabel>
+                          <Select
+                            value={field.value || "none"}
+                            onValueChange={(val) => field.onChange(val === "none" ? "" : val)}
+                          >
+                            <SelectTrigger className="w-full">
+                              <SelectValue placeholder="Không gán tác giả" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="none">Không gán tác giả</SelectItem>
+                              {authors.map((a) => (
+                                <SelectItem key={a.id} value={a.id}>
+                                  {a.name}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                          <FieldDescription>
+                            Hiển thị làm byline công khai trên bài viết.
+                          </FieldDescription>
+                        </Field>
+                      )}
+                    />
+
+                    <Controller
+                      control={form.control}
+                      name="tagIds"
+                      render={({ field }) => (
+                        <Field>
+                          <FieldLabel>Thẻ (Tags)</FieldLabel>
+                          <TagMultiSelect value={field.value || []} onChange={field.onChange} />
+                          <FieldDescription>
+                            Dùng để liên kết bài viết với sản phẩm/dự án cùng chủ đề.
+                          </FieldDescription>
+                        </Field>
+                      )}
+                    />
                   </div>
                 </div>
 
@@ -336,6 +409,29 @@ export function NewsManagement() {
                         />
                         <FieldDescription>
                           Đường dẫn: <span className="text-primary font-medium">/tin-tuc/{field.value || "..."}</span>
+                        </FieldDescription>
+                        <FieldError errors={[fieldState.error]} />
+                      </Field>
+                    )}
+                  />
+
+                  <Controller
+                    control={form.control}
+                    name="excerpt"
+                    render={({ field, fieldState }) => (
+                      <Field>
+                        <div className="flex items-center justify-between">
+                          <FieldLabel>Tóm tắt</FieldLabel>
+                          <span className="text-[11px] text-muted-foreground">{(field.value || "").length}/300</span>
+                        </div>
+                        <Textarea
+                          {...field}
+                          value={field.value || ""}
+                          placeholder="Tóm tắt ngắn hiển thị ở trang danh sách tin tức..."
+                          className="min-h-[80px]"
+                        />
+                        <FieldDescription>
+                          Khác với mô tả SEO — đây là đoạn dẫn nhập hiển thị cho người đọc, không phải cho Google.
                         </FieldDescription>
                         <FieldError errors={[fieldState.error]} />
                       </Field>

@@ -11,6 +11,7 @@ import {
 } from "@/shared/components/ui/carousel";
 import { ImageWithSkeleton } from "@/shared/components/ui/image-with-skeleton";
 import { TypographyH2, TypographyP } from "@/shared/components/ui/typography";
+import { primaryImageUrl } from "@/shared/lib/image-asset";
 import Link from "next/link";
 import * as React from "react";
 
@@ -66,7 +67,7 @@ export function ProjectMarqueeSection({
   if (safeProjects.length === 0) return null;
 
   const renderCard = (project: ProjectWithCategory, idx: number) => {
-    const firstImage = project.images?.[0] || "/placeholder.png";
+    const firstImage = primaryImageUrl(project.images) || "/placeholder.png";
     const projectUrl = `/du-an/${project.slug}`;
 
     return (

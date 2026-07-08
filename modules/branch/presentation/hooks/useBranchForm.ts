@@ -26,7 +26,7 @@ export function useBranchForm(
       mapsUrl: "",
       mapsEmbed: "",
       description: "",
-      imageUrl: "",
+      images: [],
       isPublished: true,
       metaTitle: "",
       metaDescription: "",
@@ -54,7 +54,7 @@ export function useBranchForm(
         return;
       }
       toast.success(
-        activeBranch === "new" ? "Đã tạo cơ sở hạ tầng" : "Đã cập nhật cơ sở hạ tầng"
+        activeBranch === "new" ? "Đã tạo chi nhánh" : "Đã cập nhật chi nhánh"
       );
       onClose();
       queryClient.invalidateQueries({ queryKey: ["branches"] });

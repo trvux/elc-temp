@@ -9,6 +9,7 @@ import { Check, Minus, PencilSimple, Star, Trash, X } from "@phosphor-icons/reac
 import Image from "next/image";
 import { ProductWithRelations, formatPrice, PRODUCT_LABELS } from "../../domain";
 import { StockBadge } from "@/shared/components/ui/stock-badge";
+import { primaryImageUrl } from "@/shared/lib/image-asset";
 
 const LABEL_MAP: Record<string, string> = {
   [PRODUCT_LABELS.NEW]: "Mới về",
@@ -30,13 +31,13 @@ export const getProductColumns = ({
     accessorKey: "images",
     header: "Ảnh",
     cell: ({ row }) => {
-      const images = row.original.images;
+      const imageUrl = primaryImageUrl(row.original.images);
       const name = row.original.name;
-      return images?.[0] ? (
+      return imageUrl ? (
         <div className="w-10">
           <AspectRatio ratio={19 / 9}>
             <Image
-              src={images[0]}
+              src={imageUrl}
               alt={name}
               fill
               className="rounded object-cover"

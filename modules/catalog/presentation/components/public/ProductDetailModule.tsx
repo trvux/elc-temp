@@ -3,6 +3,7 @@ import { formatPrice, ProductWithRelations } from "@/modules/catalog/domain";
 import { getContactsAction } from "@/modules/contact/presentation/actions";
 import { TrackView } from "@/modules/event";
 import { LeadForm } from "@/modules/inquiry/presentation/components/LeadForm";
+import { ReviewList, getReviewSummaryAction } from "@/modules/review";
 import { Breadcrumbs } from "@/shared/components/layout/user/breadcrumbs";
 import { DetailPager } from "@/shared/components/layout/user/detail-pager";
 import { OrderButton } from "@/shared/components/layout/user/order-button";
@@ -51,6 +52,7 @@ import {
   localizeRichText,
 } from "@/shared/lib/seo-utils";
 import { cn } from "@/shared/lib/utils";
+import { primaryImageUrl } from "@/shared/lib/image-asset";
 import { cacheLife, cacheTag } from "next/cache";
 import { notFound } from "next/navigation";
 
@@ -196,7 +198,7 @@ export async function ProductDetailModule({
       );
 
   const finalPrice = product.salePrice || product.originalPrice;
-  const images = (product.images as string[]) || [];
+  const images = product.images || [];
   const mainSku = extractMainSku(product.sku);
 
   const isSectionHeader = (spec: SpecItem) =>
@@ -207,7 +209,8 @@ export async function ProductDetailModule({
 
   const productWithRelations = product;
   const relatedProducts = await getCachedRelatedProducts(product.categoryId, product.id, product.brandId);
-  const jsonLd = generateProductSchema(productWithRelations, location, relatedProducts);
+  const { data: reviewSummary } = await getReviewSummaryAction({ productId: product.id });
+  const jsonLd = generateProductSchema(productWithRelations, location, relatedProducts, reviewSummary);
   const faqList = getFallbackProductFaq(product, location);
 
   const productUrl = location
@@ -228,7 +231,7 @@ export async function ProductDetailModule({
         id={product.id}
         name={product.name}
         slug={product.slug}
-        image={(product.images as string[])?.[0] ?? null}
+        image={primaryImageUrl(product.images) || null}
         salePrice={product.salePrice ?? 0}
         originalPrice={product.originalPrice ?? 0}
         stockStatus={product.stockStatus ?? null}
@@ -275,15 +278,16 @@ export async function ProductDetailModule({
                 <Carousel className="w-full">
                   <CarouselContent>
                     {images.length > 0 ? (
-                      images.map((img: string, i: number) => (
+                      images.map((img, i) => (
                         <CarouselItem key={i}>
                           <AspectRatio ratio={16 / 9}>
                             <ImageWithSkeleton
-                              src={img}
+                              src={img.url}
                               alt={
-                                location
+                                img.alt ||
+                                (location
                                   ? `${product.name} ${product.sku ? `(${product.sku})` : ""} tại ${location.name} - ${product.brand?.name || "ELC"} - Điện máy ELC`
-                                  : `${product.name} ${product.sku ? `(${product.sku})` : ""} - ${product.brand?.name || "ELC"} - Điện máy ELC`
+                                  : `${product.name} ${product.sku ? `(${product.sku})` : ""} - ${product.brand?.name || "ELC"} - Điện máy ELC`)
                               }
                               fill
                               className={STYLES.carouselImage}
@@ -537,6 +541,18 @@ export async function ProductDetailModule({
         </GridSection>
       )}
 
+      {/* ===== KHOI 4.6: DANH GIA KHACH HANG ===== */}
+      <GridSection
+        id="product-detail-reviews"
+        isFirst={false}
+        showDiamond={true}
+        contentClassName="py-10 border-t border-border/30"
+      >
+        <div className="w-full max-w-4xl mx-auto">
+          <ReviewList productId={product.id} entityName={product.name} />
+        </div>
+      </GridSection>
+
       {/* ===== KHOI 5: FOOTER BAN QUYEN ===== */}
       <GridSection
         id="product-detail-footer"
@@ -579,7 +595,7 @@ export async function ProductDetailModule({
         salePrice={finalPrice || 0}
         originalPrice={product.originalPrice || 0}
         discountPercent={product.discountPercent || 0}
-        productImage={images[0] ?? null}
+        productImage={primaryImageUrl(images) || null}
         productSlug={product.slug}
         contacts={contacts}
       />

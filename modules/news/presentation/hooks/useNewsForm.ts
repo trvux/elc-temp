@@ -2,25 +2,30 @@ import { standardSchemaResolver } from "@hookform/resolvers/standard-schema";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import type { Resolver } from "react-hook-form";
+import { useState } from "react";
 import { toast } from "sonner";
 
-import { useFeaturedImageUpload } from "@/shared/hooks/use-featured-image-upload";
+import { convertToWebP } from "@/shared/lib/image";
+import { uploadImageFile } from "@/shared/lib/upload-image";
 import { useTiptapTitleSlugSync } from "@/shared/hooks/use-tiptap-title-slug-sync";
 
-import { News, createNewsSchema, Json, Seo } from "../../domain";
+import { News, createNewsSchema, Json, Seo, ImageAsset } from "../../domain";
 import { createNewsAction, updateNewsAction } from "../actions";
 
 export type NewsFormValues = {
   title: string;
   slug: string;
-  image: string;
+  images: ImageAsset[];
   content: unknown;
+  excerpt: string;
   categoryId: string;
+  authorId: string;
   isPublished: boolean;
   metaTitle: string;
   metaDescription: string;
   seo: Seo;
   orderIndex: number;
+  tagIds: string[];
 };
 
 export function useNewsForm(
@@ -28,28 +33,44 @@ export function useNewsForm(
   onClose: () => void
 ) {
   const queryClient = useQueryClient();
+  const [uploading, setUploading] = useState(false);
 
   const form = useForm<NewsFormValues>({
     resolver: standardSchemaResolver(createNewsSchema) as unknown as Resolver<NewsFormValues>,
     defaultValues: {
       title: "",
       slug: "",
-      image: "",
+      images: [],
       content: "",
+      excerpt: editingNews?.excerpt || "",
       categoryId: editingNews?.categoryId || "",
+      authorId: editingNews?.authorId || "",
       isPublished: true,
       metaTitle: "",
       metaDescription: "",
       seo: { title: "", description: "", noindex: false },
       orderIndex: 0,
+      tagIds: (editingNews?.tags || []).map((t) => t.id),
     },
   });
 
-  const { uploading, handleImageUpload } = useFeaturedImageUpload<NewsFormValues>({
-    setValue: form.setValue,
-    imageField: "image",
-    folderPath: "news",
-  });
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploading(true);
+
+    try {
+      const webpFile = await convertToWebP(file);
+      const url = await uploadImageFile(webpFile, "news", webpFile.name);
+      form.setValue("images", [{ url }], { shouldDirty: true, shouldValidate: true });
+      toast.success("Đã tải lên ảnh đại diện");
+    } catch (error) {
+      console.error("Lỗi tải ảnh:", error);
+      toast.error("Lỗi tải ảnh");
+    } finally {
+      setUploading(false);
+    }
+  };
 
   const { handleContentChange } = useTiptapTitleSlugSync({
     setValue: form.setValue,
@@ -65,6 +86,7 @@ export function useNewsForm(
       const payload = {
         ...values,
         categoryId: values.categoryId || null,
+        authorId: values.authorId || null,
         content: JSON.parse(JSON.stringify(values.content)) as Json,
       };
       if (editingNews) {
