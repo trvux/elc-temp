@@ -21,6 +21,7 @@ import { submitToIndexNow } from "@/shared/lib/indexnow";
 import { warmCache } from "@/shared/lib/cache-warm";
 import { purgeCloudflareCache } from "@/shared/lib/cloudflare-purge";
 import { BASE_URL } from "@/shared/lib/seo-schema";
+import type { ImageAsset } from "@/shared/lib/image-asset";
 
 const GO_API_URL = process.env.GO_API_URL;
 
@@ -71,7 +72,7 @@ interface GoProductResponse {
   slug: string;
   description: Json;
   specs: GoSpecItem[] | null;
-  images: string[] | null;
+  images: ImageAsset[] | null;
   labels: string[] | null;
   original_price: number;
   sale_price: number | null;
@@ -91,6 +92,7 @@ interface GoProductResponse {
   deleted_at: string | null;
   category: GoCategoryRef | null;
   brand: GoBrandRef | null;
+  tags: { id: string; name: string; slug: string }[] | null;
 }
 
 interface GoFacetsResponse {
@@ -212,6 +214,7 @@ function mapGoProduct(row: GoProductResponse): ProductWithRelations {
           deletedAt: null,
         }
       : null,
+    tags: row.tags ?? [],
   };
 }
 

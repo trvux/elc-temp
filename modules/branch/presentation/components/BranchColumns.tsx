@@ -7,6 +7,7 @@ import { Button } from "@/shared/components/ui/button";
 import { ButtonGroup } from "@/shared/components/ui/button-group";
 import { PencilSimple, Trash, Check, X } from "@phosphor-icons/react";
 import { Branch } from "../../domain/types";
+import { primaryImageUrl } from "@/shared/lib/image-asset";
 
 interface ColumnProps {
   onEdit: (branch: Branch) => void;
@@ -18,29 +19,32 @@ export const getBranchColumns = ({
   onDelete,
 }: ColumnProps): ColumnDef<Branch>[] => [
   {
-    accessorKey: "imageUrl",
+    accessorKey: "images",
     header: "Ảnh",
-    cell: ({ row }) => (
-      <div className="relative h-10 w-16 overflow-hidden rounded-md border bg-muted">
-        {row.original.imageUrl ? (
-          <Image
-            src={row.original.imageUrl}
-            alt={row.original.name || ""}
-            fill
-            sizes="64px"
-            className="object-cover"
-          />
-        ) : (
-          <div className="flex h-full w-full items-center justify-center text-[9px] uppercase tracking-wider text-muted-foreground/40">
-            No Image
-          </div>
-        )}
-      </div>
-    ),
+    cell: ({ row }) => {
+      const imageUrl = primaryImageUrl(row.original.images);
+      return (
+        <div className="relative h-10 w-16 overflow-hidden rounded-md border bg-muted">
+          {imageUrl ? (
+            <Image
+              src={imageUrl}
+              alt={row.original.name || ""}
+              fill
+              sizes="64px"
+              className="object-cover"
+            />
+          ) : (
+            <div className="flex h-full w-full items-center justify-center text-[9px] uppercase tracking-wider text-muted-foreground/40">
+              No Image
+            </div>
+          )}
+        </div>
+      );
+    },
   },
   {
     accessorKey: "name",
-    header: "Tên cơ sở hạ tầng",
+    header: "Tên chi nhánh",
     cell: ({ row }) => (
       <span>
         {row.original.name}

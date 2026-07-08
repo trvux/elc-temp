@@ -6,6 +6,7 @@ import { ColumnDef } from "@tanstack/react-table";
 import { Check, PencilSimple, Minus, Star, Trash, X } from "@phosphor-icons/react/dist/ssr";
 import Image from "next/image";
 import { ServiceWithRelations } from "../../domain/types";
+import { primaryImageUrl } from "@/shared/lib/image-asset";
 
 interface ServiceColumnsProps {
   onEdit: (service: ServiceWithRelations) => void;
@@ -17,10 +18,10 @@ export const getServiceColumns = ({
   onDelete,
 }: ServiceColumnsProps): ColumnDef<ServiceWithRelations>[] => [
   {
-    accessorKey: "image",
+    accessorKey: "images",
     header: "Ảnh",
     cell: ({ row }) => {
-      const image = row.original.image;
+      const image = primaryImageUrl(row.original.images);
       const title = row.original.title;
       return image ? (
         <div className="w-10">

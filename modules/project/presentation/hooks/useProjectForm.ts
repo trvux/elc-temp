@@ -10,25 +10,30 @@ import { uploadImageFile } from "@/shared/lib/upload-image";
 import { useTiptapTitleSlugSync } from "@/shared/hooks/use-tiptap-title-slug-sync";
 
 
-import { createProjectSchema, ProjectWithCategory, Json, Seo } from "../../domain";
+import { createProjectSchema, ProjectWithCategory, Json, Seo, ImageAsset } from "../../domain";
 import { createProjectAction, updateProjectAction } from "../actions";
 
 export type ProjectFormValues = {
   title: string;
   slug: string;
   description: unknown;
-  images: string[];
+  images: ImageAsset[];
   isFeatured: boolean;
   isPublished: boolean;
   metaTitle: string;
   metaDescription: string;
   seo: Seo;
   orderIndex: number;
-  categoryId: string;
   projectTypeId: string;
   serviceGroupId?: string;
   serviceIds: string[];
   categories: { id: string; condition: "new" | "used" }[];
+  tagIds: string[];
+  clientName: string;
+  location: string;
+  completedAt: string;
+  testimonialQuote: string;
+  testimonialAuthor: string;
 };
 
 export function useProjectForm(
@@ -44,7 +49,6 @@ export function useProjectForm(
       title: "",
       slug: "",
       description: null,
-      categoryId: "00000000-0000-0000-0000-000000000000",
       projectTypeId: "",
       serviceGroupId: "",
       serviceIds: [],
@@ -56,6 +60,12 @@ export function useProjectForm(
       metaDescription: "",
       seo: { title: "", description: "", noindex: false },
       orderIndex: 0,
+      tagIds: [],
+      clientName: "",
+      location: "",
+      completedAt: "",
+      testimonialQuote: "",
+      testimonialAuthor: "",
     },
   });
 
@@ -78,6 +88,9 @@ export function useProjectForm(
         projectTypeId: payloadValues.projectTypeId || null,
         serviceIds: payloadValues.serviceIds || [],
         categories: payloadValues.categories || [],
+        completedAt: payloadValues.completedAt
+          ? new Date(payloadValues.completedAt).toISOString()
+          : null,
       };
 
       if (activeProject && activeProject !== "new") {
@@ -106,12 +119,12 @@ export function useProjectForm(
     if (!files || files.length === 0) return;
     setUploading(true);
     
-    const uploaded: string[] = [];
+    const uploaded: ImageAsset[] = [];
     for (const file of Array.from(files)) {
       try {
         const webpFile = await convertToWebP(file);
         const url = await uploadImageFile(webpFile, "projects", webpFile.name);
-        uploaded.push(url);
+        uploaded.push({ url });
       } catch {
         toast.error(`Lỗi upload: ${file.name}`);
       }

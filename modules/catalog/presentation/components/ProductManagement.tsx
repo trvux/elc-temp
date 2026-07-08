@@ -168,6 +168,7 @@ export function ProductManagement() {
             },
             specs: Array.isArray(p.specs) ? (p.specs as unknown as SpecItem[]) : [],
             labels: p.labels || [],
+            tagIds: (p.tags || []).map((t) => t.id),
           });
         },
         onDelete: setDeletingId,
@@ -201,6 +202,7 @@ export function ProductManagement() {
       seo: { title: "", description: "", noindex: false },
       specs: AC_TEMPLATE,
       labels: [],
+      tagIds: [],
     });
   }
 

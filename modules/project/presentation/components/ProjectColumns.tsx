@@ -16,6 +16,7 @@ import {
 import { ColumnDef } from "@tanstack/react-table";
 import Image from "next/image";
 import { ProjectWithCategory } from "../../domain";
+import { primaryImageUrl } from "@/shared/lib/image-asset";
 
 interface ColumnProps {
   onEdit: (project: ProjectWithCategory) => void;
@@ -30,13 +31,13 @@ export const getColumns = ({
     accessorKey: "images",
     header: "Ảnh",
     cell: ({ row }) => {
-      const images = row.original.images;
+      const imageUrl = primaryImageUrl(row.original.images);
       const title = row.original.title;
-      return images?.[0] ? (
+      return imageUrl ? (
         <div className="w-10">
           <AspectRatio ratio={1 / 1}>
             <Image
-              src={images[0]}
+              src={imageUrl}
               alt={title}
               fill
               className="rounded object-cover"

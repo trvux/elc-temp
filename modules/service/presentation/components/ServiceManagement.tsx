@@ -599,18 +599,33 @@ export function ServiceManagement({
                       <FieldLegend>Hình ảnh đại diện</FieldLegend>
                       <Controller
                         control={form.control}
-                        name="image"
-                        render={({ field, fieldState }) => (
-                          <Field className="w-full">
-                            <ImageUpload
-                              value={field.value || ""}
-                              onChange={field.onChange}
-                              aspectRatio={4 / 3}
-                              folderPath="services"
-                            />
-                            <FieldError errors={[fieldState.error]} />
-                          </Field>
-                        )}
+                        name="images"
+                        render={({ field, fieldState }) => {
+                          const current = field.value?.[0];
+                          return (
+                            <Field className="w-full">
+                              <ImageUpload
+                                value={current?.url || ""}
+                                onChange={(url) =>
+                                  field.onChange(url ? [{ ...current, url }] : [])
+                                }
+                                aspectRatio={4 / 3}
+                                folderPath="services"
+                              />
+                              {current?.url && (
+                                <Input
+                                  value={current.alt || ""}
+                                  onChange={(e) =>
+                                    field.onChange([{ ...current, alt: e.target.value }])
+                                  }
+                                  placeholder="Mô tả ảnh (alt text)"
+                                  className="mt-2 text-xs h-8"
+                                />
+                              )}
+                              <FieldError errors={[fieldState.error]} />
+                            </Field>
+                          );
+                        }}
                       />
                     </FieldSet>
 

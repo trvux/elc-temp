@@ -24,6 +24,7 @@ import Link from "next/link";
 import { Metadata } from "next";
 import { getPublicLayoutData } from "@/modules/settings";
 import { generateBranchDetailSchema, sanitizeAndFormatTitle, BASE_URL } from "@/shared/lib/seo-utils";
+import { primaryImageUrl, imageUrls } from "@/shared/lib/image-asset";
 import { GridSection } from "@/shared/components/sections/grid-section";
 import { unwrapActionResult } from "@/shared/lib/action-result";
 
@@ -94,7 +95,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     openGraph: {
       title,
       description,
-      images: branch.imageUrl ? [branch.imageUrl] : [],
+      images: imageUrls(branch.images),
     },
   };
 }
@@ -189,13 +190,13 @@ export default async function BranchDetail({ params }: Props) {
             <TypographyH1 className="w-full max-w-none! text-wrap! font-heading leading-tight">
               {branch.name}
             </TypographyH1>
-            {branch.imageUrl && (
+            {primaryImageUrl(branch.images) && (
               <div className="w-full mt-6 overflow-hidden rounded-sm border border-border/40">
                 <AspectRatio ratio={16 / 9}>
                   <ImageWithSkeleton
                     wrapperClassName="w-full h-full"
-                    src={branch.imageUrl}
-                    alt={branch.name}
+                    src={primaryImageUrl(branch.images)}
+                    alt={branch.images[0]?.alt || branch.name}
                     fill
                     className="object-cover"
                     priority

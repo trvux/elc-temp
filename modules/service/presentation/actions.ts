@@ -1,7 +1,7 @@
 "use server";
 
 import { revalidatePath, revalidateTag } from "next/cache";
-import { Service, CreateServiceInput, UpdateServiceInput, ServiceFilter, ServiceWithRelations } from "../domain/types";
+import { Service, CreateServiceInput, UpdateServiceInput, ServiceFilter, ServiceWithRelations, ImageAsset } from "../domain/types";
 import { authHeaders, toSnakeCaseBody } from "@/shared/lib/go-api";
 import { submitToIndexNow } from "@/shared/lib/indexnow";
 import { warmCache } from "@/shared/lib/cache-warm";
@@ -36,7 +36,7 @@ interface GoServiceResponse {
   labels: string[] | null;
   description: string | null;
   content: unknown;
-  image: string | null;
+  images: ImageAsset[];
   meta_title: string | null;
   meta_description: string | null;
   seo: GoSeo;
@@ -70,7 +70,7 @@ function mapGoService(row: GoServiceResponse): ServiceWithRelations {
     labels: row.labels,
     description: row.description,
     content: row.content as Service["content"],
-    image: row.image,
+    images: row.images || [],
     metaTitle: row.meta_title,
     metaDescription: row.meta_description,
     seo: row.seo,

@@ -3,6 +3,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { logoutAction } from "@/modules/auth";
 import { countInquiriesAction } from "@/modules/inquiry";
+import { countReviewsAction } from "@/modules/review";
 import {
   Avatar,
   AvatarFallback,
@@ -29,7 +30,7 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/shared/components/ui/sidebar";
-import { Medal, CaretUpDown, FileText, Kanban, Gauge, SignOut, MapPin, Package, Phone, ChatCircleText, Gear, ShieldCheck, GridFour, List, Stack, Briefcase, SquaresFour, Newspaper, Globe, UsersThree, MagnifyingGlass } from "@phosphor-icons/react";
+import { Medal, CaretUpDown, FileText, Kanban, Gauge, SignOut, MapPin, Package, Phone, ChatCircleText, Gear, ShieldCheck, GridFour, List, Stack, Briefcase, SquaresFour, Newspaper, Globe, UsersThree, MagnifyingGlass, PenNib, TagSimple, Star } from "@phosphor-icons/react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
@@ -44,10 +45,13 @@ const navItems = [
   { href: "/admin/service-groups", label: "Nhóm dịch vụ", icon: SquaresFour },
   { href: "/admin/services", label: "Dịch vụ", icon: Briefcase },
   { href: "/admin/inquiries", label: "Yêu cầu tư vấn", icon: ChatCircleText },
+  { href: "/admin/reviews", label: "Đánh giá", icon: Star },
   { href: "/admin/news", label: "Tin tức", icon: Newspaper },
+  { href: "/admin/authors", label: "Tác giả", icon: PenNib },
+  { href: "/admin/tags", label: "Thẻ (Tags)", icon: TagSimple },
   { href: "/admin/pages", label: "Trang tĩnh", icon: FileText },
   { href: "/admin/contacts", label: "Liên hệ", icon: Phone },
-  { href: "/admin/branches", label: "Cơ sở hạ tầng", icon: MapPin },
+  { href: "/admin/branches", label: "Chi nhánh", icon: MapPin },
   { href: "/admin/system-pages", label: "SEO Trang hệ thống", icon: Globe },
   { href: "/admin/seo-audit", label: "Kiểm tra SEO", icon: MagnifyingGlass },
   { href: "/admin/settings", label: "Cài đặt", icon: Gear },
@@ -154,6 +158,18 @@ export default function AdminSidebar({ user }: { user: UserInfo }) {
     refetchInterval: 60_000,
   });
 
+  // Reviews auto-hidden by the blocklist filter (see elc-go
+  // internal/review/domain/blocklist.go) sit here awaiting a human decision
+  // — same "needs attention" badge treatment as new inquiries.
+  const { data: hiddenReviewsCount } = useQuery({
+    queryKey: ["reviews-hidden-count"],
+    queryFn: async () => {
+      const { data } = await countReviewsAction({ isPublished: false });
+      return data;
+    },
+    refetchInterval: 60_000,
+  });
+
   return (
     <Sidebar variant="inset">
       <SidebarHeader>
@@ -198,6 +214,11 @@ export default function AdminSidebar({ user }: { user: UserInfo }) {
                 {item.href === "/admin/inquiries" && !!newInquiriesCount && (
                   <SidebarMenuBadge className="bg-primary text-primary-foreground">
                     {newInquiriesCount}
+                  </SidebarMenuBadge>
+                )}
+                {item.href === "/admin/reviews" && !!hiddenReviewsCount && (
+                  <SidebarMenuBadge className="bg-destructive text-destructive-foreground">
+                    {hiddenReviewsCount}
                   </SidebarMenuBadge>
                 )}
               </SidebarMenuItem>

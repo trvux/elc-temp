@@ -28,6 +28,7 @@ import { Checkbox } from "@/shared/components/ui/checkbox";
 import { Brand, formatPrice, PRODUCT_LABELS, PRODUCT_CONDITION, PRODUCT_CONDITION_MAP } from "@/modules/catalog/domain";
 import { ProductFormValues } from "../../hooks/useProductForm";
 import { SeoSnippetPreview } from "@/shared/components/layout/admin/seo-snippet-preview";
+import { TagMultiSelect } from "@/shared/components/ui/tag-multi-select";
 
 interface ProductGeneralTabProps {
   form: UseFormReturn<ProductFormValues>;
@@ -512,6 +513,16 @@ export function ProductGeneralTab({
             />
           </div>
         </FieldGroup>
+        <Controller
+          control={form.control}
+          name="tagIds"
+          render={({ field }) => (
+            <Field>
+              <FieldLabel>Thẻ (Tags)</FieldLabel>
+              <TagMultiSelect value={field.value || []} onChange={field.onChange} />
+            </Field>
+          )}
+        />
       </FieldSet>
       <FieldSeparator />
 

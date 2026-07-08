@@ -76,6 +76,7 @@ export function useProductForm(
       metaTitle: "",
       metaDescription: "",
       specs: AC_TEMPLATE,
+      tagIds: [],
     },
   });
 
@@ -146,12 +147,12 @@ export function useProductForm(
     if (!files || files.length === 0) return;
     setUploading(true);
 
-    const uploaded: string[] = [];
+    const uploaded: { url: string }[] = [];
     for (const file of Array.from(files)) {
       try {
         const webpFile = await convertToWebP(file);
         const url = await uploadImageFile(webpFile, "products", webpFile.name);
-        uploaded.push(url);
+        uploaded.push({ url });
       } catch {
         toast.error(`Lỗi xử lý ảnh: ${file.name}`);
       }

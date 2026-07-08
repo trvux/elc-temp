@@ -10,6 +10,7 @@ import { ProductPagination } from "@/shared/components/layout/user/product-pagin
 import { PreviewContent } from "@/shared/components/layout/user/preview-content";
 import { ScrollToTop } from "@/shared/components/layout/user/scroll-to-top";
 import { buildPageHref } from "@/shared/lib/pagination";
+import { primaryImageUrl } from "@/shared/lib/image-asset";
 import {
   Accordion,
   AccordionContent,
@@ -605,10 +606,10 @@ export async function ProductListModule({
                   prefetch={false}
                   className="group flex flex-col gap-3 no-underline"
                 >
-                  {item.image && (
+                  {primaryImageUrl(item.images) && (
                     <ImageWithSkeleton
                       wrapperClassName="relative w-full aspect-video rounded-lg overflow-hidden border bg-muted"
-                      src={item.image}
+                      src={primaryImageUrl(item.images)}
                       alt={item.title}
                       fill
                       className="object-cover transition-transform duration-500 group-hover:scale-105"

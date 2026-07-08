@@ -1,4 +1,5 @@
 import { Branch } from "@/modules/branch/domain";
+import { primaryImageUrl } from "./image-asset";
 
 export const BASE_URL = process.env.NEXT_PUBLIC_APP_URL || "https://dienmayelc.com.vn";
 
@@ -58,7 +59,7 @@ export interface BranchInput {
   phone?: string | null;
   email?: string | null;
   address: string;
-  imageUrl?: string | null;
+  images?: { url: string }[];
   mapsUrl?: string | null;
 }
 
@@ -168,7 +169,7 @@ export const SEOSchema = {
       "@type": "HVACBusiness",
       "@id": `${BASE_URL}/thong-tin/${branch.slug}#localbusiness`,
       "name": `Điện máy ELC - ${branch.name}`,
-      "image": branch.imageUrl || `${BASE_URL}/opengraph-image.png`,
+      "image": primaryImageUrl(branch.images) || `${BASE_URL}/opengraph-image.png`,
       "telephone": branch.phone ? formatPhone(branch.phone) : undefined,
       "email": branch.email || companyEmail,
       "address": {

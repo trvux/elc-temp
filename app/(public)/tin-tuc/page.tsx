@@ -3,6 +3,7 @@ import { Breadcrumbs } from "@/shared/components/layout/user/breadcrumbs";
 import { ScrollToTop } from "@/shared/components/layout/user/scroll-to-top";
 import { GridSection } from "@/shared/components/sections/grid-section";
 import { ImageWithSkeleton } from "@/shared/components/ui/image-with-skeleton";
+import { primaryImageUrl } from "@/shared/lib/image-asset";
 import {
   TypographyH1,
   TypographyH2,
@@ -208,11 +209,11 @@ export default async function NewsHub() {
                     )}
                   </div>
 
-                  {news.image && (
+                  {primaryImageUrl(news.images) && (
                     <ImageWithSkeleton
                       wrapperClassName={STYLES.imageWrapper}
-                      src={news.image}
-                      alt={news.title}
+                      src={primaryImageUrl(news.images)}
+                      alt={news.images[0]?.alt || news.title}
                       fill
                       className={STYLES.image}
                       sizes="(max-width: 640px) 144px, (max-width: 768px) 192px, 256px"

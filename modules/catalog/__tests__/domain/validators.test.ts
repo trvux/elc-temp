@@ -13,7 +13,7 @@ describe("Product Validators", () => {
     originalPrice: 25000000,
     salePrice: 23500000,
     discountPercent: 6,
-    images: ["https://example.com/iphone.jpg"],
+    images: [{ url: "https://example.com/iphone.jpg" }],
     isFeatured: true,
     isPublished: true,
     orderIndex: 1,

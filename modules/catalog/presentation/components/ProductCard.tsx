@@ -14,6 +14,7 @@ import {
   TypographyLarge,
   TypographySmall,
 } from "@/shared/components/ui/typography";
+import { primaryImageUrl } from "@/shared/lib/image-asset";
 import Link from "next/link";
 
 interface ProductCardProps {
@@ -32,6 +33,7 @@ export function ProductCard({
   const hasDiscount = product.discountPercent > 0;
   const currentPrice = product.salePrice || product.originalPrice || 0;
   const displaySku = product.sku ? product.sku.split("/")[0].trim() : "";
+  const imageUrl = primaryImageUrl(product.images);
 
   return (
     <Link
@@ -41,11 +43,11 @@ export function ProductCard({
     >
       <Card className="relative mx-auto w-full h-full max-w-sm pt-0 transition-all duration-300 hover:shadow-md cursor-pointer gap-2 md:gap-3 overflow-hidden">
         <div className="absolute inset-0 z-30 aspect-video bg-white" />
-        {product.images?.[0] ? (
+        {imageUrl ? (
           <ImageWithSkeleton
             wrapperClassName="relative z-30 aspect-video w-full bg-white"
-            src={product.images[0]}
-            alt={`${product.name} - Chính hãng giá tốt tại Điện máy ELC`}
+            src={imageUrl}
+            alt={product.images[0]?.alt || `${product.name} - Chính hãng giá tốt tại Điện máy ELC`}
             title={`${product.name} - Điện máy ELC`}
             fill
             sizes="(max-width: 640px) calc(50vw - 12px), (max-width: 1024px) calc(33vw - 16px), 25vw"

@@ -3,6 +3,7 @@ import { Branch } from "@/modules/branch/domain";
 import { SEOSchema, parseAddress, formatPhone, BASE_URL } from "./seo-schema";
 import type { Metadata } from "next";
 import { District } from "./districts";
+import { primaryImageUrl, imageUrls as assetImageUrls } from "./image-asset";
 
 export const SHOP_NAME = "Điện máy ELC";
 export { BASE_URL, parseAddress, formatPhone, SEOSchema };
@@ -192,7 +193,7 @@ export function generateProductMetadata(
     title,
     description,
     url,
-    image: product.images?.[0],
+    image: primaryImageUrl(product.images) || null,
     noindex: location ? true : !!product.seo?.noindex,
   });
 }
@@ -342,7 +343,10 @@ export function generateServiceMetadata(
   if (!service) return {};
 
   const serviceTitle = (service.title || "") as string;
-  const image = (service.image || service.image_url) as string | undefined;
+  const image =
+    primaryImageUrl(service.images as { url: string }[] | undefined) ||
+    (service.image as string | undefined) ||
+    (service.image_url as string | undefined);
 
   const seo = service.seo as { title?: string | null; description?: string | null; noindex?: boolean } | undefined;
   const metaTitle = (seo?.title || service.metaTitle || service.meta_title) as string | undefined;
@@ -484,7 +488,7 @@ export function generateCollectionSchema(
     sale_price?: number;
     originalPrice?: number;
     original_price?: number;
-    images?: string[];
+    images?: { url: string }[];
     specs?: unknown;
     metaDescription?: string | null;
     meta_description?: string | null;
@@ -526,14 +530,14 @@ export function generateCollectionSchema(
     : undefined;
 
   // Gather first images from all products to provide Google with multiple product images
-  const imageUrls = Array.from(
+  const collectedImageUrls = Array.from(
     new Set(
       products
-        .map((p) => p.images?.[0])
-        .filter((img): img is string => typeof img === "string" && img.length > 0)
+        .map((p) => primaryImageUrl(p.images))
+        .filter((url): url is string => !!url)
     )
   );
-  const images = imageUrls.length > 0 ? imageUrls : undefined;
+  const images = collectedImageUrls.length > 0 ? collectedImageUrls : undefined;
 
   const url = location 
     ? `${BASE_URL}/san-pham/${entityRecord.slug}/${location.slug}`
@@ -783,7 +787,7 @@ export function generateCollectionSchema(
         "name": pName,
         "description": pDesc,
         "url": pUrl,
-        "image": Array.isArray(p.images) && p.images.length > 0 ? p.images : [],
+        "image": assetImageUrls(p.images),
         "offers": {
           "@type": "Offer",
           "price": price,
@@ -944,6 +948,7 @@ export function generateProductSchema(
   product: ProductWithRelations,
   location?: District,
   relatedProducts?: ProductWithRelations[],
+  reviewSummary?: { count: number; average: number },
 ) {
   const rawProduct = product as unknown as Record<string, unknown>;
   const rawSalePrice = (product.salePrice ?? rawProduct.sale_price ?? 0) as number;
@@ -1027,17 +1032,11 @@ export function generateProductSchema(
     "@context": "https://schema.org/",
     "@type": "Product",
     name: productName,
-    image:
-      Array.isArray(product.images) && product.images.length > 0
-        ? product.images
-        : [],
+    image: assetImageUrls(product.images),
     mainEntityOfPage: {
       "@type": "WebPage",
       "@id": productUrl,
-      primaryImageOfPage:
-        Array.isArray(product.images) && product.images.length > 0
-          ? product.images[0]
-          : undefined,
+      primaryImageOfPage: primaryImageUrl(product.images) || undefined,
     },
     description: descriptionExcerpt || metadata.description || "",
     sku: firstSku,
@@ -1049,6 +1048,15 @@ export function generateProductSchema(
       logo: (brandLogo || undefined) as string | undefined,
     },
     ...(additionalProperty.length > 0 ? { additionalProperty } : {}),
+    // Google requires at least 1 real rating to show AggregateRating in
+    // search — never fabricate this when reviewSummary.count is 0.
+    ...(reviewSummary && reviewSummary.count > 0 ? {
+      aggregateRating: {
+        "@type": "AggregateRating",
+        ratingValue: reviewSummary.average,
+        reviewCount: reviewSummary.count,
+      },
+    } : {}),
     offers: hasPrice ? {
       "@type": "Offer",
       url: productUrl,
@@ -1128,7 +1136,7 @@ export function generateProductSchema(
         "name": rp.name,
         "description": rpDesc,
         "url": `${BASE_URL}/san-pham/${rp.slug}`,
-        "image": Array.isArray(rp.images) && rp.images.length > 0 ? rp.images : [],
+        "image": assetImageUrls(rp.images),
         "offers": {
           "@type": "Offer",
           "price": rp.salePrice || rp.originalPrice || 0,
@@ -1328,7 +1336,7 @@ export function generateProjectDetailMetadata(
     metaTitle?: string | null;
     metaDescription?: string | null;
     seo?: { title?: string | null; description?: string | null; noindex?: boolean };
-    images?: string[];
+    images?: { url: string }[];
     description?: unknown;
   }
 ) {
@@ -1339,7 +1347,7 @@ export function generateProjectDetailMetadata(
   const description = metaDescription || `Tham khảo công trình thực tế: ${project.title}. Tư vấn thiết kế, thi công lắp đặt hệ thống máy lạnh, HVAC uy tín hàng đầu bởi Điện máy ELC.`;
 
   const cleanUrl = `${BASE_URL}/du-an/${project.slug}`;
-  const representativeImage = project.images?.[0] || extractFirstImageFromDescription(project.description);
+  const representativeImage = primaryImageUrl(project.images) || extractFirstImageFromDescription(project.description);
 
   return assembleMetadata({
     title,
@@ -1356,7 +1364,7 @@ export interface ProjectDetailSchemaInput {
   title: string;
   slug: string;
   metaDescription?: string | null;
-  images?: string[];
+  images?: { url: string }[];
   description?: unknown;
   createdAt?: string;
   updatedAt?: string;
@@ -1382,7 +1390,7 @@ export function generateProjectDetailSchema(
   branches: Branch[],
   contacts?: Array<{ type: string; value: string; isActive: boolean }>
 ) {
-  let images = project.images || [];
+  let images = assetImageUrls(project.images);
   if (images.length === 0) {
     const extractedImage = extractFirstImageFromDescription(project.description);
     if (extractedImage) {
@@ -1517,7 +1525,8 @@ export function generateServiceDetailSchema(
   service: { title: string; slug: string; metaDescription?: string | null },
   branches: Branch[],
   contacts?: Array<{ type: string; value: string; isActive: boolean }>,
-  location?: District
+  location?: District,
+  reviewSummary?: { count: number; average: number },
 ) {
   const cleanUrl = location 
     ? `${BASE_URL}/dich-vu/${service.slug}/${location.slug}`
@@ -1559,7 +1568,16 @@ export function generateServiceDetailSchema(
     "itemListElement": breadcrumbElements,
   };
 
-  const serviceNode = SEOSchema.getService(service);
+  const serviceNode: Record<string, unknown> = SEOSchema.getService(service);
+  // Google requires at least 1 real rating to show AggregateRating in
+  // search — never fabricate this when reviewSummary.count is 0.
+  if (reviewSummary && reviewSummary.count > 0) {
+    serviceNode.aggregateRating = {
+      "@type": "AggregateRating",
+      ratingValue: reviewSummary.average,
+      reviewCount: reviewSummary.count,
+    };
+  }
   if (location) {
     serviceNode["@id"] = `${cleanUrl}#service`;
     serviceNode.name = `${service.title} tại ${location.name}`;

@@ -3,6 +3,8 @@ import { CategoryWithGroup } from "@/modules/category/domain/types";
 import { Database } from "@/database.types";
 import type { Seo } from "@/shared/lib/seo-schema";
 export type { Seo };
+import type { ImageAsset } from "@/shared/lib/image-asset";
+export type { ImageAsset };
 
 export interface Service {
   id: string;
@@ -17,7 +19,7 @@ export interface Service {
   labels: string[] | null;
   description: string | null;
   content: Database["public"]["Tables"]["services"]["Row"]["content"]; // Json
-  image: string | null;
+  images: ImageAsset[];
   metaTitle: string | null;
   metaDescription: string | null;
   seo?: Seo;
@@ -46,7 +48,7 @@ export interface CreateServiceInput {
   labels?: string[] | null;
   description?: string | null;
   content?: Database["public"]["Tables"]["services"]["Row"]["content"];
-  image?: string | null;
+  images?: ImageAsset[];
   metaTitle?: string | null;
   metaDescription?: string | null;
   seo?: Seo;

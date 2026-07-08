@@ -6,7 +6,6 @@ import {
 } from "./types";
 
 export interface ProjectFilter {
-  categoryId?: string;
   projectTypeId?: string;
   categorySlug?: string;
   categorySlugs?: string[];
@@ -28,7 +27,7 @@ export interface ProjectRepository {
   count(
     options?: Pick<
       ProjectFilter,
-      "categoryId" | "projectTypeId" | "categorySlug" | "categorySlugs" | "serviceSlug" | "serviceSlugs" | "isPublished" | "isFeatured" | "search" | "includeDeleted"
+      "projectTypeId" | "categorySlug" | "categorySlugs" | "serviceSlug" | "serviceSlugs" | "isPublished" | "isFeatured" | "search" | "includeDeleted"
     >,
   ): Promise<number>;
 

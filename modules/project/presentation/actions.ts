@@ -12,6 +12,7 @@ import { submitToIndexNow } from "@/shared/lib/indexnow";
 import { warmCache } from "@/shared/lib/cache-warm";
 import { purgeCloudflareCache } from "@/shared/lib/cloudflare-purge";
 import { BASE_URL } from "@/shared/lib/seo-schema";
+import type { ImageAsset } from "@/shared/lib/image-asset";
 
 const GO_API_URL = process.env.GO_API_URL;
 
@@ -62,21 +63,26 @@ interface GoProjectResponse {
   title: string;
   slug: string;
   description: unknown;
-  images: string[];
+  images: ImageAsset[];
   is_featured: boolean;
   is_published: boolean;
   meta_title: string | null;
   meta_description: string | null;
   seo: GoSeo;
   order_index: number;
-  category_id: string;
   project_type_id: string | null;
+  client_name: string;
+  location: string;
+  completed_at: string | null;
+  testimonial_quote: string;
+  testimonial_author: string;
   created_at: string;
   updated_at: string;
   deleted_at: string | null;
   project_type: GoRefResponse | null;
   categories: GoProjectCategoryResponse[] | null;
   services: GoProjectServiceResponse[] | null;
+  tags: { id: string; name: string; slug: string }[] | null;
 }
 
 interface GoErrorResponse {
@@ -125,8 +131,12 @@ function mapGoProject(row: GoProjectResponse): ProjectWithCategory {
     metaDescription: row.meta_description,
     seo: row.seo,
     orderIndex: row.order_index,
-    categoryId: row.category_id,
     projectTypeId: row.project_type_id,
+    clientName: row.client_name,
+    location: row.location,
+    completedAt: row.completed_at,
+    testimonialQuote: row.testimonial_quote,
+    testimonialAuthor: row.testimonial_author,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
     deletedAt: row.deleted_at,
@@ -151,6 +161,7 @@ function mapGoProject(row: GoProjectResponse): ProjectWithCategory {
       highPrice: c.high_price,
       offerCount: c.offer_count,
     })),
+    tags: row.tags ?? [],
   };
 }
 
@@ -183,7 +194,6 @@ function isPrerenderError(error: unknown): boolean {
 function buildProjectFilterParams(filter?: ProjectFilter): URLSearchParams {
   const params = new URLSearchParams();
   if (!filter) return params;
-  if (filter.categoryId) params.set("category_id", filter.categoryId);
   if (filter.projectTypeId) params.set("project_type_id", filter.projectTypeId);
   if (filter.categorySlug) params.set("category_slug", filter.categorySlug);
   if (filter.categorySlugs && filter.categorySlugs.length > 0) {
@@ -224,7 +234,7 @@ export async function getProjectsAction(options?: ProjectFilter) {
 }
 
 export async function countProjectsAction(
-  options?: Pick<ProjectFilter, "categoryId" | "projectTypeId" | "categorySlug" | "categorySlugs" | "serviceSlug" | "serviceSlugs" | "isPublished" | "isFeatured" | "search" | "includeDeleted">,
+  options?: Pick<ProjectFilter, "projectTypeId" | "categorySlug" | "categorySlugs" | "serviceSlug" | "serviceSlugs" | "isPublished" | "isFeatured" | "search" | "includeDeleted">,
 ) {
   if (!GO_API_URL) {
     return { data: 0, error: null };

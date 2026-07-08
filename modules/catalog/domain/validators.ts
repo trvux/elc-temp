@@ -2,6 +2,12 @@ import { z } from "zod";
 import { Json } from "./types";
 import { STOCK_STATUS, PRODUCT_CONDITION } from "./constants";
 
+const imageAssetSchema = z.object({
+  url: z.string(),
+  alt: z.string().optional(),
+  caption: z.string().optional(),
+});
+
 // --- Product Validators ---
 
 export const productSchema = z.object({
@@ -24,7 +30,7 @@ export const productSchema = z.object({
   originalPrice: z.coerce.number().min(0, { message: "Giá gốc không được nhỏ hơn 0" }),
   salePrice: z.coerce.number().min(0, { message: "Giá bán không được nhỏ hơn 0" }).default(0),
   discountPercent: z.coerce.number().min(0).max(100).default(0),
-  images: z.array(z.string()).default([]),
+  images: z.array(imageAssetSchema).default([]),
   labels: z.array(z.string()).default([]),
   isFeatured: z.boolean().default(false),
   isPublished: z.boolean().default(false),
@@ -39,6 +45,7 @@ export const productSchema = z.object({
     .default(PRODUCT_CONDITION.NEW),
   mpn: z.string().nullable().optional(),
   gtin: z.string().nullable().optional(),
+  tagIds: z.array(z.string()).optional(),
   metaTitle: z.string().max(70, { message: "Tiêu đề SEO không nên quá 70 ký tự" }).nullable().optional(),
   metaDescription: z.string().max(160, { message: "Mô tả SEO không nên quá 160 ký tự" }).nullable().optional(),
   seo: z

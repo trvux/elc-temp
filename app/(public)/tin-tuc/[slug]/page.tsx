@@ -9,6 +9,7 @@ import { PreviewContent } from "@/shared/components/layout/user/preview-content"
 import { ScrollToTop } from "@/shared/components/layout/user/scroll-to-top";
 import { GridSection } from "@/shared/components/sections/grid-section";
 import { ImageWithSkeleton } from "@/shared/components/ui/image-with-skeleton";
+import { primaryImageUrl, imageUrls as assetImageUrls } from "@/shared/lib/image-asset";
 import {
   TypographyH1,
   TypographyH2,
@@ -201,7 +202,7 @@ export async function generateMetadata({
     title,
     description,
     url: `${BASE_URL}/tin-tuc/${slug}`,
-    image: newsItem.image,
+    image: primaryImageUrl(newsItem.images) || null,
     ogType: "article",
     noindex: !!newsItem.seo?.noindex,
     includeTwitter: false,
@@ -242,7 +243,7 @@ export default async function NewsDetailPage({ params }: PageProps) {
     "@context": "https://schema.org",
     "@type": "NewsArticle",
     headline: newsItem.title,
-    image: newsItem.image ? [newsItem.image] : [],
+    image: assetImageUrls(newsItem.images),
     datePublished: newsItem.createdAt,
     dateModified: newsItem.updatedAt || newsItem.createdAt,
     author: {
@@ -263,7 +264,7 @@ export default async function NewsDetailPage({ params }: PageProps) {
       about: relatedProducts.slice(0, 5).map((p) => ({
         "@type": "Product",
         name: p.name,
-        image: Array.isArray(p.images) && p.images.length > 0 ? p.images : [],
+        image: assetImageUrls(p.images),
         url: `${BASE_URL}/san-pham/${p.slug}`,
         offers: {
           "@type": "Offer",
@@ -388,10 +389,10 @@ export default async function NewsDetailPage({ params }: PageProps) {
                     href={`/tin-tuc/${item.slug}`}
                     className="group flex flex-col gap-3 no-underline"
                   >
-                    {item.image && (
+                    {primaryImageUrl(item.images) && (
                       <ImageWithSkeleton
                         wrapperClassName="relative w-full aspect-video rounded-lg overflow-hidden border bg-muted"
-                        src={item.image}
+                        src={primaryImageUrl(item.images)}
                         alt={item.title}
                         fill
                         className="object-cover transition-transform duration-500 group-hover:scale-105"

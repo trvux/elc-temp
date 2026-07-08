@@ -1,5 +1,6 @@
 import { ServiceWithRelations } from "./types";
 import { formatCurrency } from "@/shared/lib/utils";
+import { primaryImageUrl } from "@/shared/lib/image-asset";
 
 export interface ServiceCardData {
   title: string;
@@ -26,7 +27,7 @@ export function mapServiceToCardData(service: ServiceWithRelations): ServiceCard
   return {
     title: service.title,
     price,
-    image: service.image || "/placeholder.png",
+    image: primaryImageUrl(service.images) || "/placeholder.png",
     description: service.description || "",
     badges: service.labels || [],
     slug: service.slug,

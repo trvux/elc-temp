@@ -13,6 +13,7 @@ export const mockBranches: Branch[] = [
     mapsEmbed:
       "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3918.784682694936!2d106.68759827689965!3d10.827783158240521!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x317528f0cd3a4b15%3A0x373a3f7361149689!2zMDYgRMawxqFuZyBRdeG6o25nIEjDoG0sIFBoxrDhu51uZyA1LCBI4bqhbmggVGjDtG5nLCBI4buTIENow60gTWluaCwgVmlldG5hbQ!5e0!3m2!1sen!2s!4v1775473972161!5m2!1sen!2s",
     description: "Văn phòng điều hành chính khu vực miền Nam",
+    images: [],
     isPublished: true,
     orderIndex: 0,
     createdAt: new Date("2026-05-01T08:00:00Z").toISOString(),
@@ -30,6 +31,7 @@ export const mockBranches: Branch[] = [
     mapsEmbed:
       "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3724.33145455955!2d105.78161591540216!3d21.0194186934739!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3135ab55ec1570e3%3A0x2a3e0b3c690f05e3!2sKeangnam%20Hanoi%20Landmark%20Tower!5e0!3m2!1sen!2s!4v1655180000000!5m2!1sen!2s",
     description: "Trung tâm chăm sóc khách hàng khu vực phía Bắc",
+    images: [],
     isPublished: true,
     orderIndex: 1,
     createdAt: new Date("2026-05-02T09:30:00Z").toISOString(),
@@ -47,6 +49,7 @@ export const mockBranches: Branch[] = [
     mapsEmbed:
       "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3834.004278456627!2d108.21448881536109!3d16.065279643811883!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x31421834cb2c4b8d%3A0xc68222a76f2f2812!2sNguyen%20Van%20Linh%2C%20Hai%20Chau%2C%20Da%20Nang!5e0!3m2!1sen!2s!4v1655180111111!5m2!1sen!2s",
     description: "Cửa hàng trưng bày và giới thiệu sản phẩm miền Trung",
+    images: [],
     isPublished: false,
     orderIndex: 2,
     createdAt: new Date("2026-05-03T10:15:00Z").toISOString(),
