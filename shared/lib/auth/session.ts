@@ -84,7 +84,13 @@ export async function updateSession(request: NextRequest) {
   const url = request.nextUrl.clone();
   url.pathname = "/admin/login";
 
-  if (request.headers.has("rsc")) {
+  const accept = request.headers.get("accept") || "";
+  const isRsc =
+    accept.includes("text/x-component") ||
+    request.nextUrl.searchParams.has("_rsc") ||
+    request.headers.has("rsc");
+
+  if (isRsc) {
     url.searchParams.set("rsc", "1");
   }
 
