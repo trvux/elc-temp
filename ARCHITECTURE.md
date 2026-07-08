@@ -40,3 +40,12 @@ Moi module phai duoc to chuc thanh 4 lop (layers) rieng biet. Moi lop chi dam nh
 
 - Khong su dung kieu any: Nghiem cam su dung kieu any trong toan bo ma nguon TypeScript. Thay vao do, hay su dung kieu du lieu cu the, kieu unknown hoac generic khi can bieu dien kieu chua xac dinh.
 - Khong su dung ky tu hinh anh (Visual Symbols): Tuyet doi khong su dung emoji, icon hoac ky tu bieu thi hinh anh nao trong bat ky tai lieu hoac phan giai thich nao de bao dam tinh chuan xac.
+
+## 4. Git Workflow va Deploy
+
+`main` la production, khong phai noi luu tam tien do. `.github/workflows/deploy.yml` tu dong deploy ngay khi co push len `main`, khong co moi truong staging o giua (khong dang gia o quy mo hien tai, mien la tuan thu quy tac nay).
+
+- Code tinh nang moi hoac refactor tren mot branch rieng, khong push thang vao `main`. Push thoai mai len branch, khong anh huong production vi deploy chi trigger theo `main`.
+- Chi merge vao `main` khi phan viec do da chay duoc that (test local: `pnpm dev` tro vao Go API local). Merge nhieu lan, moi lan mot phan viec hoan chinh, luon tot hon mot lan merge nguyen branch lon con do dang.
+- `.github/workflows/ci.yml` chay `tsc --noEmit`, `lint`, va `next build` tren moi push len branch khac `main` va moi pull request vao `main` — bat loi build truoc khi merge, khong phai sau khi da len production.
+- Neu thay doi phu thuoc field/API moi tu `elc-go`: deploy `elc-go` truoc (migration phai additive, xem ARCHITECTURE.md cua elc-go muc 12), xac nhan chay dung, roi moi merge phan `elc-tem` goi field/API do.

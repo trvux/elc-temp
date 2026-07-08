@@ -1,0 +1,44 @@
+name: CI
+
+# Runs on every branch other than main (catches WIP breaks before merge) and
+# on every PR into main (checks the exact diff about to land) — deploy.yml
+# only triggers on push to main, so this is meant to run BEFORE code gets
+# there, not as a gate on the deploy itself. See ARCHITECTURE.md muc 4.
+on:
+  push:
+    branches-ignore: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm exec tsc --noEmit
+      # Non-blocking on purpose: the current codebase has ~36 pre-existing
+      # lint errors (checked 2026-07-08, mostly react/no-unescaped-entities
+      # and react-hooks rules) that are unrelated to any given change. Making
+      # this a hard gate now would make CI red on day one for old debt, not
+      # new breaks, and train everyone to ignore it. Still runs and reports
+      # so the count is visible — tighten to blocking once the baseline is
+      # actually clean.
+      - run: pnpm run lint
+        continue-on-error: true
+      # GO_API_URL is deliberately fake here — every Server Action wraps its
+      # fetch in try/catch specifically so a build never depends on a live
+      # Go API being reachable (see the "PR #588 lesson" in project memory).
+      # Set anyway as cheap insurance against a future call site regressing
+      # that pattern.
+      - run: pnpm run build
+        env:
+          GO_API_URL: http://localhost:8090
