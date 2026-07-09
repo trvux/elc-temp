@@ -48,6 +48,7 @@ import {
   generateBreadcrumbSchema,
   generateProductSchema,
   localizeRichText,
+  normalizeForCompare,
 } from "@/shared/lib/seo-utils";
 import { cn } from "@/shared/lib/utils";
 import { primaryImageUrl } from "@/shared/lib/image-asset";
@@ -384,7 +385,7 @@ export async function ProductDetailModule({
 
               <TypographyH1 className={STYLES.productName}>
                 {product.name}
-                {mainSku && !product.name.toLowerCase().includes(mainSku.toLowerCase())
+                {mainSku && !normalizeForCompare(product.name).includes(normalizeForCompare(mainSku))
                   ? ` - ${mainSku}`
                   : ""}
               </TypographyH1>
