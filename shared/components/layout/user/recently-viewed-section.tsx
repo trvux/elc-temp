@@ -52,9 +52,13 @@ export function RecentlyViewedSection() {
                   prefetch={false}
                   className="flex items-center gap-3 w-full h-full p-2.5 rounded-lg border border-border/40 hover:border-primary/40 hover:bg-muted/30 transition-all"
                 >
-                  {/* Product image */}
+                  {/* Product image — typeof-guarded, not just truthy: stale
+                      localStorage entries from before track-product-view.tsx
+                      settled on a plain string may hold a non-string value
+                      (e.g. a whole ImageAsset object), which Next Image
+                      can't render and errors on. */}
                   <div className="w-14 h-14 shrink-0 rounded-md overflow-hidden bg-white ">
-                    {product.image ? (
+                    {typeof product.image === "string" && product.image ? (
                       <Image
                         src={product.image}
                         alt={product.name}
