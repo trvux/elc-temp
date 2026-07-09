@@ -131,32 +131,27 @@ export function useProductForm(
     },
   });
 
-  // Formula: slug(name) + "-" + slug(mpn)
-  const computeSlug = (name: string, mpn: string): string => {
-    const parts: string[] = [];
-    if (name) parts.push(generateSlug(name));
-    if (mpn) parts.push(generateSlug(mpn));
-    return parts.join("-").trim();
-  };
-
-  // Auto-follows name/MPN only while creating a brand-new product, where
+  // Slug = slugify(name) directly — mpn is no longer appended separately.
+  // The standard naming convention (2026-07-09, see
+  // cmd/rename-products-standard) already puts the manufacturer's MPN
+  // inside the product name itself for AC products, so concatenating it
+  // again onto the slug just duplicated it.
+  //
+  // Auto-follows name only while creating a brand-new product, where
   // there's no live URL yet to break. Once a product exists, silently
   // rewriting its slug on every later name edit would change the URL a
   // customer/search-engine may already have — see regenerateSlug for the
   // explicit, confirmed edit-mode equivalent (ProductIdentityCard.tsx).
-  const updateAutoSlug = (name: string, mpn: string) => {
+  const updateAutoSlug = (name: string) => {
     if (activeProduct !== "new") return;
-    const finalSlug = computeSlug(name, mpn);
+    const finalSlug = generateSlug(name);
     if (finalSlug) {
       form.setValue("slug", finalSlug);
     }
   };
 
   const regenerateSlug = () => {
-    const finalSlug = computeSlug(
-      form.getValues("name"),
-      form.getValues("variants.0.mpn") || ""
-    );
+    const finalSlug = generateSlug(form.getValues("name"));
     if (finalSlug) {
       form.setValue("slug", finalSlug);
     }

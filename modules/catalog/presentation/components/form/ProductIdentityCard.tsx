@@ -33,7 +33,7 @@ interface ProductIdentityCardProps {
   categories: CategoryWithGroup[];
   brands: Brand[];
   productLines: ProductLine[];
-  updateAutoSlug: (name: string, mpn: string) => void;
+  updateAutoSlug: (name: string) => void;
   regenerateSlug: () => void;
 }
 
@@ -69,7 +69,7 @@ export function ProductIdentityCard({
     const composed = [category?.name, brand?.name, lineName].filter(Boolean).join(" ");
     if (!composed) return;
     form.setValue("name", composed);
-    updateAutoSlug(composed, form.getValues("variants.0.mpn") || "");
+    updateAutoSlug(composed);
   };
 
   const scrollToVariants = () => {
@@ -102,11 +102,11 @@ export function ProductIdentityCard({
               placeholder="VD: Máy lạnh treo tường Daikin Inverter Cao Cấp"
               onChange={(e) => {
                 field.onChange(e);
-                updateAutoSlug(e.target.value, form.getValues("variants.0.mpn") || "");
+                updateAutoSlug(e.target.value);
               }}
             />
             <FieldDescription>
-              Ghép tự động chỉ là gợi ý ban đầu — vẫn cần thêm công suất/mô tả riêng và có thể sửa lại tự do.
+              Ghép tự động chỉ là gợi ý ban đầu — nhớ thêm công suất/MPN vào tên (VD: &quot;Máy lạnh Daikin Inverter 1HP FTKB25ZVMV&quot;), có thể sửa lại tự do.
             </FieldDescription>
             <FieldError errors={[fieldState.error]} />
           </Field>
@@ -154,10 +154,6 @@ export function ProductIdentityCard({
                   {...field}
                   value={field.value ?? ""}
                   placeholder="VD: FTKC35UAVMV"
-                  onChange={(e) => {
-                    field.onChange(e);
-                    updateAutoSlug(form.getValues("name"), e.target.value);
-                  }}
                 />
                 <FieldDescription>
                   Mã nhà sản xuất — đây là mã khách hàng thực sự Google tìm kiếm, không phải SKU nội bộ.
