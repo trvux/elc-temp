@@ -1,4 +1,4 @@
-import { ProductWithRelations } from "@/modules/catalog/domain";
+import { ProductWithRelations, resolveProductDisplayPrice, resolveDefaultVariant, toLegacyStockStatusForBadge } from "@/modules/catalog/domain";
 import { FormattedPrice } from "@/modules/catalog/presentation/components/FormattedPrice";
 import { HighlightedText } from "@/shared/components/layout/user/highlighted-text";
 import {
@@ -30,9 +30,12 @@ export function ProductCard({
 }: ProductCardProps) {
   const productUrl = `/san-pham/${product.slug}`;
 
-  const hasDiscount = product.discountPercent > 0;
-  const currentPrice = product.salePrice || product.originalPrice || 0;
-  const displaySku = product.sku ? product.sku.split("/")[0].trim() : "";
+  const defaultVariant = resolveDefaultVariant(product);
+  const hasDiscount = (defaultVariant?.discountPercent ?? 0) > 0;
+  // displayPrice (write-time cache, reflects the product's default variant —
+  // see elc-go/docs/product-v2-design.md) is always populated.
+  const currentPrice = resolveProductDisplayPrice(product);
+  const displaySku = defaultVariant?.sku ? defaultVariant.sku.split("/")[0].trim() : "";
   const imageUrl = primaryImageUrl(product.images);
 
   return (
@@ -61,7 +64,7 @@ export function ProductCard({
         {/* px-3 md:px-6 */}
         <StockBadge
           className="w-full"
-          status={product.stockStatus || undefined}
+          status={toLegacyStockStatusForBadge(product.displayStockStatus)}
           // className="text-sm"
         />
         <CardHeader className="px-2">
@@ -102,11 +105,11 @@ export function ProductCard({
           {hasDiscount && (
             <div className="flex items-center gap-2">
               <TypographySmall className="text-muted-foreground">
-                <FormattedPrice price={product.originalPrice} strikethrough />
+                <FormattedPrice price={defaultVariant?.originalPrice ?? 0} strikethrough />
               </TypographySmall>
 
               <TypographySmall className="text-destructive">
-                -{product.discountPercent}%
+                -{defaultVariant?.discountPercent ?? 0}%
               </TypographySmall>
             </div>
           )}

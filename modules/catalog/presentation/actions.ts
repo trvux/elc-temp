@@ -8,13 +8,15 @@ import {
   ProductWithRelations,
   Product,
   Json,
-  STOCK_STATUS,
-  StockStatus,
   PRODUCT_CONDITION,
   ProductCondition,
+  VariantStockStatus,
+  ProductOptionInput,
+  ProductVariantInput,
+  AttributeValueInput,
+  AttributeDataType,
   createProductSchema,
   updateProductSchema,
-  normalizeProductPrice,
 } from "../domain";
 import { authHeaders, toSnakeCaseBody } from "@/shared/lib/go-api";
 import { submitToIndexNow } from "@/shared/lib/indexnow";
@@ -63,36 +65,100 @@ interface GoSeo {
   noindex?: boolean;
 }
 
+// --- v2: options/variants (see elc-go/docs/product-v2-design.md) ---
+
+interface GoProductOptionValue {
+  id: string;
+  value: string;
+  order_index: number;
+}
+
+interface GoProductOption {
+  id: string;
+  name: string;
+  order_index: number;
+  values: GoProductOptionValue[] | null;
+}
+
+interface GoVariantComponent {
+  id: string;
+  component_id: string;
+  component_mpn: string;
+  component_sku: string;
+  quantity: number;
+  role: string | null;
+}
+
+interface GoProductVariant {
+  id: string;
+  mpn: string;
+  sku: string;
+  gtin: string | null;
+  is_default: boolean;
+  is_standalone: boolean;
+  stock_status: string;
+  lead_time_days: number | null;
+  original_price: number;
+  sale_price: number | null;
+  discount_percent: number;
+  display_price: number;
+  weight: number | null;
+  is_active: boolean;
+  order_index: number;
+  option_value_ids: string[] | null;
+  components: GoVariantComponent[] | null;
+  created_at: string;
+  updated_at: string;
+}
+
+interface GoAttributeValue {
+  id: string;
+  attribute_definition_id: string;
+  code: string;
+  name: string;
+  group_label: string | null;
+  data_type: string;
+  unit: string | null;
+  options: string[] | null;
+  value_text: string | null;
+  value_number: number | null;
+  value_boolean: boolean | null;
+}
+
 interface GoProductResponse {
   id: string;
   category_id: string;
   brand_id: string;
   name: string;
-  sku: string;
   slug: string;
   description: Json;
   specs: GoSpecItem[] | null;
   images: ImageAsset[] | null;
   labels: string[] | null;
-  original_price: number;
-  sale_price: number | null;
-  discount_percent: number;
   is_featured: boolean;
   is_published: boolean;
   order_index: number;
-  stock_status: string;
   condition: string;
   meta_title: string | null;
   meta_description: string | null;
   seo: GoSeo;
-  mpn: string | null;
-  gtin: string | null;
+  product_line_id: string | null;
+  warranty_months: number | null;
+  warranty_terms: string | null;
+  default_variant_id: string | null;
+  display_price: number | null;
+  display_stock_status: string | null;
+  price_min: number | null;
+  price_max: number | null;
   created_at: string;
   updated_at: string;
   deleted_at: string | null;
   category: GoCategoryRef | null;
   brand: GoBrandRef | null;
   tags: { id: string; name: string; slug: string }[] | null;
+  options: GoProductOption[] | null;
+  variants: GoProductVariant[] | null;
+  attribute_values: GoAttributeValue[] | null;
 }
 
 interface GoFacetsResponse {
@@ -156,26 +222,15 @@ function isPrerenderError(error: unknown): boolean {
 }
 
 function mapGoProduct(row: GoProductResponse): ProductWithRelations {
-  const { originalPrice, salePrice, discountPercent } = normalizeProductPrice(
-    row.original_price,
-    row.sale_price,
-    row.discount_percent,
-  );
-
   return {
     id: row.id,
     name: row.name,
     slug: row.slug || "",
-    sku: row.sku,
-    shortDescription: row.meta_description ?? "",
     metaTitle: row.meta_title,
     metaDescription: row.meta_description,
     seo: row.seo,
     description: row.description ?? null,
     specs: (row.specs ?? null) as unknown as Json,
-    originalPrice,
-    salePrice,
-    discountPercent,
     images: row.images || [],
     labels: row.labels || [],
     isFeatured: row.is_featured || false,
@@ -183,13 +238,65 @@ function mapGoProduct(row: GoProductResponse): ProductWithRelations {
     orderIndex: row.order_index || 0,
     categoryId: row.category_id || "",
     brandId: row.brand_id || "",
-    stockStatus: (row.stock_status as StockStatus) || STOCK_STATUS.IN_STOCK,
     condition: (row.condition as ProductCondition) || PRODUCT_CONDITION.NEW,
-    mpn: row.mpn ?? null,
-    gtin: row.gtin ?? null,
+    productLineId: row.product_line_id ?? null,
+    warrantyMonths: row.warranty_months ?? null,
+    warrantyTerms: row.warranty_terms ?? null,
+    defaultVariantId: row.default_variant_id ?? null,
+    displayPrice: row.display_price ?? null,
+    displayStockStatus: row.display_stock_status ?? null,
+    priceMin: row.price_min ?? null,
+    priceMax: row.price_max ?? null,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
     deletedAt: row.deleted_at,
+    options: (row.options ?? []).map((o) => ({
+      id: o.id,
+      name: o.name,
+      orderIndex: o.order_index,
+      values: (o.values ?? []).map((v) => ({ id: v.id, value: v.value, orderIndex: v.order_index })),
+    })),
+    variants: (row.variants ?? []).map((v) => ({
+      id: v.id,
+      mpn: v.mpn,
+      sku: v.sku,
+      gtin: v.gtin,
+      isDefault: v.is_default,
+      isStandalone: v.is_standalone,
+      stockStatus: v.stock_status as VariantStockStatus,
+      leadTimeDays: v.lead_time_days,
+      originalPrice: v.original_price,
+      salePrice: v.sale_price,
+      discountPercent: v.discount_percent,
+      displayPrice: v.display_price,
+      weight: v.weight,
+      isActive: v.is_active,
+      orderIndex: v.order_index,
+      optionValueIds: v.option_value_ids ?? [],
+      components: (v.components ?? []).map((c) => ({
+        id: c.id,
+        componentId: c.component_id,
+        componentMpn: c.component_mpn,
+        componentSku: c.component_sku,
+        quantity: c.quantity,
+        role: c.role,
+      })),
+      createdAt: v.created_at,
+      updatedAt: v.updated_at,
+    })),
+    attributeValues: (row.attribute_values ?? []).map((av) => ({
+      id: av.id,
+      attributeDefinitionId: av.attribute_definition_id,
+      code: av.code,
+      name: av.name,
+      groupLabel: av.group_label,
+      dataType: av.data_type as AttributeDataType,
+      unit: av.unit,
+      options: av.options ?? [],
+      valueText: av.value_text,
+      valueNumber: av.value_number,
+      valueBoolean: av.value_boolean,
+    })),
     category: row.category
       ? {
           id: row.category.id,
@@ -239,6 +346,7 @@ function buildProductSearchParams(filter?: ProductFilter): URLSearchParams {
   if (filter.brandSlugs && filter.brandSlugs.length > 0) {
     params.set("brand_slugs", filter.brandSlugs.join(","));
   }
+  if (filter.productLineId) params.set("product_line_id", filter.productLineId);
   if (filter.isFeatured !== undefined) params.set("is_featured", String(filter.isFeatured));
   if (filter.isPublished !== undefined) params.set("is_published", String(filter.isPublished));
   if (filter.search) params.set("search", filter.search);
@@ -384,17 +492,69 @@ export async function getAdjacentProductsAction(id: string) {
   }
 }
 
+// toSnakeCaseBody is shallow by design (see shared/lib/go-api.ts) — it does
+// NOT recurse into nested arrays/objects, so options/variants (whose Go DTO
+// field names differ from the camelCase TS ones, e.g. optionName →
+// option_name, componentIndex → component_index) need explicit manual
+// remapping here, same "manual remapping for nested payloads" convention
+// this project already uses elsewhere (see elc-go migration conventions).
+function toGoOptionsPayload(options: ProductOptionInput[] | undefined) {
+  if (!options) return undefined;
+  return options.map((o) => ({ name: o.name, values: o.values }));
+}
+
+function toGoVariantsPayload(variants: ProductVariantInput[] | undefined) {
+  if (!variants) return undefined;
+  return variants.map((v) => ({
+    mpn: v.mpn,
+    sku: v.sku || undefined,
+    gtin: v.gtin || undefined,
+    is_default: v.isDefault ?? false,
+    is_component_only: v.isComponentOnly ?? false,
+    stock_status: v.stockStatus,
+    lead_time_days: v.leadTimeDays ?? undefined,
+    cost_price: undefined, // never entered/edited in this UI — internal-only field
+    original_price: v.originalPrice,
+    sale_price: v.salePrice ?? undefined,
+    discount_percent: v.discountPercent ?? 0,
+    weight: v.weight ?? undefined,
+    is_active: v.isActive ?? true,
+    order_index: v.orderIndex ?? 0,
+    option_selections: (v.optionSelections ?? []).map((s) => ({
+      option_name: s.optionName,
+      value: s.value,
+    })),
+    components: (v.components ?? []).map((c) => ({
+      component_index: c.componentIndex,
+      quantity: c.quantity,
+      role: c.role || undefined,
+    })),
+  }));
+}
+
+function toGoAttributeValuesPayload(values: AttributeValueInput[] | undefined) {
+  if (!values) return undefined;
+  return values.map((v) => ({
+    attribute_definition_id: v.attributeDefinitionId,
+    value_text: v.valueText ?? undefined,
+    value_number: v.valueNumber ?? undefined,
+    value_boolean: v.valueBoolean ?? undefined,
+  }));
+}
+
 export async function createProductAction(input: CreateProductInput) {
   if (!GO_API_URL) {
     return { data: null, error: "GO_API_URL is not configured" };
   }
   try {
     const validated = createProductSchema.parse(input);
-    const { shortDescription, metaDescription, ...rest } = validated;
-    const body = toSnakeCaseBody({
-      ...rest,
-      metaDescription: metaDescription || shortDescription || undefined,
-    });
+    const { options, variants, attributeValues, ...rest } = validated;
+    const body = {
+      ...toSnakeCaseBody(rest),
+      options: toGoOptionsPayload(options),
+      variants: toGoVariantsPayload(variants),
+      attribute_values: toGoAttributeValuesPayload(attributeValues),
+    };
 
     const res = await fetch(`${GO_API_URL}/products`, {
       method: "POST",
@@ -438,11 +598,13 @@ export async function updateProductAction(input: UpdateProductInput) {
   }
   try {
     const validated = updateProductSchema.parse(input);
-    const { id, shortDescription, metaDescription, ...rest } = validated;
-    const body = toSnakeCaseBody({
-      ...rest,
-      metaDescription: metaDescription || shortDescription || undefined,
-    });
+    const { id, options, variants, attributeValues, ...rest } = validated;
+    const body = {
+      ...toSnakeCaseBody(rest),
+      options: toGoOptionsPayload(options),
+      variants: toGoVariantsPayload(variants),
+      attribute_values: toGoAttributeValuesPayload(attributeValues),
+    };
 
     const res = await fetch(`${GO_API_URL}/products/${id}`, {
       method: "PUT",

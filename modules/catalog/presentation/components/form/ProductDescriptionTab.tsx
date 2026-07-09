@@ -1,12 +1,6 @@
 "use client";
 
 import { Controller, UseFormReturn } from "react-hook-form";
-import {
-  Field,
-  FieldGroup,
-  FieldLegend,
-  FieldSet,
-} from "@/shared/components/ui/field";
 import { TiptapEditor } from "@/shared/components/ui/tiptap-editor";
 import { uploadImageFile } from "@/shared/lib/upload-image";
 import { ProductFormValues } from "../../hooks/useProductForm";
@@ -17,24 +11,17 @@ interface ProductDescriptionTabProps {
 
 export function ProductDescriptionTab({ form }: ProductDescriptionTabProps) {
   return (
-    <FieldSet>
-      <FieldLegend>Mô tả chi tiết sản phẩm</FieldLegend>
-      <FieldGroup>
-        <Field>
-          <Controller
-            control={form.control}
-            name="description"
-            render={({ field }) => (
-              <TiptapEditor
-                value={field.value}
-                onChange={field.onChange}
-                placeholder="Bắt đầu kể câu chuyện về sản phẩm của bạn..."
-                uploadImage={async (file) => uploadImageFile(file, "products")}
-              />
-            )}
-          />
-        </Field>
-      </FieldGroup>
-    </FieldSet>
+    <Controller
+      control={form.control}
+      name="description"
+      render={({ field }) => (
+        <TiptapEditor
+          value={field.value}
+          onChange={field.onChange}
+          placeholder="Bắt đầu kể câu chuyện về sản phẩm của bạn..."
+          uploadImage={async (file) => uploadImageFile(file, "products")}
+        />
+      )}
+    />
   );
 }

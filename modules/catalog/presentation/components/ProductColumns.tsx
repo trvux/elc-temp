@@ -7,7 +7,7 @@ import { ButtonGroup } from "@/shared/components/ui/button-group";
 import { ColumnDef } from "@tanstack/react-table";
 import { Check, Minus, PencilSimple, Star, Trash, X } from "@phosphor-icons/react";
 import Image from "next/image";
-import { ProductWithRelations, formatPrice, PRODUCT_LABELS } from "../../domain";
+import { ProductWithRelations, formatPrice, PRODUCT_LABELS, resolveDefaultVariant, toLegacyStockStatusForBadge } from "../../domain";
 import { StockBadge } from "@/shared/components/ui/stock-badge";
 import { primaryImageUrl } from "@/shared/lib/image-asset";
 
@@ -81,22 +81,22 @@ export const getProductColumns = ({
     ),
   },
   {
-    accessorKey: "sku",
+    id: "sku",
     header: "SKU",
-    cell: ({ row }) => <span>{row.original.sku || "—"}</span>,
+    cell: ({ row }) => <span>{resolveDefaultVariant(row.original)?.sku || "—"}</span>,
   },
   {
-    accessorKey: "mpn",
+    id: "mpn",
     header: "MPN",
     cell: ({ row }) => (
-      <span className="font-mono text-[10px]">{row.original.mpn || "—"}</span>
+      <span className="font-mono text-[10px]">{resolveDefaultVariant(row.original)?.mpn || "—"}</span>
     ),
   },
   {
-    accessorKey: "gtin",
+    id: "gtin",
     header: "GTIN",
     cell: ({ row }) => (
-      <span className="font-mono text-[10px]">{row.original.gtin || "—"}</span>
+      <span className="font-mono text-[10px]">{resolveDefaultVariant(row.original)?.gtin || "—"}</span>
     ),
   },
   {
@@ -123,27 +123,27 @@ export const getProductColumns = ({
     },
   },
   {
-    accessorKey: "originalPrice",
+    id: "originalPrice",
     header: "Giá gốc",
     cell: ({ row }) => (
       <span className="line-through text-muted-foreground">
-        {formatPrice(row.original.originalPrice)}
+        {formatPrice(resolveDefaultVariant(row.original)?.originalPrice ?? 0)}
       </span>
     ),
   },
   {
-    accessorKey: "salePrice",
+    id: "salePrice",
     header: "Giá bán",
     cell: ({ row }) => {
-      const p = row.original;
+      const v = resolveDefaultVariant(row.original);
       return (
         <div className="flex flex-col">
           <span className="font-bold">
-            {formatPrice(p.salePrice || p.originalPrice)}
+            {formatPrice(row.original.displayPrice ?? 0)}
           </span>
-          {p.discountPercent > 0 && (
+          {(v?.discountPercent ?? 0) > 0 && (
             <Badge variant="destructive">
-              -{p.discountPercent}%
+              -{v?.discountPercent}%
             </Badge>
           )}
         </div>
@@ -168,14 +168,14 @@ export const getProductColumns = ({
     },
   },
   {
-    accessorKey: "stockStatus",
+    id: "stockStatus",
     header: "Kho",
     cell: ({ row }) => {
-      const status = row.original.stockStatus;
+      const status = toLegacyStockStatusForBadge(row.original.displayStockStatus);
       if (!status) return <span className="text-muted-foreground">—</span>;
-      
+
       return (
-        <StockBadge status={status || undefined} className="whitespace-nowrap px-2 py-0 h-5 text-[10px]" />
+        <StockBadge status={status} className="whitespace-nowrap px-2 py-0 h-5 text-[10px]" />
       );
     },
   },

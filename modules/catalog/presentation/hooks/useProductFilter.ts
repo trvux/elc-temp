@@ -18,9 +18,9 @@ export const useProductFilter = (products: ProductWithRelations[]) => {
     }
 
     if (sortOrder === "price-asc") {
-      result.sort((a, b) => (a.salePrice || a.originalPrice) - (b.salePrice || b.originalPrice));
+      result.sort((a, b) => (a.displayPrice || 0) - (b.displayPrice || 0));
     } else if (sortOrder === "price-desc") {
-      result.sort((a, b) => (b.salePrice || b.originalPrice) - (a.salePrice || a.originalPrice));
+      result.sort((a, b) => (b.displayPrice || 0) - (a.displayPrice || 0));
     } else if (sortOrder === "newest") {
       result.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
     }
