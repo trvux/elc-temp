@@ -1,4 +1,5 @@
 import { getProductsAction } from "@/modules/catalog/presentation/actions";
+import { resolveProductDisplayPrice } from "@/modules/catalog/domain";
 import { ProductCard } from "@/modules/catalog/presentation/components/ProductCard";
 import { getCategoriesAction } from "@/modules/category/presentation/actions";
 import { getGroupsAction } from "@/modules/group/presentation/actions";
@@ -189,7 +190,7 @@ export async function generateMetadata({
   const baseDescription = newsItem.seo?.description || newsItem.metaDescription || getProductDescriptionExcerpt(newsItem.content, 180) || newsItem.title;
 
   const productSummary = relatedProducts && relatedProducts.length > 0
-    ? ` Sản phẩm liên quan: ${relatedProducts.slice(0, 3).map(p => `${p.name} (Giá: ${(p.salePrice || p.originalPrice || 0).toLocaleString('vi-VN')}đ)`).join(" | ")}.`
+    ? ` Sản phẩm liên quan: ${relatedProducts.slice(0, 3).map(p => `${p.name} (Giá: ${resolveProductDisplayPrice(p).toLocaleString('vi-VN')}đ)`).join(" | ")}.`
     : "";
 
   const newsSummary = relatedNews && relatedNews.length > 0
@@ -268,7 +269,7 @@ export default async function NewsDetailPage({ params }: PageProps) {
         url: `${BASE_URL}/san-pham/${p.slug}`,
         offers: {
           "@type": "Offer",
-          price: p.salePrice || p.originalPrice || 0,
+          price: resolveProductDisplayPrice(p),
           priceCurrency: "VND",
           availability: "https://schema.org/InStock",
         }

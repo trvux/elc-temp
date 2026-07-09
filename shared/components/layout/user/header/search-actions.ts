@@ -1,6 +1,7 @@
 "use server";
 
 import { getProductsAction } from "@/modules/catalog/presentation/actions";
+import { resolveProductDisplayPrice, resolveDefaultVariant } from "@/modules/catalog/domain";
 import { getProjectsAction } from "@/modules/project/presentation/actions";
 import { getServicesAction } from "@/modules/service/presentation/actions";
 import { getCategoriesAction } from "@/modules/category/presentation/actions";
@@ -170,7 +171,9 @@ export async function getAutocompleteSuggestionsAction(query: string): Promise<S
     const fuseProducts = new Fuse(allProducts, {
       keys: [
         { name: "name", getFn: (p) => tokenize(p.name ?? ""), weight: 0.55 },
-        { name: "sku", getFn: (p) => tokenize(p.sku ?? ""), weight: 0.15 },
+        // mpn, not sku — mpn is the manufacturer code customers actually
+        // search for; sku is internal-only (see domain/types.ts).
+        { name: "sku", getFn: (p) => tokenize(resolveDefaultVariant(p)?.mpn ?? ""), weight: 0.15 },
         { name: "brand", getFn: (p) => tokenize(p.brand?.name ?? ""), weight: 0.15 },
         { name: "category", getFn: (p) => tokenize(p.category?.name ?? ""), weight: 0.05 },
         { name: "specs", getFn: (p) => tokenize(flattenSpecs(p.specs)), weight: 0.1 },
@@ -193,7 +196,7 @@ export async function getAutocompleteSuggestionsAction(query: string): Promise<S
     }
 
     const matchedProducts = searchedProducts.map((p) => {
-      const currentPrice = p.salePrice || p.originalPrice || 0;
+      const currentPrice = resolveProductDisplayPrice(p);
       const priceStr = currentPrice > 0 ? `${currentPrice.toLocaleString("vi-VN")}đ` : "Liên hệ";
       return {
         id: p.id,
@@ -203,7 +206,7 @@ export async function getAutocompleteSuggestionsAction(query: string): Promise<S
         category: p.category?.name || "Sản phẩm",
         image: primaryImageUrl(p.images) || null,
         price: priceStr,
-        sku: p.sku || null,
+        sku: resolveDefaultVariant(p)?.mpn || null,
       };
     });
 

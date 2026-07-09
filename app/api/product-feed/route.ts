@@ -1,4 +1,5 @@
 import { getProductsAction } from "@/modules/catalog/presentation/actions";
+import { resolveDefaultVariant } from "@/modules/catalog/domain";
 import { NextResponse, connection } from "next/server";
 import { BASE_URL } from "@/shared/lib/seo-schema";
 import { imageUrls } from "@/shared/lib/image-asset";
@@ -107,27 +108,31 @@ export async function GET() {
     const imageUrl = productImageUrls[0] || "";
     const additionalImages = productImageUrls.slice(1);
 
-    const id = prod.sku || prod.id;
+    const defaultVariant = resolveDefaultVariant(prod);
+    const id = defaultVariant?.sku || prod.id;
     const title = escapeXml(`${prod.name} | Điện máy ELC`);
     const desc = escapeXml(
       getProductDescription(prod.description, prod.name).substring(0, 1000),
     );
 
-    const priceVal = prod.originalPrice || prod.salePrice || 0;
+    const priceVal = defaultVariant?.originalPrice || 0;
 
     // Case 3: Giá Liên hệ (original_price & sale_price <= 0 hoặc rỗng)
     // Google Shopping bắt buộc phải có giá lớn hơn 0, nếu gửi giá 0 hoặc rỗng sẽ bị khóa tài khoản GMC.
     // Vì vậy, ta bắt buộc phải bỏ qua các sản phẩm "Liên hệ" khỏi Google Shopping Feed.
     if (priceVal <= 0) continue;
 
-    const salePriceVal = prod.salePrice;
+    const salePriceVal = defaultVariant?.salePrice;
 
     const price = `${priceVal} VND`;
 
+    // VARIANT_STOCK_STATUS has 3 values (in_stock/order_from_supplier/
+    // discontinued) — order_from_supplier maps to Google's "preorder",
+    // discontinued to "out_of_stock" (nothing left to sell).
     let availability = "in_stock";
-    if (prod.stockStatus === "out_of_stock") {
+    if (prod.displayStockStatus === "discontinued") {
       availability = "out_of_stock";
-    } else if (prod.stockStatus === "pre_order") {
+    } else if (prod.displayStockStatus === "order_from_supplier") {
       availability = "preorder";
     }
 
@@ -153,8 +158,8 @@ export async function GET() {
     }
 
     xml += `      <g:brand>${escapeXml(brandName)}</g:brand>\n`;
-    if (prod.sku) {
-      xml += `      <g:mpn>${escapeXml(prod.sku)}</g:mpn>\n`;
+    if (defaultVariant?.mpn) {
+      xml += `      <g:mpn>${escapeXml(defaultVariant.mpn)}</g:mpn>\n`;
     }
     xml += `      <g:condition>new</g:condition>\n`;
 

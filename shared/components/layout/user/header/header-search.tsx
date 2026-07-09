@@ -482,7 +482,7 @@ export function HeaderSearch() {
                           </div>
                           {item.sku && (
                             <span className="text-xs text-muted-foreground font-medium block mt-0.5">
-                              SKU: {item.sku}
+                              Mã: {item.sku}
                             </span>
                           )}
                         </div>
