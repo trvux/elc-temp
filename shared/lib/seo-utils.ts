@@ -1,4 +1,4 @@
-import { ProductWithRelations } from "@/modules/catalog/domain";
+import { ProductWithRelations, resolveDefaultVariant, resolveProductDisplayPrice } from "@/modules/catalog/domain";
 import { Branch } from "@/modules/branch/domain";
 import { SEOSchema, parseAddress, formatPhone, BASE_URL } from "./seo-schema";
 import type { Metadata } from "next";
@@ -140,8 +140,8 @@ export function generateProductMetadata(
     }
   }
 
-  // Clean SKU (main part only)
-  const mainSku = extractMainSku(product.sku);
+  // Clean MPN (main part only) — the manufacturer code customers search for.
+  const mainSku = extractMainSku(resolveDefaultVariant(product)?.mpn);
 
   const metaTitle = product.seo?.title || product.metaTitle || (product as unknown as Record<string, unknown>).meta_title as string | null | undefined;
   const metaDescription = product.seo?.description || product.metaDescription || (product as unknown as Record<string, unknown>).meta_description as string | null | undefined;
@@ -173,7 +173,7 @@ export function generateProductMetadata(
   }
 
   const relatedSummary = relatedProducts && relatedProducts.length > 0
-    ? ` Sản phẩm cùng thương hiệu và công suất liên quan: ${relatedProducts.slice(0, 3).map(rp => `${rp.name} (Giá: ${(rp.salePrice || rp.originalPrice || 0).toLocaleString('vi-VN')}đ)`).join(" | ")}.`
+    ? ` Sản phẩm cùng thương hiệu và công suất liên quan: ${relatedProducts.slice(0, 3).map(rp => `${rp.name} (Giá: ${resolveProductDisplayPrice(rp).toLocaleString('vi-VN')}đ)`).join(" | ")}.`
     : "";
   description = `${description}${relatedSummary}`;
 
@@ -950,31 +950,23 @@ export function generateProductSchema(
   relatedProducts?: ProductWithRelations[],
   reviewSummary?: { count: number; average: number },
 ) {
-  const rawProduct = product as unknown as Record<string, unknown>;
-  const rawSalePrice = (product.salePrice ?? rawProduct.sale_price ?? 0) as number;
-  const rawOriginalPrice = (product.originalPrice ??
-    rawProduct.original_price ??
-    0) as number;
-  const salePrice = Math.round(rawSalePrice / 1000) * 1000;
-  const originalPrice = Math.round(rawOriginalPrice / 1000) * 1000;
-  const price = salePrice || originalPrice || 0;
+  const defaultVariant = resolveDefaultVariant(product);
+  const originalPrice = Math.round((defaultVariant?.originalPrice ?? 0) / 1000) * 1000;
+  const salePrice = Math.round((defaultVariant?.salePrice ?? 0) / 1000) * 1000;
+  const price = resolveProductDisplayPrice(product) || originalPrice || 0;
   const hasPrice = price > 0;
 
   const hasDiscount =
     hasPrice &&
-    typeof salePrice === "number" &&
-    typeof originalPrice === "number" &&
     salePrice > 0 &&
     originalPrice > 0 &&
     salePrice < originalPrice;
 
-  const stockStatus = (product.stockStatus ?? rawProduct.stock_status) as
-    | string
-    | undefined;
-  const mpn = (product.mpn ?? rawProduct.mpn) as string | null | undefined;
-  const gtin = (product.gtin ?? rawProduct.gtin) as string | null | undefined;
+  const stockStatus = product.displayStockStatus ?? undefined;
+  const mpn = defaultVariant?.mpn ?? null;
+  const gtin = defaultVariant?.gtin ?? null;
   const hasGtin = typeof gtin === "string" && gtin.trim().length > 0;
-  const firstSku = product.sku ? product.sku.split(/[\s/]+/)[0] : "";
+  const firstSku = defaultVariant?.sku ? defaultVariant.sku.split(/[\s/]+/)[0] : "";
 
   // Reuse the smart metadata logic to get the same description
   const metadata = generateProductMetadata(product, location, relatedProducts);
@@ -1005,8 +997,8 @@ export function generateProductSchema(
 
   const formattedHp = extractProductHp(product);
 
-  const mpnVal = product.mpn || (product as unknown as Record<string, unknown>).mpn as string | null | undefined;
-  const skuVal = product.sku || "";
+  const mpnVal = defaultVariant?.mpn || "";
+  const skuVal = defaultVariant?.sku || "";
   const modelVal = mpnVal || skuVal.split(/[\s/]+/)[0] || "";
 
   const now = new Date();
@@ -1139,7 +1131,7 @@ export function generateProductSchema(
         "image": assetImageUrls(rp.images),
         "offers": {
           "@type": "Offer",
-          "price": rp.salePrice || rp.originalPrice || 0,
+          "price": resolveProductDisplayPrice(rp),
           "priceCurrency": "VND",
           "availability": "https://schema.org/InStock"
         },

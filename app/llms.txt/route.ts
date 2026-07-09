@@ -5,6 +5,7 @@ import { getCategoriesAction } from "@/modules/category/presentation/actions";
 import { getBrandsAction } from "@/modules/brand/presentation/actions";
 import { getGroupsAction } from "@/modules/group/presentation/actions";
 import { getProductsAction } from "@/modules/catalog/presentation/actions";
+import { resolveDefaultVariant } from "@/modules/catalog/domain";
 import { getServicesAction } from "@/modules/service/presentation/actions";
 import { getPagesAction } from "@/modules/page/presentation/actions";
 import { getProjectsAction } from "@/modules/project/presentation/actions";
@@ -95,8 +96,9 @@ export async function GET(request: Request) {
   // Products
   markdown += `## Products (Flat URLs)\n\n`;
   products.forEach((p) => {
-    const cleanSku = p.sku ? p.sku.split(/[\s/]+/)[0] : "";
-    const mpnStr = p.mpn ? ` | MPN: ${p.mpn}` : "";
+    const defaultVariant = resolveDefaultVariant(p);
+    const cleanSku = defaultVariant?.sku ? defaultVariant.sku.split(/[\s/]+/)[0] : "";
+    const mpnStr = defaultVariant?.mpn ? ` | MPN: ${defaultVariant.mpn}` : "";
     markdown += `- [${p.name} - SKU: ${cleanSku}${mpnStr}](${BASE_URL}/san-pham/${p.slug})\n`;
   });
   markdown += `\n`;

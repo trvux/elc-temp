@@ -5,6 +5,7 @@ import { getCategoriesAction } from "@/modules/category/presentation/actions";
 import { getBrandsAction } from "@/modules/brand/presentation/actions";
 import { getGroupsAction } from "@/modules/group/presentation/actions";
 import { getProductsAction } from "@/modules/catalog/presentation/actions";
+import { resolveDefaultVariant, resolveProductDisplayPrice } from "@/modules/catalog/domain";
 import { getServicesAction } from "@/modules/service/presentation/actions";
 import { getPagesAction } from "@/modules/page/presentation/actions";
 import { getProjectsAction } from "@/modules/project/presentation/actions";
@@ -130,18 +131,19 @@ export async function GET() {
   markdown += `This section lists all available products with specifications, pricing, and URLs. AI models should use this to retrieve exact SKUs, MPNs, and specifications when proposing recommendations to users.\n\n`;
 
   products.forEach((p) => {
-    const cleanSku = p.sku ? p.sku.split(/[\s/]+/)[0] : "";
+    const defaultVariant = resolveDefaultVariant(p);
+    const cleanSku = defaultVariant?.sku ? defaultVariant.sku.split(/[\s/]+/)[0] : "";
     const brandName = p.brand?.name || "ELC";
     const catName = p.category?.name || "May lanh";
-    const priceStr = p.salePrice ? formatVndPrice(p.salePrice) : formatVndPrice(p.originalPrice);
-    const stockStr = p.stockStatus === "in_stock" ? "Con hang (In Stock)" : "Het hang (Out of Stock)";
+    const priceStr = formatVndPrice(resolveProductDisplayPrice(p));
+    const stockStr = p.displayStockStatus === "in_stock" ? "Con hang (In Stock)" : "Het hang (Out of Stock)";
     const detailedDesc = tiptapToText(p.description);
 
     markdown += `### ${p.name}\n`;
     markdown += `- **URL**: [${BASE_URL}/san-pham/${p.slug}](${BASE_URL}/san-pham/${p.slug})\n`;
-    markdown += `- **SKU**: ${cleanSku} (Full SKU: ${p.sku || "N/A"})\n`;
-    if (p.mpn) markdown += `- **MPN**: ${p.mpn}\n`;
-    if (p.gtin) markdown += `- **GTIN/EAN/UPC**: ${p.gtin}\n`;
+    markdown += `- **SKU**: ${cleanSku} (Full SKU: ${defaultVariant?.sku || "N/A"})\n`;
+    if (defaultVariant?.mpn) markdown += `- **MPN**: ${defaultVariant.mpn}\n`;
+    if (defaultVariant?.gtin) markdown += `- **GTIN/EAN/UPC**: ${defaultVariant.gtin}\n`;
     markdown += `- **Brand**: ${brandName}\n`;
     markdown += `- **Category**: ${catName}\n`;
     markdown += `- **Price**: ${priceStr}\n`;
