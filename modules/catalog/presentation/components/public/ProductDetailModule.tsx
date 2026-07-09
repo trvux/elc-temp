@@ -44,11 +44,9 @@ import {
 import { District } from "@/shared/lib/districts";
 import {
   BASE_URL,
-  extractMainSku,
   generateBreadcrumbSchema,
   generateProductSchema,
   localizeRichText,
-  normalizeForCompare,
 } from "@/shared/lib/seo-utils";
 import { cn } from "@/shared/lib/utils";
 import { primaryImageUrl } from "@/shared/lib/image-asset";
@@ -251,7 +249,6 @@ export async function ProductDetailModule({
   const finalPrice = resolveProductDisplayPrice(product);
   const defaultVariant = resolveDefaultVariant(product);
   const images = product.images || [];
-  const mainSku = extractMainSku(defaultVariant?.sku);
 
   const isSectionHeader = (spec: SpecItem) =>
     spec.label === spec.label.toUpperCase() &&
@@ -383,12 +380,7 @@ export async function ProductDetailModule({
                 </div>
               </div>
 
-              <TypographyH1 className={STYLES.productName}>
-                {product.name}
-                {mainSku && !normalizeForCompare(product.name).includes(normalizeForCompare(mainSku))
-                  ? ` - ${mainSku}`
-                  : ""}
-              </TypographyH1>
+              <TypographyH1 className={STYLES.productName}>{product.name}</TypographyH1>
 
               <ProductLineCapacitySwitcher product={product} />
 
