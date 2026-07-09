@@ -46,6 +46,14 @@ export function extractMainSku(sku?: string | null): string {
   return sku?.split(/[\/\+]/)[0].trim() || "";
 }
 
+// Strips whitespace/punctuation before comparing — a raw .includes() check
+// misses near-duplicates that differ only by a dash/space (e.g. product
+// name "P5- CLS4.0E" vs sku "P5 CLS4.0E"), causing the sku to get
+// needlessly re-appended to an already-descriptive title.
+export function normalizeForCompare(s: string): string {
+  return s.toLowerCase().replace(/[^a-z0-9À-ɏḀ-ỿ]/gi, "");
+}
+
 export function appendLocationToTitle(title: string, location?: District): string {
   if (!location) return title;
   const suffix = ` | ${SHOP_NAME}`;
