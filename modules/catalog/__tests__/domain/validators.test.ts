@@ -7,7 +7,6 @@ describe("Product Validators", () => {
     name: "iPhone 15 Pro",
     slug: "iphone-15-pro",
     sku: "IP15P-128-BLU",
-    shortDescription: "The latest iPhone with titanium design.",
     description: { content: "Detailed description" },
     specs: { ram: "8GB", storage: "128GB" },
     originalPrice: 25000000,

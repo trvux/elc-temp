@@ -16,22 +16,77 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/shared/components/ui/select";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/shared/components/ui/tabs";
+import { Card, CardContent, CardHeader, CardTitle } from "@/shared/components/ui/card";
 
-import { STOCK_STATUS, STOCK_STATUS_MAP, ProductWithRelations, PRODUCT_LABELS, SpecItem, PRODUCT_CONDITION } from "../../domain";
+import { VARIANT_STOCK_STATUS, VARIANT_STOCK_STATUS_MAP, ProductWithRelations, PRODUCT_LABELS, PRODUCT_CONDITION } from "../../domain";
 import {
   deleteProductAction,
   getProductsAction,
 } from "../actions";
 import { getProductColumns } from "./ProductColumns";
-import { useProductForm, AC_TEMPLATE } from "../hooks/useProductForm";
-import { ProductGeneralTab } from "./form/ProductGeneralTab";
+import { useProductForm, DEFAULT_VARIANT } from "../hooks/useProductForm";
+import { ProductIdentityCard } from "./form/ProductIdentityCard";
+import { ProductOrganizationCard } from "./form/ProductOrganizationCard";
+import { ProductStatusCard } from "./form/ProductStatusCard";
+import { ProductWarrantyCard } from "./form/ProductWarrantyCard";
+import { ProductSeoCard } from "./form/ProductSeoCard";
 import { ProductSpecsTab } from "./form/ProductSpecsTab";
 import { ProductGalleryTab } from "./form/ProductGalleryTab";
 import { ProductDescriptionTab } from "./form/ProductDescriptionTab";
+import { ProductVariantsTab } from "./form/ProductVariantsTab";
 import { getGroupsAction } from "@/modules/group/presentation/actions";
 import { getCategoriesAction } from "@/modules/category/presentation/actions";
 import { getBrandsAction } from "@/modules/brand/presentation/actions";
+import { getProductLinesAction } from "@/modules/product-line/presentation/actions";
+import { getAttributeDefinitionsAction } from "@/modules/attribute-definition/presentation/actions";
+
+// Converts the persisted read shape (ProductOption[]/ProductVariant[] —
+// values/components carry real IDs) back into the create/update input shape
+// the form edits (options by name, variant option-selections by
+// {optionName,value}, bundle components by sibling array index) — the
+// inverse of what createProductAction/updateProductAction's
+// toGoOptionsPayload/toGoVariantsPayload send. Needed because the Go API
+// deliberately never round-trips IDs for these back into form-editable
+// input fields (see elc-go/docs/product-v2-design.md).
+function mapProductToFormVariantTree(p: ProductWithRelations) {
+  const options = (p.options || []).map((o) => ({ name: o.name, values: o.values.map((v) => v.value) }));
+
+  const optionValueLookup = new Map<string, { optionName: string; value: string }>();
+  (p.options || []).forEach((o) => {
+    o.values.forEach((v) => optionValueLookup.set(v.id, { optionName: o.name, value: v.value }));
+  });
+
+  const variantIdToIndex = new Map<string, number>();
+  (p.variants || []).forEach((v, i) => variantIdToIndex.set(v.id, i));
+
+  const variants = (p.variants || []).map((v) => ({
+    mpn: v.mpn,
+    sku: v.sku,
+    gtin: v.gtin || "",
+    isDefault: v.isDefault,
+    isComponentOnly: !v.isStandalone,
+    stockStatus: v.stockStatus,
+    leadTimeDays: v.leadTimeDays ?? null,
+    originalPrice: v.originalPrice,
+    salePrice: v.salePrice ?? 0,
+    discountPercent: v.discountPercent,
+    weight: v.weight ?? null,
+    isActive: v.isActive,
+    orderIndex: v.orderIndex,
+    optionSelections: v.optionValueIds
+      .map((id) => optionValueLookup.get(id))
+      .filter((s): s is { optionName: string; value: string } => !!s),
+    components: v.components
+      .map((c) => ({
+        componentIndex: variantIdToIndex.get(c.componentId) ?? -1,
+        quantity: c.quantity,
+        role: c.role || "",
+      }))
+      .filter((c) => c.componentIndex >= 0),
+  }));
+
+  return { options, variants };
+}
 
 export function ProductManagement() {
   const queryClient = useQueryClient();
@@ -84,16 +139,36 @@ export function ProductManagement() {
     },
   });
 
+  const { data: productLines = [] } = useQuery({
+    queryKey: ["product-lines"],
+    queryFn: async () => {
+      const { data, error } = await getProductLinesAction();
+      if (error) throw new Error(error);
+      return data;
+    },
+  });
+
+  const { data: attributeDefinitions = [] } = useQuery({
+    queryKey: ["attribute-definitions"],
+    queryFn: async () => {
+      const { data, error } = await getAttributeDefinitionsAction();
+      if (error) throw new Error(error);
+      return data;
+    },
+  });
+
   // Custom Form Hook
   const {
     form,
-    specsFields,
-    appendSpec,
-    removeSpec,
-    appendSpecItem,
-    removeSpecItem,
+    optionsFields,
+    appendOption,
+    removeOption,
+    variantsFields,
+    appendVariant,
+    removeVariant,
     saveMutation,
     updateAutoSlug,
+    regenerateSlug,
   } = useProductForm(activeProduct, () => setActiveProduct(null));
 
   const deleteMutation = useMutation({
@@ -129,7 +204,7 @@ export function ProductManagement() {
       const matchFeatured = filterIsFeatured === "all" || (filterIsFeatured === "true" ? p.isFeatured : !p.isFeatured);
       const matchPublished = filterIsPublished === "all" || (filterIsPublished === "true" ? p.isPublished : !p.isPublished);
       const matchLabel = filterLabel === "all" || (p.labels && p.labels.includes(filterLabel));
-      const matchStockStatus = filterStockStatus === "all" || p.stockStatus === filterStockStatus;
+      const matchStockStatus = filterStockStatus === "all" || p.displayStockStatus === filterStockStatus;
       const matchCondition = filterCondition === "all" || p.condition === filterCondition;
       return matchGroup && matchCategory && matchFeatured && matchPublished && matchLabel && matchStockStatus && matchCondition;
     });
@@ -140,25 +215,18 @@ export function ProductManagement() {
       getProductColumns({
         onEdit: (p) => {
           setActiveProduct(p);
+          const { options, variants } = mapProductToFormVariantTree(p);
           form.reset({
             name: p.name,
             slug: p.slug,
-            sku: p.sku,
-            shortDescription: p.shortDescription || "",
             description: p.description || "",
-            originalPrice: p.originalPrice,
-            salePrice: p.salePrice || 0,
             images: p.images || [],
             isFeatured: p.isFeatured,
             isPublished: p.isPublished,
             orderIndex: p.orderIndex,
             categoryId: p.categoryId,
             brandId: p.brandId,
-            stockStatus: p.stockStatus || STOCK_STATUS.IN_STOCK,
             condition: p.condition || PRODUCT_CONDITION.NEW,
-            discountPercent: p.discountPercent || 0,
-            mpn: p.mpn || "",
-            gtin: p.gtin || "",
             metaTitle: p.metaTitle || "",
             metaDescription: p.metaDescription || "",
             seo: {
@@ -166,9 +234,22 @@ export function ProductManagement() {
               description: p.seo?.description || "",
               noindex: p.seo?.noindex || false,
             },
-            specs: Array.isArray(p.specs) ? (p.specs as unknown as SpecItem[]) : [],
+            // specs is a legacy passthrough — no longer edited by this UI
+            // (see ProductSpecsTab.tsx), just preserved as-is on save.
+            specs: p.specs ?? {},
             labels: p.labels || [],
             tagIds: (p.tags || []).map((t) => t.id),
+            productLineId: p.productLineId || null,
+            warrantyMonths: p.warrantyMonths ?? null,
+            warrantyTerms: p.warrantyTerms || "",
+            options,
+            variants,
+            attributeValues: (p.attributeValues || []).map((av) => ({
+              attributeDefinitionId: av.attributeDefinitionId,
+              valueText: av.valueText,
+              valueNumber: av.valueNumber,
+              valueBoolean: av.valueBoolean,
+            })),
           });
         },
         onDelete: setDeletingId,
@@ -181,28 +262,26 @@ export function ProductManagement() {
     form.reset({
       name: "",
       slug: "",
-      sku: "",
-      shortDescription: "",
       description: "",
-      originalPrice: 0,
-      salePrice: 0,
       images: [],
       isFeatured: false,
       isPublished: true,
       orderIndex: 0,
       categoryId: "",
       brandId: "",
-      stockStatus: STOCK_STATUS.IN_STOCK,
       condition: PRODUCT_CONDITION.NEW,
-      discountPercent: 0,
-      mpn: "",
-      gtin: "",
       metaTitle: "",
       metaDescription: "",
       seo: { title: "", description: "", noindex: false },
-      specs: AC_TEMPLATE,
+      specs: {},
       labels: [],
       tagIds: [],
+      productLineId: null,
+      warrantyMonths: null,
+      warrantyTerms: "",
+      options: [],
+      attributeValues: [],
+      variants: [DEFAULT_VARIANT],
     });
   }
 
@@ -292,10 +371,11 @@ export function ProductManagement() {
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">Tất cả tình trạng</SelectItem>
-            <SelectItem value={STOCK_STATUS.IN_STOCK}>{STOCK_STATUS_MAP[STOCK_STATUS.IN_STOCK]}</SelectItem>
-            <SelectItem value={STOCK_STATUS.OUT_OF_STOCK}>{STOCK_STATUS_MAP[STOCK_STATUS.OUT_OF_STOCK]}</SelectItem>
-            <SelectItem value={STOCK_STATUS.PRE_ORDER}>{STOCK_STATUS_MAP[STOCK_STATUS.PRE_ORDER]}</SelectItem>
-            <SelectItem value={STOCK_STATUS.DISCONTINUED}>{STOCK_STATUS_MAP[STOCK_STATUS.DISCONTINUED]}</SelectItem>
+            {Object.values(VARIANT_STOCK_STATUS).map((status) => (
+              <SelectItem key={status} value={status}>
+                {VARIANT_STOCK_STATUS_MAP[status]}
+              </SelectItem>
+            ))}
           </SelectContent>
         </Select>
 
@@ -350,51 +430,138 @@ export function ProductManagement() {
         title={activeProduct === "new" ? "Thêm sản phẩm" : "Sửa sản phẩm"}
         description="Cập nhật thông tin chi tiết cho sản phẩm."
       >
-        <Tabs defaultValue="general" className="flex flex-col flex-1 min-h-0 relative">
-          <div className="flex sticky top-0 z-20 w-full items-center justify-center border-b bg-background/95 py-4 backdrop-blur">
-            <TabsList>
-              <TabsTrigger value="general">Thông tin chung</TabsTrigger>
-              <TabsTrigger value="specs">Thông số kỹ thuật</TabsTrigger>
-              <TabsTrigger value="description">Mô tả sản phẩm</TabsTrigger>
-            </TabsList>
-          </div>
-
-          <div className="w-full max-w-5xl mx-auto">
+        <div className="flex flex-col flex-1 min-h-0 relative">
+          <div className="w-full">
             <form
               onSubmit={form.handleSubmit((v) => saveMutation.mutate(v))}
               className="flex-1 flex flex-col min-h-0 w-full"
             >
               <div className="flex-1 overflow-y-auto p-6 lg:p-10">
-                <TabsContent value="general" className="mt-0 focus-visible:outline-none pb-8">
-                  <ProductGeneralTab
-                    form={form}
-                    groups={groups}
-                    categories={categories}
-                    brands={brands}
-                    updateAutoSlug={updateAutoSlug}
-                  />
-                </TabsContent>
+                <div className="grid grid-cols-1 md:grid-cols-[2fr_1fr] gap-6 items-start">
+                  {/* Primary column — frequently-edited, most important */}
+                  <div className="flex flex-col gap-6 min-w-0">
+                    <Card>
+                      <CardHeader className="pb-4">
+                        <CardTitle className="text-sm font-semibold tracking-tight text-foreground">
+                          Thông tin sản phẩm
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent className="pt-0">
+                        <ProductIdentityCard
+                          form={form}
+                          categories={categories}
+                          brands={brands}
+                          productLines={productLines}
+                          updateAutoSlug={updateAutoSlug}
+                          regenerateSlug={regenerateSlug}
+                        />
+                      </CardContent>
+                    </Card>
 
-                <TabsContent value="specs" className="mt-0 focus-visible:outline-none pb-8">
-                  <ProductSpecsTab
-                    form={form}
-                    specsFields={specsFields}
-                    appendSpec={appendSpec}
-                    removeSpec={removeSpec}
-                    appendSpecItem={appendSpecItem}
-                    removeSpecItem={removeSpecItem}
-                    updateAutoSlug={updateAutoSlug}
-                  />
-                </TabsContent>
+                    <Card>
+                      <CardHeader className="pb-4">
+                        <CardTitle className="text-sm font-semibold tracking-tight text-foreground">
+                          Hình ảnh sản phẩm
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent className="pt-0">
+                        <ProductGalleryTab form={form} />
+                      </CardContent>
+                    </Card>
 
-                <TabsContent value="description" className="mt-0 focus-visible:outline-none">
-                  <ProductDescriptionTab form={form} />
-                  <div className="mt-12">
-                    <ProductGalleryTab
-                      form={form}
-                    />
+                    <Card>
+                      <CardHeader className="pb-4">
+                        <CardTitle className="text-sm font-semibold tracking-tight text-foreground">
+                          Mô tả chi tiết
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent className="pt-0">
+                        <ProductDescriptionTab form={form} />
+                      </CardContent>
+                    </Card>
+
+                    <Card id="product-variants-card">
+                      <CardHeader className="pb-4">
+                        <CardTitle className="text-sm font-semibold tracking-tight text-foreground">
+                          Tùy chọn &amp; Biến thể
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent className="pt-0">
+                        <ProductVariantsTab
+                          form={form}
+                          optionsFields={optionsFields}
+                          appendOption={appendOption}
+                          removeOption={removeOption}
+                          variantsFields={variantsFields}
+                          appendVariant={appendVariant}
+                          removeVariant={removeVariant}
+                        />
+                      </CardContent>
+                    </Card>
+
+                    <Card>
+                      <CardHeader className="pb-4">
+                        <CardTitle className="text-sm font-semibold tracking-tight text-foreground">
+                          Thông số kỹ thuật
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent className="pt-0">
+                        <ProductSpecsTab form={form} attributeDefinitions={attributeDefinitions} />
+                      </CardContent>
+                    </Card>
                   </div>
-                </TabsContent>
+
+                  {/* Secondary column — glanceable, set-once concerns */}
+                  <div className="flex flex-col gap-6 min-w-0 md:sticky md:top-0">
+                    <Card>
+                      <CardHeader className="pb-4">
+                        <CardTitle className="text-sm font-semibold tracking-tight text-foreground">
+                          Trạng thái
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent className="pt-0">
+                        <ProductStatusCard form={form} />
+                      </CardContent>
+                    </Card>
+
+                    <Card>
+                      <CardHeader className="pb-4">
+                        <CardTitle className="text-sm font-semibold tracking-tight text-foreground">
+                          Phân loại
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent className="pt-0">
+                        <ProductOrganizationCard
+                          form={form}
+                          groups={groups}
+                          categories={categories}
+                          brands={brands}
+                          productLines={productLines}
+                        />
+                      </CardContent>
+                    </Card>
+
+                    <Card>
+                      <CardHeader className="pb-4">
+                        <CardTitle className="text-sm font-semibold tracking-tight text-foreground">
+                          Bảo hành
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent className="pt-0">
+                        <ProductWarrantyCard form={form} />
+                      </CardContent>
+                    </Card>
+
+                    <Card>
+                      <CardHeader className="pb-4">
+                        <CardTitle className="text-sm font-semibold tracking-tight text-foreground">SEO</CardTitle>
+                      </CardHeader>
+                      <CardContent className="pt-0">
+                        <ProductSeoCard form={form} />
+                      </CardContent>
+                    </Card>
+                  </div>
+                </div>
               </div>
 
               <div className="flex justify-end gap-3 p-6 border-t bg-background sticky bottom-0 z-20">
@@ -415,7 +582,7 @@ export function ProductManagement() {
               </div>
             </form>
           </div>
-        </Tabs>
+        </div>
       </AdminDialog>
 
       <DeleteDialog

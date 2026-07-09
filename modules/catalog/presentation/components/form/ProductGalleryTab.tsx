@@ -1,7 +1,6 @@
 "use client";
 
 import { Button } from "@/shared/components/ui/button";
-import { FieldLegend, FieldSet } from "@/shared/components/ui/field";
 import { ImageUpload } from "@/shared/components/ui/image-upload";
 import { Input } from "@/shared/components/ui/input";
 import { X } from "@phosphor-icons/react";
@@ -16,11 +15,7 @@ interface ProductGalleryTabProps {
 
 export function ProductGalleryTab({ form }: ProductGalleryTabProps) {
   return (
-    <FieldSet>
-      <div className="flex items-center justify-between mb-4">
-        <FieldLegend>Upload ảnh</FieldLegend>
-      </div>
-
+    <>
       <Controller
         control={form.control}
         name="images"
@@ -94,6 +89,6 @@ export function ProductGalleryTab({ form }: ProductGalleryTabProps) {
           );
         }}
       />
-    </FieldSet>
+    </>
   );
 }

@@ -1,3 +1,4 @@
+import type { ProductVariant } from "./types";
 
 export function roundPrice(price: number | null | undefined): number {
   if (!price || price <= 0) return 0;
@@ -17,38 +18,29 @@ export function formatPrice(price: number | null | undefined): string {
   }).format(rounded);
 }
 
-export function normalizeProductPrice(
-  originalPriceInput: number | null | undefined,
-  salePriceInput: number | null | undefined,
-  discountPercentInput: number | null | undefined,
-): { originalPrice: number; salePrice: number; discountPercent: number } {
-  const originalPrice = originalPriceInput || 0;
-  let salePrice = salePriceInput || 0;
-  let discountPercent = discountPercentInput || 0;
+// display_price is the write-time-computed cache (see
+// elc-go/docs/product-v2-design.md) reflecting the product's default
+// variant — always populated in practice, since every product has >=1
+// variant (Product itself carries no price of its own, see the Product doc
+// comment in domain/types.ts).
+export function resolveProductDisplayPrice(product: {
+  displayPrice?: number | null;
+}): number {
+  return product.displayPrice ?? 0;
+}
 
-  // Case 1: If salePrice is missing or equal to original, but we have a discountPercent
-  if (
-    (salePrice === 0 || salePrice >= originalPrice) &&
-    discountPercent > 0 &&
-    originalPrice > 0
-  ) {
-    salePrice = Math.round(originalPrice * (1 - discountPercent / 100));
-  }
-  // Case 2: If we have a salePrice that is lower than original, calculate accurate percent
-  else if (salePrice > 0 && originalPrice > salePrice) {
-    discountPercent = Math.round(
-      ((originalPrice - salePrice) / originalPrice) * 100,
-    );
-  }
-  // Case 3: If they are equal and no discount, ensure percent is 0
-  else if (salePrice === originalPrice || salePrice === 0) {
-    discountPercent = 0;
-    salePrice = originalPrice;
-  }
-
-  return {
-    originalPrice,
-    salePrice,
-    discountPercent,
-  };
+// Finds the variant that display_price/display_stock_status were computed
+// from — needed by callers that display raw variant fields (mpn/sku/gtin)
+// rather than the pre-computed display_* cache. Falls back to the first
+// variant if defaultVariantId is unset (shouldn't happen for a real
+// product, but defensive for a not-yet-saved form state).
+export function resolveDefaultVariant(product: {
+  defaultVariantId?: string | null;
+  variants?: ProductVariant[];
+}): ProductVariant | undefined {
+  if (!product.variants || product.variants.length === 0) return undefined;
+  return (
+    product.variants.find((v) => v.id === product.defaultVariantId) ??
+    product.variants[0]
+  );
 }

@@ -9,40 +9,42 @@ import { convertToWebP } from "@/shared/lib/image";
 import { uploadImageFile } from "@/shared/lib/upload-image";
 import { generateSlug } from "@/shared/lib/helpers";
 
-import { createProductSchema, ProductWithRelations, STOCK_STATUS, PRODUCT_CONDITION, SpecItem, SpecSubItem, CreateProductInput, UpdateProductInput } from "../../domain";
+import { createProductSchema, ProductWithRelations, VARIANT_STOCK_STATUS, PRODUCT_CONDITION, CreateProductInput, UpdateProductInput } from "../../domain";
 import { createProductAction, updateProductAction } from "../actions";
 
+// specs stays an opaque passthrough — the old free-text spec editor is
+// retired (see ProductSpecsTab.tsx, now driven by attributeDefinitions
+// instead), but a product's existing legacy specs blob is still preserved
+// untouched via form.reset on edit (never re-rendered/re-edited by this UI).
 export type ProductFormValues = Omit<
   z.infer<typeof createProductSchema>,
   "description" | "specs"
 > & {
   description: unknown;
-  specs: SpecItem[];
+  specs: unknown;
 };
 
-
-
-export const AC_TEMPLATE: SpecItem[] = [
-  { label: "Công nghệ Inverter", value: "" },
-  {
-    label: "Công suất làm lạnh",
-    items: [
-      { label: "", value: "", unit: "HP" },
-      { label: "", value: "", unit: "kW" },
-      { label: "", value: "", unit: "BTU" },
-    ],
-  },
-  {
-    label: "Công suất sưởi",
-    items: [
-      { label: "", value: "", unit: "HP" },
-      { label: "", value: "", unit: "kW" },
-      { label: "", value: "", unit: "BTU" },
-    ],
-  },
-  { label: "Điện năng tiêu thụ", value: "" },
-  { label: "Phạm vi làm lạnh hiệu quả", value: "" },
-];
+// The single default variant every new product form starts with — see the
+// Product doc comment in domain/types.ts. Kept blank/mpn-empty; the admin
+// fills it in via ProductIdentityCard's flat fields (bound to variants.0.*)
+// exactly like the old flat sku/mpn/price fields used to work.
+export const DEFAULT_VARIANT: ProductFormValues["variants"][number] = {
+  mpn: "",
+  sku: "",
+  gtin: "",
+  isDefault: true,
+  isComponentOnly: false,
+  stockStatus: VARIANT_STOCK_STATUS.IN_STOCK,
+  leadTimeDays: null,
+  originalPrice: 0,
+  salePrice: null,
+  discountPercent: 0,
+  weight: null,
+  isActive: true,
+  orderIndex: 0,
+  optionSelections: [],
+  components: [],
+};
 
 export function useProductForm(
   activeProduct: ProductWithRelations | "new" | null,
@@ -56,12 +58,7 @@ export function useProductForm(
     defaultValues: {
       name: "",
       slug: "",
-      sku: "",
-      shortDescription: "",
       description: "",
-      originalPrice: 0,
-      salePrice: 0,
-      discountPercent: 0,
       images: [],
       labels: [],
       isFeatured: false,
@@ -69,39 +66,47 @@ export function useProductForm(
       orderIndex: 0,
       categoryId: "",
       brandId: "",
-      stockStatus: STOCK_STATUS.IN_STOCK,
       condition: PRODUCT_CONDITION.NEW,
-      mpn: "",
-      gtin: "",
       metaTitle: "",
       metaDescription: "",
-      specs: AC_TEMPLATE,
+      specs: {},
       tagIds: [],
+      productLineId: null,
+      warrantyMonths: null,
+      warrantyTerms: "",
+      options: [],
+      attributeValues: [],
+      // Every product needs >=1 variant (the Go backend rejects zero — see
+      // elc-go's domain.Product doc comment). This default variant is what
+      // ProductIdentityCard's flat sku/mpn/gtin/price/stock fields actually
+      // bind to (variants.0.*) for the common "no real options" case —
+      // see ProductIdentityCard.tsx.
+      variants: [DEFAULT_VARIANT],
     },
   });
 
+  // options/variants — nested manipulation (option values, variant
+  // option-selections/components) is handled inline in ProductVariantsTab
+  // via form.getValues/setValue; ProductSpecsTab.tsx manages attributeValues
+  // similarly (no separate useFieldArray needed there — see its own
+  // "sync during render" comment).
   const {
-    fields: specsFields,
-    append: appendSpec,
-    remove: removeSpec,
+    fields: optionsFields,
+    append: appendOption,
+    remove: removeOption,
   } = useFieldArray({
     control: form.control,
-    name: "specs",
+    name: "options",
   });
 
-  const appendSpecItem = (index: number, item: SpecSubItem) => {
-    const currentSpecs = form.getValues("specs");
-    const currentItems = currentSpecs[index].items || [];
-    form.setValue(`specs.${index}.items`, [...currentItems, item]);
-  };
-
-  const removeSpecItem = (specIndex: number, itemIndex: number) => {
-    const currentSpecs = form.getValues("specs");
-    const currentItems = currentSpecs[specIndex].items || [];
-    const nextItems = [...currentItems];
-    nextItems.splice(itemIndex, 1);
-    form.setValue(`specs.${specIndex}.items`, nextItems);
-  };
+  const {
+    fields: variantsFields,
+    append: appendVariant,
+    remove: removeVariant,
+  } = useFieldArray({
+    control: form.control,
+    name: "variants",
+  });
 
   const saveMutation = useMutation({
     mutationFn: async (values: ProductFormValues) => {
@@ -126,17 +131,32 @@ export function useProductForm(
     },
   });
 
-  const updateAutoSlug = (
-    name: string,
-    mpn: string,
-  ) => {
-    // Formula: slug(name) + "-" + slug(mpn)
+  // Formula: slug(name) + "-" + slug(mpn)
+  const computeSlug = (name: string, mpn: string): string => {
     const parts: string[] = [];
     if (name) parts.push(generateSlug(name));
     if (mpn) parts.push(generateSlug(mpn));
+    return parts.join("-").trim();
+  };
 
-    const finalSlug = parts.join("-").trim();
+  // Auto-follows name/MPN only while creating a brand-new product, where
+  // there's no live URL yet to break. Once a product exists, silently
+  // rewriting its slug on every later name edit would change the URL a
+  // customer/search-engine may already have — see regenerateSlug for the
+  // explicit, confirmed edit-mode equivalent (ProductIdentityCard.tsx).
+  const updateAutoSlug = (name: string, mpn: string) => {
+    if (activeProduct !== "new") return;
+    const finalSlug = computeSlug(name, mpn);
+    if (finalSlug) {
+      form.setValue("slug", finalSlug);
+    }
+  };
 
+  const regenerateSlug = () => {
+    const finalSlug = computeSlug(
+      form.getValues("name"),
+      form.getValues("variants.0.mpn") || ""
+    );
     if (finalSlug) {
       form.setValue("slug", finalSlug);
     }
@@ -168,13 +188,15 @@ export function useProductForm(
 
   return {
     form,
-    specsFields,
-    appendSpec,
-    removeSpec,
-    appendSpecItem,
-    removeSpecItem,
+    optionsFields,
+    appendOption,
+    removeOption,
+    variantsFields,
+    appendVariant,
+    removeVariant,
     saveMutation,
     updateAutoSlug,
+    regenerateSlug,
     handleUpload,
     uploading,
   };
