@@ -39,13 +39,9 @@ import {
 } from "@/shared/components/ui/typography";
 import { cn, formatCurrency } from "@/shared/lib/utils";
 import { cacheLife, cacheTag } from "next/cache";
-import { localizeRichText } from "@/shared/lib/seo-utils";
-
-import { District } from "@/shared/lib/districts";
 
 interface ServiceDetailModuleProps {
   service: ServiceWithRelations;
-  location?: District;
 }
 
 const STYLES = {
@@ -84,27 +80,8 @@ const STYLES = {
 
 function getFallbackServiceFaq(
   service: ServiceWithRelations,
-  location?: District,
 ): Array<{ question: string; answer: string }> {
   const title = service.title;
-  const locName = location?.name || "TPHCM";
-
-  if (location) {
-    return [
-      {
-        question: `Dịch vụ ${title} có được thực hiện tại ${locName} không?`,
-        answer: `Có, Điện máy ELC triển khai dịch vụ ${title} trực tiếp tại ${locName} bởi đội ngũ kỹ thuật viên giàu kinh nghiệm, được đào tạo bài bản đảm bảo chất lượng tốt nhất.`,
-      },
-      {
-        question: `Chi phí ${title} tại ${locName} là bao nhiêu?`,
-        answer: `Chi phí cụ thể phụ thuộc vào yêu cầu thực tế. Quý khách tại ${locName} có thể liên hệ hotline để nhận báo giá chính xác, minh bạch trước khi thực hiện.`,
-      },
-      {
-        question: `Sau khi sử dụng dịch vụ ${title} tại ${locName}, có được hỗ trợ bảo hành không?`,
-        answer: `Điện máy ELC cam kết hỗ trợ bảo hành sau dịch vụ tại ${locName}. Nếu phát sinh sự cố sau thi công, đội ngũ kỹ thuật sẽ xử lý nhanh chóng và trách nhiệm.`,
-      },
-    ];
-  }
 
   return [
     {
@@ -138,7 +115,6 @@ async function getCachedServiceDetailModuleData(slug: string) {
 
 export async function ServiceDetailModule({
   service,
-  location,
 }: ServiceDetailModuleProps) {
   const { contacts, currentYear } = await getCachedServiceDetailModuleData(
     service.slug,
@@ -170,7 +146,7 @@ export async function ServiceDetailModule({
                           <AspectRatio ratio={16 / 9}>
                             <ImageWithSkeleton
                               src={img.url}
-                              alt={img.alt || (location ? `${service.title} tại ${location.name} - Điện máy ELC` : `${service.title} - Điện máy ELC`)}
+                              alt={img.alt || `${service.title} - Điện máy ELC`}
                               fill
                               className={STYLES.carouselImage}
                               priority={i === 0}
@@ -273,7 +249,7 @@ export async function ServiceDetailModule({
 
               <TabsContent value="description" className={STYLES.tabsContent}>
                 <div className={STYLES.descriptionWrapper}>
-                  <ProductDescription content={localizeRichText(service.content, location)} />
+                  <ProductDescription content={service.content} />
                 </div>
               </TabsContent>
             </Tabs>
@@ -321,7 +297,7 @@ export async function ServiceDetailModule({
 
       {/* ===== SECTION 4.5: FAQ ===== */}
       {(() => {
-        const faqList = getFallbackServiceFaq(service, location);
+        const faqList = getFallbackServiceFaq(service);
         if (faqList.length === 0) return null;
         const faqSchema = {
           "@context": "https://schema.org",

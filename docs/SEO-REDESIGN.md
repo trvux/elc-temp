@@ -13,7 +13,7 @@
 
 ### 1. ✅ `lastmod` trong sitemap luôn = "bây giờ" → Google mất niềm tin vào tín hiệu freshness
 - **File**: [app/sitemap/products.xml/route.ts](../app/sitemap/products.xml/route.ts), [posts.xml](../app/sitemap/posts.xml/route.ts), [categories.xml](../app/sitemap/categories.xml/route.ts), [pages.xml](../app/sitemap/pages.xml/route.ts), [sitemap.xml/route.ts](../app/sitemap.xml/route.ts) (index).
-- **Đã làm**: mỗi URL giờ dùng `updatedAt` thật của entity qua helper dùng chung [shared/lib/sitemap-lastmod.ts](../shared/lib/sitemap-lastmod.ts) (tự fallback về "now" chỉ khi giá trị không hợp lệ, tránh route crash). Route/entity không có khái niệm "cập nhật" (trang tĩnh, district hub) thì bỏ hẳn `<lastmod>` thay vì giả. Verify: `next build` + `next start` thật, thấy timestamp thật trong output.
+- **Đã làm**: mỗi URL giờ dùng `updatedAt` thật của entity qua helper dùng chung [shared/lib/sitemap-lastmod.ts](../shared/lib/sitemap-lastmod.ts) (tự fallback về "now" chỉ khi giá trị không hợp lệ, tránh route crash). Route/entity không có khái niệm "cập nhật" (trang tĩnh) thì bỏ hẳn `<lastmod>` thay vì giả. Verify: `next build` + `next start` thật, thấy timestamp thật trong output.
 
 ### 2. ✅ `/san-pham?brands=X` — tín hiệu tự mâu thuẫn
 - **File**: [app/(public)/san-pham/page.tsx](<../app/(public)/san-pham/page.tsx>)

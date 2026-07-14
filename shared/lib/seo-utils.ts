@@ -2,7 +2,6 @@ import { ProductWithRelations, resolveDefaultVariant, resolveProductDisplayPrice
 import { Branch } from "@/modules/branch/domain";
 import { SEOSchema, parseAddress, formatPhone, BASE_URL } from "./seo-schema";
 import type { Metadata } from "next";
-import { District } from "./districts";
 import { primaryImageUrl, imageUrls as assetImageUrls } from "./image-asset";
 
 export const SHOP_NAME = "Điện máy ELC";
@@ -44,24 +43,6 @@ export function sanitizeAndFormatTitle(title: string | null | undefined, isHomep
  */
 export function extractMainSku(sku?: string | null): string {
   return sku?.split(/[\/\+]/)[0].trim() || "";
-}
-
-export function appendLocationToTitle(title: string, location?: District): string {
-  if (!location) return title;
-  const suffix = ` | ${SHOP_NAME}`;
-  const base = title.endsWith(suffix) ? title.slice(0, -suffix.length) : title;
-  return `${base} tại ${location.name} | ${SHOP_NAME}`;
-}
-
-export function appendLocationToDescription(description: string, location?: District): string {
-  if (!location) return description;
-  if (description.endsWith("Xem ngay!")) {
-    return description.replace("Xem ngay!", `tại ${location.name}. Xem ngay!`);
-  }
-  if (description.endsWith("Click để nhận báo giá chi tiết!")) {
-    return description.replace("Click để nhận báo giá chi tiết!", `tại ${location.name}. Click để nhận báo giá chi tiết!`);
-  }
-  return `${description} Hỗ trợ nhanh tại ${location.name}.`;
 }
 
 interface AssembleMetadataOptions {
@@ -109,7 +90,6 @@ export function assembleMetadata({
  */
 export function generateProductMetadata(
   product: ProductWithRelations,
-  location?: District,
   relatedProducts?: ProductWithRelations[],
 ): Metadata {
   if (!product) return {};
@@ -177,24 +157,14 @@ export function generateProductMetadata(
     : "";
   description = `${description}${relatedSummary}`;
 
-  if (location) {
-    title = appendLocationToTitle(title, location);
-    description = appendLocationToDescription(description, location);
-  }
+  const url = `${BASE_URL}/san-pham/${product.slug}`;
 
-  const url = location
-    ? `${BASE_URL}/san-pham/${product.slug}/${location.slug}`
-    : `${BASE_URL}/san-pham/${product.slug}`;
-
-  // Location variants are near-duplicate content by design (same product, district swapped
-  // into text) — keep them crawlable so link equity flows, but out of the index so they
-  // don't compete with the parent page or trigger doorway-page quality penalties.
   return assembleMetadata({
     title,
     description,
     url,
     image: primaryImageUrl(product.images) || null,
-    noindex: location ? true : !!product.seo?.noindex,
+    noindex: !!product.seo?.noindex,
   });
 }
 
@@ -204,7 +174,6 @@ export function generateProductMetadata(
 export function generateCategoryMetadata(
   category: Record<string, unknown> | null | undefined,
   totalCount?: number,
-  location?: District,
 ): Metadata {
   if (!category) return {};
 
@@ -260,22 +229,14 @@ export function generateCategoryMetadata(
 
   title = sanitizeAndFormatTitle(title, false);
 
-  if (location) {
-    title = appendLocationToTitle(title, location);
-    description = appendLocationToDescription(description, location);
-  }
-
   const categorySlug = (category.slug || "") as string;
-  const url = location
-    ? `${BASE_URL}/san-pham/${categorySlug}/${location.slug}`
-    : `${BASE_URL}/san-pham/${categorySlug}`;
+  const url = `${BASE_URL}/san-pham/${categorySlug}`;
 
   return assembleMetadata({
     title,
     description,
     url,
     image: imageUrl,
-    noindex: !!location,
     includeTwitter: false,
   });
 }
@@ -286,7 +247,6 @@ export function generateCategoryMetadata(
 export function generateBrandMetadata(
   brand: Record<string, unknown> | null | undefined,
   category?: Record<string, unknown> | null | undefined,
-  location?: District,
 ): Metadata {
   if (!brand) return {};
 
@@ -310,25 +270,16 @@ export function generateBrandMetadata(
     metaDescription ||
     `Chuyên cung cấp ${displayName}${isAirCon ? " (Điều hòa)" : ""} chính hãng tại Điện máy ELC. Cam kết chất lượng cao, bảo hành uy tín, thi công lắp đặt chuyên nghiệp. Xem ngay!`;
 
-  let finalTitle = sanitizeAndFormatTitle(title, false);
-
-  let finalDescription = description;
-  if (location) {
-    finalTitle = appendLocationToTitle(finalTitle, location);
-    finalDescription = appendLocationToDescription(finalDescription, location);
-  }
+  const finalTitle = sanitizeAndFormatTitle(title, false);
 
   const brandSlug = (brand.slug || "") as string;
-  const url = location
-    ? `${BASE_URL}/san-pham/${brandSlug}/${location.slug}`
-    : `${BASE_URL}/san-pham/${brandSlug}`;
+  const url = `${BASE_URL}/san-pham/${brandSlug}`;
 
   return assembleMetadata({
     title: finalTitle,
-    description: finalDescription,
+    description,
     url,
     image: logo,
-    noindex: !!location,
     includeTwitter: false,
   });
 }
@@ -338,7 +289,6 @@ export function generateBrandMetadata(
  */
 export function generateServiceMetadata(
   service: Record<string, unknown> | null | undefined,
-  location?: District,
 ): Metadata {
   if (!service) return {};
 
@@ -360,31 +310,18 @@ export function generateServiceMetadata(
     || contentExcerpt 
     || `Cung cấp dịch vụ ${serviceTitle} uy tín, giá tốt tại ${SHOP_NAME}. Đội ngũ kỹ thuật tay nghề cao, thi công nhanh chóng, hỗ trợ 24/7. Click để nhận báo giá chi tiết!`;
 
-  let finalTitle = sanitizeAndFormatTitle(title, false);
-
-  let finalDescription = description;
-  if (location) {
-    finalTitle = appendLocationToTitle(finalTitle, location);
-    finalDescription = appendLocationToDescription(finalDescription, location);
-  }
+  const finalTitle = sanitizeAndFormatTitle(title, false);
 
   const serviceSlug = (service.slug || "") as string;
-  const url = location
-    ? `${BASE_URL}/dich-vu/${serviceSlug}/${location.slug}`
-    : `${BASE_URL}/dich-vu/${serviceSlug}`;
+  const url = `${BASE_URL}/dich-vu/${serviceSlug}`;
 
-  // location was previously left indexable here (robots: {index: true}) while
-  // the equivalent /san-pham/[slug]/[location] variant was noindexed — an
-  // inconsistency with the documented doorway-page policy (docs/SITEMAP.md
-  // §4: location combo pages are near-duplicate by design and must stay out
-  // of the index). Aligned with product/category/brand here.
   return assembleMetadata({
     title: finalTitle,
-    description: finalDescription,
+    description,
     url,
     image,
     ogType: "article",
-    noindex: location ? true : !!seo?.noindex,
+    noindex: !!seo?.noindex,
   });
 }
 
@@ -498,7 +435,6 @@ export function generateCollectionSchema(
       logoUrl?: string | null;
     } | null;
   }>,
-  location?: District,
   totalCount?: number,
 ) {
   if (!entity || !products || products.length === 0) return null;
@@ -539,9 +475,7 @@ export function generateCollectionSchema(
   );
   const images = collectedImageUrls.length > 0 ? collectedImageUrls : undefined;
 
-  const url = location 
-    ? `${BASE_URL}/san-pham/${entityRecord.slug}/${location.slug}`
-    : `${BASE_URL}/san-pham/${entityRecord.slug}`;
+  const url = `${BASE_URL}/san-pham/${entityRecord.slug}`;
 
   const now = new Date();
   const month = now.getMonth() + 1;
@@ -614,10 +548,8 @@ export function generateCollectionSchema(
     baseName = templates[patternIdx](cleanName, timeStr);
   }
 
-  const baseDescription = appendLocationToDescription(
-    entityDesc || `Chuyên cung cấp ${baseName} tại Điện máy ELC. Giá tốt nhất thị trường, hỗ trợ lắp đặt chuyên nghiệp, bảo hành uy tín. Xem ngay!`,
-    location
-  );
+  const baseDescription =
+    entityDesc || `Chuyên cung cấp ${baseName} tại Điện máy ELC. Giá tốt nhất thị trường, hỗ trợ lắp đặt chuyên nghiệp, bảo hành uy tín. Xem ngay!`;
 
   const brandGroups = new Map<string, string[]>();
   const hpGroups = new Map<string, string[]>();
@@ -743,7 +675,7 @@ export function generateCollectionSchema(
   return {
     "@context": "https://schema.org/",
     "@type": "Product",
-    name: location ? `${baseName} tại ${location.name}` : baseName,
+    name: baseName,
     description: richDescription,
     image: images,
     url: url,
@@ -753,18 +685,6 @@ export function generateCollectionSchema(
       highPrice: highPrice,
       priceCurrency: "VND",
       offerCount: totalCount ?? prices.length,
-      ...(location ? {
-        areaServed: [
-          {
-            "@type": "AdministrativeArea",
-            "name": location.name,
-          },
-          {
-            "@type": "AdministrativeArea",
-            "name": "Thành phố Hồ Chí Minh",
-          }
-        ]
-      } : {})
     },
     ...(additionalProperty.length > 0 ? { additionalProperty } : {}),
     "isRelatedTo": products.map((p) => {
@@ -773,14 +693,12 @@ export function generateCollectionSchema(
       const pDescVal = p.metaDescription || pRaw.meta_description || p.description;
       const pDesc = typeof pDescVal === "string" ? pDescVal.replace(/\s+/g, " ").trim() : "";
       const pSpecs = buildSpecProperties(p.specs).slice(0, 3);
-      
+
       const salePrice = p.salePrice ?? p.sale_price ?? 0;
       const originalPrice = p.originalPrice ?? p.original_price ?? 0;
       const price = salePrice || originalPrice || 0;
 
-      const pUrl = location
-        ? `${BASE_URL}/san-pham/${p.slug}/${location.slug}`
-        : `${BASE_URL}/san-pham/${p.slug}`;
+      const pUrl = `${BASE_URL}/san-pham/${p.slug}`;
 
       return {
         "@type": "Product",
@@ -946,7 +864,6 @@ export function getProductDescriptionExcerpt(
  */
 export function generateProductSchema(
   product: ProductWithRelations,
-  location?: District,
   relatedProducts?: ProductWithRelations[],
   reviewSummary?: { count: number; average: number },
 ) {
@@ -969,16 +886,14 @@ export function generateProductSchema(
   const firstSku = defaultVariant?.sku ? defaultVariant.sku.split(/[\s/]+/)[0] : "";
 
   // Reuse the smart metadata logic to get the same description
-  const metadata = generateProductMetadata(product, location, relatedProducts);
+  const metadata = generateProductMetadata(product, relatedProducts);
   const descriptionExcerpt = getProductDescriptionExcerpt(product.description, 300);
 
   const brandLogo =
     product.brand?.logoUrl ||
     (product.brand as unknown as Record<string, unknown> | undefined)?.logo_url;
 
-  const productUrl = location 
-    ? `${BASE_URL}/san-pham/${product.slug}/${location.slug}`
-    : `${BASE_URL}/san-pham/${product.slug}`;
+  const productUrl = `${BASE_URL}/san-pham/${product.slug}`;
 
   const brandName = product.brand?.name || "";
   const categoryName = product.category?.name || "Máy lạnh";
@@ -1014,11 +929,7 @@ export function generateProductSchema(
     modelVal,
   ].filter((part) => typeof part === "string" && part.trim().length > 0);
 
-  const baseProductName = `${nameParts.join(" ")} chính hãng, giá rẻ ${timeStr}`.replace(/\s+/g, " ").trim();
-
-  const productName = location
-    ? `${baseProductName} tại ${location.name}`
-    : baseProductName;
+  const productName = `${nameParts.join(" ")} chính hãng, giá rẻ ${timeStr}`.replace(/\s+/g, " ").trim();
 
   return {
     "@context": "https://schema.org/",
@@ -1104,18 +1015,6 @@ export function generateProductSchema(
         "@type": "Organization",
         name: SHOP_NAME,
       },
-      ...(location ? {
-        areaServed: [
-          {
-            "@type": "AdministrativeArea",
-            "name": location.name,
-          },
-          {
-            "@type": "AdministrativeArea",
-            "name": "Thành phố Hồ Chí Minh",
-          }
-        ]
-      } : {})
     } : undefined,
     "isRelatedTo": relatedProducts && relatedProducts.length > 0 ? relatedProducts.map((rp) => {
       const rpRaw = rp as unknown as Record<string, unknown>;
@@ -1497,13 +1396,10 @@ export function generateServiceDetailSchema(
   service: { title: string; slug: string; metaDescription?: string | null },
   branches: Branch[],
   contacts?: Array<{ type: string; value: string; isActive: boolean }>,
-  location?: District,
   reviewSummary?: { count: number; average: number },
 ) {
-  const cleanUrl = location 
-    ? `${BASE_URL}/dich-vu/${service.slug}/${location.slug}`
-    : `${BASE_URL}/dich-vu/${service.slug}`;
-  
+  const cleanUrl = `${BASE_URL}/dich-vu/${service.slug}`;
+
   const breadcrumbElements = [
     {
       "@type": "ListItem",
@@ -1525,15 +1421,6 @@ export function generateServiceDetailSchema(
     },
   ];
 
-  if (location) {
-    breadcrumbElements.push({
-      "@type": "ListItem",
-      "position": 4,
-      "name": `${service.title} tại ${location.name}`,
-      "item": cleanUrl,
-    });
-  }
-
   const breadcrumbSchema = {
     "@type": "BreadcrumbList",
     "@id": `${cleanUrl}#breadcrumb`,
@@ -1549,24 +1436,6 @@ export function generateServiceDetailSchema(
       ratingValue: reviewSummary.average,
       reviewCount: reviewSummary.count,
     };
-  }
-  if (location) {
-    serviceNode["@id"] = `${cleanUrl}#service`;
-    serviceNode.name = `${service.title} tại ${location.name}`;
-    serviceNode.url = cleanUrl;
-    if (service.metaDescription) {
-      serviceNode.description = appendLocationToDescription(service.metaDescription, location);
-    }
-    serviceNode.areaServed = [
-      {
-        "@type": "AdministrativeArea",
-        "name": location.name,
-      },
-      {
-        "@type": "AdministrativeArea",
-        "name": "Thành phố Hồ Chí Minh",
-      }
-    ];
   }
 
   return {
@@ -1645,119 +1514,5 @@ export function generateSystemPageMetadata(
     url: cleanUrl,
   });
 }
-
-interface RichTextNode {
-  type: string;
-  text?: string;
-  content?: RichTextNode[];
-  attrs?: Record<string, unknown>;
-  [key: string]: unknown;
-}
-
-function getLocalServiceBlock(location: District): RichTextNode[] {
-  const streetsMap: Record<string, string> = {
-    "quan-1": "Nguyễn Huệ, Đồng Khởi, Lê Lợi, Hàm Nghi, Trần Hưng Đạo",
-    "quan-3": "Cách Mạng Tháng Tám, Nguyễn Đình Chiểu, Điện Biên Phủ, Nam Kỳ Khởi Nghĩa, Võ Văn Tần",
-    "quan-4": "Đoàn Văn Bơ, Hoàng Diệu, Khánh Hội, Bến Vân Đồn, Tôn Đản",
-    "quan-5": "An Dương Vương, Trần Hưng Đạo, Nguyễn Trãi, Hồng Bàng, Nguyễn Tri Phương",
-    "quan-6": "Hậu Giang, Kinh Dương Vương, Võ Văn Kiệt, Minh Phụng, Bà Hom",
-    "quan-7": "Nguyễn Văn Linh, Huỳnh Tấn Phát, Nguyễn Hữu Thọ, Trần Xuân Soạn, Nguyễn Thị Thập",
-    "quan-8": "Phạm Thế Hiển, Tạ Quang Bửu, Hưng Phú, Dương Bá Trạc, Võ Văn Kiệt",
-    "quan-10": "Đường 3 Tháng 2, Lý Thường Kiệt, Thành Thái, Tô Hiến Thành, Cách Mạng Tháng Tám",
-    "quan-11": "Lạc Long Quân, Lê Đại Hành, Ba Tháng Hai, Minh Phụng, Lãnh Binh Thăng",
-    "quan-12": "Quốc Lộ 1A, Tô Ký, Nguyễn Ảnh Thủ, Lê Văn Khương, Hà Huy Giáp",
-    "go-vap": "Quang Trung, Phan Văn Trị, Nguyễn Oanh, Lê Đức Thọ, Thống Nhất, Nguyễn Kiệm, Nguyễn Văn Lượng",
-    "binh-thanh": "Điện Biên Phủ, Xô Viết Nghệ Tĩnh, Bạch Đằng, Phan Đăng Lưu, Lê Quang Định, Nơ Trang Long",
-    "phu-nhuan": "Nguyễn Văn Trỗi, Phan Xích Long, Huỳnh Văn Bánh, Lê Văn Sỹ, Phan Đăng Lưu",
-    "tan-binh": "Cộng Hòa, Trường Chinh, Lý Thường Kiệt, Phổ Quang, Hoàng Văn Thụ, Út Tịch",
-    "tan-phu": "Lũy Bán Bích, Tân Kỳ Tân Quý, Độc Lập, Nguyễn Sơn, Hòa Bình",
-    "binh-tan": "Tên Lửa, Đường Số 7, Kinh Dương Vương, Mã Lò, Ao Đôi, Hương Lộ 2",
-    "thu-duc": "Võ Văn Ngân, Kha Vạn Cân, Phạm Văn Đồng, Tô Ngọc Vân, Nguyễn Duy Trinh, Đỗ Xuân Hợp",
-    "hoc-mon": "Quốc Lộ 22, Tô Ký, Nguyễn Ảnh Thủ, Phan Văn Hớn, Bùi Văn Ngữ",
-    "cu-chi": "Tỉnh Lộ 8, Quốc Lộ 22, Tỉnh Lộ 15, Nguyễn Văn Khạ",
-    "nha-be": "Nguyễn Hữu Thọ, Huỳnh Tấn Phát, Lê Văn Lương, Nguyễn Bình",
-    "can-gio": "Rừng Sác, Duyên Hải, Thạnh Thới",
-    "binh-chanh": "Quốc Lộ 1A, Nguyễn Văn Linh, Trần Đại Nghĩa, Đinh Đức Thiện, Tỉnh Lộ 10"
-  };
-
-  const streets = streetsMap[location.slug] || "";
-  const isGoVap = location.slug === "go-vap";
-  const isQuan12 = location.slug === "quan-12";
-
-  let branchText = "";
-  if (isGoVap) {
-    branchText = "Showroom trưng bày sản phẩm & Trụ sở chính của Điện máy ELC tọa lạc tại: Số 06 Dương Quảng Hàm, Phường An Nhơn, Quận Gò Vấp, Thành phố Hồ Chí Minh. Khách hàng tại Gò Vấp có thể đến trực tiếp showroom để trải nghiệm sản phẩm thực tế hoặc gọi Hotline 0789978898 để được phục vụ nhanh chóng.";
-  } else if (isQuan12) {
-    branchText = "Kho hàng lớn của Điện máy ELC được đặt tại: 170 QL1A, Phường Tân Thới Nhất, Quận 12, Thành phố Hồ Chí Minh. Chúng tôi hỗ trợ giao nhận thiết bị, vận chuyển và thi công lắp ráp nhanh cho khách hàng tại khu vực Quận 12 từ kho hàng này.";
-  } else {
-    branchText = `Chi nhánh phục vụ khu vực này gần bạn nhất: Showroom Điện máy ELC Gò Vấp (Địa chỉ: Số 06 Dương Quảng Hàm, Phường An Nhơn, Quận Gò Vấp). Đội ngũ kỹ thuật viên lưu động chuyên trách khu vực ${location.name} luôn sẵn sàng di chuyển hỗ trợ khảo sát hiện trạng công trình và lắp đặt chỉ trong vòng 30 - 45 phút.`;
-  }
-
-  const p1 = `Điện máy ELC cung cấp dịch vụ giao hàng nhanh chóng, khảo sát và thi công lắp đặt máy lạnh chuyên nghiệp tận nơi tại tất cả các khu vực thuộc ${location.name}, đặc biệt hỗ trợ siêu tốc trên các tuyến đường trọng điểm bao gồm: ${streets}.`;
-  const p2 = branchText;
-  const p3 = `Chính sách ưu đãi đặc biệt dành riêng cho khách hàng tại khu vực ${location.name}: Miễn phí 100% công khảo sát thiết kế hệ thống điều hòa cho các căn hộ, nhà phố, văn phòng, nhà hàng và showroom. Cam kết cung cấp thiết bị chính hãng 100% và vật tư lắp đặt phụ trợ (ống đồng Thái Lan cách nhiệt, dây điện Cadivi) đạt tiêu chuẩn chất lượng cao nhất.`;
-
-  return [
-    { type: "horizontalRule" },
-    {
-      type: "heading",
-      attrs: { level: 2 },
-      content: [{ type: "text", text: `Khu vực phục vụ và chi nhánh hỗ trợ tại ${location.name}` }]
-    },
-    {
-      type: "paragraph",
-      content: [{ type: "text", text: p1 }]
-    },
-    {
-      type: "paragraph",
-      content: [{ type: "text", text: p2 }]
-    },
-    {
-      type: "paragraph",
-      content: [{ type: "text", text: p3 }]
-    }
-  ];
-}
-
-export function localizeRichText(node: unknown, location?: District): unknown {
-  if (!location || !node || typeof node !== "object") return node;
-
-  const replaceLocationTerms = (text: string): string => {
-    return text
-      .replace(/tất cả các quận huyện thuộc [^.!?]* và lân cận/gi, `khu vực ${location.name}`)
-      .replace(/toàn bộ các quận huyện thuộc [^.!?]* và lân cận/gi, `khu vực ${location.name}`)
-      .replace(/các quận huyện và lân cận/gi, `khu vực ${location.name}`)
-      .replace(/Thành phố Hồ Chí Minh/gi, location.name)
-      .replace(/TP\.HCM/gi, location.name)
-      .replace(/TPHCM/gi, location.name)
-      .replace(/Sài Gòn/gi, location.name);
-  };
-
-  const typedNode = node as RichTextNode;
-  const updatedNode = { ...typedNode };
-
-  if (typeof updatedNode.text === "string") {
-    updatedNode.text = replaceLocationTerms(updatedNode.text);
-  }
-
-  if (Array.isArray(updatedNode.content)) {
-    updatedNode.content = updatedNode.content.map((child) => 
-      localizeRichText(child, location) as RichTextNode
-    );
-  }
-
-  if (typedNode.type === "doc" && Array.isArray(updatedNode.content)) {
-    const alreadyAppended = updatedNode.content.some(
-      (child) => child.type === "heading" && 
-                 child.content?.some((t) => t.text?.includes("Khu vực phục vụ và chi nhánh"))
-    );
-    if (!alreadyAppended) {
-      updatedNode.content = [...updatedNode.content, ...getLocalServiceBlock(location)];
-    }
-  }
-
-  return updatedNode;
-}
-
 
 

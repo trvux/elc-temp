@@ -6,7 +6,7 @@ This file provides context and instructions for AI agents to continue the bulk i
 
 Google Indexing API has been configured for the website `https://dienmayelc.com.vn` using a service account.
 - Service Account Key: Saved at `service-account.json` in the root directory.
-- Primary URLs to Index: Saved at `scratch/urls-to-index.txt`. (Filtered to exclude district combinations to avoid doorway page penalties).
+- Primary URLs to Index: Saved at `scratch/urls-to-index.txt`.
 - Daily Indexing Limit: ~200 URLs per day (imposed by Google API).
 
 ## Agent Instructions for 'indexing url tiep theo di'
@@ -36,7 +36,7 @@ If the website sitemap has changed and you need to rebuild the list of primary U
    ```bash
    npx tsx scratch/generate-urls.ts
    ```
-2. This will re-fetch the online sitemap, filter out district-specific pages, and output a fresh list to `scratch/urls-to-index.txt`.
+2. This will re-fetch the online sitemap and output a fresh list to `scratch/urls-to-index.txt`.
    WARNING: Running this script will completely overwrite `scratch/urls-to-index.txt` and reset any current indexing progress. Do NOT run this unless you intend to restart the indexing from scratch.
 
 ## Run History and Current Status

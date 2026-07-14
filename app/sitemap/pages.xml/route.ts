@@ -2,7 +2,6 @@ import { NextResponse, connection } from 'next/server';
 import { getPagesAction } from '@/modules/page/presentation/actions';
 import { getServicesAction } from '@/modules/service/presentation/actions';
 import { getBranchesAction } from '@/modules/branch/presentation/actions';
-import { DISTRICTS } from '@/shared/lib/districts';
 import { toSitemapLastmod } from '@/shared/lib/sitemap-lastmod';
 import { BASE_URL } from '@/shared/lib/seo-schema';
 
@@ -50,22 +49,11 @@ export async function GET() {
       lastmod: b.updatedAt,
     }));
 
-  const serviceHubDistrictRoutes = DISTRICTS.map((dist) => ({
-    url: `${BASE_URL}/dich-vu/${dist.slug}`,
-    lastmod: undefined as string | undefined,
-  }));
-
-  // serviceLocationRoutes (`/dich-vu/[slug]/[location]`) intentionally excluded —
-  // these are noindex,follow doorway-style pages, see docs/SITEMAP.md §4.
-  // Submitting noindex URLs in a sitemap wastes crawl budget on pages Google
-  // is explicitly told not to index.
-
   const allRoutes = [
     ...staticRoutes,
     ...pageRoutes,
     ...serviceRoutes,
     ...branchRoutes,
-    ...serviceHubDistrictRoutes,
   ];
 
   const xml = `<?xml version="1.0" encoding="UTF-8"?>

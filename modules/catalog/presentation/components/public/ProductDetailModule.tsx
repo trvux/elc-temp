@@ -41,12 +41,10 @@ import {
   TypographyLarge,
   TypographySmall,
 } from "@/shared/components/ui/typography";
-import { District } from "@/shared/lib/districts";
 import {
   BASE_URL,
   generateBreadcrumbSchema,
   generateProductSchema,
-  localizeRichText,
 } from "@/shared/lib/seo-utils";
 import { cn } from "@/shared/lib/utils";
 import { primaryImageUrl } from "@/shared/lib/image-asset";
@@ -117,33 +115,14 @@ const STYLES = {
 
 function getFallbackProductFaq(
   product: ProductWithRelations,
-  location?: District,
 ): Array<{ question: string; answer: string }> {
   const name = product.name;
   const brand = product.brand?.name || "hãng";
-  const locName = location?.name || "TPHCM";
   // Prefer the real warranty period the admin entered (ProductWarrantyCard)
   // over generic copy — falls back to the old vague wording when unset.
   const warrantyLine = product.warrantyMonths
     ? `bảo hành chính hãng ${product.warrantyMonths} tháng`
     : "bảo hành chính hãng";
-
-  if (location) {
-    return [
-      {
-        question: `${name} có được giao hàng và lắp đặt tận nơi tại ${locName} không?`,
-        answer: `Có, Điện máy ELC cung cấp dịch vụ giao hàng và thi công lắp đặt trọn gói chuyên nghiệp tại ${locName} bởi đội ngũ kỹ thuật viên giàu kinh nghiệm, đảm bảo máy vận hành tốt nhất ngay từ ngày đầu sử dụng.`,
-      },
-      {
-        question: `Chính sách bảo hành ${name} tại ${locName} như thế nào?`,
-        answer: `Sản phẩm được ${warrantyLine} theo đúng quy định của ${brand}. Điện máy ELC hỗ trợ tiếp nhận và xử lý bảo hành nhanh chóng tại ${locName} giúp khách hàng an tâm sau khi mua.`,
-      },
-      {
-        question: `Mua ${name} tại ${locName} có được giá tốt nhất không?`,
-        answer: `Điện máy ELC cam kết bán đúng giá niêm yết, không phụ thu. Quý khách tại ${locName} có thể liên hệ hotline để được tư vấn báo giá chi tiết và các chương trình khuyến mãi ưu đãi hàng tháng.`,
-      },
-    ];
-  }
 
   return [
     {
@@ -177,10 +156,8 @@ async function getCachedProductDetailData(productSlug: string) {
 
 export async function ProductDetailModule({
   product,
-  location,
 }: {
   product: ProductWithRelations;
-  location?: District;
 }) {
   const { contacts, currentYear } = await getCachedProductDetailData(
     product.slug,
@@ -259,12 +236,10 @@ export async function ProductDetailModule({
   const productWithRelations = product;
   const relatedProducts = await getCachedRelatedProducts(product.categoryId, product.id, product.brandId);
   const { data: reviewSummary } = await getReviewSummaryAction({ productId: product.id });
-  const jsonLd = generateProductSchema(productWithRelations, location, relatedProducts, reviewSummary);
-  const faqList = getFallbackProductFaq(product, location);
+  const jsonLd = generateProductSchema(productWithRelations, relatedProducts, reviewSummary);
+  const faqList = getFallbackProductFaq(product);
 
-  const productUrl = location
-    ? `${BASE_URL}/san-pham/${product.slug}/${location.slug}`
-    : `${BASE_URL}/san-pham/${product.slug}`;
+  const productUrl = `${BASE_URL}/san-pham/${product.slug}`;
   const breadcrumbSchema = generateBreadcrumbSchema(
     [
       { label: "Sản phẩm", href: "/san-pham" },
@@ -334,9 +309,7 @@ export async function ProductDetailModule({
                               src={img.url}
                               alt={
                                 img.alt ||
-                                (location
-                                  ? `${product.name} ${defaultVariant?.sku ? `(${defaultVariant.sku})` : ""} tại ${location.name} - ${product.brand?.name || "ELC"} - Điện máy ELC`
-                                  : `${product.name} ${defaultVariant?.sku ? `(${defaultVariant.sku})` : ""} - ${product.brand?.name || "ELC"} - Điện máy ELC`)
+                                `${product.name} ${defaultVariant?.sku ? `(${defaultVariant.sku})` : ""} - ${product.brand?.name || "ELC"} - Điện máy ELC`
                               }
                               fill
                               className={STYLES.carouselImage}
@@ -508,7 +481,7 @@ export async function ProductDetailModule({
               <TabsContent value="description" forceMount className={cn(STYLES.tabsContent, "data-[state=inactive]:hidden")}>
                 <div className={STYLES.descriptionWrapper}>
                   <ProductDescription
-                    content={localizeRichText(product.description, location)}
+                    content={product.description}
                     fallbackAlt={product.name}
                   />
                 </div>
