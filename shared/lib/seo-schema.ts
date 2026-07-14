@@ -48,9 +48,6 @@ export interface ProductCategoryInput {
   name: string;
   slug: string;
   metaDescription?: string | null;
-  lowPrice?: number;
-  highPrice?: number;
-  offerCount?: number;
 }
 
 export interface BranchInput {
@@ -235,14 +232,6 @@ export const SEOSchema = {
   },
 
   getProductCategory(cat: ProductCategoryInput) {
-    const defaultLowPrice = 5000000;
-    const defaultHighPrice = 80000000;
-    const defaultCount = 10;
-
-    const lowPrice = cat.lowPrice && cat.lowPrice > 0 ? cat.lowPrice : defaultLowPrice;
-    const highPrice = cat.highPrice && cat.highPrice > 0 ? cat.highPrice : defaultHighPrice;
-    const offerCount = cat.offerCount && cat.offerCount > 0 ? cat.offerCount : defaultCount;
-
     return {
       "@type": "Product",
       "@id": `${BASE_URL}/san-pham/${cat.slug}#product`,
@@ -252,13 +241,6 @@ export const SEOSchema = {
         "@type": "Brand",
         "name": "Điện máy ELC",
       },
-      "offers": {
-        "@type": "AggregateOffer",
-        "priceCurrency": "VND",
-        "lowPrice": lowPrice,
-        "highPrice": highPrice,
-        "offerCount": offerCount
-      }
     };
   }
 };

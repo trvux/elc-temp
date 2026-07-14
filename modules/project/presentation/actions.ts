@@ -40,9 +40,6 @@ interface GoProjectCategoryResponse {
   group_id: string | null;
   condition: "new" | "used";
   group: GoCategoryGroupRefResponse | null;
-  low_price: number;
-  high_price: number;
-  offer_count: number;
 }
 
 interface GoProjectServiceResponse {
@@ -157,9 +154,6 @@ function mapGoProject(row: GoProjectResponse): ProjectWithCategory {
       groupId: c.group_id,
       group: c.group ? { id: c.group.id, name: c.group.name } : null,
       condition: c.condition,
-      lowPrice: c.low_price,
-      highPrice: c.high_price,
-      offerCount: c.offer_count,
     })),
     tags: row.tags ?? [],
   };
@@ -274,16 +268,16 @@ export async function getProjectByIdAction(id: string) {
   }
 }
 
-// resolveProjectDetailAction fetches a project WITH pricing (lowPrice/
-// highPrice/offerCount per category) — used only by the public project
-// detail page, replacing the old infrastructure/resolveProjectPath.ts's
-// "project" branch. See modules/project/presentation/resolveProjectPath.ts.
+// resolveProjectDetailAction fetches a project by slug — used only by the
+// public project detail page, replacing the old infrastructure/
+// resolveProjectPath.ts's "project" branch. See
+// modules/project/presentation/resolveProjectPath.ts.
 export async function resolveProjectDetailAction(slug: string) {
   if (!GO_API_URL) {
     return { data: null, error: null };
   }
   try {
-    const res = await fetch(`${GO_API_URL}/projects/slug/${slug}?with_pricing=true`, { cache: "no-store" });
+    const res = await fetch(`${GO_API_URL}/projects/slug/${slug}`, { cache: "no-store" });
     if (res.status === 404) {
       return { data: null, error: null };
     }
