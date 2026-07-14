@@ -1361,14 +1361,11 @@ export interface ProjectDetailSchemaInput {
   createdAt?: string;
   updatedAt?: string;
   services?: Array<{ id: string; title: string; slug: string }>;
-  categories?: Array<{ 
-    id: string; 
-    name: string; 
-    slug: string; 
+  categories?: Array<{
+    id: string;
+    name: string;
+    slug: string;
     condition?: "new" | "used";
-    lowPrice?: number;
-    highPrice?: number;
-    offerCount?: number;
   }>;
   projectType?: {
     id: string;
@@ -1410,25 +1407,8 @@ export function generateProjectDetailSchema(
     "subjectOf": { "@id": articleId }
   }));
 
-  const catLowPrices = (project.categories || [])
-    .map((c) => c.lowPrice || 0)
-    .filter((p) => p > 0);
-  const catHighPrices = (project.categories || [])
-    .map((c) => c.highPrice || 0)
-    .filter((p) => p > 0);
-
-  const absoluteLow = catLowPrices.length > 0 ? Math.min(...catLowPrices) : 5000000;
-  const absoluteHigh = catHighPrices.length > 0 ? Math.max(...catHighPrices) : 80000000;
-  const totalOfferCount = (project.categories || [])
-    .reduce((sum, c) => sum + (c.offerCount || 0), 0) || 10;
-
   const categoryAbouts = (project.categories || []).map((cat) => ({
-    ...SEOSchema.getProductCategory({
-      ...cat,
-      lowPrice: absoluteLow,
-      highPrice: absoluteHigh,
-      offerCount: totalOfferCount
-    }),
+    ...SEOSchema.getProductCategory(cat),
     "subjectOf": { "@id": articleId }
   }));
 
