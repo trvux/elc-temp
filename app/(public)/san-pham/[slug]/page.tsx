@@ -41,7 +41,7 @@ export async function generateMetadata(
       const product = resolved.data;
       const currentHp = extractProductHp(product);
       const relatedProducts = await getCachedRelatedProducts(product.categoryId, product.id, product.brandId, currentHp);
-      const seoMetadata = generateProductMetadata(product, undefined, relatedProducts);
+      const seoMetadata = generateProductMetadata(product, relatedProducts);
       const ogImages = seoMetadata.openGraph?.images;
       const seoImages = Array.isArray(ogImages) ? ogImages : ogImages ? [ogImages] : [];
       return {

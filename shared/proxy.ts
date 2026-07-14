@@ -4,14 +4,6 @@ import redirectsMap from "./redirects-map.json";
 
 const WP_PREFIXES = ["/product/", "/category/", "/shop/", "/tag/", "/author/", "/wp-content/", "/danh-muc/"];
 
-// Inline từ shared/lib/districts.ts — tránh import trong edge runtime
-const DISTRICT_SLUGS = new Set([
-  "quan-1", "quan-3", "quan-4", "quan-5", "quan-6", "quan-7", "quan-8",
-  "quan-10", "quan-11", "quan-12", "go-vap", "binh-thanh", "phu-nhuan",
-  "tan-binh", "tan-phu", "binh-tan", "thu-duc", "hoc-mon", "cu-chi",
-  "nha-be", "can-gio", "binh-chanh",
-]);
-
 function normalizePath(rawPath: string): string {
   let p = rawPath.trim();
   if (p.length > 1 && p.endsWith("/")) {
@@ -57,8 +49,8 @@ export async function proxy(request: NextRequest) {
       // /san-pham/{cat}/{brand}/{product} → /san-pham/{product}
       return NextResponse.redirect(new URL(`/san-pham/${parts[parts.length - 1]}`, request.url), 308);
     }
-    if (parts.length === 3 && !DISTRICT_SLUGS.has(parts[2])) {
-      // /san-pham/{cat}/{product} mà {product} không phải quận → /san-pham/{product}
+    if (parts.length === 3) {
+      // /san-pham/{cat}/{product} → /san-pham/{product}
       return NextResponse.redirect(new URL(`/san-pham/${parts[2]}`, request.url), 308);
     }
   }

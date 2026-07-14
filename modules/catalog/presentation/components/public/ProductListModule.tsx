@@ -36,7 +36,6 @@ import {
   BASE_URL,
   generateBreadcrumbSchema,
   generateCollectionSchema,
-  localizeRichText,
 } from "@/shared/lib/seo-utils";
 import { cn } from "@/shared/lib/utils";
 import { cacheLife, cacheTag } from "next/cache";
@@ -44,7 +43,6 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 
 import { GridSection } from "@/shared/components/sections/grid-section";
-import { District } from "@/shared/lib/districts";
 import { ImageWithSkeleton } from "@/shared/components/ui/image-with-skeleton";
 import { matchNewsByEntityName } from "@/shared/lib/content-relevance";
 import { getNewsAction } from "@/modules/news/presentation/actions";
@@ -52,7 +50,6 @@ import { getNewsAction } from "@/modules/news/presentation/actions";
 interface ProductListModuleProps {
   entity: ResolvedEntity;
   searchParams: { [key: string]: string | string[] | undefined };
-  location?: District;
 }
 
 const STYLES = {
@@ -143,8 +140,8 @@ async function getCachedListModuleData(
 
 // "Bài viết liên quan" — cheap reverse of the same name-substring match used on the
 // news article page (shared/lib/content-relevance.ts). Only meaningful for
-// category/group entities: brand and district-location names essentially never
-// appear verbatim in article titles, so we don't bother fetching for those.
+// category/group entities: brand names essentially never appear verbatim in
+// article titles, so we don't bother fetching for those.
 async function getCachedRelatedNews(entityName: string) {
   "use cache";
   cacheLife("hours");
@@ -154,28 +151,26 @@ async function getCachedRelatedNews(entityName: string) {
   return matchNewsByEntityName(entityName, allNews ?? [], 3);
 }
 
-function getFallbackContent(entity: ResolvedEntity, location?: District) {
+function getFallbackContent(entity: ResolvedEntity) {
   if (!entity || entity.type === "product") return null;
 
   const name = entity.data.name;
-  const locSuffix = location ? ` tại ${location.name}` : "";
-  const locInText = location ? ` tại khu vực ${location.name}` : "";
   let title = name;
   let p1 = "";
   let p2 = "";
 
   if (entity.type === "category") {
-    title = `Tìm hiểu về ${name} chính hãng${locSuffix}`;
-    p1 = `${name} chính hãng${locSuffix} là giải pháp điều hòa không khí hiện đại, được thiết kế tối ưu để mang lại bầu không khí trong lành, mát mẻ cho mọi không gian sống và làm việc${locInText}. Với các tính năng vượt trội như công nghệ tiết kiệm điện năng Inverter, màng lọc kháng khuẩn khử mùi tiên tiến và cơ chế vận hành êm ái, dòng sản phẩm này đang là sự lựa chọn hàng đầu của người tiêu dùng. Điện máy ELC tự hào phân phối các dòng máy chính hãng từ các thương hiệu lớn với chính sách hỗ trợ kỹ thuật và bảo hành chuyên nghiệp.`;
-    p2 = `Khi chọn mua ${name.toLowerCase()}${locSuffix}, quý khách hàng cần lưu ý các yếu tố quan trọng như công suất máy (HP) phù hợp với diện tích phòng, khả năng tiết kiệm năng lượng, các tiện ích thông minh đi kèm và thương hiệu uy tín. Đội ngũ tư vấn giàu kinh nghiệm tại Điện máy ELC luôn sẵn sàng hỗ trợ quý khách khảo sát địa hình thực tế${locInText} và tư vấn giải pháp lắp đặt tối ưu nhất, đảm bảo tính thẩm mỹ, độ bền cao và hiệu suất hoạt động lâu dài cho toàn bộ hệ thống.`;
+    title = `Tìm hiểu về ${name} chính hãng`;
+    p1 = `${name} chính hãng là giải pháp điều hòa không khí hiện đại, được thiết kế tối ưu để mang lại bầu không khí trong lành, mát mẻ cho mọi không gian sống và làm việc. Với các tính năng vượt trội như công nghệ tiết kiệm điện năng Inverter, màng lọc kháng khuẩn khử mùi tiên tiến và cơ chế vận hành êm ái, dòng sản phẩm này đang là sự lựa chọn hàng đầu của người tiêu dùng. Điện máy ELC tự hào phân phối các dòng máy chính hãng từ các thương hiệu lớn với chính sách hỗ trợ kỹ thuật và bảo hành chuyên nghiệp.`;
+    p2 = `Khi chọn mua ${name.toLowerCase()}, quý khách hàng cần lưu ý các yếu tố quan trọng như công suất máy (HP) phù hợp với diện tích phòng, khả năng tiết kiệm năng lượng, các tiện ích thông minh đi kèm và thương hiệu uy tín. Đội ngũ tư vấn giàu kinh nghiệm tại Điện máy ELC luôn sẵn sàng hỗ trợ quý khách khảo sát địa hình thực tế và tư vấn giải pháp lắp đặt tối ưu nhất, đảm bảo tính thẩm mỹ, độ bền cao và hiệu suất hoạt động lâu dài cho toàn bộ hệ thống.`;
   } else if (entity.type === "brand") {
-    title = `Tìm hiểu về thương hiệu ${name}${locSuffix}`;
-    p1 = `Thương hiệu ${name} từ lâu đã khẳng định được vị thế hàng đầu trong ngành công nghiệp điện lạnh nhờ vào chất lượng sản phẩm vượt trội, độ bền cao và công nghệ tiên tiến. Các dòng sản phẩm đến từ hãng luôn đi đầu trong việc tích hợp các giải pháp thông minh, bảo vệ sức khỏe người dùng và thân thiện với môi trường. Điện máy ELC tự hào là đối tác phân phối chính thức các sản phẩm của thương hiệu này${locInText}, mang đến cho người tiêu dùng những giải pháp làm mát tối ưu và đáng tin cậy nhất.`;
-    p2 = `Quý khách hàng khi mua sắm các thiết bị của thương hiệu ${name}${locSuffix} tại Điện máy ELC sẽ được hưởng trọn vẹn chính sách bảo hành chính hãng, dịch vụ lắp đặt chuyên nghiệp và chế độ hậu mãi chu đáo. Chúng tôi cam kết cung cấp sản phẩm với mức giá cạnh tranh nhất trên thị trường, đi kèm dịch vụ khảo sát và tư vấn kỹ thuật tận nơi${locInText} từ đội ngũ chuyên viên giàu kinh nghiệm, giúp tối ưu hóa hiệu quả sử dụng và tiết kiệm tối đa chi phí cho gia đình bạn.`;
+    title = `Tìm hiểu về thương hiệu ${name}`;
+    p1 = `Thương hiệu ${name} từ lâu đã khẳng định được vị thế hàng đầu trong ngành công nghiệp điện lạnh nhờ vào chất lượng sản phẩm vượt trội, độ bền cao và công nghệ tiên tiến. Các dòng sản phẩm đến từ hãng luôn đi đầu trong việc tích hợp các giải pháp thông minh, bảo vệ sức khỏe người dùng và thân thiện với môi trường. Điện máy ELC tự hào là đối tác phân phối chính thức các sản phẩm của thương hiệu này, mang đến cho người tiêu dùng những giải pháp làm mát tối ưu và đáng tin cậy nhất.`;
+    p2 = `Quý khách hàng khi mua sắm các thiết bị của thương hiệu ${name} tại Điện máy ELC sẽ được hưởng trọn vẹn chính sách bảo hành chính hãng, dịch vụ lắp đặt chuyên nghiệp và chế độ hậu mãi chu đáo. Chúng tôi cam kết cung cấp sản phẩm với mức giá cạnh tranh nhất trên thị trường, đi kèm dịch vụ khảo sát và tư vấn kỹ thuật tận nơi từ đội ngũ chuyên viên giàu kinh nghiệm, giúp tối ưu hóa hiệu quả sử dụng và tiết kiệm tối đa chi phí cho gia đình bạn.`;
   } else if (entity.type === "group") {
-    title = `Giới thiệu giải pháp ${name}${locSuffix}`;
-    p1 = `Danh mục ${name}${locSuffix} tại Điện máy ELC tập hợp đa dạng các dòng sản phẩm làm mát từ phân khúc dân dụng đến thương mại, phục vụ mọi nhu cầu sử dụng của hộ gia đình, văn phòng và các dự án công trình quy mô lớn${locInText}. Chúng tôi luôn cập nhật những dòng máy mới nhất tích hợp công nghệ làm lạnh nhanh, công nghệ biến tần tiết kiệm điện năng và hệ thống lọc khí hiện đại giúp bảo vệ sức khỏe tối đa cho các member trong gia đình.`;
-    p2 = `Để sở hữu hệ thống ${name.toLowerCase()}${locSuffix} hoạt động hiệu quả và bền bỉ, việc khảo sát thiết kế và lắp đặt đúng tiêu chuẩn kỹ thuật đóng vai trò cực kỳ quan trọng. Đến với Điện máy ELC, quý khách hàng không chỉ nhận được sản phẩm chính hãng 100% với giá tốt nhất mà còn được trải nghiệm dịch vụ thi công trọn gói chuyên nghiệp${locInText}, chuyên sâu từ khâu đi đường ống đến vận hành chạy thử hệ thống, cam kết mang lại sự hài lòng tuyệt đối.`;
+    title = `Giới thiệu giải pháp ${name}`;
+    p1 = `Danh mục ${name} tại Điện máy ELC tập hợp đa dạng các dòng sản phẩm làm mát từ phân khúc dân dụng đến thương mại, phục vụ mọi nhu cầu sử dụng của hộ gia đình, văn phòng và các dự án công trình quy mô lớn. Chúng tôi luôn cập nhật những dòng máy mới nhất tích hợp công nghệ làm lạnh nhanh, công nghệ biến tần tiết kiệm điện năng và hệ thống lọc khí hiện đại giúp bảo vệ sức khỏe tối đa cho các member trong gia đình.`;
+    p2 = `Để sở hữu hệ thống ${name.toLowerCase()} hoạt động hiệu quả và bền bỉ, việc khảo sát thiết kế và lắp đặt đúng tiêu chuẩn kỹ thuật đóng vai trò cực kỳ quan trọng. Đến với Điện máy ELC, quý khách hàng không chỉ nhận được sản phẩm chính hãng 100% với giá tốt nhất mà còn được trải nghiệm dịch vụ thi công trọn gói chuyên nghiệp, chuyên sâu từ khâu đi đường ống đến vận hành chạy thử hệ thống, cam kết mang lại sự hài lòng tuyệt đối.`;
   }
 
   return {
@@ -215,56 +210,54 @@ function getFallbackContent(entity: ResolvedEntity, location?: District) {
 
 function getFallbackFaq(
   entity: ResolvedEntity,
-  location?: District,
 ): Array<{ question: string; answer: string }> {
   if (!entity || entity.type === "product") return [];
 
   const name = entity.data.name;
-  const locName = location?.name || "TPHCM";
 
   if (entity.type === "category") {
     return [
       {
-        question: `Có nên chọn mua ${name} chính hãng tại Điện máy ELC khu vực ${locName} không?`,
-        answer: `Có, Điện máy ELC cam kết phân phối sản phẩm chính hãng 100% kèm đầy đủ giấy tờ chứng nhận nguồn gốc xuất xứ, dịch vụ tư vấn kỹ thuật chuyên sâu và chính sách lắp đặt bảo hành uy tín nhất tại ${locName}.`,
+        question: `Có nên chọn mua ${name} chính hãng tại Điện máy ELC không?`,
+        answer: `Có, Điện máy ELC cam kết phân phối sản phẩm chính hãng 100% kèm đầy đủ giấy tờ chứng nhận nguồn gốc xuất xứ, dịch vụ tư vấn kỹ thuật chuyên sâu và chính sách lắp đặt bảo hành uy tín nhất.`,
       },
       {
-        question: `Sản phẩm ${name} có được hỗ trợ lắp đặt tận nơi tại ${locName} hay không?`,
-        answer: `Điện máy ELC cung cấp dịch vụ giao hàng và thi công lắp đặt trọn gói chuyên nghiệp tại ${locName} bởi đội ngũ kỹ thuật viên giàu kinh nghiệm, tuân thủ nghiêm ngặt quy trình kỹ thuật để đảm bảo máy vận hành tốt nhất.`,
+        question: `Sản phẩm ${name} có được hỗ trợ lắp đặt tận nơi hay không?`,
+        answer: `Điện máy ELC cung cấp dịch vụ giao hàng và thi công lắp đặt trọn gói chuyên nghiệp bởi đội ngũ kỹ thuật viên giàu kinh nghiệm, tuân thủ nghiêm ngặt quy trình kỹ thuật để đảm bảo máy vận hành tốt nhất.`,
       },
       {
         question: `Chính sách bảo hành dành cho ${name} tại Điện máy ELC như thế nào?`,
-        answer: `Tất cả sản phẩm đều được áp dụng chính sách bảo hành chính hãng theo đúng quy định của nhà sản xuất. Đồng thời, Điện máy ELC hỗ trợ kỹ thuật nhanh chóng tại ${locName} khi khách hàng gặp sự cố trong quá trình sử dụng.`,
+        answer: `Tất cả sản phẩm đều được áp dụng chính sách bảo hành chính hãng theo đúng quy định của nhà sản xuất. Đồng thời, Điện máy ELC hỗ trợ kỹ thuật nhanh chóng khi khách hàng gặp sự cố trong quá trình sử dụng.`,
       },
     ];
   } else if (entity.type === "brand") {
     return [
       {
-        question: `Sản phẩm của thương hiệu ${name} tại ${locName} dùng có tốt và bền không?`,
-        answer: `Các thiết bị của hãng nổi tiếng với độ bền vượt trội, khả năng tiết kiệm điện năng xuất sắc và tích hợp nhiều công nghệ tiên tiến nhất, mang đến hiệu suất làm mát ổn định qua nhiều năm sử dụng tại khu vực ${locName}.`,
+        question: `Sản phẩm của thương hiệu ${name} dùng có tốt và bền không?`,
+        answer: `Các thiết bị của hãng nổi tiếng với độ bền vượt trội, khả năng tiết kiệm điện năng xuất sắc và tích hợp nhiều công nghệ tiên tiến nhất, mang đến hiệu suất làm mát ổn định qua nhiều năm sử dụng.`,
       },
       {
-        question: `Điện máy ELC có phải là đại lý phân phối chính thức của ${name} tại ${locName} không?`,
-        answer: `Đúng vậy, Điện máy ELC là đối tác phân phối chính thức của thương hiệu này tại ${locName}, cam kết cung cấp sản phẩm chính hãng chất lượng cao cùng mức giá cực kỳ ưu đãi.`,
+        question: `Điện máy ELC có phải là đại lý phân phối chính thức của ${name} không?`,
+        answer: `Đúng vậy, Điện máy ELC là đối tác phân phối chính thức của thương hiệu này, cam kết cung cấp sản phẩm chính hãng chất lượng cao cùng mức giá cực kỳ ưu đãi.`,
       },
       {
-        question: `Khi mua sản phẩm ${name} thì việc bảo hành tại ${locName} sẽ được thực hiện ở đâu?`,
-        answer: `Sản phẩm sẽ được bảo hành trực tiếp tại các trung tâm bảo hành ủy quyền của hãng trên toàn quốc. Điện máy ELC cũng hỗ trợ tiếp nhận thông tin và phối hợp xử lý bảo hành nhanh nhất cho khách hàng tại ${locName}.`,
+        question: `Khi mua sản phẩm ${name} thì việc bảo hành sẽ được thực hiện ở đâu?`,
+        answer: `Sản phẩm sẽ được bảo hành trực tiếp tại các trung tâm bảo hành ủy quyền của hãng trên toàn quốc. Điện máy ELC cũng hỗ trợ tiếp nhận thông tin và phối hợp xử lý bảo hành nhanh nhất cho khách hàng.`,
       },
     ];
   } else if (entity.type === "group") {
     return [
       {
-        question: `Làm sao để lựa chọn dòng ${name} phù hợp nhất với nhu cầu sử dụng tại ${locName}?`,
-        answer: `Quý khách nên xác định diện tích không gian cần làm mát để lựa chọn công suất máy phù hợp, đồng thời cân nhắc các yếu tố như tính năng tiết kiệm điện Inverter, kiểu dáng thiết kế và ngân sách đầu tư tại ${locName}.`,
+        question: `Làm sao để lựa chọn dòng ${name} phù hợp nhất với nhu cầu sử dụng?`,
+        answer: `Quý khách nên xác định diện tích không gian cần làm mát để lựa chọn công suất máy phù hợp, đồng thời cân nhắc các yếu tố như tính năng tiết kiệm điện Inverter, kiểu dáng thiết kế và ngân sách đầu tư.`,
       },
       {
-        question: `Điện máy ELC có cung cấp đầy đủ các thương hiệu ${name} lớn tại ${locName} không?`,
-        answer: `Chúng tôi cung cấp đa dạng sản phẩm từ các hãng hàng đầu hiện nay như Daikin, Panasonic, LG, Casper, Mitsubishi và nhiều thương hiệu uy tín khác tại ${locName}, đáp ứng tối đa mọi yêu cầu từ phía khách hàng.`,
+        question: `Điện máy ELC có cung cấp đầy đủ các thương hiệu ${name} lớn không?`,
+        answer: `Chúng tôi cung cấp đa dạng sản phẩm từ các hãng hàng đầu hiện nay như Daikin, Panasonic, LG, Casper, Mitsubishi và nhiều thương hiệu uy tín khác, đáp ứng tối đa mọi yêu cầu từ phía khách hàng.`,
       },
       {
-        question: `Giá bán của các dòng ${name} tại Điện máy ELC đã bao gồm chi phí lắp đặt tại ${locName} chưa?`,
-        answer: `Giá hiển thị trên website là giá bán sản phẩm. Tùy thuộc vào vị trí và độ khó khi thi công thực tế, chi phí vật tư và nhân công lắp đặt tại ${locName} sẽ được Điện máy ELC báo giá chi tiết, minh bạch trước khi thực hiện.`,
+        question: `Giá bán của các dòng ${name} tại Điện máy ELC đã bao gồm chi phí lắp đặt chưa?`,
+        answer: `Giá hiển thị trên website là giá bán sản phẩm. Tùy thuộc vào vị trí và độ khó khi thi công thực tế, chi phí vật tư và nhân công lắp đặt sẽ được Điện máy ELC báo giá chi tiết, minh bạch trước khi thực hiện.`,
       },
     ];
   }
@@ -275,7 +268,6 @@ function getFallbackFaq(
 export async function ProductListModule({
   entity,
   searchParams,
-  location,
 }: ProductListModuleProps) {
   if (!entity || entity.type === "product") return notFound();
 
@@ -387,85 +379,14 @@ export async function ProductListModule({
     Array.isArray(typedContent.content) &&
     typedContent.content.length > 0
   );
-  const seoContent = localizeRichText(
-    hasDbContent ? dbContent : getFallbackContent(entity, location),
-    location,
-  );
+  const seoContent = hasDbContent ? dbContent : getFallbackContent(entity);
 
   const dbFaq = entity.data.faq;
   const hasDbFaq = !!(Array.isArray(dbFaq) && dbFaq.length > 0);
-  let faqList: Array<{ question: string; answer: string }> =
+  const faqList: Array<{ question: string; answer: string }> =
     hasDbFaq && dbFaq
       ? (dbFaq as unknown as Array<{ question: string; answer: string }>)
-      : getFallbackFaq(entity, location);
-
-  if (location && faqList.length > 0) {
-    faqList = faqList.map((item) => {
-      const q = item.question;
-      const a = item.answer;
-
-      const replaceLocationTerms = (text: string): string => {
-        return text
-          .replace(
-            /tất cả các quận huyện thuộc [^.!?]* và lân cận/gi,
-            `khu vực ${location.name}`,
-          )
-          .replace(
-            /toàn bộ các quận huyện thuộc [^.!?]* và lân cận/gi,
-            `khu vực ${location.name}`,
-          )
-          .replace(/các quận huyện và lân cận/gi, `khu vực ${location.name}`)
-          .replace(/Thành phố Hồ Chí Minh/gi, location.name)
-          .replace(/TP\.HCM/gi, location.name)
-          .replace(/TPHCM/gi, location.name)
-          .replace(/Sài Gòn/gi, location.name);
-      };
-
-      let newQ = replaceLocationTerms(q);
-      let newA = replaceLocationTerms(a);
-
-      if (
-        newQ === q &&
-        !newQ.toLowerCase().includes(location.name.toLowerCase())
-      ) {
-        if (newQ.toLowerCase().includes("tại điện máy elc")) {
-          newQ = newQ.replace(
-            /tại Điện máy ELC/gi,
-            `tại Điện máy ELC khu vực ${location.name}`,
-          );
-        } else if (newQ.toLowerCase().includes("chính hãng")) {
-          newQ = newQ.replace(
-            /chính hãng/gi,
-            `chính hãng tại ${location.name}`,
-          );
-        } else if (newQ.toLowerCase().includes("giao hàng")) {
-          newQ = newQ.replace(/giao hàng/gi, `giao hàng tại ${location.name}`);
-        } else if (newQ.endsWith("?")) {
-          newQ =
-            newQ.substring(0, newQ.length - 1).trim() +
-            ` tại ${location.name}?`;
-        }
-      }
-
-      if (
-        newA === a &&
-        !newA.toLowerCase().includes(location.name.toLowerCase())
-      ) {
-        if (newA.toLowerCase().includes("tại điện máy elc")) {
-          newA = newA.replace(
-            /tại Điện máy ELC/gi,
-            `tại Điện máy ELC khu vực ${location.name}`,
-          );
-        } else {
-          newA = newA.trim();
-          if (!newA.endsWith(".")) newA += ".";
-          newA += ` Điện máy ELC hỗ trợ bàn giao và lắp đặt nhanh chóng tại khu vực ${location.name}.`;
-        }
-      }
-
-      return { question: newQ, answer: newA };
-    });
-  }
+      : getFallbackFaq(entity);
 
   return (
     <main className="w-full bg-background min-h-screen public-catalog-page">
@@ -510,9 +431,7 @@ export async function ProductListModule({
               <div className="flex flex-col gap-1.5 pb-4 border-b border-border/40">
                 <TypographyH1>{displayTitle}</TypographyH1>
                 <p className="text-sm text-muted-foreground">
-                  {location
-                    ? `Giao hàng và lắp đặt chuyên nghiệp tại ${location.name}`
-                    : `Danh sách ${totalCount} sản phẩm đáp ứng tiêu chí`}
+                  {`Danh sách ${totalCount} sản phẩm đáp ứng tiêu chí`}
                 </p>
               </div>
 
@@ -641,7 +560,6 @@ export async function ProductListModule({
         const schema = generateCollectionSchema(
           entity.data,
           products,
-          location,
           totalCount,
         );
         if (!schema) return null;
@@ -655,9 +573,7 @@ export async function ProductListModule({
 
       {/* Breadcrumb schema — server-rendered so Google always sees it, see generateBreadcrumbSchema doc */}
       {(() => {
-        const currentUrl = location
-          ? `${BASE_URL}/san-pham/${entity.data.slug}/${location.slug}`
-          : `${BASE_URL}/san-pham/${entity.data.slug}`;
+        const currentUrl = `${BASE_URL}/san-pham/${entity.data.slug}`;
         const breadcrumbSchema = generateBreadcrumbSchema(
           [
             { label: "Sản phẩm", href: "/san-pham" },

@@ -2,8 +2,6 @@ import { createClient } from "@supabase/supabase-js";
 import * as dotenv from "dotenv";
 dotenv.config({ path: ".env.local" });
 
-import { DISTRICTS } from "../shared/lib/districts";
-
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.SUPABASE_SERVICE_ROLE_KEY!
@@ -24,10 +22,6 @@ async function getAllUrls(): Promise<string[]> {
     BASE_URL + "/llms.txt",
     BASE_URL + "/llms-full.txt",
   ];
-
-  for (const dist of DISTRICTS) {
-    urls.push(`${BASE_URL}/dich-vu/${dist.slug}`);
-  }
 
   const [
     { data: categories },
@@ -60,15 +54,6 @@ async function getAllUrls(): Promise<string[]> {
   for (const pt of projectTypes || []) urls.push(`${BASE_URL}/du-an/${pt.slug}`);
   for (const n of news || []) urls.push(`${BASE_URL}/tin-tuc/${n.slug}`);
   for (const pg of pages || []) urls.push(`${BASE_URL}/${pg.slug}`);
-
-  // Combos with location (District) for Products, Categories, Brands, Groups, and Services
-  for (const dist of DISTRICTS) {
-    for (const c of categories || []) urls.push(`${BASE_URL}/san-pham/${c.slug}/${dist.slug}`);
-    for (const b of brands || []) urls.push(`${BASE_URL}/san-pham/${b.slug}/${dist.slug}`);
-    for (const g of groupCategories || []) urls.push(`${BASE_URL}/san-pham/${g.slug}/${dist.slug}`);
-    for (const p of products || []) urls.push(`${BASE_URL}/san-pham/${p.slug}/${dist.slug}`);
-    for (const s of services || []) urls.push(`${BASE_URL}/dich-vu/${s.slug}/${dist.slug}`);
-  }
 
   return urls;
 }

@@ -2,7 +2,6 @@ import * as dotenv from 'dotenv';
 dotenv.config({ path: '.env.local' });
 
 import sitemap from '../app/sitemap';
-import { DISTRICTS } from '../shared/lib/districts';
 import * as fs from 'fs';
 import * as path from 'path';
 
@@ -12,25 +11,7 @@ async function run() {
     const allUrls = await sitemap();
     console.log(`Generated ${allUrls.length} total URLs from sitemap.`);
 
-    const districtSlugs = DISTRICTS.map(d => d.slug);
-
-    // Filter function: check if URL contains any district slug as a path segment
-    const isDistrictUrl = (urlStr: string): boolean => {
-      try {
-        const url = new URL(urlStr);
-        const pathSegments = url.pathname.split('/').map(s => s.trim().toLowerCase());
-        return pathSegments.some(segment => districtSlugs.includes(segment));
-      } catch (e) {
-        return false;
-      }
-    };
-
-    // Filter URLs: keep only those that do NOT contain a district slug
-    const primaryUrls = allUrls
-      .map(u => u.url)
-      .filter(url => !isDistrictUrl(url));
-
-    console.log(`Filtered out district-specific pages. Remaining primary URLs: ${primaryUrls.length}`);
+    const primaryUrls = allUrls.map(u => u.url);
 
     // Let's breakdown the primary URLs
     const patterns = {
