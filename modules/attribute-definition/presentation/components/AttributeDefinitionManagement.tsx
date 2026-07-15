@@ -258,90 +258,62 @@ export function AttributeDefinitionManagement() {
         onOpenChange={(open) => !open && setActiveDefinition(null)}
         title={activeDefinition === "new" ? "Thêm thuộc tính" : "Sửa thuộc tính"}
         description="Nhập thông tin thuộc tính kỹ thuật."
+        footer={
+          <div className="flex justify-end gap-3 w-full">
+            <Button variant="outline" type="button" onClick={() => setActiveDefinition(null)}>
+              Hủy
+            </Button>
+            <Button type="submit" form="attribute-definition-form" disabled={saveMutation.isPending}>
+              {saveMutation.isPending ? "Đang lưu..." : "Lưu"}
+            </Button>
+          </div>
+        }
       >
         <form
+          id="attribute-definition-form"
           onSubmit={form.handleSubmit((v) => saveMutation.mutate(v))}
-          className="flex-1 flex flex-col min-h-0 w-full"
+          className="space-y-6"
         >
-          <div className="flex-1 overflow-y-auto p-6 lg:p-10">
-            <FieldGroup className="max-w-xl mx-auto gap-5">
+          <FieldGroup className="max-w-xl mx-auto gap-5">
+            <Controller
+              control={form.control}
+              name="categoryId"
+              render={({ field }) => (
+                <Field>
+                  <FieldLabel>Danh mục</FieldLabel>
+                  <Select
+                    value={field.value || GLOBAL_GROUP_KEY}
+                    disabled={isEditing}
+                    onValueChange={(val) => field.onChange(val === GLOBAL_GROUP_KEY ? null : val)}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Chọn danh mục" />
+                    </SelectTrigger>
+                    <SelectContent position="popper" className="max-h-80 overflow-y-auto">
+                      <SelectItem value={GLOBAL_GROUP_KEY}>Áp dụng cho mọi danh mục</SelectItem>
+                      {categories.map((c) => (
+                        <SelectItem key={c.id} value={c.id}>
+                          {c.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  {isEditing && (
+                    <FieldDescription>Không thể đổi danh mục sau khi tạo.</FieldDescription>
+                  )}
+                </Field>
+              )}
+            />
+
+            <div className="grid grid-cols-2 gap-4">
               <Controller
                 control={form.control}
-                name="categoryId"
-                render={({ field }) => (
-                  <Field>
-                    <FieldLabel>Danh mục</FieldLabel>
-                    <Select
-                      value={field.value || GLOBAL_GROUP_KEY}
-                      disabled={isEditing}
-                      onValueChange={(val) => field.onChange(val === GLOBAL_GROUP_KEY ? null : val)}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Chọn danh mục" />
-                      </SelectTrigger>
-                      <SelectContent position="popper" className="max-h-80 overflow-y-auto">
-                        <SelectItem value={GLOBAL_GROUP_KEY}>Áp dụng cho mọi danh mục</SelectItem>
-                        {categories.map((c) => (
-                          <SelectItem key={c.id} value={c.id}>
-                            {c.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    {isEditing && (
-                      <FieldDescription>Không thể đổi danh mục sau khi tạo.</FieldDescription>
-                    )}
-                  </Field>
-                )}
-              />
-
-              <div className="grid grid-cols-2 gap-4">
-                <Controller
-                  control={form.control}
-                  name="code"
-                  render={({ field, fieldState }) => (
-                    <Field>
-                      <FieldLabel>Mã thuộc tính *</FieldLabel>
-                      <Input {...field} placeholder="VD: cong_suat_lam_lanh_btu" disabled={isEditing} />
-                      <FieldDescription>Chữ thường, số, gạch dưới — không đổi được sau khi tạo.</FieldDescription>
-                      <FieldError errors={[fieldState.error]} />
-                    </Field>
-                  )}
-                />
-
-                <Controller
-                  control={form.control}
-                  name="dataType"
-                  render={({ field }) => (
-                    <Field>
-                      <FieldLabel>Kiểu dữ liệu *</FieldLabel>
-                      <Select value={field.value} onValueChange={field.onChange} disabled={isEditing}>
-                        <SelectTrigger>
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {(Object.entries(DATA_TYPE_LABELS) as [AttributeDataType, string][]).map(([value, label]) => (
-                            <SelectItem key={value} value={value}>
-                              {label}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      {isEditing && (
-                        <FieldDescription>Không thể đổi kiểu dữ liệu sau khi tạo.</FieldDescription>
-                      )}
-                    </Field>
-                  )}
-                />
-              </div>
-
-              <Controller
-                control={form.control}
-                name="name"
+                name="code"
                 render={({ field, fieldState }) => (
                   <Field>
-                    <FieldLabel>Tên thuộc tính *</FieldLabel>
-                    <Input {...field} placeholder="VD: Công suất làm lạnh" />
+                    <FieldLabel>Mã thuộc tính *</FieldLabel>
+                    <Input {...field} placeholder="VD: cong_suat_lam_lanh_btu" disabled={isEditing} />
+                    <FieldDescription>Chữ thường, số, gạch dưới — không đổi được sau khi tạo.</FieldDescription>
                     <FieldError errors={[fieldState.error]} />
                   </Field>
                 )}
@@ -349,85 +321,113 @@ export function AttributeDefinitionManagement() {
 
               <Controller
                 control={form.control}
-                name="groupLabel"
+                name="dataType"
                 render={({ field }) => (
                   <Field>
-                    <FieldLabel>Nhóm hiển thị (tùy chọn)</FieldLabel>
-                    <Input {...field} value={field.value || ""} placeholder="VD: Dàn lạnh, Dàn nóng — để trống nếu thuộc nhóm chung" />
+                    <FieldLabel>Kiểu dữ liệu *</FieldLabel>
+                    <Select value={field.value} onValueChange={field.onChange} disabled={isEditing}>
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {(Object.entries(DATA_TYPE_LABELS) as [AttributeDataType, string][]).map(([value, label]) => (
+                          <SelectItem key={value} value={value}>
+                            {label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    {isEditing && (
+                      <FieldDescription>Không thể đổi kiểu dữ liệu sau khi tạo.</FieldDescription>
+                    )}
+                  </Field>
+                )}
+              />
+            </div>
+
+            <Controller
+              control={form.control}
+              name="name"
+              render={({ field, fieldState }) => (
+                <Field>
+                  <FieldLabel>Tên thuộc tính *</FieldLabel>
+                  <Input {...field} placeholder="VD: Công suất làm lạnh" />
+                  <FieldError errors={[fieldState.error]} />
+                </Field>
+              )}
+            />
+
+            <Controller
+              control={form.control}
+              name="groupLabel"
+              render={({ field }) => (
+                <Field>
+                  <FieldLabel>Nhóm hiển thị (tùy chọn)</FieldLabel>
+                  <Input {...field} value={field.value || ""} placeholder="VD: Dàn lạnh, Dàn nóng — để trống nếu thuộc nhóm chung" />
+                </Field>
+              )}
+            />
+
+            {dataType === "number" && (
+              <Controller
+                control={form.control}
+                name="unit"
+                render={({ field }) => (
+                  <Field>
+                    <FieldLabel>Đơn vị</FieldLabel>
+                    <Input {...field} value={field.value || ""} placeholder="VD: BTU/h, kg, m, W" />
+                  </Field>
+                )}
+              />
+            )}
+
+            {dataType === "select" && (
+              <Controller
+                control={form.control}
+                name="options"
+                render={({ field }) => (
+                  <Field>
+                    <FieldLabel>Danh sách giá trị được chọn</FieldLabel>
+                    <TagInput
+                      values={field.value || []}
+                      onChange={field.onChange}
+                      placeholder="VD: R32, R410A, R22..."
+                    />
+                    <FieldDescription>Admin chỉ được chọn 1 trong các giá trị này khi nhập sản phẩm.</FieldDescription>
+                  </Field>
+                )}
+              />
+            )}
+
+            <div className="grid grid-cols-2 gap-4">
+              <Controller
+                control={form.control}
+                name="orderIndex"
+                render={({ field }) => (
+                  <Field>
+                    <FieldLabel>Thứ tự hiển thị</FieldLabel>
+                    <Input
+                      type="number"
+                      {...field}
+                      onFocus={(e) => e.target.select()}
+                      onChange={(e) => field.onChange(parseInt(e.target.value) || 0)}
+                    />
                   </Field>
                 )}
               />
 
-              {dataType === "number" && (
-                <Controller
-                  control={form.control}
-                  name="unit"
-                  render={({ field }) => (
-                    <Field>
-                      <FieldLabel>Đơn vị</FieldLabel>
-                      <Input {...field} value={field.value || ""} placeholder="VD: BTU/h, kg, m, W" />
-                    </Field>
-                  )}
-                />
-              )}
-
-              {dataType === "select" && (
-                <Controller
-                  control={form.control}
-                  name="options"
-                  render={({ field }) => (
-                    <Field>
-                      <FieldLabel>Danh sách giá trị được chọn</FieldLabel>
-                      <TagInput
-                        values={field.value || []}
-                        onChange={field.onChange}
-                        placeholder="VD: R32, R410A, R22..."
-                      />
-                      <FieldDescription>Admin chỉ được chọn 1 trong các giá trị này khi nhập sản phẩm.</FieldDescription>
-                    </Field>
-                  )}
-                />
-              )}
-
-              <div className="grid grid-cols-2 gap-4">
-                <Controller
-                  control={form.control}
-                  name="orderIndex"
-                  render={({ field }) => (
-                    <Field>
-                      <FieldLabel>Thứ tự hiển thị</FieldLabel>
-                      <Input
-                        type="number"
-                        {...field}
-                        onFocus={(e) => e.target.select()}
-                        onChange={(e) => field.onChange(parseInt(e.target.value) || 0)}
-                      />
-                    </Field>
-                  )}
-                />
-
-                <Controller
-                  control={form.control}
-                  name="isRequired"
-                  render={({ field }) => (
-                    <Field orientation="horizontal" className="justify-between border p-3 rounded-lg self-end h-10">
-                      <FieldLabel className="font-normal mb-0">Bắt buộc nhập</FieldLabel>
-                      <Checkbox checked={field.value} onCheckedChange={(v) => field.onChange(!!v)} />
-                    </Field>
-                  )}
-                />
-              </div>
-            </FieldGroup>
-          </div>
-
-          <div className="flex justify-end gap-3 p-6 border-t bg-background sticky bottom-0 z-20">
-            <Button variant="ghost" type="button" onClick={() => setActiveDefinition(null)}>
-              Hủy
-            </Button>
-            <Button type="submit" disabled={saveMutation.isPending}>
-              {saveMutation.isPending ? "Đang lưu..." : "Lưu"}
-            </Button>
-          </div>
+              <Controller
+                control={form.control}
+                name="isRequired"
+                render={({ field }) => (
+                  <Field orientation="horizontal" className="justify-between border p-3 rounded-lg self-end h-10">
+                    <FieldLabel className="font-normal mb-0">Bắt buộc nhập</FieldLabel>
+                    <Checkbox checked={field.value} onCheckedChange={(v) => field.onChange(!!v)} />
+                  </Field>
+                )}
+              />
+            </div>
+          </FieldGroup>
         </form>
       </AdminDialog>
 
