@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect } from "react";
 import { Controller, UseFormReturn } from "react-hook-form";
 import {
   Field,
@@ -51,11 +51,19 @@ export function ProductSpecsTab({ form, attributeDefinitions }: ProductSpecsTabP
   // Controller children's subscriptions, which React doesn't allow doing
   // synchronously during a different component's render (see the "Cannot
   // update a component while rendering a different component" warning).
+  //
+  // Must also run on mount, not just when relevantKey later changes —
+  // otherwise an edited product whose attributeValues (loaded from the DB)
+  // don't already cover every definition for its category (new attribute
+  // definitions added after the product was last saved, or a product that
+  // predates this being editable at all) submits with attributeValues
+  // entries missing attributeDefinitionId, which fails validation on every
+  // entry and silently blocks the whole save. React's dependency array
+  // already dedupes re-runs when relevantKey is unchanged between renders —
+  // an extra "skip on first run" guard here previously suppressed exactly
+  // the mount-time merge that fixes this.
   const relevantKey = relevantDefs.map((d) => d.id).join(",");
-  const syncedForRef = useRef(relevantKey);
   useEffect(() => {
-    if (syncedForRef.current === relevantKey) return;
-    syncedForRef.current = relevantKey;
     const existing = form.getValues("attributeValues") || [];
     const byDefId = new Map(existing.map((v) => [v.attributeDefinitionId, v]));
     form.setValue(
