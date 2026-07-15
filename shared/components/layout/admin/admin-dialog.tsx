@@ -58,9 +58,9 @@ export function AdminDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
         className={cn(
-          "flex flex-col gap-0 p-0 overflow-hidden",
-          size === "screen" ? "h-screen max-h-screen rounded-none" : 
-          size === "full" ? "h-[calc(100vh-2rem)] max-h-[calc(100vh-2rem)]" : 
+          "grid grid-rows-[auto_1fr_auto] gap-0 p-0 overflow-hidden",
+          size === "screen" ? "h-screen max-h-screen rounded-none" :
+          size === "full" ? "h-[calc(100vh-2rem)] max-h-[calc(100vh-2rem)]" :
           "max-h-[90vh]",
           sizeClasses[size]
         )}
@@ -78,7 +78,7 @@ export function AdminDialog({
           </DialogHeader>
         </div>
 
-        <ScrollArea className="flex-1 min-h-0">
+        <ScrollArea className="min-h-0">
           <div className="p-6 pt-2">
             {children}
           </div>
