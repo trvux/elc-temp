@@ -50,16 +50,29 @@ function stripMarksFromContent(nodes: TiptapNode[], typesToStrip: string[]): Tip
   });
 }
 
+// Must match getTiptapExtensions' heading.levels below. Kept as a separate
+// constant because this file normalizes JSON before it ever reaches an
+// Editor instance (so the Heading extension's own level clamping, which
+// only applies at render/DOM time, hasn't run yet) — see the clamp below.
+const HEADING_LEVELS = [2, 3] as const;
+
 function normalizeHeadingAttrs(node: TiptapNode): TiptapNode {
   let normalizedContent = node.content
     ? node.content.map(normalizeHeadingAttrs)
     : undefined;
 
   if (node.type === "heading") {
-    // Body headings start at level 2 (the page's own <h1> is always a
-    // separate structured title field, never part of this content) — a
-    // missing attrs.level defaults here, not to 1.
-    const level = node.attrs && node.attrs.level !== undefined ? Number(node.attrs.level) : 2;
+    // Missing attrs.level (legacy DB records) defaults to the topmost
+    // allowed level. An explicit but out-of-range level (e.g. old content
+    // still carrying level 1 before its one-time DB migration) is clamped
+    // the same way, not left as-is: loading an invalid level straight into
+    // a live Tiptap editor makes its toolbar/isActive checks not recognize
+    // the node as any valid heading, and clicking a heading button on it
+    // then toggles the node OFF into a plain paragraph instead of fixing
+    // the level — silently discarding real content. Clamping here, before
+    // the JSON ever reaches the editor, avoids that trap entirely.
+    const rawLevel = node.attrs && node.attrs.level !== undefined ? Number(node.attrs.level) : HEADING_LEVELS[0];
+    const level = (HEADING_LEVELS as readonly number[]).includes(rawLevel) ? rawLevel : HEADING_LEVELS[0];
     if (normalizedContent) {
       if (level === 2) {
         normalizedContent = stripMarksFromContent(normalizedContent, ["bold", "italic", "link"]);
@@ -69,7 +82,7 @@ function normalizeHeadingAttrs(node: TiptapNode): TiptapNode {
     }
     return {
       ...node,
-      attrs: { level: 2, ...(node.attrs ?? {}) },
+      attrs: { ...(node.attrs ?? {}), level },
       ...(normalizedContent !== undefined ? { content: normalizedContent } : {}),
     };
   }
@@ -92,7 +105,7 @@ export const getTiptapExtensions = () => [
     horizontalRule: false,
     link: false,
     heading: {
-      levels: [2, 3],
+      levels: [...HEADING_LEVELS],
     },
   }),
   Link.configure({
