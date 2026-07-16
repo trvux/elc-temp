@@ -16,77 +16,7 @@ export function generateSlug(text: string): string {
     .replace(/^-+|-+$/g, ""); // Cắt dấu - ở đầu và cuối
 }
 
-export function extractTitleFromHtml(content: unknown): string {
-  if (!content) return "";
-
-  // Handle Tiptap JSON Object
-  if (typeof content === "object" && content !== null) {
-    const obj = content as Record<string, unknown>;
-    const nodes = (obj.content as unknown[]) || [];
-
-    // Tìm node đầu tiên là heading level 1 (mặc định level 1 khi thiếu level hoặc attrs)
-    const h1Node = nodes.find((node) => {
-      if (typeof node !== "object" || node === null) return false;
-      const n = node as Record<string, unknown>;
-      const attrs = n.attrs as Record<string, unknown> | undefined;
-      const level =
-        attrs && attrs.level !== undefined ? Number(attrs.level) : 1;
-      return n.type === "heading" && level === 1;
-    }) as Record<string, unknown> | undefined;
-
-    if (h1Node && Array.isArray(h1Node.content)) {
-      return h1Node.content
-        .map((n) => {
-          if (typeof n === "object" && n !== null && "text" in n) {
-            return String((n as Record<string, unknown>).text);
-          }
-          return "";
-        })
-        .join("")
-        .trim();
-    }
-
-    // Fallback: Lấy đoạn văn bản đầu tiên có nội dung
-    const firstTextNode = nodes.find((node) => {
-      if (typeof node !== "object" || node === null) return false;
-      const n = node as Record<string, unknown>;
-      return Array.isArray(n.content) && n.content.length > 0;
-    }) as Record<string, unknown> | undefined;
-
-    if (firstTextNode && Array.isArray(firstTextNode.content)) {
-      return firstTextNode.content
-        .map((n) => {
-          if (typeof n === "object" && n !== null && "text" in n) {
-            return String((n as Record<string, unknown>).text);
-          }
-          return "";
-        })
-        .join("")
-        .trim();
-    }
-    return "";
-  }
-
-  // Handle Legacy HTML String
-  if (typeof content !== "string") return "";
-  if (typeof window === "undefined") return "";
-  const parser = new DOMParser();
-  const doc = parser.parseFromString(content, "text/html");
-
-  const h1 = doc.querySelector("h1");
-  if (h1 && h1.textContent?.trim()) {
-    return h1.textContent.trim();
-  }
-
-  const text = doc.body.textContent || "";
-    const lines = text
-      .split("\n")
-      .map((l) => l.trim())
-      .filter(Boolean);
-    return lines[0] || "";
-  }
-  
-  export function sortByOrderIndex<T>(items: T[]): T[] {
+export function sortByOrderIndex<T>(items: T[]): T[] {
     return [...items].sort((a: unknown, b: unknown) => {
       const recA = a as Record<string, unknown>;
       const recB = b as Record<string, unknown>;

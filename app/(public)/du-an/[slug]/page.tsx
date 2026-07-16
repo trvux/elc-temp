@@ -213,7 +213,6 @@ async function ProjectDetailView({
           <article className="mt-4">
             <PreviewContent
               content={project.description}
-              hideFirstHeading={true}
               fallbackAlt={project.title}
             />
 

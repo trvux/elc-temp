@@ -7,7 +7,6 @@ import { toast } from "sonner";
 
 import { convertToWebP } from "@/shared/lib/image";
 import { uploadImageFile } from "@/shared/lib/upload-image";
-import { useTiptapTitleSlugSync } from "@/shared/hooks/use-tiptap-title-slug-sync";
 
 import { News, createNewsSchema, Json, Seo, ImageAsset } from "../../domain";
 import { createNewsAction, updateNewsAction } from "../actions";
@@ -72,14 +71,9 @@ export function useNewsForm(
     }
   };
 
-  const { handleContentChange } = useTiptapTitleSlugSync({
-    setValue: form.setValue,
-    getValues: form.getValues,
-    contentField: "content",
-    titleField: "title",
-    slugField: "slug",
-    isEditMode: !!editingNews,
-  });
+  const handleContentChange = (value: unknown) => {
+    form.setValue("content", value, { shouldDirty: true, shouldValidate: true });
+  };
 
   const saveMutation = useMutation({
     mutationFn: async (values: NewsFormValues) => {

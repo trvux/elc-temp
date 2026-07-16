@@ -476,8 +476,6 @@ export async function ProductListModule({
           <PreviewContent
             content={seoContent}
             className="prose-sm md:prose-base text-foreground/80 leading-relaxed max-w-4xl"
-            skipFirstHeadingPromotion={true}
-            demoteHeadingOne={true}
             fallbackAlt={pageTitle}
           />
         </GridSection>

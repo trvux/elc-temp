@@ -321,7 +321,6 @@ export default async function NewsDetailPage({ params }: PageProps) {
           <article>
             <PreviewContent
               content={newsItem.content}
-              hideFirstHeading={true}
               fallbackAlt={title}
             />
           </article>

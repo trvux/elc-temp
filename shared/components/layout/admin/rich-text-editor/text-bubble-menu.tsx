@@ -43,8 +43,8 @@ export const TextBubbleMenu = ({ editor }: TextBubbleMenuProps) => {
     editor.chain().focus().unsetAllMarks().clearNodes().run();
   }, [editor]);
 
-  const isH1 = editor.isActive("heading", { level: 1 });
-  const isH2 = editor.isActive("heading", { level: 2 });
+  const isH1 = editor.isActive("heading", { level: 2 });
+  const isH2 = editor.isActive("heading", { level: 3 });
 
   return (
     <BubbleMenu
@@ -126,7 +126,7 @@ export const TextBubbleMenu = ({ editor }: TextBubbleMenuProps) => {
 
           <ButtonGroupSeparator className="bg-muted-foreground" />
 
-          {/* H1 */}
+          {/* H2 (topmost heading available in body content) */}
           <Button
             type="button"
             variant="default"
@@ -138,7 +138,7 @@ export const TextBubbleMenu = ({ editor }: TextBubbleMenuProps) => {
                 .unsetMark("bold")
                 .unsetMark("italic")
                 .unsetMark("link")
-                .toggleHeading({ level: 1 })
+                .toggleHeading({ level: 2 })
                 .run()
             }
             className={cn(
@@ -149,7 +149,7 @@ export const TextBubbleMenu = ({ editor }: TextBubbleMenuProps) => {
             T
           </Button>
 
-          {/* H2 */}
+          {/* H3 */}
           <Button
             type="button"
             variant="default"
@@ -160,7 +160,7 @@ export const TextBubbleMenu = ({ editor }: TextBubbleMenuProps) => {
                 .focus()
                 .unsetMark("bold")
                 .unsetMark("italic")
-                .toggleHeading({ level: 2 })
+                .toggleHeading({ level: 3 })
                 .run()
             }
             className={cn(
