@@ -131,7 +131,6 @@ export default async function StaticPage({ params }: PageProps) {
           <article>
             <PreviewContent
               content={page.content}
-              hideFirstHeading={true}
               fallbackAlt={page.title}
             />
           </article>

@@ -219,6 +219,24 @@ export function PageManagement() {
 
                 <div className="lg:col-span-8 space-y-8">
 
+                  <Controller
+                    control={form.control}
+                    name="title"
+                    render={({ field, fieldState }) => (
+                      <Field>
+                        <FieldLabel>Tiêu đề trang *</FieldLabel>
+                        <Input
+                          {...field}
+                          placeholder="VD: Về chúng tôi"
+                          onChange={(e) => {
+                            field.onChange(e);
+                            form.setValue("slug", generateSlug(e.target.value));
+                          }}
+                        />
+                        <FieldError errors={[fieldState.error]} />
+                      </Field>
+                    )}
+                  />
 
                   <Controller
                     control={form.control}

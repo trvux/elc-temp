@@ -5,9 +5,6 @@ import { generateHTML } from "@tiptap/html";
 interface PreviewContentProps {
   content: unknown;
   className?: string;
-  hideFirstHeading?: boolean;
-  skipFirstHeadingPromotion?: boolean;
-  demoteHeadingOne?: boolean;
   // Editors have an "Alt text" control in the rich-text editor (image bubble menu),
   // but it's tucked in a popover and easy to skip — most authored images end up with
   // no alt at all, which is a dead end for image search and screen readers. Rather
@@ -39,36 +36,18 @@ function fillMissingImageAlt(
   return content !== undefined ? { ...node, content } : node;
 }
 
-function isLevelOneHeading(node: Record<string, unknown>): boolean {
-  return (
-    node.type === "heading" &&
-    (node.attrs as Record<string, unknown> | undefined)?.level === 1
-  );
-}
-
-function demoteLevelOneHeadings(
-  nodes: Array<Record<string, unknown>>,
-): Array<Record<string, unknown>> {
-  return nodes.map((node) =>
-    isLevelOneHeading(node)
-      ? {
-          ...node,
-          attrs: { ...(node.attrs as Record<string, unknown>), level: 2 },
-        }
-      : node,
-  );
-}
-
 /**
  * PreviewContent component renders Tiptap JSON content into styled HTML.
  * It uses the shared design system and Tailwind's Typography (prose) plugin.
+ *
+ * Body content never contains an <h1> — the page's own title is always a
+ * separate structured field, rendered elsewhere by the caller. Headings
+ * authored here start at H2 (enforced by getTiptapExtensions' heading
+ * levels), so no first-heading hide/demote/promote logic is needed.
  */
 export const PreviewContent = ({
   content,
   className,
-  hideFirstHeading = false,
-  skipFirstHeadingPromotion = false,
-  demoteHeadingOne = false,
   fallbackAlt,
 }: PreviewContentProps) => {
   if (!content) return null;
@@ -84,39 +63,7 @@ export const PreviewContent = ({
       (content as Record<string, unknown>).type === "doc"
     ) {
       // Normalize heading nodes that were stored without attrs.level (legacy DB records)
-      let contentToRender = normalizeTiptapJson(content, { skipFirstHeadingPromotion }) as Record<string, unknown>;
-
-      // hideFirstHeading: this content sits under a page whose own <h1> already
-      // duplicates the CMS's auto-promoted first heading (e.g. article title) —
-      // drop that first H1 node entirely, then demote any other stray H1 an
-      // editor may have picked further down in the body to H2.
-      if (hideFirstHeading && Array.isArray(contentToRender.content)) {
-        const nodes = contentToRender.content as Array<Record<string, unknown>>;
-        const firstH1Index = nodes.findIndex(isLevelOneHeading);
-
-        const withoutFirstH1 =
-          firstH1Index !== -1
-            ? nodes.filter((_, index) => index !== firstH1Index)
-            : nodes;
-
-        contentToRender = {
-          ...contentToRender,
-          content: demoteLevelOneHeadings(withoutFirstH1),
-        };
-      }
-
-      // demoteHeadingOne: this content is a secondary block on a page that has
-      // its own <h1> elsewhere, but (unlike hideFirstHeading) any H1 authored
-      // here is real, distinct copy — not a duplicate of the page title — so it
-      // should stay visible, just demoted to H2 instead of being deleted.
-      if (demoteHeadingOne && Array.isArray(contentToRender.content)) {
-        contentToRender = {
-          ...contentToRender,
-          content: demoteLevelOneHeadings(
-            contentToRender.content as Array<Record<string, unknown>>,
-          ),
-        };
-      }
+      let contentToRender = normalizeTiptapJson(content) as Record<string, unknown>;
 
       if (fallbackAlt) {
         contentToRender = fillMissingImageAlt(contentToRender, fallbackAlt);
@@ -141,8 +88,8 @@ export const PreviewContent = ({
         "tiptap",
         className,
       )}
-      dangerouslySetInnerHTML={{ 
-        __html: html.replace(/<table/g, '<div class="table-wrapper"><table').replace(/<\/table>/g, '</table></div>') 
+      dangerouslySetInnerHTML={{
+        __html: html.replace(/<table/g, '<div class="table-wrapper"><table').replace(/<\/table>/g, '</table></div>')
       }}
     />
   );

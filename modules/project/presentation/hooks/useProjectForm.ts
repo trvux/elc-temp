@@ -7,7 +7,6 @@ import { toast } from "sonner";
 
 import { convertToWebP } from "@/shared/lib/image";
 import { uploadImageFile } from "@/shared/lib/upload-image";
-import { useTiptapTitleSlugSync } from "@/shared/hooks/use-tiptap-title-slug-sync";
 
 
 import { createProjectSchema, ProjectWithCategory, Json, Seo, ImageAsset } from "../../domain";
@@ -69,14 +68,9 @@ export function useProjectForm(
     },
   });
 
-  const { handleContentChange } = useTiptapTitleSlugSync({
-    setValue: form.setValue,
-    getValues: form.getValues,
-    contentField: "description",
-    titleField: "title",
-    slugField: "slug",
-    isEditMode: activeProject !== "new",
-  });
+  const handleContentChange = (value: unknown) => {
+    form.setValue("description", value, { shouldDirty: true, shouldValidate: true });
+  };
 
   const saveMutation = useMutation({
     mutationFn: async (values: ProjectFormValues) => {

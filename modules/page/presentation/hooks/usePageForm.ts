@@ -4,8 +4,6 @@ import { useForm } from "react-hook-form";
 import type { Resolver } from "react-hook-form";
 import { toast } from "sonner";
 
-import { useTiptapTitleSlugSync } from "@/shared/hooks/use-tiptap-title-slug-sync";
-
 import { Page, createPageSchema, Json } from "../../domain";
 import { createPageAction, updatePageAction } from "../actions";
 
@@ -38,14 +36,9 @@ export function usePageForm(
     },
   });
 
-  const { handleContentChange } = useTiptapTitleSlugSync({
-    setValue: form.setValue,
-    getValues: form.getValues,
-    contentField: "content",
-    titleField: "title",
-    slugField: "slug",
-    isEditMode: !!editingPage,
-  });
+  const handleContentChange = (value: unknown) => {
+    form.setValue("content", value, { shouldDirty: true, shouldValidate: true });
+  };
 
   const saveMutation = useMutation({
     mutationFn: async (values: PageFormValues) => {

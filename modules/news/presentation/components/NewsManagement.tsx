@@ -395,6 +395,24 @@ export function NewsManagement() {
 
                 <div className="lg:col-span-8 space-y-8">
 
+                  <Controller
+                    control={form.control}
+                    name="title"
+                    render={({ field, fieldState }) => (
+                      <Field>
+                        <FieldLabel>Tiêu đề bài viết *</FieldLabel>
+                        <Input
+                          {...field}
+                          placeholder="VD: 5 mẹo tiết kiệm điện khi dùng máy lạnh"
+                          onChange={(e) => {
+                            field.onChange(e);
+                            form.setValue("slug", generateSlug(e.target.value));
+                          }}
+                        />
+                        <FieldError errors={[fieldState.error]} />
+                      </Field>
+                    )}
+                  />
 
                   <Controller
                     control={form.control}

@@ -10,9 +10,10 @@ import { cn } from "@/shared/lib/utils";
 
 // ---------------------------------------------------------------------------
 // Utility: patch legacy Tiptap JSON that was stored without attrs.level on
-// heading nodes. When attrs is absent Tiptap defaults to level 1, which
-// silently promotes every H2 to H1 on load - both in the admin editor and
-// in the public PreviewContent renderer.
+// heading nodes, defaulting to level 2 (the topmost level body content is
+// allowed to use — see getTiptapExtensions' heading levels below). The
+// page's own <h1> always comes from a separate structured title field, never
+// from this content, so no heading in body content is ever level 1.
 // ---------------------------------------------------------------------------
 export type TiptapNode = {
   type: string;
@@ -55,17 +56,20 @@ function normalizeHeadingAttrs(node: TiptapNode): TiptapNode {
     : undefined;
 
   if (node.type === "heading") {
-    const level = node.attrs && node.attrs.level !== undefined ? Number(node.attrs.level) : 1;
+    // Body headings start at level 2 (the page's own <h1> is always a
+    // separate structured title field, never part of this content) — a
+    // missing attrs.level defaults here, not to 1.
+    const level = node.attrs && node.attrs.level !== undefined ? Number(node.attrs.level) : 2;
     if (normalizedContent) {
-      if (level === 1) {
+      if (level === 2) {
         normalizedContent = stripMarksFromContent(normalizedContent, ["bold", "italic", "link"]);
-      } else if (level === 2) {
+      } else if (level === 3) {
         normalizedContent = stripMarksFromContent(normalizedContent, ["bold", "italic"]);
       }
     }
     return {
       ...node,
-      attrs: { level: 1, ...(node.attrs ?? {}) },
+      attrs: { level: 2, ...(node.attrs ?? {}) },
       ...(normalizedContent !== undefined ? { content: normalizedContent } : {}),
     };
   }
@@ -75,36 +79,12 @@ function normalizeHeadingAttrs(node: TiptapNode): TiptapNode {
     : node;
 }
 
-export function normalizeTiptapJson(
-  value: unknown,
-  options?: { skipFirstHeadingPromotion?: boolean }
-): unknown {
+export function normalizeTiptapJson(value: unknown): unknown {
   if (!value || typeof value !== "object") return value;
   const doc = value as TiptapNode;
   if (!doc.content || doc.content.length === 0) return doc;
 
-  const content = doc.content.map((node, index) => {
-    // Dòng đầu tiên (index === 0) luôn phải là heading level 1 làm tiêu đề (trừ khi skipFirstHeadingPromotion = true)
-    if (index === 0 && !options?.skipFirstHeadingPromotion) {
-      if (node.type === "paragraph" || node.type === "heading") {
-        const normalizedContent = node.content
-          ? stripMarksFromContent(node.content.map(normalizeHeadingAttrs), ["bold", "italic", "link"])
-          : undefined;
-        return {
-          ...node,
-          type: "heading",
-          attrs: {
-            ...(node.attrs ?? {}),
-            level: 1,
-          },
-          ...(normalizedContent !== undefined ? { content: normalizedContent } : {}),
-        };
-      }
-    }
-    return normalizeHeadingAttrs(node);
-  });
-
-  return { ...doc, content };
+  return { ...doc, content: doc.content.map(normalizeHeadingAttrs) };
 }
 
 export const getTiptapExtensions = () => [
@@ -112,7 +92,7 @@ export const getTiptapExtensions = () => [
     horizontalRule: false,
     link: false,
     heading: {
-      levels: [1, 2],
+      levels: [2, 3],
     },
   }),
   Link.configure({

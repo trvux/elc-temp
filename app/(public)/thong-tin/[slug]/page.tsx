@@ -236,7 +236,6 @@ export default async function BranchDetail({ params }: Props) {
           <article className="w-full">
             <PreviewContent
               content={branch.description}
-              hideFirstHeading={true}
               fallbackAlt={branch.name}
             />
           </article>

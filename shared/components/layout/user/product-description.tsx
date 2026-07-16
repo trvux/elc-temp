@@ -34,7 +34,6 @@ export function ProductDescription({ content, fallbackAlt }: ProductDescriptionP
       <article>
         <PreviewContent
           content={content}
-          hideFirstHeading={true}
           fallbackAlt={fallbackAlt}
           className={cn(
             STYLES.collapsible,

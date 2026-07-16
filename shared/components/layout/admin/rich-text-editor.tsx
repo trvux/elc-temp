@@ -47,12 +47,7 @@ const RichTextEditor = ({
     BubbleMenuExtension,
     FloatingMenuExtension,
     Placeholder.configure({
-      placeholder: ({ node }) => {
-        if (node.type.name === "heading" && node.attrs.level === 1) {
-          return "Nhập tiêu đề bài viết...";
-        }
-        return placeholder || "Bắt đầu viết nội dung...";
-      },
+      placeholder: placeholder || "Bắt đầu viết nội dung...",
     }),
   ], [placeholder]);
 
@@ -60,12 +55,6 @@ const RichTextEditor = ({
     immediatelyRender: false,
     extensions,
     content: normalizeTiptapJson(value) as import("@tiptap/react").Content,
-    onCreate: ({ editor }) => {
-      // Nếu editor trống hoàn toàn, ép dòng đầu là H1
-      if (editor.isEmpty) {
-        editor.commands.toggleHeading({ level: 1 });
-      }
-    },
     onUpdate: ({ editor }) => {
       onChange(normalizeTiptapJson(editor.getJSON()));
       forceUpdate();
@@ -212,15 +201,9 @@ const RichTextEditor = ({
     const incomingJson = JSON.stringify(normalizedIncoming);
     
     if (currentJson !== incomingJson) {
-      // Nếu editor chưa focus, HOẶC editor đang trống/chỉ có dòng tiêu đề trống
-      // thì ta luôn cho phép nạp dữ liệu từ bên ngoài vào.
-      const isCurrentEmpty = editor.isEmpty || (
-        editor.getJSON().content?.length === 1 &&
-        editor.getJSON().content?.[0].type === "heading" &&
-        !editor.getText().trim()
-      );
-
-      if (!editor.isFocused || isCurrentEmpty) {
+      // Nếu editor chưa focus, HOẶC editor đang trống thì ta luôn cho phép
+      // nạp dữ liệu từ bên ngoài vào.
+      if (!editor.isFocused || editor.isEmpty) {
         editor.commands.setContent(
           normalizedIncoming as import("@tiptap/react").Content,
           false as unknown as Parameters<typeof editor.commands.setContent>[1]
