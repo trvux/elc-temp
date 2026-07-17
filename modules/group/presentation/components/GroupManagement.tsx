@@ -8,8 +8,6 @@ import { toast } from "sonner";
 import { TiptapEditor } from "@/shared/components/ui/tiptap-editor";
 import { convertToWebP } from "@/shared/lib/image";
 import { uploadImageFile } from "@/shared/lib/upload-image";
-import { generateHTML } from "@tiptap/html";
-import { getTiptapExtensions } from "@/shared/lib/tiptap-shared";
 
 import { AdminDialog } from "@/shared/components/layout/admin/admin-dialog";
 import { DeleteDialog } from "@/shared/components/layout/admin/delete-dialog";

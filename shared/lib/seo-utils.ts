@@ -167,7 +167,6 @@ export function generateProductMetadata(
  */
 export function generateCategoryMetadata(
   category: Record<string, unknown> | null | undefined,
-  totalCount?: number,
 ): Metadata {
   if (!category) return {};
 

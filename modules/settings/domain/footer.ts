@@ -3,14 +3,8 @@ export interface FooterContact {
   value: string;
 }
 
-export interface FooterSettings {
-  company_name?: string;
-  company_short_desc?: string;
-}
-
 export function getFooterLogic(
   contacts: FooterContact[] = [],
-  settings: FooterSettings = {},
   year: number = 2026,
   branches: Array<{ address: string }> = []
 ) {

@@ -18,7 +18,6 @@ import Image from "next/image";
 import { notFound } from "next/navigation";
 import { Breadcrumbs } from "@/shared/components/layout/user/breadcrumbs";
 import { ArrowLeft } from "@phosphor-icons/react/dist/ssr";
-import { Button } from "@/shared/components/ui/button";
 import Link from "next/link";
 import { Metadata } from "next";
 import { getPublicLayoutData } from "@/modules/settings";
