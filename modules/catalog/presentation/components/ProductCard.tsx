@@ -1,6 +1,5 @@
 import { ProductWithRelations, resolveProductDisplayPrice, resolveDefaultVariant, toLegacyStockStatusForBadge } from "@/modules/catalog/domain";
 import { FormattedPrice } from "@/modules/catalog/presentation/components/FormattedPrice";
-import { HighlightedText } from "@/shared/components/layout/user/highlighted-text";
 import {
   Card,
   CardContent,
@@ -19,13 +18,11 @@ import Link from "next/link";
 
 interface ProductCardProps {
   product: ProductWithRelations;
-  queryTokens?: string[];
   priority?: boolean;
 }
 
 export function ProductCard({
   product,
-  queryTokens = [],
   priority = false,
 }: ProductCardProps) {
   const productUrl = `/san-pham/${product.slug}`;
@@ -69,18 +66,12 @@ export function ProductCard({
         />
         <CardHeader className="px-2">
           <CardTitle className="line-clamp-2 h-12">
-            <HighlightedText text={product.name} queryTokens={queryTokens} />
+            {product.name}
           </CardTitle>
           <CardDescription className="flex flex-col gap-1 text-xs">
             {displaySku && (
               <span>
-                SKU:{" "}
-                <span className="text-foreground">
-                  <HighlightedText
-                    text={displaySku}
-                    queryTokens={queryTokens}
-                  />
-                </span>
+                SKU: <span className="text-foreground">{displaySku}</span>
                 <br />
               </span>
             )}
@@ -88,10 +79,7 @@ export function ProductCard({
               <span>
                 Thương hiệu:{" "}
                 <span className="uppercase text-foreground">
-                  <HighlightedText
-                    text={product.brand.name.toLowerCase()}
-                    queryTokens={queryTokens}
-                  />
+                  {product.brand.name.toLowerCase()}
                 </span>
               </span>
             )}

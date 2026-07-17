@@ -8,7 +8,6 @@ import { getGroupsAction } from "@/modules/group/presentation/actions";
 import { getCategoriesAction } from "@/modules/category/presentation/actions";
 import { getBrandsAction } from "@/modules/brand/presentation/actions";
 import { getProjectTypesAction } from "@/modules/project-type/presentation/actions";
-import { getProductsAction } from "@/modules/catalog/presentation/actions";
 
 export async function getPublicLayoutData() {
   "use cache";
@@ -24,7 +23,6 @@ export async function getPublicLayoutData() {
     catsResult,
     brandsResult,
     projectTypesResult,
-    productFacetsResult,
   ] = await Promise.allSettled([
     getSiteSettingsAction(),
     getContactsAction(),
@@ -35,7 +33,6 @@ export async function getPublicLayoutData() {
     getCategoriesAction(),
     getBrandsAction(),
     getProjectTypesAction(),
-    getProductsAction({ isPublished: true, limit: 1 }),
   ]);
 
   // Ham nay gop nhieu action Go doc lap cho 1 cache dung chung cho toan bo
@@ -76,10 +73,6 @@ export async function getPublicLayoutData() {
   const projectTypesData = projectTypesResult.status === "fulfilled" && !projectTypesResult.value.error
     ? projectTypesResult.value.data
     : (markError(), null);
-  const productFacets = productFacetsResult.status === "fulfilled" && !productFacetsResult.value.error
-    ? productFacetsResult.value.facets
-    : (markError(), null);
-
   if (hadError) {
     cacheLife("retry");
   } else {
@@ -95,9 +88,8 @@ export async function getPublicLayoutData() {
       .map((c) => ({ id: c.id, name: c.name, slug: c.slug || "", parent_id: c.groupId })),
   ];
 
-  const brandsWithProducts = new Set((productFacets?.brands || []).map((b) => b.id));
   const brands = (brandsData || [])
-    .filter((b) => !b.name.toLowerCase().includes("chưa phân loại") && brandsWithProducts.has(b.id))
+    .filter((b) => !b.name.toLowerCase().includes("chưa phân loại"))
     .map((b) => ({
       id: b.id,
       name: b.name,
@@ -123,16 +115,7 @@ export async function getPublicLayoutData() {
     settings[item.key] = item.value || "";
   });
 
-  const formatCurrency = (val: number) =>
-    new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(val);
-
-  const minPrice = productFacets?.minPrice || 0;
-  const maxPrice = productFacets?.maxPrice || 0;
-
-  const priceRange =
-    minPrice && maxPrice
-      ? `${formatCurrency(minPrice)} - ${formatCurrency(maxPrice)}`
-      : "10.000.000đ - 100.000.000đ";
+  const priceRange = "10.000.000đ - 100.000.000đ";
 
   const mappedProjects = (projects || []).map((p) => ({
     id: p.id,

@@ -161,17 +161,9 @@ interface GoProductResponse {
   attribute_values: GoAttributeValue[] | null;
 }
 
-interface GoFacetsResponse {
-  brands: { id: string; name: string; slug: string }[];
-  specs: { label: string; values: string[] }[];
-  min_price: number;
-  max_price: number;
-}
-
 interface GoProductListResponse {
   data: GoProductResponse[] | null;
   total_count: number;
-  facets: GoFacetsResponse;
 }
 
 interface GoErrorResponse {
@@ -179,23 +171,6 @@ interface GoErrorResponse {
   message: string;
   fields?: Record<string, string[]>;
 }
-
-interface GoAdjacentProductResponse {
-  name: string;
-  slug: string;
-}
-
-interface GoAdjacentProductsResponse {
-  prev: GoAdjacentProductResponse | null;
-  next: GoAdjacentProductResponse | null;
-}
-
-const EMPTY_FACETS = {
-  brands: [] as { id: string; name: string; slug: string }[],
-  specs: [] as { label: string; values: string[] }[],
-  minPrice: 0,
-  maxPrice: 0,
-};
 
 async function extractErrorMessage(res: Response, fallback: string): Promise<string> {
   try {
@@ -343,23 +318,9 @@ function buildProductSearchParams(filter?: ProductFilter): URLSearchParams {
   if (filter.brandIds && filter.brandIds.length > 0) {
     params.set("brand_ids", filter.brandIds.join(","));
   }
-  if (filter.brandSlugs && filter.brandSlugs.length > 0) {
-    params.set("brand_slugs", filter.brandSlugs.join(","));
-  }
   if (filter.productLineId) params.set("product_line_id", filter.productLineId);
   if (filter.isFeatured !== undefined) params.set("is_featured", String(filter.isFeatured));
   if (filter.isPublished !== undefined) params.set("is_published", String(filter.isPublished));
-  if (filter.search) params.set("search", filter.search);
-  if (filter.minPrice !== undefined) params.set("min_price", String(Math.round(filter.minPrice)));
-  if (filter.maxPrice !== undefined) params.set("max_price", String(Math.round(filter.maxPrice)));
-  if (filter.sortBy) params.set("sort_by", filter.sortBy);
-  if (filter.condition) params.set("condition", filter.condition);
-  if (filter.specs) {
-    Object.entries(filter.specs).forEach(([label, values]) => {
-      if (!values || values.length === 0) return;
-      values.forEach((value) => params.append(`spec_${label}`, value));
-    });
-  }
   if (filter.limit !== undefined) params.set("limit", String(filter.limit));
   if (filter.offset !== undefined) params.set("offset", String(filter.offset));
   if (filter.includeDeleted !== undefined) params.set("include_deleted", String(filter.includeDeleted));
@@ -369,7 +330,7 @@ function buildProductSearchParams(filter?: ProductFilter): URLSearchParams {
 
 export async function getProductsAction(filter?: ProductFilter) {
   if (!GO_API_URL) {
-    return { data: [] as ProductWithRelations[], totalCount: 0, facets: EMPTY_FACETS, error: null };
+    return { data: [] as ProductWithRelations[], totalCount: 0, error: null };
   }
   try {
     const params = buildProductSearchParams(filter);
@@ -378,7 +339,6 @@ export async function getProductsAction(filter?: ProductFilter) {
       return {
         data: [] as ProductWithRelations[],
         totalCount: 0,
-        facets: EMPTY_FACETS,
         error: await extractErrorMessage(res, "Không thể tải danh sách sản phẩm"),
       };
     }
@@ -387,12 +347,6 @@ export async function getProductsAction(filter?: ProductFilter) {
     return {
       data: (body.data ?? []).map(mapGoProduct),
       totalCount: body.total_count || 0,
-      facets: {
-        brands: body.facets?.brands ?? [],
-        specs: body.facets?.specs ?? [],
-        minPrice: body.facets?.min_price ?? 0,
-        maxPrice: body.facets?.max_price ?? 0,
-      },
       error: null,
     };
   } catch (error) {
@@ -401,7 +355,6 @@ export async function getProductsAction(filter?: ProductFilter) {
     return {
       data: [] as ProductWithRelations[],
       totalCount: 0,
-      facets: EMPTY_FACETS,
       error: "Không thể tải danh sách sản phẩm",
     };
   }
@@ -476,21 +429,6 @@ export async function getProductsByIdsAction(ids: string[]) {
   }
 }
 
-export async function getAdjacentProductsAction(id: string) {
-  const empty = { prev: null, next: null } as { prev: GoAdjacentProductResponse | null; next: GoAdjacentProductResponse | null };
-  if (!GO_API_URL) return empty;
-  try {
-    const res = await fetch(`${GO_API_URL}/products/${id}/adjacent`, { cache: "no-store" });
-    if (!res.ok) return empty;
-
-    const body = (await res.json()) as GoAdjacentProductsResponse;
-    return { prev: body.prev ?? null, next: body.next ?? null };
-  } catch (error) {
-    if (isPrerenderError(error)) throw error;
-    console.error("getAdjacentProductsAction error:", error);
-    return empty;
-  }
-}
 
 // toSnakeCaseBody is shallow by design (see shared/lib/go-api.ts) — it does
 // NOT recurse into nested arrays/objects, so options/variants (whose Go DTO

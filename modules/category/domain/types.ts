@@ -14,7 +14,6 @@ export interface Category {
   updatedAt: string;
   deletedAt: string | null;
   content?: unknown | null;
-  faq?: Array<{ question: string; answer: string }> | null;
 }
 
 export interface CategoryWithGroup extends Category {
@@ -31,7 +30,6 @@ export interface CreateCategoryInput {
   isFeatured?: boolean;
   orderIndex?: number;
   content?: unknown | null;
-  faq?: Array<{ question: string; answer: string }> | null;
 }
 
 export interface UpdateCategoryInput {
@@ -45,7 +43,6 @@ export interface UpdateCategoryInput {
   isFeatured?: boolean;
   orderIndex?: number;
   content?: unknown | null;
-  faq?: Array<{ question: string; answer: string }> | null;
 }
 
 export interface CategoryFilter {

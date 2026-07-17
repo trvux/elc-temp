@@ -1,24 +1,14 @@
-import { getAdjacentProductsAction } from "@/modules/catalog/presentation/actions";
 import { ProductWithRelations, resolveProductDisplayPrice, resolveDefaultVariant, toLegacyStockStatusForBadge } from "@/modules/catalog/domain";
 import { ProductLineCapacitySwitcher } from "@/modules/catalog/presentation/components/public/ProductLineCapacitySwitcher";
 import { ProductVariantSwitcher } from "@/modules/catalog/presentation/components/public/ProductVariantSwitcher";
 import { getContactsAction } from "@/modules/contact/presentation/actions";
 import { TrackView } from "@/modules/event";
-import { ReviewList, getReviewSummaryAction } from "@/modules/review";
 import { Breadcrumbs } from "@/shared/components/layout/user/breadcrumbs";
-import { DetailPager } from "@/shared/components/layout/user/detail-pager";
 import { ProductDescription } from "@/shared/components/layout/user/product-description";
 import { ProductFloatingBar } from "@/shared/components/layout/user/product-floating-bar";
-import RelatedProducts, { getCachedRelatedProducts } from "@/shared/components/layout/user/related-products";
 import { ScrollToTop } from "@/shared/components/layout/user/scroll-to-top";
 import { TrackProductView } from "@/shared/components/layout/user/track-product-view";
 import { GridSection } from "@/shared/components/sections/grid-section";
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/shared/components/ui/accordion";
 import { AspectRatio } from "@/shared/components/ui/aspect-ratio";
 import { Badge } from "@/shared/components/ui/badge";
 import {
@@ -37,7 +27,6 @@ import {
 } from "@/shared/components/ui/tabs";
 import {
   TypographyH1,
-  TypographyH2,
   TypographyLarge,
   TypographySmall,
 } from "@/shared/components/ui/typography";
@@ -113,33 +102,6 @@ const STYLES = {
   ),
 };
 
-function getFallbackProductFaq(
-  product: ProductWithRelations,
-): Array<{ question: string; answer: string }> {
-  const name = product.name;
-  const brand = product.brand?.name || "hãng";
-  // Prefer the real warranty period the admin entered (ProductWarrantyCard)
-  // over generic copy — falls back to the old vague wording when unset.
-  const warrantyLine = product.warrantyMonths
-    ? `bảo hành chính hãng ${product.warrantyMonths} tháng`
-    : "bảo hành chính hãng";
-
-  return [
-    {
-      question: `${name} có chính hãng 100% không?`,
-      answer: `Có, Điện máy ELC là đại lý phân phối chính thức của ${brand} tại Việt Nam, cam kết 100% sản phẩm chính hãng kèm đầy đủ chứng nhận xuất xứ và giấy tờ bảo hành.`,
-    },
-    {
-      question: `${name} có bảo hành bao lâu?`,
-      answer: `Sản phẩm được ${warrantyLine} theo quy định của ${brand}. Điện máy ELC hỗ trợ tiếp nhận và xử lý bảo hành nhanh chóng, đảm bảo quyền lợi tối đa cho khách hàng.`,
-    },
-    {
-      question: `Điện máy ELC có dịch vụ lắp đặt ${name} không?`,
-      answer: `Có, Điện máy ELC cung cấp dịch vụ lắp đặt trọn gói bởi đội ngũ kỹ thuận viên được đào tạo bài bản, đảm bảo vận hành ón định, an toàn từ ngày đầu sử dụng.`,
-    },
-  ];
-}
-
 async function getCachedProductDetailData(productSlug: string) {
   "use cache";
   cacheLife("days");
@@ -162,7 +124,6 @@ export async function ProductDetailModule({
   const { contacts, currentYear } = await getCachedProductDetailData(
     product.slug,
   );
-  const { prev, next } = await getAdjacentProductsAction(product.id);
 
   const category = product.category;
   if (!category) notFound();
@@ -234,10 +195,7 @@ export async function ProductDetailModule({
     !spec.items;
 
   const productWithRelations = product;
-  const relatedProducts = await getCachedRelatedProducts(product.categoryId, product.id, product.brandId);
-  const { data: reviewSummary } = await getReviewSummaryAction({ productId: product.id });
-  const jsonLd = generateProductSchema(productWithRelations, relatedProducts, reviewSummary);
-  const faqList = getFallbackProductFaq(product);
+  const jsonLd = generateProductSchema(productWithRelations);
 
   const productUrl = `${BASE_URL}/san-pham/${product.slug}`;
   const breadcrumbSchema = generateBreadcrumbSchema(
@@ -269,25 +227,6 @@ export async function ProductDetailModule({
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
       />
-      {faqList.length > 0 && (
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{
-            __html: JSON.stringify({
-              "@context": "https://schema.org",
-              "@type": "FAQPage",
-              mainEntity: faqList.map((item) => ({
-                "@type": "Question",
-                name: item.question,
-                acceptedAnswer: {
-                  "@type": "Answer",
-                  text: item.answer,
-                },
-              })),
-            }),
-          }}
-        />
-      )}
       {/* ===== KHỐI 1: ẢNH + THÔNG TIN SẢN PHẨM ===== */}
       <GridSection
         id="product-detail-top"
@@ -488,84 +427,6 @@ export async function ProductDetailModule({
               </TabsContent>
             )}
           </Tabs>
-        </div>
-      </GridSection>
-
-      {/* ===== KHỐI 3: ĐIỀU HƯỚNG SẢN PHẨM TRƯỚC / SAU (cùng loại) ===== */}
-      {(prev || next) && (
-        <GridSection
-          id="product-detail-pager"
-          isFirst={false}
-          showDiamond={true}
-          contentClassName="py-6 md:py-8 lg:py-10"
-        >
-          <DetailPager
-            prevLabel="Sản phẩm trước"
-            nextLabel="Sản phẩm tiếp theo"
-            prev={
-              prev ? { title: prev.name, href: `/san-pham/${prev.slug}` } : null
-            }
-            next={
-              next ? { title: next.name, href: `/san-pham/${next.slug}` } : null
-            }
-          />
-        </GridSection>
-      )}
-
-      {/* ===== KHỐI 4: SẢN PHẨM LIÊN QUAN ===== */}
-      <GridSection
-        id="product-detail-related"
-        isFirst={false}
-        showDiamond={true}
-        contentClassName="py-6 md:py-8 lg:py-10"
-      >
-        <div className="w-full">
-          <RelatedProducts
-            categoryId={product.categoryId}
-            currentProductId={product.id}
-            brandId={product.brandId}
-            product={product}
-          />
-        </div>
-      </GridSection>
-
-      {/* ===== KHOI 4.5: FAQ ===== */}
-      {faqList.length > 0 && (
-        <GridSection
-          id="product-detail-faq"
-          isFirst={false}
-          showDiamond={true}
-          contentClassName="py-10 border-t border-border/30"
-        >
-          <div className="w-full max-w-4xl mx-auto space-y-6">
-            <TypographyH2 className="text-xl md:text-2xl font-bold tracking-tight">
-              Câu hỏi thường gặp (FAQ)
-            </TypographyH2>
-            <Accordion type="single" collapsible className="w-full">
-              {faqList.map((item, index) => (
-                <AccordionItem key={index} value={`faq-item-${index}`}>
-                  <AccordionTrigger className="text-sm md:text-base font-semibold text-foreground py-4">
-                    {item.question}
-                  </AccordionTrigger>
-                  <AccordionContent className="text-sm md:text-base text-muted-foreground leading-relaxed pb-4">
-                    {item.answer}
-                  </AccordionContent>
-                </AccordionItem>
-              ))}
-            </Accordion>
-          </div>
-        </GridSection>
-      )}
-
-      {/* ===== KHOI 4.6: DANH GIA KHACH HANG ===== */}
-      <GridSection
-        id="product-detail-reviews"
-        isFirst={false}
-        showDiamond={true}
-        contentClassName="py-10 border-t border-border/30"
-      >
-        <div className="w-full max-w-4xl mx-auto">
-          <ReviewList productId={product.id} entityName={product.name} />
         </div>
       </GridSection>
 

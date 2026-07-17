@@ -1,7 +1,6 @@
 import { getContactsAction } from "@/modules/contact/presentation/actions";
 import { TrackView } from "@/modules/event";
 import { LeadForm } from "@/modules/inquiry/presentation/components/LeadForm";
-import { ReviewList } from "@/modules/review";
 import { getAdjacentServicesAction } from "@/modules/service/presentation/actions";
 import { ServiceWithRelations } from "@/modules/service/domain/types";
 import { Breadcrumbs } from "@/shared/components/layout/user/breadcrumbs";
@@ -13,12 +12,6 @@ import { ScrollToTop } from "@/shared/components/layout/user/scroll-to-top";
 import { GridSection } from "@/shared/components/sections/grid-section";
 import { AspectRatio } from "@/shared/components/ui/aspect-ratio";
 import { Badge } from "@/shared/components/ui/badge";
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/shared/components/ui/accordion";
 import {
   Carousel,
   CarouselContent,
@@ -33,7 +26,6 @@ import {
 } from "@/shared/components/ui/tabs";
 import {
   TypographyH1,
-  TypographyH2,
   TypographyLarge,
   TypographySmall,
 } from "@/shared/components/ui/typography";
@@ -77,27 +69,6 @@ const STYLES = {
     "flex items-center gap-2 cursor-pointer hover:text-foreground transition-colors",
   ),
 };
-
-function getFallbackServiceFaq(
-  service: ServiceWithRelations,
-): Array<{ question: string; answer: string }> {
-  const title = service.title;
-
-  return [
-    {
-      question: `Dịch vụ ${title} của Điện máy ELC bao gồm những gì?`,
-      answer: `Dịch vụ ${title} của Điện máy ELC bao gồm tư vấn kỹ thuật, thi công lắp đặt chuyên nghiệp và hỗ trợ bảo hành sau dịch vụ đầy đủ.`,
-    },
-    {
-      question: `Điện máy ELC có bảo hành sau khi hoàn thiện dịch vụ ${title} không?`,
-      answer: `Có, Điện máy ELC cam kết bảo hành chất lượng thi công. Nếu phát sinh sự cố do lỗi kỹ thuật sau khi hoàn thành, đội ngũ sẽ xử lý miễn phí theo chính sách bảo hành.`,
-    },
-    {
-      question: `Thời gian thực hiện dịch vụ ${title} mất bao lâu?`,
-      answer: `Thời gian thực hiện phụ thuộc vào quy mô công trình. Đội ngũ kỹ thuật ELC sẽ khảo sát trước và thông báo tiến độ cụ thể trước khi thực hiện.`,
-    },
-  ];
-}
 
 async function getCachedServiceDetailModuleData(slug: string) {
   "use cache";
@@ -294,65 +265,6 @@ export async function ServiceDetailModule({
           </div>
         </GridSection>
       )}
-
-      {/* ===== SECTION 4.5: FAQ ===== */}
-      {(() => {
-        const faqList = getFallbackServiceFaq(service);
-        if (faqList.length === 0) return null;
-        const faqSchema = {
-          "@context": "https://schema.org",
-          "@type": "FAQPage",
-          "mainEntity": faqList.map((item) => ({
-            "@type": "Question",
-            "name": item.question,
-            "acceptedAnswer": { "@type": "Answer", "text": item.answer },
-          })),
-        };
-        return (
-          <>
-            <script
-              type="application/ld+json"
-              dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
-            />
-            <GridSection
-              id="service-detail-faq"
-              isFirst={false}
-              showDiamond={true}
-              contentClassName="py-10 border-t border-border/30"
-            >
-              <div className="w-full max-w-4xl mx-auto space-y-6">
-                <TypographyH2 className="text-xl md:text-2xl font-bold tracking-tight">
-                  Câu hỏi thường gặp (FAQ)
-                </TypographyH2>
-                <Accordion type="single" collapsible className="w-full">
-                  {faqList.map((item, index) => (
-                    <AccordionItem key={index} value={`faq-item-${index}`}>
-                      <AccordionTrigger className="text-sm md:text-base font-semibold text-foreground py-4">
-                        {item.question}
-                      </AccordionTrigger>
-                      <AccordionContent className="text-sm md:text-base text-muted-foreground leading-relaxed pb-4">
-                        {item.answer}
-                      </AccordionContent>
-                    </AccordionItem>
-                  ))}
-                </Accordion>
-              </div>
-            </GridSection>
-          </>
-        );
-      })()}
-
-      {/* ===== SECTION 4.5: DANH GIA KHACH HANG ===== */}
-      <GridSection
-        id="service-detail-reviews"
-        isFirst={false}
-        showDiamond={true}
-        contentClassName="py-10 border-t border-border/30"
-      >
-        <div className="w-full max-w-4xl mx-auto">
-          <ReviewList serviceId={service.id} entityName={service.title} />
-        </div>
-      </GridSection>
 
       {/* ===== SECTION 5: FOOTER ===== */}
       <GridSection

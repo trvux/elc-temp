@@ -41,7 +41,7 @@ export async function getDashboardStats(
     getProductsAction({}),
     countProjectsAction(),
     countNewsAction(),
-    getProductsAction({ limit: 5, sortBy: "newest" }),
+    getProductsAction({ limit: 5 }),
     getProjectsAction({ limit: 5, orderBy: "createdAt", orderDirection: "desc" }),
     getNewsAction({ limit: 5 }),
     getProjectsAction({ isFeatured: true }),

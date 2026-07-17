@@ -20,7 +20,6 @@ export type GroupFormValues = {
   isFeatured?: boolean;
   orderIndex?: number;
   content?: unknown;
-  faq?: Array<{ question: string; answer: string }> | null;
 };
 
 export function useGroupForm(
@@ -41,7 +40,6 @@ export function useGroupForm(
       isFeatured: false,
       orderIndex: 0,
       content: "",
-      faq: [],
     },
   });
 
@@ -60,7 +58,6 @@ export function useGroupForm(
         isFeatured: !!values.isFeatured,
         orderIndex: Number(values.orderIndex || 0),
         content: values.content || null,
-        faq: values.faq || null,
       };
 
       if (activeGroup && activeGroup !== "new") {

@@ -21,7 +21,6 @@ export type CategoryFormValues = {
   isFeatured?: boolean;
   orderIndex?: number;
   content?: unknown;
-  faq?: Array<{ question: string; answer: string }> | null;
 };
 
 export function useCategoryForm(
@@ -43,7 +42,6 @@ export function useCategoryForm(
       isFeatured: false,
       orderIndex: 0,
       content: "",
-      faq: [],
     },
   });
 
@@ -63,7 +61,6 @@ export function useCategoryForm(
         isFeatured: !!values.isFeatured,
         orderIndex: Number(values.orderIndex || 0),
         content: values.content || null,
-        faq: values.faq || null,
       };
 
       if (activeCategory && activeCategory !== "new") {

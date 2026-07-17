@@ -36,7 +36,6 @@ interface GoCategoryResponse {
   is_featured: boolean;
   order_index: number;
   content: unknown | null;
-  faq: Array<{ question: string; answer: string }> | null;
   created_at: string;
   updated_at: string;
   deleted_at: string | null;
@@ -60,7 +59,6 @@ function mapGoCategory(row: GoCategoryResponse): CategoryWithGroup {
     isFeatured: row.is_featured,
     orderIndex: row.order_index,
     content: row.content,
-    faq: row.faq,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
     deletedAt: row.deleted_at,

@@ -26,8 +26,7 @@ function CategorySection({
   categorySlug,
   initialProducts,
   totalCount,
-  queryTokens,
-}: CategorySectionData & { queryTokens: string[] }) {
+}: CategorySectionData) {
   const [products, setProducts] = useState(initialProducts);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
 
@@ -83,12 +82,7 @@ function CategorySection({
       </div>
       <div className={GRID_CLASS}>
         {products.map((product, i) => (
-          <ProductCard
-            key={product.id}
-            product={product}
-            queryTokens={queryTokens}
-            priority={i < 8}
-          />
+          <ProductCard key={product.id} product={product} priority={i < 8} />
         ))}
       </div>
 
@@ -118,10 +112,8 @@ function CategorySection({
 
 export function CategorySectionsGrid({
   sections,
-  queryTokens = [],
 }: {
   sections: CategorySectionData[];
-  queryTokens?: string[];
 }) {
   if (sections.length === 0) {
     return (
@@ -137,7 +129,7 @@ export function CategorySectionsGrid({
     <div className="flex flex-col gap-6">
       {sections.map((section, i) => (
         <div key={section.categoryId} className="flex flex-col gap-6">
-          <CategorySection {...section} queryTokens={queryTokens} />
+          <CategorySection {...section} />
           {i < sections.length - 1 && <Separator />}
         </div>
       ))}
