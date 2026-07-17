@@ -8,7 +8,7 @@ import { toast } from "sonner";
 import { convertToWebP } from "@/shared/lib/image";
 import { uploadImageFile } from "@/shared/lib/upload-image";
 
-import { News, createNewsSchema, Json, Seo, ImageAsset } from "../../domain";
+import { News, createNewsSchema, Json, ImageAsset } from "../../domain";
 import { createNewsAction, updateNewsAction } from "../actions";
 
 export type NewsFormValues = {
@@ -22,7 +22,6 @@ export type NewsFormValues = {
   isPublished: boolean;
   metaTitle: string;
   metaDescription: string;
-  seo: Seo;
   orderIndex: number;
   tagIds: string[];
 };
@@ -47,7 +46,6 @@ export function useNewsForm(
       isPublished: true,
       metaTitle: "",
       metaDescription: "",
-      seo: { title: "", description: "", noindex: false },
       orderIndex: 0,
       tagIds: (editingNews?.tags || []).map((t) => t.id),
     },

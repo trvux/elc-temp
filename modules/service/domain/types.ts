@@ -1,8 +1,6 @@
 import { ServiceGroup } from "@/modules/service-group/domain/types";
 import { CategoryWithGroup } from "@/modules/category/domain/types";
 import { Database } from "@/database.types";
-import type { Seo } from "@/shared/lib/seo-schema";
-export type { Seo };
 import type { ImageAsset } from "@/shared/lib/image-asset";
 export type { ImageAsset };
 
@@ -22,7 +20,6 @@ export interface Service {
   images: ImageAsset[];
   metaTitle: string | null;
   metaDescription: string | null;
-  seo?: Seo;
   isFeatured: boolean;
   isPublished: boolean;
   orderIndex: number;
@@ -51,7 +48,6 @@ export interface CreateServiceInput {
   images?: ImageAsset[];
   metaTitle?: string | null;
   metaDescription?: string | null;
-  seo?: Seo;
   isFeatured?: boolean;
   isPublished?: boolean;
   orderIndex?: number;

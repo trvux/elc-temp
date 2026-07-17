@@ -11,24 +11,7 @@ import {
   TypographySmall,
 } from "@/shared/components/ui/typography";
 import Link from "next/link";
-import {
-  BASE_URL,
-  generateBreadcrumbSchema,
-  generateSystemPageMetadata,
-} from "@/shared/lib/seo-utils";
-import type { Metadata } from "next";
-import { getCachedSystemPage } from "@/shared/lib/cached-system-page";
 import { unwrapActionResult } from "@/shared/lib/action-result";
-
-export async function generateMetadata(): Promise<Metadata> {
-  const systemPage = await getCachedSystemPage("tin-tuc");
-  return generateSystemPageMetadata(
-    systemPage,
-    "Tin tức | Điện máy ELC",
-    "Cập nhật những giải pháp kỹ thuật mới nhất và các tin tức chuyên sâu từ đội ngũ kỹ sư ELC",
-    "/tin-tuc"
-  ) as Metadata;
-}
 
 const STYLES = {
   main: "w-full bg-background min-h-screen",
@@ -249,18 +232,6 @@ export default async function NewsHub() {
           <Breadcrumbs items={[{ label: "Tin tức", active: true }]} />
         </div>
       </GridSection>
-
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{
-          __html: JSON.stringify(
-            generateBreadcrumbSchema(
-              [{ label: "Tin tức" }],
-              `${BASE_URL}/tin-tuc`,
-            ),
-          ),
-        }}
-      />
     </main>
   );
 }

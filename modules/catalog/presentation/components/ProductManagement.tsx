@@ -29,7 +29,6 @@ import { ProductIdentityCard } from "./form/ProductIdentityCard";
 import { ProductOrganizationCard } from "./form/ProductOrganizationCard";
 import { ProductStatusCard } from "./form/ProductStatusCard";
 import { ProductWarrantyCard } from "./form/ProductWarrantyCard";
-import { ProductSeoCard } from "./form/ProductSeoCard";
 import { ProductSpecsTab } from "./form/ProductSpecsTab";
 import { ProductGalleryTab } from "./form/ProductGalleryTab";
 import { ProductDescriptionTab } from "./form/ProductDescriptionTab";
@@ -229,14 +228,6 @@ export function ProductManagement() {
             condition: p.condition || PRODUCT_CONDITION.NEW,
             metaTitle: p.metaTitle || "",
             metaDescription: p.metaDescription || "",
-            seo: {
-              title: p.seo?.title || "",
-              description: p.seo?.description || "",
-              noindex: p.seo?.noindex || false,
-            },
-            // specs is a legacy passthrough — no longer edited by this UI
-            // (see ProductSpecsTab.tsx), just preserved as-is on save.
-            specs: p.specs ?? {},
             labels: p.labels || [],
             tagIds: (p.tags || []).map((t) => t.id),
             productLineId: p.productLineId || null,
@@ -272,8 +263,6 @@ export function ProductManagement() {
       condition: PRODUCT_CONDITION.NEW,
       metaTitle: "",
       metaDescription: "",
-      seo: { title: "", description: "", noindex: false },
-      specs: {},
       labels: [],
       tagIds: [],
       productLineId: null,
@@ -552,14 +541,6 @@ export function ProductManagement() {
                       </CardContent>
                     </Card>
 
-                    <Card>
-                      <CardHeader className="pb-4">
-                        <CardTitle className="text-sm font-semibold tracking-tight text-foreground">SEO</CardTitle>
-                      </CardHeader>
-                      <CardContent className="pt-0">
-                        <ProductSeoCard form={form} />
-                      </CardContent>
-                    </Card>
                   </div>
                 </div>
               </div>

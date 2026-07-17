@@ -6,6 +6,7 @@ export interface Group {
   metaTitle: string | null;
   metaDescription: string | null;
   isFeatured: boolean;
+  isHidden: boolean;
   orderIndex: number;
   createdAt: string;
   updatedAt: string;
@@ -20,6 +21,7 @@ export interface CreateGroupInput {
   metaTitle?: string | null;
   metaDescription?: string | null;
   isFeatured?: boolean;
+  isHidden?: boolean;
   orderIndex?: number;
   content?: unknown | null;
 }
@@ -32,6 +34,7 @@ export interface UpdateGroupInput {
   metaTitle?: string | null;
   metaDescription?: string | null;
   isFeatured?: boolean;
+  isHidden?: boolean;
   orderIndex?: number;
   content?: unknown | null;
 }

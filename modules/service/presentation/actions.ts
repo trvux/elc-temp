@@ -16,12 +16,6 @@ interface GoRefResponse {
   name: string;
 }
 
-interface GoSeo {
-  title?: string;
-  description?: string;
-  noindex?: boolean;
-}
-
 interface GoServiceResponse {
   id: string;
   title: string;
@@ -38,7 +32,6 @@ interface GoServiceResponse {
   images: ImageAsset[];
   meta_title: string | null;
   meta_description: string | null;
-  seo: GoSeo;
   is_featured: boolean;
   is_published: boolean;
   order_index: number;
@@ -72,7 +65,6 @@ function mapGoService(row: GoServiceResponse): ServiceWithRelations {
     images: row.images || [],
     metaTitle: row.meta_title,
     metaDescription: row.meta_description,
-    seo: row.seo,
     isFeatured: row.is_featured,
     isPublished: row.is_published,
     orderIndex: row.order_index,
@@ -95,7 +87,7 @@ function mapGoService(row: GoServiceResponse): ServiceWithRelations {
 function emptyServiceGroupShape() {
   return {
     slug: "", imageUrl: null, metaTitle: null, metaDescription: null,
-    isFeatured: false, orderIndex: 0, categoryIds: null,
+    isFeatured: false, isHidden: false, orderIndex: 0, categoryIds: null,
     createdAt: "", updatedAt: "", deletedAt: null,
   };
 }
@@ -103,7 +95,7 @@ function emptyServiceGroupShape() {
 function emptyCategoryShape() {
   return {
     slug: "", groupId: null, imageUrl: null, metaTitle: null, metaDescription: null,
-    isFeatured: false, orderIndex: 0, createdAt: "", updatedAt: "", deletedAt: null,
+    isFeatured: false, isHidden: false, orderIndex: 0, createdAt: "", updatedAt: "", deletedAt: null,
     group: null,
   };
 }

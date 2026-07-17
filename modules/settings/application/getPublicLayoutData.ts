@@ -61,10 +61,10 @@ export async function getPublicLayoutData() {
 
   const categories = [
     ...(groupsData || [])
-      .filter((g) => !g.name.toLowerCase().includes("chưa phân loại"))
+      .filter((g) => !g.isHidden)
       .map((g) => ({ id: g.id, name: g.name, slug: g.slug || "", parent_id: null })),
     ...(catsData || [])
-      .filter((c) => !c.name.toLowerCase().includes("chưa phân loại"))
+      .filter((c) => !c.isHidden)
       .map((c) => ({ id: c.id, name: c.name, slug: c.slug || "", parent_id: c.groupId })),
   ];
 
@@ -78,11 +78,11 @@ export async function getPublicLayoutData() {
     }));
 
   const groupCategories = (groupsData || [])
-    .filter((g) => !g.name.toLowerCase().includes("chưa phân loại"))
+    .filter((g) => !g.isHidden)
     .map((g) => ({ id: g.id, name: g.name, slug: g.slug || "" }));
 
   const categoriesList = (catsData || [])
-    .filter((c) => !c.name.toLowerCase().includes("chưa phân loại"))
+    .filter((c) => !c.isHidden)
     .map((c) => ({
       id: c.id,
       name: c.name,

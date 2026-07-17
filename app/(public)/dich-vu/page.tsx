@@ -19,13 +19,6 @@ import {
   TypographySmall,
 } from "@/shared/components/ui/typography";
 import { cn } from "@/shared/lib/utils";
-import {
-  BASE_URL,
-  generateBreadcrumbSchema,
-  generateSystemPageMetadata,
-} from "@/shared/lib/seo-utils";
-import type { Metadata } from "next";
-import { getCachedSystemPage } from "@/shared/lib/cached-system-page";
 
 const STYLES = {
   main: cn("w-full bg-background flex flex-col flex-1"),
@@ -41,16 +34,6 @@ const STYLES = {
     "flex items-center gap-2 cursor-pointer hover:text-foreground transition-colors",
   ),
 };
-
-export async function generateMetadata(): Promise<Metadata> {
-  const systemPage = await getCachedSystemPage("dich-vu");
-  return generateSystemPageMetadata(
-    systemPage,
-    "Dịch vụ chuyên nghiệp | Điện máy ELC",
-    "Giải pháp chuyên nghiệp dành cho hệ thống lạnh công nghiệp, điều hòa trung tâm và bảo trì hệ thống.",
-    "/dich-vu"
-  ) as Metadata;
-}
 
 async function getCachedServicesData() {
   const groupedServices = await getPublishedServicesGroupedAction();
@@ -166,18 +149,6 @@ export default async function ServicesHub() {
           <Breadcrumbs items={[{ label: "Dịch vụ", active: true }]} />
         </div>
       </GridSection>
-
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{
-          __html: JSON.stringify(
-            generateBreadcrumbSchema(
-              [{ label: "Dịch vụ" }],
-              `${BASE_URL}/dich-vu`,
-            ),
-          ),
-        }}
-      />
     </main>
   );
 }

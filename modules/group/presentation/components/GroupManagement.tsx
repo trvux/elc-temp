@@ -79,6 +79,7 @@ export function GroupManagement() {
             metaTitle: group.metaTitle || "",
             metaDescription: group.metaDescription || "",
             isFeatured: group.isFeatured || false,
+            isHidden: group.isHidden || false,
             orderIndex: group.orderIndex || 0,
             content: group.content || "",
           });
@@ -99,6 +100,7 @@ export function GroupManagement() {
       metaTitle: "",
       metaDescription: "",
       isFeatured: false,
+      isHidden: false,
       orderIndex: 0,
       content: "",
     });
@@ -177,7 +179,7 @@ export function GroupManagement() {
                     )}
                   />
 
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-3 gap-4">
                     <Controller
                       control={form.control}
                       name="orderIndex"
@@ -199,6 +201,17 @@ export function GroupManagement() {
                       render={({ field }) => (
                         <Field orientation="horizontal" className="justify-between items-center border px-3 py-2 rounded-xl self-end h-[42px] gap-2">
                           <FieldLabel className="font-normal text-xs whitespace-nowrap mb-0">Nổi bật</FieldLabel>
+                          <Switch checked={field.value} onCheckedChange={field.onChange} />
+                        </Field>
+                      )}
+                    />
+
+                    <Controller
+                      control={form.control}
+                      name="isHidden"
+                      render={({ field }) => (
+                        <Field orientation="horizontal" className="justify-between items-center border px-3 py-2 rounded-xl self-end h-[42px] gap-2">
+                          <FieldLabel className="font-normal text-xs whitespace-nowrap mb-0">Ẩn khỏi hiển thị công khai</FieldLabel>
                           <Switch checked={field.value} onCheckedChange={field.onChange} />
                         </Field>
                       )}

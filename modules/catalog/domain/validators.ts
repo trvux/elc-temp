@@ -67,7 +67,6 @@ export const productSchema = z.object({
       message: "Slug chỉ được chứa chữ thường, số và dấu gạch ngang",
     }),
   description: z.custom<Json>().default({}),
-  specs: z.custom<Json>().default({}),
   images: z.array(imageAssetSchema).default([]),
   labels: z.array(z.string()).default([]),
   isFeatured: z.boolean().default(false),
@@ -89,13 +88,6 @@ export const productSchema = z.object({
   attributeValues: z.array(attributeValueInputSchema).optional(),
   metaTitle: z.string().max(70, { message: "Tiêu đề SEO không nên quá 70 ký tự" }).nullable().optional(),
   metaDescription: z.string().max(160, { message: "Mô tả SEO không nên quá 160 ký tự" }).nullable().optional(),
-  seo: z
-    .object({
-      title: z.string().max(70, { message: "Tiêu đề SEO không nên quá 70 ký tự" }).nullable().optional(),
-      description: z.string().max(160, { message: "Mô tả SEO không nên quá 160 ký tự" }).nullable().optional(),
-      noindex: z.boolean().optional(),
-    })
-    .optional(),
   createdAt: z.iso.datetime({
     message: "Thời gian tạo không đúng định dạng ISO",
   }),
@@ -116,7 +108,6 @@ export const createProductSchema = productSchema
   })
   .extend({
     description: z.custom<Json>().default({}),
-    specs: z.custom<Json>().default({}),
   });
 
 export const updateProductSchema = createProductSchema.partial().extend({

@@ -1,6 +1,6 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
+import { Button } from "@/shared/components/ui/button";
 import { ProductWithRelations as Product } from "@/modules/catalog/domain";
 import { ProductCard } from "@/modules/catalog/presentation/components/ProductCard";
 import {

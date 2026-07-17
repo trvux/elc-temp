@@ -1,5 +1,4 @@
 import { getProductsAction } from "@/modules/catalog/presentation/actions";
-import { resolveProductDisplayPrice } from "@/modules/catalog/domain";
 import { ProductCard } from "@/modules/catalog/presentation/components/ProductCard";
 import { getCategoriesAction } from "@/modules/category/presentation/actions";
 import { getGroupsAction } from "@/modules/group/presentation/actions";
@@ -10,7 +9,7 @@ import { PreviewContent } from "@/shared/components/layout/user/preview-content"
 import { ScrollToTop } from "@/shared/components/layout/user/scroll-to-top";
 import { GridSection } from "@/shared/components/sections/grid-section";
 import Image from "next/image";
-import { primaryImageUrl, imageUrls as assetImageUrls } from "@/shared/lib/image-asset";
+import { primaryImageUrl } from "@/shared/lib/image-asset";
 import {
   TypographyH1,
   TypographyH2,
@@ -20,16 +19,8 @@ import {
   matchLinksByName,
   type NamedLink,
 } from "@/shared/lib/content-relevance";
-import {
-  BASE_URL,
-  generateBreadcrumbSchema,
-  sanitizeAndFormatTitle,
-  getProductDescriptionExcerpt,
-  assembleMetadata,
-} from "@/shared/lib/seo-utils";
 import { unwrapActionResult } from "@/shared/lib/action-result";
 import { ArrowLeft, ArrowRightIcon } from "@phosphor-icons/react/dist/ssr";
-import { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
@@ -129,7 +120,7 @@ async function getCachedNewsDetailData(slug: string) {
             .filter(
               (c) =>
                 c.groupId === matchedEntity.id &&
-                !c.name.toLowerCase().includes("chưa phân loại"),
+                !c.isHidden,
             )
             .map((c) => c.id);
 
@@ -158,45 +149,6 @@ async function getCachedNewsDetailData(slug: string) {
     relatedProductsTotal,
     currentYear,
   };
-}
-
-export async function generateMetadata({
-  params,
-}: PageProps): Promise<Metadata> {
-  const { slug } = await params;
-  const { newsItem, relatedProducts, relatedNews } = await getCachedNewsDetailData(slug);
-
-  if (!newsItem) {
-    return {
-      title: "Không tìm thấy bài viết | ELC",
-    };
-  }
-
-  const title = sanitizeAndFormatTitle(
-    newsItem.seo?.title || newsItem.metaTitle || newsItem.title,
-    false,
-  );
-  const baseDescription = newsItem.seo?.description || newsItem.metaDescription || getProductDescriptionExcerpt(newsItem.content, 180) || newsItem.title;
-
-  const productSummary = relatedProducts && relatedProducts.length > 0
-    ? ` Sản phẩm liên quan: ${relatedProducts.slice(0, 3).map(p => `${p.name} (Giá: ${resolveProductDisplayPrice(p).toLocaleString('vi-VN')}đ)`).join(" | ")}.`
-    : "";
-
-  const newsSummary = relatedNews && relatedNews.length > 0
-    ? ` Bài viết khác: ${relatedNews.slice(0, 2).map(n => n.title).join(" | ")}.`
-    : "";
-
-  const description = `${baseDescription}${productSummary}${newsSummary}`.slice(0, 320);
-
-  return assembleMetadata({
-    title,
-    description,
-    url: `${BASE_URL}/tin-tuc/${slug}`,
-    image: primaryImageUrl(newsItem.images) || null,
-    ogType: "article",
-    noindex: !!newsItem.seo?.noindex,
-    includeTwitter: false,
-  });
 }
 
 export default async function NewsDetailPage({ params }: PageProps) {
@@ -229,61 +181,8 @@ export default async function NewsDetailPage({ params }: PageProps) {
       })
     : "";
 
-  const newsArticleSchema = {
-    "@context": "https://schema.org",
-    "@type": "NewsArticle",
-    headline: newsItem.title,
-    image: assetImageUrls(newsItem.images),
-    datePublished: newsItem.createdAt,
-    dateModified: newsItem.updatedAt || newsItem.createdAt,
-    author: {
-      "@type": "Organization",
-      name: "Điện máy ELC",
-      url: BASE_URL,
-    },
-    publisher: {
-      "@type": "Organization",
-      name: "Điện máy ELC",
-      logo: {
-        "@type": "ImageObject",
-        url: `${BASE_URL}/icon.svg`,
-      },
-    },
-    description: newsItem.metaDescription || getProductDescriptionExcerpt(newsItem.content, 180) || newsItem.title,
-    ...(relatedProducts && relatedProducts.length > 0 ? {
-      about: relatedProducts.slice(0, 5).map((p) => ({
-        "@type": "Product",
-        name: p.name,
-        image: assetImageUrls(p.images),
-        url: `${BASE_URL}/san-pham/${p.slug}`,
-        offers: {
-          "@type": "Offer",
-          price: resolveProductDisplayPrice(p),
-          priceCurrency: "VND",
-          availability: "https://schema.org/InStock",
-        }
-      }))
-    } : {}),
-    ...(relatedNews && relatedNews.length > 0 ? {
-      relatedLink: relatedNews.map((n) => `${BASE_URL}/tin-tuc/${n.slug}`)
-    } : {}),
-  };
-
-  const breadcrumbSchema = generateBreadcrumbSchema(
-    [{ label: "Tin tức", href: "/tin-tuc" }, { label: title }],
-    `${BASE_URL}/tin-tuc/${slug}`,
-  );
-
   return (
     <main className={STYLES.main}>
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(newsArticleSchema) }}
-      />
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
-      />
       {/* Khối 1: Chi tiết bài viết */}
       <GridSection
         id="news-detail-content"

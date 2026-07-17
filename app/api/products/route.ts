@@ -9,7 +9,7 @@ const getCachedGroupCategoryIds = unstable_cache(
     const { data } = await getCategoriesAction({ groupId });
 
     return data
-      .filter((c) => !c.name.toLowerCase().includes("chưa phân loại"))
+      .filter((c) => !c.isHidden)
       .map((c) => c.id);
   },
   ["group-category-ids"],

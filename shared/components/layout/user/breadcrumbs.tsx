@@ -19,9 +19,8 @@ interface BreadcrumbsProps {
   className?: string;
 }
 
-// Visual nav only — BreadcrumbList JSON-LD is rendered server-side via
-// generateBreadcrumbSchema (shared/lib/seo-utils.ts) next to the other page schemas,
-// not from this component. See that function's doc comment for why.
+// Visual nav only. BreadcrumbList JSON-LD generation was removed along with
+// shared/lib/seo-utils.ts (SEO system is being rebuilt from scratch).
 export function Breadcrumbs({ items, className }: BreadcrumbsProps) {
   return (
     <nav aria-label="Breadcrumb" className={className}>

@@ -1,5 +1,3 @@
-import type { Seo } from "@/shared/lib/seo-schema";
-export type { Seo };
 import type { ImageAsset } from "@/shared/lib/image-asset";
 export type { ImageAsset };
 
@@ -23,7 +21,6 @@ export interface News {
   isPublished: boolean;
   metaTitle?: string | null;
   metaDescription?: string | null;
-  seo?: Seo;
   orderIndex: number;
   tags?: { id: string; name: string; slug: string }[];
   createdAt: string;
@@ -42,7 +39,6 @@ export interface CreateNewsInput {
   isPublished?: boolean;
   metaTitle?: string | null;
   metaDescription?: string | null;
-  seo?: Seo;
   orderIndex?: number;
   tagIds?: string[];
 }

@@ -1,5 +1,4 @@
-import { ProductWithRelations, resolveProductDisplayPrice, resolveDefaultVariant, toLegacyStockStatusForBadge } from "@/modules/catalog/domain";
-import { ProductLineCapacitySwitcher } from "@/modules/catalog/presentation/components/public/ProductLineCapacitySwitcher";
+import { ProductWithRelations, resolveProductDisplayPrice, resolveDefaultVariant, toLegacyStockStatusForBadge, btuToKw, CAPACITY_BTU_ATTRIBUTE_CODE } from "@/modules/catalog/domain";
 import { ProductVariantSwitcher } from "@/modules/catalog/presentation/components/public/ProductVariantSwitcher";
 import { getContactsAction } from "@/modules/contact/presentation/actions";
 import { TrackView } from "@/modules/event";
@@ -29,27 +28,10 @@ import {
   TypographyLarge,
   TypographySmall,
 } from "@/shared/components/ui/typography";
-import {
-  BASE_URL,
-  generateBreadcrumbSchema,
-  generateProductSchema,
-} from "@/shared/lib/seo-utils";
 import { cn } from "@/shared/lib/utils";
 import { primaryImageUrl } from "@/shared/lib/image-asset";
 import Image from "next/image";
 import { notFound } from "next/navigation";
-
-interface SpecSubItem {
-  label: string;
-  value: string;
-  unit?: string;
-}
-
-interface SpecItem {
-  label: string;
-  value?: string;
-  items?: SpecSubItem[];
-}
 
 const STYLES = {
   main: cn("w-full bg-background min-h-screen flex flex-col"),
@@ -123,10 +105,7 @@ export async function ProductDetailModule({
 
   // Structured attribute values (see modules/attribute-definition) — the
   // primary source of truth for specs now, replacing the free-text
-  // products.specs jsonb the admin used to hand-type. 1 kW = 3412.14 BTU/h,
-  // the same fixed physics conversion ProductSpecsTab.tsx computes for
-  // admin display, shown here too for the capacity attribute.
-  const BTU_PER_KW = 3412.14;
+  // products.specs jsonb the admin used to hand-type.
   const attributeGroups = (() => {
     const rows = (product.attributeValues || []).filter(
       (av) => av.valueText || av.valueNumber != null || av.valueBoolean != null,
@@ -146,33 +125,13 @@ export async function ProductDetailModule({
     if (av.dataType === "boolean") return av.valueBoolean ? "Có" : "Không";
     if (av.dataType === "number" && av.valueNumber != null) {
       const suffix = av.unit ? ` ${av.unit}` : "";
-      const kwHint = av.code === "cong_suat_lam_lanh_btu" && av.valueNumber > 0
-        ? ` (≈ ${(av.valueNumber / BTU_PER_KW).toFixed(2)} kW)`
+      const kwHint = av.code === CAPACITY_BTU_ATTRIBUTE_CODE && av.valueNumber > 0
+        ? ` (≈ ${btuToKw(av.valueNumber)} kW)`
         : "";
       return `${av.valueNumber.toLocaleString("vi-VN")}${suffix}${kwHint}`;
     }
     return av.valueText || "";
   };
-  // Legacy free-text specs — anything the one-off migration script couldn't
-  // confidently auto-map onto a structured attribute stays here, shown as a
-  // fallback so nothing silently disappears. Entries whose label already
-  // matches a populated attribute's name are hidden to avoid showing the
-  // same fact twice (best-effort de-dup, not exhaustive — some genuine
-  // synonyms may still show in both places).
-  const shownAttributeNames = new Set(
-    attributeGroups.flatMap((g) => g.rows.map((r) => r.name.trim().toLowerCase())),
-  );
-  const normalizedSpecs: SpecItem[] = (
-    Array.isArray(product.specs)
-      ? (product.specs as unknown as SpecItem[])
-      : Object.entries((product.specs as Record<string, string>) || {}).map(
-          ([label, value]) => ({
-            label,
-            value: String(value),
-          }),
-        )
-  ).filter((spec) => !shownAttributeNames.has((spec.label || "").trim().toLowerCase()));
-
   // displayPrice (default-variant cache, see elc-go/docs/product-v2-design.md)
   // is the source of truth once a product has real variants — used here for
   // the floating CTA bar / recently-viewed snapshot, which (unlike
@@ -180,25 +139,6 @@ export async function ProductDetailModule({
   const finalPrice = resolveProductDisplayPrice(product);
   const defaultVariant = resolveDefaultVariant(product);
   const images = product.images || [];
-
-  const isSectionHeader = (spec: SpecItem) =>
-    spec.label === spec.label.toUpperCase() &&
-    spec.label.length > 3 &&
-    !spec.value &&
-    !spec.items;
-
-  const productWithRelations = product;
-  const jsonLd = generateProductSchema(productWithRelations);
-
-  const productUrl = `${BASE_URL}/san-pham/${product.slug}`;
-  const breadcrumbSchema = generateBreadcrumbSchema(
-    [
-      { label: "Sản phẩm", href: "/san-pham" },
-      { label: category.name, href: `/san-pham/${category.slug}` },
-      { label: product.name },
-    ],
-    productUrl,
-  );
 
   return (
     <main className={STYLES.main}>
@@ -212,14 +152,6 @@ export async function ProductDetailModule({
         stockStatus={toLegacyStockStatusForBadge(product.displayStockStatus) ?? null}
       />
       <TrackView entityType="product" entityId={product.id} entityName={product.name} />
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-      />
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
-      />
       {/* ===== KHỐI 1: ẢNH + THÔNG TIN SẢN PHẨM ===== */}
       <GridSection
         id="product-detail-top"
@@ -286,8 +218,6 @@ export async function ProductDetailModule({
 
               <TypographyH1 className={STYLES.productName}>{product.name}</TypographyH1>
 
-              <ProductLineCapacitySwitcher product={product} />
-
               <ProductVariantSwitcher
                 product={product}
                 variants={product.variants || []}
@@ -310,7 +240,7 @@ export async function ProductDetailModule({
         <div className="w-full">
           <Tabs defaultValue="specs" className="w-full">
             <TabsList className={STYLES.tabsListWrapper}>
-              {(attributeGroups.length > 0 || normalizedSpecs.length > 0) && (
+              {attributeGroups.length > 0 && (
                 <TabsTrigger value="specs">Thông số kỹ thuật</TabsTrigger>
               )}
               {product.description && (
@@ -318,7 +248,7 @@ export async function ProductDetailModule({
               )}
             </TabsList>
 
-            {(attributeGroups.length > 0 || normalizedSpecs.length > 0) && (
+            {attributeGroups.length > 0 && (
               <TabsContent value="specs" forceMount className={cn(STYLES.tabsContent, "data-[state=inactive]:hidden")}>
                 <div className={STYLES.specsWrapper}>
                   {attributeGroups.map((group) => (
@@ -340,70 +270,6 @@ export async function ProductDetailModule({
                       ))}
                     </dl>
                   ))}
-
-                  {normalizedSpecs.length > 0 && (
-                    <>
-                      {attributeGroups.length > 0 && (
-                        <TypographyLarge className="block mt-6 mb-2 text-muted-foreground">
-                          Thông tin bổ sung
-                        </TypographyLarge>
-                      )}
-                      <dl className={STYLES.specsGrid}>
-                        {normalizedSpecs
-                          .filter(
-                            (spec) =>
-                              spec.label &&
-                              (spec.value ||
-                                (spec.items && spec.items.some((i) => i.value)) ||
-                                isSectionHeader(spec)),
-                          )
-                          .map((spec, idx) => {
-                            if (isSectionHeader(spec)) {
-                              return (
-                                <div key={idx} className={STYLES.specHeader}>
-                                  <TypographyLarge className={STYLES.specHeaderLabel}>
-                                    {spec.label}
-                                  </TypographyLarge>
-                                </div>
-                              );
-                            }
-                            return (
-                              <div key={idx} className={STYLES.specRow}>
-                                <dt className={STYLES.specLabel}>
-                                  <span className={STYLES.specLabelText}>
-                                    {spec.label}
-                                  </span>
-                                </dt>
-                                <dd className={STYLES.specValue}>
-                                  {spec.value && (
-                                    <span className={STYLES.specValueMain}>
-                                      {spec.value}
-                                    </span>
-                                  )}
-                                  {spec.items
-                                    ?.filter((i) => i.value)
-                                    .map((item, i) => (
-                                      <span key={i} className={STYLES.specSubItem}>
-                                        {item.label && (
-                                          <span className={STYLES.specSubLabel}>
-                                            {item.label}:
-                                          </span>
-                                        )}
-                                        {item.value}
-                                        {item.unit && (
-                                          <span className={STYLES.specUnit}>
-                                            {item.unit}
-                                          </span>
-                                        )}
-                                      </span>
-                                    ))}
-                                </dd>
-                              </div>
-                            );
-                          })}
-                      </dl>
-                    </>
-                  )}
                 </div>
               </TabsContent>
             )}

@@ -4,8 +4,6 @@ export type { Brand, CreateBrandInput, UpdateBrandInput };
 import type { AttributeDataType } from "../../attribute-definition/domain";
 export type { AttributeDataType };
 import { ProductCondition, VariantStockStatus } from "./constants";
-import type { Seo } from "@/shared/lib/seo-schema";
-export type { Seo };
 import type { ImageAsset } from "@/shared/lib/image-asset";
 export type { ImageAsset };
 
@@ -30,9 +28,7 @@ export interface Product {
     slug: string;
     metaTitle?: string | null;
     metaDescription?: string | null;
-    seo?: Seo;
     description: Json;
-    specs: Json;
     images: ImageAsset[];
     labels: string[];
     isFeatured: boolean;
@@ -193,9 +189,7 @@ export interface CreateProductInput {
     slug: string;
     metaTitle?: string | null;
     metaDescription?: string | null;
-    seo?: Seo;
     description?: Json;
-    specs?: Json;
     images?: ImageAsset[];
     labels?: string[];
     isFeatured?: boolean;
@@ -236,16 +230,3 @@ export interface ProductFilter {
     offset?: number;
     includeDeleted?: boolean;
 }
-
-export type SpecSubItem = {
-  label: string;
-  value: string;
-  unit?: string;
-};
-
-export type SpecItem = {
-  label: string;
-  value?: string;
-  unit?: string;
-  items?: SpecSubItem[];
-};

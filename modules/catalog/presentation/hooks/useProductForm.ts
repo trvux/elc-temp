@@ -12,16 +12,11 @@ import { generateSlug } from "@/shared/lib/helpers";
 import { createProductSchema, ProductWithRelations, VARIANT_STOCK_STATUS, PRODUCT_CONDITION, CreateProductInput, UpdateProductInput } from "../../domain";
 import { createProductAction, updateProductAction } from "../actions";
 
-// specs stays an opaque passthrough — the old free-text spec editor is
-// retired (see ProductSpecsTab.tsx, now driven by attributeDefinitions
-// instead), but a product's existing legacy specs blob is still preserved
-// untouched via form.reset on edit (never re-rendered/re-edited by this UI).
 export type ProductFormValues = Omit<
   z.infer<typeof createProductSchema>,
-  "description" | "specs"
+  "description"
 > & {
   description: unknown;
-  specs: unknown;
 };
 
 // The single default variant every new product form starts with — see the
@@ -69,7 +64,6 @@ export function useProductForm(
       condition: PRODUCT_CONDITION.NEW,
       metaTitle: "",
       metaDescription: "",
-      specs: {},
       tagIds: [],
       productLineId: null,
       warrantyMonths: null,
