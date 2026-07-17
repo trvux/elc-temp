@@ -1,5 +1,7 @@
 import { ProductWithRelations, resolveProductDisplayPrice, resolveDefaultVariant, toLegacyStockStatusForBadge, btuToKw, CAPACITY_BTU_ATTRIBUTE_CODE } from "@/modules/catalog/domain";
+import { ProductCard } from "@/modules/catalog/presentation/components/ProductCard";
 import { ProductVariantSwitcher } from "@/modules/catalog/presentation/components/public/ProductVariantSwitcher";
+import { getRelatedProducts } from "@/modules/catalog/presentation/getRelatedProducts";
 import { getContactsAction } from "@/modules/contact/presentation/actions";
 import { TrackView } from "@/modules/event";
 import { Breadcrumbs } from "@/shared/components/layout/user/breadcrumbs";
@@ -81,6 +83,9 @@ const STYLES = {
   scrollToTop: cn(
     "flex items-center gap-2 cursor-pointer hover:text-foreground transition-colors",
   ),
+  relatedGrid: cn(
+    "grid gap-x-4 gap-y-6 md:gap-y-12 content-start grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6",
+  ),
 };
 
 async function getCachedProductDetailData() {
@@ -99,6 +104,7 @@ export async function ProductDetailModule({
   product: ProductWithRelations;
 }) {
   const { contacts, currentYear } = await getCachedProductDetailData();
+  const relatedProducts = await getRelatedProducts(product);
 
   const category = product.category;
   if (!category) notFound();
@@ -287,6 +293,27 @@ export async function ProductDetailModule({
           </Tabs>
         </div>
       </GridSection>
+
+      {/* ===== KHỐI 4: SẢN PHẨM LIÊN QUAN ===== */}
+      {relatedProducts.length > 0 && (
+        <GridSection
+          id="product-detail-related"
+          isFirst={false}
+          showDiamond={true}
+          contentClassName="py-6 md:py-8 lg:py-10"
+        >
+          <div className="w-full flex flex-col gap-6">
+            <TypographyH1 className="text-xl md:text-2xl font-bold tracking-tight">
+              Sản phẩm liên quan
+            </TypographyH1>
+            <div className={STYLES.relatedGrid}>
+              {relatedProducts.map((related) => (
+                <ProductCard key={related.id} product={related} />
+              ))}
+            </div>
+          </div>
+        </GridSection>
+      )}
 
       {/* ===== KHOI 5: FOOTER BAN QUYEN ===== */}
       <GridSection

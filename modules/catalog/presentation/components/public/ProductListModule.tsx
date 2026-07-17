@@ -7,6 +7,7 @@ import { RecentlyViewedSection } from "@/shared/components/layout/user/recently-
 import { ScrollToTop } from "@/shared/components/layout/user/scroll-to-top";
 import { TypographyH1, TypographySmall } from "@/shared/components/ui/typography";
 import { unwrapActionResult } from "@/shared/lib/action-result";
+import { BASE_URL } from "@/shared/lib/seo-schema";
 import { cn } from "@/shared/lib/utils";
 import { notFound } from "next/navigation";
 
@@ -143,6 +144,59 @@ export async function ProductListModule({
           </ScrollToTop>
         </div>
       </GridSection>
+
+      {/* JSON-LD: CollectionPage + ItemList (mainEntity) + BreadcrumbList — a
+          listing page is a collection of products, never tagged as if it
+          were itself a single Product/AggregateOffer. */}
+      {(() => {
+        const pageUrl = `${BASE_URL}/san-pham/${entity.data.slug}`;
+        const breadcrumbTrail = [
+          { name: "Trang chủ", url: BASE_URL },
+          ...(breadcrumbParent ? [{ name: breadcrumbParent.label, url: `${BASE_URL}${breadcrumbParent.href}` }] : []),
+          { name: pageTitle, url: pageUrl },
+        ];
+
+        const collectionPageSchema = {
+          "@context": "https://schema.org",
+          "@type": "CollectionPage",
+          name: pageTitle,
+          url: pageUrl,
+          mainEntity: {
+            "@type": "ItemList",
+            numberOfItems: totalCount,
+            itemListElement: products.map((p, idx) => ({
+              "@type": "ListItem",
+              position: idx + 1,
+              url: `${BASE_URL}/san-pham/${p.slug}`,
+              name: p.name,
+            })),
+          },
+        };
+
+        const breadcrumbSchema = {
+          "@context": "https://schema.org",
+          "@type": "BreadcrumbList",
+          itemListElement: breadcrumbTrail.map((item, idx) => ({
+            "@type": "ListItem",
+            position: idx + 1,
+            name: item.name,
+            item: item.url,
+          })),
+        };
+
+        return (
+          <>
+            <script
+              type="application/ld+json"
+              dangerouslySetInnerHTML={{ __html: JSON.stringify(collectionPageSchema) }}
+            />
+            <script
+              type="application/ld+json"
+              dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
+            />
+          </>
+        );
+      })()}
     </main>
   );
 }
