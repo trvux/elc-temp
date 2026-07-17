@@ -34,8 +34,10 @@ const nextConfig: NextConfig = {
     staticGenerationMinPagesPerWorker: 150,
     staticGenerationMaxConcurrency: 2,
     staleTimes: {
+      // Next.js enforces a hard floor of 30s on `static` — 0 is rejected as
+      // an invalid config value, so this is the closest to "off" possible.
       dynamic: 0,
-      static: 0,
+      static: 30,
     },
     optimizePackageImports: [
       "@phosphor-icons/react",
