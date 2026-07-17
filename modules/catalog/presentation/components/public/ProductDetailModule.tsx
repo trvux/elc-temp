@@ -136,7 +136,15 @@ export async function ProductDetailModule({
         : "";
       return `${av.valueNumber.toLocaleString("vi-VN")}${suffix}${kwHint}`;
     }
-    return av.valueText || "";
+    const text = av.valueText || "";
+    // Some legacy spec entries already have the unit baked into the text
+    // itself (e.g. "285 x 770 x 223 mm"), others store it separately on
+    // the definition only — append only when not already present, so
+    // neither style ends up duplicated or missing.
+    if (av.unit && text && !text.toLowerCase().includes(av.unit.toLowerCase())) {
+      return `${text} ${av.unit}`;
+    }
+    return text;
   };
   // displayPrice (default-variant cache, see elc-go/docs/product-v2-design.md)
   // is the source of truth once a product has real variants — used here for
