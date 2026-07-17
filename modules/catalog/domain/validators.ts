@@ -31,6 +31,8 @@ export const attributeValueInputSchema = z.object({
   valueText: z.string().nullable().optional(),
   valueNumber: z.coerce.number().nullable().optional(),
   valueBoolean: z.boolean().nullable().optional(),
+  // Only meaningful for dataType = "multiselect".
+  valueOptions: z.array(z.string()).nullable().optional(),
 });
 
 export const productVariantInputSchema = z.object({

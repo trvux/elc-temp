@@ -95,6 +95,9 @@ export interface AttributeValue {
     valueText?: string | null;
     valueNumber?: number | null;
     valueBoolean?: boolean | null;
+    // Only meaningful for dataType = "multiselect" — 0..N of the attribute
+    // definition's `options`, not a single scalar like the other types.
+    valueOptions?: string[] | null;
 }
 
 export interface AttributeValueInput {
@@ -102,6 +105,7 @@ export interface AttributeValueInput {
     valueText?: string | null;
     valueNumber?: number | null;
     valueBoolean?: boolean | null;
+    valueOptions?: string[] | null;
 }
 
 // No costPrice — the Go API never returns it (internal margin data, never

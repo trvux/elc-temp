@@ -9,6 +9,7 @@ import {
   FieldLabel,
   FieldSeparator,
 } from "@/shared/components/ui/field";
+import { Checkbox } from "@/shared/components/ui/checkbox";
 import { Input } from "@/shared/components/ui/input";
 import { Switch } from "@/shared/components/ui/switch";
 import {
@@ -33,7 +34,7 @@ export function ProductSpecsTab({ form, attributeDefinitions }: ProductSpecsTabP
   const categoryId = form.watch("categoryId");
 
   const relevantDefs = attributeDefinitions
-    .filter((d) => d.categoryId === categoryId || d.categoryId == null)
+    .filter((d) => d.categoryIds.length === 0 || d.categoryIds.includes(categoryId))
     .sort((a, b) => (a.groupLabel || "").localeCompare(b.groupLabel || "") || a.orderIndex - b.orderIndex);
 
   // Keeps the attributeValues field array in sync with whichever
@@ -69,6 +70,7 @@ export function ProductSpecsTab({ form, attributeDefinitions }: ProductSpecsTabP
             valueText: "",
             valueNumber: undefined,
             valueBoolean: undefined,
+            valueOptions: [],
           }
       )
     );
@@ -203,6 +205,33 @@ export function ProductSpecsTab({ form, attributeDefinitions }: ProductSpecsTabP
                           </SelectContent>
                         </Select>
                       )}
+                    />
+                  )}
+
+                  {def.dataType === "multiselect" && (
+                    <Controller
+                      control={form.control}
+                      name={`attributeValues.${index}.valueOptions`}
+                      render={({ field }) => {
+                        const selected = field.value || [];
+                        function toggle(opt: string) {
+                          field.onChange(
+                            selected.includes(opt)
+                              ? selected.filter((v) => v !== opt)
+                              : [...selected, opt]
+                          );
+                        }
+                        return (
+                          <div className="flex flex-wrap gap-3 pt-1">
+                            {def.options.map((opt) => (
+                              <label key={opt} className="flex items-center gap-2 text-sm">
+                                <Checkbox checked={selected.includes(opt)} onCheckedChange={() => toggle(opt)} />
+                                {opt}
+                              </label>
+                            ))}
+                          </div>
+                        );
+                      }}
                     />
                   )}
                 </Field>

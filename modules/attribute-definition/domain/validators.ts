@@ -2,7 +2,7 @@ import { z } from "zod";
 
 export const attributeDefinitionSchema = z.object({
   id: z.uuid({ message: "ID không đúng định dạng UUID" }),
-  categoryId: z.uuid({ message: "ID danh mục không đúng định dạng UUID" }).nullable().optional(),
+  categoryIds: z.array(z.uuid({ message: "ID danh mục không đúng định dạng UUID" })).default([]),
   code: z
     .string()
     .min(1, { message: "Mã thuộc tính không được để trống" })
@@ -13,7 +13,7 @@ export const attributeDefinitionSchema = z.object({
     .min(1, { message: "Tên thuộc tính không được để trống" })
     .max(150, { message: "Tên thuộc tính không được quá 150 ký tự" }),
   groupLabel: z.string().nullable().optional(),
-  dataType: z.enum(["number", "text", "boolean", "select"]),
+  dataType: z.enum(["number", "text", "boolean", "select", "multiselect"]),
   unit: z.string().nullable().optional(),
   options: z.array(z.string().min(1)).default([]),
   orderIndex: z.coerce.number().int().min(0).default(0),
@@ -23,6 +23,10 @@ export const attributeDefinitionSchema = z.object({
   deletedAt: z.iso.datetime({ message: "Thời gian xóa không đúng định dạng ISO" }).nullable(),
 });
 
+// categoryIds isn't part of Create's own payload (attaching is a separate
+// call, see AttachAttributeDefinitionCategoriesInput) — the form still
+// collects it here for UX (create, then immediately attach), so it stays in
+// this schema and is stripped before the actual create request is built.
 export const createAttributeDefinitionSchema = attributeDefinitionSchema.omit({
   id: true,
   createdAt: true,
@@ -30,10 +34,10 @@ export const createAttributeDefinitionSchema = attributeDefinitionSchema.omit({
   deletedAt: true,
 });
 
-// categoryId/code/dataType are not sendable on update — see
-// UpdateAttributeDefinitionInput's doc comment.
+// code/dataType are not sendable on update — see UpdateAttributeDefinitionInput's
+// doc comment. categoryIds stays (reconciled via attach/detach after update).
 export const updateAttributeDefinitionSchema = createAttributeDefinitionSchema
-  .omit({ categoryId: true, code: true, dataType: true })
+  .omit({ code: true, dataType: true })
   .partial()
   .extend({
     id: z.uuid({ message: "ID không đúng định dạng UUID" }),
