@@ -1,9 +1,11 @@
-import { getProductsAction } from "@/modules/catalog/presentation/actions";
+import type { Metadata } from "next";
+import { getCatalogPageAction, getProductsAction } from "@/modules/catalog/presentation/actions";
 import { getCategoriesAction } from "@/modules/category/presentation/actions";
 import {
   CategorySectionsGrid,
   type CategorySectionData,
 } from "@/shared/components/layout/user/category-sections-grid";
+import { ProductDescription } from "@/shared/components/layout/user/product-description";
 import { ScrollToTop } from "@/shared/components/layout/user/scroll-to-top";
 import { RecentlyViewedSection } from "@/shared/components/layout/user/recently-viewed-section";
 import { unwrapActionResult } from "@/shared/lib/action-result";
@@ -12,6 +14,15 @@ import {
   TypographyH1,
   TypographySmall,
 } from "@/shared/components/ui/typography";
+
+export async function generateMetadata(): Promise<Metadata> {
+  const { data: catalogPage } = await getCatalogPageAction();
+  if (!catalogPage?.metaTitle && !catalogPage?.metaDescription) return {};
+  return {
+    title: catalogPage.metaTitle || undefined,
+    description: catalogPage.metaDescription || undefined,
+  };
+}
 
 const STYLES = {
   main: cn("w-full bg-background min-h-screen flex flex-col"),
@@ -73,7 +84,10 @@ async function getCachedCategorySections(): Promise<CategorySectionData[]> {
 }
 
 export default async function ProductsPage() {
-  const sections = await getCachedCategorySections();
+  const [sections, { data: catalogPage }] = await Promise.all([
+    getCachedCategorySections(),
+    getCatalogPageAction(),
+  ]);
 
   return (
     <main className={STYLES.main}>
@@ -84,6 +98,10 @@ export default async function ProductsPage() {
         <div className="flex flex-col gap-1.5 pb-4 border-b border-border/40">
           <TypographyH1>Tất cả sản phẩm</TypographyH1>
         </div>
+
+        {catalogPage?.content ? (
+          <ProductDescription content={catalogPage.content} fallbackAlt="Tất cả sản phẩm" />
+        ) : null}
 
         <CategorySectionsGrid sections={sections} />
 

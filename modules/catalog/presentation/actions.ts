@@ -15,6 +15,8 @@ import {
   ProductVariantInput,
   AttributeValueInput,
   AttributeDataType,
+  CatalogPage,
+  UpdateCatalogPageInput,
   createProductSchema,
   updateProductSchema,
 } from "../domain";
@@ -583,6 +585,69 @@ export async function deleteProductAction(id: string) {
     return {
       data: null,
       error: error instanceof Error ? error.message : "Failed to delete product",
+    };
+  }
+}
+
+interface GoCatalogPageResponse {
+  content: Json | null;
+  meta_title: string | null;
+  meta_description: string | null;
+  updated_at: string;
+}
+
+function mapGoCatalogPage(row: GoCatalogPageResponse): CatalogPage {
+  return {
+    content: row.content,
+    metaTitle: row.meta_title,
+    metaDescription: row.meta_description,
+    updatedAt: row.updated_at,
+  };
+}
+
+export async function getCatalogPageAction() {
+  if (!GO_API_URL) {
+    return { data: null as CatalogPage | null, error: null };
+  }
+  try {
+    const res = await fetch(`${GO_API_URL}/catalog-page`, { cache: "no-store" });
+    if (!res.ok) {
+      return { data: null, error: await extractErrorMessage(res, "Không thể tải cấu hình trang sản phẩm") };
+    }
+    const row = (await res.json()) as GoCatalogPageResponse;
+    return { data: mapGoCatalogPage(row), error: null };
+  } catch (error) {
+    console.error("getCatalogPageAction error:", error);
+    return { data: null, error: "Không thể tải cấu hình trang sản phẩm" };
+  }
+}
+
+export async function updateCatalogPageAction(input: UpdateCatalogPageInput) {
+  if (!GO_API_URL) {
+    return { data: null, error: "GO_API_URL is not configured" };
+  }
+  try {
+    const res = await fetch(`${GO_API_URL}/catalog-page`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json", ...(await authHeaders()) },
+      body: JSON.stringify({
+        content: input.content ?? null,
+        meta_title: input.metaTitle ?? null,
+        meta_description: input.metaDescription ?? null,
+      }),
+    });
+    if (!res.ok) {
+      return { data: null, error: await extractErrorMessage(res, "Không thể cập nhật cấu hình trang sản phẩm") };
+    }
+    const row = (await res.json()) as GoCatalogPageResponse;
+    revalidatePath("/admin/catalog-page");
+    revalidatePath("/san-pham");
+    return { data: mapGoCatalogPage(row), error: null };
+  } catch (error) {
+    console.error("updateCatalogPageAction error:", error);
+    return {
+      data: null,
+      error: error instanceof Error ? error.message : "Không thể cập nhật cấu hình trang sản phẩm",
     };
   }
 }
