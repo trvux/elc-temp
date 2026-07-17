@@ -103,6 +103,7 @@ interface GoAttributeValue {
   value_text: string | null;
   value_number: number | null;
   value_boolean: boolean | null;
+  value_options: string[] | null;
 }
 
 interface GoProductResponse {
@@ -247,6 +248,7 @@ function mapGoProduct(row: GoProductResponse): ProductWithRelations {
       valueText: av.value_text,
       valueNumber: av.value_number,
       valueBoolean: av.value_boolean,
+      valueOptions: av.value_options,
     })),
     category: row.category
       ? {
@@ -453,6 +455,7 @@ function toGoAttributeValuesPayload(values: AttributeValueInput[] | undefined) {
     value_text: v.valueText ?? undefined,
     value_number: v.valueNumber ?? undefined,
     value_boolean: v.valueBoolean ?? undefined,
+    value_options: v.valueOptions ?? undefined,
   }));
 }
 

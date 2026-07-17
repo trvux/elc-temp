@@ -6,6 +6,8 @@ import { useMemo, useState } from "react";
 import { Controller } from "react-hook-form";
 import { toast } from "sonner";
 
+import { Check, CaretUpDown, X } from "@phosphor-icons/react";
+
 import { AdminDialog } from "@/shared/components/layout/admin/admin-dialog";
 import { DeleteDialog } from "@/shared/components/layout/admin/delete-dialog";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/shared/components/ui/accordion";
@@ -13,10 +15,13 @@ import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
 import { ButtonGroup } from "@/shared/components/ui/button-group";
 import { Checkbox } from "@/shared/components/ui/checkbox";
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/shared/components/ui/command";
 import { Field, FieldError, FieldGroup, FieldLabel, FieldDescription } from "@/shared/components/ui/field";
 import { Input } from "@/shared/components/ui/input";
+import { Popover, PopoverContent, PopoverTrigger } from "@/shared/components/ui/popover";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/shared/components/ui/select";
 import { TagInput } from "@/shared/components/ui/tag-input";
+import { cn } from "@/shared/lib/utils";
 import { getCategoriesAction } from "@/modules/category/presentation/actions";
 
 import { AttributeDefinition, AttributeDataType } from "../../domain";
@@ -28,6 +33,7 @@ const DATA_TYPE_LABELS: Record<AttributeDataType, string> = {
   number: "Số",
   boolean: "Có/Không",
   select: "Chọn 1 giá trị",
+  multiselect: "Chọn nhiều giá trị",
 };
 
 const GLOBAL_GROUP_KEY = "__global__";
@@ -74,7 +80,7 @@ export function AttributeDefinitionManagement() {
   function onEdit(def: AttributeDefinition) {
     setActiveDefinition(def);
     form.reset({
-      categoryId: def.categoryId ?? null,
+      categoryIds: def.categoryIds,
       code: def.code,
       name: def.name,
       groupLabel: def.groupLabel || "",
@@ -89,7 +95,7 @@ export function AttributeDefinitionManagement() {
   function openCreate(categoryId: string | null) {
     setActiveDefinition("new");
     form.reset({
-      categoryId,
+      categoryIds: categoryId ? [categoryId] : [],
       code: "",
       name: "",
       groupLabel: "",
@@ -112,10 +118,12 @@ export function AttributeDefinitionManagement() {
   const categoryGroups = useMemo(() => {
     const byCategory = new Map<string, AttributeDefinition[]>();
     for (const def of filteredDefinitions) {
-      const key = def.categoryId ?? GLOBAL_GROUP_KEY;
-      const group = byCategory.get(key) ?? [];
-      group.push(def);
-      byCategory.set(key, group);
+      const keys = def.categoryIds.length > 0 ? def.categoryIds : [GLOBAL_GROUP_KEY];
+      for (const key of keys) {
+        const group = byCategory.get(key) ?? [];
+        group.push(def);
+        byCategory.set(key, group);
+      }
     }
 
     const namedGroups = categories
@@ -206,7 +214,7 @@ export function AttributeDefinitionManagement() {
                             <div className="flex flex-col gap-0.5">
                               <span className="font-semibold text-foreground">{def.name}</span>
                               {def.unit && <span className="text-xs text-muted-foreground">Đơn vị: {def.unit}</span>}
-                              {def.dataType === "select" && def.options.length > 0 && (
+                              {(def.dataType === "select" || def.dataType === "multiselect") && def.options.length > 0 && (
                                 <div className="flex flex-wrap gap-1 mt-1">
                                   {def.options.map((opt) => (
                                     <Badge key={opt} variant="outline" className="text-[10px] px-1 py-0 h-4 font-normal">
@@ -277,32 +285,62 @@ export function AttributeDefinitionManagement() {
           <FieldGroup className="max-w-xl mx-auto gap-5">
             <Controller
               control={form.control}
-              name="categoryId"
-              render={({ field }) => (
-                <Field>
-                  <FieldLabel>Danh mục</FieldLabel>
-                  <Select
-                    value={field.value || GLOBAL_GROUP_KEY}
-                    disabled={isEditing}
-                    onValueChange={(val) => field.onChange(val === GLOBAL_GROUP_KEY ? null : val)}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Chọn danh mục" />
-                    </SelectTrigger>
-                    <SelectContent position="popper" className="max-h-80 overflow-y-auto">
-                      <SelectItem value={GLOBAL_GROUP_KEY}>Áp dụng cho mọi danh mục</SelectItem>
-                      {categories.map((c) => (
-                        <SelectItem key={c.id} value={c.id}>
-                          {c.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  {isEditing && (
-                    <FieldDescription>Không thể đổi danh mục sau khi tạo.</FieldDescription>
-                  )}
-                </Field>
-              )}
+              name="categoryIds"
+              render={({ field }) => {
+                const selectedIds: string[] = field.value || [];
+                const selectedCategories = categories.filter((c) => selectedIds.includes(c.id));
+                function toggle(id: string) {
+                  field.onChange(
+                    selectedIds.includes(id)
+                      ? selectedIds.filter((v) => v !== id)
+                      : [...selectedIds, id]
+                  );
+                }
+                return (
+                  <Field>
+                    <FieldLabel>Danh mục</FieldLabel>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button variant="outline" role="combobox" className="w-full justify-between font-normal">
+                          {selectedIds.length > 0
+                            ? `${selectedIds.length} danh mục đã chọn`
+                            : "Áp dụng cho mọi danh mục (chung)"}
+                          <CaretUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-full p-0" align="start">
+                        <Command>
+                          <CommandInput placeholder="Tìm danh mục..." />
+                          <CommandList>
+                            <CommandEmpty>Không tìm thấy danh mục nào.</CommandEmpty>
+                            <CommandGroup>
+                              {categories.map((c) => (
+                                <CommandItem key={c.id} value={c.name} onSelect={() => toggle(c.id)}>
+                                  <Check className={cn("mr-2 h-4 w-4", selectedIds.includes(c.id) ? "opacity-100" : "opacity-0")} />
+                                  {c.name}
+                                </CommandItem>
+                              ))}
+                            </CommandGroup>
+                          </CommandList>
+                        </Command>
+                      </PopoverContent>
+                    </Popover>
+                    {selectedCategories.length > 0 && (
+                      <div className="flex flex-wrap gap-1.5 mt-1">
+                        {selectedCategories.map((c) => (
+                          <Badge key={c.id} variant="secondary" className="gap-1">
+                            {c.name}
+                            <button type="button" onClick={() => toggle(c.id)} className="ml-0.5 rounded-full hover:bg-muted-foreground/20">
+                              <X className="h-3 w-3" />
+                            </button>
+                          </Badge>
+                        ))}
+                      </div>
+                    )}
+                    <FieldDescription>Để trống = áp dụng cho mọi danh mục. Có thể chọn nhiều danh mục anh em dùng chung 1 thuộc tính.</FieldDescription>
+                  </Field>
+                );
+              }}
             />
 
             <div className="grid grid-cols-2 gap-4">
@@ -381,7 +419,7 @@ export function AttributeDefinitionManagement() {
               />
             )}
 
-            {dataType === "select" && (
+            {(dataType === "select" || dataType === "multiselect") && (
               <Controller
                 control={form.control}
                 name="options"
@@ -393,7 +431,11 @@ export function AttributeDefinitionManagement() {
                       onChange={field.onChange}
                       placeholder="VD: R32, R410A, R22..."
                     />
-                    <FieldDescription>Admin chỉ được chọn 1 trong các giá trị này khi nhập sản phẩm.</FieldDescription>
+                    <FieldDescription>
+                      {dataType === "multiselect"
+                        ? "Admin có thể chọn nhiều giá trị trong danh sách này khi nhập sản phẩm."
+                        : "Admin chỉ được chọn 1 trong các giá trị này khi nhập sản phẩm."}
+                    </FieldDescription>
                   </Field>
                 )}
               />

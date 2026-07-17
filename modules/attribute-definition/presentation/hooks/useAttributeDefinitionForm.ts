@@ -5,7 +5,12 @@ import { toast } from "sonner";
 import type { z } from "zod";
 
 import { createAttributeDefinitionSchema, AttributeDefinition, CreateAttributeDefinitionInput, UpdateAttributeDefinitionInput } from "../../domain";
-import { createAttributeDefinitionAction, updateAttributeDefinitionAction } from "../actions";
+import {
+  attachAttributeDefinitionCategoriesAction,
+  createAttributeDefinitionAction,
+  detachAttributeDefinitionCategoryAction,
+  updateAttributeDefinitionAction,
+} from "../actions";
 
 export type AttributeDefinitionFormValues = z.infer<typeof createAttributeDefinitionSchema>;
 
@@ -21,7 +26,7 @@ export function useAttributeDefinitionForm(
     // diverge just enough that TS can't unify them without this.
     resolver: standardSchemaResolver(createAttributeDefinitionSchema) as unknown as Resolver<AttributeDefinitionFormValues>,
     defaultValues: {
-      categoryId: null,
+      categoryIds: [],
       code: "",
       name: "",
       groupLabel: "",
@@ -35,8 +40,10 @@ export function useAttributeDefinitionForm(
 
   const saveMutation = useMutation({
     mutationFn: async (values: AttributeDefinitionFormValues) => {
+      const categoryIds = values.categoryIds ?? [];
+
       if (activeDefinition && activeDefinition !== "new") {
-        return updateAttributeDefinitionAction({
+        const res = await updateAttributeDefinitionAction({
           id: activeDefinition.id,
           name: values.name,
           groupLabel: values.groupLabel,
@@ -45,8 +52,29 @@ export function useAttributeDefinitionForm(
           orderIndex: values.orderIndex,
           isRequired: values.isRequired,
         } as UpdateAttributeDefinitionInput);
+        if (res.error) return res;
+
+        // categoryIds isn't part of Update's own payload — reconcile via
+        // attach/detach so the form can still edit it in one submit.
+        const before = new Set(activeDefinition.categoryIds);
+        const after = new Set(categoryIds);
+        const toAttach = categoryIds.filter((id) => !before.has(id));
+        const toDetach = [...before].filter((id) => !after.has(id));
+        if (toAttach.length > 0) {
+          await attachAttributeDefinitionCategoriesAction(activeDefinition.id, toAttach);
+        }
+        for (const categoryId of toDetach) {
+          await detachAttributeDefinitionCategoryAction(activeDefinition.id, categoryId);
+        }
+        return res;
       }
-      return createAttributeDefinitionAction(values as CreateAttributeDefinitionInput);
+
+      const created = await createAttributeDefinitionAction(values as CreateAttributeDefinitionInput);
+      if (created.error || !created.data) return created;
+      if (categoryIds.length > 0) {
+        await attachAttributeDefinitionCategoriesAction(created.data.id, categoryIds);
+      }
+      return created;
     },
     onSuccess: (res) => {
       if (res.error) {
