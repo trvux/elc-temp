@@ -104,6 +104,7 @@ export function CategoryManagement() {
             metaTitle: cat.metaTitle || "",
             metaDescription: cat.metaDescription || "",
             isFeatured: cat.isFeatured || false,
+            isHidden: cat.isHidden || false,
             orderIndex: cat.orderIndex || 0,
             content: cat.content || "",
           });
@@ -125,6 +126,7 @@ export function CategoryManagement() {
       metaTitle: "",
       metaDescription: "",
       isFeatured: false,
+      isHidden: false,
       orderIndex: 0,
       content: "",
     });
@@ -231,7 +233,7 @@ export function CategoryManagement() {
                     )}
                   />
 
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-3 gap-4">
                     <Controller
                       control={form.control}
                       name="orderIndex"
@@ -253,6 +255,17 @@ export function CategoryManagement() {
                       render={({ field }) => (
                         <Field orientation="horizontal" className="justify-between items-center border px-3 py-2 rounded-xl self-end h-[42px] gap-2">
                           <FieldLabel className="font-normal text-xs whitespace-nowrap mb-0">Nổi bật</FieldLabel>
+                          <Switch checked={field.value} onCheckedChange={field.onChange} />
+                        </Field>
+                      )}
+                    />
+
+                    <Controller
+                      control={form.control}
+                      name="isHidden"
+                      render={({ field }) => (
+                        <Field orientation="horizontal" className="justify-between items-center border px-3 py-2 rounded-xl self-end h-[42px] gap-2">
+                          <FieldLabel className="font-normal text-xs whitespace-nowrap mb-0">Ẩn khỏi hiển thị công khai</FieldLabel>
                           <Switch checked={field.value} onCheckedChange={field.onChange} />
                         </Field>
                       )}

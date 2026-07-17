@@ -20,6 +20,7 @@ interface GoGroupRefResponse {
   meta_title: string | null;
   meta_description: string | null;
   is_featured: boolean;
+  is_hidden: boolean;
   order_index: number;
 }
 
@@ -33,6 +34,7 @@ interface GoCategoryResponse {
   meta_title: string | null;
   meta_description: string | null;
   is_featured: boolean;
+  is_hidden: boolean;
   order_index: number;
   content: unknown | null;
   created_at: string;
@@ -56,6 +58,7 @@ function mapGoCategory(row: GoCategoryResponse): CategoryWithGroup {
     metaTitle: row.meta_title,
     metaDescription: row.meta_description,
     isFeatured: row.is_featured,
+    isHidden: row.is_hidden,
     orderIndex: row.order_index,
     content: row.content,
     createdAt: row.created_at,
@@ -70,6 +73,7 @@ function mapGoCategory(row: GoCategoryResponse): CategoryWithGroup {
           metaTitle: row.group.meta_title,
           metaDescription: row.group.meta_description,
           isFeatured: row.group.is_featured,
+          isHidden: row.group.is_hidden,
           orderIndex: row.group.order_index,
           ...emptyGroupTimestamps(),
         }

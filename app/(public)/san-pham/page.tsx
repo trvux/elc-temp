@@ -7,36 +7,11 @@ import {
 import { ScrollToTop } from "@/shared/components/layout/user/scroll-to-top";
 import { RecentlyViewedSection } from "@/shared/components/layout/user/recently-viewed-section";
 import { unwrapActionResult } from "@/shared/lib/action-result";
-import {
-  BASE_URL,
-  generateBreadcrumbSchema,
-  generateSystemPageMetadata,
-  SHOP_NAME,
-} from "@/shared/lib/seo-utils";
-import { getCachedSystemPage } from "@/shared/lib/cached-system-page";
 import { cn } from "@/shared/lib/utils";
 import {
   TypographyH1,
   TypographySmall,
 } from "@/shared/components/ui/typography";
-import type { Metadata } from "next";
-
-export async function generateMetadata(): Promise<Metadata> {
-  const canonicalUrl = `${BASE_URL}/san-pham`;
-  const systemPage = await getCachedSystemPage("san-pham");
-  const meta = generateSystemPageMetadata(
-    systemPage,
-    `Máy lạnh & Thiết bị lọc không khí chính hãng | ${SHOP_NAME}`,
-    `Khám phá hàng ngàn sản phẩm chính hãng tại ${SHOP_NAME}: máy lạnh, điều hòa, máy lọc không khí, máy lọc nước, thiết bị nhà thông minh giá tốt nhất, bảo hành uy tín.`,
-    "/san-pham",
-  );
-  return {
-    ...meta,
-    alternates: {
-      canonical: canonicalUrl,
-    },
-  } as Metadata;
-}
 
 const STYLES = {
   main: cn("w-full bg-background min-h-screen flex flex-col"),
@@ -122,19 +97,6 @@ export default async function ProductsPage() {
           </ScrollToTop>
         </div>
       </div>
-
-      {/* Breadcrumb schema — server-rendered so Google always sees it, see generateBreadcrumbSchema doc */}
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{
-          __html: JSON.stringify(
-            generateBreadcrumbSchema(
-              [{ label: "Sản phẩm" }],
-              `${BASE_URL}/san-pham`,
-            ),
-          ),
-        }}
-      />
     </main>
   );
 }

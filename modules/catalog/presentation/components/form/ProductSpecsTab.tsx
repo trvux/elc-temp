@@ -19,19 +19,13 @@ import {
   SelectValue,
 } from "@/shared/components/ui/select";
 import { AttributeDefinition } from "@/modules/attribute-definition/domain";
+import { btuToKw, CAPACITY_BTU_ATTRIBUTE_CODE } from "@/modules/catalog/domain";
 import { ProductFormValues } from "../../hooks/useProductForm";
 
 interface ProductSpecsTabProps {
   form: UseFormReturn<ProductFormValues>;
   attributeDefinitions: AttributeDefinition[];
 }
-
-// 1 kW = 3412.14 BTU/h — a fixed physics conversion, safe to auto-derive for
-// display. Unlike this, HP ("ngựa") is a VN retail marketing bucket brands
-// assign inconsistently around the BTU value, so it stays its own
-// admin-picked select attribute (cong_suat_lam_lanh_hp), never computed.
-const BTU_PER_KW = 3412.14;
-const CAPACITY_BTU_CODE = "cong_suat_lam_lanh_btu";
 
 const GLOBAL_GROUP_KEY = "__chung__";
 
@@ -120,7 +114,7 @@ export function ProductSpecsTab({ form, attributeDefinitions }: ProductSpecsTabP
     group.defs.push(def);
   }
 
-  const capacityBtu = relevantDefs.find((d) => d.code === CAPACITY_BTU_CODE);
+  const capacityBtu = relevantDefs.find((d) => d.code === CAPACITY_BTU_ATTRIBUTE_CODE);
   const capacityIndex = capacityBtu ? relevantDefs.indexOf(capacityBtu) : -1;
   const capacityBtuValue = capacityIndex >= 0 ? form.watch(`attributeValues.${capacityIndex}.valueNumber`) : undefined;
 
@@ -173,8 +167,8 @@ export function ProductSpecsTab({ form, attributeDefinitions }: ProductSpecsTabP
                           />
                         )}
                       />
-                      {def.code === CAPACITY_BTU_CODE && typeof capacityBtuValue === "number" && capacityBtuValue > 0 && (
-                        <FieldDescription>≈ {(capacityBtuValue / BTU_PER_KW).toFixed(2)} kW (tự tính từ BTU/h)</FieldDescription>
+                      {def.code === CAPACITY_BTU_ATTRIBUTE_CODE && typeof capacityBtuValue === "number" && capacityBtuValue > 0 && (
+                        <FieldDescription>≈ {btuToKw(capacityBtuValue)} kW (tự tính từ BTU/h)</FieldDescription>
                       )}
                     </>
                   )}

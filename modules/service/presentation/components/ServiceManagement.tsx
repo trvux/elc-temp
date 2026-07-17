@@ -23,7 +23,6 @@ import { AdminDialog } from "@/shared/components/layout/admin/admin-dialog";
 import { DeleteDialog } from "@/shared/components/layout/admin/delete-dialog";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
-import { Checkbox } from "@/shared/components/ui/checkbox";
 import { SeoSnippetPreview } from "@/shared/components/layout/admin/seo-snippet-preview";
 import { DataTable } from "@/shared/components/ui/data-table";
 import {
@@ -121,8 +120,8 @@ export function ServiceManagement({
   const watchGroupId = form.watch("groupId");
   const previewTitle = form.watch("title");
   const previewSlug = form.watch("slug");
-  const previewSeoTitle = form.watch("seo.title");
-  const previewSeoDescription = form.watch("seo.description");
+  const previewMetaTitle = form.watch("metaTitle");
+  const previewMetaDescription = form.watch("metaDescription");
 
   const filteredCategories = useMemo(() => {
     if (!watchGroupId || watchGroupId === "none") return [];
@@ -778,7 +777,7 @@ export function ServiceManagement({
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <Controller
                       control={form.control}
-                      name="seo.title"
+                      name="metaTitle"
                       render={({ field, fieldState }) => (
                         <Field>
                           <div className="flex items-center justify-between">
@@ -799,7 +798,7 @@ export function ServiceManagement({
 
                     <Controller
                       control={form.control}
-                      name="seo.description"
+                      name="metaDescription"
                       render={({ field, fieldState }) => (
                         <Field>
                           <div className="flex items-center justify-between">
@@ -817,21 +816,9 @@ export function ServiceManagement({
                       )}
                     />
                   </div>
-                  <Controller
-                    control={form.control}
-                    name="seo.noindex"
-                    render={({ field }) => (
-                      <Field>
-                        <label className="flex items-center space-x-2 text-sm cursor-pointer">
-                          <Checkbox checked={field.value || false} onCheckedChange={(v) => field.onChange(!!v)} />
-                          <span>Ẩn khỏi kết quả tìm kiếm (noindex)</span>
-                        </label>
-                      </Field>
-                    )}
-                  />
                   <SeoSnippetPreview
-                    title={previewSeoTitle || previewTitle || ""}
-                    description={previewSeoDescription || ""}
+                    title={previewMetaTitle || previewTitle || ""}
+                    description={previewMetaDescription || ""}
                     url={`dienmayelc.com.vn/dich-vu/${previewSlug || ""}`}
                   />
                 </div>

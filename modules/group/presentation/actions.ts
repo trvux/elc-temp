@@ -14,6 +14,7 @@ interface GoGroupResponse {
   meta_title: string | null;
   meta_description: string | null;
   is_featured: boolean;
+  is_hidden: boolean;
   order_index: number;
   content: unknown | null;
   created_at: string;
@@ -36,6 +37,7 @@ function mapGoGroup(row: GoGroupResponse): Group {
     metaTitle: row.meta_title,
     metaDescription: row.meta_description,
     isFeatured: row.is_featured,
+    isHidden: row.is_hidden,
     orderIndex: row.order_index,
     content: row.content,
     createdAt: row.created_at,

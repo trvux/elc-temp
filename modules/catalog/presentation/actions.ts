@@ -26,19 +26,6 @@ import type { ImageAsset } from "@/shared/lib/image-asset";
 
 const GO_API_URL = process.env.GO_API_URL;
 
-interface GoSpecSubItem {
-  label: string;
-  value: string;
-  unit?: string;
-}
-
-interface GoSpecItem {
-  label: string;
-  value?: string;
-  unit?: string;
-  items?: GoSpecSubItem[];
-}
-
 interface GoCategoryRef {
   id: string;
   name: string;
@@ -56,12 +43,6 @@ interface GoBrandRef {
   meta_description: string | null;
   is_featured: boolean;
   order_index: number;
-}
-
-interface GoSeo {
-  title?: string;
-  description?: string;
-  noindex?: boolean;
 }
 
 // --- v2: options/variants (see elc-go/docs/product-v2-design.md) ---
@@ -131,7 +112,6 @@ interface GoProductResponse {
   name: string;
   slug: string;
   description: Json;
-  specs: GoSpecItem[] | null;
   images: ImageAsset[] | null;
   labels: string[] | null;
   is_featured: boolean;
@@ -140,7 +120,6 @@ interface GoProductResponse {
   condition: string;
   meta_title: string | null;
   meta_description: string | null;
-  seo: GoSeo;
   product_line_id: string | null;
   warranty_months: number | null;
   warranty_terms: string | null;
@@ -202,9 +181,7 @@ function mapGoProduct(row: GoProductResponse): ProductWithRelations {
     slug: row.slug || "",
     metaTitle: row.meta_title,
     metaDescription: row.meta_description,
-    seo: row.seo,
     description: row.description ?? null,
-    specs: (row.specs ?? null) as unknown as Json,
     images: row.images || [],
     labels: row.labels || [],
     isFeatured: row.is_featured || false,

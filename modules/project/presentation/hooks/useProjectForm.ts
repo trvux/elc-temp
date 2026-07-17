@@ -9,7 +9,7 @@ import { convertToWebP } from "@/shared/lib/image";
 import { uploadImageFile } from "@/shared/lib/upload-image";
 
 
-import { createProjectSchema, ProjectWithCategory, Json, Seo, ImageAsset } from "../../domain";
+import { createProjectSchema, ProjectWithCategory, Json, ImageAsset } from "../../domain";
 import { createProjectAction, updateProjectAction } from "../actions";
 
 export type ProjectFormValues = {
@@ -21,7 +21,6 @@ export type ProjectFormValues = {
   isPublished: boolean;
   metaTitle: string;
   metaDescription: string;
-  seo: Seo;
   orderIndex: number;
   projectTypeId: string;
   serviceGroupId?: string;
@@ -57,7 +56,6 @@ export function useProjectForm(
       isFeatured: false,
       metaTitle: "",
       metaDescription: "",
-      seo: { title: "", description: "", noindex: false },
       orderIndex: 0,
       tagIds: [],
       clientName: "",

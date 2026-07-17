@@ -9,6 +9,7 @@ export interface Category {
   metaTitle: string | null;
   metaDescription: string | null;
   isFeatured: boolean;
+  isHidden: boolean;
   orderIndex: number;
   createdAt: string;
   updatedAt: string;
@@ -28,6 +29,7 @@ export interface CreateCategoryInput {
   metaTitle?: string | null;
   metaDescription?: string | null;
   isFeatured?: boolean;
+  isHidden?: boolean;
   orderIndex?: number;
   content?: unknown | null;
 }
@@ -41,6 +43,7 @@ export interface UpdateCategoryInput {
   metaTitle?: string | null;
   metaDescription?: string | null;
   isFeatured?: boolean;
+  isHidden?: boolean;
   orderIndex?: number;
   content?: unknown | null;
 }

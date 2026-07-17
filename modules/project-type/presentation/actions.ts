@@ -69,6 +69,11 @@ function emptyGroupTimestamps() {
   return { createdAt: "", updatedAt: "", deletedAt: null };
 }
 
+// isHidden isn't carried by this module's own category/group join (this
+// project-type <-> category association view predates the is_hidden flag
+// and isn't used for the "Chưa phân loại" public-nav filtering this field
+// exists for) — default false, same filler convention as emptyGroupTimestamps.
+
 function mapGoProjectType(row: GoProjectTypeResponse): ProjectTypeWithCategories {
   return {
     id: row.id,
@@ -91,6 +96,7 @@ function mapGoProjectType(row: GoProjectTypeResponse): ProjectTypeWithCategories
       metaTitle: cat.meta_title,
       metaDescription: cat.meta_description,
       isFeatured: cat.is_featured,
+      isHidden: false,
       orderIndex: cat.order_index,
       createdAt: cat.created_at,
       updatedAt: cat.updated_at,
@@ -104,6 +110,7 @@ function mapGoProjectType(row: GoProjectTypeResponse): ProjectTypeWithCategories
             metaTitle: cat.group.meta_title,
             metaDescription: cat.group.meta_description,
             isFeatured: cat.group.is_featured,
+            isHidden: false,
             orderIndex: cat.group.order_index,
             ...emptyGroupTimestamps(),
           }

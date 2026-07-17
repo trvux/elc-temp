@@ -15,20 +15,7 @@ import { cn } from "@/shared/lib/utils";
 import { ArrowUpRight } from "@phosphor-icons/react/dist/ssr";
 import Link from "next/link";
 import { ScrollToActiveBranch } from "./ScrollToActiveBranch";
-import { generateSystemPageMetadata } from "@/shared/lib/seo-utils";
-import type { Metadata } from "next";
-import { getCachedSystemPage } from "@/shared/lib/cached-system-page";
 import { unwrapActionResult } from "@/shared/lib/action-result";
-
-export async function generateMetadata(): Promise<Metadata> {
-  const systemPage = await getCachedSystemPage("thong-tin");
-  return generateSystemPageMetadata(
-    systemPage,
-    "Thông tin về ELC | Điện máy ELC",
-    "Các chính sách thương mại và dịch vụ công ty cam kết luôn luôn theo đuổi cam kết thực hiện",
-    "/thong-tin"
-  ) as Metadata;
-}
 
 const STYLES = {
   header: cn(

@@ -7,11 +7,6 @@ import { RecentlyViewedSection } from "@/shared/components/layout/user/recently-
 import { ScrollToTop } from "@/shared/components/layout/user/scroll-to-top";
 import { TypographyH1, TypographySmall } from "@/shared/components/ui/typography";
 import { unwrapActionResult } from "@/shared/lib/action-result";
-import {
-  BASE_URL,
-  generateBreadcrumbSchema,
-  generateCollectionSchema,
-} from "@/shared/lib/seo-utils";
 import { cn } from "@/shared/lib/utils";
 import { notFound } from "next/navigation";
 
@@ -57,7 +52,7 @@ async function getCachedListModuleData(entity: ResolvedEntity) {
     }
   } else if (entity.type === "group") {
     categoryIds = allCategories
-      .filter((c) => c.groupId === entity.data.id && !c.name.toLowerCase().includes("chưa phân loại"))
+      .filter((c) => c.groupId === entity.data.id && !c.isHidden)
       .map((c) => c.id);
   }
 
@@ -148,42 +143,6 @@ export async function ProductListModule({
           </ScrollToTop>
         </div>
       </GridSection>
-
-      {/* Schema collections SEO */}
-      {(() => {
-        const schema = generateCollectionSchema(
-          entity.data,
-          products,
-          totalCount,
-        );
-        if (!schema) return null;
-        return (
-          <script
-            type="application/ld+json"
-            dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
-          />
-        );
-      })()}
-
-      {/* Breadcrumb schema — server-rendered so Google always sees it, see generateBreadcrumbSchema doc */}
-      {(() => {
-        const currentUrl = `${BASE_URL}/san-pham/${entity.data.slug}`;
-        const breadcrumbSchema = generateBreadcrumbSchema(
-          [
-            { label: "Sản phẩm", href: "/san-pham" },
-            ...(breadcrumbParent ? [breadcrumbParent] : []),
-            { label: pageTitle },
-          ],
-          currentUrl,
-        );
-        return (
-          <script
-            type="application/ld+json"
-            dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
-          />
-        );
-      })()}
-
     </main>
   );
 }

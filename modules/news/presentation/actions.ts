@@ -9,12 +9,6 @@ import { BASE_URL } from "@/shared/lib/seo-schema";
 
 const GO_API_URL = process.env.GO_API_URL;
 
-interface GoSeo {
-  title?: string;
-  description?: string;
-  noindex?: boolean;
-}
-
 interface GoNewsResponse {
   id: string;
   title: string;
@@ -27,7 +21,6 @@ interface GoNewsResponse {
   is_published: boolean;
   meta_title: string | null;
   meta_description: string | null;
-  seo: GoSeo;
   order_index: number;
   tags: { id: string; name: string; slug: string }[] | null;
   created_at: string;
@@ -54,7 +47,6 @@ function mapGoNews(row: GoNewsResponse): News {
     isPublished: row.is_published,
     metaTitle: row.meta_title,
     metaDescription: row.meta_description,
-    seo: row.seo,
     orderIndex: row.order_index,
     tags: row.tags ?? [],
     createdAt: row.created_at,

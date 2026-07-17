@@ -15,6 +15,7 @@ export const categorySchema = z.object({
   metaTitle: z.string().nullable().optional(),
   metaDescription: z.string().nullable().optional(),
   isFeatured: z.boolean().default(false),
+  isHidden: z.boolean().default(false),
   orderIndex: z.number().default(0),
   content: z.unknown().nullable().optional(),
   createdAt: z.iso.datetime({

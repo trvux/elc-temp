@@ -19,10 +19,8 @@ import { notFound } from "next/navigation";
 import { Breadcrumbs } from "@/shared/components/layout/user/breadcrumbs";
 import { ArrowLeft } from "@phosphor-icons/react/dist/ssr";
 import Link from "next/link";
-import { Metadata } from "next";
 import { getPublicLayoutData } from "@/modules/settings";
-import { generateBranchDetailSchema, sanitizeAndFormatTitle, BASE_URL } from "@/shared/lib/seo-utils";
-import { primaryImageUrl, imageUrls } from "@/shared/lib/image-asset";
+import { primaryImageUrl } from "@/shared/lib/image-asset";
 import { GridSection } from "@/shared/components/sections/grid-section";
 import { unwrapActionResult } from "@/shared/lib/action-result";
 
@@ -66,42 +64,13 @@ async function getBranchData(slug: string) {
   };
 }
 
-export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const { slug } = await params;
-  const { branch } = await getBranchData(slug);
-
-  if (!branch || !branch.isPublished) {
-    return {
-      title: "Không tìm thấy thông tin | ELC",
-    };
-  }
-
-  const title = sanitizeAndFormatTitle(branch.metaTitle || branch.name, false);
-  const description = branch.metaDescription || branch.name;
-
-  return {
-    title,
-    description,
-    alternates: {
-      canonical: `${BASE_URL}/thong-tin/${slug}`,
-    },
-    openGraph: {
-      title,
-      description,
-      images: imageUrls(branch.images),
-    },
-  };
-}
-
 export default async function BranchDetail({ params }: Props) {
   const { slug } = await params;
-  const { branch, branches, settings, contacts, currentYear } = await getBranchData(slug);
+  const { branch, currentYear } = await getBranchData(slug);
 
   if (!branch || !branch.isPublished) {
     notFound();
   }
-
-  const branchSchema = generateBranchDetailSchema(branch, branches, settings, contacts);
 
   const items = [
     {
@@ -160,10 +129,6 @@ export default async function BranchDetail({ params }: Props) {
 
   return (
     <main className="w-full bg-background min-h-screen flex flex-col">
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(branchSchema) }}
-      />
       {/* ===== KHỐI 1: CHI TIẾT CƠ SỞ ===== */}
       <GridSection
         id="branch-detail-content"

@@ -8,7 +8,6 @@ describe("Product Validators", () => {
     slug: "iphone-15-pro",
     sku: "IP15P-128-BLU",
     description: { content: "Detailed description" },
-    specs: { ram: "8GB", storage: "128GB" },
     originalPrice: 25000000,
     salePrice: 23500000,
     discountPercent: 6,

@@ -48,12 +48,6 @@ interface GoProjectServiceResponse {
   group: GoServiceGroupRefResponse | null;
 }
 
-interface GoSeo {
-  title?: string;
-  description?: string;
-  noindex?: boolean;
-}
-
 interface GoProjectResponse {
   id: string;
   title: string;
@@ -64,7 +58,6 @@ interface GoProjectResponse {
   is_published: boolean;
   meta_title: string | null;
   meta_description: string | null;
-  seo: GoSeo;
   order_index: number;
   project_type_id: string | null;
   client_name: string;
@@ -125,7 +118,6 @@ function mapGoProject(row: GoProjectResponse): ProjectWithCategory {
     isPublished: row.is_published,
     metaTitle: row.meta_title,
     metaDescription: row.meta_description,
-    seo: row.seo,
     orderIndex: row.order_index,
     projectTypeId: row.project_type_id,
     clientName: row.client_name,

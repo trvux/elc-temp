@@ -10,7 +10,6 @@ import { toast } from "sonner";
 import { AdminDialog } from "@/shared/components/layout/admin/admin-dialog";
 import { DeleteDialog } from "@/shared/components/layout/admin/delete-dialog";
 import { Button } from "@/shared/components/ui/button";
-import { Checkbox } from "@/shared/components/ui/checkbox";
 import { SeoSnippetPreview } from "@/shared/components/layout/admin/seo-snippet-preview";
 import { DataTable } from "@/shared/components/ui/data-table";
 import {
@@ -93,8 +92,8 @@ export function NewsManagement() {
 
   const previewTitle = form.watch("title");
   const previewSlug = form.watch("slug");
-  const previewSeoTitle = form.watch("seo.title");
-  const previewSeoDescription = form.watch("seo.description");
+  const previewMetaTitle = form.watch("metaTitle");
+  const previewMetaDescription = form.watch("metaDescription");
 
   // Delete Mutation
   const deleteMutation = useMutation({
@@ -135,11 +134,6 @@ export function NewsManagement() {
             isPublished: n.isPublished,
             metaTitle: n.metaTitle || "",
             metaDescription: n.metaDescription || "",
-            seo: {
-              title: n.seo?.title || "",
-              description: n.seo?.description || "",
-              noindex: n.seo?.noindex || false,
-            },
             orderIndex: n.orderIndex,
             tagIds: (n.tags || []).map((t) => t.id),
           });
@@ -163,7 +157,6 @@ export function NewsManagement() {
       isPublished: true,
       metaTitle: "",
       metaDescription: "",
-      seo: { title: "", description: "", noindex: false },
       orderIndex: 0,
       tagIds: [],
     });
@@ -467,7 +460,7 @@ export function NewsManagement() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <Controller
                     control={form.control}
-                    name="seo.title"
+                    name="metaTitle"
                     render={({ field, fieldState }) => (
                       <Field>
                         <div className="flex items-center justify-between">
@@ -482,7 +475,7 @@ export function NewsManagement() {
 
                   <Controller
                     control={form.control}
-                    name="seo.description"
+                    name="metaDescription"
                     render={({ field, fieldState }) => (
                       <Field>
                         <div className="flex items-center justify-between">
@@ -495,21 +488,9 @@ export function NewsManagement() {
                     )}
                   />
                 </div>
-                <Controller
-                  control={form.control}
-                  name="seo.noindex"
-                  render={({ field }) => (
-                    <Field>
-                      <label className="flex items-center space-x-2 text-sm cursor-pointer">
-                        <Checkbox checked={field.value || false} onCheckedChange={(v) => field.onChange(!!v)} />
-                        <span>Ẩn khỏi kết quả tìm kiếm (noindex)</span>
-                      </label>
-                    </Field>
-                  )}
-                />
                 <SeoSnippetPreview
-                  title={previewSeoTitle || previewTitle || ""}
-                  description={previewSeoDescription || ""}
+                  title={previewMetaTitle || previewTitle || ""}
+                  description={previewMetaDescription || ""}
                   url={`dienmayelc.com.vn/tin-tuc/${previewSlug || ""}`}
                 />
               </div>

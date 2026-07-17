@@ -10,7 +10,6 @@ import { toast } from "sonner";
 import { AdminDialog } from "@/shared/components/layout/admin/admin-dialog";
 import { DeleteDialog } from "@/shared/components/layout/admin/delete-dialog";
 import { Button } from "@/shared/components/ui/button";
-import { Checkbox } from "@/shared/components/ui/checkbox";
 import { SeoSnippetPreview } from "@/shared/components/layout/admin/seo-snippet-preview";
 import { TagMultiSelect } from "@/shared/components/ui/tag-multi-select";
 import {
@@ -167,8 +166,8 @@ export function ProjectManagement() {
 
   const previewTitle = form.watch("title");
   const previewSlug = form.watch("slug");
-  const previewSeoTitle = form.watch("seo.title");
-  const previewSeoDescription = form.watch("seo.description");
+  const previewMetaTitle = form.watch("metaTitle");
+  const previewMetaDescription = form.watch("metaDescription");
 
   // Delete Mutation
   const deleteMutation = useMutation({
@@ -271,11 +270,6 @@ export function ProjectManagement() {
             isFeatured: p.isFeatured || false,
             metaTitle: p.metaTitle || "",
             metaDescription: p.metaDescription || "",
-            seo: {
-              title: p.seo?.title || "",
-              description: p.seo?.description || "",
-              noindex: p.seo?.noindex || false,
-            },
             orderIndex: p.orderIndex,
             tagIds: (p.tags || []).map((t) => t.id),
             clientName: p.clientName || "",
@@ -305,7 +299,6 @@ export function ProjectManagement() {
       isFeatured: false,
       metaTitle: "",
       metaDescription: "",
-      seo: { title: "", description: "", noindex: false },
       orderIndex: 0,
       tagIds: [],
       clientName: "",
@@ -801,7 +794,7 @@ export function ProjectManagement() {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <Controller
                         control={form.control}
-                        name="seo.title"
+                        name="metaTitle"
                         render={({ field, fieldState }) => (
                           <Field>
                             <div className="flex items-center justify-between">
@@ -820,7 +813,7 @@ export function ProjectManagement() {
 
                       <Controller
                         control={form.control}
-                        name="seo.description"
+                        name="metaDescription"
                         render={({ field, fieldState }) => (
                           <Field>
                             <div className="flex items-center justify-between">
@@ -838,21 +831,9 @@ export function ProjectManagement() {
                         )}
                       />
                     </div>
-                    <Controller
-                      control={form.control}
-                      name="seo.noindex"
-                      render={({ field }) => (
-                        <Field>
-                          <label className="flex items-center space-x-2 text-sm cursor-pointer">
-                            <Checkbox checked={field.value || false} onCheckedChange={(v) => field.onChange(!!v)} />
-                            <span>Ẩn khỏi kết quả tìm kiếm (noindex)</span>
-                          </label>
-                        </Field>
-                      )}
-                    />
                     <SeoSnippetPreview
-                      title={previewSeoTitle || previewTitle || ""}
-                      description={previewSeoDescription || ""}
+                      title={previewMetaTitle || previewTitle || ""}
+                      description={previewMetaDescription || ""}
                       url={`dienmayelc.com.vn/du-an/${previewSlug || ""}`}
                     />
                   </div>
