@@ -13,7 +13,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/shared/components/ui/table";
-import { Skeleton } from "@/shared/components/ui/skeleton";
 
 import { getProductsAction } from "@/modules/catalog/presentation/actions";
 import { getNewsAction } from "@/modules/news/presentation/actions";
@@ -139,13 +138,7 @@ export function SeoAuditPanel() {
     .filter((row) => row.problems.length > 0);
 
   if (isLoading) {
-    return (
-      <div className="space-y-3">
-        <Skeleton className="h-10 w-full" />
-        <Skeleton className="h-10 w-full" />
-        <Skeleton className="h-10 w-full" />
-      </div>
-    );
+    return null;
   }
 
   return (

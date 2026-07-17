@@ -7,7 +7,7 @@ import {
 } from "@/shared/components/ui/animate-in";
 import { TypographyH2 } from "@/shared/components/ui/typography";
 import { cn } from "@/shared/lib/utils";
-import { ImageWithSkeleton } from "@/shared/components/ui/image-with-skeleton";
+import Image from "next/image";
 import Link from "next/link";
 
 interface BrandShowcaseProps {
@@ -56,14 +56,13 @@ export function BrandShowcase({ brands = [] }: BrandShowcaseProps) {
                   >
                     {brand.logoUrl ? (
                       <div className="relative h-8 md:h-9 lg:h-10 w-24 md:w-28 lg:w-32">
-                        <ImageWithSkeleton
+                        <Image
                           src={brand.logoUrl}
                           alt={brand.name}
                           fill
                           loading="lazy"
                           sizes="(max-width: 768px) 96px, (max-width: 1024px) 112px, 128px"
                           className="object-contain opacity-90 group-hover:opacity-100 transition-all duration-300"
-                          wrapperClassName="w-full h-full"
                         />
                       </div>
                     ) : (

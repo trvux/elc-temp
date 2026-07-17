@@ -20,7 +20,6 @@ import {
   TypographySmall,
 } from "@/shared/components/ui/typography";
 import type { Metadata } from "next";
-import { cacheLife, cacheTag } from "next/cache";
 
 export async function generateMetadata(): Promise<Metadata> {
   const canonicalUrl = `${BASE_URL}/san-pham`;
@@ -50,9 +49,6 @@ const STYLES = {
 };
 
 async function getCachedCategories() {
-  "use cache";
-  cacheLife("days");
-  cacheTag("products-list", "categories");
   return getCategoriesAction().then(unwrapActionResult);
 }
 
@@ -63,10 +59,6 @@ async function getCachedCategories() {
 const INITIAL_PER_SECTION = 24;
 
 async function getCachedCategorySections(): Promise<CategorySectionData[]> {
-  "use cache";
-  cacheLife("days");
-  cacheTag("products-list", "categories");
-
   const allCategories = await getCachedCategories();
 
   // Build sort order: group.orderIndex * 1000 + category.orderIndex
@@ -85,8 +77,6 @@ async function getCachedCategorySections(): Promise<CategorySectionData[]> {
         limit: INITIAL_PER_SECTION,
         offset: 0,
       });
-      // Loi that su (Go API down/timeout) phai throw de "use cache" giu ban
-      // cache cu thay vi coi nhu category nay khong co san pham.
       if (error) throw new Error(error);
       return {
         categoryId: cat.id,
@@ -108,13 +98,6 @@ async function getCachedCategorySections(): Promise<CategorySectionData[]> {
 }
 
 export default async function ProductsPage() {
-  return <CachedProductsView />;
-}
-
-async function CachedProductsView() {
-  "use cache";
-  cacheTag("products-list", "categories");
-
   const sections = await getCachedCategorySections();
 
   return (

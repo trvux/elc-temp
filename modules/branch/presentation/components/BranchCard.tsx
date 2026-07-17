@@ -1,8 +1,8 @@
 import { Branch } from "@/modules/branch";
 import { Buildings } from "@phosphor-icons/react/dist/ssr";
-import { ImageWithSkeleton } from "@/shared/components/ui/image-with-skeleton";
 import { TypographyH3 } from "@/shared/components/ui/typography";
 import { primaryImageUrl } from "@/shared/lib/image-asset";
+import Image from "next/image";
 import Link from "next/link";
 import React from "react";
 
@@ -68,8 +68,7 @@ export const BranchCard: React.FC<BranchCardProps> = ({ branch, priority = false
           href={`/thong-tin/${branch.slug}`}
           className="shrink-0 relative w-36 aspect-video sm:w-48 md:w-64 rounded-lg overflow-hidden"
         >
-          <ImageWithSkeleton
-            wrapperClassName="w-full h-full"
+          <Image
             src={imageUrl}
             alt={branch.name}
             fill

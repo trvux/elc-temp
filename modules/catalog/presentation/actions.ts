@@ -21,7 +21,6 @@ import {
 import { authHeaders, toSnakeCaseBody } from "@/shared/lib/go-api";
 import { submitToIndexNow } from "@/shared/lib/indexnow";
 import { warmCache } from "@/shared/lib/cache-warm";
-import { purgeCloudflareCache } from "@/shared/lib/cloudflare-purge";
 import { BASE_URL } from "@/shared/lib/seo-schema";
 import type { ImageAsset } from "@/shared/lib/image-asset";
 
@@ -510,7 +509,6 @@ export async function createProductAction(input: CreateProductInput) {
     revalidatePath("/san-pham", "layout");
     revalidatePath("/", "layout");
     revalidateTag("products-list", { expire: 0 });
-    await purgeCloudflareCache();
     if (data?.slug) {
       revalidateTag(`slug:${data.slug}`, { expire: 0 });
     }
@@ -560,7 +558,6 @@ export async function updateProductAction(input: UpdateProductInput) {
     revalidatePath("/san-pham", "layout");
     revalidatePath("/", "layout");
     revalidateTag("products-list", { expire: 0 });
-    await purgeCloudflareCache();
     if (data?.slug) {
       revalidateTag(`slug:${data.slug}`, { expire: 0 });
     }
@@ -596,7 +593,6 @@ export async function deleteProductAction(id: string) {
     revalidatePath("/san-pham", "layout");
     revalidatePath("/", "layout");
     revalidateTag("products-list", { expire: 0 });
-    await purgeCloudflareCache();
     if (product?.slug) {
       revalidateTag(`slug:${product.slug}`, { expire: 0 });
     }

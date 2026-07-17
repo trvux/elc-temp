@@ -3,7 +3,6 @@
 import { revalidatePath, revalidateTag } from "next/cache";
 import { Brand, BrandFilter, CreateBrandInput, UpdateBrandInput } from "../domain";
 import { authHeaders, toSnakeCaseBody } from "@/shared/lib/go-api";
-import { purgeCloudflareCache } from "@/shared/lib/cloudflare-purge";
 
 const GO_API_URL = process.env.GO_API_URL;
 
@@ -118,7 +117,6 @@ export async function createBrandAction(input: CreateBrandInput) {
     const row = (await res.json()) as GoBrandResponse;
     revalidatePath("/admin/brands");
     revalidateTag("layout", { expire: 0 });
-    await purgeCloudflareCache();
     return { data: mapGoBrand(row), error: null };
   } catch (error) {
     console.error("createBrandAction error:", error);
@@ -147,7 +145,6 @@ export async function updateBrandAction(input: UpdateBrandInput) {
     const row = (await res.json()) as GoBrandResponse;
     revalidatePath("/admin/brands");
     revalidateTag("layout", { expire: 0 });
-    await purgeCloudflareCache();
     return { data: mapGoBrand(row), error: null };
   } catch (error) {
     console.error("updateBrandAction error:", error);
@@ -170,7 +167,6 @@ export async function deleteBrandAction(id: string) {
 
     revalidatePath("/admin/brands");
     revalidateTag("layout", { expire: 0 });
-    await purgeCloudflareCache();
     return { success: true, error: null };
   } catch (error) {
     console.error("deleteBrandAction error:", error);

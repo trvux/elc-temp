@@ -19,7 +19,6 @@ import {
   TypographySmall,
 } from "@/shared/components/ui/typography";
 import { cn } from "@/shared/lib/utils";
-import { cacheLife, cacheTag } from "next/cache";
 import {
   BASE_URL,
   generateBreadcrumbSchema,
@@ -54,13 +53,6 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 async function getCachedServicesData() {
-  "use cache";
-  cacheLife("days");
-  cacheTag("services-list");
-
-  // Neu Go API loi that (khong phai rong hop le), ham nay throw thay vi tra
-  // ve mang rong -- "use cache" se giu nguyen ban cache cu (stale-if-error)
-  // thay vi ghi de bang ket qua rong.
   const groupedServices = await getPublishedServicesGroupedAction();
   const currentYear = new Date().getFullYear();
 

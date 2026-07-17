@@ -14,8 +14,7 @@ import {
   TypographySmall,
 } from "@/shared/components/ui/typography";
 import { cn } from "@/shared/lib/utils";
-import { cacheLife, cacheTag } from "next/cache";
-import { ImageWithSkeleton } from "@/shared/components/ui/image-with-skeleton";
+import Image from "next/image";
 import { notFound } from "next/navigation";
 import { Breadcrumbs } from "@/shared/components/layout/user/breadcrumbs";
 import { ArrowLeft } from "@phosphor-icons/react/dist/ssr";
@@ -56,11 +55,6 @@ interface Props {
 
 
 async function getBranchData(slug: string) {
-  "use cache";
-  cacheLife("hours");
-  cacheTag("layout");
-  // null = chi nhanh khong ton tai (404 that su). Loi that se throw va giu
-  // nguyen ban cache cu (stale-if-error).
   const branch = await getBranchBySlugAction(slug).then(unwrapActionResult);
   const currentYear = new Date().getFullYear();
   const { settings, contacts, branches } = await getPublicLayoutData();
@@ -193,9 +187,8 @@ export default async function BranchDetail({ params }: Props) {
             {primaryImageUrl(branch.images) && (
               <div className="w-full mt-6 overflow-hidden rounded-sm border border-border/40">
                 <AspectRatio ratio={16 / 9}>
-                  <ImageWithSkeleton
-                    wrapperClassName="w-full h-full"
-                    src={primaryImageUrl(branch.images)}
+                  <Image
+                    src={primaryImageUrl(branch.images)!}
                     alt={branch.images[0]?.alt || branch.name}
                     fill
                     className="object-cover"

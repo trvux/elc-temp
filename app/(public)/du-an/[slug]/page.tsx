@@ -15,7 +15,7 @@ import { Badge } from "@/shared/components/ui/badge";
 import { TypographyH1, TypographySmall } from "@/shared/components/ui/typography";
 import { Sparkle } from "@phosphor-icons/react/dist/ssr";
 import { Metadata } from "next";
-import { ImageWithSkeleton } from "@/shared/components/ui/image-with-skeleton";
+import Image from "next/image";
 import { notFound } from "next/navigation";
 import { getServiceBySlugAction } from "@/modules/service/presentation/actions";
 import { getCategoryBySlugAction } from "@/modules/category/presentation/actions";
@@ -125,11 +125,6 @@ export default async function ProjectDetailPage({
   notFound();
 }
 
-async function getCachedCurrentYear() {
-  "use cache";
-  return new Date().getFullYear();
-}
-
 // Sub-component to render the Project Detail page view
 async function ProjectDetailView({
   project,
@@ -140,7 +135,7 @@ async function ProjectDetailView({
   const displayCategory =
     project.categories?.[0]?.name || project.projectType?.name || "Dự án";
 
-  const currentYear = await getCachedCurrentYear();
+  const currentYear = new Date().getFullYear();
   const { data: { prev, next } } = await getAdjacentProjectsAction(project.id, project.projectTypeId);
 
   const breadcrumbItems = [
@@ -196,8 +191,7 @@ async function ProjectDetailView({
           {images[0] && (
             <div className="w-full mt-2 overflow-hidden rounded-sm border border-border/40">
               <AspectRatio ratio={16 / 9}>
-                <ImageWithSkeleton
-                  wrapperClassName="w-full h-full"
+                <Image
                   src={images[0].url}
                   alt={images[0].alt || project.title}
                   fill
@@ -225,8 +219,7 @@ async function ProjectDetailView({
                     className="w-full overflow-hidden rounded-sm border border-border/40"
                   >
                     <AspectRatio ratio={3 / 2}>
-                      <ImageWithSkeleton
-                        wrapperClassName="w-full h-full"
+                      <Image
                         src={img.url}
                         alt={img.alt || `${project.title} - ảnh ${i + 2}`}
                         fill

@@ -10,7 +10,6 @@ import {
 import { authHeaders, toSnakeCaseBody } from "@/shared/lib/go-api";
 import { submitToIndexNow } from "@/shared/lib/indexnow";
 import { warmCache } from "@/shared/lib/cache-warm";
-import { purgeCloudflareCache } from "@/shared/lib/cloudflare-purge";
 import { BASE_URL } from "@/shared/lib/seo-schema";
 import type { ImageAsset } from "@/shared/lib/image-asset";
 
@@ -168,9 +167,9 @@ async function extractErrorMessage(res: Response, fallback: string): Promise<str
   }
 }
 
-// isPrerenderError lets a real fetch failure propagate out of "use cache"
-// render functions instead of being swallowed — see
-// modules/category/presentation/actions.ts's identical helper for why.
+// isPrerenderError re-throws Next.js's own internal prerendering-abort
+// signal instead of swallowing it — see
+// modules/category/presentation/actions.ts's identical helper.
 function isPrerenderError(error: unknown): boolean {
   if (error instanceof Error) {
     const msg = error.message.toLowerCase();
@@ -510,5 +509,4 @@ function revalidatePaths(slug?: string) {
   if (slug) {
     revalidateTag(`slug:${slug}`, { expire: 0 });
   }
-  void purgeCloudflareCache();
 }

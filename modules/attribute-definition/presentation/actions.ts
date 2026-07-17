@@ -9,7 +9,6 @@ import {
   UpdateAttributeDefinitionInput,
 } from "../domain";
 import { authHeaders, toSnakeCaseBody } from "@/shared/lib/go-api";
-import { purgeCloudflareCache } from "@/shared/lib/cloudflare-purge";
 
 const GO_API_URL = process.env.GO_API_URL;
 
@@ -104,7 +103,6 @@ export async function createAttributeDefinitionAction(input: CreateAttributeDefi
     const row = (await res.json()) as GoAttributeDefinitionResponse;
     revalidatePath("/admin/attribute-definitions");
     revalidateTag("layout", { expire: 0 });
-    await purgeCloudflareCache();
     return { data: mapGoAttributeDefinition(row), error: null };
   } catch (error) {
     console.error("createAttributeDefinitionAction error:", error);
@@ -133,7 +131,6 @@ export async function updateAttributeDefinitionAction(input: UpdateAttributeDefi
     const row = (await res.json()) as GoAttributeDefinitionResponse;
     revalidatePath("/admin/attribute-definitions");
     revalidateTag("layout", { expire: 0 });
-    await purgeCloudflareCache();
     return { data: mapGoAttributeDefinition(row), error: null };
   } catch (error) {
     console.error("updateAttributeDefinitionAction error:", error);
@@ -156,7 +153,6 @@ export async function deleteAttributeDefinitionAction(id: string) {
 
     revalidatePath("/admin/attribute-definitions");
     revalidateTag("layout", { expire: 0 });
-    await purgeCloudflareCache();
     return { success: true, error: null };
   } catch (error) {
     console.error("deleteAttributeDefinitionAction error:", error);

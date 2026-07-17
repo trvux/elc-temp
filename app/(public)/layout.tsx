@@ -8,6 +8,12 @@ import { TopProgressBar } from "@/shared/components/layout/user/top-progress-bar
 import { StickyContactActions } from "@/shared/components/sections/sticky-contact-actions";
 import Script from "next/script";
 
+// No caching anywhere in this tree anymore (see cacheComponents removal in
+// next.config.ts) — every public page fetches live from the Go API on each
+// request, so the whole (public) segment must render dynamically rather
+// than attempt a static/prerendered shell.
+export const dynamic = "force-dynamic";
+
 interface PublicLayoutProps {
   children: React.ReactNode;
 }

@@ -8,7 +8,6 @@ import {
   UpdateProjectTypeInput,
 } from "../domain/types";
 import { authHeaders, toSnakeCaseBody } from "@/shared/lib/go-api";
-import { purgeCloudflareCache } from "@/shared/lib/cloudflare-purge";
 
 const GO_API_URL = process.env.GO_API_URL;
 
@@ -123,9 +122,8 @@ async function extractErrorMessage(res: Response, fallback: string): Promise<str
 }
 
 // isPrerenderError mirrors modules/category/presentation/actions.ts's own
-// helper — getProjectTypesAction is called from ProjectListModule.tsx inside
-// a "use cache" render function, so a real fetch failure there must
-// propagate rather than silently cache an empty list.
+// helper — re-throws Next.js's own internal prerendering-abort signal
+// instead of swallowing it.
 function isPrerenderError(error: unknown): boolean {
   if (error instanceof Error) {
     const msg = error.message.toLowerCase();
@@ -199,7 +197,6 @@ export async function createProjectTypeAction(input: CreateProjectTypeInput) {
     revalidatePath("/admin/project-types");
     revalidateTag("layout", { expire: 0 });
     revalidateTag("projects", { expire: 0 });
-    await purgeCloudflareCache();
     return { data: mapGoProjectType(row) as ProjectType, error: null };
   } catch (error) {
     console.error("createProjectTypeAction error:", error);
@@ -229,7 +226,6 @@ export async function updateProjectTypeAction(input: UpdateProjectTypeInput) {
     revalidatePath("/admin/project-types");
     revalidateTag("layout", { expire: 0 });
     revalidateTag("projects", { expire: 0 });
-    await purgeCloudflareCache();
     return { data: mapGoProjectType(row) as ProjectType, error: null };
   } catch (error) {
     console.error("updateProjectTypeAction error:", error);
@@ -253,7 +249,6 @@ export async function deleteProjectTypeAction(id: string) {
     revalidatePath("/admin/project-types");
     revalidateTag("layout", { expire: 0 });
     revalidateTag("projects", { expire: 0 });
-    await purgeCloudflareCache();
     return { error: null };
   } catch (error) {
     console.error("deleteProjectTypeAction error:", error);

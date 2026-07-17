@@ -11,7 +11,6 @@ import {
 } from "@/shared/components/ui/tooltip";
 import { ArrowRightIcon, MapPinIcon } from "@phosphor-icons/react";
 import Image from "next/image";
-import { ImageWithSkeleton } from "@/shared/components/ui/image-with-skeleton";
 import Link from "next/link";
 import { useMemo } from "react";
 
@@ -281,14 +280,13 @@ export function Footer({
                     >
                       {brand.logoUrl ? (
                         <div className="relative h-8 w-full max-w-[85%]">
-                          <ImageWithSkeleton
+                          <Image
                             src={brand.logoUrl}
                             alt={brand.name}
                             fill
                             loading="lazy"
                             sizes="120px"
                             className="object-contain opacity-90"
-                            wrapperClassName="w-full h-full"
                           />
                         </div>
                       ) : (

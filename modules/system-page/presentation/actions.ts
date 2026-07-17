@@ -2,7 +2,6 @@
 
 import { revalidatePath } from "next/cache";
 import { SystemPage, UpdateSystemPageInput } from "../domain";
-import { purgeCloudflareCache } from "@/shared/lib/cloudflare-purge";
 import { authHeaders, toSnakeCaseBody } from "@/shared/lib/go-api";
 
 const GO_API_URL = process.env.GO_API_URL;
@@ -119,7 +118,6 @@ export async function updateSystemPageAction(input: UpdateSystemPageInput) {
     } else {
       revalidatePath(`/${data.slug}`);
     }
-    await purgeCloudflareCache();
 
     return { data, error: null };
   } catch (error) {

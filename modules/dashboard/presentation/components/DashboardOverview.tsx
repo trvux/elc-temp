@@ -9,7 +9,6 @@ import {
   ChartLegendContent,
 } from "@/shared/components/ui/chart";
 import type { ChartConfig } from "@/shared/components/ui/chart";
-import { Skeleton } from "@/shared/components/ui/skeleton";
 import { useQuery } from "@tanstack/react-query";
 import {
   Briefcase,
@@ -93,15 +92,6 @@ function StatCard({ label, value, icon: Icon, accent = false }: StatCardProps) {
       >
         {value ?? 0}
       </p>
-    </Card>
-  );
-}
-
-function StatCardSkeleton() {
-  return (
-    <Card className="p-4 flex flex-col gap-2">
-      <Skeleton className="h-3 w-20 mb-1" />
-      <Skeleton className="h-6 w-10" />
     </Card>
   );
 }
@@ -223,9 +213,7 @@ export function DashboardOverview() {
       {/* ── Section 1: KPI hero + secondary stats ───────────────────────── */}
       <div className="space-y-3">
         {/* Inquiry alert card — full width, stands out */}
-        {isLoading ? (
-          <StatCardSkeleton />
-        ) : (
+        {isLoading ? null : (
           <Card className="p-5 border-orange-400/60 bg-orange-50/50 dark:bg-orange-950/20 flex items-center gap-5">
             <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-orange-100 dark:bg-orange-900/40">
               <ChatCircleText size={22} className="text-orange-500" />
@@ -248,7 +236,7 @@ export function DashboardOverview() {
         {/* Secondary stat grid */}
         <div className="grid grid-cols-3 md:grid-cols-5 lg:grid-cols-9 gap-3">
           {isLoading
-            ? Array.from({ length: 9 }).map((_, i) => <StatCardSkeleton key={i} />)
+            ? null
             : secondaryCards.map((card) => (
                 <StatCard
                   key={card.label}
@@ -271,9 +259,7 @@ export function DashboardOverview() {
             </p>
           </div>
           <div className="flex-1 min-h-[320px]">
-            {isLoading ? (
-              <Skeleton className="w-full h-full" />
-            ) : categoryData.length > 0 ? (
+            {isLoading ? null : categoryData.length > 0 ? (
               <ChartContainer config={categoryChartConfig} className="h-full w-full">
                 <BarChart
                   data={categoryData}
@@ -334,9 +320,7 @@ export function DashboardOverview() {
             </p>
           </div>
           <div className="flex-1 min-h-[280px] flex flex-col items-center justify-center">
-            {isLoading ? (
-              <Skeleton className="w-full h-full" />
-            ) : brandData.length > 0 ? (
+            {isLoading ? null : brandData.length > 0 ? (
               <ChartContainer config={brandChartConfig} className="h-[260px] w-full">
                 <PieChart>
                   <ChartTooltip
@@ -404,9 +388,7 @@ export function DashboardOverview() {
           </div>
         </div>
         <div className="h-[200px] w-full">
-          {isLoading ? (
-            <Skeleton className="w-full h-full" />
-          ) : topViewedData.length > 0 ? (
+          {isLoading ? null : topViewedData.length > 0 ? (
             <ChartContainer config={topViewedChartConfig} className="h-full w-full">
               <BarChart
                 data={topViewedData}
@@ -469,9 +451,7 @@ export function DashboardOverview() {
             </p>
           </div>
           <div className="flex-1 min-h-[220px]">
-            {isLoading ? (
-              <Skeleton className="w-full h-full" />
-            ) : contentMixData.length > 0 ? (
+            {isLoading ? null : contentMixData.length > 0 ? (
               <ChartContainer config={contentMixConfig} className="h-[220px] w-full">
                 <PieChart>
                   <ChartTooltip
@@ -525,11 +505,7 @@ export function DashboardOverview() {
             </p>
           </div>
           <div className="space-y-0 flex-1">
-            {isLoading ? (
-              Array.from({ length: 5 }).map((_, i) => (
-                <Skeleton key={i} className="h-9 w-full mb-2" />
-              ))
-            ) : featuredProducts.length > 0 ? (
+            {isLoading ? null : featuredProducts.length > 0 ? (
               featuredProducts.map((item, i) => (
                 <div
                   key={item.id + i}
@@ -563,11 +539,7 @@ export function DashboardOverview() {
             </p>
           </div>
           <div className="space-y-0 flex-1">
-            {isLoading ? (
-              Array.from({ length: 5 }).map((_, i) => (
-                <Skeleton key={i} className="h-9 w-full mb-2" />
-              ))
-            ) : featuredProjects.length > 0 ? (
+            {isLoading ? null : featuredProjects.length > 0 ? (
               featuredProjects.map((item, i) => (
                 <div
                   key={item.id + i}
@@ -602,17 +574,7 @@ export function DashboardOverview() {
           </p>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
-          {isLoading ? (
-            Array.from({ length: 8 }).map((_, i) => (
-              <div key={i} className="flex gap-3 p-3 rounded-lg border border-muted/50">
-                <Skeleton className="h-8 w-8 rounded-lg shrink-0" />
-                <div className="space-y-1.5 flex-1">
-                  <Skeleton className="h-3.5 w-full" />
-                  <Skeleton className="h-3 w-20" />
-                </div>
-              </div>
-            ))
-          ) : recentActivities.length > 0 ? (
+          {isLoading ? null : recentActivities.length > 0 ? (
             recentActivities.map((activity, i) => {
               const badgeCls = TYPE_BADGE[activity.type] ?? "bg-muted text-muted-foreground";
               const label = TYPE_LABEL[activity.type] ?? activity.type;
