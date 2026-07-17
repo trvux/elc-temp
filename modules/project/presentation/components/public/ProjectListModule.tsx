@@ -10,7 +10,6 @@ import { FilteredGridWrapper } from "@/shared/components/layout/user/filtered-gr
 import { ScrollToTop } from "@/shared/components/layout/user/scroll-to-top";
 import { GridSection } from "@/shared/components/sections/grid-section";
 import { Button } from "@/shared/components/ui/button";
-import { Skeleton } from "@/shared/components/ui/skeleton";
 import {
   TypographyH1,
   TypographySmall,
@@ -18,12 +17,11 @@ import {
 import { getQueryTokens } from "@/shared/lib/search-utils";
 import { generateBreadcrumbSchema } from "@/shared/lib/seo-utils";
 import { BASE_URL } from "@/shared/lib/seo-schema";
-import { cacheLife, cacheTag } from "next/cache";
+import Image from "next/image";
 import Link from "next/link";
 import { Suspense } from "react";
 import { ProjectFilterMobile } from "./ProjectFilterMobile";
 import { ProjectFilters } from "./ProjectFilters";
-import { ImageWithSkeleton } from "@/shared/components/ui/image-with-skeleton";
 import { AspectRatio } from "@/shared/components/ui/aspect-ratio";
 import { primaryImageUrl } from "@/shared/lib/image-asset";
 
@@ -65,18 +63,9 @@ async function getCachedProjectListData(
   searchVal: string | undefined,
   conditionParam: string | undefined,
 ) {
-  "use cache";
-  // Serve stale content for up to 1 hour while revalidating in background every 5 minutes.
-  // This prevents blank page caused by cache cold-start race condition.
-  cacheLife("days");
-  cacheTag("projects-list");
-
   // Only fetch all published projects separately when filters are active (avoid duplicate query)
   const hasFilters = !!(projectType?.id || categorySlugs.length > 0 || serviceSlugs.length > 0 || searchVal);
 
-  // Loi that (Supabase/Go API down) phai throw ra ngoai de "use cache" giu
-  // nguyen ban cache cu con tot (stale-if-error) thay vi nuot loi va dong bang
-  // ket qua rong vao cache trong ca ngay (cacheLife "days" o tren).
   const [
     projectsRaw,
     allProjectTypes,
@@ -335,8 +324,7 @@ export async function ProjectListModule({
           {projectType && projectType.image && (
             <div className="w-full max-w-4xl mt-6 overflow-hidden rounded-md border border-border/40 shadow-sm animate-fade-in-up">
               <AspectRatio ratio={21 / 9}>
-                <ImageWithSkeleton
-                  wrapperClassName="w-full h-full"
+                <Image
                   src={projectType.image}
                   alt={projectType.name}
                   fill
@@ -359,14 +347,7 @@ export async function ProjectListModule({
         <div className="flex flex-col lg:flex-row gap-12">
           {/* Desktop filter sidebar */}
           <aside className="hidden lg:block w-64 shrink-0 sticky top-28 self-start">
-            <Suspense
-              fallback={
-                <div className="animate-pulse space-y-4">
-                  <div className="h-10 bg-muted rounded w-1/2" />
-                  <div className="h-40 bg-muted rounded" />
-                </div>
-              }
-            >
+            <Suspense fallback={null}>
               <ProjectFilters
                 projectTypes={projectTypeItems}
                 currentProjectTypeSlug={projectType?.slug || ""}
@@ -394,21 +375,7 @@ export async function ProjectListModule({
                 />
               </Suspense>
             </div>
-            <FilteredGridWrapper
-              fallback={
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-10 md:gap-y-12 min-h-[450px]">
-                  {Array.from({ length: 6 }).map((_, index) => (
-                    <div key={index} className="flex flex-col gap-4">
-                      <Skeleton className="aspect-video w-full rounded-2xl" />
-                      <div className="space-y-2">
-                        <Skeleton className="h-6 w-full" />
-                        <Skeleton className="h-4 w-2/3" />
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              }
-            >
+            <FilteredGridWrapper fallback={null}>
               {sortedProjects.length > 0 ? (
                 <div className={STYLES.grid}>
                   {sortedProjects.map((project, index) => (

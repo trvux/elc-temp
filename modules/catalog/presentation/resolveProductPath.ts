@@ -6,7 +6,6 @@ import { Brand, ProductWithRelations } from "@/modules/catalog/domain/types";
 import { getBrandByIdAction } from "@/modules/brand/presentation/actions";
 import { getProductByIdAction } from "./actions";
 import { getSlugRegistryEntry } from "@/shared/lib/go-api";
-import { cacheLife, cacheTag } from "next/cache";
 
 export type ResolvedEntity =
   | { type: "group"; data: Group }
@@ -20,10 +19,6 @@ export type ResolvedEntity =
  * action Go-backed tuong ung cua tung entity.
  */
 export async function resolveProductPathFromDb(slug: string): Promise<ResolvedEntity> {
-  "use cache";
-  cacheLife("days");
-  cacheTag(`slug:${slug}`);
-
   const registryItem = await getSlugRegistryEntry(slug);
   if (!registryItem) {
     return null;

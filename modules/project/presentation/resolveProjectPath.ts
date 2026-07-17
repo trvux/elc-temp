@@ -1,7 +1,6 @@
 import { ProjectWithCategory } from "@/modules/project/domain/types";
 import { ProjectTypeWithCategories } from "@/modules/project-type/domain/types";
 import { getProjectTypeByIdAction } from "@/modules/project-type/presentation/actions";
-import { cacheLife, cacheTag } from "next/cache";
 import { resolveProjectDetailAction } from "./actions";
 import { getSlugRegistryEntry } from "@/shared/lib/go-api";
 
@@ -16,10 +15,6 @@ export type ResolvedProjectEntity =
  * qua resolveProjectDetailAction (xem docs/project.md).
  */
 export async function resolveProjectPathFromDb(slug: string): Promise<ResolvedProjectEntity> {
-  "use cache";
-  cacheLife("days");
-  cacheTag(`slug:${slug}`);
-
   const registryItem = await getSlugRegistryEntry(slug);
   if (!registryItem) {
     return null;

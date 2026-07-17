@@ -9,9 +9,9 @@ import {
   CarouselPrevious,
   type CarouselApi,
 } from "@/shared/components/ui/carousel";
-import { ImageWithSkeleton } from "@/shared/components/ui/image-with-skeleton";
 import { TypographyH2, TypographyP } from "@/shared/components/ui/typography";
 import { primaryImageUrl } from "@/shared/lib/image-asset";
+import Image from "next/image";
 import Link from "next/link";
 import * as React from "react";
 
@@ -78,8 +78,7 @@ export function ProjectMarqueeSection({
         {/* Card Background Image without Overlay */}
         <div className="relative w-full aspect-[4/3] rounded-[24px] overflow-hidden border border-border/40 bg-muted shadow-sm transition-all duration-500 group-hover:shadow-md">
           {/* Background image */}
-          <ImageWithSkeleton
-            wrapperClassName="w-full h-full"
+          <Image
             src={firstImage}
             alt={project.title}
             fill

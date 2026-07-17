@@ -13,7 +13,6 @@ import {
 import { sortByOrderIndex } from "@/shared/lib/helpers";
 import { cn } from "@/shared/lib/utils";
 import { ArrowUpRight } from "@phosphor-icons/react/dist/ssr";
-import { cacheLife, cacheTag } from "next/cache";
 import Link from "next/link";
 import { ScrollToActiveBranch } from "./ScrollToActiveBranch";
 import { generateSystemPageMetadata } from "@/shared/lib/seo-utils";
@@ -57,10 +56,6 @@ const STYLES = {
 };
 
 async function getCachedInformationData() {
-  "use cache";
-  cacheLife("hours");
-  cacheTag("layout");
-
   const allPages = await getPagesAction()
     .then(unwrapActionResult)
     .then((pages) => pages.filter((p) => p.isPublished));

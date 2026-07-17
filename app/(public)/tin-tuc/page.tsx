@@ -2,7 +2,7 @@ import { getNewsAction } from "@/modules/news/presentation/actions";
 import { Breadcrumbs } from "@/shared/components/layout/user/breadcrumbs";
 import { ScrollToTop } from "@/shared/components/layout/user/scroll-to-top";
 import { GridSection } from "@/shared/components/sections/grid-section";
-import { ImageWithSkeleton } from "@/shared/components/ui/image-with-skeleton";
+import Image from "next/image";
 import { primaryImageUrl } from "@/shared/lib/image-asset";
 import {
   TypographyH1,
@@ -10,7 +10,6 @@ import {
   TypographyLead,
   TypographySmall,
 } from "@/shared/components/ui/typography";
-import { cacheLife, cacheTag } from "next/cache";
 import Link from "next/link";
 import {
   BASE_URL,
@@ -114,10 +113,6 @@ function getExcerptFromContent(
 }
 
 async function getCachedNewsHubData() {
-  "use cache";
-  cacheLife("hours");
-  cacheTag("news-list");
-
   const allNews = await getNewsAction({
     isPublished: true,
     sortBy: "created_at",
@@ -210,15 +205,16 @@ export default async function NewsHub() {
                   </div>
 
                   {primaryImageUrl(news.images) && (
-                    <ImageWithSkeleton
-                      wrapperClassName={STYLES.imageWrapper}
-                      src={primaryImageUrl(news.images)}
-                      alt={news.images[0]?.alt || news.title}
-                      fill
-                      className={STYLES.image}
-                      sizes="(max-width: 640px) 144px, (max-width: 768px) 192px, 256px"
-                      priority={index === 0}
-                    />
+                    <div className={STYLES.imageWrapper}>
+                      <Image
+                        src={primaryImageUrl(news.images)!}
+                        alt={news.images[0]?.alt || news.title}
+                        fill
+                        className={STYLES.image}
+                        sizes="(max-width: 640px) 144px, (max-width: 768px) 192px, 256px"
+                        priority={index === 0}
+                      />
+                    </div>
                   )}
                 </Link>
               );

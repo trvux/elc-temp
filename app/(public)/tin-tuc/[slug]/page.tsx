@@ -9,7 +9,7 @@ import { DetailPager } from "@/shared/components/layout/user/detail-pager";
 import { PreviewContent } from "@/shared/components/layout/user/preview-content";
 import { ScrollToTop } from "@/shared/components/layout/user/scroll-to-top";
 import { GridSection } from "@/shared/components/sections/grid-section";
-import { ImageWithSkeleton } from "@/shared/components/ui/image-with-skeleton";
+import Image from "next/image";
 import { primaryImageUrl, imageUrls as assetImageUrls } from "@/shared/lib/image-asset";
 import {
   TypographyH1,
@@ -30,7 +30,6 @@ import {
 import { unwrapActionResult } from "@/shared/lib/action-result";
 import { ArrowLeft, ArrowRightIcon } from "@phosphor-icons/react/dist/ssr";
 import { Metadata } from "next";
-import { cacheLife, cacheTag } from "next/cache";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
@@ -49,16 +48,6 @@ interface PageProps {
 }
 
 async function getCachedNewsDetailData(slug: string) {
-  "use cache";
-  cacheLife("hours");
-  cacheTag(
-    "news-list",
-    "categories",
-    "products",
-    "products-list",
-    `news-slug:${slug}`,
-  );
-
   const allNews = await getNewsAction({ isPublished: true }).then(unwrapActionResult);
   const newsItemIndex = (allNews ?? []).findIndex((n) => n.slug === slug);
 
@@ -390,14 +379,15 @@ export default async function NewsDetailPage({ params }: PageProps) {
                     className="group flex flex-col gap-3 no-underline"
                   >
                     {primaryImageUrl(item.images) && (
-                      <ImageWithSkeleton
-                        wrapperClassName="relative w-full aspect-video rounded-lg overflow-hidden border bg-muted"
-                        src={primaryImageUrl(item.images)}
-                        alt={item.title}
-                        fill
-                        className="object-cover transition-transform duration-500 group-hover:scale-105"
-                        sizes="(max-width: 640px) 100vw, 250px"
-                      />
+                      <div className="relative w-full aspect-video rounded-lg overflow-hidden border bg-muted">
+                        <Image
+                          src={primaryImageUrl(item.images)!}
+                          alt={item.title}
+                          fill
+                          className="object-cover transition-transform duration-500 group-hover:scale-105"
+                          sizes="(max-width: 640px) 100vw, 250px"
+                        />
+                      </div>
                     )}
                     <div className="flex flex-col gap-1.5">
                       {itemDate && (

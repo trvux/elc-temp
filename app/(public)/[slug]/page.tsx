@@ -8,7 +8,6 @@ import {
 } from "@/shared/components/ui/typography";
 import { cn } from "@/shared/lib/utils";
 import { ArrowLeft } from "@phosphor-icons/react/dist/ssr";
-import { cacheLife, cacheTag } from "next/cache";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Breadcrumbs } from "@/shared/components/layout/user/breadcrumbs";
@@ -30,11 +29,6 @@ interface PageProps {
 
 
 async function getCachedPageData(slug: string) {
-  "use cache";
-  cacheLife("hours");
-  cacheTag("layout");
-  // null = trang khong ton tai (404 that su, action da phan biet voi loi that).
-  // Loi that se throw va giu nguyen ban cache cu (stale-if-error).
   return getPageBySlugAction(slug).then(unwrapActionResult);
 }
 
@@ -68,11 +62,6 @@ export async function generateMetadata({
   };
 }
 
-async function getCachedCurrentYear() {
-  "use cache";
-  return new Date().getFullYear();
-}
-
 export default async function StaticPage({ params }: PageProps) {
   const { slug } = await params;
 
@@ -83,7 +72,7 @@ export default async function StaticPage({ params }: PageProps) {
     notFound();
   }
 
-  const currentYear = await getCachedCurrentYear();
+  const currentYear = new Date().getFullYear();
 
   const breadcrumbSchema = generateBreadcrumbSchema(
     [

@@ -8,7 +8,7 @@ import {
   CardTitle,
 } from "@/shared/components/ui/card";
 import { Sparkle } from "@phosphor-icons/react/dist/ssr";
-import { ImageWithSkeleton } from "@/shared/components/ui/image-with-skeleton";
+import Image from "next/image";
 import Link from "next/link";
 import { ProjectWithCategory } from "../../domain/types";
 import { primaryImageUrl } from "@/shared/lib/image-asset";
@@ -48,8 +48,7 @@ export function ProjectCard({
     <Link href={projectUrl} className="w-full block group h-full" prefetch={false}>
       <Card className="relative mx-auto w-full h-full max-w-sm pt-0 overflow-hidden">
         <div className="relative z-20 aspect-video w-full">
-          <ImageWithSkeleton
-            wrapperClassName="absolute inset-0"
+          <Image
             src={firstImage}
             alt={project.title}
             fill

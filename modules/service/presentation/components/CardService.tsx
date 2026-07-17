@@ -1,7 +1,7 @@
 "use client";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
-import { ImageWithSkeleton } from "@/shared/components/ui/image-with-skeleton";
+import Image from "next/image";
 import { useState } from "react";
 
 import {
@@ -68,13 +68,12 @@ export function CardService({
 
   const renderImage = () => {
     const imgEl = (
-      <ImageWithSkeleton
+      <Image
         src={imageSrc}
         alt={title || ""}
         fill
         sizes="(max-width: 768px) 100vw, 384px"
         className="relative z-20 object-cover transition-transform duration-300 group-hover:scale-105"
-        wrapperClassName="w-full h-full"
       />
     );
 

@@ -235,12 +235,7 @@ export function ProjectFilters({
   };
 
   if (!isMounted) {
-    return (
-      <div className="animate-pulse space-y-4">
-        <div className="h-10 bg-muted rounded w-1/2" />
-        <div className="h-40 bg-muted rounded" />
-      </div>
-    );
+    return null;
   }
 
   const activeAccordionValues = [

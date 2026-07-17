@@ -8,7 +8,6 @@ import {
   StaggerContainer,
   StaggerItem,
 } from "@/shared/components/ui/animate-in";
-import { Skeleton } from "@/shared/components/ui/skeleton";
 import {
   TypographyH3,
   TypographyMuted,

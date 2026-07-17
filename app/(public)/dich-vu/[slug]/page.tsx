@@ -8,7 +8,6 @@ import {
   generateServiceDetailSchema,
 } from "@/shared/lib/seo-utils";
 import { Metadata } from "next";
-import { cacheLife, cacheTag } from "next/cache";
 import { notFound } from "next/navigation";
 import { getBranchesAction } from "@/modules/branch/presentation/actions";
 import { unwrapActionResult } from "@/shared/lib/action-result";
@@ -29,11 +28,6 @@ export async function generateStaticParams() {
 // ─── Cached fetchers ────────────────────────────────────────────────────────
 
 async function getCachedService(slug: string) {
-  "use cache";
-  cacheLife("days");
-  cacheTag("services-list", `service-slug:${slug}`);
-  // null = khong tim thay (404 that su). Loi mang/Go API se throw va giu
-  // nguyen ban cache cu thay vi bi hieu nham la "khong ton tai".
   return getServiceBySlugAction(slug);
 }
 

@@ -9,7 +9,6 @@ import {
   UpdateCategoryInput,
 } from "../domain/types";
 import { authHeaders, toSnakeCaseBody } from "@/shared/lib/go-api";
-import { purgeCloudflareCache } from "@/shared/lib/cloudflare-purge";
 
 const GO_API_URL = process.env.GO_API_URL;
 
@@ -96,11 +95,9 @@ async function extractErrorMessage(res: Response, fallback: string): Promise<str
   }
 }
 
-// getCategoriesAction is called from inside "use cache" render functions
-// (app/(public)/san-pham/page.tsx, ProductListModule.tsx) — a real fetch
-// failure there must propagate so Next.js keeps serving the stale cache
-// instead of silently caching an empty category list, same reasoning as
-// modules/catalog/presentation/actions.ts's isPrerenderError.
+// isPrerenderError re-throws Next.js's own internal prerendering-abort
+// signal instead of swallowing it, so build-time static generation still
+// works correctly — same helper as modules/catalog/presentation/actions.ts.
 function isPrerenderError(error: unknown): boolean {
   if (error instanceof Error) {
     const msg = error.message.toLowerCase();
@@ -205,7 +202,6 @@ export async function createCategoryAction(input: CreateCategoryInput) {
     revalidatePath("/admin/categories");
     revalidateTag("layout", { expire: 0 });
     revalidateTag("products", { expire: 0 });
-    await purgeCloudflareCache();
     return { data: mapGoCategory(row) as Category, error: null };
   } catch (error) {
     console.error("createCategoryAction error:", error);
@@ -235,7 +231,6 @@ export async function updateCategoryAction(input: UpdateCategoryInput) {
     revalidatePath("/admin/categories");
     revalidateTag("layout", { expire: 0 });
     revalidateTag("products", { expire: 0 });
-    await purgeCloudflareCache();
     return { data: mapGoCategory(row) as Category, error: null };
   } catch (error) {
     console.error("updateCategoryAction error:", error);
@@ -259,7 +254,6 @@ export async function deleteCategoryAction(id: string) {
     revalidatePath("/admin/categories");
     revalidateTag("layout", { expire: 0 });
     revalidateTag("products", { expire: 0 });
-    await purgeCloudflareCache();
     return { error: null };
   } catch (error) {
     console.error("deleteCategoryAction error:", error);

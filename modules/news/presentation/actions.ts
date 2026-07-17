@@ -5,7 +5,6 @@ import { News, CreateNewsInput, UpdateNewsInput, NewsFilter, ImageAsset } from "
 import { authHeaders, toSnakeCaseBody } from "@/shared/lib/go-api";
 import { submitToIndexNow } from "@/shared/lib/indexnow";
 import { warmCache } from "@/shared/lib/cache-warm";
-import { purgeCloudflareCache } from "@/shared/lib/cloudflare-purge";
 import { BASE_URL } from "@/shared/lib/seo-schema";
 
 const GO_API_URL = process.env.GO_API_URL;
@@ -73,8 +72,8 @@ async function extractErrorMessage(res: Response, fallback: string): Promise<str
   }
 }
 
-// isPrerenderError lets a real fetch failure propagate out of "use cache"
-// render functions instead of being swallowed — see
+// isPrerenderError re-throws Next.js's own internal prerendering-abort
+// signal instead of swallowing it — see
 // modules/category/presentation/actions.ts's identical helper.
 function isPrerenderError(error: unknown): boolean {
   if (error instanceof Error) {
@@ -273,7 +272,6 @@ function revalidatePaths(slug?: string) {
   revalidatePath("/admin/news");
   revalidatePath("/tin-tuc");
   revalidateTag("news-list", { expire: 0 });
-  void purgeCloudflareCache();
   if (slug) {
     revalidatePath(`/tin-tuc/${slug}`);
     revalidateTag(`news-slug:${slug}`, { expire: 0 });

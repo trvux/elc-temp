@@ -27,17 +27,9 @@ export async function generateMetadata(): Promise<Metadata> {
   ) as Metadata;
 }
 
-import { cacheLife, cacheTag } from "next/cache";
 import { unwrapActionResult } from "@/shared/lib/action-result";
 
 async function getCachedHomeData() {
-  "use cache";
-  cacheLife("days");
-  cacheTag("products-list", "projects-list", "brands", "layout", "categories");
-
-  // Cac action goi Go API throw khi that su loi (mang, 5xx, timeout) thay vi
-  // tra ve mang rong -- nho vay "use cache" giu nguyen ban cache cu con tot
-  // (stale-if-error) thay vi ghi de bang trang thai rong.
   const [settingsData, projects, categories, contacts, brands, branches] =
     await Promise.all([
       getSiteSettingsAction().then(unwrapActionResult),

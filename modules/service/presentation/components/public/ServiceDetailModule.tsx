@@ -17,7 +17,7 @@ import {
   CarouselContent,
   CarouselItem,
 } from "@/shared/components/ui/carousel";
-import { ImageWithSkeleton } from "@/shared/components/ui/image-with-skeleton";
+import Image from "next/image";
 import {
   Tabs,
   TabsContent,
@@ -30,7 +30,6 @@ import {
   TypographySmall,
 } from "@/shared/components/ui/typography";
 import { cn, formatCurrency } from "@/shared/lib/utils";
-import { cacheLife, cacheTag } from "next/cache";
 
 interface ServiceDetailModuleProps {
   service: ServiceWithRelations;
@@ -70,11 +69,7 @@ const STYLES = {
   ),
 };
 
-async function getCachedServiceDetailModuleData(slug: string) {
-  "use cache";
-  cacheLife("days");
-  cacheTag("services-list", `service-slug:${slug}`);
-
+async function getCachedServiceDetailModuleData() {
   const { data: rawContacts } = await getContactsAction();
   const contacts = (rawContacts || []).filter((c) => c.isActive);
 
@@ -87,9 +82,7 @@ async function getCachedServiceDetailModuleData(slug: string) {
 export async function ServiceDetailModule({
   service,
 }: ServiceDetailModuleProps) {
-  const { contacts, currentYear } = await getCachedServiceDetailModuleData(
-    service.slug,
-  );
+  const { contacts, currentYear } = await getCachedServiceDetailModuleData();
   const { prev, next } = await getAdjacentServicesAction(service);
 
   const images = service.images || [];
@@ -115,14 +108,13 @@ export async function ServiceDetailModule({
                       images.map((img, i) => (
                         <CarouselItem key={i}>
                           <AspectRatio ratio={16 / 9}>
-                            <ImageWithSkeleton
+                            <Image
                               src={img.url}
                               alt={img.alt || `${service.title} - Điện máy ELC`}
                               fill
                               className={STYLES.carouselImage}
                               priority={i === 0}
                               sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 800px"
-                              wrapperClassName="w-full h-full"
                             />
                           </AspectRatio>
                         </CarouselItem>

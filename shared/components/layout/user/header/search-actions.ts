@@ -6,21 +6,14 @@ import { getProjectTypesAction } from "@/modules/project-type/presentation/actio
 import { getNewsAction } from "@/modules/news/presentation/actions";
 import Fuse from "fuse.js";
 import { getQueryTokens, tokenize } from "@/shared/lib/search-utils";
-import { cacheLife, cacheTag } from "next/cache";
 import { primaryImageUrl } from "@/shared/lib/image-asset";
 
 async function getCachedProjects() {
-  "use cache";
-  cacheLife("minutes");
-  cacheTag("projects-search");
   const { data } = await getProjectsAction({ isPublished: true });
   return data;
 }
 
 async function getCachedServices() {
-  "use cache";
-  cacheLife("minutes");
-  cacheTag("services-search");
   const { data } = await getServicesAction({ isPublished: true });
   return data;
 }

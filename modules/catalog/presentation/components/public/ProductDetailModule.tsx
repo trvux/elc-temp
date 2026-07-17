@@ -18,7 +18,6 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/shared/components/ui/carousel";
-import { ImageWithSkeleton } from "@/shared/components/ui/image-with-skeleton";
 import {
   Tabs,
   TabsContent,
@@ -37,7 +36,7 @@ import {
 } from "@/shared/lib/seo-utils";
 import { cn } from "@/shared/lib/utils";
 import { primaryImageUrl } from "@/shared/lib/image-asset";
-import { cacheLife, cacheTag } from "next/cache";
+import Image from "next/image";
 import { notFound } from "next/navigation";
 
 interface SpecSubItem {
@@ -102,11 +101,7 @@ const STYLES = {
   ),
 };
 
-async function getCachedProductDetailData(productSlug: string) {
-  "use cache";
-  cacheLife("days");
-  cacheTag("products-list", `slug:${productSlug}`);
-
+async function getCachedProductDetailData() {
   const { data: rawContacts } = await getContactsAction();
   const contacts = (rawContacts || []).filter((c) => c.isActive);
 
@@ -121,9 +116,7 @@ export async function ProductDetailModule({
 }: {
   product: ProductWithRelations;
 }) {
-  const { contacts, currentYear } = await getCachedProductDetailData(
-    product.slug,
-  );
+  const { contacts, currentYear } = await getCachedProductDetailData();
 
   const category = product.category;
   if (!category) notFound();
@@ -244,7 +237,7 @@ export async function ProductDetailModule({
                       images.map((img, i) => (
                         <CarouselItem key={i}>
                           <AspectRatio ratio={16 / 9}>
-                            <ImageWithSkeleton
+                            <Image
                               src={img.url}
                               alt={
                                 img.alt ||
@@ -255,7 +248,6 @@ export async function ProductDetailModule({
                               loading={i === 0 ? "eager" : "lazy"}
                               fetchPriority={i === 0 ? "high" : "auto"}
                               sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 800px"
-                              wrapperClassName="w-full h-full"
                             />
                           </AspectRatio>
                         </CarouselItem>

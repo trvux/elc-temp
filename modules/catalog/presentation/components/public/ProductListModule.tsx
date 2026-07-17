@@ -13,7 +13,6 @@ import {
   generateCollectionSchema,
 } from "@/shared/lib/seo-utils";
 import { cn } from "@/shared/lib/utils";
-import { cacheLife, cacheTag } from "next/cache";
 import { notFound } from "next/navigation";
 
 import { GridSection } from "@/shared/components/sections/grid-section";
@@ -36,10 +35,6 @@ const STYLES = {
 const LIST_LIMIT = 1000;
 
 async function getCachedListModuleData(entity: ResolvedEntity) {
-  "use cache";
-  cacheLife("days");
-  cacheTag("products");
-
   if (!entity) {
     throw new Error("Entity is required");
   }

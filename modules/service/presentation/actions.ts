@@ -6,7 +6,6 @@ import { authHeaders, toSnakeCaseBody } from "@/shared/lib/go-api";
 import { submitToIndexNow } from "@/shared/lib/indexnow";
 import { warmCache } from "@/shared/lib/cache-warm";
 import { getServiceGroupsAction } from "@/modules/service-group/presentation/actions";
-import { purgeCloudflareCache } from "@/shared/lib/cloudflare-purge";
 import { unwrapActionResult } from "@/shared/lib/action-result";
 import { BASE_URL } from "@/shared/lib/seo-schema";
 
@@ -171,7 +170,6 @@ export async function createServiceAction(input: CreateServiceInput) {
     }
     revalidatePath("/dich-vu", "layout");
     revalidatePath("/admin/services");
-    await purgeCloudflareCache();
     if (data.isPublished && data.slug) {
       const url = `${BASE_URL}/dich-vu/${data.slug}`;
       submitToIndexNow([url]).catch((err) => console.error("IndexNow service create error:", err));
@@ -211,7 +209,6 @@ export async function updateServiceAction(input: UpdateServiceInput) {
     }
     revalidatePath("/dich-vu", "layout");
     revalidatePath("/admin/services");
-    await purgeCloudflareCache();
     if (data.isPublished && data.slug) {
       const url = `${BASE_URL}/dich-vu/${data.slug}`;
       submitToIndexNow([url]).catch((err) => console.error("IndexNow service update error:", err));
@@ -373,7 +370,6 @@ export async function deleteServiceAction(id: string) {
     }
     revalidatePath("/dich-vu", "layout");
     revalidatePath("/admin/services");
-    await purgeCloudflareCache();
     return { error: null };
   } catch (error) {
     console.error("deleteServiceAction error:", error);

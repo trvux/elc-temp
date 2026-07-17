@@ -8,7 +8,6 @@ import {
   UpdateProductLineInput,
 } from "../domain";
 import { authHeaders, toSnakeCaseBody } from "@/shared/lib/go-api";
-import { purgeCloudflareCache } from "@/shared/lib/cloudflare-purge";
 
 const GO_API_URL = process.env.GO_API_URL;
 
@@ -119,7 +118,6 @@ export async function createProductLineAction(input: CreateProductLineInput) {
     const row = (await res.json()) as GoProductLineResponse;
     revalidatePath("/admin/product-lines");
     revalidateTag("layout", { expire: 0 });
-    await purgeCloudflareCache();
     return { data: mapGoProductLine(row), error: null };
   } catch (error) {
     console.error("createProductLineAction error:", error);
@@ -148,7 +146,6 @@ export async function updateProductLineAction(input: UpdateProductLineInput) {
     const row = (await res.json()) as GoProductLineResponse;
     revalidatePath("/admin/product-lines");
     revalidateTag("layout", { expire: 0 });
-    await purgeCloudflareCache();
     return { data: mapGoProductLine(row), error: null };
   } catch (error) {
     console.error("updateProductLineAction error:", error);
@@ -171,7 +168,6 @@ export async function deleteProductLineAction(id: string) {
 
     revalidatePath("/admin/product-lines");
     revalidateTag("layout", { expire: 0 });
-    await purgeCloudflareCache();
     return { success: true, error: null };
   } catch (error) {
     console.error("deleteProductLineAction error:", error);
