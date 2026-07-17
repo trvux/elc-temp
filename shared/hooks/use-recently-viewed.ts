@@ -38,8 +38,11 @@ function write(items: RecentlyViewedProduct[]) {
 export function useRecentlyViewed() {
   const [items, setItems] = useState<RecentlyViewedProduct[]>([]);
 
-  // Initial read after hydration
+  // Initial read after hydration — deliberately deferred to an effect
+  // (not a useState lazy initializer) so the client's first render matches
+  // the server-rendered empty state, avoiding a hydration mismatch.
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setItems(read());
   }, []);
 

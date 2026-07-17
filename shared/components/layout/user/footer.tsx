@@ -1,8 +1,5 @@
 "use client";
-import {
-  FooterSettings,
-  getFooterLogic,
-} from "@/modules/settings/domain/footer";
+import { getFooterLogic } from "@/modules/settings/domain/footer";
 import {
   Tooltip,
   TooltipContent,
@@ -110,15 +107,14 @@ export function Footer({
 }: FooterProps) {
   const { address } = getFooterLogic(
     contacts,
-    settings as FooterSettings,
     currentYear,
     branches as Array<{ address: string }>,
   );
 
-  const displayContacts = useMemo(
-    () => getDisplayContacts(contacts),
-    [contacts],
-  );
+  // No manual useMemo here — React Compiler auto-memoizes this, and a
+  // manual dependency array on a prop it can't prove is stable is exactly
+  // what "Existing memoization could not be preserved" warns about.
+  const displayContacts = getDisplayContacts(contacts);
 
   // Build product section: each group becomes a column with its children below
   const productColumns = useMemo(() => {

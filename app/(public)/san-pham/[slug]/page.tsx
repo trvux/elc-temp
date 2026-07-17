@@ -46,7 +46,7 @@ export async function generateMetadata(
     case "group":
     case "category": {
       const category = resolved.data;
-      const seoMetadata = generateCategoryMetadata(category as unknown as Record<string, unknown>, 0); // Count can be added if needed
+      const seoMetadata = generateCategoryMetadata(category as unknown as Record<string, unknown>);
       const canonicalUrl = `${baseUrl}/san-pham/${slug}`;
 
       const ogImages = seoMetadata.openGraph?.images;

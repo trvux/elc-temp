@@ -1,12 +1,10 @@
 import { getPageBySlugAction } from "@/modules/page/presentation/actions";
 import { PreviewContent } from "@/shared/components/layout/user/preview-content";
 import { ScrollToTop } from "@/shared/components/layout/user/scroll-to-top";
-import { Button } from "@/shared/components/ui/button";
 import {
   TypographyH1,
   TypographySmall,
 } from "@/shared/components/ui/typography";
-import { cn } from "@/shared/lib/utils";
 import { ArrowLeft } from "@phosphor-icons/react/dist/ssr";
 import Link from "next/link";
 import { notFound } from "next/navigation";

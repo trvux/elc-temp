@@ -300,7 +300,7 @@ export function HeaderSearch() {
                     <div className="flex-1 min-w-0">
                       <span className="text-sm font-medium text-foreground">
                         Tìm{" "}
-                        <span className="font-semibold">"{inputValue}"</span>{" "}
+                        <span className="font-semibold">&quot;{inputValue}&quot;</span>{" "}
                         trong Dự án
                       </span>
                     </div>
@@ -319,7 +319,7 @@ export function HeaderSearch() {
                     <div className="flex-1 min-w-0">
                       <span className="text-sm font-medium text-foreground">
                         Tìm{" "}
-                        <span className="font-semibold">"{inputValue}"</span>{" "}
+                        <span className="font-semibold">&quot;{inputValue}&quot;</span>{" "}
                         trong Dịch vụ
                       </span>
                     </div>
@@ -338,7 +338,7 @@ export function HeaderSearch() {
                     <div className="flex-1 min-w-0">
                       <span className="text-sm font-medium text-foreground">
                         Tìm{" "}
-                        <span className="font-semibold">"{inputValue}"</span>{" "}
+                        <span className="font-semibold">&quot;{inputValue}&quot;</span>{" "}
                         trong Tin tức
                       </span>
                     </div>
