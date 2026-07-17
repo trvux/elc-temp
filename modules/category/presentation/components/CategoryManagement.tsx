@@ -108,7 +108,6 @@ export function CategoryManagement() {
             isFeatured: cat.isFeatured || false,
             orderIndex: cat.orderIndex || 0,
             content: cat.content || "",
-            faq: cat.faq || [],
           });
         },
         onDelete: (id) => {
@@ -130,7 +129,6 @@ export function CategoryManagement() {
       isFeatured: false,
       orderIndex: 0,
       content: "",
-      faq: [],
     });
   }
 
@@ -314,76 +312,6 @@ export function CategoryManagement() {
                       </Field>
                     )}
                   />
-                </div>
-              </div>
-
-              {/* FAQ Section */}
-              <div className="space-y-6 border p-6 rounded-2xl bg-muted/10">
-                <div className="flex items-center justify-between border-b pb-2">
-                  <div>
-                    <h3 className="text-sm font-semibold tracking-tight">Câu hỏi thường gặp (FAQ)</h3>
-                    <p className="text-[11px] text-muted-foreground">Thêm các câu hỏi và câu trả lời thường gặp cho danh mục này.</p>
-                  </div>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={() => {
-                      const currentFaqs = form.getValues("faq") || [];
-                      form.setValue("faq", [...currentFaqs, { question: "", answer: "" }]);
-                    }}
-                    className="h-8"
-                  >
-                    Thêm câu hỏi
-                  </Button>
-                </div>
-                <div className="space-y-4">
-                  {(form.watch("faq") || []).map((_, index) => (
-                    <div key={index} className="border p-4 rounded-xl space-y-4 bg-background">
-                      <div className="flex items-center justify-between">
-                        <span className="text-xs font-semibold text-muted-foreground">Câu hỏi #{index + 1}</span>
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => {
-                            const currentFaqs = form.getValues("faq") || [];
-                            form.setValue("faq", currentFaqs.filter((_, i) => i !== index));
-                          }}
-                          className="h-7 text-destructive hover:text-destructive"
-                        >
-                          Xóa
-                        </Button>
-                      </div>
-                      <div className="grid grid-cols-1 gap-4">
-                        <Controller
-                          control={form.control}
-                          name={`faq.${index}.question`}
-                          render={({ field, fieldState }) => (
-                            <Field>
-                              <FieldLabel className="text-xs">Câu hỏi</FieldLabel>
-                              <Input {...field} placeholder="VD: Máy lạnh áp trần lắp đặt thế nào?" />
-                              <FieldError errors={[fieldState.error]} />
-                            </Field>
-                          )}
-                        />
-                        <Controller
-                          control={form.control}
-                          name={`faq.${index}.answer`}
-                          render={({ field, fieldState }) => (
-                            <Field>
-                              <FieldLabel className="text-xs">Câu trả lời</FieldLabel>
-                              <Textarea {...field} placeholder="VD: Lắp đặt sát bề mặt trần..." className="min-h-[60px]" />
-                              <FieldError errors={[fieldState.error]} />
-                            </Field>
-                          )}
-                        />
-                      </div>
-                    </div>
-                  ))}
-                  {(!form.watch("faq") || form.watch("faq")?.length === 0) && (
-                    <p className="text-xs text-muted-foreground text-center py-4">Chưa có câu hỏi nào.</p>
-                  )}
                 </div>
               </div>
 

@@ -11,7 +11,6 @@ export interface Brand {
   updatedAt: string;
   deletedAt: string | null;
   content?: unknown | null;
-  faq?: Array<{ question: string; answer: string }> | null;
 }
 
 export interface CreateBrandInput {
@@ -23,7 +22,6 @@ export interface CreateBrandInput {
   metaTitle?: string | null;
   metaDescription?: string | null;
   content?: unknown | null;
-  faq?: Array<{ question: string; answer: string }> | null;
 }
 
 export interface UpdateBrandInput extends Partial<CreateBrandInput> {

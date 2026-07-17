@@ -90,7 +90,6 @@ export function assembleMetadata({
  */
 export function generateProductMetadata(
   product: ProductWithRelations,
-  relatedProducts?: ProductWithRelations[],
 ): Metadata {
   if (!product) return {};
 
@@ -151,11 +150,6 @@ export function generateProductMetadata(
       .replace(/\s+/g, " ")
       .trim();
   }
-
-  const relatedSummary = relatedProducts && relatedProducts.length > 0
-    ? ` Sản phẩm cùng thương hiệu và công suất liên quan: ${relatedProducts.slice(0, 3).map(rp => `${rp.name} (Giá: ${resolveProductDisplayPrice(rp).toLocaleString('vi-VN')}đ)`).join(" | ")}.`
-    : "";
-  description = `${description}${relatedSummary}`;
 
   const url = `${BASE_URL}/san-pham/${product.slug}`;
 
@@ -862,11 +856,7 @@ export function getProductDescriptionExcerpt(
 /**
  * Generates JSON-LD Structured Data for Google Rich Snippets
  */
-export function generateProductSchema(
-  product: ProductWithRelations,
-  relatedProducts?: ProductWithRelations[],
-  reviewSummary?: { count: number; average: number },
-) {
+export function generateProductSchema(product: ProductWithRelations) {
   const defaultVariant = resolveDefaultVariant(product);
   const originalPrice = Math.round((defaultVariant?.originalPrice ?? 0) / 1000) * 1000;
   const salePrice = Math.round((defaultVariant?.salePrice ?? 0) / 1000) * 1000;
@@ -886,7 +876,7 @@ export function generateProductSchema(
   const firstSku = defaultVariant?.sku ? defaultVariant.sku.split(/[\s/]+/)[0] : "";
 
   // Reuse the smart metadata logic to get the same description
-  const metadata = generateProductMetadata(product, relatedProducts);
+  const metadata = generateProductMetadata(product);
   const descriptionExcerpt = getProductDescriptionExcerpt(product.description, 300);
 
   const brandLogo =
@@ -951,15 +941,6 @@ export function generateProductSchema(
       logo: (brandLogo || undefined) as string | undefined,
     },
     ...(additionalProperty.length > 0 ? { additionalProperty } : {}),
-    // Google requires at least 1 real rating to show AggregateRating in
-    // search — never fabricate this when reviewSummary.count is 0.
-    ...(reviewSummary && reviewSummary.count > 0 ? {
-      aggregateRating: {
-        "@type": "AggregateRating",
-        ratingValue: reviewSummary.average,
-        reviewCount: reviewSummary.count,
-      },
-    } : {}),
     offers: hasPrice ? {
       "@type": "Offer",
       url: productUrl,
@@ -1016,27 +997,6 @@ export function generateProductSchema(
         name: SHOP_NAME,
       },
     } : undefined,
-    "isRelatedTo": relatedProducts && relatedProducts.length > 0 ? relatedProducts.map((rp) => {
-      const rpRaw = rp as unknown as Record<string, unknown>;
-      const rpDescVal = rp.metaDescription || rpRaw.meta_description || rp.description;
-      const rpDesc = typeof rpDescVal === "string" ? rpDescVal : "";
-      const rpSpecs = buildSpecProperties(rp.specs).slice(0, 3);
-
-      return {
-        "@type": "Product",
-        "name": rp.name,
-        "description": rpDesc,
-        "url": `${BASE_URL}/san-pham/${rp.slug}`,
-        "image": assetImageUrls(rp.images),
-        "offers": {
-          "@type": "Offer",
-          "price": resolveProductDisplayPrice(rp),
-          "priceCurrency": "VND",
-          "availability": "https://schema.org/InStock"
-        },
-        ...(rpSpecs.length > 0 ? { "additionalProperty": rpSpecs } : {})
-      };
-    }) : undefined,
   };
 }
 
@@ -1396,7 +1356,6 @@ export function generateServiceDetailSchema(
   service: { title: string; slug: string; metaDescription?: string | null },
   branches: Branch[],
   contacts?: Array<{ type: string; value: string; isActive: boolean }>,
-  reviewSummary?: { count: number; average: number },
 ) {
   const cleanUrl = `${BASE_URL}/dich-vu/${service.slug}`;
 
@@ -1428,15 +1387,6 @@ export function generateServiceDetailSchema(
   };
 
   const serviceNode: Record<string, unknown> = SEOSchema.getService(service);
-  // Google requires at least 1 real rating to show AggregateRating in
-  // search — never fabricate this when reviewSummary.count is 0.
-  if (reviewSummary && reviewSummary.count > 0) {
-    serviceNode.aggregateRating = {
-      "@type": "AggregateRating",
-      ratingValue: reviewSummary.average,
-      reviewCount: reviewSummary.count,
-    };
-  }
 
   return {
     "@context": "https://schema.org",

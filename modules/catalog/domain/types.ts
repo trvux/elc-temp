@@ -220,27 +220,18 @@ export interface UpdateProductInput extends Partial<CreateProductInput> {
     id: string;
 }
 
-export type ProductSortBy =
-    | "price_asc"
-    | "price_desc"
-    | "newest"
-    | "popularity";
-
+// ProductFilter is bare list scoping (pagination + basic ID/flag matching) —
+// no search/price-range/spec-facet/sort fields; those belonged to the
+// removed facet/search system and will return, if at all, as part of the
+// upcoming attribute-set redesign.
 export interface ProductFilter {
     categoryId?: string;
     categoryIds?: string[];
     brandId?: string;
     brandIds?: string[];
-    brandSlugs?: string[];
     productLineId?: string;
     isFeatured?: boolean;
     isPublished?: boolean;
-    search?: string;
-    minPrice?: number;
-    maxPrice?: number;
-    sortBy?: ProductSortBy;
-    condition?: string;
-    specs?: Record<string, string[]>;
     limit?: number;
     offset?: number;
     includeDeleted?: boolean;

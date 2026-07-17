@@ -11,7 +11,6 @@ export interface Group {
   updatedAt: string;
   deletedAt: string | null;
   content?: unknown | null;
-  faq?: Array<{ question: string; answer: string }> | null;
 }
 
 export interface CreateGroupInput {
@@ -23,7 +22,6 @@ export interface CreateGroupInput {
   isFeatured?: boolean;
   orderIndex?: number;
   content?: unknown | null;
-  faq?: Array<{ question: string; answer: string }> | null;
 }
 
 export interface UpdateGroupInput {
@@ -36,7 +34,6 @@ export interface UpdateGroupInput {
   isFeatured?: boolean;
   orderIndex?: number;
   content?: unknown | null;
-  faq?: Array<{ question: string; answer: string }> | null;
 }
 
 export interface GroupFilter {

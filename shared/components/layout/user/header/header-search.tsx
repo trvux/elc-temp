@@ -13,7 +13,6 @@ import {
 
 import {
   ArrowRight,
-  Article,
   Briefcase,
   CircleDashed,
   MagnifyingGlass,
@@ -21,7 +20,7 @@ import {
   Wrench,
 } from "@phosphor-icons/react";
 import Image from "next/image";
-import { usePathname, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { useEffect, useState, useTransition } from "react";
 import {
   getAutocompleteSuggestionsAction,
@@ -41,18 +40,15 @@ const PAGES = [
 
 export function HeaderSearch() {
   const router = useRouter();
-  const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const [inputValue, setInputValue] = useState("");
   const [suggestions, setSuggestions] = useState<SearchSuggestionItem[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [defaultItems, setDefaultItems] = useState<{
-    productCategories: DefaultSearchItem[];
     projectTypes: DefaultSearchItem[];
     services: DefaultSearchItem[];
     news: DefaultSearchItem[];
   }>({
-    productCategories: [],
     projectTypes: [],
     services: [],
     news: [],
@@ -107,13 +103,9 @@ export function HeaderSearch() {
     return () => clearTimeout(timer);
   }, [inputValue]);
 
-  const handleSelect = (
-    type: "product" | "project" | "service",
-    slug: string,
-  ) => {
+  const handleSelect = (type: "project" | "service", slug: string) => {
     let link = "";
-    if (type === "product") link = `/san-pham/${slug}`;
-    else if (type === "project") link = `/du-an/${slug}`;
+    if (type === "project") link = `/du-an/${slug}`;
     else if (type === "service") link = `/dich-vu/${slug}`;
 
     setOpen(false);
@@ -124,12 +116,11 @@ export function HeaderSearch() {
   };
 
   const handleSelectDefault = (
-    type: "product_category" | "project_type" | "service_item" | "news_item",
+    type: "project_type" | "service_item" | "news_item",
     slug: string,
   ) => {
     let link = "";
-    if (type === "product_category") link = `/san-pham/${slug}`;
-    else if (type === "project_type") link = `/du-an/${slug}`;
+    if (type === "project_type") link = `/du-an/${slug}`;
     else if (type === "service_item") link = `/dich-vu/${slug}`;
     else if (type === "news_item") link = `/tin-tuc/${slug}`;
 
@@ -148,10 +139,8 @@ export function HeaderSearch() {
     });
   };
 
-  const getIcon = (type: "product" | "project" | "service") => {
+  const getIcon = (type: "project" | "service") => {
     switch (type) {
-      case "product":
-        return <Article className="size-4 text-primary" />;
       case "project":
         return <Briefcase className="size-4" />;
       case "service":
@@ -159,27 +148,8 @@ export function HeaderSearch() {
     }
   };
 
-  const getTypeLabel = (type: "product" | "project" | "service") => {
-    switch (type) {
-      case "product":
-        return "Sản phẩm";
-      case "project":
-        return "Dự án";
-      case "service":
-        return "Dịch vụ";
-    }
-  };
-
-  const products = suggestions.filter((item) => item.type === "product");
   const projects = suggestions.filter((item) => item.type === "project");
   const services = suggestions.filter((item) => item.type === "service");
-
-  // If user is on a product category/brand page, extract the category base path
-  // so we can offer "search within this category" as a primary option.
-  // e.g. /san-pham/may-lanh-treo-tuong/ftkb25zmvv → /san-pham/may-lanh-treo-tuong
-  const productContextPath = pathname.startsWith("/san-pham/")
-    ? `/${pathname.split("/").slice(1, 3).join("/")}`
-    : null;
 
   return (
     <>
@@ -214,7 +184,7 @@ export function HeaderSearch() {
           <div className="flex items-center px-3">
             <div className="flex-1">
               <CommandInput
-                placeholder="Tìm sản phẩm, dự án, dịch vụ..."
+                placeholder="Tìm dự án, dịch vụ..."
                 value={inputValue}
                 onValueChange={setInputValue}
               />
@@ -242,29 +212,6 @@ export function HeaderSearch() {
                     </CommandItem>
                   ))}
                 </CommandGroup>
-
-                {/* Default Product Categories */}
-                {defaultItems.productCategories.length > 0 && (
-                  <CommandGroup heading="Sản phẩm (Danh mục)">
-                    {defaultItems.productCategories.map((item) => (
-                      <CommandItem
-                        key={item.id}
-                        value={item.title}
-                        onSelect={() =>
-                          handleSelectDefault(item.type, item.slug)
-                        }
-                        className="flex items-center gap-3 p-2 cursor-pointer data-selected:bg-transparent hover:bg-muted/40 rounded-md transition-colors"
-                      >
-                        <CircleDashed className="size-4 text-muted-foreground/70 shrink-0" />
-                        <div className="flex-1 min-w-0">
-                          <div className="text-sm font-medium text-foreground truncate">
-                            {item.title}
-                          </div>
-                        </div>
-                      </CommandItem>
-                    ))}
-                  </CommandGroup>
-                )}
 
                 {/* Default Project Types */}
                 {defaultItems.projectTypes.length > 0 && (
@@ -339,55 +286,6 @@ export function HeaderSearch() {
               <>
                 {/* Global Search Options */}
                 <CommandGroup heading="Tìm kiếm">
-                  {/* Context-aware: when inside a product category, search within it first */}
-                  {productContextPath && (
-                    <CommandItem
-                      value={`tìm sản phẩm trong danh mục ${inputValue}`}
-                      onSelect={() => {
-                        setOpen(false);
-                        const params = new URLSearchParams();
-                        params.set("search", inputValue.trim());
-                        startTransition(() => {
-                          router.push(`${productContextPath}?${params.toString()}`);
-                        });
-                      }}
-                      className="flex items-center gap-3 p-2 cursor-pointer hover:bg-muted/40 rounded-md transition-colors"
-                    >
-                      <MagnifyingGlass className="size-4 text-primary shrink-0" />
-                      <div className="flex-1 min-w-0">
-                        <span className="text-sm font-medium text-foreground">
-                          Tìm{" "}
-                          <span className="font-semibold text-primary">
-                            "{inputValue}"
-                          </span>{" "}
-                          trong danh mục này
-                        </span>
-                      </div>
-                    </CommandItem>
-                  )}
-                  <CommandItem
-                    value={`tìm sản phẩm ${inputValue}`}
-                    onSelect={() => {
-                      setOpen(false);
-                      const params = new URLSearchParams();
-                      params.set("search", inputValue.trim());
-                      startTransition(() => {
-                        router.push(`/san-pham?${params.toString()}`);
-                      });
-                    }}
-                    className="flex items-center gap-3 p-2 cursor-pointer hover:bg-muted/40 rounded-md transition-colors"
-                  >
-                    <MagnifyingGlass className={`size-4 shrink-0 ${productContextPath ? "text-muted-foreground" : "text-primary"}`} />
-                    <div className="flex-1 min-w-0">
-                      <span className="text-sm font-medium text-foreground">
-                        Tìm{" "}
-                        <span className={`font-semibold ${productContextPath ? "text-muted-foreground" : "text-primary"}`}>
-                          "{inputValue}"
-                        </span>{" "}
-                        trong tất cả Sản phẩm
-                      </span>
-                    </div>
-                  </CommandItem>
                   <CommandItem
                     value={`tìm dự án ${inputValue}`}
                     onSelect={() => {
@@ -449,51 +347,6 @@ export function HeaderSearch() {
 
                 {suggestions.length === 0 && !isLoading && (
                   <CommandEmpty>Không tìm thấy kết quả nào.</CommandEmpty>
-                )}
-
-                {/* Product Suggestions */}
-                {products.length > 0 && (
-                  <CommandGroup heading="Sản phẩm">
-                    {products.map((item) => (
-                      <CommandItem
-                        key={`${item.type}-${item.id}`}
-                        value={item.title}
-                        onSelect={() => handleSelect(item.type, item.slug)}
-                        className="flex items-center gap-3 p-2 cursor-pointer data-selected:bg-transparent hover:bg-muted/40 rounded-md transition-colors"
-                      >
-                        {item.image ? (
-                          <div className="relative size-8 rounded border overflow-hidden bg-white shrink-0">
-                            <Image
-                              src={item.image}
-                              alt={item.title}
-                              fill
-                              sizes="32px"
-                              className="object-contain"
-                            />
-                          </div>
-                        ) : (
-                          <div className="size-8 rounded border bg-muted/40 flex items-center justify-center shrink-0">
-                            {getIcon(item.type)}
-                          </div>
-                        )}
-                        <div className="flex-1 min-w-0">
-                          <div className="text-sm font-medium text-foreground line-clamp-2 mt-0.5">
-                            {item.title}
-                          </div>
-                          {item.sku && (
-                            <span className="text-xs text-muted-foreground font-medium block mt-0.5">
-                              Mã: {item.sku}
-                            </span>
-                          )}
-                        </div>
-                        {item.price && (
-                          <span className="text-xs font-semibold text-primary shrink-0">
-                            {item.price}
-                          </span>
-                        )}
-                      </CommandItem>
-                    ))}
-                  </CommandGroup>
                 )}
 
                 {/* Project Suggestions */}
