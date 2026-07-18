@@ -18,10 +18,15 @@ interface CompareToggleButtonProps {
 // from WishlistButton — both read/write the same CompareProvider so
 // selecting a product anywhere feeds the same persistent compare tray.
 export function CompareToggleButton({ item, variant = "button", className }: CompareToggleButtonProps) {
-  const { isSelected, toggle } = useCompare();
+  const { isSelected, toggle, isSelecting } = useCompare();
   const selected = isSelected(item.id);
 
   if (variant === "checkbox") {
+    // Only visible once the listing page's "So sánh sản phẩm" mode is on
+    // (see CompareModeToggle) — otherwise every ProductCard would show a
+    // checkbox all the time.
+    if (!isSelecting) return null;
+
     return (
       <Checkbox
         checked={selected}
@@ -45,6 +50,25 @@ export function CompareToggleButton({ item, variant = "button", className }: Com
     >
       <Scales />
       {selected ? "Đã chọn so sánh" : "So sánh"}
+    </Button>
+  );
+}
+
+// Listing-page trigger that turns on the per-card checkbox overlay above —
+// hidden entirely once fewer than 2 published products exist on the page,
+// since comparing is meaningless with 0-1 products.
+export function CompareModeToggle({ className }: { className?: string }) {
+  const { isSelecting, setIsSelecting } = useCompare();
+
+  return (
+    <Button
+      type="button"
+      variant={isSelecting ? "secondary" : "outline"}
+      onClick={() => setIsSelecting(!isSelecting)}
+      className={className}
+    >
+      <Scales />
+      {isSelecting ? "Xong" : "So sánh sản phẩm"}
     </Button>
   );
 }

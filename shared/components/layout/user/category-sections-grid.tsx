@@ -1,15 +1,12 @@
 "use client";
 
 import type { ProductWithRelations } from "@/modules/catalog/domain";
-import { ProductCard } from "@/modules/catalog/presentation/components/ProductCard";
+import { ProductGrid } from "@/modules/catalog/presentation/components/ProductGrid";
 import { Button } from "@/shared/components/ui/button";
 import { Separator } from "@/shared/components/ui/separator";
 import { ArrowRight, Spinner } from "@phosphor-icons/react";
 import Link from "next/link";
 import { useRef, useState } from "react";
-
-const GRID_CLASS =
-  "grid gap-x-4 gap-y-6 md:gap-y-12 content-start grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6";
 
 export type CategorySectionData = {
   categoryId: string;
@@ -79,11 +76,7 @@ function CategorySection({
           <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5" />
         </Link>
       </div>
-      <div className={GRID_CLASS}>
-        {products.map((product, i) => (
-          <ProductCard key={product.id} product={product} priority={i < 8} />
-        ))}
-      </div>
+      <ProductGrid products={products} />
 
       {hasMore && (
         <div className="flex justify-center pt-1">

@@ -1,35 +1,31 @@
+import Image from "next/image";
+import { notFound } from "next/navigation";
+
+import { ShieldCheck } from "@phosphor-icons/react/dist/ssr";
+
 import { getProductsAction } from "@/modules/catalog/presentation/actions";
 import { PRODUCT_STATUS } from "@/modules/catalog/domain";
-import { ProductCard } from "@/modules/catalog/presentation/components/ProductCard";
+import { ProductGrid } from "@/modules/catalog/presentation/components/ProductGrid";
 import { ResolvedEntity } from "@/modules/catalog/presentation/resolveProductPath";
 import { getCategoriesAction } from "@/modules/category/presentation/actions";
 import { Breadcrumbs } from "@/shared/components/layout/user/breadcrumbs";
+import { CompareModeToggle } from "@/shared/components/layout/user/compare-toggle-button";
+import { ProductDescription } from "@/shared/components/layout/user/product-description";
 import { RecentlyViewedSection } from "@/shared/components/layout/user/recently-viewed-section";
 import { ScrollToTop } from "@/shared/components/layout/user/scroll-to-top";
 import { TypographyH1, TypographySmall } from "@/shared/components/ui/typography";
 import { unwrapActionResult } from "@/shared/lib/action-result";
 import { BASE_URL } from "@/shared/lib/seo-schema";
-import { cn } from "@/shared/lib/utils";
-import { notFound } from "next/navigation";
 
-import { GridSection } from "@/shared/components/sections/grid-section";
-
-const GRID_CLASS =
-  "grid gap-x-4 gap-y-6 md:gap-y-12 content-start grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6";
+// No pagination/infinite-scroll — renders the full matching catalog for the
+// category/brand/group in one shot (small catalog, largest single category
+// ~59 products).
+const LIST_LIMIT = 1000;
+const FEATURED_ROW_CAP = 3;
 
 interface ProductListModuleProps {
   entity: ResolvedEntity;
 }
-
-const STYLES = {
-  scrollToTop: cn(
-    "flex items-center gap-2 cursor-pointer hover:text-foreground transition-colors",
-  ),
-};
-
-// No pagination/infinite-scroll anymore — renders the full matching catalog
-// for the category/brand/group in one shot.
-const LIST_LIMIT = 1000;
 
 async function getCachedListModuleData(entity: ResolvedEntity) {
   if (!entity) {
@@ -78,30 +74,17 @@ export async function ProductListModule({
 }: ProductListModuleProps) {
   if (!entity || entity.type === "product") return notFound();
 
-  let pageTitle = "";
-  let subTitlePrefix = "";
-
-  if (entity.type === "brand") {
-    pageTitle = entity.data.name;
-    subTitlePrefix = "thương hiệu";
-  } else if (entity.type === "category") {
-    pageTitle = entity.data.name;
-    subTitlePrefix = "danh mục";
-  } else if (entity.type === "group") {
-    pageTitle = entity.data.name;
-    subTitlePrefix = "nhóm danh mục";
-  }
-
-  const displayTitle = pageTitle;
-  // subTitlePrefix kept for potential future empty state use
-  void subTitlePrefix;
+  const pageTitle = entity.data.name;
+  const heroImageUrl = entity.type === "brand" ? entity.data.logoUrl : entity.data.imageUrl;
+  const heroContent = entity.data.content;
+  const warrantyPolicy = entity.type === "brand" ? entity.data.warrantyPolicy : null;
 
   const { products, totalCount, breadcrumbParent, currentYear } =
     await getCachedListModuleData(entity);
 
   return (
     <main className="w-full bg-background min-h-screen public-catalog-page">
-      <div className="w-full flex flex-col gap-6 p-4 md:p-6 lg:p-8">
+      <div className="w-full flex flex-col gap-6 p-4 md:p-6 lg:p-8 max-w-350 mx-auto">
         <Breadcrumbs
           items={[
             { label: "Sản phẩm", href: "/san-pham" },
@@ -110,23 +93,50 @@ export async function ProductListModule({
           ]}
         />
 
-        {/* Recently Viewed Products */}
-        <RecentlyViewedSection />
+        <div className="flex flex-col gap-4 pb-6 border-b border-dashed border-border/40">
+          <div className="flex items-center gap-4">
+            {heroImageUrl && (
+              <div className="shrink-0 w-16 h-16 rounded-lg overflow-hidden bg-white border border-border/50">
+                <Image
+                  src={heroImageUrl}
+                  alt={pageTitle}
+                  width={64}
+                  height={64}
+                  className="w-full h-full object-contain"
+                />
+              </div>
+            )}
+            <div className="flex flex-col gap-1">
+              <TypographyH1>{pageTitle}</TypographyH1>
+              <TypographySmall className="text-muted-foreground">
+                {`${totalCount} sản phẩm`}
+              </TypographySmall>
+            </div>
+          </div>
 
-        {/* Header Title and Count */}
-        <div className="flex flex-col gap-1.5 pb-4 border-b border-border/40">
-          <TypographyH1>{displayTitle}</TypographyH1>
-          <p className="text-sm text-muted-foreground">
-            {`Danh sách ${totalCount} sản phẩm`}
-          </p>
+          {warrantyPolicy && (
+            <div className="flex items-start gap-2.5 rounded-lg border border-border bg-card px-4 py-3 text-sm">
+              <ShieldCheck className="shrink-0 translate-y-0.5" />
+              <div className="flex flex-col gap-0.5">
+                <span className="font-medium">Chính sách bảo hành</span>
+                <span className="text-muted-foreground text-balance">{warrantyPolicy}</span>
+              </div>
+            </div>
+          )}
+
+          {heroContent ? <ProductDescription content={heroContent} fallbackAlt={pageTitle} /> : null}
         </div>
 
-        {products.length > 0 ? (
-          <div className={GRID_CLASS}>
-            {products.map((product, i) => (
-              <ProductCard key={product.id} product={product} priority={i < 8} />
-            ))}
+        <RecentlyViewedSection />
+
+        {products.length >= 2 && (
+          <div className="flex justify-end">
+            <CompareModeToggle />
           </div>
+        )}
+
+        {products.length > 0 ? (
+          <ProductGrid products={products} featuredCount={FEATURED_ROW_CAP} />
         ) : (
           <div className="py-24 text-center min-h-75 w-full">
             <p className="text-muted-foreground/60 italic text-sm">
@@ -136,19 +146,15 @@ export async function ProductListModule({
         )}
       </div>
 
-      {/* Footer */}
-      <GridSection contentClassName="py-6">
+      <div className="w-full max-w-350 mx-auto px-4 md:px-6 lg:px-8 py-6 border-t border-dashed border-border/40">
         <div className="flex flex-col md:flex-row justify-between items-center gap-6 text-muted-foreground">
           <TypographySmall>&copy; {currentYear} Điện máy ELC.</TypographySmall>
-          <ScrollToTop className={STYLES.scrollToTop}>
+          <ScrollToTop className="flex items-center gap-2 cursor-pointer hover:text-foreground transition-colors">
             <TypographySmall>Quay lại đầu trang</TypographySmall>
           </ScrollToTop>
         </div>
-      </GridSection>
+      </div>
 
-      {/* JSON-LD: CollectionPage + ItemList (mainEntity) + BreadcrumbList — a
-          listing page is a collection of products, never tagged as if it
-          were itself a single Product/AggregateOffer. */}
       {(() => {
         const pageUrl = `${BASE_URL}/san-pham/${entity.data.slug}`;
         const breadcrumbTrail = [

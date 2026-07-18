@@ -1,5 +1,5 @@
-import { ProductWithRelations, resolveProductDisplayPrice, resolveDefaultVariant, btuToKw, CAPACITY_BTU_ATTRIBUTE_CODE } from "@/modules/catalog/domain";
-import { ProductCard } from "@/modules/catalog/presentation/components/ProductCard";
+import { ProductWithRelations, resolveProductDisplayPrice, resolveDefaultVariant, formatAttributeValue } from "@/modules/catalog/domain";
+import { ProductGrid } from "@/modules/catalog/presentation/components/ProductGrid";
 import { ProductVariantSwitcher } from "@/modules/catalog/presentation/components/public/ProductVariantSwitcher";
 import { getRelatedProducts } from "@/modules/catalog/presentation/getRelatedProducts";
 import { getContactsAction } from "@/modules/contact/presentation/actions";
@@ -41,9 +41,6 @@ import { BASE_URL } from "@/shared/lib/seo-schema";
 import { cn } from "@/shared/lib/utils";
 import Image from "next/image";
 import { notFound } from "next/navigation";
-
-const GRID_CLASS =
-  "grid gap-x-4 gap-y-6 md:gap-y-12 content-start grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6";
 
 const AVAILABILITY_SCHEMA: Record<string, string> = {
   in_stock: "https://schema.org/InStock",
@@ -97,26 +94,6 @@ export async function ProductDetailModule({
     }
     return groups;
   })();
-  const formatAttributeValue = (av: (typeof attributeGroups)[number]["rows"][number]) => {
-    if (av.dataType === "boolean") return av.valueBoolean ? "Có" : "Không";
-    if (av.dataType === "multiselect") return (av.valueOptions || []).join(", ");
-    if (av.dataType === "number" && av.valueNumber != null) {
-      const suffix = av.unit ? ` ${av.unit}` : "";
-      const kwHint = av.code === CAPACITY_BTU_ATTRIBUTE_CODE && av.valueNumber > 0
-        ? ` (≈ ${btuToKw(av.valueNumber)} kW)`
-        : "";
-      return `${av.valueNumber.toLocaleString("vi-VN")}${suffix}${kwHint}`;
-    }
-    const text = av.valueText || "";
-    // Some legacy spec entries already have the unit baked into the text
-    // itself (e.g. "285 x 770 x 223 mm"), others store it separately on
-    // the definition only — append only when not already present, so
-    // neither style ends up duplicated or missing.
-    if (av.unit && text && !text.toLowerCase().includes(av.unit.toLowerCase())) {
-      return `${text} ${av.unit}`;
-    }
-    return text;
-  };
   // displayPrice (default-variant cache, see elc-go/docs/product-v2-design.md)
   // is the source of truth once a product has real variants — used here for
   // the floating CTA bar / recently-viewed snapshot, which (unlike
@@ -286,18 +263,7 @@ export async function ProductDetailModule({
             <TypographyH1 className="text-xl md:text-2xl font-bold tracking-tight">
               Sản phẩm liên quan
             </TypographyH1>
-            <div className={GRID_CLASS}>
-              {relatedProducts.map((related, i) => (
-                <InView
-                  key={related.id}
-                  viewOptions={{ once: true, margin: "0px 0px -80px 0px" }}
-                  variants={{ hidden: { opacity: 0, y: 16 }, visible: { opacity: 1, y: 0 } }}
-                  transition={{ duration: 0.4, delay: Math.min(i, 5) * 0.05, ease: "easeOut" }}
-                >
-                  <ProductCard product={related} />
-                </InView>
-              ))}
-            </div>
+            <ProductGrid products={relatedProducts} />
           </div>
         </section>
       )}
