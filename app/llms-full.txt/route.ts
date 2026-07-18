@@ -5,7 +5,7 @@ import { getCategoriesAction } from "@/modules/category/presentation/actions";
 import { getBrandsAction } from "@/modules/brand/presentation/actions";
 import { getGroupsAction } from "@/modules/group/presentation/actions";
 import { getProductsAction } from "@/modules/catalog/presentation/actions";
-import { resolveDefaultVariant, resolveProductDisplayPrice } from "@/modules/catalog/domain";
+import { resolveDefaultVariant, resolveProductDisplayPrice, PRODUCT_STATUS } from "@/modules/catalog/domain";
 import { getServicesAction } from "@/modules/service/presentation/actions";
 import { getPagesAction } from "@/modules/page/presentation/actions";
 import { getProjectsAction } from "@/modules/project/presentation/actions";
@@ -55,7 +55,7 @@ export async function GET() {
     getCategoriesAction(),
     getBrandsAction(),
     getGroupsAction(),
-    getProductsAction({ isPublished: true }),
+    getProductsAction({ status: PRODUCT_STATUS.PUBLISHED }),
     getServicesAction({ isPublished: true }),
     getPagesAction(),
     getProjectsAction({ isPublished: true }),

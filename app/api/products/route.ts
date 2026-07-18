@@ -1,4 +1,5 @@
 import { getProductsAction } from "@/modules/catalog/presentation/actions";
+import { PRODUCT_STATUS } from "@/modules/catalog/domain";
 import { getCategoriesAction } from "@/modules/category/presentation/actions";
 import { unstable_cache } from "next/cache";
 import type { NextRequest } from "next/server";
@@ -46,7 +47,7 @@ export async function GET(request: NextRequest) {
     const { data: products, totalCount, error } = await getProductsAction({
       categoryIds: categoryIds.length > 0 ? categoryIds : undefined,
       brandIds: brandIds.length > 0 ? brandIds : undefined,
-      isPublished: true,
+      status: PRODUCT_STATUS.PUBLISHED,
       limit,
       offset,
     });

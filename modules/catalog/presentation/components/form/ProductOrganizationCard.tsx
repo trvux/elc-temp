@@ -3,10 +3,9 @@
 import { useState } from "react";
 import { Controller, UseFormReturn } from "react-hook-form";
 import { Field, FieldDescription, FieldError, FieldGroup, FieldLabel } from "@/shared/components/ui/field";
-import { Checkbox } from "@/shared/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/shared/components/ui/select";
 import { TagMultiSelect } from "@/shared/components/ui/tag-multi-select";
-import { Brand, PRODUCT_CONDITION, PRODUCT_CONDITION_MAP, PRODUCT_LABELS } from "@/modules/catalog/domain";
+import { Brand } from "@/modules/catalog/domain";
 import { Group } from "@/modules/group/domain/types";
 import { CategoryWithGroup } from "@/modules/category/domain/types";
 import { ProductLine } from "@/modules/product-line/domain";
@@ -166,75 +165,6 @@ export function ProductOrganizationCard({
         />
         <FieldDescription>Quản lý ở trang &quot;Dòng sản phẩm&quot; trong sidebar.</FieldDescription>
       </Field>
-
-      <Controller
-        control={form.control}
-        name="condition"
-        render={({ field }) => (
-          <Field>
-            <FieldLabel>Tình trạng sản phẩm</FieldLabel>
-            <Select value={field.value} onValueChange={field.onChange}>
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value={PRODUCT_CONDITION.NEW}>{PRODUCT_CONDITION_MAP[PRODUCT_CONDITION.NEW]}</SelectItem>
-                <SelectItem value={PRODUCT_CONDITION.USED}>{PRODUCT_CONDITION_MAP[PRODUCT_CONDITION.USED]}</SelectItem>
-              </SelectContent>
-            </Select>
-          </Field>
-        )}
-      />
-
-      <Controller
-        control={form.control}
-        name="labels"
-        render={({ field }) => {
-          const currentLabels = field.value || [];
-          const toggleLabel = (val: string) => {
-            if (currentLabels.includes(val)) {
-              field.onChange(currentLabels.filter((l) => l !== val));
-            } else {
-              field.onChange([...currentLabels, val]);
-            }
-          };
-          return (
-            <Field className="border p-4 rounded-lg">
-              <FieldLabel className="font-normal">Nhãn hiển thị</FieldLabel>
-              <div className="flex flex-col gap-3.5 mt-3">
-                <label className="flex items-center space-x-2 text-sm cursor-pointer">
-                  <Checkbox
-                    checked={currentLabels.includes(PRODUCT_LABELS.NEW)}
-                    onCheckedChange={() => toggleLabel(PRODUCT_LABELS.NEW)}
-                  />
-                  <span>Mới về (New)</span>
-                </label>
-                <label className="flex items-center space-x-2 text-sm cursor-pointer">
-                  <Checkbox
-                    checked={currentLabels.includes(PRODUCT_LABELS.HOT)}
-                    onCheckedChange={() => toggleLabel(PRODUCT_LABELS.HOT)}
-                  />
-                  <span>Nổi bật (Hot)</span>
-                </label>
-                <label className="flex items-center space-x-2 text-sm cursor-pointer">
-                  <Checkbox
-                    checked={currentLabels.includes(PRODUCT_LABELS.BEST_SELLER)}
-                    onCheckedChange={() => toggleLabel(PRODUCT_LABELS.BEST_SELLER)}
-                  />
-                  <span>Bán chạy (Best Seller)</span>
-                </label>
-                <label className="flex items-center space-x-2 text-sm cursor-pointer">
-                  <Checkbox
-                    checked={currentLabels.includes(PRODUCT_LABELS.SALE)}
-                    onCheckedChange={() => toggleLabel(PRODUCT_LABELS.SALE)}
-                  />
-                  <span>Giảm giá (Sale)</span>
-                </label>
-              </div>
-            </Field>
-          );
-        }}
-      />
 
       <Controller
         control={form.control}

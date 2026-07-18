@@ -8,6 +8,7 @@ import { ProjectMarqueeSection } from "@/shared/components/sections/project-marq
 import { getBranchesAction } from "@/modules/branch/presentation/actions";
 import { getBrandsAction } from "@/modules/brand/presentation/actions";
 import { getProductsAction } from "@/modules/catalog/presentation/actions";
+import { PRODUCT_STATUS } from "@/modules/catalog/domain";
 import { getCategoriesAction } from "@/modules/category/presentation/actions";
 import { getContactsAction } from "@/modules/contact/presentation/actions";
 import { getProjectsAction } from "@/modules/project/presentation/actions";
@@ -40,7 +41,7 @@ async function getCachedHomeData() {
   const categoriesWithProducts = await Promise.all(
     (categories || []).map(async (category) => {
       const { data: products, totalCount } = await getProductsAction({
-        isPublished: true,
+        status: PRODUCT_STATUS.PUBLISHED,
         categoryId: category.id,
         limit: 12,
         offset: 0,

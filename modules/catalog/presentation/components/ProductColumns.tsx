@@ -5,18 +5,11 @@ import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
 import { ButtonGroup } from "@/shared/components/ui/button-group";
 import { ColumnDef } from "@tanstack/react-table";
-import { Check, Minus, PencilSimple, Star, Trash, X } from "@phosphor-icons/react";
+import { Minus, PencilSimple, Star, Trash } from "@phosphor-icons/react";
 import Image from "next/image";
-import { ProductWithRelations, formatPrice, PRODUCT_LABELS, resolveDefaultVariant, toLegacyStockStatusForBadge } from "../../domain";
+import { ProductWithRelations, formatPrice, PRODUCT_STATUS, PRODUCT_STATUS_MAP, resolveDefaultVariant, toLegacyStockStatusForBadge } from "../../domain";
 import { StockBadge } from "@/shared/components/ui/stock-badge";
 import { primaryImageUrl } from "@/shared/lib/image-asset";
-
-const LABEL_MAP: Record<string, string> = {
-  [PRODUCT_LABELS.NEW]: "Mới về",
-  [PRODUCT_LABELS.HOT]: "Hot",
-  [PRODUCT_LABELS.BEST_SELLER]: "Bán chạy",
-  [PRODUCT_LABELS.SALE]: "Sale",
-};
 
 interface ColumnProps {
   onEdit: (product: ProductWithRelations) => void;
@@ -105,24 +98,6 @@ export const getProductColumns = ({
     cell: ({ row }) => <span>{row.original.category?.name || "—"}</span>,
   },
   {
-    accessorKey: "condition",
-    header: "Tình trạng",
-    cell: ({ row }) => {
-      const condition = row.original.condition;
-      return (
-        <span
-          className={
-            condition === "new"
-              ? "text-green-700 font-semibold"
-              : "text-amber-700 font-semibold"
-          }
-        >
-          {condition === "new" ? "Mới" : "Cũ"}
-        </span>
-      );
-    },
-  },
-  {
     id: "originalPrice",
     header: "Giá gốc",
     cell: ({ row }) => (
@@ -146,23 +121,6 @@ export const getProductColumns = ({
               -{v?.discountPercent}%
             </Badge>
           )}
-        </div>
-      );
-    },
-  },
-  {
-    accessorKey: "labels",
-    header: "Nhãn",
-    cell: ({ row }) => {
-      const labels = row.original.labels || [];
-      if (labels.length === 0) return <span className="text-muted-foreground">—</span>;
-      return (
-        <div className="flex flex-wrap gap-1 max-w-[120px]">
-          {labels.map((l) => (
-            <Badge key={l} variant="outline" className="text-[10px] px-1 py-0 h-4 font-normal">
-              {LABEL_MAP[l] || l}
-            </Badge>
-          ))}
         </div>
       );
     },
@@ -199,21 +157,11 @@ export const getProductColumns = ({
     ),
   },
   {
-    accessorKey: "isPublished",
+    accessorKey: "status",
     header: "Trạng thái",
     cell: ({ row }) => (
-      <Badge variant={row.original.isPublished ? "secondary" : "outline"}>
-        {row.original.isPublished ? (
-          <>
-            <Check size={12} />
-            <span>Hiện</span>
-          </>
-        ) : (
-          <>
-            <X size={12} />
-            <span>Ẩn</span>
-          </>
-        )}
+      <Badge variant={row.original.status === PRODUCT_STATUS.PUBLISHED ? "secondary" : "outline"}>
+        {PRODUCT_STATUS_MAP[row.original.status]}
       </Badge>
     ),
   },

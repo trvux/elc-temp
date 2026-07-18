@@ -35,6 +35,12 @@ interface ProductIdentityCardProps {
   productLines: ProductLine[];
   updateAutoSlug: (name: string) => void;
   regenerateSlug: () => void;
+  // Whether this product has ever had a public URL (status published or
+  // archived — archived keeps its URL alive for existing backlinks/SEO, see
+  // domain.Product.Archive) — regenerating the slug on one of these needs
+  // confirmation since it could break an existing link; a draft/proposed
+  // product was never public, so it's safe to regenerate without asking.
+  isLiveOrWasLive: boolean;
 }
 
 export function ProductIdentityCard({
@@ -44,10 +50,10 @@ export function ProductIdentityCard({
   productLines,
   updateAutoSlug,
   regenerateSlug,
+  isLiveOrWasLive,
 }: ProductIdentityCardProps) {
   const currentCategoryId = form.watch("categoryId");
   const currentBrandId = form.watch("brandId");
-  const isPublished = form.watch("isPublished");
   // Every product always has >=1 variant (see the Product doc comment in
   // domain/types.ts) — variants[0] is the implicit default variant, and its
   // sku/mpn/gtin/price/stock fields are what the "flat" Controllers below
@@ -300,7 +306,7 @@ export function ProductIdentityCard({
                 variant="ghost"
                 size="sm"
                 className="h-6 px-2 text-xs text-muted-foreground hover:text-primary"
-                onClick={() => (isPublished ? setConfirmSlugOpen(true) : regenerateSlug())}
+                onClick={() => (isLiveOrWasLive ? setConfirmSlugOpen(true) : regenerateSlug())}
               >
                 Tạo lại slug từ tên
               </Button>

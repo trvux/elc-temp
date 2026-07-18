@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { getCatalogPageAction, getProductsAction } from "@/modules/catalog/presentation/actions";
+import { PRODUCT_STATUS } from "@/modules/catalog/domain";
 import { getCategoriesAction } from "@/modules/category/presentation/actions";
 import {
   CategorySectionsGrid,
@@ -59,7 +60,7 @@ async function getCachedCategorySections(): Promise<CategorySectionData[]> {
     allCategories.map(async (cat) => {
       const { data: products, totalCount, error } = await getProductsAction({
         categoryId: cat.id,
-        isPublished: true,
+        status: PRODUCT_STATUS.PUBLISHED,
         limit: INITIAL_PER_SECTION,
         offset: 0,
       });

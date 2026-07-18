@@ -1,12 +1,13 @@
 import { NextResponse, connection } from 'next/server';
 import { getProductsAction } from '@/modules/catalog/presentation/actions';
+import { PRODUCT_STATUS } from '@/modules/catalog/domain';
 import { toSitemapLastmod } from '@/shared/lib/sitemap-lastmod';
 import { BASE_URL } from '@/shared/lib/seo-schema';
 
 export async function GET() {
   await connection();
 
-  const { data: products } = await getProductsAction({ isPublished: true });
+  const { data: products } = await getProductsAction({ status: PRODUCT_STATUS.PUBLISHED });
 
   const productRoutes = products
     .filter((prod) => prod.slug)

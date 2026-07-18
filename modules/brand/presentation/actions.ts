@@ -16,6 +16,7 @@ interface GoBrandResponse {
   is_featured: boolean;
   order_index: number;
   content: unknown | null;
+  warranty_policy: string | null;
   created_at: string;
   updated_at: string;
   deleted_at: string | null;
@@ -38,6 +39,7 @@ function mapGoBrand(row: GoBrandResponse): Brand {
     isFeatured: row.is_featured,
     orderIndex: row.order_index,
     content: row.content,
+    warrantyPolicy: row.warranty_policy,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
     deletedAt: row.deleted_at,

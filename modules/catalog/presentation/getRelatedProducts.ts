@@ -1,4 +1,4 @@
-import { ProductWithRelations } from "@/modules/catalog/domain";
+import { ProductWithRelations, PRODUCT_STATUS } from "@/modules/catalog/domain";
 import { getProductsAction } from "@/modules/catalog/presentation/actions";
 
 const RELATED_PRODUCTS_LIMIT = 8;
@@ -16,7 +16,7 @@ export async function getRelatedProducts(product: ProductWithRelations): Promise
   if (product.productLineId) {
     const { data } = await getProductsAction({
       productLineId: product.productLineId,
-      isPublished: true,
+      status: PRODUCT_STATUS.PUBLISHED,
       limit: RELATED_PRODUCTS_LIMIT + 1,
     });
     const related = exclude(data).slice(0, RELATED_PRODUCTS_LIMIT);
@@ -26,7 +26,7 @@ export async function getRelatedProducts(product: ProductWithRelations): Promise
   if (product.categoryId) {
     const { data } = await getProductsAction({
       categoryIds: [product.categoryId],
-      isPublished: true,
+      status: PRODUCT_STATUS.PUBLISHED,
       limit: RELATED_PRODUCTS_LIMIT + 1,
     });
     const related = exclude(data).slice(0, RELATED_PRODUCTS_LIMIT);
@@ -36,7 +36,7 @@ export async function getRelatedProducts(product: ProductWithRelations): Promise
   if (product.brandId) {
     const { data } = await getProductsAction({
       brandIds: [product.brandId],
-      isPublished: true,
+      status: PRODUCT_STATUS.PUBLISHED,
       limit: RELATED_PRODUCTS_LIMIT + 1,
     });
     return exclude(data).slice(0, RELATED_PRODUCTS_LIMIT);
