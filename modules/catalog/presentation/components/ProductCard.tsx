@@ -13,17 +13,24 @@ import {
   TypographySmall,
 } from "@/shared/components/ui/typography";
 import { primaryImageUrl } from "@/shared/lib/image-asset";
+import { cn } from "@/shared/lib/utils";
+import { WishlistButton } from "@/shared/components/layout/user/wishlist-button";
+import { CompareToggleButton } from "@/shared/components/layout/user/compare-toggle-button";
 import Image from "next/image";
 import Link from "next/link";
 
 interface ProductCardProps {
   product: ProductWithRelations;
   priority?: boolean;
+  // "lg" drops the max-w-sm cap for a small row of standout/featured picks
+  // above the main dense grid — see ProductGrid.tsx.
+  size?: "default" | "lg";
 }
 
 export function ProductCard({
   product,
   priority = false,
+  size = "default",
 }: ProductCardProps) {
   const productUrl = `/san-pham/${product.slug}`;
 
@@ -41,7 +48,22 @@ export function ProductCard({
       className="w-full block group h-full"
       prefetch={false}
     >
-      <Card className="relative mx-auto w-full h-full max-w-sm pt-0 transition-all duration-300 hover:shadow-md cursor-pointer gap-2 md:gap-3 overflow-hidden">
+      <Card
+        className={cn(
+          "relative mx-auto w-full h-full pt-0 transition-all duration-300 hover:shadow-md cursor-pointer gap-2 md:gap-3 overflow-hidden",
+          size === "default" && "max-w-sm",
+        )}
+      >
+        <div className="absolute top-2 right-2 z-40">
+          <WishlistButton productId={product.id} size="icon-xs" />
+        </div>
+        <div className="absolute top-2 left-2 z-40">
+          <CompareToggleButton
+            variant="checkbox"
+            item={{ id: product.id, name: product.name, slug: product.slug, categoryId: product.categoryId }}
+          />
+        </div>
+
         <div className="absolute inset-0 z-30 aspect-video bg-white" />
         {imageUrl ? (
           <div className="relative z-30 aspect-video w-full bg-white">
@@ -66,7 +88,7 @@ export function ProductCard({
           // className="text-sm"
         />
         <CardHeader className="px-2">
-          <CardTitle className="line-clamp-2 h-12">
+          <CardTitle className={cn("line-clamp-2 h-12", size === "lg" && "text-lg h-auto")}>
             {product.name}
           </CardTitle>
           <CardDescription className="flex flex-col gap-1 text-xs">

@@ -19,6 +19,11 @@ interface CompareContextValue {
   toggle: (item: CompareItem) => void;
   remove: (productId: string) => void;
   clear: () => void;
+  // Whether listing pages should show the per-card compare checkbox
+  // overlay — a single global switch (not per-page state) so leaving and
+  // returning to a listing page during the same session keeps the mode on.
+  isSelecting: boolean;
+  setIsSelecting: (v: boolean) => void;
 }
 
 const CompareContext = createContext<CompareContextValue>({
@@ -27,6 +32,8 @@ const CompareContext = createContext<CompareContextValue>({
   toggle: () => {},
   remove: () => {},
   clear: () => {},
+  isSelecting: false,
+  setIsSelecting: () => {},
 });
 
 function read(): CompareItem[] {
@@ -54,6 +61,7 @@ function write(items: CompareItem[]) {
 // request, but the real UX guard belongs here, before ever hitting it.
 export function CompareProvider({ children }: { children: React.ReactNode }) {
   const [items, setItems] = useState<CompareItem[]>([]);
+  const [isSelecting, setIsSelecting] = useState(false);
 
   // Initial read deferred to an effect (not a lazy useState initializer) so
   // the client's first render matches the server-rendered empty state,
@@ -107,7 +115,7 @@ export function CompareProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   return (
-    <CompareContext.Provider value={{ items, isSelected, toggle, remove, clear }}>
+    <CompareContext.Provider value={{ items, isSelected, toggle, remove, clear, isSelecting, setIsSelecting }}>
       {children}
     </CompareContext.Provider>
   );
