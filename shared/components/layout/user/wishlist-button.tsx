@@ -9,6 +9,10 @@ import { useWishlist } from "@/shared/providers/wishlist-provider";
 
 interface WishlistButtonProps {
   productId: string;
+  // "icon": small circular icon-only button (product detail hero, floating
+  // CTA bar). "button": full labeled shadcn Button (ProductCard footer) —
+  // a corner icon overlay was reported too small/unclear to tap.
+  variant?: "icon" | "button";
   size?: "icon-xs" | "icon-sm" | "icon" | "icon-lg";
   className?: string;
 }
@@ -16,12 +20,34 @@ interface WishlistButtonProps {
 // The single most "buying-intent" affordance on the page — used on
 // ProductCard, the product detail hero, and the floating CTA bar, all
 // reading/writing the same WishlistProvider so toggling anywhere stays in
-// sync everywhere. Must stopPropagation/preventDefault when nested inside a
-// <Link> (ProductCard wraps the whole card in one) so tapping the heart
-// doesn't also navigate.
-export function WishlistButton({ productId, size = "icon-sm", className }: WishlistButtonProps) {
+// sync everywhere.
+export function WishlistButton({ productId, variant = "icon", size = "icon-sm", className }: WishlistButtonProps) {
   const { isWishlisted, toggle } = useWishlist();
   const wishlisted = isWishlisted(productId);
+
+  const heart = (
+    <Heart weight={wishlisted ? "fill" : "regular"} className={wishlisted ? "text-destructive" : ""} />
+  );
+
+  if (variant === "button") {
+    return (
+      <Button
+        type="button"
+        variant="outline"
+        size="sm"
+        className={cn("flex-1", className)}
+        aria-pressed={wishlisted}
+        onClick={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          toggle(productId);
+        }}
+      >
+        {heart}
+        {wishlisted ? "Đã thích" : "Yêu thích"}
+      </Button>
+    );
+  }
 
   return (
     <Button
@@ -43,7 +69,7 @@ export function WishlistButton({ productId, size = "icon-sm", className }: Wishl
         animate={wishlisted ? { scale: [1, 1.25, 1] } : { scale: 1 }}
         transition={{ duration: 0.3 }}
       >
-        <Heart weight={wishlisted ? "fill" : "regular"} className={wishlisted ? "text-destructive" : ""} />
+        {heart}
       </m.button>
     </Button>
   );

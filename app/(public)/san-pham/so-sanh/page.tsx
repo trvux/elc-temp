@@ -89,27 +89,18 @@ export default async function ComparePage({ searchParams }: ComparePageProps) {
                         const av = (product.attributeValues || []).find((v) => v.code === row.code);
                         return av ? formatAttributeValue(av) : "—";
                       });
-                      // Not a "this one is better" judgment — we don't know
-                      // per-spec whether higher/lower is desirable (higher
-                      // HP is fine, higher power draw isn't). Just draws the
-                      // eye to specs that genuinely differ, neutrally — a
-                      // small dot + colored text, no cell background (kept
-                      // it plain text-only per direct feedback).
-                      const differs = new Set(values).size > 1;
 
+                      // No "bigger number = highlighted" heuristic here: a
+                      // higher spec isn't always the better one (e.g. more
+                      // power draw is worse, more BTU is better), and we
+                      // don't have per-attribute directionality data to make
+                      // that call correctly — so every value renders plain.
                       return (
                         <TableRow key={row.code}>
                           <TableCell className="text-muted-foreground font-medium">{row.name}</TableCell>
                           {values.map((value, i) => (
                             <TableCell key={products[i].id} className="text-center">
-                              {differs ? (
-                                <span className="inline-flex items-center gap-1.5 font-semibold text-primary">
-                                  <span className="size-1.5 rounded-full bg-primary" aria-hidden="true" />
-                                  {value}
-                                </span>
-                              ) : (
-                                <span className="text-muted-foreground">{value}</span>
-                              )}
+                              {value}
                             </TableCell>
                           ))}
                         </TableRow>
