@@ -15,6 +15,7 @@ import {
 } from "@/shared/components/ui/table";
 
 import { getProductsAction } from "@/modules/catalog/presentation/actions";
+import { PRODUCT_STATUS } from "@/modules/catalog/domain";
 import { getNewsAction } from "@/modules/news/presentation/actions";
 import { getProjectsAction } from "@/modules/project/presentation/actions";
 import { getServicesAction } from "@/modules/service/presentation/actions";
@@ -42,7 +43,7 @@ export function SeoAuditPanel() {
   const { data: products, isLoading: loadingProducts } = useQuery({
     queryKey: ["seo-audit", "products"],
     queryFn: async () => {
-      const { data } = await getProductsAction({ isPublished: true, limit: 2000 });
+      const { data } = await getProductsAction({ status: PRODUCT_STATUS.PUBLISHED, limit: 2000 });
       return data;
     },
   });

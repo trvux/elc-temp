@@ -78,6 +78,7 @@ export function BrandManagement() {
             metaTitle: b.metaTitle || "",
             metaDescription: b.metaDescription || "",
             content: b.content || "",
+            warrantyPolicy: b.warrantyPolicy || "",
           });
         },
         onDelete: setDeletingId,
@@ -96,6 +97,7 @@ export function BrandManagement() {
       metaTitle: "",
       metaDescription: "",
       content: "",
+      warrantyPolicy: "",
     });
   }
 
@@ -218,6 +220,26 @@ export function BrandManagement() {
                           )}
                         />
                       </div>
+
+                      <Controller
+                        control={form.control}
+                        name="warrantyPolicy"
+                        render={({ field, fieldState }) => (
+                          <Field>
+                            <FieldLabel>Chính sách bảo hành</FieldLabel>
+                            <Textarea
+                              {...field}
+                              value={field.value || ""}
+                              placeholder="VD: Khách mang máy đến elc, elc gửi hãng bảo hành theo quy trình của Daikin..."
+                              className="min-h-30 resize-y"
+                            />
+                            <FieldDescription>
+                              elc là đại lý, không phải hãng sản xuất — mô tả quy trình gửi hãng bảo hành áp dụng cho mọi sản phẩm của thương hiệu này.
+                            </FieldDescription>
+                            <FieldError errors={[fieldState.error]} />
+                          </Field>
+                        )}
+                      />
                     </div>
 
                     <div className="md:col-span-4 flex justify-start md:justify-center">

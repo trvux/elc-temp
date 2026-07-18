@@ -1,4 +1,5 @@
 import { getProductsAction } from "@/modules/catalog/presentation/actions";
+import { PRODUCT_STATUS } from "@/modules/catalog/domain";
 import { ProductCard } from "@/modules/catalog/presentation/components/ProductCard";
 import { getCategoriesAction } from "@/modules/category/presentation/actions";
 import { getGroupsAction } from "@/modules/group/presentation/actions";
@@ -127,7 +128,7 @@ async function getCachedNewsDetailData(slug: string) {
     if (categoryIds.length > 0) {
       const { data: products, totalCount } = await getProductsAction({
         categoryIds,
-        isPublished: true,
+        status: PRODUCT_STATUS.PUBLISHED,
         limit: RELATED_PRODUCTS_PREVIEW,
         offset: 0,
       });

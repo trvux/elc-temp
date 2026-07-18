@@ -18,7 +18,8 @@ import {
 } from "@/shared/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/shared/components/ui/card";
 
-import { VARIANT_STOCK_STATUS, VARIANT_STOCK_STATUS_MAP, ProductWithRelations, PRODUCT_LABELS, PRODUCT_CONDITION } from "../../domain";
+import { VARIANT_STOCK_STATUS, VARIANT_STOCK_STATUS_MAP, ProductWithRelations, PRODUCT_STATUS, PRODUCT_STATUS_MAP, ProductStatus } from "../../domain";
+import type { Role } from "@/modules/auth/domain";
 import {
   deleteProductAction,
   getProductsAction,
@@ -28,7 +29,6 @@ import { useProductForm, DEFAULT_VARIANT } from "../hooks/useProductForm";
 import { ProductIdentityCard } from "./form/ProductIdentityCard";
 import { ProductOrganizationCard } from "./form/ProductOrganizationCard";
 import { ProductStatusCard } from "./form/ProductStatusCard";
-import { ProductWarrantyCard } from "./form/ProductWarrantyCard";
 import { ProductSpecsTab } from "./form/ProductSpecsTab";
 import { ProductGalleryTab } from "./form/ProductGalleryTab";
 import { ProductDescriptionTab } from "./form/ProductDescriptionTab";
@@ -87,19 +87,32 @@ function mapProductToFormVariantTree(p: ProductWithRelations) {
   return { options, variants };
 }
 
-export function ProductManagement() {
+interface ProductManagementProps {
+  currentUserRole: Role;
+}
+
+export function ProductManagement({ currentUserRole }: ProductManagementProps) {
   const queryClient = useQueryClient();
   const [activeProduct, setActiveProduct] = useState<ProductWithRelations | "new" | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  // Tracks the open dialog's live status/rejectionReason — separate from
+  // `form` (status is never part of form values, see CreateProductInput's
+  // doc comment) and updated in place when a workflow action in
+  // ProductStatusCard succeeds, so the card reflects the new state without
+  // needing to refetch/reopen the dialog.
+  const [activeStatus, setActiveStatus] = useState<{ status: ProductStatus; rejectionReason: string | null }>({
+    status: PRODUCT_STATUS.DRAFT,
+    rejectionReason: null,
+  });
+  // Mirrors elc-go's authdomain.CanPublishContent (super_admin/admin only).
+  const canPublish = currentUserRole === "admin" || currentUserRole === "super_admin";
 
   // Filters
   const [filterGroupId, setFilterGroupId] = useState<string>("all");
   const [filterCategoryId, setFilterCategoryId] = useState<string>("all");
   const [filterIsFeatured, setFilterIsFeatured] = useState<string>("all");
-  const [filterIsPublished, setFilterIsPublished] = useState<string>("all");
-  const [filterLabel, setFilterLabel] = useState<string>("all");
+  const [filterStatus, setFilterStatus] = useState<string>("all");
   const [filterStockStatus, setFilterStockStatus] = useState<string>("all");
-  const [filterCondition, setFilterCondition] = useState<string>("all");
 
   // Fetch Data
   const { data: products = [], isLoading: isLoadingProducts } = useQuery({
@@ -201,19 +214,18 @@ export function ProductManagement() {
       const matchGroup = filterGroupId === "all" || (cat && cat.groupId === filterGroupId);
       const matchCategory = filterCategoryId === "all" || p.categoryId === filterCategoryId;
       const matchFeatured = filterIsFeatured === "all" || (filterIsFeatured === "true" ? p.isFeatured : !p.isFeatured);
-      const matchPublished = filterIsPublished === "all" || (filterIsPublished === "true" ? p.isPublished : !p.isPublished);
-      const matchLabel = filterLabel === "all" || (p.labels && p.labels.includes(filterLabel));
+      const matchStatus = filterStatus === "all" || p.status === filterStatus;
       const matchStockStatus = filterStockStatus === "all" || p.displayStockStatus === filterStockStatus;
-      const matchCondition = filterCondition === "all" || p.condition === filterCondition;
-      return matchGroup && matchCategory && matchFeatured && matchPublished && matchLabel && matchStockStatus && matchCondition;
+      return matchGroup && matchCategory && matchFeatured && matchStatus && matchStockStatus;
     });
-  }, [products, filterGroupId, filterCategoryId, filterIsFeatured, filterIsPublished, filterLabel, filterStockStatus, filterCondition, categories]);
+  }, [products, filterGroupId, filterCategoryId, filterIsFeatured, filterStatus, filterStockStatus, categories]);
 
   const columns = useMemo(
     () =>
       getProductColumns({
         onEdit: (p) => {
           setActiveProduct(p);
+          setActiveStatus({ status: p.status, rejectionReason: p.rejectionReason ?? null });
           const { options, variants } = mapProductToFormVariantTree(p);
           form.reset({
             name: p.name,
@@ -221,18 +233,13 @@ export function ProductManagement() {
             description: p.description || "",
             images: p.images || [],
             isFeatured: p.isFeatured,
-            isPublished: p.isPublished,
             orderIndex: p.orderIndex,
             categoryId: p.categoryId,
             brandId: p.brandId,
-            condition: p.condition || PRODUCT_CONDITION.NEW,
             metaTitle: p.metaTitle || "",
             metaDescription: p.metaDescription || "",
-            labels: p.labels || [],
             tagIds: (p.tags || []).map((t) => t.id),
             productLineId: p.productLineId || null,
-            warrantyMonths: p.warrantyMonths ?? null,
-            warrantyTerms: p.warrantyTerms || "",
             options,
             variants,
             attributeValues: (p.attributeValues || []).map((av) => ({
@@ -250,24 +257,20 @@ export function ProductManagement() {
 
   function openCreate() {
     setActiveProduct("new");
+    setActiveStatus({ status: PRODUCT_STATUS.DRAFT, rejectionReason: null });
     form.reset({
       name: "",
       slug: "",
       description: "",
       images: [],
       isFeatured: false,
-      isPublished: true,
       orderIndex: 0,
       categoryId: "",
       brandId: "",
-      condition: PRODUCT_CONDITION.NEW,
       metaTitle: "",
       metaDescription: "",
-      labels: [],
       tagIds: [],
       productLineId: null,
-      warrantyMonths: null,
-      warrantyTerms: "",
       options: [],
       attributeValues: [],
       variants: [DEFAULT_VARIANT],
@@ -330,27 +333,17 @@ export function ProductManagement() {
           </SelectContent>
         </Select>
 
-        <Select value={filterIsPublished} onValueChange={setFilterIsPublished}>
+        <Select value={filterStatus} onValueChange={setFilterStatus}>
           <SelectTrigger className="w-full md:w-[150px]">
             <SelectValue placeholder="Trạng thái" />
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">Tất cả trạng thái</SelectItem>
-            <SelectItem value="true">Đang hiển thị</SelectItem>
-            <SelectItem value="false">Đang ẩn</SelectItem>
-          </SelectContent>
-        </Select>
-
-        <Select value={filterLabel} onValueChange={setFilterLabel}>
-          <SelectTrigger className="w-full md:w-[160px]">
-            <SelectValue placeholder="Nhãn hiển thị" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">Tất cả nhãn</SelectItem>
-            <SelectItem value={PRODUCT_LABELS.NEW}>Mới về (New)</SelectItem>
-            <SelectItem value={PRODUCT_LABELS.HOT}>Nổi bật (Hot)</SelectItem>
-            <SelectItem value={PRODUCT_LABELS.BEST_SELLER}>Bán chạy (Best Seller)</SelectItem>
-            <SelectItem value={PRODUCT_LABELS.SALE}>Giảm giá (Sale)</SelectItem>
+            {Object.values(PRODUCT_STATUS).map((s) => (
+              <SelectItem key={s} value={s}>
+                {PRODUCT_STATUS_MAP[s]}
+              </SelectItem>
+            ))}
           </SelectContent>
         </Select>
 
@@ -368,34 +361,19 @@ export function ProductManagement() {
           </SelectContent>
         </Select>
 
-        <Select value={filterCondition} onValueChange={setFilterCondition}>
-          <SelectTrigger className="w-full md:w-[150px]">
-            <SelectValue placeholder="Tình trạng" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">Tất cả tình trạng</SelectItem>
-            <SelectItem value={PRODUCT_CONDITION.NEW}>Mới</SelectItem>
-            <SelectItem value={PRODUCT_CONDITION.USED}>Cũ</SelectItem>
-          </SelectContent>
-        </Select>
-
         {(filterGroupId !== "all" ||
           filterCategoryId !== "all" ||
           filterIsFeatured !== "all" ||
-          filterIsPublished !== "all" ||
-          filterLabel !== "all" ||
-          filterStockStatus !== "all" ||
-          filterCondition !== "all") && (
+          filterStatus !== "all" ||
+          filterStockStatus !== "all") && (
           <Button
             variant="ghost"
             onClick={() => {
               setFilterGroupId("all");
               setFilterCategoryId("all");
               setFilterIsFeatured("all");
-              setFilterIsPublished("all");
-              setFilterLabel("all");
+              setFilterStatus("all");
               setFilterStockStatus("all");
-              setFilterCondition("all");
             }}
             className="h-10 text-muted-foreground"
           >
@@ -443,6 +421,10 @@ export function ProductManagement() {
                           productLines={productLines}
                           updateAutoSlug={updateAutoSlug}
                           regenerateSlug={regenerateSlug}
+                          isLiveOrWasLive={
+                            activeStatus.status === PRODUCT_STATUS.PUBLISHED ||
+                            activeStatus.status === PRODUCT_STATUS.ARCHIVED
+                          }
                         />
                       </CardContent>
                     </Card>
@@ -509,7 +491,14 @@ export function ProductManagement() {
                         </CardTitle>
                       </CardHeader>
                       <CardContent className="pt-0">
-                        <ProductStatusCard form={form} />
+                        <ProductStatusCard
+                          form={form}
+                          productId={activeProduct && activeProduct !== "new" ? activeProduct.id : null}
+                          status={activeStatus.status}
+                          rejectionReason={activeStatus.rejectionReason}
+                          canPublish={canPublish}
+                          onStatusChange={setActiveStatus}
+                        />
                       </CardContent>
                     </Card>
 
@@ -529,18 +518,6 @@ export function ProductManagement() {
                         />
                       </CardContent>
                     </Card>
-
-                    <Card>
-                      <CardHeader className="pb-4">
-                        <CardTitle className="text-sm font-semibold tracking-tight text-foreground">
-                          Bảo hành
-                        </CardTitle>
-                      </CardHeader>
-                      <CardContent className="pt-0">
-                        <ProductWarrantyCard form={form} />
-                      </CardContent>
-                    </Card>
-
                   </div>
                 </div>
               </div>

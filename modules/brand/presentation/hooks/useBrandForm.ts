@@ -32,6 +32,7 @@ export function useBrandForm(
       metaTitle: "",
       metaDescription: "",
       content: "",
+      warrantyPolicy: "",
     },
   });
 

@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { Json } from "./types";
-import { PRODUCT_CONDITION, VARIANT_STOCK_STATUS } from "./constants";
+import { VARIANT_STOCK_STATUS } from "./constants";
 
 const imageAssetSchema = z.object({
   url: z.string(),
@@ -70,19 +70,12 @@ export const productSchema = z.object({
     }),
   description: z.custom<Json>().default({}),
   images: z.array(imageAssetSchema).default([]),
-  labels: z.array(z.string()).default([]),
   isFeatured: z.boolean().default(false),
-  isPublished: z.boolean().default(false),
   orderIndex: z.coerce.number().int().default(0),
   categoryId: z.uuid({ message: "ID danh mục không đúng định dạng UUID" }),
   brandId: z.uuid({ message: "ID thương hiệu không đúng định dạng UUID" }),
-  condition: z
-    .nativeEnum(PRODUCT_CONDITION)
-    .default(PRODUCT_CONDITION.NEW),
   tagIds: z.array(z.string()).optional(),
   productLineId: z.uuid().nullable().optional(),
-  warrantyMonths: z.coerce.number().int().min(0).nullable().optional(),
-  warrantyTerms: z.string().nullable().optional(),
   options: z.array(productOptionInputSchema).optional(),
   // At least one variant is required — Product itself carries no sku/mpn/
   // price, see elc-go's domain.Product doc comment.

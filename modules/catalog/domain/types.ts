@@ -3,7 +3,7 @@ import { Brand, CreateBrandInput, UpdateBrandInput } from "../../brand/domain";
 export type { Brand, CreateBrandInput, UpdateBrandInput };
 import type { AttributeDataType } from "../../attribute-definition/domain";
 export type { AttributeDataType };
-import { ProductCondition, VariantStockStatus } from "./constants";
+import { ProductStatus, VariantStockStatus } from "./constants";
 import type { ImageAsset } from "@/shared/lib/image-asset";
 export type { ImageAsset };
 
@@ -30,16 +30,17 @@ export interface Product {
     metaDescription?: string | null;
     description: Json;
     images: ImageAsset[];
-    labels: string[];
     isFeatured: boolean;
-    isPublished: boolean;
+    // status only ever moves through the dedicated submit/approve/reject/
+    // archive actions (see presentation/actions.ts) — never sent as part of
+    // create/update payloads. rejectionReason is set when an owner/admin
+    // sends a proposed product back to draft.
+    status: ProductStatus;
+    rejectionReason?: string | null;
     orderIndex: number;
     categoryId: string;
     brandId: string;
-    condition: ProductCondition;
     productLineId?: string | null;
-    warrantyMonths?: number | null;
-    warrantyTerms?: string | null;
     // Denormalized read cache computed from the variant tree — see
     // elc-go/docs/product-v2-design.md.
     defaultVariantId?: string | null;
@@ -188,6 +189,9 @@ export interface ProductVariantInput {
     components?: VariantComponentInput[];
 }
 
+// CreateProductInput/UpdateProductInput deliberately carry no status field —
+// a created product always starts as draft, and status only ever advances
+// through the dedicated submit/approve/reject/archive actions.
 export interface CreateProductInput {
     name: string;
     slug: string;
@@ -195,17 +199,12 @@ export interface CreateProductInput {
     metaDescription?: string | null;
     description?: Json;
     images?: ImageAsset[];
-    labels?: string[];
     isFeatured?: boolean;
-    isPublished?: boolean;
     orderIndex?: number;
     categoryId: string;
     brandId: string;
-    condition?: ProductCondition;
     tagIds?: string[];
     productLineId?: string | null;
-    warrantyMonths?: number | null;
-    warrantyTerms?: string | null;
     options?: ProductOptionInput[];
     // Must contain at least one entry — the Go backend rejects an empty
     // list, since Product itself carries no price/sku (see the Product doc
@@ -229,7 +228,7 @@ export interface ProductFilter {
     brandIds?: string[];
     productLineId?: string;
     isFeatured?: boolean;
-    isPublished?: boolean;
+    status?: ProductStatus;
     limit?: number;
     offset?: number;
     includeDeleted?: boolean;

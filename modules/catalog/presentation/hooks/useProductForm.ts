@@ -9,7 +9,7 @@ import { convertToWebP } from "@/shared/lib/image";
 import { uploadImageFile } from "@/shared/lib/upload-image";
 import { generateSlug } from "@/shared/lib/helpers";
 
-import { createProductSchema, ProductWithRelations, VARIANT_STOCK_STATUS, PRODUCT_CONDITION, CreateProductInput, UpdateProductInput } from "../../domain";
+import { createProductSchema, ProductWithRelations, VARIANT_STOCK_STATUS, CreateProductInput, UpdateProductInput } from "../../domain";
 import { createProductAction, updateProductAction } from "../actions";
 
 export type ProductFormValues = Omit<
@@ -55,19 +55,14 @@ export function useProductForm(
       slug: "",
       description: "",
       images: [],
-      labels: [],
       isFeatured: false,
-      isPublished: true,
       orderIndex: 0,
       categoryId: "",
       brandId: "",
-      condition: PRODUCT_CONDITION.NEW,
       metaTitle: "",
       metaDescription: "",
       tagIds: [],
       productLineId: null,
-      warrantyMonths: null,
-      warrantyTerms: "",
       options: [],
       attributeValues: [],
       // Every product needs >=1 variant (the Go backend rejects zero — see

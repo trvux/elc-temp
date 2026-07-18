@@ -8,8 +8,8 @@ import {
   ProductWithRelations,
   Product,
   Json,
-  PRODUCT_CONDITION,
-  ProductCondition,
+  ProductStatus,
+  PRODUCT_STATUS,
   VariantStockStatus,
   ProductOptionInput,
   ProductVariantInput,
@@ -116,16 +116,13 @@ interface GoProductResponse {
   slug: string;
   description: Json;
   images: ImageAsset[] | null;
-  labels: string[] | null;
   is_featured: boolean;
-  is_published: boolean;
+  status: string;
+  rejection_reason: string | null;
   order_index: number;
-  condition: string;
   meta_title: string | null;
   meta_description: string | null;
   product_line_id: string | null;
-  warranty_months: number | null;
-  warranty_terms: string | null;
   default_variant_id: string | null;
   display_price: number | null;
   display_stock_status: string | null;
@@ -186,16 +183,13 @@ function mapGoProduct(row: GoProductResponse): ProductWithRelations {
     metaDescription: row.meta_description,
     description: row.description ?? null,
     images: row.images || [],
-    labels: row.labels || [],
     isFeatured: row.is_featured || false,
-    isPublished: row.is_published || false,
+    status: (row.status as ProductStatus) || PRODUCT_STATUS.DRAFT,
+    rejectionReason: row.rejection_reason ?? null,
     orderIndex: row.order_index || 0,
     categoryId: row.category_id || "",
     brandId: row.brand_id || "",
-    condition: (row.condition as ProductCondition) || PRODUCT_CONDITION.NEW,
     productLineId: row.product_line_id ?? null,
-    warrantyMonths: row.warranty_months ?? null,
-    warrantyTerms: row.warranty_terms ?? null,
     defaultVariantId: row.default_variant_id ?? null,
     displayPrice: row.display_price ?? null,
     displayStockStatus: row.display_stock_status ?? null,
@@ -300,7 +294,7 @@ function buildProductSearchParams(filter?: ProductFilter): URLSearchParams {
   }
   if (filter.productLineId) params.set("product_line_id", filter.productLineId);
   if (filter.isFeatured !== undefined) params.set("is_featured", String(filter.isFeatured));
-  if (filter.isPublished !== undefined) params.set("is_published", String(filter.isPublished));
+  if (filter.status !== undefined) params.set("status", filter.status);
   if (filter.limit !== undefined) params.set("limit", String(filter.limit));
   if (filter.offset !== undefined) params.set("offset", String(filter.offset));
   if (filter.includeDeleted !== undefined) params.set("include_deleted", String(filter.includeDeleted));
@@ -494,11 +488,10 @@ export async function createProductAction(input: CreateProductInput) {
     if (data?.slug) {
       revalidateTag(`slug:${data.slug}`, { expire: 0 });
     }
-    if (data?.isPublished && data?.slug) {
-      const url = `${BASE_URL}/san-pham/${data.slug}`;
-      submitToIndexNow([url]).catch((err) => console.error("IndexNow product create error:", err));
-      warmCache([url]);
-    }
+    // No IndexNow submission here — a created product always starts as
+    // draft (see domain.NewProduct), never published, so there is nothing
+    // to index yet. That happens in approveProductAction/
+    // unarchiveProductAction below, the actual moments a product goes live.
     return { data, error: null };
   } catch (error) {
     if (isPrerenderError(error)) throw error;
@@ -543,7 +536,7 @@ export async function updateProductAction(input: UpdateProductInput) {
     if (data?.slug) {
       revalidateTag(`slug:${data.slug}`, { expire: 0 });
     }
-    if (data?.isPublished && data?.slug) {
+    if (data?.status === PRODUCT_STATUS.PUBLISHED && data?.slug) {
       const url = `${BASE_URL}/san-pham/${data.slug}`;
       submitToIndexNow([url]).catch((err) => console.error("IndexNow product update error:", err));
       warmCache([url]);
@@ -557,6 +550,82 @@ export async function updateProductAction(input: UpdateProductInput) {
       error: error instanceof Error ? error.message : "Failed to update product",
     };
   }
+}
+
+// --- Status workflow: draft -> proposed -> published, or published ->
+// archived -> published. Status only ever moves through these dedicated
+// endpoints, never through createProductAction/updateProductAction's
+// generic payload — see elc-go's routes.go (CanWriteContent vs
+// CanPublishContent) for the permission boundary this mirrors.
+
+async function postProductTransition(
+  path: string,
+  successError: string,
+  body?: Record<string, unknown>
+): Promise<{ data: Product | null; error: string | null }> {
+  if (!GO_API_URL) {
+    return { data: null, error: "GO_API_URL is not configured" };
+  }
+  try {
+    const res = await fetch(`${GO_API_URL}/products/${path}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", ...(await authHeaders()) },
+      body: body ? JSON.stringify(body) : undefined,
+    });
+    if (!res.ok) {
+      return { data: null, error: await extractErrorMessage(res, successError) };
+    }
+
+    const row = (await res.json()) as GoProductResponse;
+    const data = mapGoProductPlain(row);
+
+    revalidatePath("/admin/products");
+    revalidatePath("/san-pham", "layout");
+    revalidatePath("/", "layout");
+    revalidateTag("products-list", { expire: 0 });
+    if (data?.slug) {
+      revalidateTag(`slug:${data.slug}`, { expire: 0 });
+    }
+    // The two transitions that actually make a product publicly visible —
+    // this is the real "went live" moment createProductAction/
+    // updateProductAction no longer trigger it at.
+    if (
+      (data?.status === PRODUCT_STATUS.PUBLISHED) &&
+      data?.slug
+    ) {
+      const url = `${BASE_URL}/san-pham/${data.slug}`;
+      submitToIndexNow([url]).catch((err) => console.error("IndexNow product publish error:", err));
+      warmCache([url]);
+    }
+    return { data, error: null };
+  } catch (error) {
+    if (isPrerenderError(error)) throw error;
+    console.error(`postProductTransition(${path}) error:`, error);
+    return {
+      data: null,
+      error: error instanceof Error ? error.message : successError,
+    };
+  }
+}
+
+export async function submitProductForReviewAction(id: string) {
+  return postProductTransition(`${id}/submit`, "Không thể gửi duyệt sản phẩm");
+}
+
+export async function approveProductAction(id: string) {
+  return postProductTransition(`${id}/approve`, "Không thể duyệt sản phẩm");
+}
+
+export async function rejectProductAction(id: string, reason: string) {
+  return postProductTransition(`${id}/reject`, "Không thể từ chối sản phẩm", { reason });
+}
+
+export async function archiveProductAction(id: string) {
+  return postProductTransition(`${id}/archive`, "Không thể ngừng bán sản phẩm");
+}
+
+export async function unarchiveProductAction(id: string) {
+  return postProductTransition(`${id}/unarchive`, "Không thể mở bán lại sản phẩm");
 }
 
 export async function deleteProductAction(id: string) {

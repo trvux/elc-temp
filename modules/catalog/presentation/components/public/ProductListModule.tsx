@@ -1,4 +1,5 @@
 import { getProductsAction } from "@/modules/catalog/presentation/actions";
+import { PRODUCT_STATUS } from "@/modules/catalog/domain";
 import { ProductCard } from "@/modules/catalog/presentation/components/ProductCard";
 import { ResolvedEntity } from "@/modules/catalog/presentation/resolveProductPath";
 import { getCategoriesAction } from "@/modules/category/presentation/actions";
@@ -60,7 +61,7 @@ async function getCachedListModuleData(entity: ResolvedEntity) {
   const { data: products, totalCount } = await getProductsAction({
     categoryIds,
     brandIds,
-    isPublished: true,
+    status: PRODUCT_STATUS.PUBLISHED,
     limit: LIST_LIMIT,
   });
 
