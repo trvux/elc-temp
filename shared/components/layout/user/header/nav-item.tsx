@@ -41,13 +41,13 @@ export const MobileNavItem = ({ link, isActive, onClick }: NavItemProps) => {
         onClick?.();
       }}
       className={cn(
-        "flex items-center text-xl font-medium transition-colors",
+        "flex items-center rounded-lg px-3 py-3 text-xl font-bold no-underline! transition-colors",
         isActive
           ? "text-foreground"
           : "text-muted-foreground hover:text-foreground",
       )}
     >
-      <span className="text-2xl font-semibold">{link.name}</span>
+      {link.name}
     </Link>
   );
 };

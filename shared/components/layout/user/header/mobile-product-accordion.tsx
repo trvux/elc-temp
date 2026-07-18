@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { useMemo } from "react";
 
@@ -10,6 +9,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/shared/components/ui/accordion";
+import { Button } from "@/shared/components/ui/button";
 import { TypographySmall } from "@/shared/components/ui/typography";
 import { groupCategoriesByGroup, type CategoryRef, type GroupCategoryRef } from "@/shared/lib/group-categories";
 import { sortByOrderIndex } from "@/shared/lib/helpers";
@@ -45,18 +45,18 @@ export function MobileProductAccordion({
   );
 
   return (
-    <Accordion type="single" collapsible className="w-full max-w-xs">
+    <Accordion type="single" collapsible className="w-full">
       <AccordionItem value="san-pham" className="border-b-0">
-        <AccordionTrigger className="justify-center gap-2 text-xl font-medium text-muted-foreground hover:text-foreground hover:no-underline py-0">
+        <AccordionTrigger className="px-3 py-3 text-xl font-bold text-foreground hover:no-underline!">
           Sản phẩm
         </AccordionTrigger>
-        <AccordionContent className="flex flex-col gap-4 pt-4 text-center">
+        <AccordionContent className="flex flex-col gap-6 pl-3">
           {groupsWithCategories.map(({ group, categories }) => (
-            <div key={group.id} className="flex flex-col gap-1.5">
+            <div key={group.id} className="flex flex-col gap-2.5">
               <Link
                 href={`/san-pham/${group.slug}`}
                 onClick={onNavigate}
-                className="text-sm font-semibold text-foreground"
+                className="text-base font-semibold text-foreground no-underline!"
               >
                 {group.name}
               </Link>
@@ -65,7 +65,7 @@ export function MobileProductAccordion({
                   key={cat.id}
                   href={`/san-pham/${cat.slug}`}
                   onClick={onNavigate}
-                  className="text-sm text-muted-foreground hover:text-foreground"
+                  className="text-base text-muted-foreground no-underline! hover:text-foreground"
                 >
                   {cat.name}
                 </Link>
@@ -74,39 +74,30 @@ export function MobileProductAccordion({
           ))}
 
           {featuredBrands.length > 0 && (
-            <div className="flex flex-col gap-2 pt-2 border-t border-border/40">
-              <TypographySmall className="font-semibold text-muted-foreground uppercase tracking-wide">
+            <div className="flex flex-col gap-4 pt-5 border-t border-border/40">
+              <TypographySmall className="text-base font-semibold text-foreground">
                 Thương hiệu
               </TypographySmall>
-              <div className="grid grid-cols-3 gap-2">
+              <div className="flex flex-col gap-2.5">
                 {featuredBrands.map((brand) => (
                   <Link
                     key={brand.id}
                     href={`/san-pham/${brand.slug}`}
                     onClick={onNavigate}
-                    className="flex items-center justify-center rounded-md border border-border p-2"
-                    title={brand.name}
+                    className="text-base text-muted-foreground no-underline! hover:text-foreground"
                   >
-                    {brand.logoUrl ? (
-                      <Image
-                        src={brand.logoUrl}
-                        alt={brand.name}
-                        width={56}
-                        height={20}
-                        className="h-5 w-auto object-contain"
-                      />
-                    ) : (
-                      <span className="text-xs text-muted-foreground">{brand.name}</span>
-                    )}
+                    {brand.name}
                   </Link>
                 ))}
               </div>
             </div>
           )}
 
-          <Link href="/san-pham" onClick={onNavigate} className="text-sm text-primary">
-            Xem tất cả sản phẩm →
-          </Link>
+          <Button variant="outline" className="mt-1 w-full no-underline!" asChild>
+            <Link href="/san-pham" onClick={onNavigate}>
+              Xem tất cả sản phẩm
+            </Link>
+          </Button>
         </AccordionContent>
       </AccordionItem>
     </Accordion>

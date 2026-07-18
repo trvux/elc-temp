@@ -91,52 +91,45 @@ export function MobileMenu({
         )}
         aria-hidden={!isOpen}
       >
-        <div className="flex flex-col gap-8 h-full overflow-auto px-6 py-6 pb-12">
-          <div className="flex flex-col gap-4 items-center">
-            <div className="text-sm font-medium text-muted-foreground">
-              Menu
-            </div>
-            <div className="flex flex-col gap-3 items-center w-full">
-              {links.map((link) =>
-                link.href === PRODUCT_LINK_HREF ? (
-                  <MobileProductAccordion
-                    key={link.name}
-                    groupCategories={groupCategories}
-                    categoriesList={categoriesList}
-                    brands={brands}
-                    onNavigate={() => onOpenChange(false)}
-                  />
-                ) : (
-                  <MobileNavItem
-                    key={link.name}
-                    link={link}
-                    isActive={checkActiveLink(link.href, pathname)}
-                    onClick={() => onOpenChange(false)}
-                  />
-                ),
-              )}
-            </div>
+        <div className="flex flex-col gap-6 h-full overflow-auto px-4 py-6 pb-12">
+          <div className="flex flex-col gap-2 w-full">
+            {links.map((link) =>
+              link.href === PRODUCT_LINK_HREF ? (
+                <MobileProductAccordion
+                  key={link.name}
+                  groupCategories={groupCategories}
+                  categoriesList={categoriesList}
+                  brands={brands}
+                  onNavigate={() => onOpenChange(false)}
+                />
+              ) : (
+                <MobileNavItem
+                  key={link.name}
+                  link={link}
+                  isActive={checkActiveLink(link.href, pathname)}
+                  onClick={() => onOpenChange(false)}
+                />
+              ),
+            )}
           </div>
 
           {socialContacts.length > 0 && (
-            <div className="flex flex-col items-center gap-4 mt-auto pt-6 border-t border-border/40">
-              <div className="text-sm font-medium text-muted-foreground">
+            <div className="flex flex-col gap-1 mt-auto pt-4 border-t border-border/40">
+              <div className="px-3 text-sm font-medium text-muted-foreground">
                 Liên hệ
               </div>
-              <div className="flex flex-col items-center gap-2">
-                {socialContacts.map((contact) => (
-                  <ContactLink
-                    key={contact.id}
-                    contact={contact}
-                    showLabel={true}
-                    showValue={false}
-                    iconProps={{ size: 24, weight: "bold" }}
-                    className="h-10 px-4 text-foreground transition-colors flex items-center justify-center gap-2 cursor-pointer"
-                    iconClassName="size-4.5 flex items-center justify-center"
-                    title={contact.label || contact.type}
-                  />
-                ))}
-              </div>
+              {socialContacts.map((contact) => (
+                <ContactLink
+                  key={contact.id}
+                  contact={contact}
+                  showLabel={true}
+                  showValue={false}
+                  iconProps={{ size: 20, weight: "regular" }}
+                  className="rounded-lg px-3 py-2.5 text-foreground text-lg font-medium transition-colors flex items-center gap-3 hover:bg-muted"
+                  iconClassName="size-5 shrink-0 flex items-center justify-center text-muted-foreground"
+                  title={contact.label || contact.type}
+                />
+              ))}
             </div>
           )}
         </div>
