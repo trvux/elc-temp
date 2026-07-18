@@ -14,6 +14,7 @@ import { Contact, getDisplayContacts } from "@/modules/contact/domain";
 import { ContactLink } from "@/modules/contact/presentation/components/ContactLink";
 
 import { HeaderSearch } from "./header-search";
+import { HeaderWishlistLink } from "./header-wishlist-link";
 import type { BrandNavRef } from "./nav-mega-menu";
 import type { CategoryRef, GroupCategoryRef } from "@/shared/lib/group-categories";
 
@@ -77,6 +78,9 @@ export function Header({
             <div className="w-24 min-[375px]:w-28 min-[425px]:w-32 sm:w-40 md:w-44 lg:w-48 xl:w-56 shrink-0">
               <HeaderSearch />
             </div>
+
+            {/* Wishlist */}
+            <HeaderWishlistLink />
 
             {/* Dark mode toggle */}
             <ThemeToggle

@@ -1,6 +1,8 @@
 "use client";
 
 import { createContext, useCallback, useContext, useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 interface GoWishlistItem {
   id: string;
@@ -29,6 +31,7 @@ const WishlistContext = createContext<WishlistContextValue>({
 export function WishlistProvider({ children }: { children: React.ReactNode }) {
   const [ids, setIds] = useState<Set<string>>(new Set());
   const [isLoading, setIsLoading] = useState(true);
+  const router = useRouter();
 
   useEffect(() => {
     (async () => {
@@ -65,6 +68,17 @@ export function WishlistProvider({ children }: { children: React.ReactNode }) {
           });
 
       if (!res.ok) throw new Error("wishlist toggle failed");
+
+      // Real confirmation the user asked for — a silent icon-fill wasn't
+      // enough feedback, and there was previously no way to discover
+      // /yeu-thich at all (not linked anywhere in the header).
+      if (wasWishlisted) {
+        toast("Đã bỏ khỏi danh sách yêu thích");
+      } else {
+        toast.success("Đã thêm vào danh sách yêu thích", {
+          action: { label: "Xem danh sách", onClick: () => router.push("/yeu-thich") },
+        });
+      }
     } catch {
       // Revert the optimistic flip on failure.
       setIds((prev) => {
@@ -73,8 +87,9 @@ export function WishlistProvider({ children }: { children: React.ReactNode }) {
         else next.delete(productId);
         return next;
       });
+      toast.error("Không thể cập nhật yêu thích, vui lòng thử lại");
     }
-  }, [ids]);
+  }, [ids, router]);
 
   const isWishlisted = useCallback((productId: string) => ids.has(productId), [ids]);
 

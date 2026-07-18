@@ -14,26 +14,26 @@ interface CompareToggleButtonProps {
 }
 
 // "button" variant: labeled CTA next to Order/Contact on the product detail
-// page. "checkbox" variant: overlay on a ProductCard grid, opposite corner
-// from WishlistButton — both read/write the same CompareProvider so
-// selecting a product anywhere feeds the same persistent compare tray.
+// page. "checkbox" variant: always-visible overlay on every ProductCard,
+// opposite corner from WishlistButton — both read/write the same
+// CompareProvider so selecting a product anywhere feeds the same
+// persistent compare tray.
 export function CompareToggleButton({ item, variant = "button", className }: CompareToggleButtonProps) {
-  const { isSelected, toggle, isSelecting } = useCompare();
+  const { isSelected, toggle } = useCompare();
   const selected = isSelected(item.id);
 
   if (variant === "checkbox") {
-    // Only visible once the listing page's "So sánh sản phẩm" mode is on
-    // (see CompareModeToggle) — otherwise every ProductCard would show a
-    // checkbox all the time.
-    if (!isSelecting) return null;
-
     return (
       <Checkbox
         checked={selected}
-        onClick={(e) => {
-          e.preventDefault();
-          e.stopPropagation();
-        }}
+        // Only stopPropagation here (block the click from bubbling up to
+        // the wrapping <Link>) — do NOT preventDefault. Radix's Checkbox
+        // composes this onClick with its own internal toggle handler via
+        // composeEventHandlers, which skips its internal handler (and
+        // never fires onCheckedChange) if the outer handler already called
+        // preventDefault. That was a real bug: the checkbox looked
+        // clickable but silently did nothing most of the time.
+        onClick={(e) => e.stopPropagation()}
         onCheckedChange={() => toggle(item)}
         aria-label="Chọn để so sánh"
         className={cn("bg-background", className)}
@@ -50,25 +50,6 @@ export function CompareToggleButton({ item, variant = "button", className }: Com
     >
       <Scales />
       {selected ? "Đã chọn so sánh" : "So sánh"}
-    </Button>
-  );
-}
-
-// Listing-page trigger that turns on the per-card checkbox overlay above —
-// hidden entirely once fewer than 2 published products exist on the page,
-// since comparing is meaningless with 0-1 products.
-export function CompareModeToggle({ className }: { className?: string }) {
-  const { isSelecting, setIsSelecting } = useCompare();
-
-  return (
-    <Button
-      type="button"
-      variant={isSelecting ? "secondary" : "outline"}
-      onClick={() => setIsSelecting(!isSelecting)}
-      className={className}
-    >
-      <Scales />
-      {isSelecting ? "Xong" : "So sánh sản phẩm"}
     </Button>
   );
 }
