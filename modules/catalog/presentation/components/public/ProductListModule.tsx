@@ -9,7 +9,6 @@ import { ProductGrid } from "@/modules/catalog/presentation/components/ProductGr
 import { ResolvedEntity } from "@/modules/catalog/presentation/resolveProductPath";
 import { getCategoriesAction } from "@/modules/category/presentation/actions";
 import { Breadcrumbs } from "@/shared/components/layout/user/breadcrumbs";
-import { CompareModeToggle } from "@/shared/components/layout/user/compare-toggle-button";
 import { ProductDescription } from "@/shared/components/layout/user/product-description";
 import { RecentlyViewedSection } from "@/shared/components/layout/user/recently-viewed-section";
 import { ScrollToTop } from "@/shared/components/layout/user/scroll-to-top";
@@ -21,7 +20,6 @@ import { BASE_URL } from "@/shared/lib/seo-schema";
 // category/brand/group in one shot (small catalog, largest single category
 // ~59 products).
 const LIST_LIMIT = 1000;
-const FEATURED_ROW_CAP = 3;
 
 interface ProductListModuleProps {
   entity: ResolvedEntity;
@@ -129,14 +127,8 @@ export async function ProductListModule({
 
         <RecentlyViewedSection />
 
-        {products.length >= 2 && (
-          <div className="flex justify-end">
-            <CompareModeToggle />
-          </div>
-        )}
-
         {products.length > 0 ? (
-          <ProductGrid products={products} featuredCount={FEATURED_ROW_CAP} />
+          <ProductGrid products={products} />
         ) : (
           <div className="py-24 text-center min-h-75 w-full">
             <p className="text-muted-foreground/60 italic text-sm">

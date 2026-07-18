@@ -84,19 +84,35 @@ export default async function ComparePage({ searchParams }: ComparePageProps) {
                         </TableCell>
                       </TableRow>
                     )}
-                    {group.rows.map((row) => (
-                      <TableRow key={row.code}>
-                        <TableCell className="text-muted-foreground font-medium">{row.name}</TableCell>
-                        {products.map((product) => {
-                          const av = (product.attributeValues || []).find((v) => v.code === row.code);
-                          return (
-                            <TableCell key={product.id} className="text-center">
-                              {av ? formatAttributeValue(av) : "—"}
+                    {group.rows.map((row) => {
+                      const values = products.map((product) => {
+                        const av = (product.attributeValues || []).find((v) => v.code === row.code);
+                        return av ? formatAttributeValue(av) : "—";
+                      });
+                      // Not a "this one is better" judgment — we don't know
+                      // per-spec whether higher/lower is desirable (higher
+                      // HP is fine, higher power draw isn't). Just draws the
+                      // eye to specs that genuinely differ, neutrally.
+                      const differs = new Set(values).size > 1;
+
+                      return (
+                        <TableRow key={row.code}>
+                          <TableCell className="text-muted-foreground font-medium">{row.name}</TableCell>
+                          {values.map((value, i) => (
+                            <TableCell
+                              key={products[i].id}
+                              className={
+                                differs
+                                  ? "text-center font-semibold bg-primary/5"
+                                  : "text-center text-muted-foreground"
+                              }
+                            >
+                              {value}
                             </TableCell>
-                          );
-                        })}
-                      </TableRow>
-                    ))}
+                          ))}
+                        </TableRow>
+                      );
+                    })}
                   </Fragment>
                 ))}
               </TableBody>
