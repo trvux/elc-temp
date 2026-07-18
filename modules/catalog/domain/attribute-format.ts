@@ -16,7 +16,11 @@ export function btuToKw(btu: number): string {
 // both render the same AttributeValue rows and need identical formatting.
 export function formatAttributeValue(av: AttributeValue): string {
   if (av.dataType === "boolean") return av.valueBoolean ? "Có" : "Không";
-  if (av.dataType === "multiselect") return (av.valueOptions || []).join(", ");
+  // A single-select's picked value lives in the same valueOptions array as
+  // multiselect (just constrained to one entry) — there's no separate
+  // "selected label" field, so without this branch a select attribute with
+  // no valueText renders as a blank value.
+  if (av.dataType === "select" || av.dataType === "multiselect") return (av.valueOptions || []).join(", ");
   if (av.dataType === "number" && av.valueNumber != null) {
     const suffix = av.unit ? ` ${av.unit}` : "";
     const kwHint = av.code === CAPACITY_BTU_ATTRIBUTE_CODE && av.valueNumber > 0
@@ -33,4 +37,15 @@ export function formatAttributeValue(av: AttributeValue): string {
     return `${text} ${av.unit}`;
   }
   return text;
+}
+
+// For a compact "quick specs" chip (product detail hero, no room for a
+// label): a bare "Có"/"Không" means nothing out of context, so a true
+// boolean reads as its own attribute name instead ("Công nghệ Inverter"
+// rather than "Có"), and a false one — or anything with no real value —
+// doesn't get a chip at all rather than rendering hollow.
+export function resolveSpecChipLabel(av: AttributeValue): string | null {
+  if (av.dataType === "boolean") return av.valueBoolean ? av.name : null;
+  const value = formatAttributeValue(av);
+  return value.trim() ? value : null;
 }

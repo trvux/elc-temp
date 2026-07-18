@@ -1,6 +1,6 @@
 "use client";
 
-import { Scales } from "@phosphor-icons/react";
+import { ColumnsPlusRight } from "@phosphor-icons/react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
@@ -28,7 +28,7 @@ export function CompareLinkButton({ className }: { className?: string }) {
 
   return (
     <Button type="button" variant="outline" size="sm" onClick={handleClick} className={cn(className)}>
-      <Scales />
+      <ColumnsPlusRight />
       So sánh{items.length > 0 ? ` (${items.length})` : ""}
     </Button>
   );

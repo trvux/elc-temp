@@ -1,5 +1,6 @@
-import { ProductWithRelations, resolveProductDisplayPrice, resolveDefaultVariant, formatAttributeValue } from "@/modules/catalog/domain";
+import { ProductWithRelations, resolveProductDisplayPrice, resolveDefaultVariant, formatAttributeValue, resolveSpecChipLabel } from "@/modules/catalog/domain";
 import { ProductGrid } from "@/modules/catalog/presentation/components/ProductGrid";
+import { ProductImageGallery } from "@/modules/catalog/presentation/components/public/ProductImageGallery";
 import { ProductVariantSwitcher } from "@/modules/catalog/presentation/components/public/ProductVariantSwitcher";
 import { getRelatedProducts } from "@/modules/catalog/presentation/getRelatedProducts";
 import { getContactsAction } from "@/modules/contact/presentation/actions";
@@ -11,18 +12,8 @@ import { ProductDescription } from "@/shared/components/layout/user/product-desc
 import { ProductFloatingBar } from "@/shared/components/layout/user/product-floating-bar";
 import { ScrollToTop } from "@/shared/components/layout/user/scroll-to-top";
 import { TrackProductView } from "@/shared/components/layout/user/track-product-view";
-import { WishlistButton } from "@/shared/components/layout/user/wishlist-button";
 import { InView } from "@/shared/components/motion-primitives/in-view";
-import { Spotlight } from "@/shared/components/motion-primitives/spotlight";
-import { AspectRatio } from "@/shared/components/ui/aspect-ratio";
 import { Badge } from "@/shared/components/ui/badge";
-import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-  CarouselNext,
-  CarouselPrevious,
-} from "@/shared/components/ui/carousel";
 import { Item, ItemActions, ItemContent, ItemGroup, ItemSeparator, ItemTitle } from "@/shared/components/ui/item";
 import {
   Tabs,
@@ -39,7 +30,6 @@ import {
 import { primaryImageUrl } from "@/shared/lib/image-asset";
 import { BASE_URL } from "@/shared/lib/seo-schema";
 import { cn } from "@/shared/lib/utils";
-import Image from "next/image";
 import { notFound } from "next/navigation";
 
 const AVAILABILITY_SCHEMA: Record<string, string> = {
@@ -94,6 +84,13 @@ export async function ProductDetailModule({
     }
     return groups;
   })();
+  // Ungrouped rows are the "core" spec fields admins fill in before any
+  // named sub-section (Dàn lạnh/Dàn nóng/...) — the closest thing to a
+  // priority signal this flat attribute system has, so they're what
+  // surfaces as the quick-glance strip in the hero column.
+  const highlightSpecs = (attributeGroups.find((g) => g.label === null) ?? attributeGroups[0])?.rows
+    .filter((av) => resolveSpecChipLabel(av) !== null)
+    .slice(0, 4) ?? [];
   // displayPrice (default-variant cache, see elc-go/docs/product-v2-design.md)
   // is the source of truth once a product has real variants — used here for
   // the floating CTA bar / recently-viewed snapshot, which (unlike
@@ -126,52 +123,13 @@ export async function ProductDetailModule({
           transition={{ duration: 0.5, ease: "easeOut" }}
         >
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-start">
-            <div className="relative w-full bg-white border border-border/50 rounded-2xl overflow-hidden shadow-sm">
-              <Spotlight size={280} />
-              <div className="absolute top-3 right-3 z-40">
-                <WishlistButton productId={product.id} size="icon" />
-              </div>
-              <Carousel className="w-full">
-                <CarouselContent>
-                  {images.length > 0 ? (
-                    images.map((img, i) => (
-                      <CarouselItem key={i}>
-                        <AspectRatio ratio={16 / 9}>
-                          <Image
-                            src={img.url}
-                            alt={
-                              img.alt ||
-                              `${product.name} ${defaultVariant?.sku ? `(${defaultVariant.sku})` : ""} - ${product.brand?.name || "ELC"} - Điện máy ELC`
-                            }
-                            fill
-                            className="object-contain p-4"
-                            loading={i === 0 ? "eager" : "lazy"}
-                            fetchPriority={i === 0 ? "high" : "auto"}
-                            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 800px"
-                          />
-                        </AspectRatio>
-                      </CarouselItem>
-                    ))
-                  ) : (
-                    <CarouselItem>
-                      <AspectRatio ratio={4 / 3}>
-                        <div className="w-full h-full flex items-center justify-center text-muted-foreground text-xs tracking-widest">
-                          Chưa có ảnh
-                        </div>
-                      </AspectRatio>
-                    </CarouselItem>
-                  )}
-                </CarouselContent>
-                {images.length > 1 && (
-                  <>
-                    <CarouselPrevious className="hidden lg:flex left-4 opacity-50 hover:opacity-100 transition-opacity" />
-                    <CarouselNext className="hidden lg:flex right-4 opacity-50 hover:opacity-100 transition-opacity" />
-                  </>
-                )}
-              </Carousel>
-            </div>
+            <ProductImageGallery
+              productId={product.id}
+              images={images}
+              fallbackAlt={`${product.name} ${defaultVariant?.sku ? `(${defaultVariant.sku})` : ""} - ${product.brand?.name || "ELC"} - Điện máy ELC`}
+            />
 
-            <div className="flex flex-col gap-4 h-full justify-center">
+            <div className="flex flex-col gap-4">
               <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
                 {product.brand?.name && (
                   <Badge variant="secondary">{product.brand.name}</Badge>
@@ -179,6 +137,9 @@ export async function ProductDetailModule({
                 {category?.name && (
                   <TypographySmall className="text-muted-foreground">{category.name}</TypographySmall>
                 )}
+                {product.tags?.map((tag) => (
+                  <Badge key={tag.id} variant="outline">{tag.name}</Badge>
+                ))}
               </div>
 
               <TypographyH1 className="w-full max-w-none text-2xl md:text-3xl lg:text-4xl font-extrabold tracking-tight wrap-break-word leading-[1.15]">
@@ -197,6 +158,7 @@ export async function ProductDetailModule({
                 options={product.options || []}
                 contacts={contacts || []}
                 compareItem={compareItem}
+                highlightSpecs={highlightSpecs}
               />
               <div id="product-cta-sentinel" aria-hidden="true" />
             </div>
