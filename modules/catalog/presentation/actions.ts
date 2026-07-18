@@ -154,6 +154,10 @@ interface GoErrorResponse {
 async function extractErrorMessage(res: Response, fallback: string): Promise<string> {
   try {
     const body = (await res.json()) as GoErrorResponse;
+    const fieldMessages = body.fields ? Object.values(body.fields).flat() : [];
+    if (fieldMessages.length > 0) {
+      return `${body.message || fallback}: ${fieldMessages.join(", ")}`;
+    }
     return body.message || fallback;
   } catch {
     return fallback;

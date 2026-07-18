@@ -22,8 +22,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/shared/components/ui/alert-dialog";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/shared/components/ui/select";
-import { Brand, formatPrice, VARIANT_STOCK_STATUS, VARIANT_STOCK_STATUS_MAP } from "@/modules/catalog/domain";
+import { Brand } from "@/modules/catalog/domain";
 import { CategoryWithGroup } from "@/modules/category/domain/types";
 import { ProductLine } from "@/modules/product-line/domain";
 import { ProductFormValues } from "../../hooks/useProductForm";
@@ -54,15 +53,13 @@ export function ProductIdentityCard({
 }: ProductIdentityCardProps) {
   const currentCategoryId = form.watch("categoryId");
   const currentBrandId = form.watch("brandId");
-  // Every product always has >=1 variant (see the Product doc comment in
-  // domain/types.ts) — variants[0] is the implicit default variant, and its
-  // sku/mpn/gtin/price/stock fields are what the "flat" Controllers below
-  // actually bind to (variants.0.*), not top-level product fields. Once the
-  // admin adds a real option (see ProductVariantsTab.tsx), variants.length
-  // grows past 1 and this card switches to "managed in Variants card" — same
-  // UX as before, just re-plumbed to write into the variant tree instead of
-  // fields Product itself no longer has.
-  const isMultiVariant = (form.watch("variants")?.length ?? 0) > 1;
+  // Product itself carries no sku/mpn/gtin/price/stock (see the Product doc
+  // comment in domain/types.ts) — this card only ever edits Product-level
+  // identity (name/slug). Every sellable-identity field, including the
+  // implicit single default variant every product starts with, is edited
+  // exclusively in the "Tùy chọn & Biến thể" card below — one canonical
+  // place regardless of variant count, so nothing renders twice.
+  const variantCount = form.watch("variants")?.length ?? 0;
 
   const [confirmComposeOpen, setConfirmComposeOpen] = useState(false);
   const [confirmSlugOpen, setConfirmSlugOpen] = useState(false);
@@ -134,165 +131,21 @@ export function ProductIdentityCard({
         </AlertDialogContent>
       </AlertDialog>
 
-      {isMultiVariant ? (
-        <Field className="md:col-span-2 border p-4 rounded-lg bg-muted/10">
-          <FieldDescription>
-            Sản phẩm này đã có biến thể — SKU/MPN/GTIN/giá/tồn kho được quản lý ở{" "}
-            <button
-              type="button"
-              className="underline underline-offset-2 hover:text-foreground"
-              onClick={scrollToVariants}
-            >
-              thẻ &quot;Tùy chọn &amp; Biến thể&quot; bên dưới
-            </button>
-            , không sửa ở đây nữa.
-          </FieldDescription>
-        </Field>
-      ) : (
-        <>
-          <Controller
-            control={form.control}
-            name="variants.0.mpn"
-            render={({ field, fieldState }) => (
-              <Field>
-                <FieldLabel>MPN (Mã nhà sản xuất) *</FieldLabel>
-                <Input
-                  {...field}
-                  value={field.value ?? ""}
-                  placeholder="VD: FTKC35UAVMV"
-                />
-                <FieldDescription>
-                  Mã nhà sản xuất — đây là mã khách hàng thực sự Google tìm kiếm, không phải SKU nội bộ.
-                </FieldDescription>
-                <FieldError errors={[fieldState.error]} />
-              </Field>
-            )}
-          />
-
-          <Controller
-            control={form.control}
-            name="variants.0.sku"
-            render={({ field, fieldState }) => (
-              <Field>
-                <FieldLabel>Mã sản phẩm (SKU)</FieldLabel>
-                <Input {...field} value={field.value ?? ""} placeholder="VD: DAIKIN-15HP" />
-                <FieldError errors={[fieldState.error]} />
-              </Field>
-            )}
-          />
-
-          <Controller
-            control={form.control}
-            name="variants.0.gtin"
-            render={({ field, fieldState }) => (
-              <Field>
-                <FieldLabel>GTIN (Barcode/EAN)</FieldLabel>
-                <Input {...field} value={field.value ?? ""} placeholder="VD: 8931234567890" />
-                <FieldError errors={[fieldState.error]} />
-              </Field>
-            )}
-          />
-
-          <Controller
-            control={form.control}
-            name="variants.0.stockStatus"
-            render={({ field }) => (
-              <Field>
-                <FieldLabel>Trạng thái kho</FieldLabel>
-                <Select value={field.value} onValueChange={field.onChange}>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {Object.values(VARIANT_STOCK_STATUS).map((status) => (
-                      <SelectItem key={status} value={status}>
-                        {VARIANT_STOCK_STATUS_MAP[status]}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </Field>
-            )}
-          />
-
-          <Controller
-            control={form.control}
-            name="variants.0.originalPrice"
-            render={({ field, fieldState }) => (
-              <Field>
-                <FieldLabel>Giá gốc *</FieldLabel>
-                <Input
-                  type="number"
-                  {...field}
-                  placeholder="0"
-                  onFocus={(e) => e.target.select()}
-                  onChange={(e) => {
-                    const val = Number(e.target.value) || 0;
-                    field.onChange(val);
-                    const discount = form.getValues("variants.0.discountPercent") || 0;
-                    form.setValue("variants.0.salePrice", Math.round(val * (1 - discount / 100)));
-                  }}
-                />
-                <FieldDescription>{formatPrice(field.value)}</FieldDescription>
-                <FieldError errors={[fieldState.error]} />
-              </Field>
-            )}
-          />
-
-          <Controller
-            control={form.control}
-            name="variants.0.salePrice"
-            render={({ field, fieldState }) => (
-              <Field>
-                <FieldLabel>Giá bán</FieldLabel>
-                <Input
-                  type="number"
-                  {...field}
-                  value={field.value ?? ""}
-                  placeholder="0"
-                  onFocus={(e) => e.target.select()}
-                  onChange={(e) => {
-                    const val = Number(e.target.value) || 0;
-                    field.onChange(val);
-                    const original = form.getValues("variants.0.originalPrice") || 0;
-                    if (original > 0) {
-                      form.setValue("variants.0.discountPercent", Math.round(((original - val) / original) * 100));
-                    }
-                  }}
-                />
-                <FieldDescription>
-                  {formatPrice(field.value || form.getValues("variants.0.originalPrice"))}
-                </FieldDescription>
-                <FieldError errors={[fieldState.error]} />
-              </Field>
-            )}
-          />
-
-          <Controller
-            control={form.control}
-            name="variants.0.discountPercent"
-            render={({ field, fieldState }) => (
-              <Field>
-                <FieldLabel>Giảm %</FieldLabel>
-                <Input
-                  type="number"
-                  {...field}
-                  placeholder="0"
-                  onFocus={(e) => e.target.select()}
-                  onChange={(e) => {
-                    const val = Number(e.target.value) || 0;
-                    field.onChange(val);
-                    const original = form.getValues("variants.0.originalPrice") || 0;
-                    form.setValue("variants.0.salePrice", Math.round(original * (1 - val / 100)));
-                  }}
-                />
-                <FieldDescription>Tỷ lệ phần trăm giảm giá</FieldDescription>
-                <FieldError errors={[fieldState.error]} />
-              </Field>
-            )}
-          />
-        </>
-      )}
+      <Field className="md:col-span-2 border p-4 rounded-lg bg-muted/10">
+        <FieldDescription>
+          MPN/SKU/GTIN/giá/tồn kho là thông tin của{" "}
+          <strong className="text-foreground">biến thể</strong> (đơn vị bán thực tế), không phải của sản phẩm —
+          quản lý ở{" "}
+          <button
+            type="button"
+            className="underline underline-offset-2 hover:text-foreground"
+            onClick={scrollToVariants}
+          >
+            thẻ &quot;Tùy chọn &amp; Biến thể&quot; bên dưới
+          </button>
+          {variantCount <= 1 ? " (mọi sản phẩm luôn có ít nhất 1 biến thể mặc định)." : ` (${variantCount} biến thể).`}
+        </FieldDescription>
+      </Field>
 
       <Controller
         control={form.control}

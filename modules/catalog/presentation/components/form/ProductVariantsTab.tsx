@@ -2,11 +2,12 @@
 
 import { useState } from "react";
 import { FieldArrayWithId, UseFormReturn } from "react-hook-form";
-import { Plus, Trash, X } from "@phosphor-icons/react";
+import { CaretDown, Plus, Trash, X } from "@phosphor-icons/react";
 
 import {
   Field,
   FieldDescription,
+  FieldError,
   FieldGroup,
   FieldLabel,
   FieldLegend,
@@ -15,6 +16,7 @@ import {
 import { Button } from "@/shared/components/ui/button";
 import { Input } from "@/shared/components/ui/input";
 import { Checkbox } from "@/shared/components/ui/checkbox";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/shared/components/ui/collapsible";
 import { TagInput } from "@/shared/components/ui/tag-input";
 import { RadioGroup, RadioGroupItem } from "@/shared/components/ui/radio-group";
 import {
@@ -54,6 +56,28 @@ export function ProductVariantsTab({
 
   const setAllVariants = (updater: (v: ProductVariantFormValue, i: number) => ProductVariantFormValue) => {
     form.setValue("variants", variants.map(updater));
+  };
+
+  // Progressive disclosure (matches Shopify's "Add details" pattern) — SKU/
+  // GTIN/weight/lead-time/component-only are rare-use fields that shouldn't
+  // compete with MPN/price/stock on every card by default. Pre-expand any
+  // variant that already has one of these filled (existing data), so
+  // editing an established product doesn't hide data the admin already set.
+  const [detailsExpanded, setDetailsExpanded] = useState<Set<number>>(
+    () =>
+      new Set(
+        variants
+          .map((v, i) => (v.sku || v.gtin || v.leadTimeDays || v.weight || v.isComponentOnly ? i : -1))
+          .filter((i) => i >= 0)
+      )
+  );
+  const toggleDetails = (i: number, open: boolean) => {
+    setDetailsExpanded((prev) => {
+      const next = new Set(prev);
+      if (open) next.add(i);
+      else next.delete(i);
+      return next;
+    });
   };
 
   // Bundle components (dàn nóng/dàn lạnh etc.) only matter for a small
@@ -252,20 +276,12 @@ export function ProductVariantsTab({
                   </Button>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <Field>
-                    <FieldLabel className="text-xs">MPN (mã nhà sản xuất) *</FieldLabel>
-                    <Input placeholder="VD: FTKB25ZVMV" {...form.register(`variants.${i}.mpn`)} />
-                  </Field>
-                  <Field>
-                    <FieldLabel className="text-xs">SKU nội bộ</FieldLabel>
-                    <Input placeholder="Để trống sẽ tự tạo" {...form.register(`variants.${i}.sku`)} />
-                  </Field>
-                  <Field>
-                    <FieldLabel className="text-xs">GTIN (Barcode)</FieldLabel>
-                    <Input placeholder="Tùy chọn" {...form.register(`variants.${i}.gtin`)} />
-                  </Field>
-                </div>
+                <Field>
+                  <FieldLabel className="text-xs">MPN (mã nhà sản xuất) *</FieldLabel>
+                  <Input placeholder="VD: FTKB25ZVMV" {...form.register(`variants.${i}.mpn`)} />
+                  <FieldDescription>Mã khách hàng thực sự Google tìm kiếm, không phải SKU nội bộ.</FieldDescription>
+                  <FieldError errors={[form.formState.errors.variants?.[i]?.mpn]} />
+                </Field>
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <Field>
@@ -276,6 +292,7 @@ export function ProductVariantsTab({
                       {...form.register(`variants.${i}.originalPrice`, { valueAsNumber: true })}
                     />
                     <FieldDescription>{formatPrice(variant?.originalPrice || 0)}</FieldDescription>
+                    <FieldError errors={[form.formState.errors.variants?.[i]?.originalPrice]} />
                   </Field>
                   <Field>
                     <FieldLabel className="text-xs">Giá bán</FieldLabel>
@@ -306,22 +323,13 @@ export function ProductVariantsTab({
                   </Field>
                 </div>
 
-                <div className="flex flex-wrap items-center gap-6">
-                  <label className="flex items-center gap-2 text-sm cursor-pointer">
-                    <Checkbox
-                      checked={variant?.isActive ?? true}
-                      onCheckedChange={(v) => form.setValue(`variants.${i}.isActive`, !!v)}
-                    />
-                    Đang kinh doanh
-                  </label>
-                  <label className="flex items-center gap-2 text-sm cursor-pointer">
-                    <Checkbox
-                      checked={variant?.isComponentOnly ?? false}
-                      onCheckedChange={(v) => form.setValue(`variants.${i}.isComponentOnly`, !!v)}
-                    />
-                    Chỉ là linh kiện (không bán lẻ riêng, VD: dàn nóng/dàn lạnh)
-                  </label>
-                </div>
+                <label className="flex items-center gap-2 text-sm cursor-pointer">
+                  <Checkbox
+                    checked={variant?.isActive ?? true}
+                    onCheckedChange={(v) => form.setValue(`variants.${i}.isActive`, !!v)}
+                  />
+                  Đang kinh doanh
+                </label>
 
                 {options.length > 0 && (
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 border-t pt-4">
@@ -356,100 +364,152 @@ export function ProductVariantsTab({
                   </div>
                 )}
 
-                {/* Bundle components — split-system (dàn lạnh/dàn nóng) etc.
-                    Rare (only bundle SKUs use this), so it's collapsed
-                    behind a checkbox instead of always taking up space. */}
-                <div className="border-t pt-4 space-y-3">
-                  <label className="flex items-center gap-2 text-sm cursor-pointer">
-                    <Checkbox
-                      checked={bundleExpanded.has(i)}
-                      onCheckedChange={(v) => toggleBundle(i, !!v)}
-                    />
-                    Đây là sản phẩm ghép bộ (bundle, VD: dàn nóng + dàn lạnh)
-                  </label>
-                </div>
-                {bundleExpanded.has(i) && (
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between">
-                    <FieldLabel className="text-xs">Linh kiện cấu thành</FieldLabel>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      className="h-7"
-                      disabled={otherVariants.length === 0}
-                      onClick={() =>
-                        form.setValue(`variants.${i}.components`, [
-                          ...components,
-                          { componentIndex: otherVariants[0]?.idx ?? 0, quantity: 1, role: "" },
-                        ])
-                      }
-                    >
-                      <Plus size={12} className="mr-1" /> Thêm linh kiện
+                {/* Progressive disclosure — SKU/GTIN/trọng lượng/lead-time/
+                    linh kiện/bundle đều là field ít dùng (khớp pattern
+                    Shopify's "Thêm chi tiết"), ẩn mặc định trừ khi sản phẩm
+                    đã có sẵn dữ liệu này (xem detailsExpanded ở trên). */}
+                <Collapsible open={detailsExpanded.has(i)} onOpenChange={(open) => toggleDetails(i, open)} className="border-t pt-4">
+                  <CollapsibleTrigger asChild>
+                    <Button type="button" variant="ghost" size="sm" className="h-7 -ml-2 text-muted-foreground">
+                      <CaretDown size={14} className={detailsExpanded.has(i) ? "rotate-180 transition-transform" : "transition-transform"} />
+                      Thêm chi tiết (SKU, mã vạch, trọng lượng, linh kiện...)
                     </Button>
-                  </div>
-                  {components.map((comp, ci) => (
-                    <div key={ci} className="flex items-center gap-2">
-                      <Select
-                        value={String(comp.componentIndex)}
-                        onValueChange={(val) => {
-                          const next = [...components];
-                          next[ci] = { ...comp, componentIndex: Number(val) };
-                          form.setValue(`variants.${i}.components`, next);
-                        }}
-                      >
-                        <SelectTrigger className="flex-1">
-                          <SelectValue placeholder="Chọn biến thể" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {otherVariants.map((v) => (
-                            <SelectItem key={v.id} value={String(v.idx)}>
-                              {v.mpn || `Biến thể #${v.idx + 1}`}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <Input
-                        type="number"
-                        placeholder="SL"
-                        className="w-16"
-                        value={comp.quantity}
-                        onChange={(e) => {
-                          const next = [...components];
-                          next[ci] = { ...comp, quantity: Number(e.target.value) || 1 };
-                          form.setValue(`variants.${i}.components`, next);
-                        }}
-                      />
-                      <Input
-                        placeholder="VD: Dàn lạnh"
-                        className="w-40"
-                        value={comp.role || ""}
-                        onChange={(e) => {
-                          const next = [...components];
-                          next[ci] = { ...comp, role: e.target.value };
-                          form.setValue(`variants.${i}.components`, next);
-                        }}
-                      />
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="icon"
-                        className="shrink-0"
-                        onClick={() => form.setValue(`variants.${i}.components`, components.filter((_, idx) => idx !== ci))}
-                      >
-                        <X size={14} />
-                      </Button>
+                  </CollapsibleTrigger>
+                  <CollapsibleContent className="flex flex-col gap-4 pt-4">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      <Field>
+                        <FieldLabel className="text-xs">SKU nội bộ</FieldLabel>
+                        <Input placeholder="Để trống sẽ tự tạo" {...form.register(`variants.${i}.sku`)} />
+                      </Field>
+                      <Field>
+                        <FieldLabel className="text-xs">GTIN (Barcode)</FieldLabel>
+                        <Input placeholder="Tùy chọn" {...form.register(`variants.${i}.gtin`)} />
+                      </Field>
+                      <Field>
+                        <FieldLabel className="text-xs">Trọng lượng (kg)</FieldLabel>
+                        <Input
+                          type="number"
+                          step="0.01"
+                          placeholder="0"
+                          {...form.register(`variants.${i}.weight`, { valueAsNumber: true })}
+                        />
+                      </Field>
                     </div>
-                  ))}
-                </div>
-                )}
+
+                    {variant?.stockStatus === VARIANT_STOCK_STATUS.ORDER_FROM_SUPPLIER && (
+                      <Field>
+                        <FieldLabel className="text-xs">Thời gian chờ hàng (ngày)</FieldLabel>
+                        <Input
+                          type="number"
+                          className="max-w-40"
+                          placeholder="VD: 7"
+                          {...form.register(`variants.${i}.leadTimeDays`, { valueAsNumber: true })}
+                        />
+                        <FieldDescription>Số ngày dự kiến để có hàng khi đặt từ nhà cung cấp.</FieldDescription>
+                      </Field>
+                    )}
+
+                    <label className="flex items-center gap-2 text-sm cursor-pointer">
+                      <Checkbox
+                        checked={variant?.isComponentOnly ?? false}
+                        onCheckedChange={(v) => form.setValue(`variants.${i}.isComponentOnly`, !!v)}
+                      />
+                      Chỉ là linh kiện (không bán lẻ riêng, VD: dàn nóng/dàn lạnh)
+                    </label>
+
+                    {/* Bundle components — split-system (dàn lạnh/dàn nóng)
+                        etc. Rare, thêm 1 lớp collapse nữa bên trong. */}
+                    <label className="flex items-center gap-2 text-sm cursor-pointer">
+                      <Checkbox
+                        checked={bundleExpanded.has(i)}
+                        onCheckedChange={(v) => toggleBundle(i, !!v)}
+                      />
+                      Đây là sản phẩm ghép bộ (bundle, VD: dàn nóng + dàn lạnh)
+                    </label>
+                    {bundleExpanded.has(i) && (
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between">
+                        <FieldLabel className="text-xs">Linh kiện cấu thành</FieldLabel>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          className="h-7"
+                          disabled={otherVariants.length === 0}
+                          onClick={() =>
+                            form.setValue(`variants.${i}.components`, [
+                              ...components,
+                              { componentIndex: otherVariants[0]?.idx ?? 0, quantity: 1, role: "" },
+                            ])
+                          }
+                        >
+                          <Plus size={12} className="mr-1" /> Thêm linh kiện
+                        </Button>
+                      </div>
+                      {components.map((comp, ci) => (
+                        <div key={ci} className="flex items-center gap-2">
+                          <Select
+                            value={String(comp.componentIndex)}
+                            onValueChange={(val) => {
+                              const next = [...components];
+                              next[ci] = { ...comp, componentIndex: Number(val) };
+                              form.setValue(`variants.${i}.components`, next);
+                            }}
+                          >
+                            <SelectTrigger className="flex-1">
+                              <SelectValue placeholder="Chọn biến thể" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {otherVariants.map((v) => (
+                                <SelectItem key={v.id} value={String(v.idx)}>
+                                  {v.mpn || `Biến thể #${v.idx + 1}`}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                          <Input
+                            type="number"
+                            placeholder="SL"
+                            className="w-16"
+                            value={comp.quantity}
+                            onChange={(e) => {
+                              const next = [...components];
+                              next[ci] = { ...comp, quantity: Number(e.target.value) || 1 };
+                              form.setValue(`variants.${i}.components`, next);
+                            }}
+                          />
+                          <Input
+                            placeholder="VD: Dàn lạnh"
+                            className="w-40"
+                            value={comp.role || ""}
+                            onChange={(e) => {
+                              const next = [...components];
+                              next[ci] = { ...comp, role: e.target.value };
+                              form.setValue(`variants.${i}.components`, next);
+                            }}
+                          />
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="icon"
+                            className="shrink-0"
+                            onClick={() => form.setValue(`variants.${i}.components`, components.filter((_, idx) => idx !== ci))}
+                          >
+                            <X size={14} />
+                          </Button>
+                        </div>
+                      ))}
+                    </div>
+                    )}
+                  </CollapsibleContent>
+                </Collapsible>
               </div>
             );
           })}
         </RadioGroup>
         {variantsFields.length === 0 && (
           <p className="text-xs text-muted-foreground text-center py-4">
-            Chưa có biến thể nào — sản phẩm sẽ dùng giá/SKU/tồn kho ở thẻ &quot;Thông tin sản phẩm&quot; phía trên.
+            Chưa có biến thể nào — bấm &quot;Thêm biến thể&quot; ở trên, mọi sản phẩm cần ít nhất 1 biến thể để có giá/SKU/tồn kho.
           </p>
         )}
       </FieldSet>
