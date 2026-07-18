@@ -15,6 +15,8 @@ import {
   ProductVariantInput,
   AttributeValueInput,
   AttributeDataType,
+  ProductFacets,
+  NumberBucket,
   CatalogPage,
   UpdateCatalogPageInput,
   createProductSchema,
@@ -140,9 +142,79 @@ interface GoProductResponse {
   attribute_values: GoAttributeValue[] | null;
 }
 
+interface GoBrandFacet {
+  id: string;
+  name: string;
+  slug: string;
+  logo_url: string;
+  count: number;
+}
+
+interface GoNumberBucket {
+  min: number;
+  max: number;
+  count: number;
+}
+
+interface GoPriceFacet {
+  min: number;
+  max: number;
+  buckets?: GoNumberBucket[];
+}
+
+interface GoAttributeFacetOption {
+  value: string;
+  count: number;
+}
+
+interface GoAttributeFacet {
+  code: string;
+  name: string;
+  group_label: string | null;
+  data_type: AttributeDataType;
+  unit: string | null;
+  options?: GoAttributeFacetOption[];
+  min?: number | null;
+  max?: number | null;
+  buckets?: GoNumberBucket[];
+}
+
+interface GoProductFacets {
+  brands: GoBrandFacet[];
+  price: GoPriceFacet;
+  attributes: GoAttributeFacet[];
+}
+
 interface GoProductListResponse {
   data: GoProductResponse[] | null;
   total_count: number;
+  facets?: GoProductFacets;
+}
+
+function mapGoNumberBuckets(buckets?: GoNumberBucket[]): NumberBucket[] {
+  return (buckets ?? []).map((b) => ({ min: b.min, max: b.max, count: b.count }));
+}
+
+function mapGoProductFacets(facets?: GoProductFacets): ProductFacets {
+  return {
+    brands: (facets?.brands ?? []).map((b) => ({ id: b.id, name: b.name, slug: b.slug, logoUrl: b.logo_url, count: b.count })),
+    price: {
+      min: facets?.price?.min ?? 0,
+      max: facets?.price?.max ?? 0,
+      buckets: mapGoNumberBuckets(facets?.price?.buckets),
+    },
+    attributes: (facets?.attributes ?? []).map((a) => ({
+      code: a.code,
+      name: a.name,
+      groupLabel: a.group_label,
+      dataType: a.data_type,
+      unit: a.unit,
+      options: a.options ?? [],
+      min: a.min,
+      max: a.max,
+      buckets: mapGoNumberBuckets(a.buckets),
+    })),
+  };
 }
 
 interface GoErrorResponse {
@@ -305,12 +377,31 @@ function buildProductSearchParams(filter?: ProductFilter): URLSearchParams {
   if (filter.offset !== undefined) params.set("offset", String(filter.offset));
   if (filter.includeDeleted !== undefined) params.set("include_deleted", String(filter.includeDeleted));
 
+  if (filter.search) params.set("search", filter.search);
+  if (filter.minPrice !== undefined) params.set("min_price", String(filter.minPrice));
+  if (filter.maxPrice !== undefined) params.set("max_price", String(filter.maxPrice));
+  if (filter.sortBy) params.set("sort_by", filter.sortBy);
+
+  if (filter.attributeTokens) {
+    for (const [code, values] of Object.entries(filter.attributeTokens)) {
+      if (values.length > 0) params.set(`attr_${code}`, values.join(","));
+    }
+  }
+  if (filter.attributeRanges) {
+    for (const [code, [min, max]] of Object.entries(filter.attributeRanges)) {
+      if (min !== undefined) params.set(`attr_${code}_min`, String(min));
+      if (max !== undefined) params.set(`attr_${code}_max`, String(max));
+    }
+  }
+
   return params;
 }
 
+const emptyProductFacets: ProductFacets = { brands: [], price: { min: 0, max: 0, buckets: [] }, attributes: [] };
+
 export async function getProductsAction(filter?: ProductFilter) {
   if (!GO_API_URL) {
-    return { data: [] as ProductWithRelations[], totalCount: 0, error: null };
+    return { data: [] as ProductWithRelations[], totalCount: 0, facets: emptyProductFacets, error: null };
   }
   try {
     const params = buildProductSearchParams(filter);
@@ -319,6 +410,7 @@ export async function getProductsAction(filter?: ProductFilter) {
       return {
         data: [] as ProductWithRelations[],
         totalCount: 0,
+        facets: emptyProductFacets,
         error: await extractErrorMessage(res, "Không thể tải danh sách sản phẩm"),
       };
     }
@@ -327,6 +419,7 @@ export async function getProductsAction(filter?: ProductFilter) {
     return {
       data: (body.data ?? []).map(mapGoProduct),
       totalCount: body.total_count || 0,
+      facets: mapGoProductFacets(body.facets),
       error: null,
     };
   } catch (error) {
@@ -335,6 +428,7 @@ export async function getProductsAction(filter?: ProductFilter) {
     return {
       data: [] as ProductWithRelations[],
       totalCount: 0,
+      facets: emptyProductFacets,
       error: "Không thể tải danh sách sản phẩm",
     };
   }

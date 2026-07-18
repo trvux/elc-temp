@@ -222,10 +222,12 @@ export interface UpdateProductInput extends Partial<CreateProductInput> {
     id: string;
 }
 
-// ProductFilter is bare list scoping (pagination + basic ID/flag matching) —
-// no search/price-range/spec-facet/sort fields; those belonged to the
-// removed facet/search system and will return, if at all, as part of the
-// upcoming attribute-set redesign.
+export type ProductSortBy = "price_asc" | "price_desc" | "newest";
+
+// ProductFilter: list scoping (pagination + basic ID/flag matching) plus
+// search/price-range/attribute-facet dimensions, rebuilt on top of the
+// structured attribute system — see elc-go's domain.ProductFilter doc
+// comment for the full rationale.
 export interface ProductFilter {
     categoryId?: string;
     categoryIds?: string[];
@@ -237,6 +239,62 @@ export interface ProductFilter {
     limit?: number;
     offset?: number;
     includeDeleted?: boolean;
+    search?: string;
+    minPrice?: number;
+    maxPrice?: number;
+    sortBy?: ProductSortBy;
+    // attributeTokens: attribute code -> selected option values (OR within
+    // a code, AND across codes) — for select/multiselect/boolean facets.
+    attributeTokens?: Record<string, string[]>;
+    // attributeRanges: attribute code -> [min, max] (either may be
+    // undefined) — for number-type facets.
+    attributeRanges?: Record<string, [number | undefined, number | undefined]>;
+}
+
+export interface BrandFacet {
+    id: string;
+    name: string;
+    slug: string;
+    logoUrl: string;
+    count: number;
+}
+
+// NumberBucket is one suggested range for a number-type facet (price or a
+// number attribute) — min === max means an exact value (few enough distinct
+// values that showing the real number is more honest than a range).
+export interface NumberBucket {
+    min: number;
+    max: number;
+    count: number;
+}
+
+export interface PriceFacet {
+    min: number;
+    max: number;
+    buckets: NumberBucket[];
+}
+
+export interface AttributeFacetOption {
+    value: string;
+    count: number;
+}
+
+export interface AttributeFacet {
+    code: string;
+    name: string;
+    groupLabel?: string | null;
+    dataType: AttributeDataType;
+    unit?: string | null;
+    options: AttributeFacetOption[];
+    min?: number | null;
+    max?: number | null;
+    buckets?: NumberBucket[];
+}
+
+export interface ProductFacets {
+    brands: BrandFacet[];
+    price: PriceFacet;
+    attributes: AttributeFacet[];
 }
 
 // CatalogPage is the singleton content/SEO config for "Tất cả sản phẩm" (the

@@ -7,53 +7,76 @@ import { CaretDown, CaretUp } from "@phosphor-icons/react";
 import { useState } from "react";
 import { PreviewContent } from "@/shared/components/layout/user/preview-content";
 
-// Design System / Style Constants
-const STYLES = {
-  collapsible: cn(
-    "overflow-hidden transition-[max-height] duration-500 ease-in-out",
-  ),
-  overlay: cn(
-    "absolute bottom-0 left-0 right-0 h-48 bg-linear-to-t from-cream via-cream/90 to-transparent pointer-events-none z-10",
-  ),
-  triggerWrapper: cn("mt-8 flex justify-center"),
-  triggerButton: cn(
-    "bg-background transition-all text-primary border-primary group z-20",
-  ),
-};
-
 interface ProductDescriptionProps {
   content: unknown;
   fallbackAlt?: string;
+  // "article" (default): full-width prose, used where the content IS the
+  // primary reading material (product/service detail description tabs).
+  // "hero": supplementary SEO copy on listing pages (category/brand/group,
+  // the /san-pham hub) — low-priority reading material. Renders after the
+  // product grid (not before — the buyer wants products first, this is
+  // only for whoever wants to read more), in a muted, quiet card with a
+  // small type scale so it doesn't compete with the page's real H1 or the
+  // products above it.
+  variant?: "article" | "hero";
 }
 
-export function ProductDescription({ content, fallbackAlt }: ProductDescriptionProps) {
+export function ProductDescription({ content, fallbackAlt, variant = "article" }: ProductDescriptionProps) {
   const [isOpen, setIsOpen] = useState(false);
+  const isHero = variant === "hero";
 
   return (
-    <Collapsible open={isOpen} onOpenChange={setIsOpen} className="relative">
+    <Collapsible
+      open={isOpen}
+      onOpenChange={setIsOpen}
+      className={cn("relative", isHero && "rounded-lg border border-border/40 bg-muted p-4 md:p-6")}
+    >
       <article>
         <PreviewContent
           content={content}
           fallbackAlt={fallbackAlt}
+          size={isHero ? "sm" : "lg"}
           className={cn(
-            STYLES.collapsible,
-            isOpen ? "max-h-none" : "max-h-96"
+            "overflow-hidden transition-[max-height] duration-500 ease-in-out",
+            isOpen ? "max-h-none" : "max-h-96",
+            // Heading font-size can't be shrunk via prose-headings:* utilities
+            // here — app/globals.css hardcodes .prose h1-h4 sizes with
+            // !important (for the shared article/Tiptap typography scale),
+            // which always beats a plain utility class. "prose-hero" is a
+            // second, equally-specific !important block defined right after
+            // it in that same file, so normal cascade order picks it.
+            isHero &&
+              "prose-hero prose-headings:text-foreground/80 prose-headings:mt-4 first:prose-headings:mt-0 prose-p:text-muted-foreground prose-li:text-muted-foreground prose-li:marker:text-muted-foreground prose-strong:text-foreground/80",
           )}
         />
       </article>
 
-      {!isOpen && <div className={STYLES.overlay} />}
+      {!isOpen && (
+        <div
+          className={cn(
+            "absolute bottom-0 left-0 right-0 h-48 pointer-events-none z-10 bg-linear-to-t to-transparent",
+            isHero ? "from-muted via-muted/90" : "from-background via-background/90",
+          )}
+        />
+      )}
 
-      <div className={STYLES.triggerWrapper}>
+      <div className={cn("flex justify-center", isHero ? "mt-4" : "mt-8")}>
         <CollapsibleTrigger asChild>
-          <Button variant="outline" className={STYLES.triggerButton}>
-            <span className="text-xs font-bold capitalize mr-2">
+          <Button
+            variant={isHero ? "ghost" : "outline"}
+            size={isHero ? "sm" : "default"}
+            className={cn(
+              "transition-all group z-20",
+              isHero ? "text-muted-foreground hover:text-foreground" : "bg-background text-primary border-primary",
+            )}
+          >
+            <span className={cn("capitalize mr-2", isHero ? "text-xs" : "text-xs font-bold")}>
               {isOpen ? "Thu gọn nội dung" : "Xem thêm nội dung"}
             </span>
             {isOpen ? (
-              <CaretUp className="w-4 h-4 text-foreground group-hover:text-foreground transition-colors" />
+              <CaretUp className="w-4 h-4 transition-colors" />
             ) : (
-              <CaretDown className="w-4 h-4 text-foreground group-hover:text-foreground transition-colors" />
+              <CaretDown className="w-4 h-4 transition-colors" />
             )}
           </Button>
         </CollapsibleTrigger>

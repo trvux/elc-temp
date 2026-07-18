@@ -71,7 +71,7 @@ export function StickyContactActions({ contacts }: StickyContactActionsProps) {
           exit="exit"
           className="fixed bottom-2 right-4 md:right-6 lg:right-8 z-[100]"
         >
-          <div className="flex items-center gap-2 px-2 py-2 bg-background/10 backdrop-blur-sm backdrop-brightness-125 backdrop-saturate-50 rounded-full border border-border/55 shadow-2xl w-auto">
+          <div className="flex items-center gap-2 px-2 py-2 bg-background/95 backdrop-blur-md rounded-full border border-border/55 shadow-2xl w-auto">
             {/* <span className="text-sm font-bold">Liên hệ</span> */}
             {displayContacts.map((contact) => (
               <Button

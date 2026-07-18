@@ -107,11 +107,14 @@ export default async function ProductsPage() {
           </div>
         </div>
 
-        {catalogPage?.content ? (
-          <ProductDescription content={catalogPage.content} fallbackAlt="Tất cả sản phẩm" />
-        ) : null}
-
         <CategorySectionsGrid sections={sections} />
+
+        {/* Sau lưới sản phẩm, không phải trước — người xem cần thấy sản
+            phẩm trước tiên; nội dung này chỉ dành cho ai muốn tìm hiểu
+            thêm, không nên chắn đường trước danh mục. */}
+        {catalogPage?.content ? (
+          <ProductDescription content={catalogPage.content} fallbackAlt="Tất cả sản phẩm" variant="hero" />
+        ) : null}
 
         {/* Footer rights & Back to top */}
         <div className="w-full pt-8 border-t border-border/40 flex flex-col md:flex-row justify-between items-center gap-6 text-muted-foreground">

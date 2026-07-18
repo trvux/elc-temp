@@ -176,6 +176,38 @@
   border-top: 1px solid var(--border) !important;
 }
 
+/* .prose-hero: quiet, reference-only reading material on category/brand
+   listing pages (below the product grid) — must not compete with the
+   page's real H1. Needs its own !important overrides, not Tailwind
+   prose-headings:* utilities, because the base .prose h1-h4 rules above
+   are already !important and always win against a plain utility class
+   regardless of source order. The extra .prose class in the selector
+   keeps specificity equal to the base rules so normal cascade order
+   (this block comes later) decides the winner. */
+.prose.prose-hero h1, .prose.prose-hero h2 {
+  font-size: 0.875rem !important; /* text-sm */
+  font-weight: 600 !important;
+  letter-spacing: -0.025em !important;
+}
+
+@media (min-width: 768px) {
+  .prose.prose-hero h1, .prose.prose-hero h2 {
+    font-size: 1rem !important; /* text-base */
+  }
+}
+
+.prose.prose-hero h3, .prose.prose-hero h4 {
+  font-size: 0.8125rem !important;
+  font-weight: 600 !important;
+  letter-spacing: -0.025em !important;
+}
+
+@media (min-width: 768px) {
+  .prose.prose-hero h3, .prose.prose-hero h4 {
+    font-size: 0.875rem !important; /* text-sm */
+  }
+}
+
 /* Tiptap Placeholder */
 .tiptap .is-empty::before {
   color: var(--muted-foreground);

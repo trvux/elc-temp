@@ -6,7 +6,9 @@ import { FilterTransitionProvider } from "@/shared/providers/filter-transition-p
 import { ProductFloatingProvider } from "@/shared/providers/product-floating-provider";
 import { WishlistProvider } from "@/shared/providers/wishlist-provider";
 import { CompareProvider } from "@/shared/providers/compare-provider";
+import { ContactProvider } from "@/shared/providers/contact-provider";
 import { CompareTray } from "@/shared/components/layout/user/compare-tray";
+import { WishlistDialog } from "@/shared/components/layout/user/wishlist-dialog";
 import { TopProgressBar } from "@/shared/components/layout/user/top-progress-bar";
 import { StickyContactActions } from "@/shared/components/sections/sticky-contact-actions";
 import Script from "next/script";
@@ -37,6 +39,7 @@ export default async function PublicLayout({ children }: PublicLayoutProps) {
   } = await getPublicLayoutData();
 
   return (
+    <ContactProvider contacts={contacts || []}>
     <WishlistProvider>
     <CompareProvider>
     <ProductFloatingProvider>
@@ -102,10 +105,12 @@ export default async function PublicLayout({ children }: PublicLayoutProps) {
         />
         <StickyContactActions contacts={contacts || []} />
         <CompareTray />
+        <WishlistDialog />
       </div>
     </FilterTransitionProvider>
     </ProductFloatingProvider>
     </CompareProvider>
     </WishlistProvider>
+    </ContactProvider>
   );
 }

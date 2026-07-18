@@ -1,6 +1,6 @@
 "use client";
 
-import { Scales } from "@phosphor-icons/react";
+import { ColumnsPlusRight } from "@phosphor-icons/react";
 import { m } from "motion/react";
 
 import { Button } from "@/shared/components/ui/button";
@@ -38,7 +38,7 @@ export function CompareToggleButton({ item, variant = "button", size = "default"
         asChild
       >
         <m.button whileTap={{ scale: 0.85 }}>
-          <Scales weight={selected ? "fill" : "regular"} />
+          <ColumnsPlusRight weight={selected ? "fill" : "regular"} />
         </m.button>
       </Button>
     );
@@ -52,7 +52,7 @@ export function CompareToggleButton({ item, variant = "button", size = "default"
       onClick={() => toggle(item)}
       className={className}
     >
-      <Scales />
+      <ColumnsPlusRight />
       {selected ? "Đã chọn" : "So sánh"}
     </Button>
   );
