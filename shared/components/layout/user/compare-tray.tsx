@@ -6,13 +6,19 @@ import { useRouter } from "next/navigation";
 
 import { Button } from "@/shared/components/ui/button";
 import { useCompare } from "@/shared/providers/compare-provider";
+import { useProductFloating } from "@/shared/providers/product-floating-provider";
+import { cn } from "@/shared/lib/utils";
 
 // Persistent bottom-docked tray, visible site-wide whenever ≥1 product is
 // queued for comparison — same visual language (fixed, rounded, blurred
 // background) as ProductFloatingBar, but global rather than
-// sentinel-triggered per product page.
+// sentinel-triggered per product page. On a product detail page,
+// ProductFloatingBar also docks at the bottom — sits higher there
+// (ProductFloatingProvider's `active` flag is true whenever that bar is
+// mounted, i.e. on a detail page) so the two never overlap.
 export function CompareTray() {
   const { items, remove, clear } = useCompare();
+  const { active: productBarActive } = useProductFloating();
   const router = useRouter();
 
   const canCompare = items.length >= 2;
@@ -25,7 +31,10 @@ export function CompareTray() {
           animate={{ y: 0 }}
           exit={{ y: "100%" }}
           transition={{ duration: 0.3, ease: [0.23, 1, 0.32, 1] }}
-          className="fixed bottom-4 left-0 right-0 z-110 pointer-events-none px-3 md:px-6 lg:px-8"
+          className={cn(
+            "fixed left-0 right-0 z-110 pointer-events-none px-3 md:px-6 lg:px-8",
+            productBarActive ? "bottom-28" : "bottom-4",
+          )}
         >
           <div className="pointer-events-auto mx-auto max-w-2xl bg-background/95 backdrop-blur-md border border-border/50 shadow-[0_8px_32px_rgba(0,0,0,0.12),0_2px_8px_rgba(0,0,0,0.08)] rounded-2xl px-4 py-3 flex items-center gap-3">
             <div className="flex items-center gap-2 flex-1 min-w-0 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">

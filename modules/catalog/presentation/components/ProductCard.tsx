@@ -38,84 +38,92 @@ export function ProductCard({
   const imageUrl = primaryImageUrl(product.images);
 
   return (
-    <Link
-      href={productUrl}
-      className="w-full block group h-full"
-      prefetch={false}
-    >
-      <Card className="relative mx-auto w-full h-full max-w-sm pt-0 transition-all duration-300 hover:shadow-md cursor-pointer gap-2 md:gap-3 overflow-hidden">
-        <div className="absolute top-2 right-2 z-40">
-          <WishlistButton productId={product.id} size="icon-xs" />
-        </div>
-        <div className="absolute top-2 left-2 z-40">
-          <CompareToggleButton
-            variant="checkbox"
-            item={{ id: product.id, name: product.name, slug: product.slug, categoryId: product.categoryId }}
-          />
-        </div>
-
-        <div className="absolute inset-0 z-30 aspect-video bg-white" />
-        {imageUrl ? (
-          <div className="relative z-30 aspect-video w-full bg-white">
-            <Image
-              src={imageUrl}
-              alt={product.images[0]?.alt || `${product.name} - Chính hãng giá tốt tại Điện máy ELC`}
-              title={`${product.name} - Điện máy ELC`}
-              fill
-              sizes="(max-width: 640px) calc(50vw - 12px), (max-width: 1024px) calc(33vw - 16px), 25vw"
-              className="object-contain"
-              loading={priority ? "eager" : "lazy"}
-              priority={priority}
-            />
-          </div>
-        ) : (
-          <div className="relative z-30 aspect-video w-full bg-white" />
-        )}
-        {/* px-3 md:px-6 */}
-        <StockBadge
-          className="w-full"
-          status={toLegacyStockStatusForBadge(product.displayStockStatus)}
-          // className="text-sm"
-        />
-        <CardHeader className="px-2">
-          <CardTitle className="line-clamp-2 h-12">
-            {product.name}
-          </CardTitle>
-          <CardDescription className="flex flex-col gap-1 text-xs">
-            {displaySku && (
-              <span>
-                SKU: <span className="text-foreground">{displaySku}</span>
-                <br />
-              </span>
-            )}
-            {product.brand?.name && (
-              <span>
-                Thương hiệu:{" "}
-                <span className="uppercase text-foreground">
-                  {product.brand.name.toLowerCase()}
-                </span>
-              </span>
-            )}
-          </CardDescription>
-        </CardHeader>
-        {/* px-3 md:px-6 */}
-        <CardContent className="flex flex-col gap-2 px-2">
-          <TypographyLarge className="text-foreground">
-            <FormattedPrice price={currentPrice} />
-          </TypographyLarge>
-          {hasDiscount && (
-            <div className="flex items-center gap-2">
-              <TypographySmall className="text-muted-foreground">
-                <FormattedPrice price={defaultVariant?.originalPrice ?? 0} strikethrough />
-              </TypographySmall>
-
-              <TypographySmall className="text-destructive">
-                -{defaultVariant?.discountPercent ?? 0}%
-              </TypographySmall>
+    // Wishlist/compare buttons are siblings of the <Link>, not nested
+    // inside it — nesting real interactive elements (button/checkbox)
+    // inside an <a> is invalid HTML and browsers handle it inconsistently
+    // (clicks on the nested control could still trigger the outer link's
+    // navigation). Both stay visually on top via absolute positioning +
+    // higher z-index within this shared relative wrapper.
+    <div className="relative w-full h-full">
+      <Link
+        href={productUrl}
+        className="w-full block group h-full"
+        prefetch={false}
+      >
+        <Card className="relative mx-auto w-full h-full max-w-sm pt-0 transition-all duration-300 hover:shadow-md cursor-pointer gap-2 md:gap-3 overflow-hidden">
+          <div className="absolute inset-0 z-30 aspect-video bg-white" />
+          {imageUrl ? (
+            <div className="relative z-30 aspect-video w-full bg-white">
+              <Image
+                src={imageUrl}
+                alt={product.images[0]?.alt || `${product.name} - Chính hãng giá tốt tại Điện máy ELC`}
+                title={`${product.name} - Điện máy ELC`}
+                fill
+                sizes="(max-width: 640px) calc(50vw - 12px), (max-width: 1024px) calc(33vw - 16px), 25vw"
+                className="object-contain"
+                loading={priority ? "eager" : "lazy"}
+                priority={priority}
+              />
             </div>
+          ) : (
+            <div className="relative z-30 aspect-video w-full bg-white" />
           )}
-        </CardContent>
-      </Card>
-    </Link>
+          {/* px-3 md:px-6 */}
+          <StockBadge
+            className="w-full"
+            status={toLegacyStockStatusForBadge(product.displayStockStatus)}
+            // className="text-sm"
+          />
+          <CardHeader className="px-2">
+            <CardTitle className="line-clamp-2 h-12">
+              {product.name}
+            </CardTitle>
+            <CardDescription className="flex flex-col gap-1 text-xs">
+              {displaySku && (
+                <span>
+                  SKU: <span className="text-foreground">{displaySku}</span>
+                  <br />
+                </span>
+              )}
+              {product.brand?.name && (
+                <span>
+                  Thương hiệu:{" "}
+                  <span className="uppercase text-foreground">
+                    {product.brand.name.toLowerCase()}
+                  </span>
+                </span>
+              )}
+            </CardDescription>
+          </CardHeader>
+          {/* px-3 md:px-6 */}
+          <CardContent className="flex flex-col gap-2 px-2">
+            <TypographyLarge className="text-foreground">
+              <FormattedPrice price={currentPrice} />
+            </TypographyLarge>
+            {hasDiscount && (
+              <div className="flex items-center gap-2">
+                <TypographySmall className="text-muted-foreground">
+                  <FormattedPrice price={defaultVariant?.originalPrice ?? 0} strikethrough />
+                </TypographySmall>
+
+                <TypographySmall className="text-destructive">
+                  -{defaultVariant?.discountPercent ?? 0}%
+                </TypographySmall>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      </Link>
+
+      <div className="absolute top-2 right-2 z-40">
+        <WishlistButton productId={product.id} size="icon-sm" />
+      </div>
+      <div className="absolute top-2 left-2 z-40">
+        <CompareToggleButton
+          variant="icon"
+          item={{ id: product.id, name: product.name, slug: product.slug, categoryId: product.categoryId }}
+        />
+      </div>
+    </div>
   );
 }
