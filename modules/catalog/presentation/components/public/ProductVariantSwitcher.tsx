@@ -12,8 +12,10 @@ import { Contact } from "@/modules/contact/domain";
 import { LeadForm } from "@/modules/inquiry/presentation/components/LeadForm";
 import { Button } from "@/shared/components/ui/button";
 import { OrderButton } from "@/shared/components/layout/user/order-button";
+import { CompareToggleButton } from "@/shared/components/layout/user/compare-toggle-button";
 import { StockBadge } from "@/shared/components/ui/stock-badge";
 import { TypographyLarge, TypographySmall } from "@/shared/components/ui/typography";
+import type { CompareItem } from "@/shared/providers/compare-provider";
 import { ZaloProductInfo } from "@/shared/lib/zalo-message";
 import { cn } from "@/shared/lib/utils";
 
@@ -22,9 +24,10 @@ interface ProductVariantSwitcherProps {
   variants: ProductVariant[];
   options: ProductOption[];
   contacts: Contact[];
+  compareItem: CompareItem;
 }
 
-export function ProductVariantSwitcher({ product, variants, options, contacts }: ProductVariantSwitcherProps) {
+export function ProductVariantSwitcher({ product, variants, options, contacts, compareItem }: ProductVariantSwitcherProps) {
   // Only variants meant to be independently purchasable — bundle parts
   // (is_standalone=false, e.g. "Dàn lạnh FTKB25") never appear as a
   // selectable option here.
@@ -45,7 +48,7 @@ export function ProductVariantSwitcher({ product, variants, options, contacts }:
           <StockBadge status={defaultVariant ? toLegacyStockStatusForBadge(defaultVariant.stockStatus) : undefined} className="text-sm" />
         </div>
         <PriceBlock price={defaultVariant?.displayPrice || 0} originalPrice={defaultVariant?.originalPrice || 0} discountPercent={defaultVariant?.discountPercent || 0} />
-        <Ctas product={product} contacts={contacts} price={defaultVariant?.displayPrice || 0} />
+        <Ctas product={product} contacts={contacts} price={defaultVariant?.displayPrice || 0} compareItem={compareItem} />
       </>
     );
   }
@@ -89,7 +92,7 @@ export function ProductVariantSwitcher({ product, variants, options, contacts }:
         discountPercent={selected?.discountPercent || 0}
       />
 
-      <Ctas product={product} contacts={contacts} price={selected?.displayPrice || 0} />
+      <Ctas product={product} contacts={contacts} price={selected?.displayPrice || 0} compareItem={compareItem} />
     </>
   );
 }
@@ -112,7 +115,7 @@ function PriceBlock({ price, originalPrice, discountPercent }: { price: number; 
   );
 }
 
-function Ctas({ product, contacts, price }: { product: ProductWithRelations; contacts: Contact[]; price: number }) {
+function Ctas({ product, contacts, price, compareItem }: { product: ProductWithRelations; contacts: Contact[]; price: number; compareItem: CompareItem }) {
   return (
     <div className="flex flex-wrap items-center gap-3">
       <OrderButton
@@ -124,6 +127,7 @@ function Ctas({ product, contacts, price }: { product: ProductWithRelations; con
         } satisfies ZaloProductInfo}
       />
       <LeadForm productId={product.id} entityName={product.name} entityKind="product" />
+      <CompareToggleButton item={compareItem} />
     </div>
   );
 }

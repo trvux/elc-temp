@@ -11,12 +11,14 @@ import {
   ZaloProductInfo,
 } from "@/shared/lib/zalo-message";
 import { ZaloContactModal } from "@/shared/components/layout/user/zalo-contact-modal";
+import { WishlistButton } from "@/shared/components/layout/user/wishlist-button";
 import { toast } from "sonner";
 import { AnimatePresence, m } from "motion/react";
 import Image from "next/image";
 import { useEffect } from "react";
 
 interface ProductFloatingBarProps {
+  productId: string;
   productName: string;
   salePrice: number;
   originalPrice: number;
@@ -27,6 +29,7 @@ interface ProductFloatingBarProps {
 }
 
 export function ProductFloatingBar({
+  productId,
   productName,
   salePrice,
   originalPrice,
@@ -135,20 +138,23 @@ export function ProductFloatingBar({
                     </div>
                   </div>
                 </div>
-                <Button
-                  size="sm"
-                  className="w-full shadow-none border-none"
-                  asChild
-                >
-                  <a
-                    href={zaloContact.href}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    onClick={handleZaloClick}
+                <div className="flex items-center gap-2">
+                  <Button
+                    size="sm"
+                    className="flex-1 shadow-none border-none"
+                    asChild
                   >
-                    Tư vấn ngay
-                  </a>
-                </Button>
+                    <a
+                      href={zaloContact.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      onClick={handleZaloClick}
+                    >
+                      Tư vấn ngay
+                    </a>
+                  </Button>
+                  <WishlistButton productId={productId} size="icon-sm" />
+                </div>
               </div>
 
               {/* TABLET / DESKTOP: 1 row */}
@@ -177,6 +183,7 @@ export function ProductFloatingBar({
                     </div>
                   )}
                 </div>
+                <WishlistButton productId={productId} />
                 <Button size="lg" asChild className="px-10">
                   <a
                     href={zaloContact.href}
