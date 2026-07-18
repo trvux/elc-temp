@@ -231,6 +231,7 @@ export function ProductManagement({ currentUserRole }: ProductManagementProps) {
             name: p.name,
             slug: p.slug,
             description: p.description || "",
+            shortDescription: p.shortDescription || "",
             images: p.images || [],
             isFeatured: p.isFeatured,
             orderIndex: p.orderIndex,
@@ -247,6 +248,7 @@ export function ProductManagement({ currentUserRole }: ProductManagementProps) {
               valueText: av.valueText,
               valueNumber: av.valueNumber,
               valueBoolean: av.valueBoolean,
+              valueOptions: av.valueOptions,
             })),
           });
         },
@@ -262,6 +264,7 @@ export function ProductManagement({ currentUserRole }: ProductManagementProps) {
       name: "",
       slug: "",
       description: "",
+      shortDescription: "",
       images: [],
       isFeatured: false,
       orderIndex: 0,

@@ -114,7 +114,11 @@ export async function ProductDetailModule({
   // products.specs jsonb the admin used to hand-type.
   const attributeGroups = (() => {
     const rows = (product.attributeValues || []).filter(
-      (av) => av.valueText || av.valueNumber != null || av.valueBoolean != null,
+      (av) =>
+        av.valueText ||
+        av.valueNumber != null ||
+        av.valueBoolean != null ||
+        (av.valueOptions && av.valueOptions.length > 0),
     );
     const groups: { label: string | null; rows: typeof rows }[] = [];
     for (const av of rows) {
@@ -129,6 +133,7 @@ export async function ProductDetailModule({
   })();
   const formatAttributeValue = (av: (typeof attributeGroups)[number]["rows"][number]) => {
     if (av.dataType === "boolean") return av.valueBoolean ? "Có" : "Không";
+    if (av.dataType === "multiselect") return (av.valueOptions || []).join(", ");
     if (av.dataType === "number" && av.valueNumber != null) {
       const suffix = av.unit ? ` ${av.unit}` : "";
       const kwHint = av.code === CAPACITY_BTU_ATTRIBUTE_CODE && av.valueNumber > 0
