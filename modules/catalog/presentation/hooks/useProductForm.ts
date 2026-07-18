@@ -20,9 +20,7 @@ export type ProductFormValues = Omit<
 };
 
 // The single default variant every new product form starts with — see the
-// Product doc comment in domain/types.ts. Kept blank/mpn-empty; the admin
-// fills it in via ProductIdentityCard's flat fields (bound to variants.0.*)
-// exactly like the old flat sku/mpn/price fields used to work.
+// Product doc comment in domain/types.ts.
 export const DEFAULT_VARIANT: ProductFormValues["variants"][number] = {
   mpn: "",
   sku: "",
@@ -41,6 +39,98 @@ export const DEFAULT_VARIANT: ProductFormValues["variants"][number] = {
   components: [],
 };
 
+const EMPTY_DEFAULTS: ProductFormValues = {
+  name: "",
+  slug: "",
+  description: "",
+  shortDescription: "",
+  images: [],
+  isFeatured: false,
+  orderIndex: 0,
+  categoryId: "",
+  brandId: "",
+  metaTitle: "",
+  metaDescription: "",
+  tagIds: [],
+  productLineId: null,
+  options: [],
+  attributeValues: [],
+  // Every product needs >=1 variant (the Go backend rejects zero — see
+  // elc-go's domain.Product doc comment).
+  variants: [DEFAULT_VARIANT],
+};
+
+// Converts the persisted read shape (ProductOption[]/ProductVariant[] —
+// values/components carry real IDs) back into the create/update input shape
+// the form edits (options by name, variant option-selections by
+// {optionName,value}, bundle components by sibling array index) — the
+// inverse of what createProductAction/updateProductAction's
+// toGoOptionsPayload/toGoVariantsPayload send. Needed because the Go API
+// deliberately never round-trips IDs for these back into form-editable
+// input fields (see elc-go/docs/product-v2-design.md).
+function mapProductToFormValues(p: ProductWithRelations): ProductFormValues {
+  const options = (p.options || []).map((o) => ({ name: o.name, values: o.values.map((v) => v.value) }));
+
+  const optionValueLookup = new Map<string, { optionName: string; value: string }>();
+  (p.options || []).forEach((o) => {
+    o.values.forEach((v) => optionValueLookup.set(v.id, { optionName: o.name, value: v.value }));
+  });
+
+  const variantIdToIndex = new Map<string, number>();
+  (p.variants || []).forEach((v, i) => variantIdToIndex.set(v.id, i));
+
+  const variants = (p.variants || []).map((v) => ({
+    mpn: v.mpn,
+    sku: v.sku,
+    gtin: v.gtin || "",
+    isDefault: v.isDefault,
+    isComponentOnly: !v.isStandalone,
+    stockStatus: v.stockStatus,
+    leadTimeDays: v.leadTimeDays ?? null,
+    originalPrice: v.originalPrice,
+    salePrice: v.salePrice ?? 0,
+    discountPercent: v.discountPercent,
+    weight: v.weight ?? null,
+    isActive: v.isActive,
+    orderIndex: v.orderIndex,
+    optionSelections: v.optionValueIds
+      .map((id) => optionValueLookup.get(id))
+      .filter((s): s is { optionName: string; value: string } => !!s),
+    components: v.components
+      .map((c) => ({
+        componentIndex: variantIdToIndex.get(c.componentId) ?? -1,
+        quantity: c.quantity,
+        role: c.role || "",
+      }))
+      .filter((c) => c.componentIndex >= 0),
+  }));
+
+  return {
+    name: p.name,
+    slug: p.slug,
+    description: p.description || "",
+    shortDescription: p.shortDescription || "",
+    images: p.images || [],
+    isFeatured: p.isFeatured,
+    orderIndex: p.orderIndex,
+    categoryId: p.categoryId,
+    brandId: p.brandId,
+    metaTitle: p.metaTitle || "",
+    metaDescription: p.metaDescription || "",
+    tagIds: (p.tags || []).map((t) => t.id),
+    productLineId: p.productLineId || null,
+    options,
+    variants,
+    attributeValues: (p.attributeValues || []).map((av) => ({
+      attributeDefinitionId: av.attributeDefinitionId,
+      valueText: av.valueText,
+      valueNumber: av.valueNumber,
+      valueBoolean: av.valueBoolean,
+      valueOptions: av.valueOptions,
+    })),
+  };
+}
+
 export function useProductForm(
   activeProduct: ProductWithRelations | "new" | null,
   onClose: () => void
@@ -48,31 +138,15 @@ export function useProductForm(
   const queryClient = useQueryClient();
   const [uploading, setUploading] = useState(false);
 
+  // activeProduct never changes identity across this hook's lifetime —
+  // ProductForm (the only caller) is a fresh mount per navigation to
+  // /admin/products/new or /admin/products/[id], so computing defaultValues
+  // once here (rather than an imperative form.reset() after mount) is both
+  // correct and avoids a flash of empty fields on the edit route.
   const form = useForm<ProductFormValues>({
     resolver: standardSchemaResolver(createProductSchema) as unknown as Resolver<ProductFormValues>,
-    defaultValues: {
-      name: "",
-      slug: "",
-      description: "",
-      shortDescription: "",
-      images: [],
-      isFeatured: false,
-      orderIndex: 0,
-      categoryId: "",
-      brandId: "",
-      metaTitle: "",
-      metaDescription: "",
-      tagIds: [],
-      productLineId: null,
-      options: [],
-      attributeValues: [],
-      // Every product needs >=1 variant (the Go backend rejects zero — see
-      // elc-go's domain.Product doc comment). This default variant is what
-      // ProductIdentityCard's flat sku/mpn/gtin/price/stock fields actually
-      // bind to (variants.0.*) for the common "no real options" case —
-      // see ProductIdentityCard.tsx.
-      variants: [DEFAULT_VARIANT],
-    },
+    defaultValues:
+      activeProduct && activeProduct !== "new" ? mapProductToFormValues(activeProduct) : EMPTY_DEFAULTS,
   });
 
   // options/variants — nested manipulation (option values, variant

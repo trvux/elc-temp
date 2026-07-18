@@ -16,95 +16,54 @@ interface ColumnProps {
   onDelete: (id: string) => void;
 }
 
+// Column set trimmed to match Shopify's list density (7 columns) — SKU/
+// MPN/GTIN/Giá gốc/Thương hiệu were dropped from the list, they're
+// internal/rarely-scanned-at-a-glance fields that live on the detail page
+// (Tùy chọn & Biến thể card) instead. See the plan at
+// /Users/tranvux/.claude/plans/majestic-whistling-raccoon.md.
 export const getProductColumns = ({
   onEdit,
   onDelete,
 }: ColumnProps): ColumnDef<ProductWithRelations>[] => [
   {
-    accessorKey: "images",
-    header: "Ảnh",
-    cell: ({ row }) => {
-      const imageUrl = primaryImageUrl(row.original.images);
-      const name = row.original.name;
-      return imageUrl ? (
-        <div className="w-10">
-          <AspectRatio ratio={19 / 9}>
-            <Image
-              src={imageUrl}
-              alt={name}
-              fill
-              className="rounded object-cover"
-              sizes="40px"
-            />
-          </AspectRatio>
-        </div>
-      ) : (
-        <div className="w-10 h-10 bg-muted/50 rounded-md flex items-center justify-center text-muted-foreground/40 text-[9px] font-bold leading-none text-center px-1 capitalize tracking-tighter">
-          N/A
-        </div>
-      );
-    },
-  },
-  {
     accessorKey: "name",
-    header: "Tên sản phẩm",
+    header: "Sản phẩm",
     cell: ({ row }) => {
       const p = row.original;
+      const imageUrl = primaryImageUrl(p.images);
       const url = `/san-pham/${p.category?.slug || "all"}/${p.brand?.slug || "all"}/${p.slug}`;
       return (
-        <div className="flex flex-col gap-1">
-          <span className="font-medium">{p.name}</span>
-          <a
-            href={url}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-[10px] text-foreground/75 hover:text-foreground hover:underline font-mono"
-          >
-            {url}
-          </a>
+        <div className="flex items-center gap-3">
+          {imageUrl ? (
+            <div className="w-10 shrink-0">
+              <AspectRatio ratio={19 / 9}>
+                <Image src={imageUrl} alt={p.name} fill className="rounded object-cover" sizes="40px" />
+              </AspectRatio>
+            </div>
+          ) : (
+            <div className="w-10 h-10 shrink-0 bg-muted/50 rounded-md flex items-center justify-center text-muted-foreground/40 text-xs font-bold leading-none text-center px-1 capitalize tracking-tighter">
+              N/A
+            </div>
+          )}
+          <div className="flex flex-col gap-1 min-w-0">
+            <span className="font-medium truncate">{p.name}</span>
+            <a
+              href={url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-xs text-foreground/75 hover:text-foreground hover:underline font-mono truncate"
+            >
+              {url}
+            </a>
+          </div>
         </div>
       );
     },
-  },
-  {
-    accessorKey: "brand.name",
-    header: "Thương hiệu",
-    cell: ({ row }) => (
-      <Badge variant="secondary">{row.original.brand?.name || "Khác"}</Badge>
-    ),
-  },
-  {
-    id: "sku",
-    header: "SKU",
-    cell: ({ row }) => <span>{resolveDefaultVariant(row.original)?.sku || "—"}</span>,
-  },
-  {
-    id: "mpn",
-    header: "MPN",
-    cell: ({ row }) => (
-      <span className="font-mono text-[10px]">{resolveDefaultVariant(row.original)?.mpn || "—"}</span>
-    ),
-  },
-  {
-    id: "gtin",
-    header: "GTIN",
-    cell: ({ row }) => (
-      <span className="font-mono text-[10px]">{resolveDefaultVariant(row.original)?.gtin || "—"}</span>
-    ),
   },
   {
     accessorKey: "category.name",
     header: "Danh mục",
     cell: ({ row }) => <span>{row.original.category?.name || "—"}</span>,
-  },
-  {
-    id: "originalPrice",
-    header: "Giá gốc",
-    cell: ({ row }) => (
-      <span className="line-through text-muted-foreground">
-        {formatPrice(resolveDefaultVariant(row.original)?.originalPrice ?? 0)}
-      </span>
-    ),
   },
   {
     id: "salePrice",
@@ -133,7 +92,7 @@ export const getProductColumns = ({
       if (!status) return <span className="text-muted-foreground">—</span>;
 
       return (
-        <StockBadge status={status} className="whitespace-nowrap px-2 py-0 h-5 text-[10px]" />
+        <StockBadge status={status} className="whitespace-nowrap px-2 py-0 h-5 text-xs" />
       );
     },
   },
