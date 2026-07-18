@@ -75,6 +75,8 @@ export async function getPublicLayoutData() {
       name: b.name,
       slug: b.slug || "",
       logoUrl: b.logoUrl || "",
+      isFeatured: b.isFeatured ?? false,
+      orderIndex: b.orderIndex ?? 0,
     }));
 
   const groupCategories = (groupsData || [])

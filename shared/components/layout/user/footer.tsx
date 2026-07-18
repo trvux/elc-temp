@@ -14,6 +14,7 @@ import { useMemo } from "react";
 import { Contact, getDisplayContacts } from "@/modules/contact/domain";
 import { ContactLink } from "@/modules/contact/presentation/components/ContactLink";
 import { sortByOrderIndex } from "@/shared/lib/helpers";
+import { groupCategoriesByGroup } from "@/shared/lib/group-categories";
 import {
   TypographyH2,
   TypographyH3,
@@ -117,12 +118,10 @@ export function Footer({
   const displayContacts = getDisplayContacts(contacts);
 
   // Build product section: each group becomes a column with its children below
-  const productColumns = useMemo(() => {
-    return groupCategories.map((group) => ({
-      group,
-      children: categoriesList.filter((cat) => cat.groupId === group.id),
-    }));
-  }, [groupCategories, categoriesList]);
+  const productColumns = useMemo(
+    () => groupCategoriesByGroup(groupCategories, categoriesList),
+    [groupCategories, categoriesList],
+  );
 
   return (
     <footer className="w-full relative bg-background">
@@ -322,7 +321,7 @@ export function Footer({
               <div
                 className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-${Math.min(productColumns.length, 4)} gap-x-8 gap-y-10`}
               >
-                {productColumns.map(({ group, children }) => (
+                {productColumns.map(({ group, categories: children }) => (
                   <div key={group.id} className="flex flex-col gap-3">
                     <Link
                       href={`/san-pham/${group.slug}`}

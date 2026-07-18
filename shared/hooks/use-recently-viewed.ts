@@ -1,83 +1,65 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
-const STORAGE_KEY = "recently-viewed-products";
-const MAX_ITEMS = 10;
-
+// Backed by the real /recently-viewed API (anonymous visitor_id cookie,
+// server-side, see app/api/recently-viewed/route.ts) — no longer
+// localStorage. The API only exposes GET (list, newest-first, capped at 20)
+// and POST (record a view, upserts) — no per-item delete, no clear-all — so
+// unlike the old localStorage version, this hook has no removeProduct/
+// clearAll: the list is read-only, naturally aging out of the top-20 by
+// viewed_at, matching most real e-commerce sites.
 export interface RecentlyViewedProduct {
   id: string;
   name: string;
   slug: string;
   image: string | null;
-  salePrice: number;
-  originalPrice: number;
-  stockStatus: string | null;
-  viewedAt: number;
-}
-
-function read(): RecentlyViewedProduct[] {
-  if (typeof window === "undefined") return [];
-  try {
-    const raw = window.localStorage.getItem(STORAGE_KEY);
-    return raw ? JSON.parse(raw) : [];
-  } catch {
-    return [];
-  }
-}
-
-function write(items: RecentlyViewedProduct[]) {
-  if (typeof window === "undefined") return;
-  try {
-    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
-  } catch {
-    // ignore
-  }
+  displayPrice: number | null;
 }
 
 export function useRecentlyViewed() {
   const [items, setItems] = useState<RecentlyViewedProduct[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-  // Initial read after hydration — deliberately deferred to an effect
-  // (not a useState lazy initializer) so the client's first render matches
-  // the server-rendered empty state, avoiding a hydration mismatch.
-  useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setItems(read());
+  const refresh = useCallback(async () => {
+    try {
+      const res = await fetch("/api/recently-viewed");
+      if (!res.ok) return;
+      const data = (await res.json()) as { items?: RecentlyViewedProduct[] };
+      setItems(data.items ?? []);
+    } catch {
+      // Non-critical enhancement — a failed fetch just means an empty list.
+    } finally {
+      setIsLoading(false);
+    }
   }, []);
 
-  // Re-read on back navigation (page becomes visible again)
+  useEffect(() => {
+    refresh();
+  }, [refresh]);
+
+  // Re-read on back navigation (page becomes visible again) — same reasoning
+  // as the old localStorage version, still valid: the list may have changed
+  // (viewed a product on another tab) since this component mounted.
   useEffect(() => {
     const onVisible = () => {
-      if (document.visibilityState === "visible") {
-        setItems(read());
-      }
+      if (document.visibilityState === "visible") refresh();
     };
     document.addEventListener("visibilitychange", onVisible);
     return () => document.removeEventListener("visibilitychange", onVisible);
+  }, [refresh]);
+
+  const trackView = useCallback(async (productId: string) => {
+    try {
+      await fetch("/api/recently-viewed", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ product_id: productId }),
+      });
+    } catch {
+      // Fire-and-forget — a dropped tracking call shouldn't affect the page.
+    }
   }, []);
 
-  const addProduct = (product: Omit<RecentlyViewedProduct, "viewedAt">) => {
-    const current = read();
-    const filtered = current.filter((p) => p.id !== product.id);
-    const updated = [{ ...product, viewedAt: Date.now() }, ...filtered].slice(
-      0,
-      MAX_ITEMS,
-    );
-    write(updated);
-    setItems(updated);
-  };
-
-  const removeProduct = (id: string) => {
-    const updated = items.filter((p) => p.id !== id);
-    write(updated);
-    setItems(updated);
-  };
-
-  const clearAll = () => {
-    write([]);
-    setItems([]);
-  };
-
-  return { items, addProduct, removeProduct, clearAll };
+  return { items, isLoading, trackView, refresh };
 }

@@ -14,12 +14,22 @@ import { Contact, getDisplayContacts } from "@/modules/contact/domain";
 import { ContactLink } from "@/modules/contact/presentation/components/ContactLink";
 
 import { HeaderSearch } from "./header-search";
+import type { BrandNavRef } from "./nav-mega-menu";
+import type { CategoryRef, GroupCategoryRef } from "@/shared/lib/group-categories";
 
 interface HeaderProps {
   contacts?: Contact[];
+  groupCategories?: GroupCategoryRef[];
+  categoriesList?: CategoryRef[];
+  brands?: BrandNavRef[];
 }
 
-export function Header({ contacts = [] }: HeaderProps) {
+export function Header({
+  contacts = [],
+  groupCategories = [],
+  categoriesList = [],
+  brands = [],
+}: HeaderProps) {
   const { isMenuOpen, handleMenuToggle } = useHeader();
 
   const socialContacts = useMemo(() => {
@@ -53,7 +63,12 @@ export function Header({ contacts = [] }: HeaderProps) {
                 priority
               />
             </Link>
-            <DesktopMenu links={navLinks} />
+            <DesktopMenu
+              links={navLinks}
+              groupCategories={groupCategories}
+              categoriesList={categoriesList}
+              brands={brands}
+            />
           </div>
 
           {/* Right Column: Search, Dark mode button, Contact */}
@@ -93,6 +108,9 @@ export function Header({ contacts = [] }: HeaderProps) {
               isOpen={isMenuOpen}
               onOpenChange={handleMenuToggle}
               socialContacts={socialContacts}
+              groupCategories={groupCategories}
+              categoriesList={categoriesList}
+              brands={brands}
             />
           </div>
         </div>
