@@ -54,6 +54,7 @@ export function useProductForm(
       name: "",
       slug: "",
       description: "",
+      shortDescription: "",
       images: [],
       isFeatured: false,
       orderIndex: 0,

@@ -115,6 +115,7 @@ interface GoProductResponse {
   name: string;
   slug: string;
   description: Json;
+  short_description: string | null;
   images: ImageAsset[] | null;
   is_featured: boolean;
   status: string;
@@ -182,6 +183,7 @@ function mapGoProduct(row: GoProductResponse): ProductWithRelations {
     metaTitle: row.meta_title,
     metaDescription: row.meta_description,
     description: row.description ?? null,
+    shortDescription: row.short_description ?? null,
     images: row.images || [],
     isFeatured: row.is_featured || false,
     status: (row.status as ProductStatus) || PRODUCT_STATUS.DRAFT,

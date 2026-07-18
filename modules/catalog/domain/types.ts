@@ -29,6 +29,10 @@ export interface Product {
     metaTitle?: string | null;
     metaDescription?: string | null;
     description: Json;
+    // Short plain-text blurb — distinct from `description` (the rich-text
+    // body). Used for listing cards/snippets. See elc-go's
+    // Product.ShortDescription.
+    shortDescription?: string | null;
     images: ImageAsset[];
     isFeatured: boolean;
     // status only ever moves through the dedicated submit/approve/reject/
@@ -198,6 +202,7 @@ export interface CreateProductInput {
     metaTitle?: string | null;
     metaDescription?: string | null;
     description?: Json;
+    shortDescription?: string | null;
     images?: ImageAsset[];
     isFeatured?: boolean;
     orderIndex?: number;
