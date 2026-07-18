@@ -4,15 +4,19 @@ import Image from "next/image";
 import Link from "next/link";
 import { useMemo } from "react";
 
+import { Button } from "@/shared/components/ui/button";
 import {
   NavigationMenuContent,
   NavigationMenuItem,
   NavigationMenuLink,
   NavigationMenuTrigger,
 } from "@/shared/components/ui/navigation-menu";
-import { Separator } from "@/shared/components/ui/separator";
-import { TypographySmall } from "@/shared/components/ui/typography";
-import { groupCategoriesByGroup, type CategoryRef, type GroupCategoryRef } from "@/shared/lib/group-categories";
+import { TypographyLarge } from "@/shared/components/ui/typography";
+import {
+  groupCategoriesByGroup,
+  type CategoryRef,
+  type GroupCategoryRef,
+} from "@/shared/lib/group-categories";
 import { sortByOrderIndex } from "@/shared/lib/helpers";
 
 export interface BrandNavRef {
@@ -48,7 +52,11 @@ export function ProductMegaMenuItem({
   );
 
   const featuredBrands = useMemo(
-    () => sortByOrderIndex(brands.filter((b) => b.isFeatured)).slice(0, FEATURED_BRANDS_CAP),
+    () =>
+      sortByOrderIndex(brands.filter((b) => b.isFeatured)).slice(
+        0,
+        FEATURED_BRANDS_CAP,
+      ),
     [brands],
   );
 
@@ -56,63 +64,78 @@ export function ProductMegaMenuItem({
     <NavigationMenuItem>
       <NavigationMenuTrigger>Sản phẩm</NavigationMenuTrigger>
       <NavigationMenuContent>
-        <div className="grid grid-cols-[1fr_auto] gap-6 w-[720px] max-w-[90vw] p-2">
-          <div className="grid grid-cols-3 gap-x-6 gap-y-4">
-            {groupsWithCategories.map(({ group, categories }) => (
-              <div key={group.id} className="flex flex-col gap-1.5 min-w-0">
-                <NavigationMenuLink asChild>
-                  <Link href={`/san-pham/${group.slug}`} className="font-semibold text-sm">
-                    {group.name}
-                  </Link>
-                </NavigationMenuLink>
-                {categories.map((cat) => (
-                  <NavigationMenuLink asChild key={cat.id}>
-                    <Link href={`/san-pham/${cat.slug}`} className="text-sm text-muted-foreground">
-                      {cat.name}
-                    </Link>
-                  </NavigationMenuLink>
+        <div className="flex flex-col gap-4 w-220 max-w-[90vw] p-4">
+          <div className="grid grid-cols-[1fr_auto] gap-10">
+            <div className="flex flex-col gap-3">
+              <TypographyLarge className="pl-5">Danh mục</TypographyLarge>
+              <div className="columns-3 gap-x-2">
+                {groupsWithCategories.map(({ group, categories }) => (
+                  <div
+                    key={group.id}
+                    className="mb-2 flex flex-col gap-1.5 min-w-0 break-inside-avoid 1 rounded-md p-3"
+                  >
+                    <NavigationMenuLink asChild>
+                      <Link
+                        href={`/san-pham/${group.slug}`}
+                        className="font-semibold text-sm"
+                      >
+                        {group.name}
+                      </Link>
+                    </NavigationMenuLink>
+                    {categories.map((cat) => (
+                      <NavigationMenuLink asChild key={cat.id}>
+                        <Link
+                          href={`/san-pham/${cat.slug}`}
+                          className="text-sm text-muted-foreground"
+                        >
+                          {cat.name}
+                        </Link>
+                      </NavigationMenuLink>
+                    ))}
+                  </div>
                 ))}
               </div>
-            ))}
-          </div>
+            </div>
 
-          {featuredBrands.length > 0 && (
-            <>
-              <Separator orientation="vertical" className="h-auto" />
-              <div className="flex flex-col gap-2 w-48 shrink-0">
-                <TypographySmall className="font-semibold text-muted-foreground uppercase tracking-wide">
-                  Thương hiệu
-                </TypographySmall>
-                <div className="grid grid-cols-2 gap-2">
+            {featuredBrands.length > 0 && (
+              <div className="flex flex-col items-center gap-3 w-48 shrink-0">
+                <TypographyLarge>Thương hiệu</TypographyLarge>
+                <div className="flex flex-col items-center gap-4 p-3">
                   {featuredBrands.map((brand) => (
                     <Link
                       key={brand.id}
                       href={`/san-pham/${brand.slug}`}
-                      className="flex items-center justify-center rounded-md border border-border p-2 transition-colors hover:border-primary/40"
+                      className="flex h-9 w-24 items-center justify-center p-1 transition-opacity hover:opacity-70"
                       title={brand.name}
                     >
                       {brand.logoUrl ? (
                         <Image
                           src={brand.logoUrl}
                           alt={brand.name}
-                          width={64}
-                          height={24}
-                          className="h-6 w-auto object-contain"
+                          width={96}
+                          height={36}
+                          className="h-full w-full object-contain"
                         />
                       ) : (
-                        <span className="text-xs text-muted-foreground">{brand.name}</span>
+                        <span className="text-xs text-muted-foreground">
+                          {brand.name}
+                        </span>
                       )}
                     </Link>
                   ))}
                 </div>
-                <NavigationMenuLink asChild className="mt-auto">
-                  <Link href="/san-pham" className="text-sm text-primary">
-                    Xem tất cả sản phẩm →
-                  </Link>
-                </NavigationMenuLink>
               </div>
-            </>
-          )}
+            )}
+          </div>
+
+          <Button
+            variant="link"
+            size="lg"
+            className="w-fit self-center"
+            asChild
+          >
+            <Link href="/san-pham">Xem tất cả sản phẩm</Link>
+          </Button>
         </div>
       </NavigationMenuContent>
     </NavigationMenuItem>
