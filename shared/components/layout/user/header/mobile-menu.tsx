@@ -11,12 +11,20 @@ import { cn } from "@/shared/lib/utils";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef } from "react";
 import { MobileNavItem } from "./nav-item";
+import { MobileProductAccordion } from "./mobile-product-accordion";
+import type { BrandNavRef } from "./nav-mega-menu";
+import type { CategoryRef, GroupCategoryRef } from "@/shared/lib/group-categories";
+
+const PRODUCT_LINK_HREF = "/san-pham";
 
 interface MobileMenuProps {
   links: NavLink[];
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
   socialContacts?: Contact[];
+  groupCategories?: GroupCategoryRef[];
+  categoriesList?: CategoryRef[];
+  brands?: BrandNavRef[];
 }
 
 export function MobileMenu({
@@ -24,6 +32,9 @@ export function MobileMenu({
   isOpen,
   onOpenChange,
   socialContacts = [],
+  groupCategories = [],
+  categoriesList = [],
+  brands = [],
 }: MobileMenuProps) {
   const pathname = usePathname();
 
@@ -85,15 +96,25 @@ export function MobileMenu({
             <div className="text-sm font-medium text-muted-foreground">
               Menu
             </div>
-            <div className="flex flex-col gap-3 items-center">
-              {links.map((link) => (
-                <MobileNavItem
-                  key={link.name}
-                  link={link}
-                  isActive={checkActiveLink(link.href, pathname)}
-                  onClick={() => onOpenChange(false)}
-                />
-              ))}
+            <div className="flex flex-col gap-3 items-center w-full">
+              {links.map((link) =>
+                link.href === PRODUCT_LINK_HREF ? (
+                  <MobileProductAccordion
+                    key={link.name}
+                    groupCategories={groupCategories}
+                    categoriesList={categoriesList}
+                    brands={brands}
+                    onNavigate={() => onOpenChange(false)}
+                  />
+                ) : (
+                  <MobileNavItem
+                    key={link.name}
+                    link={link}
+                    isActive={checkActiveLink(link.href, pathname)}
+                    onClick={() => onOpenChange(false)}
+                  />
+                ),
+              )}
             </div>
           </div>
 

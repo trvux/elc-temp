@@ -4,6 +4,9 @@ import { Header } from "@/shared/components/layout/user/header";
 import { ChunkErrorListener } from "@/shared/components/layout/user/chunk-error-listener";
 import { FilterTransitionProvider } from "@/shared/providers/filter-transition-provider";
 import { ProductFloatingProvider } from "@/shared/providers/product-floating-provider";
+import { WishlistProvider } from "@/shared/providers/wishlist-provider";
+import { CompareProvider } from "@/shared/providers/compare-provider";
+import { CompareTray } from "@/shared/components/layout/user/compare-tray";
 import { TopProgressBar } from "@/shared/components/layout/user/top-progress-bar";
 import { StickyContactActions } from "@/shared/components/sections/sticky-contact-actions";
 import Script from "next/script";
@@ -34,6 +37,8 @@ export default async function PublicLayout({ children }: PublicLayoutProps) {
   } = await getPublicLayoutData();
 
   return (
+    <WishlistProvider>
+    <CompareProvider>
     <ProductFloatingProvider>
     <FilterTransitionProvider>
       {/* GTM: lazy load on first user interaction or after 3.5s timeout */}
@@ -75,7 +80,12 @@ export default async function PublicLayout({ children }: PublicLayoutProps) {
       <TopProgressBar />
       <div className="flex flex-col min-h-screen">
         <ChunkErrorListener />
-        <Header contacts={contacts} />
+        <Header
+          contacts={contacts}
+          groupCategories={groupCategories}
+          categoriesList={categoriesList}
+          brands={brands}
+        />
         <div className="flex-1 ">{children}</div>
         <Footer
           branches={branches}
@@ -91,8 +101,11 @@ export default async function PublicLayout({ children }: PublicLayoutProps) {
           currentYear={currentYear}
         />
         <StickyContactActions contacts={contacts || []} />
+        <CompareTray />
       </div>
     </FilterTransitionProvider>
     </ProductFloatingProvider>
+    </CompareProvider>
+    </WishlistProvider>
   );
 }

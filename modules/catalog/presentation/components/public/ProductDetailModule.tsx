@@ -1,4 +1,4 @@
-import { ProductWithRelations, resolveProductDisplayPrice, resolveDefaultVariant, toLegacyStockStatusForBadge, btuToKw, CAPACITY_BTU_ATTRIBUTE_CODE } from "@/modules/catalog/domain";
+import { ProductWithRelations, resolveProductDisplayPrice, resolveDefaultVariant, btuToKw, CAPACITY_BTU_ATTRIBUTE_CODE } from "@/modules/catalog/domain";
 import { ProductCard } from "@/modules/catalog/presentation/components/ProductCard";
 import { ProductVariantSwitcher } from "@/modules/catalog/presentation/components/public/ProductVariantSwitcher";
 import { getRelatedProducts } from "@/modules/catalog/presentation/getRelatedProducts";
@@ -161,15 +161,7 @@ export async function ProductDetailModule({
 
   return (
     <main className={STYLES.main}>
-      <TrackProductView
-        id={product.id}
-        name={product.name}
-        slug={product.slug}
-        image={primaryImageUrl(product.images) || null}
-        salePrice={finalPrice}
-        originalPrice={defaultVariant?.originalPrice ?? 0}
-        stockStatus={toLegacyStockStatusForBadge(product.displayStockStatus) ?? null}
-      />
+      <TrackProductView productId={product.id} />
       <TrackView entityType="product" entityId={product.id} entityName={product.name} />
       {/* ===== KHỐI 1: ẢNH + THÔNG TIN SẢN PHẨM ===== */}
       <GridSection

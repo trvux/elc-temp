@@ -409,6 +409,31 @@ export async function getProductsByIdsAction(ids: string[]) {
   }
 }
 
+// getProductCompareAction hits the new /products/compare endpoint (2-4
+// published products, same category, attribute_values attached) — the Go
+// API validates category-match/status/count and returns 400 otherwise.
+export async function getProductCompareAction(ids: string[]) {
+  if (!GO_API_URL || ids.length < 2) {
+    return { data: [] as ProductWithRelations[], error: null };
+  }
+  try {
+    const params = new URLSearchParams({ ids: ids.join(",") });
+    const res = await fetch(`${GO_API_URL}/products/compare?${params.toString()}`, {
+      cache: "no-store",
+    });
+    if (!res.ok) {
+      return { data: [], error: await extractErrorMessage(res, "Không thể so sánh sản phẩm") };
+    }
+
+    const rows = (await res.json()) as GoProductResponse[] | null;
+    return { data: (rows ?? []).map(mapGoProduct), error: null };
+  } catch (error) {
+    if (isPrerenderError(error)) throw error;
+    console.error("getProductCompareAction error:", error);
+    return { data: [], error: "Không thể so sánh sản phẩm" };
+  }
+}
+
 
 // toSnakeCaseBody is shallow by design (see shared/lib/go-api.ts) — it does
 // NOT recurse into nested arrays/objects, so options/variants (whose Go DTO
