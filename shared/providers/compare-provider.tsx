@@ -52,8 +52,9 @@ function write(items: CompareItem[]) {
 // is account-like and persisted server-side) — sessionStorage, not the API.
 // Locked to a single category: the Go API rejects a cross-category compare
 // request, but the real UX guard belongs here, before ever hitting it. The
-// per-card checkbox is always visible (no separate "selection mode" toggle
-// — that extra click was confusing, per real user feedback testing this).
+// per-card compare control (ProductCard's icon button) is always visible;
+// CompareLinkButton next to the listing H1 is just a shortcut into the
+// comparison page for whatever's already queued here.
 export function CompareProvider({ children }: { children: React.ReactNode }) {
   const [items, setItems] = useState<CompareItem[]>([]);
 

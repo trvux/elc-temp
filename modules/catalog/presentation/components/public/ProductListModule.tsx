@@ -9,7 +9,9 @@ import { ProductGrid } from "@/modules/catalog/presentation/components/ProductGr
 import { ResolvedEntity } from "@/modules/catalog/presentation/resolveProductPath";
 import { getCategoriesAction } from "@/modules/category/presentation/actions";
 import { Breadcrumbs } from "@/shared/components/layout/user/breadcrumbs";
+import { CompareLinkButton } from "@/shared/components/layout/user/compare-link-button";
 import { ProductDescription } from "@/shared/components/layout/user/product-description";
+import { WishlistDialogButton } from "@/shared/components/layout/user/wishlist-dialog-button";
 import { RecentlyViewedSection } from "@/shared/components/layout/user/recently-viewed-section";
 import { ScrollToTop } from "@/shared/components/layout/user/scroll-to-top";
 import { TypographyH1, TypographySmall } from "@/shared/components/ui/typography";
@@ -92,23 +94,31 @@ export async function ProductListModule({
         />
 
         <div className="flex flex-col gap-4 pb-6 border-b border-dashed border-border/40">
-          <div className="flex items-center gap-4">
-            {heroImageUrl && (
-              <div className="shrink-0 w-16 h-16 rounded-lg overflow-hidden bg-white border border-border/50">
-                <Image
-                  src={heroImageUrl}
-                  alt={pageTitle}
-                  width={64}
-                  height={64}
-                  className="w-full h-full object-contain"
-                />
+          <div className="flex items-start justify-between gap-4">
+            <div className="flex items-center gap-4">
+              {heroImageUrl && (
+                <div className="shrink-0 w-16 h-16 rounded-lg overflow-hidden bg-white border border-border/50">
+                  <Image
+                    src={heroImageUrl}
+                    alt={pageTitle}
+                    width={64}
+                    height={64}
+                    className="w-full h-full object-contain"
+                  />
+                </div>
+              )}
+              <div className="flex flex-col gap-1">
+                <TypographyH1>{pageTitle}</TypographyH1>
+                <TypographySmall className="text-muted-foreground">
+                  {`${totalCount} sản phẩm`}
+                </TypographySmall>
               </div>
-            )}
-            <div className="flex flex-col gap-1">
-              <TypographyH1>{pageTitle}</TypographyH1>
-              <TypographySmall className="text-muted-foreground">
-                {`${totalCount} sản phẩm`}
-              </TypographySmall>
+            </div>
+
+            <div className="flex items-center gap-2 shrink-0">
+              <WishlistDialogButton />
+              {totalCount >= 2 && <CompareLinkButton />}
+              {/* Nút "Lọc" (facet/filter) sẽ vào đây khi filter theo thuộc tính được xây */}
             </div>
           </div>
 

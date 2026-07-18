@@ -6,7 +6,9 @@ import {
   CategorySectionsGrid,
   type CategorySectionData,
 } from "@/shared/components/layout/user/category-sections-grid";
+import { CompareLinkButton } from "@/shared/components/layout/user/compare-link-button";
 import { ProductDescription } from "@/shared/components/layout/user/product-description";
+import { WishlistDialogButton } from "@/shared/components/layout/user/wishlist-dialog-button";
 import { ScrollToTop } from "@/shared/components/layout/user/scroll-to-top";
 import { RecentlyViewedSection } from "@/shared/components/layout/user/recently-viewed-section";
 import { unwrapActionResult } from "@/shared/lib/action-result";
@@ -96,8 +98,13 @@ export default async function ProductsPage() {
         {/* Recently Viewed Products */}
         <RecentlyViewedSection />
 
-        <div className="flex flex-col gap-1.5 pb-4 border-b border-border/40">
+        <div className="flex items-start justify-between gap-4 pb-4 border-b border-border/40">
           <TypographyH1>Tất cả sản phẩm</TypographyH1>
+          <div className="flex items-center gap-2 shrink-0">
+            <WishlistDialogButton />
+            <CompareLinkButton />
+            {/* Nút "Lọc" (facet/filter) sẽ vào đây khi filter theo thuộc tính được xây */}
+          </div>
         </div>
 
         {catalogPage?.content ? (
