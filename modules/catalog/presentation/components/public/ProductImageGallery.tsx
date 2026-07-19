@@ -91,8 +91,8 @@ export function ProductImageGallery({ productId, images, fallbackAlt }: ProductI
               onClick={() => api?.scrollTo(i)}
               aria-label={`Xem ảnh ${i + 1}`}
               className={cn(
-                "relative shrink-0 size-16 md:size-18 rounded-lg border-2 overflow-hidden bg-white transition-colors",
-                i === selectedIndex ? "border-primary" : "border-border/50 hover:border-border",
+                "relative shrink-0 size-16 md:size-18 rounded-lg border overflow-hidden bg-white transition-colors",
+                i === selectedIndex ? "border-border" : "border-border/50 hover:border-border",
               )}
             >
               <Image

@@ -35,7 +35,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     title: `${title} | Điện máy ELC`,
     description,
     alternates: { canonical: `${BASE_URL}/${slug}` },
-    openGraph: { title, description, url: `${BASE_URL}/${slug}` },
+    openGraph: { type: "website", title, description, url: `${BASE_URL}/${slug}` },
   };
 }
 

@@ -1,0 +1,106 @@
+{
+  "product_info": {
+    "name": "Dàn lạnh áp trần Daikin 2.5HP FHA60CVMV",
+    "brand": "Daikin",
+    "model_indoor": "FHA60CVMV",
+    "model_outdoor_matching": [
+      "RZF60CV2V (1 chiều làm lạnh, 1 pha)",
+      "RZA60DV2V (2 chiều lạnh sưởi, 1 pha)"
+    ],
+    "type": "Điều hòa áp trần Inverter",
+    "year_released": null,
+    "origin_brand": "Nhật Bản",
+    "origin_manufacture": "Thái Lan"
+  },
+  "technical_specifications": {
+    "cooling_capacity": {
+      "hp": 2.5,
+      "btu": 20500,
+      "btu_range": "Đang cập nhật"
+    },
+    "coverage": {
+      "area_m2": "Từ 25 đến 30 m2",
+      "volume_m3": "Từ 75 đến 90 m3"
+    },
+    "energy_efficiency": {
+      "technology": "Inverter",
+      "compressor_type": "Máy nén Swing độc quyền Daikin",
+      "cspf": null,
+      "energy_rating_stars": 5
+    },
+    "power_consumption": {
+      "nominal_w": 1530,
+      "range_w": "Đang cập nhật",
+      "estimated_electricity_consumption_kwh": 1.53
+    },
+    "refrigerant": {
+      "type": "R32",
+      "gwp": "Thân thiện với môi trường, hiệu suất làm lạnh cao"
+    },
+    "noise_level": {
+      "indoor_unit_dba": "32 - 37 (Thấp - Cao)",
+      "outdoor_unit_dba": "Đang cập nhật"
+    }
+  },
+  "physical_dimensions": {
+    "indoor_unit": {
+      "height_mm": 235,
+      "width_mm": 960,
+      "depth_mm": 690,
+      "weight_kg": 25.0
+    },
+    "panel": {
+      "model": "Không có mặt nạ (dàn máy áp trần)",
+      "height_mm": null,
+      "width_mm": null,
+      "depth_mm": null,
+      "weight_kg": null
+    },
+    "outdoor_unit_rzf60cv2v": {
+      "height_mm": 595,
+      "width_mm": 845,
+      "depth_mm": 300,
+      "weight_kg": 41.0
+    }
+  },
+  "installation_requirements": {
+    "pipe_size": {
+      "liquid_mm": 6.4,
+      "gas_mm": 12.7
+    },
+    "piping_limits": {
+      "max_length_m": 30.0,
+      "max_height_difference_m": 15.0,
+      "standard_length_without_charging_m": 10.0
+    }
+  },
+  "key_features": [
+    {
+      "feature_name": "Thiết kế áp trần thanh lịch hiện đại",
+      "description": "Tông màu trắng ngà thanh lịch, nắp máy đóng lại gọn gàng khi không sử dụng giúp bảo vệ dàn lạnh tốt hơn, tăng vẻ mỹ quan nội thất."
+    },
+    {
+      "feature_name": "Công nghệ Inverter tiết kiệm điện",
+      "description": "Tối ưu hóa hiệu năng làm lạnh giúp máy vận hành êm ái, kéo dài tuổi thọ thiết bị và tiết kiệm điện năng tiêu thụ vượt trội."
+    },
+    {
+      "feature_name": "Luồng gió thổi thông minh 4 hướng",
+      "description": "Đảo gió tự động hướng đứng và có thể chỉnh hướng ngang bằng tay giúp phân bổ luồng khí lạnh đều khắp không gian phòng."
+    },
+    {
+      "feature_name": "Độ bền cao với dàn tản nhiệt Microchannel",
+      "description": "Bề mặt tản nhiệt dàn nóng sử dụng hợp kim nhôm Microchannel chống ăn mòn hiệu quả, giúp tăng độ bền cơ học."
+    },
+    {
+      "feature_name": "Bơm nước ngưng đẩy cao (tùy chọn)",
+      "description": "Có thể tích hợp thêm bộ bơm nước ngưng đẩy cao lên đến 600 mm, giúp việc thoát nước thải dễ dàng hơn."
+    }
+  ],
+  "data_metadata": {
+    "research_date": "2026-07-18",
+    "sources_consulted": [
+      "Trang chủ Daikin Việt Nam",
+      "Thông số kỹ thuật từ các hệ thống siêu thị điện máy chính hãng (không bao gồm ELC)"
+    ]
+  }
+}

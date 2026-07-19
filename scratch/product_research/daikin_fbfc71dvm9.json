@@ -1,0 +1,111 @@
+{
+  "product_info": {
+    "name": "Dàn lạnh âm trần nối ống gió Daikin 3HP FBFC71DVM9",
+    "brand": "Daikin",
+    "model_indoor": "FBFC71DVM9",
+    "model_outdoor_matching": [
+      "RZFC71DVM (1 chiều làm lạnh, 1 pha)",
+      "RZFC71EVM (1 chiều làm lạnh, 1 pha)",
+      "RZFC71DY1 (1 chiều làm lạnh, 3 pha)"
+    ],
+    "type": "Điều hòa âm trần nối ống gió Inverter (áp suất tĩnh trung bình)",
+    "year_released": null,
+    "origin_brand": "Nhật Bản",
+    "origin_manufacture": "Thái Lan"
+  },
+  "technical_specifications": {
+    "cooling_capacity": {
+      "hp": 3.0,
+      "btu": 24200,
+      "btu_range": "Đang cập nhật"
+    },
+    "coverage": {
+      "area_m2": "Từ 35 đến 50 m2",
+      "volume_m3": "Từ 105 đến 150 m3"
+    },
+    "energy_efficiency": {
+      "technology": "Inverter",
+      "compressor_type": "Máy nén Swing độc quyền Daikin",
+      "cspf": null,
+      "energy_rating_stars": 5
+    },
+    "power_consumption": {
+      "nominal_w": null,
+      "range_w": "Đang cập nhật",
+      "estimated_electricity_consumption_kwh": "Đang cập nhật"
+    },
+    "refrigerant": {
+      "type": "R32",
+      "gwp": "Thân thiện với môi trường, hiệu suất làm lạnh cao"
+    },
+    "noise_level": {
+      "indoor_unit_dba": "34 / 37 / 39 (Thấp / Trung bình / Cao)",
+      "outdoor_unit_dba": "Đang cập nhật"
+    }
+  },
+  "physical_dimensions": {
+    "indoor_unit": {
+      "height_mm": 245,
+      "width_mm": 1000,
+      "depth_mm": 800,
+      "weight_kg": 36.0
+    },
+    "panel": {
+      "model": "Không có mặt nạ (giấu trong trần)",
+      "height_mm": null,
+      "width_mm": null,
+      "depth_mm": null,
+      "weight_kg": null
+    },
+    "outdoor_unit_rzfc71dvm": {
+      "height_mm": 595,
+      "width_mm": 845,
+      "depth_mm": 300,
+      "weight_kg": 37.0
+    }
+  },
+  "installation_requirements": {
+    "pipe_size": {
+      "liquid_mm": 9.5,
+      "gas_mm": 15.9
+    },
+    "piping_limits": {
+      "max_length_m": 50.0,
+      "max_height_difference_m": 30.0,
+      "standard_length_without_charging_m": 15.0
+    }
+  },
+  "key_features": [
+    {
+      "feature_name": "Âm trần nối ống gió Inverter (áp suất tĩnh trung bình)",
+      "description": "Toàn bộ dàn lạnh được giấu kín trong không gian trần giả với áp suất tĩnh trung bình điều chỉnh được 40-140 Pa, phù hợp kết nối ống gió linh hoạt cho căn hộ, biệt thự, văn phòng."
+    },
+    {
+      "feature_name": "Công nghệ Inverter tiết kiệm điện",
+      "description": "Giúp điều hòa tối ưu hóa hiệu suất làm lạnh, vận hành siêu êm ái, kéo dài tuổi thọ máy nén và tiết kiệm điện tiêu thụ."
+    },
+    {
+      "feature_name": "Thiết kế siêu mỏng",
+      "description": "Dàn lạnh có chiều cao chỉ 245 mm, dễ dàng lắp đặt trong không gian trần thạch cao cực hẹp."
+    },
+    {
+      "feature_name": "Ion bạc kháng khuẩn trong máng nước",
+      "description": "Sử dụng ion bạc trong máng nước xả để ngăn chặn sự phát triển của nấm mốc, vi khuẩn và mùi hôi khó chịu."
+    },
+    {
+      "feature_name": "Dàn tản nhiệt chống ăn mòn",
+      "description": "Dàn trao đổi nhiệt được xử lý chống ăn mòn, giúp tăng tuổi thọ và độ bền trước các tác động thời tiết phức tạp."
+    },
+    {
+      "feature_name": "Tự chẩn đoán lỗi",
+      "description": "Hệ thống tự động phát hiện và báo lỗi trên điều khiển, hỗ trợ quá trình kiểm tra bảo trì nhanh chóng."
+    }
+  ],
+  "data_metadata": {
+    "research_date": "2026-07-18",
+    "sources_consulted": [
+      "Trang chủ Daikin Việt Nam",
+      "Thông số kỹ thuật từ các hệ thống siêu thị điện máy chính hãng (không bao gồm ELC)"
+    ]
+  }
+}

@@ -1,0 +1,112 @@
+{
+  "product_info": {
+    "name": "Máy lạnh Daikin Inverter 2.5HP FTKM60AVMV",
+    "brand": "Daikin",
+    "model_indoor": "FTKM60AVMV",
+    "model_outdoor": "RKM60AVMV",
+    "type": "Điều hòa 1 chiều (chỉ làm lạnh)",
+    "year_released": 2026,
+    "origin_brand": "Nhật Bản",
+    "origin_manufacture": "Thái Lan"
+  },
+  "technical_specifications": {
+    "cooling_capacity": {
+      "hp": 2.5,
+      "btu": 21000,
+      "btu_range": "Đang cập nhật"
+    },
+    "coverage": {
+      "area_m2": "Từ 30 đến 40 m2",
+      "volume_m3": "Từ 80 đến 120 m3"
+    },
+    "energy_efficiency": {
+      "technology": "Inverter",
+      "compressor_type": "Máy nén Swing độc quyền Daikin",
+      "cspf": 6.94,
+      "energy_rating_stars": 5
+    },
+    "power_consumption": {
+      "nominal_w": null,
+      "range_w": "Đang cập nhật",
+      "estimated_electricity_consumption_kwh": "Đang cập nhật"
+    },
+    "refrigerant": {
+      "type": "R32",
+      "gwp": "Thân thiện với môi trường, hiệu suất làm lạnh cao"
+    },
+    "noise_level": {
+      "indoor_unit_dba": "19 / 28 / 34 / 41 (Thấp nhất đến Cao nhất)",
+      "outdoor_unit_dba": 50
+    }
+  },
+  "physical_dimensions": {
+    "indoor_unit": {
+      "height_mm": 299,
+      "width_mm": 1103,
+      "depth_mm": 280,
+      "weight_kg": 15.0
+    },
+    "outdoor_unit": {
+      "height_mm": 695,
+      "width_mm": 930,
+      "depth_mm": 350,
+      "weight_kg": 51.0
+    }
+  },
+  "installation_requirements": {
+    "pipe_size": {
+      "liquid_mm": 6.0,
+      "gas_mm": 12.7
+    },
+    "piping_limits": {
+      "max_length_m": 30.0,
+      "max_height_difference_m": 20.0,
+      "standard_length_without_charging_m": 7.5
+    }
+  },
+  "key_features": [
+    {
+      "feature_name": "Humi Comfort Plus",
+      "description": "Công nghệ kiểm soát độ ẩm nâng cấp, cho phép người dùng lựa chọn cài đặt độ ẩm mục tiêu linh hoạt ở 3 mức (45%, 55%, 65%), bảo vệ tối đa làn da và hệ hô hấp."
+    },
+    {
+      "feature_name": "Công nghệ Streamer",
+      "description": "Phóng điện Plasma tốc độ cao để phân hủy các chất độc hại, vi khuẩn, virus, nấm mốc bám trên phin lọc, làm sạch không khí và dàn lạnh một cách chủ động."
+    },
+    {
+      "feature_name": "Mắt thần thông minh 2 khu vực",
+      "description": "Sử dụng cảm biến hồng ngoại phát hiện chuyển động của người dùng để điều chỉnh luồng gió (hướng trực tiếp hoặc thổi tránh người), đồng thời tự tăng nhiệt độ cài đặt 2 độ C khi phòng trống để tiết kiệm điện."
+    },
+    {
+      "feature_name": "Luồng gió Coanda kết hợp đảo gió 3D",
+      "description": "Thiết kế mặt nạ hướng gió lên trần nhà đưa luồng gió đi xa, kết hợp cánh đảo gió tự động theo phương ngang và phương dọc giúp không khí mát lạnh lan tỏa đồng đều khắp phòng."
+    },
+    {
+      "feature_name": "Phin lọc Enzyme Blue kết hợp PM2.5",
+      "description": "Hệ thống lọc kép giúp loại bỏ các tác nhân gây dị ứng, vi khuẩn, nấm mốc, mùi hôi và lọc sạch các hạt bụi mịn PM2.5 có hại cho sức khỏe."
+    },
+    {
+      "feature_name": "Điều khiển thông minh (GPS Interlock & Smartphone Control)",
+      "description": "Tích hợp kết nối Wi-Fi cho phép kiểm soát máy lạnh qua ứng dụng di động từ xa và tự động kích hoạt tắt/bật thông minh dựa theo khoảng cách GPS của người dùng."
+    },
+    {
+      "feature_name": "Chế độ chống ẩm mốc (Mold Proof)",
+      "description": "Sau khi tắt máy, quạt dàn lạnh sẽ tiếp tục chạy trong 1 giờ để làm khô dàn trao đổi nhiệt kết hợp luồng phóng điện Streamer để triệt tiêu nấm mốc."
+    },
+    {
+      "feature_name": "Bảo vệ bo mạch Super PCB",
+      "description": "Dàn nóng được trang bị bo mạch đặc biệt có khả năng chịu tải điện áp biến động cao từ 150V đến 440V, giúp bảo vệ các linh kiện bên trong không bị hỏng."
+    },
+    {
+      "feature_name": "Dàn tản nhiệt chống ăn mòn",
+      "description": "Các cánh tản nhiệt của dàn nóng được phủ 2 lớp bảo vệ gồm lớp nhựa acrylic chống mưa axit/muối biển và lớp màng chống thấm nước giúp hạn chế rỉ sét và tăng độ bền."
+    }
+  ],
+  "data_metadata": {
+    "research_date": "2026-07-18",
+    "sources_consulted": [
+      "Trang chủ Daikin Việt Nam",
+      "Thông số kỹ thuật từ các hệ thống siêu thị điện máy chính hãng (không bao gồm ELC)"
+    ]
+  }
+}

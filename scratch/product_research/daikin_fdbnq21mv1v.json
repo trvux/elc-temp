@@ -1,0 +1,111 @@
+{
+  "product_info": {
+    "name": "Dàn lạnh âm trần nối ống gió Daikin 2.5HP FDBNQ21MV1V",
+    "brand": "Daikin",
+    "model_indoor": "FDBNQ21MV1V",
+    "model_outdoor": "RNQ21MV1V",
+    "type": "Điều hòa âm trần nối ống gió (áp suất tĩnh thấp)",
+    "year_released": null,
+    "origin_brand": "Nhật Bản",
+    "origin_manufacture": "Thái Lan"
+  },
+  "technical_specifications": {
+    "cooling_capacity": {
+      "hp": 2.5,
+      "btu": 21000,
+      "btu_range": "Đang cập nhật"
+    },
+    "coverage": {
+      "area_m2": "Từ 30 đến 40 m2",
+      "volume_m3": "Từ 90 đến 120 m3"
+    },
+    "energy_efficiency": {
+      "technology": "Không Inverter (Dòng cơ tiêu chuẩn)",
+      "compressor_type": "Dòng tiêu chuẩn cơ",
+      "cspf": null,
+      "energy_rating_stars": 3
+    },
+    "power_consumption": {
+      "nominal_w": null,
+      "range_w": "Đang cập nhật",
+      "estimated_electricity_consumption_kwh": "Đang cập nhật"
+    },
+    "refrigerant": {
+      "type": "R410A",
+      "gwp": "Đang cập nhật"
+    },
+    "noise_level": {
+      "indoor_unit_dba": "40 / 43 (Thấp / Cao)",
+      "outdoor_unit_dba": "Đang cập nhật"
+    }
+  },
+  "physical_dimensions": {
+    "indoor_unit": {
+      "height_mm": 260,
+      "width_mm": 1300,
+      "depth_mm": 580,
+      "weight_kg": 32.0
+    },
+    "panel": {
+      "model": "Không có mặt nạ (giấu trong trần)",
+      "height_mm": null,
+      "width_mm": null,
+      "depth_mm": null,
+      "weight_kg": null
+    },
+    "outdoor_unit": {
+      "height_mm": 595,
+      "width_mm": 845,
+      "depth_mm": 300,
+      "weight_kg": 49.0
+    }
+  },
+  "installation_requirements": {
+    "pipe_size": {
+      "liquid_mm": 6.4,
+      "gas_mm": 15.9
+    },
+    "piping_limits": {
+      "max_length_m": 30.0,
+      "max_height_difference_m": 15.0,
+      "standard_length_without_charging_m": 7.5
+    }
+  },
+  "key_features": [
+    {
+      "feature_name": "Âm trần nối ống gió (giấu kín trong trần)",
+      "description": "Toàn bộ dàn lạnh được giấu kín trong không gian trần giả, chỉ để lộ miệng gió thổi và hút, mang lại tính thẩm mỹ cao cho không gian căn hộ, chung cư, khách sạn và văn phòng cao cấp."
+    },
+    {
+      "feature_name": "Không Inverter (Dòng cơ tiêu chuẩn)",
+      "description": "Thích hợp cho các công trình cần chi phí đầu tư ban đầu hợp lý và yêu cầu hệ thống phân phối gió qua ống dẫn."
+    },
+    {
+      "feature_name": "Quạt tuabin khí động học",
+      "description": "Sử dụng quạt tua bin có bộ khuếch tán thiết kế theo nguyên lý khí động học, giúp giảm sức cản gió và vận hành êm ái."
+    },
+    {
+      "feature_name": "Thiết kế mỏng nhẹ",
+      "description": "Dàn lạnh có chiều cao tối thiểu 260 mm, phù hợp lắp đặt trong không gian trần thạch cao hẹp."
+    },
+    {
+      "feature_name": "Chế độ làm khô kiểm soát độ ẩm",
+      "description": "Kiểm soát độ ẩm hiệu quả giúp không gian luôn khô ráo, thoải mái mà không làm thay đổi nhiệt độ đột ngột."
+    },
+    {
+      "feature_name": "Tự khởi động lại sau mất điện",
+      "description": "Máy tự động khởi động lại và trở về chế độ cài đặt trước đó sau khi có điện trở lại."
+    },
+    {
+      "feature_name": "Dàn tản nhiệt Microchannel chống ăn mòn",
+      "description": "Cánh tản nhiệt dàn nóng sử dụng công nghệ Microchannel giúp tăng hiệu suất trao đổi nhiệt và chống ăn mòn từ môi trường biển và ô nhiễm."
+    }
+  ],
+  "data_metadata": {
+    "research_date": "2026-07-18",
+    "sources_consulted": [
+      "Trang chủ Daikin Việt Nam",
+      "Thông số kỹ thuật từ các hệ thống siêu thị điện máy chính hãng (không bao gồm ELC)"
+    ]
+  }
+}

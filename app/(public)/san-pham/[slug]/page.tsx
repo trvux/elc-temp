@@ -34,6 +34,7 @@ function metadataForEntity(entity: ResolvedEntity, slug: string): Metadata {
       description,
       alternates,
       openGraph: {
+        type: "website",
         title,
         description,
         url: pageUrl,
@@ -52,6 +53,7 @@ function metadataForEntity(entity: ResolvedEntity, slug: string): Metadata {
     description,
     alternates,
     openGraph: {
+      type: "website",
       title,
       description,
       url: pageUrl,

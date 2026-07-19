@@ -137,6 +137,20 @@ export interface ProductVariant {
     updatedAt: string;
 }
 
+// CapacitySibling is another published product that's the same model as
+// this one at a different HP/capacity (e.g. 1HP/1.5HP/2HP of the same
+// Daikin FTKY series) — used to render the inline capacity selector on the
+// product detail page. Each sibling is its own separate SEO page (URL
+// changes on click), not a client-side variant. See
+// elc-go/internal/product/domain/attribute_value.go's CapacitySibling.
+export interface CapacitySibling {
+    id: string;
+    slug: string;
+    name: string;
+    capacityLabel: string;
+    isCurrent: boolean;
+}
+
 export interface ProductWithRelations extends Product {
     category?: {
         id: string;
@@ -152,6 +166,10 @@ export interface ProductWithRelations extends Product {
     // Only ever populated on single-product reads (GetByID/GetBySlug) — see
     // elc-go's ProductRepository doc comment. Never present on list results.
     attributeValues?: AttributeValue[];
+    // Only ever populated on GetBySlug (the public detail page) — see
+    // elc-go's attachCapacitySiblings doc comment. Undefined/empty when the
+    // model has only one capacity.
+    capacitySiblings?: CapacitySibling[];
 }
 
 // Transient create/update input shapes for the variant tree — distinct from

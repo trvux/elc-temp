@@ -1,0 +1,104 @@
+{
+  "product_info": {
+    "name": "Máy lạnh Daikin Inverter 2.5HP FTKB60ZVMV",
+    "brand": "Daikin",
+    "model_indoor": "FTKB60ZVMV",
+    "model_outdoor": "RKB60ZVMV",
+    "type": "Điều hòa 1 chiều (chỉ làm lạnh)",
+    "year_released": 2025,
+    "origin_brand": "Nhật Bản",
+    "origin_manufacture": "Việt Nam"
+  },
+  "technical_specifications": {
+    "cooling_capacity": {
+      "hp": 2.5,
+      "btu": 20500,
+      "btu_range": "Đang cập nhật"
+    },
+    "coverage": {
+      "area_m2": "Từ 30 đến 40 m2",
+      "volume_m3": "Từ 80 đến 120 m3"
+    },
+    "energy_efficiency": {
+      "technology": "Inverter",
+      "compressor_type": "Máy nén Swing độc quyền Daikin",
+      "cspf": 5.25,
+      "energy_rating_stars": 5
+    },
+    "power_consumption": {
+      "nominal_w": null,
+      "range_w": "Đang cập nhật",
+      "estimated_electricity_consumption_kwh": "Đang cập nhật"
+    },
+    "refrigerant": {
+      "type": "R32",
+      "gwp": "Thân thiện với môi trường, hiệu suất làm lạnh cao"
+    },
+    "noise_level": {
+      "indoor_unit_dba": "27 / 33 / 39 / 45 (Thấp nhất đến Cao nhất)",
+      "outdoor_unit_dba": 50
+    }
+  },
+  "physical_dimensions": {
+    "indoor_unit": {
+      "height_mm": 291,
+      "width_mm": 775,
+      "depth_mm": 242,
+      "weight_kg": 9.0
+    },
+    "outdoor_unit": {
+      "height_mm": 595,
+      "width_mm": 845,
+      "depth_mm": 300,
+      "weight_kg": 35.0
+    }
+  },
+  "installation_requirements": {
+    "pipe_size": {
+      "liquid_mm": 6.0,
+      "gas_mm": 12.7
+    },
+    "piping_limits": {
+      "max_length_m": 30.0,
+      "max_height_difference_m": 20.0,
+      "standard_length_without_charging_m": 7.5
+    }
+  },
+  "key_features": [
+    {
+      "feature_name": "Humi Comfort",
+      "description": "Công nghệ kiểm soát độ ẩm ở mức lý tưởng khoảng 65%, giúp giảm cảm giác khô da, khô họng và ngăn ngừa sự phát triển của ẩm mốc mà không làm giảm hiệu suất làm lạnh."
+    },
+    {
+      "feature_name": "Luồng gió Coanda",
+      "description": "Thiết kế mặt nạ hướng gió lên trần nhà, đưa luồng gió đi xa và lan tỏa đều khắp phòng, tránh thổi trực tiếp vào cơ thể gây cảm giác lạnh buốt."
+    },
+    {
+      "feature_name": "Làm lạnh nhanh Powerful",
+      "description": "Tăng cường công suất làm lạnh tối đa trong vòng 20 phút giúp nhanh chóng đạt nhiệt độ cài đặt khi vừa khởi động máy."
+    },
+    {
+      "feature_name": "Phin lọc Enzyme Blue kết hợp PM2.5",
+      "description": "Hệ thống lọc kép giúp loại bỏ các tác nhân gây dị ứng, vi khuẩn, nấm mốc, mùi hôi và lọc sạch các hạt bụi mịn PM2.5 có hại cho sức khỏe."
+    },
+    {
+      "feature_name": "Chế độ chống ẩm mốc (Mold Proof)",
+      "description": "Sau khi tắt máy, quạt dàn lạnh sẽ tiếp tục chạy trong 1 giờ để làm khô dàn trao đổi nhiệt, hạn chế tích tụ hơi ẩm, ngăn ngừa nấm mốc và mùi hôi phát sinh."
+    },
+    {
+      "feature_name": "Bảo vệ bo mạch Super PCB",
+      "description": "Dàn nóng được trang bị bo mạch đặc biệt có khả năng chịu tải điện áp biến động cao từ 150V đến 440V, giúp bảo vệ các linh kiện bên trong không bị hỏng do dòng điện không ổn định."
+    },
+    {
+      "feature_name": "Dàn tản nhiệt chống ăn mòn",
+      "description": "Các cánh tản nhiệt của dàn nóng được phủ 2 lớp bảo vệ gồm lớp nhựa acrylic chống mưa axit/muối biển và lớp màng chống thấm nước giúp hạn chế rỉ sét và tăng độ bền."
+    }
+  ],
+  "data_metadata": {
+    "research_date": "2026-07-18",
+    "sources_consulted": [
+      "Trang chủ Daikin Việt Nam",
+      "Thông số kỹ thuật từ các hệ thống siêu thị điện máy chính hãng (không bao gồm ELC)"
+    ]
+  }
+}

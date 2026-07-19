@@ -1,0 +1,109 @@
+{
+  "product_info": {
+    "name": "Dàn lạnh áp trần Daikin 4.5HP FHNQ42MV1",
+    "brand": "Daikin",
+    "model_indoor": "FHNQ42MV1",
+    "model_outdoor_matching": [
+      "RNQ42MY1 (1 chiều làm lạnh, 3 pha)"
+    ],
+    "type": "Điều hòa áp trần (không Inverter)",
+    "year_released": null,
+    "origin_brand": "Nhật Bản",
+    "origin_manufacture": "Thái Lan"
+  },
+  "technical_specifications": {
+    "cooling_capacity": {
+      "hp": 4.5,
+      "btu": 42000,
+      "btu_range": "Đang cập nhật"
+    },
+    "coverage": {
+      "area_m2": "Từ 50 đến 70 m2",
+      "volume_m3": "Từ 150 đến 210 m3"
+    },
+    "energy_efficiency": {
+      "technology": "Không Inverter (Dòng cơ tiêu chuẩn)",
+      "compressor_type": "Dòng tiêu chuẩn cơ",
+      "cspf": null,
+      "energy_rating_stars": 3
+    },
+    "power_consumption": {
+      "nominal_w": 4510,
+      "range_w": "Đang cập nhật",
+      "estimated_electricity_consumption_kwh": 4.51
+    },
+    "refrigerant": {
+      "type": "R410A",
+      "gwp": "Đang cập nhật"
+    },
+    "noise_level": {
+      "indoor_unit_dba": "42 / 48 (Thấp / Cao)",
+      "outdoor_unit_dba": "Đang cập nhật"
+    }
+  },
+  "physical_dimensions": {
+    "indoor_unit": {
+      "height_mm": 195,
+      "width_mm": 1590,
+      "depth_mm": 680,
+      "weight_kg": 35.0
+    },
+    "panel": {
+      "model": "Không có mặt nạ (dàn máy áp trần)",
+      "height_mm": null,
+      "width_mm": null,
+      "depth_mm": null,
+      "weight_kg": null
+    },
+    "outdoor_unit_rnq42my1": {
+      "height_mm": 1345,
+      "width_mm": 900,
+      "depth_mm": 320,
+      "weight_kg": 107.0
+    }
+  },
+  "installation_requirements": {
+    "pipe_size": {
+      "liquid_mm": 9.5,
+      "gas_mm": 15.9
+    },
+    "piping_limits": {
+      "max_length_m": 50.0,
+      "max_height_difference_m": 30.0,
+      "standard_length_without_charging_m": 15.0
+    }
+  },
+  "key_features": [
+    {
+      "feature_name": "Lắp đặt linh hoạt cho trần cao",
+      "description": "Thích hợp lắp đặt sát trần cho các không gian có trần nhà cao lên tới 3.5 m mà vẫn đảm bảo hiệu quả làm mát rộng."
+    },
+    {
+      "feature_name": "Không Inverter (Dòng cơ tiêu chuẩn)",
+      "description": "Thích hợp cho các công trình cần tối ưu hóa chi phí đầu tư ban đầu với công suất làm mát cực lớn."
+    },
+    {
+      "feature_name": "Luồng gió thổi xa góc mở rộng",
+      "description": "Cánh đảo gió tự động có góc mở rộng ngang lên đến 100 độ và góc thổi hướng xuống 50 độ để phân phối hơi lạnh đều khắp phòng."
+    },
+    {
+      "feature_name": "Vận hành êm ái giảm thiểu tiếng ồn",
+      "description": "Sử dụng cánh quạt Sirocco cải tiến kết hợp động cơ DC giúp giảm thiểu dòng xoáy khí và giảm ồn hiệu quả khi vận hành."
+    },
+    {
+      "feature_name": "Chế độ làm khô hút ẩm",
+      "description": "Hỗ trợ chế độ hút ẩm thông minh giúp không gian khô ráo, dễ chịu trong mùa nồm ẩm mà không thay đổi nhiệt độ phòng đột ngột."
+    },
+    {
+      "feature_name": "Dàn tản nhiệt chống ăn mòn",
+      "description": "Cánh tản nhiệt dàn nóng được xử lý phủ lớp chống ăn mòn (acryl) giúp tăng độ bền cơ học trước các tác nhân của môi trường thời tiết ngoài trời."
+    }
+  ],
+  "data_metadata": {
+    "research_date": "2026-07-18",
+    "sources_consulted": [
+      "Trang chủ Daikin Việt Nam",
+      "Thông số kỹ thuật từ các hệ thống siêu thị điện máy chính hãng (không bao gồm ELC)"
+    ]
+  }
+}

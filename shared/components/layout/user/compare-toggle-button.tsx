@@ -10,7 +10,7 @@ import { useCompare, type CompareItem } from "@/shared/providers/compare-provide
 interface CompareToggleButtonProps {
   item: CompareItem;
   variant?: "button" | "icon";
-  size?: "default" | "sm";
+  size?: "default" | "sm" | "lg";
   className?: string;
 }
 
@@ -47,12 +47,12 @@ export function CompareToggleButton({ item, variant = "button", size = "default"
   return (
     <Button
       type="button"
-      variant={selected ? "secondary" : "outline"}
+      variant="secondary"
       size={size}
       onClick={() => toggle(item)}
       className={className}
     >
-      <ColumnsPlusRight />
+      <ColumnsPlusRight weight={selected ? "fill" : "regular"} />
       {selected ? "Đã chọn" : "So sánh"}
     </Button>
   );
