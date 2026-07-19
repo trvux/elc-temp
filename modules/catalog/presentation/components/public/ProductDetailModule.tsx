@@ -8,8 +8,10 @@ import { TrackView } from "@/modules/event";
 import { getReviewsAction } from "@/modules/review";
 import { ReviewSection } from "@/modules/review/presentation/components/ReviewSection";
 import { Breadcrumbs } from "@/shared/components/layout/user/breadcrumbs";
+import { ExpandableContent } from "@/shared/components/layout/user/expandable-content";
 import { ProductDescription } from "@/shared/components/layout/user/product-description";
 import { ProductFloatingBar } from "@/shared/components/layout/user/product-floating-bar";
+import { RecentlyViewedSection } from "@/shared/components/layout/user/recently-viewed-section";
 import { ScrollToTop } from "@/shared/components/layout/user/scroll-to-top";
 import { TrackProductView } from "@/shared/components/layout/user/track-product-view";
 import { InView } from "@/shared/components/motion-primitives/in-view";
@@ -84,6 +86,10 @@ export async function ProductDetailModule({
     }
     return groups;
   })();
+  const totalSpecRows = attributeGroups.reduce((sum, g) => sum + g.rows.length, 0);
+  // Only collapse when the table is actually long enough to need it — a
+  // 3-row spec list doesn't need a "Xem thêm" button under it.
+  const SPEC_COLLAPSE_THRESHOLD = 8;
   // displayPrice (default-variant cache, see elc-go/docs/product-v2-design.md)
   // is the source of truth once a product has real variants — used here for
   // the floating CTA bar / recently-viewed snapshot, which (unlike
@@ -169,30 +175,40 @@ export async function ProductDetailModule({
 
           {attributeGroups.length > 0 && (
             <TabsContent value="specs" className="pt-10 focus-visible:outline-none">
-              <div className="max-w-3xl mx-auto flex flex-col gap-6">
-                {attributeGroups.map((group) => (
-                  <div key={group.label ?? "__chung__"} className="flex flex-col gap-2">
-                    {group.label && (
-                      <TypographyH2 className="text-base font-semibold">{group.label}</TypographyH2>
-                    )}
-                    <ItemGroup className="rounded-xl border border-border/50 overflow-hidden bg-white/50">
-                      {group.rows.map((av, i) => (
-                        <div key={av.id}>
-                          <Item size="sm">
-                            <ItemContent>
-                              <ItemTitle className="text-muted-foreground font-normal">{av.name}</ItemTitle>
-                            </ItemContent>
-                            <ItemActions>
-                              <span className="text-sm font-medium">{formatAttributeValue(av)}</span>
-                            </ItemActions>
-                          </Item>
-                          {i < group.rows.length - 1 && <ItemSeparator className="my-0" />}
-                        </div>
-                      ))}
-                    </ItemGroup>
+              {(() => {
+                const specList = (
+                  <div className="max-w-3xl mx-auto flex flex-col gap-6">
+                    {attributeGroups.map((group) => (
+                      <div key={group.label ?? "__chung__"} className="flex flex-col gap-2">
+                        {group.label && (
+                          <TypographyH2 className="text-base font-semibold">{group.label}</TypographyH2>
+                        )}
+                        <ItemGroup className="rounded-xl border border-border/50 overflow-hidden bg-white/50">
+                          {group.rows.map((av, i) => (
+                            <div key={av.id}>
+                              <Item size="sm">
+                                <ItemContent>
+                                  <ItemTitle className="text-muted-foreground font-normal">{av.name}</ItemTitle>
+                                </ItemContent>
+                                <ItemActions>
+                                  <span className="text-sm font-medium">{formatAttributeValue(av)}</span>
+                                </ItemActions>
+                              </Item>
+                              {i < group.rows.length - 1 && <ItemSeparator className="my-0" />}
+                            </div>
+                          ))}
+                        </ItemGroup>
+                      </div>
+                    ))}
                   </div>
-                ))}
-              </div>
+                );
+
+                return totalSpecRows > SPEC_COLLAPSE_THRESHOLD ? (
+                  <ExpandableContent>{specList}</ExpandableContent>
+                ) : (
+                  specList
+                );
+              })()}
             </TabsContent>
           )}
 
@@ -205,6 +221,15 @@ export async function ProductDetailModule({
           )}
 
         </Tabs>
+      </section>
+
+      {/* ===== SẢN PHẨM ĐÃ XEM =====
+          No border-t here (unlike the sections around it) — RecentlyViewedSection
+          renders null client-side when there's no history, and this section's
+          presence can't be checked server-side, so a static divider would be
+          left dangling above the review section on a first-time visit. */}
+      <section className="w-full max-w-350 mx-auto px-4 md:px-6 lg:px-8 pt-6 md:pt-10">
+        <RecentlyViewedSection />
       </section>
 
       {/* ===== ĐÁNH GIÁ SẢN PHẨM ===== */}

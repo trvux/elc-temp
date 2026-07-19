@@ -63,21 +63,12 @@ export function ProductDescription({ content, fallbackAlt, variant = "article" }
       <div className={cn("flex justify-center", isHero ? "mt-4" : "mt-8")}>
         <CollapsibleTrigger asChild>
           <Button
-            variant={isHero ? "ghost" : "outline"}
+            variant={isHero ? "ghost" : "secondary"}
             size={isHero ? "sm" : "default"}
-            className={cn(
-              "transition-all group z-20",
-              isHero ? "text-muted-foreground hover:text-foreground" : "bg-background text-primary border-primary",
-            )}
+            className={cn("z-20", isHero && "text-muted-foreground hover:text-foreground")}
           >
-            <span className={cn("capitalize mr-2", isHero ? "text-xs" : "text-xs font-bold")}>
-              {isOpen ? "Thu gọn nội dung" : "Xem thêm nội dung"}
-            </span>
-            {isOpen ? (
-              <CaretUp className="w-4 h-4 transition-colors" />
-            ) : (
-              <CaretDown className="w-4 h-4 transition-colors" />
-            )}
+            {isOpen ? "Thu gọn nội dung" : "Xem thêm nội dung"}
+            {isOpen ? <CaretUp /> : <CaretDown />}
           </Button>
         </CollapsibleTrigger>
       </div>
