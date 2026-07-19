@@ -38,14 +38,3 @@ export function formatAttributeValue(av: AttributeValue): string {
   }
   return text;
 }
-
-// For a compact "quick specs" chip (product detail hero, no room for a
-// label): a bare "Có"/"Không" means nothing out of context, so a true
-// boolean reads as its own attribute name instead ("Công nghệ Inverter"
-// rather than "Có"), and a false one — or anything with no real value —
-// doesn't get a chip at all rather than rendering hollow.
-export function resolveSpecChipLabel(av: AttributeValue): string | null {
-  if (av.dataType === "boolean") return av.valueBoolean ? av.name : null;
-  const value = formatAttributeValue(av);
-  return value.trim() ? value : null;
-}

@@ -1,0 +1,103 @@
+{
+  "product_info": {
+    "name": "Máy lạnh Daikin Inverter 1HP FTXV25QVMV",
+    "brand": "Daikin",
+    "model_indoor": "FTXV25QVMV",
+    "model_outdoor": "RXV25QVMV",
+    "type": "Điều hòa 2 chiều (làm lạnh và sưởi ấm)",
+    "year_released": null,
+    "origin_brand": "Nhật Bản",
+    "origin_manufacture": "Thái Lan"
+  },
+  "technical_specifications": {
+    "cooling_capacity": {
+      "hp": 1.0,
+      "btu": 9000,
+      "btu_range": "Đang cập nhật"
+    },
+    "heating_capacity": {
+      "btu": "Đang cập nhật"
+    },
+    "coverage": {
+      "area_m2": "Dưới 15 m2",
+      "volume_m3": "Từ 30 đến 45 m3"
+    },
+    "energy_efficiency": {
+      "technology": "Inverter",
+      "compressor_type": "Máy nén Swing độc quyền Daikin",
+      "cspf": null,
+      "energy_rating_stars": 5
+    },
+    "power_consumption": {
+      "nominal_w": 490,
+      "range_w": "Đang cập nhật",
+      "estimated_electricity_consumption_kwh": 0.49
+    },
+    "refrigerant": {
+      "type": "R32",
+      "gwp": "Thân thiện với môi trường, hiệu suất làm lạnh cao"
+    },
+    "noise_level": {
+      "indoor_unit_dba": "19 / 40 (Thấp nhất đến Cao nhất)",
+      "outdoor_unit_dba": 44
+    }
+  },
+  "physical_dimensions": {
+    "indoor_unit": {
+      "height_mm": 285,
+      "width_mm": 770,
+      "depth_mm": 223,
+      "weight_kg": 9.0
+    },
+    "outdoor_unit": {
+      "height_mm": 550,
+      "width_mm": 675,
+      "depth_mm": 284,
+      "weight_kg": 30.0
+    }
+  },
+  "installation_requirements": {
+    "pipe_size": {
+      "liquid_mm": 6.4,
+      "gas_mm": 9.5
+    },
+    "piping_limits": {
+      "max_length_m": 15.0,
+      "max_height_difference_m": 12.0,
+      "standard_length_without_charging_m": 7.5
+    }
+  },
+  "key_features": [
+    {
+      "feature_name": "Hoạt động 2 chiều làm lạnh và sưởi ấm",
+      "description": "Tích hợp cả chức năng làm mát vào mùa hè và sưởi ấm vào mùa đông, phù hợp với thời tiết các vùng có mùa đông lạnh như miền Bắc Việt Nam."
+    },
+    {
+      "feature_name": "Mắt thần thông minh (Intelligent Eye)",
+      "description": "Cảm biến hồng ngoại nhận biết vị trí người dùng để hướng luồng gió hoặc tự động điều chỉnh nhiệt độ tăng/giảm giúp tối ưu hóa hóa đơn tiền điện."
+    },
+    {
+      "feature_name": "Luồng gió 3 chiều",
+      "description": "Kết hợp cánh đảo gió tự động theo phương đứng (lên/xuống) và phương ngang (trái/phải) giúp luồng khí mát hoặc hơi ấm luân chuyển đều khắp phòng."
+    },
+    {
+      "feature_name": "Phin lọc khử mùi xúc tác quang Apatit Titan",
+      "description": "Hấp phụ và phân hủy bụi bẩn, chất gây dị ứng và vi khuẩn, mang lại không gian trong lành và sạch sẽ."
+    },
+    {
+      "feature_name": "Vận hành siêu êm",
+      "description": "Độ ồn dàn lạnh tối thiểu đạt mức 19 dB(A) ở chế độ hoạt động êm, giúp bạn có một giấc ngủ yên tĩnh và thoải mái."
+    },
+    {
+      "feature_name": "Dàn tản nhiệt chống ăn mòn",
+      "description": "Các cánh tản nhiệt của dàn nóng được phủ lớp nhựa acrylic chống mưa axit/muối biển và lớp màng chống thấm nước giúp hạn chế rỉ sét và tăng độ bền."
+    }
+  ],
+  "data_metadata": {
+    "research_date": "2026-07-18",
+    "sources_consulted": [
+      "Trang chủ Daikin Việt Nam",
+      "Thông số kỹ thuật từ các hệ thống siêu thị điện máy chính hãng (không bao gồm ELC)"
+    ]
+  }
+}

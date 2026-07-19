@@ -60,8 +60,16 @@ export function ProductFloatingBar({
     const target = document.getElementById("product-cta-sentinel");
     if (!target) return;
 
+    // isIntersecting alone can't tell "not scrolled down to it yet" apart
+    // from "scrolled back up past it" — both read false. boundingClientRect
+    // disambiguates: top < 0 means the sentinel is above the viewport
+    // (scrolled past it going down), top > 0 means it's below the viewport
+    // (not reached yet, or scrolled back up above it) — only the former
+    // should show the bar.
     const observer = new IntersectionObserver(
-      ([entry]) => setVisible(!entry.isIntersecting),
+      ([entry]) => {
+        setVisible(!entry.isIntersecting && entry.boundingClientRect.top < 0);
+      },
       { threshold: 0 },
     );
 

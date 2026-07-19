@@ -1,0 +1,110 @@
+{
+  "product_info": {
+    "name": "Dàn lạnh âm trần Daikin 5HP FCF125DVM",
+    "brand": "Daikin",
+    "model_indoor": "FCF125DVM",
+    "model_outdoor_matching": [
+      "RZF125DVM (1 chiều làm lạnh, 1 pha)",
+      "RZF125DYM (1 chiều làm lạnh, 3 pha)"
+    ],
+    "type": "Điều hòa âm trần Cassette đa hướng thổi",
+    "year_released": null,
+    "origin_brand": "Nhật Bản",
+    "origin_manufacture": "Thái Lan"
+  },
+  "technical_specifications": {
+    "cooling_capacity": {
+      "hp": 5.0,
+      "btu": 42700,
+      "btu_range": "Đang cập nhật"
+    },
+    "coverage": {
+      "area_m2": "Dưới 80 m2",
+      "volume_m3": "Từ 180 đến 240 m3"
+    },
+    "energy_efficiency": {
+      "technology": "Inverter",
+      "compressor_type": "Máy nén Swing độc quyền Daikin",
+      "cspf": null,
+      "energy_rating_stars": 5
+    },
+    "power_consumption": {
+      "nominal_w": null,
+      "range_w": "3.26 - 4.18 kW",
+      "estimated_electricity_consumption_kwh": null
+    },
+    "refrigerant": {
+      "type": "R32",
+      "gwp": "Thân thiện với môi trường, hiệu suất làm lạnh cao"
+    },
+    "noise_level": {
+      "indoor_unit_dba": "32.5 / 37.5 / 42.5 / 46 (Thấp nhất đến Cao nhất)",
+      "outdoor_unit_dba": "Đang cập nhật"
+    }
+  },
+  "physical_dimensions": {
+    "indoor_unit": {
+      "height_mm": 298,
+      "width_mm": 840,
+      "depth_mm": 840,
+      "weight_kg": 24.0
+    },
+    "panel": {
+      "model": "BYCQ125EAF",
+      "height_mm": 50,
+      "width_mm": 950,
+      "depth_mm": 950,
+      "weight_kg": 5.5
+    },
+    "outdoor_unit_rzf125dvm": {
+      "height_mm": 990,
+      "width_mm": 940,
+      "depth_mm": 320,
+      "weight_kg": 64.0
+    }
+  },
+  "installation_requirements": {
+    "pipe_size": {
+      "liquid_mm": 9.5,
+      "gas_mm": 15.9
+    },
+    "piping_limits": {
+      "max_length_m": 50.0,
+      "max_height_difference_m": 30.0,
+      "standard_length_without_charging_m": 30.0
+    }
+  },
+  "key_features": [
+    {
+      "feature_name": "Đa hướng thổi 360 độ",
+      "description": "Luồng gió tuần hoàn làm mát đồng đều, tránh thổi trực tiếp vào cơ thể nhờ thiết kế thổi tròn đa hướng giúp lan tỏa hơi lạnh đến mọi góc của không gian phòng rộng."
+    },
+    {
+      "feature_name": "Công nghệ Inverter tiết kiệm điện",
+      "description": "Giúp điều hòa tối ưu hóa hiệu suất làm lạnh, vận hành siêu êm ái, kéo dài tuổi thọ máy nén và tiết kiệm điện tiêu thụ."
+    },
+    {
+      "feature_name": "Cảm biến kép thông minh (Tùy chọn nâng cấp)",
+      "description": "Kết hợp cảm biến hồng ngoại phát hiện sự có mặt của người trong phòng để hướng luồng gió mát và cảm biến nhiệt độ sàn để điều chỉnh công suất làm lạnh phù hợp."
+    },
+    {
+      "feature_name": "Tích hợp sẵn bơm nước xả",
+      "description": "Tích hợp sẵn bơm nước xả với độ nâng cao lên đến 850 mm từ mặt dưới dàn lạnh, giúp việc bố trí đường ống nước thải linh hoạt và dễ dàng hơn."
+    },
+    {
+      "feature_name": "Phin lọc kháng khuẩn siêu bền",
+      "description": "Phin lọc có cấu trúc đặc biệt giúp ngăn ngừa bụi bẩn hiệu quả, dễ dàng tháo rời để vệ sinh định kỳ nhằm đảm bảo bầu không khí sạch mát."
+    },
+    {
+      "feature_name": "Dàn tản nhiệt chống ăn mòn",
+      "description": "Bề mặt dàn nóng được phủ lớp nhựa acrylic đặc biệt chống ăn mòn từ muối biển và mưa axit, gia tăng tối đa tuổi thọ dàn tản nhiệt."
+    }
+  ],
+  "data_metadata": {
+    "research_date": "2026-07-18",
+    "sources_consulted": [
+      "Trang chủ Daikin Việt Nam",
+      "Thông số kỹ thuật từ các hệ thống siêu thị điện máy chính hãng (không bao gồm ELC)"
+    ]
+  }
+}

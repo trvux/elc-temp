@@ -110,6 +110,14 @@ interface GoAttributeValue {
   value_options: string[] | null;
 }
 
+interface GoCapacitySibling {
+  id: string;
+  slug: string;
+  name: string;
+  capacity_label: string;
+  is_current: boolean;
+}
+
 interface GoProductResponse {
   id: string;
   category_id: string;
@@ -140,6 +148,7 @@ interface GoProductResponse {
   options: GoProductOption[] | null;
   variants: GoProductVariant[] | null;
   attribute_values: GoAttributeValue[] | null;
+  capacity_siblings: GoCapacitySibling[] | null;
 }
 
 interface GoBrandFacet {
@@ -323,6 +332,13 @@ function mapGoProduct(row: GoProductResponse): ProductWithRelations {
       valueNumber: av.value_number,
       valueBoolean: av.value_boolean,
       valueOptions: av.value_options,
+    })),
+    capacitySiblings: (row.capacity_siblings ?? []).map((cs) => ({
+      id: cs.id,
+      slug: cs.slug,
+      name: cs.name,
+      capacityLabel: cs.capacity_label,
+      isCurrent: cs.is_current,
     })),
     category: row.category
       ? {

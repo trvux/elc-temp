@@ -1,12 +1,12 @@
-import { ProductWithRelations, resolveProductDisplayPrice, resolveDefaultVariant, formatAttributeValue, resolveSpecChipLabel } from "@/modules/catalog/domain";
+import { ProductWithRelations, resolveProductDisplayPrice, resolveDefaultVariant, formatAttributeValue } from "@/modules/catalog/domain";
 import { ProductGrid } from "@/modules/catalog/presentation/components/ProductGrid";
 import { ProductImageGallery } from "@/modules/catalog/presentation/components/public/ProductImageGallery";
 import { ProductVariantSwitcher } from "@/modules/catalog/presentation/components/public/ProductVariantSwitcher";
 import { getRelatedProducts } from "@/modules/catalog/presentation/getRelatedProducts";
 import { getContactsAction } from "@/modules/contact/presentation/actions";
 import { TrackView } from "@/modules/event";
-import { getProductQuestionsAction } from "@/modules/question";
-import { QuestionsPanel } from "@/modules/question/presentation/components/QuestionsPanel";
+import { getReviewsAction } from "@/modules/review";
+import { ReviewSection } from "@/modules/review/presentation/components/ReviewSection";
 import { Breadcrumbs } from "@/shared/components/layout/user/breadcrumbs";
 import { ProductDescription } from "@/shared/components/layout/user/product-description";
 import { ProductFloatingBar } from "@/shared/components/layout/user/product-floating-bar";
@@ -54,9 +54,9 @@ export async function ProductDetailModule({
   product: ProductWithRelations;
 }) {
   const { contacts, currentYear } = await getCachedProductDetailData();
-  const [relatedProducts, { data: questions }] = await Promise.all([
+  const [relatedProducts, { data: reviews, aggregate }] = await Promise.all([
     getRelatedProducts(product),
-    getProductQuestionsAction(product.id),
+    getReviewsAction("product", product.id),
   ]);
 
   const category = product.category;
@@ -84,13 +84,6 @@ export async function ProductDetailModule({
     }
     return groups;
   })();
-  // Ungrouped rows are the "core" spec fields admins fill in before any
-  // named sub-section (Dàn lạnh/Dàn nóng/...) — the closest thing to a
-  // priority signal this flat attribute system has, so they're what
-  // surfaces as the quick-glance strip in the hero column.
-  const highlightSpecs = (attributeGroups.find((g) => g.label === null) ?? attributeGroups[0])?.rows
-    .filter((av) => resolveSpecChipLabel(av) !== null)
-    .slice(0, 4) ?? [];
   // displayPrice (default-variant cache, see elc-go/docs/product-v2-design.md)
   // is the source of truth once a product has real variants — used here for
   // the floating CTA bar / recently-viewed snapshot, which (unlike
@@ -130,17 +123,13 @@ export async function ProductDetailModule({
             />
 
             <div className="flex flex-col gap-4">
-              <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
-                {product.brand?.name && (
-                  <Badge variant="secondary">{product.brand.name}</Badge>
-                )}
-                {category?.name && (
-                  <TypographySmall className="text-muted-foreground">{category.name}</TypographySmall>
-                )}
-                {product.tags?.map((tag) => (
-                  <Badge key={tag.id} variant="outline">{tag.name}</Badge>
-                ))}
-              </div>
+              {product.tags && product.tags.length > 0 && (
+                <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
+                  {product.tags.map((tag) => (
+                    <Badge key={tag.id} variant="outline">{tag.name}</Badge>
+                  ))}
+                </div>
+              )}
 
               <TypographyH1 className="w-full max-w-none text-2xl md:text-3xl lg:text-4xl font-extrabold tracking-tight wrap-break-word leading-[1.15]">
                 {product.name}
@@ -158,21 +147,24 @@ export async function ProductDetailModule({
                 options={product.options || []}
                 contacts={contacts || []}
                 compareItem={compareItem}
-                highlightSpecs={highlightSpecs}
               />
-              <div id="product-cta-sentinel" aria-hidden="true" />
             </div>
           </div>
         </InView>
       </section>
 
-      {/* ===== TABS: THÔNG SỐ / MÔ TẢ / HỎI ĐÁP ===== */}
+      {/* ===== TABS: THÔNG SỐ / MÔ TẢ ===== */}
       <section className="w-full max-w-350 mx-auto px-4 md:px-6 lg:px-8 py-6 md:py-10 border-t border-dashed border-border/40">
+        {/* Floating CTA bar trigger — sits at the top of this section instead
+            of right after the hero CTA, so on mobile (where the hero alone
+            can exceed one viewport) the bar only appears once the user
+            actually scrolls down to the specs/description tabs, not on
+            first paint before they've seen the hero at all. */}
+        <div id="product-cta-sentinel" aria-hidden="true" />
         <Tabs defaultValue={attributeGroups.length > 0 ? "specs" : "description"} className="w-full">
           <TabsList className="mx-auto w-fit">
             {attributeGroups.length > 0 && <TabsTrigger value="specs">Thông số kỹ thuật</TabsTrigger>}
             {product.description ? <TabsTrigger value="description">Mô tả sản phẩm</TabsTrigger> : null}
-            <TabsTrigger value="qa">Hỏi đáp</TabsTrigger>
           </TabsList>
 
           {attributeGroups.length > 0 && (
@@ -212,10 +204,19 @@ export async function ProductDetailModule({
             </TabsContent>
           )}
 
-          <TabsContent value="qa" className="pt-10 focus-visible:outline-none">
-            <QuestionsPanel productId={product.id} questions={questions} />
-          </TabsContent>
         </Tabs>
+      </section>
+
+      {/* ===== ĐÁNH GIÁ SẢN PHẨM ===== */}
+      <section className="w-full max-w-350 mx-auto px-4 md:px-6 lg:px-8 py-6 md:py-10 border-t border-dashed border-border/40">
+        <ReviewSection
+          entityType="product"
+          entityId={product.id}
+          entityName={product.name}
+          entityImage={primaryImageUrl(images)}
+          reviews={reviews}
+          aggregate={aggregate}
+        />
       </section>
 
       {/* ===== SẢN PHẨM LIÊN QUAN ===== */}
@@ -277,6 +278,24 @@ export async function ProductDetailModule({
           sku: defaultVariant?.sku || undefined,
           brand: product.brand?.name ? { "@type": "Brand", name: product.brand.name } : undefined,
           ...(additionalProperty.length > 0 ? { additionalProperty } : {}),
+          // aggregateRating requires ratingCount >= 1 per Google's guidelines
+          // — omit entirely rather than emit a hollow 0/0 for a product with
+          // no reviews yet.
+          ...(aggregate.count > 0
+            ? {
+                aggregateRating: {
+                  "@type": "AggregateRating",
+                  ratingValue: aggregate.average,
+                  reviewCount: aggregate.count,
+                },
+                review: reviews.slice(0, 10).map((r) => ({
+                  "@type": "Review",
+                  reviewRating: { "@type": "Rating", ratingValue: r.rating },
+                  author: { "@type": "Person", name: r.reviewerName },
+                  reviewBody: r.comment,
+                })),
+              }
+            : {}),
           // Google requires price > 0 for Merchant Listings eligibility — a
           // quote-only product (displayPrice 0/null) omits offers entirely
           // rather than emitting a literal 0.
@@ -304,25 +323,8 @@ export async function ProductDetailModule({
         // BreadcrumbList JSON-LD is emitted by <Breadcrumbs> above, from the
         // same breadcrumbItems — not duplicated here.
 
-        const faqSchema = questions.length > 0
-          ? {
-              "@context": "https://schema.org",
-              "@type": "FAQPage",
-              mainEntity: questions.map((q) => ({
-                "@type": "Question",
-                name: q.questionText,
-                acceptedAnswer: { "@type": "Answer", text: q.answerText },
-              })),
-            }
-          : null;
-
         return (
-          <>
-            <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(productSchema) }} />
-            {faqSchema && (
-              <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }} />
-            )}
-          </>
+          <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(productSchema) }} />
         );
       })()}
     </main>

@@ -1,0 +1,109 @@
+{
+  "product_info": {
+    "name": "Dàn lạnh âm trần Daikin 4.5HP FCNQ42MV1",
+    "brand": "Daikin",
+    "model_indoor": "FCNQ42MV1",
+    "model_outdoor_matching": [
+      "RNQ42MY1 (1 chiều làm lạnh, 3 pha)"
+    ],
+    "type": "Điều hòa âm trần Cassette đa hướng thổi (Dòng tiêu chuẩn)",
+    "year_released": null,
+    "origin_brand": "Nhật Bản",
+    "origin_manufacture": "Thái Lan"
+  },
+  "technical_specifications": {
+    "cooling_capacity": {
+      "hp": 4.5,
+      "btu": 42600,
+      "btu_range": "Đang cập nhật"
+    },
+    "coverage": {
+      "area_m2": "Từ 55 đến 60 m2",
+      "volume_m3": "Từ 160 đến 180 m3"
+    },
+    "energy_efficiency": {
+      "technology": "Không Inverter (Dòng cơ tiêu chuẩn)",
+      "compressor_type": "Dòng tiêu chuẩn cơ",
+      "cspf": null,
+      "energy_rating_stars": 3
+    },
+    "power_consumption": {
+      "nominal_w": 4150,
+      "range_w": "Đang cập nhật",
+      "estimated_electricity_consumption_kwh": 4.15
+    },
+    "refrigerant": {
+      "type": "R410A",
+      "gwp": "Đang cập nhật"
+    },
+    "noise_level": {
+      "indoor_unit_dba": "Đang cập nhật",
+      "outdoor_unit_dba": "Đang cập nhật"
+    }
+  },
+  "physical_dimensions": {
+    "indoor_unit": {
+      "height_mm": 298,
+      "width_mm": 840,
+      "depth_mm": 840,
+      "weight_kg": 24.0
+    },
+    "panel": {
+      "model": "BYCP125K-W18",
+      "height_mm": 50,
+      "width_mm": 950,
+      "depth_mm": 950,
+      "weight_kg": 5.5
+    },
+    "outdoor_unit_rnq42my1": {
+      "height_mm": 1345,
+      "width_mm": 900,
+      "depth_mm": 320,
+      "weight_kg": 107.0
+    }
+  },
+  "installation_requirements": {
+    "pipe_size": {
+      "liquid_mm": 9.5,
+      "gas_mm": 15.9
+    },
+    "piping_limits": {
+      "max_length_m": 50.0,
+      "max_height_difference_m": 30.0,
+      "standard_length_without_charging_m": 7.5
+    }
+  },
+  "key_features": [
+    {
+      "feature_name": "Đa hướng thổi 360 độ",
+      "description": "Luồng gió tuần hoàn làm mát đồng đều, tránh thổi trực tiếp vào cơ thể nhờ thiết kế thổi tròn đa hướng giúp lan tỏa hơi lạnh đến mọi góc của căn phòng rộng."
+    },
+    {
+      "feature_name": "Không Inverter (Dòng cơ tiêu chuẩn)",
+      "description": "Thích hợp cho các công trình công cộng, văn phòng hoặc các vị trí cần làm lạnh nhanh với chi phí đầu tư ban đầu hợp lý."
+    },
+    {
+      "feature_name": "Thiết kế mỏng nhẹ",
+      "description": "Dàn lạnh có độ dày 298 mm, dễ dàng lắp đặt cho các không gian trần thạch cao rộng."
+    },
+    {
+      "feature_name": "Tích hợp sẵn bơm nước xả",
+      "description": "Tích hợp sẵn bơm nước xả giúp việc bố trí đường ống nước thải linh hoạt và dễ dàng hơn."
+    },
+    {
+      "feature_name": "Mặt nạ chống bám bụi bẩn",
+      "description": "Thiết kế cánh đảo gió không nghiêng và bề mặt phẳng giúp hạn chế tối đa tình trạng đọng sương, bám bụi bẩn và dễ lau chùi."
+    },
+    {
+      "feature_name": "Dàn tản nhiệt chống ăn mòn",
+      "description": "Cánh tản nhiệt dàn nóng được xử lý chống ăn mòn hiệu quả, phủ lớp nhựa acrylic giúp tăng độ bền cơ học trước thời tiết khắc nghiệt."
+    }
+  ],
+  "data_metadata": {
+    "research_date": "2026-07-18",
+    "sources_consulted": [
+      "Trang chủ Daikin Việt Nam",
+      "Thông số kỹ thuật từ các hệ thống siêu thị điện máy chính hãng (không bao gồm ELC)"
+    ]
+  }
+}

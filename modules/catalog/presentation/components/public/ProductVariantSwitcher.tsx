@@ -1,19 +1,17 @@
 "use client";
 
+import Link from "next/link";
 import { useMemo, useState } from "react";
 import {
-  AttributeValue,
+  CapacitySibling,
   ProductOption,
   ProductVariant,
   ProductWithRelations,
-  resolveDeliveryLabel,
-  resolveSpecChipLabel,
   toLegacyStockStatusForBadge,
+  VARIANT_STOCK_STATUS,
 } from "@/modules/catalog/domain";
 import { FormattedPrice } from "@/modules/catalog/presentation/components/FormattedPrice";
 import { Contact } from "@/modules/contact/domain";
-import { LeadForm } from "@/modules/inquiry/presentation/components/LeadForm";
-import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
 import { OrderButton } from "@/shared/components/layout/user/order-button";
 import { CompareToggleButton } from "@/shared/components/layout/user/compare-toggle-button";
@@ -21,7 +19,7 @@ import { StockBadge } from "@/shared/components/ui/stock-badge";
 import { TypographyLarge, TypographySmall } from "@/shared/components/ui/typography";
 import type { CompareItem } from "@/shared/providers/compare-provider";
 import { ZaloProductInfo } from "@/shared/lib/zalo-message";
-import { Truck, ShieldCheck } from "@phosphor-icons/react";
+import { ShieldCheck } from "@phosphor-icons/react";
 
 interface ProductVariantSwitcherProps {
   product: ProductWithRelations;
@@ -29,17 +27,14 @@ interface ProductVariantSwitcherProps {
   options: ProductOption[];
   contacts: Contact[];
   compareItem: CompareItem;
-  // First few "core" attribute rows (see ProductDetailModule) — rendered as
-  // an inline ticker above the price, not their own boxed section.
-  highlightSpecs: AttributeValue[];
 }
 
 // Everything from here down to the CTAs is one continuous block — a single
-// divider separates "what this is" (spec ticker) from "how to get it"
+// divider separates "what this is" (variant picker) from "how to get it"
 // (price/stock/CTAs), instead of the previous stack of separately bordered
 // boxes (specs box, SKU+stock box, delivery box) that read as disconnected
 // modules bolted together rather than one designed unit.
-export function ProductVariantSwitcher({ product, variants, options, contacts, compareItem, highlightSpecs }: ProductVariantSwitcherProps) {
+export function ProductVariantSwitcher({ product, variants, options, contacts, compareItem }: ProductVariantSwitcherProps) {
   // Only variants meant to be independently purchasable — bundle parts
   // (is_standalone=false, e.g. "Dàn lạnh FTKB25") never appear as a
   // selectable option here.
@@ -51,7 +46,9 @@ export function ProductVariantSwitcher({ product, variants, options, contacts, c
 
   return (
     <div className="flex flex-col gap-4">
-      <SpecTicker specs={highlightSpecs} />
+      {selected?.sku && <TypographySmall className="text-muted-foreground">Model: {selected.sku}</TypographySmall>}
+
+      <CapacitySelector siblings={product.capacitySiblings ?? []} />
 
       {sellableVariants.length > 1 && (
         <div className="flex flex-col gap-4">
@@ -93,21 +90,22 @@ export function ProductVariantSwitcher({ product, variants, options, contacts, c
   );
 }
 
-// Compact "at a glance" row above the price — badge chips, same visual
-// language as the brand/category/tag row right above it, so it reads as a
-// continuation of that identity strip rather than its own boxed section.
-// Each chip is pre-filtered upstream (ProductDetailModule) to never be
-// empty or a hollow "Không" — see resolveSpecChipLabel.
-function SpecTicker({ specs }: { specs: AttributeValue[] }) {
-  if (specs.length === 0) return null;
+// Each sibling is its own separate product page (own SEO URL, own price/
+// images) — not a client-side variant switch, so clicking navigates rather
+// than mutating local state. See CapacitySibling's doc comment.
+function CapacitySelector({ siblings }: { siblings: CapacitySibling[] }) {
+  if (siblings.length < 2) return null;
 
   return (
-    <div className="flex flex-wrap items-center gap-1.5">
-      {specs.map((av) => (
-        <Badge key={av.id} variant="outline" className="font-medium">
-          {resolveSpecChipLabel(av)}
-        </Badge>
-      ))}
+    <div className="flex flex-col gap-2">
+      <TypographySmall className="text-muted-foreground">Công suất</TypographySmall>
+      <div className="flex flex-wrap gap-2">
+        {siblings.map((s) => (
+          <Button key={s.id} asChild variant={s.isCurrent ? "default" : "outline"} size="sm">
+            <Link href={`/san-pham/${s.slug}`}>{s.capacityLabel}</Link>
+          </Button>
+        ))}
+      </div>
     </div>
   );
 }
@@ -126,7 +124,6 @@ function BuyBox({
   const price = variant?.displayPrice || 0;
   const originalPrice = variant?.originalPrice || 0;
   const discountPercent = variant?.discountPercent || 0;
-  const deliveryLabel = resolveDeliveryLabel(variant);
   const warrantyPolicy = product.brand?.warrantyPolicy;
 
   return (
@@ -136,7 +133,9 @@ function BuyBox({
           <TypographyLarge className="text-4xl md:text-5xl font-bold text-foreground tracking-tight">
             <FormattedPrice price={price} />
           </TypographyLarge>
-          <StockBadge status={variant ? toLegacyStockStatusForBadge(variant.stockStatus) : undefined} className="text-sm" />
+          {variant && variant.stockStatus !== VARIANT_STOCK_STATUS.IN_STOCK && (
+            <StockBadge status={toLegacyStockStatusForBadge(variant.stockStatus)} className="text-sm" />
+          )}
         </div>
 
         {discountPercent > 0 && (
@@ -147,24 +146,14 @@ function BuyBox({
             <TypographySmall className="text-destructive">- {discountPercent}%</TypographySmall>
           </div>
         )}
-
-        {variant?.sku && <TypographySmall className="text-muted-foreground">Model: {variant.sku}</TypographySmall>}
       </div>
 
-      {(deliveryLabel || warrantyPolicy) && (
+      {warrantyPolicy && (
         <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-sm text-muted-foreground">
-          {deliveryLabel && (
-            <span className="flex items-center gap-1.5">
-              <Truck className="size-4 shrink-0" />
-              {deliveryLabel}
-            </span>
-          )}
-          {warrantyPolicy && (
-            <span className="flex items-center gap-1.5 max-w-full">
-              <ShieldCheck className="size-4 shrink-0" />
-              <span className="line-clamp-1">{warrantyPolicy}</span>
-            </span>
-          )}
+          <span className="flex items-center gap-1.5 max-w-full">
+            <ShieldCheck className="size-4 shrink-0" />
+            <span className="line-clamp-1">{warrantyPolicy}</span>
+          </span>
         </div>
       )}
 
@@ -178,14 +167,7 @@ function BuyBox({
             productSlug: product.slug,
           } satisfies ZaloProductInfo}
         />
-        <LeadForm
-          productId={product.id}
-          entityName={product.name}
-          entityKind="product"
-          triggerLabel="Tư vấn / Báo giá"
-          triggerSize="default"
-        />
-        <CompareToggleButton variant="icon" item={compareItem} />
+        <CompareToggleButton variant="button" size="lg" item={compareItem} />
       </div>
     </div>
   );
