@@ -18,11 +18,14 @@ export async function GET() {
 
   const xml = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  ${productRoutes.map(r => `
+  ${productRoutes.map(r => {
+    const lastmod = toSitemapLastmod(r.lastmod);
+    return `
   <url>
-    <loc>${r.url}</loc>
-    <lastmod>${toSitemapLastmod(r.lastmod)}</lastmod>
-  </url>`).join('')}
+    <loc>${r.url}</loc>${lastmod ? `
+    <lastmod>${lastmod}</lastmod>` : ''}
+  </url>`;
+  }).join('')}
 </urlset>`;
 
   return new NextResponse(xml, {

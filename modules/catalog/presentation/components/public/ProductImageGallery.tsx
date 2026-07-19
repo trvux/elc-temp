@@ -61,6 +61,7 @@ export function ProductImageGallery({ productId, images, fallbackAlt }: ProductI
                       alt={img.alt || fallbackAlt}
                       fill
                       className="object-contain p-4"
+                      priority={i === 0}
                       loading={i === 0 ? "eager" : "lazy"}
                       fetchPriority={i === 0 ? "high" : "auto"}
                       sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 800px"

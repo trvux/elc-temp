@@ -11,6 +11,7 @@ import { CompareTray } from "@/shared/components/layout/user/compare-tray";
 import { WishlistDialog } from "@/shared/components/layout/user/wishlist-dialog";
 import { TopProgressBar } from "@/shared/components/layout/user/top-progress-bar";
 import { StickyContactActions } from "@/shared/components/sections/sticky-contact-actions";
+import { SEOSchema } from "@/shared/lib/seo-schema";
 import Script from "next/script";
 
 // No caching anywhere in this tree anymore (see cacheComponents removal in
@@ -44,6 +45,18 @@ export default async function PublicLayout({ children }: PublicLayoutProps) {
     <CompareProvider>
     <ProductFloatingProvider>
     <FilterTransitionProvider>
+      {/* Organization + WebSite — the only two site-wide JSON-LD entities,
+          scoped to the public tree since only public pages need them. */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@graph": [SEOSchema.getOrganization(branches, contacts), SEOSchema.getWebSite()],
+          }),
+        }}
+      />
+
       {/* GTM: lazy load on first user interaction or after 3.5s timeout */}
       <Script
         id="gtm-script"
