@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { getPageBySlugAction } from "@/modules/page/presentation/actions";
 import { PreviewContent } from "@/shared/components/layout/user/preview-content";
 import { ScrollToTop } from "@/shared/components/layout/user/scroll-to-top";
@@ -11,6 +12,7 @@ import { notFound } from "next/navigation";
 import { Breadcrumbs } from "@/shared/components/layout/user/breadcrumbs";
 import { GridSection } from "@/shared/components/sections/grid-section";
 import { unwrapActionResult } from "@/shared/lib/action-result";
+import { BASE_URL } from "@/shared/lib/seo-schema";
 
 interface PageProps {
   params: Promise<{
@@ -18,10 +20,23 @@ interface PageProps {
   }>;
 }
 
-
-
 async function getCachedPageData(slug: string) {
   return getPageBySlugAction(slug).then(unwrapActionResult);
+}
+
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+  const { slug } = await params;
+  const page = await getCachedPageData(slug);
+  if (!page || !page.isPublished) return {};
+
+  const title = page.metaTitle || page.title;
+  const description = page.metaDescription || undefined;
+  return {
+    title: `${title} | Điện máy ELC`,
+    description,
+    alternates: { canonical: `${BASE_URL}/${slug}` },
+    openGraph: { title, description, url: `${BASE_URL}/${slug}` },
+  };
 }
 
 export default async function StaticPage({ params }: PageProps) {

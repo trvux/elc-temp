@@ -1,5 +1,6 @@
 import Image from "next/image";
 import { notFound } from "next/navigation";
+import { primaryImageUrl } from "@/shared/lib/image-asset";
 
 import { ShieldCheck } from "@phosphor-icons/react/dist/ssr";
 
@@ -162,7 +163,7 @@ export async function ProductListModule({
           items={[
             { label: "Sản phẩm", href: "/san-pham" },
             ...(breadcrumbParent ? [breadcrumbParent] : []),
-            { label: pageTitle, active: true },
+            { label: pageTitle, href: `/san-pham/${entity.data.slug}`, active: true },
           ]}
         />
 
@@ -258,13 +259,10 @@ export async function ProductListModule({
         </div>
       </div>
 
+      {/* BreadcrumbList JSON-LD is emitted by <Breadcrumbs> above, from the
+          same items — not duplicated here. */}
       {(() => {
         const pageUrl = `${BASE_URL}/san-pham/${entity.data.slug}`;
-        const breadcrumbTrail = [
-          { name: "Trang chủ", url: BASE_URL },
-          ...(breadcrumbParent ? [{ name: breadcrumbParent.label, url: `${BASE_URL}${breadcrumbParent.href}` }] : []),
-          { name: pageTitle, url: pageUrl },
-        ];
 
         const collectionPageSchema = {
           "@context": "https://schema.org",
@@ -279,32 +277,16 @@ export async function ProductListModule({
               position: idx + 1,
               url: `${BASE_URL}/san-pham/${p.slug}`,
               name: p.name,
+              image: primaryImageUrl(p.images) || undefined,
             })),
           },
         };
 
-        const breadcrumbSchema = {
-          "@context": "https://schema.org",
-          "@type": "BreadcrumbList",
-          itemListElement: breadcrumbTrail.map((item, idx) => ({
-            "@type": "ListItem",
-            position: idx + 1,
-            name: item.name,
-            item: item.url,
-          })),
-        };
-
         return (
-          <>
-            <script
-              type="application/ld+json"
-              dangerouslySetInnerHTML={{ __html: JSON.stringify(collectionPageSchema) }}
-            />
-            <script
-              type="application/ld+json"
-              dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
-            />
-          </>
+          <script
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{ __html: JSON.stringify(collectionPageSchema) }}
+          />
         );
       })()}
     </main>

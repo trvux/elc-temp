@@ -35,12 +35,6 @@ export interface ServiceInput {
   metaDescription?: string | null;
 }
 
-export interface ProductCategoryInput {
-  name: string;
-  slug: string;
-  metaDescription?: string | null;
-}
-
 export interface BranchInput {
   name: string;
   slug: string;
@@ -222,16 +216,4 @@ export const SEOSchema = {
     };
   },
 
-  getProductCategory(cat: ProductCategoryInput) {
-    return {
-      "@type": "Product",
-      "@id": `${BASE_URL}/san-pham/${cat.slug}#product`,
-      "name": cat.name,
-      "description": cat.metaDescription || undefined,
-      "brand": {
-        "@type": "Brand",
-        "name": "Điện máy ELC",
-      },
-    };
-  }
 };

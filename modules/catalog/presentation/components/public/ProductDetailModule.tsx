@@ -103,7 +103,7 @@ export async function ProductDetailModule({
   const breadcrumbItems = [
     { label: "Sản phẩm", href: "/san-pham" },
     { label: category.name, href: `/san-pham/${category.slug}` },
-    { label: product.name, active: true },
+    { label: product.name, href: `/san-pham/${product.slug}`, active: true },
   ];
 
   return (
@@ -255,6 +255,19 @@ export async function ProductDetailModule({
       {/* ===== JSON-LD ===== */}
       {(() => {
         const pageUrl = `${BASE_URL}/san-pham/${product.slug}`;
+
+        // Structured spec rows for Rich Results/AI Overviews — mirrors the
+        // spec tab above, sourced from attribute_values (not the retired
+        // specs jsonb).
+        const additionalProperty = attributeGroups.flatMap((g) => g.rows).map((av) => ({
+          "@type": "PropertyValue",
+          name: av.name,
+          value: formatAttributeValue(av),
+          ...(av.unit ? { unitText: av.unit } : {}),
+        }));
+
+        const hasDiscount = !!defaultVariant && defaultVariant.discountPercent > 0;
+
         const productSchema = {
           "@context": "https://schema.org",
           "@type": "Product",
@@ -263,6 +276,7 @@ export async function ProductDetailModule({
           description: product.shortDescription || product.metaDescription || undefined,
           sku: defaultVariant?.sku || undefined,
           brand: product.brand?.name ? { "@type": "Brand", name: product.brand.name } : undefined,
+          ...(additionalProperty.length > 0 ? { additionalProperty } : {}),
           // Google requires price > 0 for Merchant Listings eligibility — a
           // quote-only product (displayPrice 0/null) omits offers entirely
           // rather than emitting a literal 0.
@@ -273,20 +287,22 @@ export async function ProductDetailModule({
                 priceCurrency: "VND",
                 price: finalPrice,
                 availability: AVAILABILITY_SCHEMA[product.displayStockStatus || ""] || "https://schema.org/InStock",
+                // List price before discount — only meaningful when the
+                // default variant is actually on sale.
+                priceSpecification: hasDiscount
+                  ? {
+                      "@type": "UnitPriceSpecification",
+                      priceType: "https://schema.org/ListPrice",
+                      price: defaultVariant!.originalPrice,
+                      priceCurrency: "VND",
+                    }
+                  : undefined,
               }
             : undefined,
         };
 
-        const breadcrumbSchema = {
-          "@context": "https://schema.org",
-          "@type": "BreadcrumbList",
-          itemListElement: [
-            { name: "Trang chủ", url: BASE_URL },
-            { name: "Sản phẩm", url: `${BASE_URL}/san-pham` },
-            { name: category.name, url: `${BASE_URL}/san-pham/${category.slug}` },
-            { name: product.name, url: pageUrl },
-          ].map((item, idx) => ({ "@type": "ListItem", position: idx + 1, name: item.name, item: item.url })),
-        };
+        // BreadcrumbList JSON-LD is emitted by <Breadcrumbs> above, from the
+        // same breadcrumbItems — not duplicated here.
 
         const faqSchema = questions.length > 0
           ? {
@@ -303,7 +319,6 @@ export async function ProductDetailModule({
         return (
           <>
             <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(productSchema) }} />
-            <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }} />
             {faqSchema && (
               <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }} />
             )}

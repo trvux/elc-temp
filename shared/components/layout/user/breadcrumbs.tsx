@@ -6,6 +6,7 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/shared/components/ui/breadcrumb";
+import { BASE_URL } from "@/shared/lib/seo-schema";
 import React from "react";
 
 export interface BreadcrumbStep {
@@ -19,9 +20,23 @@ interface BreadcrumbsProps {
   className?: string;
 }
 
-// Visual nav only. BreadcrumbList JSON-LD generation was removed along with
-// shared/lib/seo-utils.ts (SEO system is being rebuilt from scratch).
+// Single source for both the visual nav and its BreadcrumbList JSON-LD — a
+// step without href (typically the active/current page) still gets a
+// ListItem, just without an `item` URL, which schema.org allows for the
+// last entry.
 export function Breadcrumbs({ items, className }: BreadcrumbsProps) {
+  const steps: BreadcrumbStep[] = [{ label: "Trang chủ", href: "/" }, ...items];
+  const breadcrumbSchema = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: steps.map((step, idx) => ({
+      "@type": "ListItem",
+      position: idx + 1,
+      name: step.label,
+      ...(step.href ? { item: `${BASE_URL}${step.href}` } : {}),
+    })),
+  };
+
   return (
     <nav aria-label="Breadcrumb" className={className}>
       <Breadcrumb>
@@ -61,6 +76,10 @@ export function Breadcrumbs({ items, className }: BreadcrumbsProps) {
           })}
         </BreadcrumbList>
       </Breadcrumb>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
+      />
     </nav>
   );
 }
