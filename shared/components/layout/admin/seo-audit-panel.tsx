@@ -13,9 +13,9 @@ import {
   TableHeader,
   TableRow,
 } from "@/shared/components/ui/table";
-import { Skeleton } from "@/shared/components/ui/skeleton";
 
 import { getProductsAction } from "@/modules/catalog/presentation/actions";
+import { PRODUCT_STATUS } from "@/modules/catalog/domain";
 import { getNewsAction } from "@/modules/news/presentation/actions";
 import { getProjectsAction } from "@/modules/project/presentation/actions";
 import { getServicesAction } from "@/modules/service/presentation/actions";
@@ -29,25 +29,21 @@ interface AuditRow {
   editHref: string;
   title: string;
   description: string;
-  noindex: boolean;
 }
 
-// Reads the same fallback chain generateMetadata() uses (seo.* first, then
-// legacy metaTitle/metaDescription) so this panel reports what Google will
-// actually see, not just what's stored in the new field.
-function effectiveTitle(name: string, seo?: { title?: string | null }, metaTitle?: string | null): string {
-  return seo?.title || metaTitle || name;
+function effectiveTitle(name: string, metaTitle?: string | null): string {
+  return metaTitle || name;
 }
 
-function effectiveDescription(seo?: { description?: string | null }, metaDescription?: string | null): string {
-  return seo?.description || metaDescription || "";
+function effectiveDescription(metaDescription?: string | null): string {
+  return metaDescription || "";
 }
 
 export function SeoAuditPanel() {
   const { data: products, isLoading: loadingProducts } = useQuery({
     queryKey: ["seo-audit", "products"],
     queryFn: async () => {
-      const { data } = await getProductsAction({ isPublished: true, limit: 2000 });
+      const { data } = await getProductsAction({ status: PRODUCT_STATUS.PUBLISHED, limit: 2000 });
       return data;
     },
   });
@@ -83,33 +79,29 @@ export function SeoAuditPanel() {
       type: "Sản phẩm" as const,
       name: p.name,
       editHref: "/admin/products",
-      title: effectiveTitle(p.name, p.seo, p.metaTitle),
-      description: effectiveDescription(p.seo, p.metaDescription),
-      noindex: p.seo?.noindex || false,
+      title: effectiveTitle(p.name, p.metaTitle),
+      description: effectiveDescription(p.metaDescription),
     })),
     ...(news || []).map((n) => ({
       type: "Tin tức" as const,
       name: n.title,
       editHref: "/admin/news",
-      title: effectiveTitle(n.title, n.seo, n.metaTitle),
-      description: effectiveDescription(n.seo, n.metaDescription),
-      noindex: n.seo?.noindex || false,
+      title: effectiveTitle(n.title, n.metaTitle),
+      description: effectiveDescription(n.metaDescription),
     })),
     ...(projects || []).map((p) => ({
       type: "Dự án" as const,
       name: p.title,
       editHref: "/admin/projects",
-      title: effectiveTitle(p.title, p.seo, p.metaTitle),
-      description: effectiveDescription(p.seo, p.metaDescription),
-      noindex: p.seo?.noindex || false,
+      title: effectiveTitle(p.title, p.metaTitle),
+      description: effectiveDescription(p.metaDescription),
     })),
     ...(services || []).map((s) => ({
       type: "Dịch vụ" as const,
       name: s.title,
       editHref: "/admin/services",
-      title: effectiveTitle(s.title, s.seo, s.metaTitle),
-      description: effectiveDescription(s.seo, s.metaDescription),
-      noindex: s.seo?.noindex || false,
+      title: effectiveTitle(s.title, s.metaTitle),
+      description: effectiveDescription(s.metaDescription),
     })),
   ];
 
@@ -133,19 +125,12 @@ export function SeoAuditPanel() {
       if (row.description && (descriptionCounts.get(row.description) || 0) > 1) {
         problems.push("Mô tả trùng với trang khác");
       }
-      if (row.noindex) problems.push("Đang ẩn khỏi kết quả tìm kiếm (noindex)");
       return { ...row, problems };
     })
     .filter((row) => row.problems.length > 0);
 
   if (isLoading) {
-    return (
-      <div className="space-y-3">
-        <Skeleton className="h-10 w-full" />
-        <Skeleton className="h-10 w-full" />
-        <Skeleton className="h-10 w-full" />
-      </div>
-    );
+    return null;
   }
 
   return (

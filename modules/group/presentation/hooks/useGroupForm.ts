@@ -18,9 +18,9 @@ export type GroupFormValues = {
   metaTitle?: string | null;
   metaDescription?: string | null;
   isFeatured?: boolean;
+  isHidden?: boolean;
   orderIndex?: number;
   content?: unknown;
-  faq?: Array<{ question: string; answer: string }> | null;
 };
 
 export function useGroupForm(
@@ -39,9 +39,9 @@ export function useGroupForm(
       metaTitle: "",
       metaDescription: "",
       isFeatured: false,
+      isHidden: false,
       orderIndex: 0,
       content: "",
-      faq: [],
     },
   });
 
@@ -58,9 +58,9 @@ export function useGroupForm(
         metaTitle: values.metaTitle || null,
         metaDescription: values.metaDescription || null,
         isFeatured: !!values.isFeatured,
+        isHidden: !!values.isHidden,
         orderIndex: Number(values.orderIndex || 0),
         content: values.content || null,
-        faq: values.faq || null,
       };
 
       if (activeGroup && activeGroup !== "new") {

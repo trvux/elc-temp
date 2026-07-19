@@ -6,12 +6,12 @@ export interface Group {
   metaTitle: string | null;
   metaDescription: string | null;
   isFeatured: boolean;
+  isHidden: boolean;
   orderIndex: number;
   createdAt: string;
   updatedAt: string;
   deletedAt: string | null;
   content?: unknown | null;
-  faq?: Array<{ question: string; answer: string }> | null;
 }
 
 export interface CreateGroupInput {
@@ -21,9 +21,9 @@ export interface CreateGroupInput {
   metaTitle?: string | null;
   metaDescription?: string | null;
   isFeatured?: boolean;
+  isHidden?: boolean;
   orderIndex?: number;
   content?: unknown | null;
-  faq?: Array<{ question: string; answer: string }> | null;
 }
 
 export interface UpdateGroupInput {
@@ -34,9 +34,9 @@ export interface UpdateGroupInput {
   metaTitle?: string | null;
   metaDescription?: string | null;
   isFeatured?: boolean;
+  isHidden?: boolean;
   orderIndex?: number;
   content?: unknown | null;
-  faq?: Array<{ question: string; answer: string }> | null;
 }
 
 export interface GroupFilter {

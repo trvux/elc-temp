@@ -3,9 +3,7 @@ import { Brand, CreateBrandInput, UpdateBrandInput } from "../../brand/domain";
 export type { Brand, CreateBrandInput, UpdateBrandInput };
 import type { AttributeDataType } from "../../attribute-definition/domain";
 export type { AttributeDataType };
-import { ProductCondition, VariantStockStatus } from "./constants";
-import type { Seo } from "@/shared/lib/seo-schema";
-export type { Seo };
+import { ProductStatus, VariantStockStatus } from "./constants";
 import type { ImageAsset } from "@/shared/lib/image-asset";
 export type { ImageAsset };
 
@@ -30,20 +28,23 @@ export interface Product {
     slug: string;
     metaTitle?: string | null;
     metaDescription?: string | null;
-    seo?: Seo;
     description: Json;
-    specs: Json;
+    // Short plain-text blurb — distinct from `description` (the rich-text
+    // body). Used for listing cards/snippets. See elc-go's
+    // Product.ShortDescription.
+    shortDescription?: string | null;
     images: ImageAsset[];
-    labels: string[];
     isFeatured: boolean;
-    isPublished: boolean;
+    // status only ever moves through the dedicated submit/approve/reject/
+    // archive actions (see presentation/actions.ts) — never sent as part of
+    // create/update payloads. rejectionReason is set when an owner/admin
+    // sends a proposed product back to draft.
+    status: ProductStatus;
+    rejectionReason?: string | null;
     orderIndex: number;
     categoryId: string;
     brandId: string;
-    condition: ProductCondition;
     productLineId?: string | null;
-    warrantyMonths?: number | null;
-    warrantyTerms?: string | null;
     // Denormalized read cache computed from the variant tree — see
     // elc-go/docs/product-v2-design.md.
     defaultVariantId?: string | null;
@@ -99,6 +100,9 @@ export interface AttributeValue {
     valueText?: string | null;
     valueNumber?: number | null;
     valueBoolean?: boolean | null;
+    // Only meaningful for dataType = "multiselect" — 0..N of the attribute
+    // definition's `options`, not a single scalar like the other types.
+    valueOptions?: string[] | null;
 }
 
 export interface AttributeValueInput {
@@ -106,6 +110,7 @@ export interface AttributeValueInput {
     valueText?: string | null;
     valueNumber?: number | null;
     valueBoolean?: boolean | null;
+    valueOptions?: string[] | null;
 }
 
 // No costPrice — the Go API never returns it (internal margin data, never
@@ -188,26 +193,23 @@ export interface ProductVariantInput {
     components?: VariantComponentInput[];
 }
 
+// CreateProductInput/UpdateProductInput deliberately carry no status field —
+// a created product always starts as draft, and status only ever advances
+// through the dedicated submit/approve/reject/archive actions.
 export interface CreateProductInput {
     name: string;
     slug: string;
     metaTitle?: string | null;
     metaDescription?: string | null;
-    seo?: Seo;
     description?: Json;
-    specs?: Json;
+    shortDescription?: string | null;
     images?: ImageAsset[];
-    labels?: string[];
     isFeatured?: boolean;
-    isPublished?: boolean;
     orderIndex?: number;
     categoryId: string;
     brandId: string;
-    condition?: ProductCondition;
     tagIds?: string[];
     productLineId?: string | null;
-    warrantyMonths?: number | null;
-    warrantyTerms?: string | null;
     options?: ProductOptionInput[];
     // Must contain at least one entry — the Go backend rejects an empty
     // list, since Product itself carries no price/sku (see the Product doc
@@ -220,41 +222,94 @@ export interface UpdateProductInput extends Partial<CreateProductInput> {
     id: string;
 }
 
-export type ProductSortBy =
-    | "price_asc"
-    | "price_desc"
-    | "newest"
-    | "popularity";
+export type ProductSortBy = "price_asc" | "price_desc" | "newest";
 
+// ProductFilter: list scoping (pagination + basic ID/flag matching) plus
+// search/price-range/attribute-facet dimensions, rebuilt on top of the
+// structured attribute system — see elc-go's domain.ProductFilter doc
+// comment for the full rationale.
 export interface ProductFilter {
     categoryId?: string;
     categoryIds?: string[];
     brandId?: string;
     brandIds?: string[];
-    brandSlugs?: string[];
     productLineId?: string;
     isFeatured?: boolean;
-    isPublished?: boolean;
+    status?: ProductStatus;
+    limit?: number;
+    offset?: number;
+    includeDeleted?: boolean;
     search?: string;
     minPrice?: number;
     maxPrice?: number;
     sortBy?: ProductSortBy;
-    condition?: string;
-    specs?: Record<string, string[]>;
-    limit?: number;
-    offset?: number;
-    includeDeleted?: boolean;
+    // attributeTokens: attribute code -> selected option values (OR within
+    // a code, AND across codes) — for select/multiselect/boolean facets.
+    attributeTokens?: Record<string, string[]>;
+    // attributeRanges: attribute code -> [min, max] (either may be
+    // undefined) — for number-type facets.
+    attributeRanges?: Record<string, [number | undefined, number | undefined]>;
 }
 
-export type SpecSubItem = {
-  label: string;
-  value: string;
-  unit?: string;
-};
+export interface BrandFacet {
+    id: string;
+    name: string;
+    slug: string;
+    logoUrl: string;
+    count: number;
+}
 
-export type SpecItem = {
-  label: string;
-  value?: string;
-  unit?: string;
-  items?: SpecSubItem[];
-};
+// NumberBucket is one suggested range for a number-type facet (price or a
+// number attribute) — min === max means an exact value (few enough distinct
+// values that showing the real number is more honest than a range).
+export interface NumberBucket {
+    min: number;
+    max: number;
+    count: number;
+}
+
+export interface PriceFacet {
+    min: number;
+    max: number;
+    buckets: NumberBucket[];
+}
+
+export interface AttributeFacetOption {
+    value: string;
+    count: number;
+}
+
+export interface AttributeFacet {
+    code: string;
+    name: string;
+    groupLabel?: string | null;
+    dataType: AttributeDataType;
+    unit?: string | null;
+    options: AttributeFacetOption[];
+    min?: number | null;
+    max?: number | null;
+    buckets?: NumberBucket[];
+}
+
+export interface ProductFacets {
+    brands: BrandFacet[];
+    price: PriceFacet;
+    attributes: AttributeFacet[];
+}
+
+// CatalogPage is the singleton content/SEO config for "Tất cả sản phẩm" (the
+// catch-all/root product listing) — it lives in Product's own bounded
+// context (not modules/system-page, an unrelated set of pages), since
+// there's exactly one such page. No id/create/delete — only get/update.
+export interface CatalogPage {
+    content: Json | null;
+    metaTitle?: string | null;
+    metaDescription?: string | null;
+    updatedAt: string;
+}
+
+export interface UpdateCatalogPageInput {
+    content?: Json | null;
+    metaTitle?: string | null;
+    metaDescription?: string | null;
+}

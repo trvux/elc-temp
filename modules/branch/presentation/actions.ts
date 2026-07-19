@@ -3,7 +3,6 @@
 import { revalidatePath, revalidateTag } from "next/cache";
 import { Branch, CreateBranchInput, UpdateBranchInput, BranchFilter, Json, ImageAsset } from "../domain";
 import { authHeaders, toSnakeCaseBody } from "@/shared/lib/go-api";
-import { purgeCloudflareCache } from "@/shared/lib/cloudflare-purge";
 
 const GO_API_URL = process.env.GO_API_URL;
 
@@ -187,7 +186,6 @@ export async function createBranchAction(input: CreateBranchInput) {
     revalidatePath("/co-so-ha-tang");
     revalidatePath("/thong-tin");
     revalidateTag("layout", { expire: 0 });
-    await purgeCloudflareCache();
     return { data: mapGoBranch(row), error: null };
   } catch (error) {
     if (isPrerenderError(error)) throw error;
@@ -219,7 +217,6 @@ export async function updateBranchAction(input: UpdateBranchInput) {
     revalidatePath("/co-so-ha-tang");
     revalidatePath("/thong-tin");
     revalidateTag("layout", { expire: 0 });
-    await purgeCloudflareCache();
     return { data: mapGoBranch(row), error: null };
   } catch (error) {
     if (isPrerenderError(error)) throw error;
@@ -245,7 +242,6 @@ export async function deleteBranchAction(id: string) {
     revalidatePath("/co-so-ha-tang");
     revalidatePath("/thong-tin");
     revalidateTag("layout", { expire: 0 });
-    await purgeCloudflareCache();
     return { success: true, error: null };
   } catch (error) {
     if (isPrerenderError(error)) throw error;
@@ -273,7 +269,6 @@ export async function updateBranchOrderAction(id: string, orderIndex: number) {
 
     revalidatePath("/admin/branches");
     revalidateTag("layout", { expire: 0 });
-    await purgeCloudflareCache();
     return { success: true, error: null };
   } catch (error) {
     if (isPrerenderError(error)) throw error;

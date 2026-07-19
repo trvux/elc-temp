@@ -1,5 +1,3 @@
-import type { Seo } from "@/shared/lib/seo-schema";
-export type { Seo };
 import type { ImageAsset } from "@/shared/lib/image-asset";
 export type { ImageAsset };
 
@@ -21,7 +19,6 @@ export interface Project {
   isPublished: boolean;
   metaTitle?: string | null;
   metaDescription?: string | null;
-  seo?: Seo;
   orderIndex: number;
   projectTypeId: string | null;
   clientName?: string;
@@ -72,7 +69,6 @@ export interface CreateProjectInput {
   isPublished?: boolean;
   metaTitle?: string | null;
   metaDescription?: string | null;
-  seo?: Seo;
   orderIndex?: number;
   projectTypeId?: string | null;
   serviceIds?: string[];

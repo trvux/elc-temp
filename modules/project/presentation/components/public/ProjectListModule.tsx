@@ -7,24 +7,20 @@ import { getServicesAction } from "@/modules/service/presentation/actions";
 import { unwrapActionResult } from "@/shared/lib/action-result";
 import { Breadcrumbs } from "@/shared/components/layout/user/breadcrumbs";
 import { FilteredGridWrapper } from "@/shared/components/layout/user/filtered-grid-wrapper";
-import { PaginationNav } from "@/shared/components/layout/user/pagination-nav";
 import { ScrollToTop } from "@/shared/components/layout/user/scroll-to-top";
 import { GridSection } from "@/shared/components/sections/grid-section";
 import { Button } from "@/shared/components/ui/button";
-import { Skeleton } from "@/shared/components/ui/skeleton";
 import {
   TypographyH1,
   TypographySmall,
 } from "@/shared/components/ui/typography";
 import { getQueryTokens } from "@/shared/lib/search-utils";
-import { generateBreadcrumbSchema } from "@/shared/lib/seo-utils";
 import { BASE_URL } from "@/shared/lib/seo-schema";
-import { cacheLife, cacheTag } from "next/cache";
+import Image from "next/image";
 import Link from "next/link";
 import { Suspense } from "react";
 import { ProjectFilterMobile } from "./ProjectFilterMobile";
 import { ProjectFilters } from "./ProjectFilters";
-import { ImageWithSkeleton } from "@/shared/components/ui/image-with-skeleton";
 import { AspectRatio } from "@/shared/components/ui/aspect-ratio";
 import { primaryImageUrl } from "@/shared/lib/image-asset";
 
@@ -42,7 +38,6 @@ const STYLES = {
   emptyState:
     "py-24 text-center border border-dashed border-border rounded-xl bg-muted/20 flex flex-col items-center justify-center gap-4 max-w-lg mx-auto w-full min-h-[300px] animate-fade-in-up",
   emptyText: "text-muted-foreground italic text-sm",
-  paginationWrapper: "mt-12",
   footer:
     "w-full flex flex-col md:flex-row justify-between items-center gap-6 text-muted-foreground",
   scrollToTop:
@@ -67,18 +62,9 @@ async function getCachedProjectListData(
   searchVal: string | undefined,
   conditionParam: string | undefined,
 ) {
-  "use cache";
-  // Serve stale content for up to 1 hour while revalidating in background every 5 minutes.
-  // This prevents blank page caused by cache cold-start race condition.
-  cacheLife("days");
-  cacheTag("projects-list");
-
   // Only fetch all published projects separately when filters are active (avoid duplicate query)
   const hasFilters = !!(projectType?.id || categorySlugs.length > 0 || serviceSlugs.length > 0 || searchVal);
 
-  // Loi that (Supabase/Go API down) phai throw ra ngoai de "use cache" giu
-  // nguyen ban cache cu con tot (stale-if-error) thay vi nuot loi va dong bang
-  // ket qua rong vao cache trong ca ngay (cacheLife "days" o tren).
   const [
     projectsRaw,
     allProjectTypes,
@@ -297,16 +283,6 @@ export async function ProjectListModule({
     currentYear,
   } = cachedData;
 
-  // Phân trang (giữ thứ tự featured-first toàn cục bằng cách cắt trang sau khi sắp xếp)
-  const currentPage = Number(searchParams.page) || 1;
-  const pageSize = 9;
-  const totalCount = sortedProjects.length;
-  const totalPages = Math.ceil(totalCount / pageSize);
-  const paginatedProjects = sortedProjects.slice(
-    (currentPage - 1) * pageSize,
-    currentPage * pageSize,
-  );
-
   // Breadcrumbs items
   const breadcrumbItems = [
     {
@@ -347,8 +323,7 @@ export async function ProjectListModule({
           {projectType && projectType.image && (
             <div className="w-full max-w-4xl mt-6 overflow-hidden rounded-md border border-border/40 shadow-sm animate-fade-in-up">
               <AspectRatio ratio={21 / 9}>
-                <ImageWithSkeleton
-                  wrapperClassName="w-full h-full"
+                <Image
                   src={projectType.image}
                   alt={projectType.name}
                   fill
@@ -371,14 +346,7 @@ export async function ProjectListModule({
         <div className="flex flex-col lg:flex-row gap-12">
           {/* Desktop filter sidebar */}
           <aside className="hidden lg:block w-64 shrink-0 sticky top-28 self-start">
-            <Suspense
-              fallback={
-                <div className="animate-pulse space-y-4">
-                  <div className="h-10 bg-muted rounded w-1/2" />
-                  <div className="h-40 bg-muted rounded" />
-                </div>
-              }
-            >
+            <Suspense fallback={null}>
               <ProjectFilters
                 projectTypes={projectTypeItems}
                 currentProjectTypeSlug={projectType?.slug || ""}
@@ -406,24 +374,10 @@ export async function ProjectListModule({
                 />
               </Suspense>
             </div>
-            <FilteredGridWrapper
-              fallback={
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-10 md:gap-y-12 min-h-[450px]">
-                  {Array.from({ length: 6 }).map((_, index) => (
-                    <div key={index} className="flex flex-col gap-4">
-                      <Skeleton className="aspect-video w-full rounded-2xl" />
-                      <div className="space-y-2">
-                        <Skeleton className="h-6 w-full" />
-                        <Skeleton className="h-4 w-2/3" />
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              }
-            >
-              {paginatedProjects.length > 0 ? (
+            <FilteredGridWrapper fallback={null}>
+              {sortedProjects.length > 0 ? (
                 <div className={STYLES.grid}>
-                  {paginatedProjects.map((project, index) => (
+                  {sortedProjects.map((project, index) => (
                     <ProjectCard
                       key={project.id}
                       project={project}
@@ -448,16 +402,6 @@ export async function ProjectListModule({
                       Xóa tất cả bộ lọc
                     </Link>
                   </Button>
-                </div>
-              )}
-
-              {totalPages > 1 && (
-                <div className={STYLES.paginationWrapper}>
-                  <PaginationNav
-                    currentPage={currentPage}
-                    totalPages={totalPages}
-                    searchParams={searchParams}
-                  />
                 </div>
               )}
             </FilteredGridWrapper>
@@ -515,24 +459,6 @@ export async function ProjectListModule({
           <script
             type="application/ld+json"
             dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
-          />
-        );
-      })()}
-
-      {/* Breadcrumb schema — server-rendered so Google always sees it, see generateBreadcrumbSchema doc */}
-      {(() => {
-        const baseUrl = BASE_URL;
-        const currentUrl = projectType
-          ? `${baseUrl}/du-an/${projectType.slug}`
-          : `${baseUrl}/du-an`;
-        const breadcrumbSchema = generateBreadcrumbSchema(
-          breadcrumbItems.map(({ label, href }) => ({ label, href })),
-          currentUrl,
-        );
-        return (
-          <script
-            type="application/ld+json"
-            dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
           />
         );
       })()}

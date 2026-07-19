@@ -1,9 +1,22 @@
+// Mirrors elc-go's domain.ProductStatus — a draft is submitted for review,
+// an owner/admin approves it to published or rejects it back to draft (with
+// a reason), and a published product can later be archived (discontinued
+// but its URL kept alive). See elc-go/internal/product/domain/types.go.
 export const PRODUCT_STATUS = {
-  PUBLISHED: "published",
   DRAFT: "draft",
+  PROPOSED: "proposed",
+  PUBLISHED: "published",
+  ARCHIVED: "archived",
 } as const;
 
 export type ProductStatus = typeof PRODUCT_STATUS[keyof typeof PRODUCT_STATUS];
+
+export const PRODUCT_STATUS_MAP: Record<ProductStatus, string> = {
+  [PRODUCT_STATUS.DRAFT]: "Nháp",
+  [PRODUCT_STATUS.PROPOSED]: "Chờ duyệt",
+  [PRODUCT_STATUS.PUBLISHED]: "Đang hiển thị",
+  [PRODUCT_STATUS.ARCHIVED]: "Ngừng bán",
+};
 
 export const STOCK_STATUS = {
   IN_STOCK: "in_stock",
@@ -19,27 +32,6 @@ export const STOCK_STATUS_MAP: Record<string, string> = {
   [STOCK_STATUS.OUT_OF_STOCK]: "Hết hàng",
   [STOCK_STATUS.PRE_ORDER]: "Đặt trước",
   [STOCK_STATUS.DISCONTINUED]: "Ngưng sản xuất",
-};
-
-export const PRODUCT_LABELS = {
-  NEW: "new",
-  HOT: "hot",
-  BEST_SELLER: "best_seller",
-  SALE: "sale",
-} as const;
-
-export type ProductLabel = typeof PRODUCT_LABELS[keyof typeof PRODUCT_LABELS];
-
-export const PRODUCT_CONDITION = {
-  NEW: "new",
-  USED: "used",
-} as const;
-
-export type ProductCondition = typeof PRODUCT_CONDITION[keyof typeof PRODUCT_CONDITION];
-
-export const PRODUCT_CONDITION_MAP: Record<ProductCondition, string> = {
-  [PRODUCT_CONDITION.NEW]: "Mới",
-  [PRODUCT_CONDITION.USED]: "Cũ",
 };
 
 // Variant-level stock status (elc-go's product_variant_stock_status enum) —
@@ -73,5 +65,19 @@ export function toLegacyStockStatusForBadge(status: string | null | undefined): 
   if (!status) return undefined;
   if (status === VARIANT_STOCK_STATUS.ORDER_FROM_SUPPLIER) return STOCK_STATUS.PRE_ORDER;
   return status as StockStatus;
+}
+
+// Shared by ProductCard and ProductVariantSwitcher — a delivery claim only
+// while actually in stock (a supplier/pre-order item's own stock badge
+// already says "Đặt trước", a delivery-days claim there would contradict
+// it), using the real lead-time estimate when we have one.
+export function resolveDeliveryLabel(variant?: {
+  stockStatus?: string | null;
+  leadTimeDays?: number | null;
+} | null): string | null {
+  if (!variant || variant.stockStatus !== VARIANT_STOCK_STATUS.IN_STOCK) return null;
+  return variant.leadTimeDays && variant.leadTimeDays > 0
+    ? `Giao trong ${variant.leadTimeDays} ngày`
+    : "Giao nhanh";
 }
 

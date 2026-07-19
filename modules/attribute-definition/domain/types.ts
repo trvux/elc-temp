@@ -1,16 +1,18 @@
 // AttributeDefinition replaces the free-text spec label the admin used to
 // hand-type per product (see modules/catalog's old ProductSpecsTab) —
 // mirrors elc-go's internal/attribute/domain/types.go 1:1, and Shopify's
-// Metafield Definition concept: an attribute is defined once (scoped to a
-// category, or globally when categoryId is null) and reused across every
-// product in that category, instead of admin free-typing a new label each
-// time.
+// Metafield Definition concept: an attribute is defined once and reused
+// across every product in whichever category(ies) it's attached to
+// (categoryIds), or globally when categoryIds is empty. Which categories a
+// definition applies to is many-to-many relational data (see
+// category_attribute_definitions), managed via attach/detach — not part of
+// create/update.
 
-export type AttributeDataType = "number" | "text" | "boolean" | "select";
+export type AttributeDataType = "number" | "text" | "boolean" | "select" | "multiselect";
 
 export interface AttributeDefinition {
   id: string;
-  categoryId?: string | null;
+  categoryIds: string[];
   code: string;
   name: string;
   // groupLabel sections the admin form / PDP display (e.g. "Dàn lạnh" /
@@ -18,7 +20,7 @@ export interface AttributeDefinition {
   groupLabel?: string | null;
   dataType: AttributeDataType;
   unit?: string | null;
-  // Only meaningful for dataType = "select".
+  // Only meaningful for dataType = "select" | "multiselect".
   options: string[];
   orderIndex: number;
   isRequired: boolean;
@@ -27,8 +29,10 @@ export interface AttributeDefinition {
   deletedAt: string | null;
 }
 
+// categoryIds is deliberately absent — attaching to a category is its own
+// use case (see AttachAttributeDefinitionCategoriesInput), same "create,
+// then relate" split as the Go backend.
 export interface CreateAttributeDefinitionInput {
-  categoryId?: string | null;
   code: string;
   name: string;
   groupLabel?: string | null;
@@ -39,9 +43,9 @@ export interface CreateAttributeDefinitionInput {
   isRequired?: boolean;
 }
 
-// categoryId/code/dataType are immutable after creation (see the Go domain
-// entity's Update method doc comment) — changing either would orphan
-// existing product_attribute_values rows with a mismatched type/scope.
+// code/dataType are immutable after creation (see the Go domain entity's
+// Update method doc comment) — changing either would orphan existing
+// product_attribute_values rows with a mismatched type/scope.
 export interface UpdateAttributeDefinitionInput {
   id: string;
   name?: string;
@@ -52,10 +56,15 @@ export interface UpdateAttributeDefinitionInput {
   isRequired?: boolean;
 }
 
+export interface AttachAttributeDefinitionCategoriesInput {
+  id: string;
+  categoryIds: string[];
+}
+
 export interface AttributeDefinitionFilter {
   categoryId?: string;
-  // IncludeGlobal also returns categoryId-null (universal) definitions
-  // alongside the categoryId filter's matches.
+  // IncludeGlobal also returns definitions attached to zero categories
+  // (global, applies everywhere) alongside the categoryId filter's matches.
   includeGlobal?: boolean;
   includeDeleted?: boolean;
 }

@@ -40,7 +40,8 @@ jobs:
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
           NEXT_PUBLIC_HOTJAR_ID: ${{ secrets.NEXT_PUBLIC_HOTJAR_ID }}
           GOOGLE_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}
-          # Can thiet de "use cache" fetch duoc data tu Go API trong luc build
+          # Can thiet vi cac trang public duoc prerender tinh (static) luc build,
+          # nen can goi duoc Go API ngay trong buoc build nay.
           GO_API_URL: ${{ secrets.GO_API_URL }}
 
       - name: Prepare standalone files
@@ -53,36 +54,29 @@ jobs:
           mkdir -p ~/.ssh
           echo "${{ secrets.VPS_SSH_KEY }}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
-          # --exclude .next/cache: day la Data/ISR cache duoc app tu populate luc chay,
-          # khong nam trong build output. Loai tru de rsync --delete khong xoa cache
-          # dang "am" tren VPS qua moi lan deploy -- day la dieu kien tien quyet de dat
-          # tinh san sang cao (stale-while-revalidate), tranh cold-start moi lan deploy.
+          # App khong con dung "use cache"/ISR nua (moi trang la force-dynamic) nen
+          # .next/cache khong con chua data that -- exclude nay chi con y nghia
+          # giu build-cache cua Next.js tren VPS, khong anh huong tinh dung dan.
           rsync -az --delete --exclude='.next/cache' -e "ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no" .next/standalone/ ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}:/var/www/elc-tem/
 
       - name: Restart PM2 on VPS
         uses: appleboy/ssh-action@v1.0.3
         env:
           GOOGLE_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}
-          CLOUDFLARE_ZONE_ID: ${{ secrets.CLOUDFLARE_ZONE_ID }}
-          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
         with:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_SSH_KEY }}
-          envs: GOOGLE_SERVICE_ACCOUNT_JSON,CLOUDFLARE_ZONE_ID,CLOUDFLARE_API_TOKEN
+          envs: GOOGLE_SERVICE_ACCOUNT_JSON
           script: |
             cd /var/www/elc-tem
             # Ghi runtime env vars vao ecosystem.config.js (nam trong thu muc project)
             # instances:2 + exec_mode:cluster la dieu kien de "pm2 reload" dat duoc
             # zero-downtime that su -- PM2 khoi dong worker moi, cho no listen xong
             # roi moi tat worker cu, luon co it nhat 1 worker phuc vu request. Ca 2
-            # worker dung chung .next/cache tren dia nen Data Cache van nhat quan.
-            python3 -c 'import os,json; cfg={"apps":[{"name":"elc-tem","script":"server.js","instances":2,"exec_mode":"cluster","listen_timeout":10000,"kill_timeout":5000,"env":{"PORT":"3000","NODE_ENV":"production","GOOGLE_SERVICE_ACCOUNT_JSON":os.environ.get("GOOGLE_SERVICE_ACCOUNT_JSON",""),"GO_API_URL":"http://localhost:8090","CLOUDFLARE_ZONE_ID":os.environ.get("CLOUDFLARE_ZONE_ID",""),"CLOUDFLARE_API_TOKEN":os.environ.get("CLOUDFLARE_API_TOKEN","")}}]}; open("ecosystem.config.js","w").write("module.exports = "+json.dumps(cfg)+";\n")'
-            # KHONG xoa .next/cache: day la Data/ISR cache chua data that da fetch tu
-            # Go API. Xoa no moi lan deploy khien lan load dau tien luon bi cache-miss
-            # va hien trang thai rong neu Go API chua kip san sang -- day chinh la loi
-            # "mat data lan dau" da gap. Giu cache lai de request dau tien sau deploy
-            # van duoc phuc vu tu cache cu (stale-while-revalidate) thay vi rong.
+            # worker dung chung .next/cache tren dia (Next.js build-cache, khong
+            # phai data cache -- app da force-dynamic toan bo, khong con ISR/data cache).
+            python3 -c 'import os,json; cfg={"apps":[{"name":"elc-tem","script":"server.js","instances":2,"exec_mode":"cluster","listen_timeout":10000,"kill_timeout":5000,"env":{"PORT":"3000","NODE_ENV":"production","GOOGLE_SERVICE_ACCOUNT_JSON":os.environ.get("GOOGLE_SERVICE_ACCOUNT_JSON",""),"GO_API_URL":"http://localhost:8090"}}]}; open("ecosystem.config.js","w").write("module.exports = "+json.dumps(cfg)+";\n")'
             # Doi Go API san sang truoc khi start Next.js (chi can thiet cho lan
             # deploy dau tien / VPS moi khoi dong lai tu dau, khi chua co PM2 process
             # nao dang chay ca)
@@ -107,30 +101,4 @@ jobs:
               pm2 start ecosystem.config.js
             fi
             pm2 save
-
-            # Cho Next.js thuc su san sang phuc vu truoc khi purge Cloudflare --
-            # purge som khi app chua len se khien Cloudflare crawl lai va dinh
-            # frozen mot ban loi/rong khac vao edge cache.
-            echo "Waiting for Next.js to be ready..."
-            for i in $(seq 1 30); do
-              if curl -sf http://localhost:3000/ > /dev/null 2>&1; then
-                echo "Next.js is ready after ${i}x2s"
-                break
-              fi
-              echo "  attempt $i/30..."
-              sleep 2
-            done
-
-            # Purge Cloudflare cache sau moi lan deploy -- khong doi den lan admin
-            # sua noi dung tiep theo moi purge. Deploy la nguon gay rong pho bien
-            # nhat (Go API/Next.js restart trong luc build/swap), Cloudflare free
-            # plan khong ho tro purge theo tag nen phai purge_everything.
-            if [ -n "$CLOUDFLARE_ZONE_ID" ] && [ -n "$CLOUDFLARE_API_TOKEN" ]; then
-              curl -sf -X POST "https://api.cloudflare.com/client/v4/zones/${CLOUDFLARE_ZONE_ID}/purge_cache" \
-                -H "Authorization: Bearer ${CLOUDFLARE_API_TOKEN}" \
-                -H "Content-Type: application/json" \
-                --data '{"purge_everything":true}' \
-                && echo "Cloudflare cache purged" \
-                || echo "Cloudflare purge failed (non-fatal)"
-            fi
 

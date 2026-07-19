@@ -11,7 +11,12 @@ export interface Brand {
   updatedAt: string;
   deletedAt: string | null;
   content?: unknown | null;
-  faq?: Array<{ question: string; answer: string }> | null;
+  // Describes how a warranty claim works for this brand — elc is a
+  // reseller, not the manufacturer, so it forwards the unit to the brand
+  // rather than servicing it itself, and each brand's process differs.
+  // Shown on every product of this brand instead of repeated per-product
+  // free text.
+  warrantyPolicy?: string | null;
 }
 
 export interface CreateBrandInput {
@@ -23,7 +28,7 @@ export interface CreateBrandInput {
   metaTitle?: string | null;
   metaDescription?: string | null;
   content?: unknown | null;
-  faq?: Array<{ question: string; answer: string }> | null;
+  warrantyPolicy?: string | null;
 }
 
 export interface UpdateBrandInput extends Partial<CreateBrandInput> {

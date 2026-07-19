@@ -1,25 +1,18 @@
+import type { Metadata } from "next";
 import { getPageBySlugAction } from "@/modules/page/presentation/actions";
 import { PreviewContent } from "@/shared/components/layout/user/preview-content";
 import { ScrollToTop } from "@/shared/components/layout/user/scroll-to-top";
-import { Button } from "@/shared/components/ui/button";
 import {
   TypographyH1,
   TypographySmall,
 } from "@/shared/components/ui/typography";
-import { cn } from "@/shared/lib/utils";
 import { ArrowLeft } from "@phosphor-icons/react/dist/ssr";
-import { cacheLife, cacheTag } from "next/cache";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Breadcrumbs } from "@/shared/components/layout/user/breadcrumbs";
-import { Metadata } from "next";
-import {
-  BASE_URL,
-  generateBreadcrumbSchema,
-  sanitizeAndFormatTitle,
-} from "@/shared/lib/seo-utils";
 import { GridSection } from "@/shared/components/sections/grid-section";
 import { unwrapActionResult } from "@/shared/lib/action-result";
+import { BASE_URL } from "@/shared/lib/seo-schema";
 
 interface PageProps {
   params: Promise<{
@@ -27,50 +20,23 @@ interface PageProps {
   }>;
 }
 
-
-
 async function getCachedPageData(slug: string) {
-  "use cache";
-  cacheLife("hours");
-  cacheTag("layout");
-  // null = trang khong ton tai (404 that su, action da phan biet voi loi that).
-  // Loi that se throw va giu nguyen ban cache cu (stale-if-error).
   return getPageBySlugAction(slug).then(unwrapActionResult);
 }
 
-export async function generateMetadata({
-  params,
-}: PageProps): Promise<Metadata> {
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug } = await params;
   const page = await getCachedPageData(slug);
+  if (!page || !page.isPublished) return {};
 
-  if (!page) {
-    return {
-      title: "Không tìm thấy trang | ELC",
-    };
-  }
-
-  const title = sanitizeAndFormatTitle(page.metaTitle || page.title, false);
-  const description = page.metaDescription || page.title;
-
+  const title = page.metaTitle || page.title;
+  const description = page.metaDescription || undefined;
   return {
-    title,
+    title: `${title} | Điện máy ELC`,
     description,
-    alternates: {
-      canonical: `${BASE_URL}/${page.slug}`,
-    },
-    openGraph: {
-      title,
-      description,
-      url: `${BASE_URL}/${page.slug}`,
-      type: "article",
-    },
+    alternates: { canonical: `${BASE_URL}/${slug}` },
+    openGraph: { title, description, url: `${BASE_URL}/${slug}` },
   };
-}
-
-async function getCachedCurrentYear() {
-  "use cache";
-  return new Date().getFullYear();
 }
 
 export default async function StaticPage({ params }: PageProps) {
@@ -83,22 +49,10 @@ export default async function StaticPage({ params }: PageProps) {
     notFound();
   }
 
-  const currentYear = await getCachedCurrentYear();
-
-  const breadcrumbSchema = generateBreadcrumbSchema(
-    [
-      { label: "Thông tin", href: "/thong-tin" },
-      { label: page.title },
-    ],
-    `${BASE_URL}/${page.slug}`,
-  );
+  const currentYear = new Date().getFullYear();
 
   return (
     <main className="w-full bg-background min-h-screen flex flex-col">
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
-      />
       {/* ===== KHỐI 1: CHI TIẾT TRANG ===== */}
       <GridSection
         id="static-page-content"

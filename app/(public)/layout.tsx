@@ -4,9 +4,21 @@ import { Header } from "@/shared/components/layout/user/header";
 import { ChunkErrorListener } from "@/shared/components/layout/user/chunk-error-listener";
 import { FilterTransitionProvider } from "@/shared/providers/filter-transition-provider";
 import { ProductFloatingProvider } from "@/shared/providers/product-floating-provider";
+import { WishlistProvider } from "@/shared/providers/wishlist-provider";
+import { CompareProvider } from "@/shared/providers/compare-provider";
+import { ContactProvider } from "@/shared/providers/contact-provider";
+import { CompareTray } from "@/shared/components/layout/user/compare-tray";
+import { WishlistDialog } from "@/shared/components/layout/user/wishlist-dialog";
 import { TopProgressBar } from "@/shared/components/layout/user/top-progress-bar";
 import { StickyContactActions } from "@/shared/components/sections/sticky-contact-actions";
+import { SEOSchema } from "@/shared/lib/seo-schema";
 import Script from "next/script";
+
+// No caching anywhere in this tree anymore (see cacheComponents removal in
+// next.config.ts) — every public page fetches live from the Go API on each
+// request, so the whole (public) segment must render dynamically rather
+// than attempt a static/prerendered shell.
+export const dynamic = "force-dynamic";
 
 interface PublicLayoutProps {
   children: React.ReactNode;
@@ -28,8 +40,23 @@ export default async function PublicLayout({ children }: PublicLayoutProps) {
   } = await getPublicLayoutData();
 
   return (
+    <ContactProvider contacts={contacts || []}>
+    <WishlistProvider>
+    <CompareProvider>
     <ProductFloatingProvider>
     <FilterTransitionProvider>
+      {/* Organization + WebSite — the only two site-wide JSON-LD entities,
+          scoped to the public tree since only public pages need them. */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@graph": [SEOSchema.getOrganization(branches, contacts), SEOSchema.getWebSite()],
+          }),
+        }}
+      />
+
       {/* GTM: lazy load on first user interaction or after 3.5s timeout */}
       <Script
         id="gtm-script"
@@ -69,7 +96,12 @@ export default async function PublicLayout({ children }: PublicLayoutProps) {
       <TopProgressBar />
       <div className="flex flex-col min-h-screen">
         <ChunkErrorListener />
-        <Header contacts={contacts} />
+        <Header
+          contacts={contacts}
+          groupCategories={groupCategories}
+          categoriesList={categoriesList}
+          brands={brands}
+        />
         <div className="flex-1 ">{children}</div>
         <Footer
           branches={branches}
@@ -85,8 +117,13 @@ export default async function PublicLayout({ children }: PublicLayoutProps) {
           currentYear={currentYear}
         />
         <StickyContactActions contacts={contacts || []} />
+        <CompareTray />
+        <WishlistDialog />
       </div>
     </FilterTransitionProvider>
     </ProductFloatingProvider>
+    </CompareProvider>
+    </WishlistProvider>
+    </ContactProvider>
   );
 }

@@ -8,36 +8,15 @@ import { ProjectMarqueeSection } from "@/shared/components/sections/project-marq
 import { getBranchesAction } from "@/modules/branch/presentation/actions";
 import { getBrandsAction } from "@/modules/brand/presentation/actions";
 import { getProductsAction } from "@/modules/catalog/presentation/actions";
+import { PRODUCT_STATUS } from "@/modules/catalog/domain";
 import { getCategoriesAction } from "@/modules/category/presentation/actions";
 import { getContactsAction } from "@/modules/contact/presentation/actions";
 import { getProjectsAction } from "@/modules/project/presentation/actions";
 import { getSiteSettingsAction } from "@/modules/settings/presentation/actions";
 
-import { generateHomeSchema, generateSystemPageMetadata } from "@/shared/lib/seo-utils";
-import { getCachedSystemPage } from "@/shared/lib/cached-system-page";
-import type { Metadata } from "next";
-
-export async function generateMetadata(): Promise<Metadata> {
-  const systemPage = await getCachedSystemPage("home");
-  return generateSystemPageMetadata(
-    systemPage,
-    "Điện máy ELC | Máy lạnh, Hệ thống khí tươi & Dự án trọn gói",
-    "Điện máy ELC chuyên cung cấp, lắp đặt & thi công máy lạnh, hệ thống khí tươi chính hãng. Đầy đủ dịch vụ: bảo trì, cho thuê, thu cũ đổi mới uy tín hàng đầu.",
-    ""
-  ) as Metadata;
-}
-
-import { cacheLife, cacheTag } from "next/cache";
 import { unwrapActionResult } from "@/shared/lib/action-result";
 
 async function getCachedHomeData() {
-  "use cache";
-  cacheLife("days");
-  cacheTag("products-list", "projects-list", "brands", "layout", "categories");
-
-  // Cac action goi Go API throw khi that su loi (mang, 5xx, timeout) thay vi
-  // tra ve mang rong -- nho vay "use cache" giu nguyen ban cache cu con tot
-  // (stale-if-error) thay vi ghi de bang trang thai rong.
   const [settingsData, projects, categories, contacts, brands, branches] =
     await Promise.all([
       getSiteSettingsAction().then(unwrapActionResult),
@@ -62,7 +41,7 @@ async function getCachedHomeData() {
   const categoriesWithProducts = await Promise.all(
     (categories || []).map(async (category) => {
       const { data: products, totalCount } = await getProductsAction({
-        isPublished: true,
+        status: PRODUCT_STATUS.PUBLISHED,
         categoryId: category.id,
         limit: 12,
         offset: 0,
@@ -171,21 +150,9 @@ export default async function Home() {
     },
   ];
 
-  const homeSchema = generateHomeSchema(
-    settings,
-    contacts || [],
-    branches || [],
-  );
-
   // Render layout sections
   return (
     <>
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{
-          __html: JSON.stringify(homeSchema),
-        }}
-      />
       <main className="w-full flex flex-col mt-0 mb-0">
         {sections.map((section, index) => (
           <GridSection

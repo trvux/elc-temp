@@ -8,8 +8,6 @@ import { toast } from "sonner";
 import { TiptapEditor } from "@/shared/components/ui/tiptap-editor";
 import { convertToWebP } from "@/shared/lib/image";
 import { uploadImageFile } from "@/shared/lib/upload-image";
-import { generateHTML } from "@tiptap/html";
-import { getTiptapExtensions } from "@/shared/lib/tiptap-shared";
 
 import { AdminDialog } from "@/shared/components/layout/admin/admin-dialog";
 import { DeleteDialog } from "@/shared/components/layout/admin/delete-dialog";
@@ -80,7 +78,7 @@ export function BrandManagement() {
             metaTitle: b.metaTitle || "",
             metaDescription: b.metaDescription || "",
             content: b.content || "",
-            faq: b.faq || [],
+            warrantyPolicy: b.warrantyPolicy || "",
           });
         },
         onDelete: setDeletingId,
@@ -99,7 +97,7 @@ export function BrandManagement() {
       metaTitle: "",
       metaDescription: "",
       content: "",
-      faq: [],
+      warrantyPolicy: "",
     });
   }
 
@@ -138,7 +136,7 @@ export function BrandManagement() {
             <TabsList>
               <TabsTrigger value="info">Thông tin chung</TabsTrigger>
               <TabsTrigger value="seo">Cấu hình SEO</TabsTrigger>
-              <TabsTrigger value="content">Bài viết & FAQ</TabsTrigger>
+              <TabsTrigger value="content">Bài viết</TabsTrigger>
             </TabsList>
           </div>
 
@@ -222,6 +220,26 @@ export function BrandManagement() {
                           )}
                         />
                       </div>
+
+                      <Controller
+                        control={form.control}
+                        name="warrantyPolicy"
+                        render={({ field, fieldState }) => (
+                          <Field>
+                            <FieldLabel>Chính sách bảo hành</FieldLabel>
+                            <Textarea
+                              {...field}
+                              value={field.value || ""}
+                              placeholder="VD: Khách mang máy đến elc, elc gửi hãng bảo hành theo quy trình của Daikin..."
+                              className="min-h-30 resize-y"
+                            />
+                            <FieldDescription>
+                              elc là đại lý, không phải hãng sản xuất — mô tả quy trình gửi hãng bảo hành áp dụng cho mọi sản phẩm của thương hiệu này.
+                            </FieldDescription>
+                            <FieldError errors={[fieldState.error]} />
+                          </Field>
+                        )}
+                      />
                     </div>
 
                     <div className="md:col-span-4 flex justify-start md:justify-center">
@@ -288,76 +306,6 @@ export function BrandManagement() {
                 </TabsContent>
 
                 <TabsContent value="content" className="m-0 space-y-8">
-                  {/* FAQ Section */}
-                  <div className="space-y-6 border p-6 rounded-2xl bg-muted/10">
-                    <div className="flex items-center justify-between border-b pb-2">
-                      <div>
-                        <h3 className="text-sm font-semibold tracking-tight">Câu hỏi thường gặp (FAQ)</h3>
-                        <p className="text-[11px] text-muted-foreground">Thêm các câu hỏi và câu trả lời thường gặp cho hãng này.</p>
-                      </div>
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        onClick={() => {
-                          const currentFaqs = form.getValues("faq") || [];
-                          form.setValue("faq", [...currentFaqs, { question: "", answer: "" }]);
-                        }}
-                        className="h-8"
-                      >
-                        Thêm câu hỏi
-                      </Button>
-                    </div>
-                    <div className="space-y-4">
-                      {(form.watch("faq") || []).map((_, index) => (
-                        <div key={index} className="border p-4 rounded-xl space-y-4 bg-background">
-                          <div className="flex items-center justify-between">
-                            <span className="text-xs font-semibold text-muted-foreground">Câu hỏi #{index + 1}</span>
-                            <Button
-                              type="button"
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => {
-                                const currentFaqs = form.getValues("faq") || [];
-                                form.setValue("faq", currentFaqs.filter((_, i) => i !== index));
-                              }}
-                              className="h-7 text-destructive hover:text-destructive"
-                            >
-                              Xóa
-                            </Button>
-                          </div>
-                          <div className="grid grid-cols-1 gap-4">
-                            <Controller
-                              control={form.control}
-                              name={`faq.${index}.question`}
-                              render={({ field, fieldState }) => (
-                                <Field>
-                                  <FieldLabel className="text-xs">Câu hỏi</FieldLabel>
-                                  <Input {...field} placeholder="VD: Điều hòa hãng này bảo hành mấy năm?" />
-                                  <FieldError errors={[fieldState.error]} />
-                                </Field>
-                              )}
-                            />
-                            <Controller
-                              control={form.control}
-                              name={`faq.${index}.answer`}
-                              render={({ field, fieldState }) => (
-                                <Field>
-                                  <FieldLabel className="text-xs">Câu trả lời</FieldLabel>
-                                  <Textarea {...field} placeholder="VD: Bảo hành chính hãng 2 năm..." className="min-h-[60px]" />
-                                  <FieldError errors={[fieldState.error]} />
-                                </Field>
-                              )}
-                            />
-                          </div>
-                        </div>
-                      ))}
-                      {(!form.watch("faq") || form.watch("faq")?.length === 0) && (
-                        <p className="text-xs text-muted-foreground text-center py-4">Chưa có câu hỏi nào.</p>
-                      )}
-                    </div>
-                  </div>
-
                   {/* Editor Section */}
                   <div className="space-y-4">
                     <div className="flex items-center justify-between border-b pb-2">

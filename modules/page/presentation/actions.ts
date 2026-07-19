@@ -2,7 +2,6 @@
 
 import { revalidatePath, revalidateTag } from "next/cache";
 import { CreatePageInput, Page, UpdatePageInput } from "../domain";
-import { purgeCloudflareCache } from "@/shared/lib/cloudflare-purge";
 import { authHeaders } from "@/shared/lib/go-api";
 
 const GO_API_URL = process.env.GO_API_URL;
@@ -66,12 +65,14 @@ async function extractErrorMessage(res: Response, fallback: string): Promise<str
   }
 }
 
-export async function getPagesAction() {
+export async function getPagesAction(options?: { isPublished?: boolean }) {
   if (!GO_API_URL) {
     return { data: [] as Page[], error: null };
   }
   try {
-    const res = await fetch(`${GO_API_URL}/pages`, { cache: "no-store" });
+    const params = new URLSearchParams();
+    if (options?.isPublished !== undefined) params.set("is_published", String(options.isPublished));
+    const res = await fetch(`${GO_API_URL}/pages?${params.toString()}`, { cache: "no-store" });
     if (!res.ok) {
       return { data: [], error: await extractErrorMessage(res, "Không thể tải danh sách trang") };
     }
@@ -132,7 +133,6 @@ export async function createPageAction(input: CreatePageInput) {
     revalidatePath("/admin/pages");
     revalidatePath(`/${domainPage.slug}`);
     revalidateTag("layout", { expire: 0 });
-    await purgeCloudflareCache();
     return { data: domainPage, error: null };
   } catch (error) {
     if (isPrerenderError(error)) throw error;
@@ -171,7 +171,6 @@ export async function updatePageAction(input: UpdatePageInput) {
     revalidatePath("/admin/pages");
     revalidatePath(`/${domainPage.slug}`);
     revalidateTag("layout", { expire: 0 });
-    await purgeCloudflareCache();
     return { data: domainPage, error: null };
   } catch (error) {
     if (isPrerenderError(error)) throw error;
@@ -198,7 +197,6 @@ export async function deletePageAction(id: string) {
 
     revalidatePath("/admin/pages");
     revalidateTag("layout", { expire: 0 });
-    await purgeCloudflareCache();
     return { success: true, error: null };
   } catch (error) {
     if (isPrerenderError(error)) throw error;

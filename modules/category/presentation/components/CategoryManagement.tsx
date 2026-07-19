@@ -3,13 +3,11 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Plus, ArrowSquareOut } from "@phosphor-icons/react";
 import { useMemo, useState } from "react";
-import { Controller, useFieldArray } from "react-hook-form";
+import { Controller } from "react-hook-form";
 import { toast } from "sonner";
 import { TiptapEditor } from "@/shared/components/ui/tiptap-editor";
 import { convertToWebP } from "@/shared/lib/image";
 import { uploadImageFile } from "@/shared/lib/upload-image";
-import { generateHTML } from "@tiptap/html";
-import { getTiptapExtensions } from "@/shared/lib/tiptap-shared";
 
 import { AdminDialog } from "@/shared/components/layout/admin/admin-dialog";
 import { DeleteDialog } from "@/shared/components/layout/admin/delete-dialog";
@@ -106,9 +104,9 @@ export function CategoryManagement() {
             metaTitle: cat.metaTitle || "",
             metaDescription: cat.metaDescription || "",
             isFeatured: cat.isFeatured || false,
+            isHidden: cat.isHidden || false,
             orderIndex: cat.orderIndex || 0,
             content: cat.content || "",
-            faq: cat.faq || [],
           });
         },
         onDelete: (id) => {
@@ -128,9 +126,9 @@ export function CategoryManagement() {
       metaTitle: "",
       metaDescription: "",
       isFeatured: false,
+      isHidden: false,
       orderIndex: 0,
       content: "",
-      faq: [],
     });
   }
 
@@ -235,7 +233,7 @@ export function CategoryManagement() {
                     )}
                   />
 
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-3 gap-4">
                     <Controller
                       control={form.control}
                       name="orderIndex"
@@ -257,6 +255,17 @@ export function CategoryManagement() {
                       render={({ field }) => (
                         <Field orientation="horizontal" className="justify-between items-center border px-3 py-2 rounded-xl self-end h-[42px] gap-2">
                           <FieldLabel className="font-normal text-xs whitespace-nowrap mb-0">Nổi bật</FieldLabel>
+                          <Switch checked={field.value} onCheckedChange={field.onChange} />
+                        </Field>
+                      )}
+                    />
+
+                    <Controller
+                      control={form.control}
+                      name="isHidden"
+                      render={({ field }) => (
+                        <Field orientation="horizontal" className="justify-between items-center border px-3 py-2 rounded-xl self-end h-[42px] gap-2">
+                          <FieldLabel className="font-normal text-xs whitespace-nowrap mb-0">Ẩn khỏi hiển thị công khai</FieldLabel>
                           <Switch checked={field.value} onCheckedChange={field.onChange} />
                         </Field>
                       )}
@@ -314,76 +323,6 @@ export function CategoryManagement() {
                       </Field>
                     )}
                   />
-                </div>
-              </div>
-
-              {/* FAQ Section */}
-              <div className="space-y-6 border p-6 rounded-2xl bg-muted/10">
-                <div className="flex items-center justify-between border-b pb-2">
-                  <div>
-                    <h3 className="text-sm font-semibold tracking-tight">Câu hỏi thường gặp (FAQ)</h3>
-                    <p className="text-[11px] text-muted-foreground">Thêm các câu hỏi và câu trả lời thường gặp cho danh mục này.</p>
-                  </div>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={() => {
-                      const currentFaqs = form.getValues("faq") || [];
-                      form.setValue("faq", [...currentFaqs, { question: "", answer: "" }]);
-                    }}
-                    className="h-8"
-                  >
-                    Thêm câu hỏi
-                  </Button>
-                </div>
-                <div className="space-y-4">
-                  {(form.watch("faq") || []).map((_, index) => (
-                    <div key={index} className="border p-4 rounded-xl space-y-4 bg-background">
-                      <div className="flex items-center justify-between">
-                        <span className="text-xs font-semibold text-muted-foreground">Câu hỏi #{index + 1}</span>
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => {
-                            const currentFaqs = form.getValues("faq") || [];
-                            form.setValue("faq", currentFaqs.filter((_, i) => i !== index));
-                          }}
-                          className="h-7 text-destructive hover:text-destructive"
-                        >
-                          Xóa
-                        </Button>
-                      </div>
-                      <div className="grid grid-cols-1 gap-4">
-                        <Controller
-                          control={form.control}
-                          name={`faq.${index}.question`}
-                          render={({ field, fieldState }) => (
-                            <Field>
-                              <FieldLabel className="text-xs">Câu hỏi</FieldLabel>
-                              <Input {...field} placeholder="VD: Máy lạnh áp trần lắp đặt thế nào?" />
-                              <FieldError errors={[fieldState.error]} />
-                            </Field>
-                          )}
-                        />
-                        <Controller
-                          control={form.control}
-                          name={`faq.${index}.answer`}
-                          render={({ field, fieldState }) => (
-                            <Field>
-                              <FieldLabel className="text-xs">Câu trả lời</FieldLabel>
-                              <Textarea {...field} placeholder="VD: Lắp đặt sát bề mặt trần..." className="min-h-[60px]" />
-                              <FieldError errors={[fieldState.error]} />
-                            </Field>
-                          )}
-                        />
-                      </div>
-                    </div>
-                  ))}
-                  {(!form.watch("faq") || form.watch("faq")?.length === 0) && (
-                    <p className="text-xs text-muted-foreground text-center py-4">Chưa có câu hỏi nào.</p>
-                  )}
                 </div>
               </div>
 

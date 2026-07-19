@@ -3,7 +3,6 @@
 import { revalidatePath, revalidateTag } from "next/cache";
 import { Brand, BrandFilter, CreateBrandInput, UpdateBrandInput } from "../domain";
 import { authHeaders, toSnakeCaseBody } from "@/shared/lib/go-api";
-import { purgeCloudflareCache } from "@/shared/lib/cloudflare-purge";
 
 const GO_API_URL = process.env.GO_API_URL;
 
@@ -17,7 +16,7 @@ interface GoBrandResponse {
   is_featured: boolean;
   order_index: number;
   content: unknown | null;
-  faq: Array<{ question: string; answer: string }> | null;
+  warranty_policy: string | null;
   created_at: string;
   updated_at: string;
   deleted_at: string | null;
@@ -40,7 +39,7 @@ function mapGoBrand(row: GoBrandResponse): Brand {
     isFeatured: row.is_featured,
     orderIndex: row.order_index,
     content: row.content,
-    faq: row.faq,
+    warrantyPolicy: row.warranty_policy,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
     deletedAt: row.deleted_at,
@@ -120,7 +119,6 @@ export async function createBrandAction(input: CreateBrandInput) {
     const row = (await res.json()) as GoBrandResponse;
     revalidatePath("/admin/brands");
     revalidateTag("layout", { expire: 0 });
-    await purgeCloudflareCache();
     return { data: mapGoBrand(row), error: null };
   } catch (error) {
     console.error("createBrandAction error:", error);
@@ -149,7 +147,6 @@ export async function updateBrandAction(input: UpdateBrandInput) {
     const row = (await res.json()) as GoBrandResponse;
     revalidatePath("/admin/brands");
     revalidateTag("layout", { expire: 0 });
-    await purgeCloudflareCache();
     return { data: mapGoBrand(row), error: null };
   } catch (error) {
     console.error("updateBrandAction error:", error);
@@ -172,7 +169,6 @@ export async function deleteBrandAction(id: string) {
 
     revalidatePath("/admin/brands");
     revalidateTag("layout", { expire: 0 });
-    await purgeCloudflareCache();
     return { success: true, error: null };
   } catch (error) {
     console.error("deleteBrandAction error:", error);

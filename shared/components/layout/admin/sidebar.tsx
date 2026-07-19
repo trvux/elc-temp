@@ -3,7 +3,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { logoutAction } from "@/modules/auth";
 import { countInquiriesAction } from "@/modules/inquiry";
-import { countReviewsAction } from "@/modules/review";
 import {
   Avatar,
   AvatarFallback,
@@ -30,7 +29,7 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/shared/components/ui/sidebar";
-import { Medal, CaretUpDown, FileText, Kanban, Gauge, SignOut, MapPin, Package, Phone, ChatCircleText, Gear, ShieldCheck, GridFour, List, Stack, Briefcase, SquaresFour, Newspaper, Globe, UsersThree, MagnifyingGlass, PenNib, TagSimple, Star, UserCircle, Sliders } from "@phosphor-icons/react";
+import { Medal, CaretUpDown, FileText, Kanban, Gauge, SignOut, MapPin, Package, Phone, ChatCircleText, Gear, ShieldCheck, GridFour, List, Stack, Briefcase, SquaresFour, Newspaper, Globe, UsersThree, MagnifyingGlass, PenNib, TagSimple, UserCircle, Sliders, Notepad } from "@phosphor-icons/react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
@@ -54,6 +53,7 @@ const navGroups: { label: string; items: NavItemDef[] }[] = [
       { href: "/admin/product-lines", label: "Dòng sản phẩm", icon: TagSimple },
       { href: "/admin/attribute-definitions", label: "Thuộc tính sản phẩm", icon: Sliders },
       { href: "/admin/products", label: "Sản phẩm", icon: Package },
+      { href: "/admin/catalog-page", label: "Trang Tất cả sản phẩm", icon: Notepad },
     ],
   },
   {
@@ -68,7 +68,6 @@ const navGroups: { label: string; items: NavItemDef[] }[] = [
     label: "Khách hàng",
     items: [
       { href: "/admin/inquiries", label: "Yêu cầu tư vấn", icon: ChatCircleText },
-      { href: "/admin/reviews", label: "Đánh giá", icon: Star },
       { href: "/admin/contacts", label: "Liên hệ", icon: Phone },
     ],
   },
@@ -102,12 +101,10 @@ function NavItemRow({
   item,
   pathname,
   newInquiriesCount,
-  hiddenReviewsCount,
 }: {
   item: NavItemDef;
   pathname: string;
   newInquiriesCount?: number;
-  hiddenReviewsCount?: number;
 }) {
   return (
     <SidebarMenuItem>
@@ -125,11 +122,6 @@ function NavItemRow({
       {item.href === "/admin/inquiries" && !!newInquiriesCount && (
         <SidebarMenuBadge className="bg-primary text-primary-foreground">
           {newInquiriesCount}
-        </SidebarMenuBadge>
-      )}
-      {item.href === "/admin/reviews" && !!hiddenReviewsCount && (
-        <SidebarMenuBadge className="bg-destructive text-destructive-foreground">
-          {hiddenReviewsCount}
         </SidebarMenuBadge>
       )}
     </SidebarMenuItem>
@@ -246,18 +238,6 @@ export default function AdminSidebar({ user }: { user: UserInfo }) {
     refetchInterval: 60_000,
   });
 
-  // Reviews auto-hidden by the blocklist filter (see elc-go
-  // internal/review/domain/blocklist.go) sit here awaiting a human decision
-  // — same "needs attention" badge treatment as new inquiries.
-  const { data: hiddenReviewsCount } = useQuery({
-    queryKey: ["reviews-hidden-count"],
-    queryFn: async () => {
-      const { data } = await countReviewsAction({ isPublished: false });
-      return data;
-    },
-    refetchInterval: 60_000,
-  });
-
   return (
     <Sidebar variant="inset">
       <SidebarHeader>
@@ -299,7 +279,6 @@ export default function AdminSidebar({ user }: { user: UserInfo }) {
                   item={item}
                   pathname={pathname}
                   newInquiriesCount={newInquiriesCount}
-                  hiddenReviewsCount={hiddenReviewsCount}
                 />
               ))}
             </SidebarMenu>

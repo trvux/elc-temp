@@ -2,11 +2,6 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   staticPageGenerationTimeout: 300,
-  cacheComponents: true,
-  cacheLife: {
-    // Go API/Supabase chua san sang luc startup: retry ngan thay vi cache dai han
-    retry: { stale: 30, revalidate: 30, expire: 300 },
-  },
   output: "standalone",
   allowedDevOrigins: ["192.168.1.238"],
   images: {
@@ -39,8 +34,10 @@ const nextConfig: NextConfig = {
     staticGenerationMinPagesPerWorker: 150,
     staticGenerationMaxConcurrency: 2,
     staleTimes: {
-      dynamic: 60,
-      static: 300,
+      // Next.js enforces a hard floor of 30s on `static` — 0 is rejected as
+      // an invalid config value, so this is the closest to "off" possible.
+      dynamic: 0,
+      static: 30,
     },
     optimizePackageImports: [
       "@phosphor-icons/react",

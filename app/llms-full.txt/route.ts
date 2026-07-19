@@ -5,25 +5,13 @@ import { getCategoriesAction } from "@/modules/category/presentation/actions";
 import { getBrandsAction } from "@/modules/brand/presentation/actions";
 import { getGroupsAction } from "@/modules/group/presentation/actions";
 import { getProductsAction } from "@/modules/catalog/presentation/actions";
-import { resolveDefaultVariant, resolveProductDisplayPrice } from "@/modules/catalog/domain";
+import { resolveDefaultVariant, resolveProductDisplayPrice, PRODUCT_STATUS } from "@/modules/catalog/domain";
 import { getServicesAction } from "@/modules/service/presentation/actions";
 import { getPagesAction } from "@/modules/page/presentation/actions";
 import { getProjectsAction } from "@/modules/project/presentation/actions";
 import { getProjectTypesAction } from "@/modules/project-type/presentation/actions";
 import { getNewsAction } from "@/modules/news/presentation/actions";
 import { BASE_URL } from "@/shared/lib/seo-schema";
-
-interface SpecSubItem {
-  label?: string;
-  value?: string;
-  unit?: string;
-}
-
-interface SpecGroup {
-  label?: string;
-  value?: string;
-  items?: SpecSubItem[];
-}
 
 function formatVndPrice(price: number | null): string {
   if (price === null || price === undefined || price === 0) return "Lien he";
@@ -67,7 +55,7 @@ export async function GET() {
     getCategoriesAction(),
     getBrandsAction(),
     getGroupsAction(),
-    getProductsAction({ isPublished: true }),
+    getProductsAction({ status: PRODUCT_STATUS.PUBLISHED }),
     getServicesAction({ isPublished: true }),
     getPagesAction(),
     getProjectsAction({ isPublished: true }),
@@ -154,18 +142,19 @@ export async function GET() {
       markdown += `- **Detailed Description**: ${cleanDesc}\n`;
     }
 
-    // Formatted specs (displaying all specs)
-    const productSpecs = p.specs;
-    if (Array.isArray(productSpecs)) {
+    // Structured attribute-based specifications
+    const attributeValues = (p.attributeValues || []).filter(
+      (av) => av.valueText || av.valueNumber != null || av.valueBoolean != null,
+    );
+    if (attributeValues.length > 0) {
       markdown += `- **Specifications**:\n`;
-      (productSpecs as SpecGroup[]).forEach((group) => {
-        if (group.label && group.value) {
-          markdown += `  - ${group.label}: ${group.value}\n`;
-        } else if (group.label && Array.isArray(group.items)) {
-          group.items.forEach((item) => {
-            markdown += `  - ${group.label} - ${item.label}: ${item.value} ${item.unit || ""}\n`;
-          });
+      attributeValues.forEach((av) => {
+        let value = av.valueText || "";
+        if (av.dataType === "boolean") value = av.valueBoolean ? "Yes" : "No";
+        else if (av.dataType === "number" && av.valueNumber != null) {
+          value = `${av.valueNumber}${av.unit ? ` ${av.unit}` : ""}`;
         }
+        markdown += `  - ${av.name}: ${value}\n`;
       });
     }
     markdown += `\n`;

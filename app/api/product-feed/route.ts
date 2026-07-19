@@ -1,12 +1,12 @@
 import { getProductsAction } from "@/modules/catalog/presentation/actions";
-import { resolveDefaultVariant } from "@/modules/catalog/domain";
+import { resolveDefaultVariant, PRODUCT_STATUS } from "@/modules/catalog/domain";
 import { NextResponse, connection } from "next/server";
 import { BASE_URL } from "@/shared/lib/seo-schema";
 import { imageUrls } from "@/shared/lib/image-asset";
 
 export async function GET() {
   await connection();
-  const { data: products, error } = await getProductsAction({ isPublished: true });
+  const { data: products, error } = await getProductsAction({ status: PRODUCT_STATUS.PUBLISHED });
 
   if (error) {
     return new NextResponse("Error fetching products", { status: 500 });

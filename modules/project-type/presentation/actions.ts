@@ -8,7 +8,6 @@ import {
   UpdateProjectTypeInput,
 } from "../domain/types";
 import { authHeaders, toSnakeCaseBody } from "@/shared/lib/go-api";
-import { purgeCloudflareCache } from "@/shared/lib/cloudflare-purge";
 
 const GO_API_URL = process.env.GO_API_URL;
 
@@ -70,6 +69,11 @@ function emptyGroupTimestamps() {
   return { createdAt: "", updatedAt: "", deletedAt: null };
 }
 
+// isHidden isn't carried by this module's own category/group join (this
+// project-type <-> category association view predates the is_hidden flag
+// and isn't used for the "Chưa phân loại" public-nav filtering this field
+// exists for) — default false, same filler convention as emptyGroupTimestamps.
+
 function mapGoProjectType(row: GoProjectTypeResponse): ProjectTypeWithCategories {
   return {
     id: row.id,
@@ -92,6 +96,7 @@ function mapGoProjectType(row: GoProjectTypeResponse): ProjectTypeWithCategories
       metaTitle: cat.meta_title,
       metaDescription: cat.meta_description,
       isFeatured: cat.is_featured,
+      isHidden: false,
       orderIndex: cat.order_index,
       createdAt: cat.created_at,
       updatedAt: cat.updated_at,
@@ -105,6 +110,7 @@ function mapGoProjectType(row: GoProjectTypeResponse): ProjectTypeWithCategories
             metaTitle: cat.group.meta_title,
             metaDescription: cat.group.meta_description,
             isFeatured: cat.group.is_featured,
+            isHidden: false,
             orderIndex: cat.group.order_index,
             ...emptyGroupTimestamps(),
           }
@@ -123,9 +129,8 @@ async function extractErrorMessage(res: Response, fallback: string): Promise<str
 }
 
 // isPrerenderError mirrors modules/category/presentation/actions.ts's own
-// helper — getProjectTypesAction is called from ProjectListModule.tsx inside
-// a "use cache" render function, so a real fetch failure there must
-// propagate rather than silently cache an empty list.
+// helper — re-throws Next.js's own internal prerendering-abort signal
+// instead of swallowing it.
 function isPrerenderError(error: unknown): boolean {
   if (error instanceof Error) {
     const msg = error.message.toLowerCase();
@@ -199,7 +204,6 @@ export async function createProjectTypeAction(input: CreateProjectTypeInput) {
     revalidatePath("/admin/project-types");
     revalidateTag("layout", { expire: 0 });
     revalidateTag("projects", { expire: 0 });
-    await purgeCloudflareCache();
     return { data: mapGoProjectType(row) as ProjectType, error: null };
   } catch (error) {
     console.error("createProjectTypeAction error:", error);
@@ -229,7 +233,6 @@ export async function updateProjectTypeAction(input: UpdateProjectTypeInput) {
     revalidatePath("/admin/project-types");
     revalidateTag("layout", { expire: 0 });
     revalidateTag("projects", { expire: 0 });
-    await purgeCloudflareCache();
     return { data: mapGoProjectType(row) as ProjectType, error: null };
   } catch (error) {
     console.error("updateProjectTypeAction error:", error);
@@ -253,7 +256,6 @@ export async function deleteProjectTypeAction(id: string) {
     revalidatePath("/admin/project-types");
     revalidateTag("layout", { expire: 0 });
     revalidateTag("projects", { expire: 0 });
-    await purgeCloudflareCache();
     return { error: null };
   } catch (error) {
     console.error("deleteProjectTypeAction error:", error);

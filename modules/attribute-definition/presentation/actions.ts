@@ -9,13 +9,12 @@ import {
   UpdateAttributeDefinitionInput,
 } from "../domain";
 import { authHeaders, toSnakeCaseBody } from "@/shared/lib/go-api";
-import { purgeCloudflareCache } from "@/shared/lib/cloudflare-purge";
 
 const GO_API_URL = process.env.GO_API_URL;
 
 interface GoAttributeDefinitionResponse {
   id: string;
-  category_id: string | null;
+  category_ids: string[] | null;
   code: string;
   name: string;
   group_label: string | null;
@@ -38,7 +37,7 @@ interface GoErrorResponse {
 function mapGoAttributeDefinition(row: GoAttributeDefinitionResponse): AttributeDefinition {
   return {
     id: row.id,
-    categoryId: row.category_id,
+    categoryIds: row.category_ids ?? [],
     code: row.code,
     name: row.name,
     groupLabel: row.group_label,
@@ -104,7 +103,6 @@ export async function createAttributeDefinitionAction(input: CreateAttributeDefi
     const row = (await res.json()) as GoAttributeDefinitionResponse;
     revalidatePath("/admin/attribute-definitions");
     revalidateTag("layout", { expire: 0 });
-    await purgeCloudflareCache();
     return { data: mapGoAttributeDefinition(row), error: null };
   } catch (error) {
     console.error("createAttributeDefinitionAction error:", error);
@@ -133,13 +131,64 @@ export async function updateAttributeDefinitionAction(input: UpdateAttributeDefi
     const row = (await res.json()) as GoAttributeDefinitionResponse;
     revalidatePath("/admin/attribute-definitions");
     revalidateTag("layout", { expire: 0 });
-    await purgeCloudflareCache();
     return { data: mapGoAttributeDefinition(row), error: null };
   } catch (error) {
     console.error("updateAttributeDefinitionAction error:", error);
     return {
       data: null,
       error: error instanceof Error ? error.message : "Không thể cập nhật thuộc tính",
+    };
+  }
+}
+
+// attachAttributeDefinitionCategoriesAction is additive — categoryIds
+// already attached are left untouched (see the Go handler's doc comment).
+export async function attachAttributeDefinitionCategoriesAction(id: string, categoryIds: string[]) {
+  if (!GO_API_URL) {
+    return { success: false, error: "GO_API_URL is not configured" };
+  }
+  if (categoryIds.length === 0) {
+    return { success: true, error: null };
+  }
+  try {
+    const res = await fetch(`${GO_API_URL}/attribute-definitions/${id}/categories`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", ...(await authHeaders()) },
+      body: JSON.stringify({ category_ids: categoryIds }),
+    });
+    if (!res.ok) {
+      return { success: false, error: await extractErrorMessage(res, "Không thể gắn danh mục") };
+    }
+    revalidatePath("/admin/attribute-definitions");
+    return { success: true, error: null };
+  } catch (error) {
+    console.error("attachAttributeDefinitionCategoriesAction error:", error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : "Không thể gắn danh mục",
+    };
+  }
+}
+
+export async function detachAttributeDefinitionCategoryAction(id: string, categoryId: string) {
+  if (!GO_API_URL) {
+    return { success: false, error: "GO_API_URL is not configured" };
+  }
+  try {
+    const res = await fetch(`${GO_API_URL}/attribute-definitions/${id}/categories/${categoryId}`, {
+      method: "DELETE",
+      headers: await authHeaders(),
+    });
+    if (!res.ok) {
+      return { success: false, error: await extractErrorMessage(res, "Không thể gỡ danh mục") };
+    }
+    revalidatePath("/admin/attribute-definitions");
+    return { success: true, error: null };
+  } catch (error) {
+    console.error("detachAttributeDefinitionCategoryAction error:", error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : "Không thể gỡ danh mục",
     };
   }
 }
@@ -156,7 +205,6 @@ export async function deleteAttributeDefinitionAction(id: string) {
 
     revalidatePath("/admin/attribute-definitions");
     revalidateTag("layout", { expire: 0 });
-    await purgeCloudflareCache();
     return { success: true, error: null };
   } catch (error) {
     console.error("deleteAttributeDefinitionAction error:", error);

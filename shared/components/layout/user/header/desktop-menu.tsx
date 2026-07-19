@@ -4,24 +4,45 @@ import { NavigationMenu, NavigationMenuList } from "@/shared/components/ui/navig
 import { type NavLink, checkActiveLink } from "@/modules/settings/domain/navigation";
 import { usePathname } from "next/navigation";
 import { DesktopNavItem } from "./nav-item";
+import { ProductMegaMenuItem, type BrandNavRef } from "./nav-mega-menu";
+import type { CategoryRef, GroupCategoryRef } from "@/shared/lib/group-categories";
+
+const PRODUCT_LINK_HREF = "/san-pham";
 
 interface DesktopMenuProps {
   links: NavLink[];
+  groupCategories?: GroupCategoryRef[];
+  categoriesList?: CategoryRef[];
+  brands?: BrandNavRef[];
 }
 
-export function DesktopMenu({ links }: DesktopMenuProps) {
+export function DesktopMenu({
+  links,
+  groupCategories = [],
+  categoriesList = [],
+  brands = [],
+}: DesktopMenuProps) {
   const pathname = usePathname();
 
   return (
     <NavigationMenu className="hidden lg:flex">
       <NavigationMenuList className="flex items-center gap-0.5 lg:gap-1">
-        {links.map((link) => (
-          <DesktopNavItem
-            key={link.name}
-            link={link}
-            isActive={checkActiveLink(link.href, pathname)}
-          />
-        ))}
+        {links.map((link) =>
+          link.href === PRODUCT_LINK_HREF ? (
+            <ProductMegaMenuItem
+              key={link.name}
+              groupCategories={groupCategories}
+              categoriesList={categoriesList}
+              brands={brands}
+            />
+          ) : (
+            <DesktopNavItem
+              key={link.name}
+              link={link}
+              isActive={checkActiveLink(link.href, pathname)}
+            />
+          ),
+        )}
       </NavigationMenuList>
     </NavigationMenu>
   );

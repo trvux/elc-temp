@@ -9,7 +9,6 @@ import {
   UpdateCategoryInput,
 } from "../domain/types";
 import { authHeaders, toSnakeCaseBody } from "@/shared/lib/go-api";
-import { purgeCloudflareCache } from "@/shared/lib/cloudflare-purge";
 
 const GO_API_URL = process.env.GO_API_URL;
 
@@ -21,6 +20,7 @@ interface GoGroupRefResponse {
   meta_title: string | null;
   meta_description: string | null;
   is_featured: boolean;
+  is_hidden: boolean;
   order_index: number;
 }
 
@@ -34,9 +34,9 @@ interface GoCategoryResponse {
   meta_title: string | null;
   meta_description: string | null;
   is_featured: boolean;
+  is_hidden: boolean;
   order_index: number;
   content: unknown | null;
-  faq: Array<{ question: string; answer: string }> | null;
   created_at: string;
   updated_at: string;
   deleted_at: string | null;
@@ -58,9 +58,9 @@ function mapGoCategory(row: GoCategoryResponse): CategoryWithGroup {
     metaTitle: row.meta_title,
     metaDescription: row.meta_description,
     isFeatured: row.is_featured,
+    isHidden: row.is_hidden,
     orderIndex: row.order_index,
     content: row.content,
-    faq: row.faq,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
     deletedAt: row.deleted_at,
@@ -73,6 +73,7 @@ function mapGoCategory(row: GoCategoryResponse): CategoryWithGroup {
           metaTitle: row.group.meta_title,
           metaDescription: row.group.meta_description,
           isFeatured: row.group.is_featured,
+          isHidden: row.group.is_hidden,
           orderIndex: row.group.order_index,
           ...emptyGroupTimestamps(),
         }
@@ -98,11 +99,9 @@ async function extractErrorMessage(res: Response, fallback: string): Promise<str
   }
 }
 
-// getCategoriesAction is called from inside "use cache" render functions
-// (app/(public)/san-pham/page.tsx, ProductListModule.tsx) — a real fetch
-// failure there must propagate so Next.js keeps serving the stale cache
-// instead of silently caching an empty category list, same reasoning as
-// modules/catalog/presentation/actions.ts's isPrerenderError.
+// isPrerenderError re-throws Next.js's own internal prerendering-abort
+// signal instead of swallowing it, so build-time static generation still
+// works correctly — same helper as modules/catalog/presentation/actions.ts.
 function isPrerenderError(error: unknown): boolean {
   if (error instanceof Error) {
     const msg = error.message.toLowerCase();
@@ -207,7 +206,6 @@ export async function createCategoryAction(input: CreateCategoryInput) {
     revalidatePath("/admin/categories");
     revalidateTag("layout", { expire: 0 });
     revalidateTag("products", { expire: 0 });
-    await purgeCloudflareCache();
     return { data: mapGoCategory(row) as Category, error: null };
   } catch (error) {
     console.error("createCategoryAction error:", error);
@@ -237,7 +235,6 @@ export async function updateCategoryAction(input: UpdateCategoryInput) {
     revalidatePath("/admin/categories");
     revalidateTag("layout", { expire: 0 });
     revalidateTag("products", { expire: 0 });
-    await purgeCloudflareCache();
     return { data: mapGoCategory(row) as Category, error: null };
   } catch (error) {
     console.error("updateCategoryAction error:", error);
@@ -261,7 +258,6 @@ export async function deleteCategoryAction(id: string) {
     revalidatePath("/admin/categories");
     revalidateTag("layout", { expire: 0 });
     revalidateTag("products", { expire: 0 });
-    await purgeCloudflareCache();
     return { error: null };
   } catch (error) {
     console.error("deleteCategoryAction error:", error);

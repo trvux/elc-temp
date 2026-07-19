@@ -3,7 +3,7 @@
 import { Button } from "@/shared/components/ui/button";
 import { Separator } from "@/shared/components/ui/separator";
 import { cn } from "@/shared/lib/utils";
-import { Funnel, X, CaretLeft, CaretRight } from "@phosphor-icons/react";
+import { Funnel, X, CaretRight } from "@phosphor-icons/react";
 import { useState, type ReactNode } from "react";
 import {
   Sheet,

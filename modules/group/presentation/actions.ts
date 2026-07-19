@@ -3,7 +3,6 @@
 import { revalidatePath, revalidateTag } from "next/cache";
 import { Group, GroupFilter, CreateGroupInput, UpdateGroupInput } from "../domain";
 import { authHeaders, toSnakeCaseBody } from "@/shared/lib/go-api";
-import { purgeCloudflareCache } from "@/shared/lib/cloudflare-purge";
 
 const GO_API_URL = process.env.GO_API_URL;
 
@@ -15,9 +14,9 @@ interface GoGroupResponse {
   meta_title: string | null;
   meta_description: string | null;
   is_featured: boolean;
+  is_hidden: boolean;
   order_index: number;
   content: unknown | null;
-  faq: Array<{ question: string; answer: string }> | null;
   created_at: string;
   updated_at: string;
   deleted_at: string | null;
@@ -38,9 +37,9 @@ function mapGoGroup(row: GoGroupResponse): Group {
     metaTitle: row.meta_title,
     metaDescription: row.meta_description,
     isFeatured: row.is_featured,
+    isHidden: row.is_hidden,
     orderIndex: row.order_index,
     content: row.content,
-    faq: row.faq,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
     deletedAt: row.deleted_at,
@@ -121,7 +120,6 @@ export async function createGroupAction(input: CreateGroupInput) {
     revalidatePath("/admin/group-categories");
     revalidateTag("layout", { expire: 0 });
     revalidateTag("products", { expire: 0 });
-    await purgeCloudflareCache();
     return { data: mapGoGroup(row), error: null };
   } catch (error) {
     console.error("createGroupAction error:", error);
@@ -151,7 +149,6 @@ export async function updateGroupAction(input: UpdateGroupInput) {
     revalidatePath("/admin/group-categories");
     revalidateTag("layout", { expire: 0 });
     revalidateTag("products", { expire: 0 });
-    await purgeCloudflareCache();
     return { data: mapGoGroup(row), error: null };
   } catch (error) {
     console.error("updateGroupAction error:", error);
@@ -175,7 +172,6 @@ export async function deleteGroupAction(id: string) {
     revalidatePath("/admin/group-categories");
     revalidateTag("layout", { expire: 0 });
     revalidateTag("products", { expire: 0 });
-    await purgeCloudflareCache();
     return { error: null };
   } catch (error) {
     console.error("deleteGroupAction error:", error);

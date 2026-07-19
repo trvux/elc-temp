@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { Json } from "./types";
-import { PRODUCT_CONDITION, VARIANT_STOCK_STATUS } from "./constants";
+import { VARIANT_STOCK_STATUS } from "./constants";
 
 const imageAssetSchema = z.object({
   url: z.string(),
@@ -31,6 +31,8 @@ export const attributeValueInputSchema = z.object({
   valueText: z.string().nullable().optional(),
   valueNumber: z.coerce.number().nullable().optional(),
   valueBoolean: z.boolean().nullable().optional(),
+  // Only meaningful for dataType = "multiselect".
+  valueOptions: z.array(z.string()).nullable().optional(),
 });
 
 export const productVariantInputSchema = z.object({
@@ -67,21 +69,14 @@ export const productSchema = z.object({
       message: "Slug chỉ được chứa chữ thường, số và dấu gạch ngang",
     }),
   description: z.custom<Json>().default({}),
-  specs: z.custom<Json>().default({}),
+  shortDescription: z.string().max(500, { message: "Mô tả ngắn không nên quá 500 ký tự" }).nullable().optional(),
   images: z.array(imageAssetSchema).default([]),
-  labels: z.array(z.string()).default([]),
   isFeatured: z.boolean().default(false),
-  isPublished: z.boolean().default(false),
   orderIndex: z.coerce.number().int().default(0),
   categoryId: z.uuid({ message: "ID danh mục không đúng định dạng UUID" }),
   brandId: z.uuid({ message: "ID thương hiệu không đúng định dạng UUID" }),
-  condition: z
-    .nativeEnum(PRODUCT_CONDITION)
-    .default(PRODUCT_CONDITION.NEW),
   tagIds: z.array(z.string()).optional(),
   productLineId: z.uuid().nullable().optional(),
-  warrantyMonths: z.coerce.number().int().min(0).nullable().optional(),
-  warrantyTerms: z.string().nullable().optional(),
   options: z.array(productOptionInputSchema).optional(),
   // At least one variant is required — Product itself carries no sku/mpn/
   // price, see elc-go's domain.Product doc comment.
@@ -89,13 +84,6 @@ export const productSchema = z.object({
   attributeValues: z.array(attributeValueInputSchema).optional(),
   metaTitle: z.string().max(70, { message: "Tiêu đề SEO không nên quá 70 ký tự" }).nullable().optional(),
   metaDescription: z.string().max(160, { message: "Mô tả SEO không nên quá 160 ký tự" }).nullable().optional(),
-  seo: z
-    .object({
-      title: z.string().max(70, { message: "Tiêu đề SEO không nên quá 70 ký tự" }).nullable().optional(),
-      description: z.string().max(160, { message: "Mô tả SEO không nên quá 160 ký tự" }).nullable().optional(),
-      noindex: z.boolean().optional(),
-    })
-    .optional(),
   createdAt: z.iso.datetime({
     message: "Thời gian tạo không đúng định dạng ISO",
   }),
@@ -116,7 +104,6 @@ export const createProductSchema = productSchema
   })
   .extend({
     description: z.custom<Json>().default({}),
-    specs: z.custom<Json>().default({}),
   });
 
 export const updateProductSchema = createProductSchema.partial().extend({

@@ -1,8 +1,5 @@
 "use client";
-import {
-  FooterSettings,
-  getFooterLogic,
-} from "@/modules/settings/domain/footer";
+import { getFooterLogic } from "@/modules/settings/domain/footer";
 import {
   Tooltip,
   TooltipContent,
@@ -11,13 +8,13 @@ import {
 } from "@/shared/components/ui/tooltip";
 import { ArrowRightIcon, MapPinIcon } from "@phosphor-icons/react";
 import Image from "next/image";
-import { ImageWithSkeleton } from "@/shared/components/ui/image-with-skeleton";
 import Link from "next/link";
 import { useMemo } from "react";
 
 import { Contact, getDisplayContacts } from "@/modules/contact/domain";
 import { ContactLink } from "@/modules/contact/presentation/components/ContactLink";
 import { sortByOrderIndex } from "@/shared/lib/helpers";
+import { groupCategoriesByGroup } from "@/shared/lib/group-categories";
 import {
   TypographyH2,
   TypographyH3,
@@ -111,23 +108,20 @@ export function Footer({
 }: FooterProps) {
   const { address } = getFooterLogic(
     contacts,
-    settings as FooterSettings,
     currentYear,
     branches as Array<{ address: string }>,
   );
 
-  const displayContacts = useMemo(
-    () => getDisplayContacts(contacts),
-    [contacts],
-  );
+  // No manual useMemo here — React Compiler auto-memoizes this, and a
+  // manual dependency array on a prop it can't prove is stable is exactly
+  // what "Existing memoization could not be preserved" warns about.
+  const displayContacts = getDisplayContacts(contacts);
 
   // Build product section: each group becomes a column with its children below
-  const productColumns = useMemo(() => {
-    return groupCategories.map((group) => ({
-      group,
-      children: categoriesList.filter((cat) => cat.groupId === group.id),
-    }));
-  }, [groupCategories, categoriesList]);
+  const productColumns = useMemo(
+    () => groupCategoriesByGroup(groupCategories, categoriesList),
+    [groupCategories, categoriesList],
+  );
 
   return (
     <footer className="w-full relative bg-background">
@@ -281,14 +275,13 @@ export function Footer({
                     >
                       {brand.logoUrl ? (
                         <div className="relative h-8 w-full max-w-[85%]">
-                          <ImageWithSkeleton
+                          <Image
                             src={brand.logoUrl}
                             alt={brand.name}
                             fill
                             loading="lazy"
                             sizes="120px"
                             className="object-contain opacity-90"
-                            wrapperClassName="w-full h-full"
                           />
                         </div>
                       ) : (
@@ -328,7 +321,7 @@ export function Footer({
               <div
                 className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-${Math.min(productColumns.length, 4)} gap-x-8 gap-y-10`}
               >
-                {productColumns.map(({ group, children }) => (
+                {productColumns.map(({ group, categories: children }) => (
                   <div key={group.id} className="flex flex-col gap-3">
                     <Link
                       href={`/san-pham/${group.slug}`}

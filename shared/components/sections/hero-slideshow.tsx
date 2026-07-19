@@ -9,7 +9,7 @@ import {
 } from "@/shared/components/ui/carousel";
 import { cn } from "@/shared/lib/utils";
 import { Pause, Play } from "@phosphor-icons/react";
-import { ImageWithSkeleton } from "@/shared/components/ui/image-with-skeleton";
+import Image from "next/image";
 import * as React from "react";
 
 import { Button } from "@/shared/components/ui/button";
@@ -114,8 +114,7 @@ export function HeroSlideshow({
                   ratio={16 / 9}
                   className="block w-full h-full relative"
                 >
-                  <ImageWithSkeleton
-                    wrapperClassName="w-full h-full"
+                  <Image
                     src={src}
                     alt={`Slide ${index + 1}`}
                     fill

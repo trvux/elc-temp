@@ -12,6 +12,12 @@ interface PreviewContentProps {
   // back to this page-level name (product/article/page title) for any image node
   // that shipped without one, applied at render time so it covers old content too.
   fallbackAlt?: string;
+  // Base Typography-plugin scale. Kept as a single conditional class (not
+  // merged via className, e.g. "prose-lg" + caller's "prose-sm") because
+  // tailwind-merge doesn't dedupe the typography plugin's prose-size
+  // classes, so both would ship and the winner would depend on generated
+  // CSS order rather than intent.
+  size?: "sm" | "base" | "lg";
 }
 
 function fillMissingImageAlt(
@@ -49,6 +55,7 @@ export const PreviewContent = ({
   content,
   className,
   fallbackAlt,
+  size = "lg",
 }: PreviewContentProps) => {
   if (!content) return null;
 
@@ -82,7 +89,10 @@ export const PreviewContent = ({
   return (
     <div
       className={cn(
-        "prose prose-lg dark:prose-invert max-w-none",
+        "prose dark:prose-invert max-w-none",
+        size === "lg" && "prose-lg",
+        size === "base" && "prose-base",
+        size === "sm" && "prose-sm",
         "prose-headings:font-bold prose-headings:tracking-tight prose-headings:text-foreground",
         "prose-img:rounded-sm",
         "tiptap",

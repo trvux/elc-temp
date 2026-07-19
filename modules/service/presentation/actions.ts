@@ -6,7 +6,6 @@ import { authHeaders, toSnakeCaseBody } from "@/shared/lib/go-api";
 import { submitToIndexNow } from "@/shared/lib/indexnow";
 import { warmCache } from "@/shared/lib/cache-warm";
 import { getServiceGroupsAction } from "@/modules/service-group/presentation/actions";
-import { purgeCloudflareCache } from "@/shared/lib/cloudflare-purge";
 import { unwrapActionResult } from "@/shared/lib/action-result";
 import { BASE_URL } from "@/shared/lib/seo-schema";
 
@@ -15,12 +14,6 @@ const GO_API_URL = process.env.GO_API_URL;
 interface GoRefResponse {
   id: string;
   name: string;
-}
-
-interface GoSeo {
-  title?: string;
-  description?: string;
-  noindex?: boolean;
 }
 
 interface GoServiceResponse {
@@ -39,7 +32,6 @@ interface GoServiceResponse {
   images: ImageAsset[];
   meta_title: string | null;
   meta_description: string | null;
-  seo: GoSeo;
   is_featured: boolean;
   is_published: boolean;
   order_index: number;
@@ -73,7 +65,6 @@ function mapGoService(row: GoServiceResponse): ServiceWithRelations {
     images: row.images || [],
     metaTitle: row.meta_title,
     metaDescription: row.meta_description,
-    seo: row.seo,
     isFeatured: row.is_featured,
     isPublished: row.is_published,
     orderIndex: row.order_index,
@@ -96,7 +87,7 @@ function mapGoService(row: GoServiceResponse): ServiceWithRelations {
 function emptyServiceGroupShape() {
   return {
     slug: "", imageUrl: null, metaTitle: null, metaDescription: null,
-    isFeatured: false, orderIndex: 0, categoryIds: null,
+    isFeatured: false, isHidden: false, orderIndex: 0, categoryIds: null,
     createdAt: "", updatedAt: "", deletedAt: null,
   };
 }
@@ -104,7 +95,7 @@ function emptyServiceGroupShape() {
 function emptyCategoryShape() {
   return {
     slug: "", groupId: null, imageUrl: null, metaTitle: null, metaDescription: null,
-    isFeatured: false, orderIndex: 0, createdAt: "", updatedAt: "", deletedAt: null,
+    isFeatured: false, isHidden: false, orderIndex: 0, createdAt: "", updatedAt: "", deletedAt: null,
     group: null,
   };
 }
@@ -171,7 +162,6 @@ export async function createServiceAction(input: CreateServiceInput) {
     }
     revalidatePath("/dich-vu", "layout");
     revalidatePath("/admin/services");
-    await purgeCloudflareCache();
     if (data.isPublished && data.slug) {
       const url = `${BASE_URL}/dich-vu/${data.slug}`;
       submitToIndexNow([url]).catch((err) => console.error("IndexNow service create error:", err));
@@ -211,7 +201,6 @@ export async function updateServiceAction(input: UpdateServiceInput) {
     }
     revalidatePath("/dich-vu", "layout");
     revalidatePath("/admin/services");
-    await purgeCloudflareCache();
     if (data.isPublished && data.slug) {
       const url = `${BASE_URL}/dich-vu/${data.slug}`;
       submitToIndexNow([url]).catch((err) => console.error("IndexNow service update error:", err));
@@ -373,7 +362,6 @@ export async function deleteServiceAction(id: string) {
     }
     revalidatePath("/dich-vu", "layout");
     revalidatePath("/admin/services");
-    await purgeCloudflareCache();
     return { error: null };
   } catch (error) {
     console.error("deleteServiceAction error:", error);

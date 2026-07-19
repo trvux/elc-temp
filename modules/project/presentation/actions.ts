@@ -10,7 +10,6 @@ import {
 import { authHeaders, toSnakeCaseBody } from "@/shared/lib/go-api";
 import { submitToIndexNow } from "@/shared/lib/indexnow";
 import { warmCache } from "@/shared/lib/cache-warm";
-import { purgeCloudflareCache } from "@/shared/lib/cloudflare-purge";
 import { BASE_URL } from "@/shared/lib/seo-schema";
 import type { ImageAsset } from "@/shared/lib/image-asset";
 
@@ -49,12 +48,6 @@ interface GoProjectServiceResponse {
   group: GoServiceGroupRefResponse | null;
 }
 
-interface GoSeo {
-  title?: string;
-  description?: string;
-  noindex?: boolean;
-}
-
 interface GoProjectResponse {
   id: string;
   title: string;
@@ -65,7 +58,6 @@ interface GoProjectResponse {
   is_published: boolean;
   meta_title: string | null;
   meta_description: string | null;
-  seo: GoSeo;
   order_index: number;
   project_type_id: string | null;
   client_name: string;
@@ -126,7 +118,6 @@ function mapGoProject(row: GoProjectResponse): ProjectWithCategory {
     isPublished: row.is_published,
     metaTitle: row.meta_title,
     metaDescription: row.meta_description,
-    seo: row.seo,
     orderIndex: row.order_index,
     projectTypeId: row.project_type_id,
     clientName: row.client_name,
@@ -168,9 +159,9 @@ async function extractErrorMessage(res: Response, fallback: string): Promise<str
   }
 }
 
-// isPrerenderError lets a real fetch failure propagate out of "use cache"
-// render functions instead of being swallowed — see
-// modules/category/presentation/actions.ts's identical helper for why.
+// isPrerenderError re-throws Next.js's own internal prerendering-abort
+// signal instead of swallowing it — see
+// modules/category/presentation/actions.ts's identical helper.
 function isPrerenderError(error: unknown): boolean {
   if (error instanceof Error) {
     const msg = error.message.toLowerCase();
@@ -510,5 +501,4 @@ function revalidatePaths(slug?: string) {
   if (slug) {
     revalidateTag(`slug:${slug}`, { expire: 0 });
   }
-  void purgeCloudflareCache();
 }

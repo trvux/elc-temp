@@ -3,15 +3,6 @@ import { primaryImageUrl } from "./image-asset";
 
 export const BASE_URL = process.env.NEXT_PUBLIC_APP_URL || "https://dienmayelc.com.vn";
 
-// Seo is the unified SEO metadata shape stored as jsonb on products/news/
-// projects in elc-go (replacing the old flat metaTitle/metaDescription pair,
-// kept alongside during the migration). See docs/SEO-REDESIGN.md.
-export interface Seo {
-  title?: string | null;
-  description?: string | null;
-  noindex?: boolean;
-}
-
 export function parseAddress(addr: string) {
   const parts = addr.split(",").map((s) => s.trim());
   if (parts.length >= 3) {
@@ -40,12 +31,6 @@ export function formatPhone(phone: string) {
 
 export interface ServiceInput {
   title: string;
-  slug: string;
-  metaDescription?: string | null;
-}
-
-export interface ProductCategoryInput {
-  name: string;
   slug: string;
   metaDescription?: string | null;
 }
@@ -231,16 +216,4 @@ export const SEOSchema = {
     };
   },
 
-  getProductCategory(cat: ProductCategoryInput) {
-    return {
-      "@type": "Product",
-      "@id": `${BASE_URL}/san-pham/${cat.slug}#product`,
-      "name": cat.name,
-      "description": cat.metaDescription || undefined,
-      "brand": {
-        "@type": "Brand",
-        "name": "Điện máy ELC",
-      },
-    };
-  }
 };

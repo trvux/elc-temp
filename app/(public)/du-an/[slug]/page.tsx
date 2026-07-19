@@ -14,77 +14,8 @@ import { AspectRatio } from "@/shared/components/ui/aspect-ratio";
 import { Badge } from "@/shared/components/ui/badge";
 import { TypographyH1, TypographySmall } from "@/shared/components/ui/typography";
 import { Sparkle } from "@phosphor-icons/react/dist/ssr";
-import { Metadata } from "next";
-import { ImageWithSkeleton } from "@/shared/components/ui/image-with-skeleton";
+import Image from "next/image";
 import { notFound } from "next/navigation";
-import { getServiceBySlugAction } from "@/modules/service/presentation/actions";
-import { getCategoryBySlugAction } from "@/modules/category/presentation/actions";
-import {
-  generateProjectTypeMetadata, 
-  generateProjectDetailMetadata,
-  generateProjectDetailSchema
-} from "@/shared/lib/seo-utils";
-import { getBranchesAction } from "@/modules/branch/presentation/actions";
-import { unwrapActionResult } from "@/shared/lib/action-result";
-
-// Generate dynamic SEO Metadata
-export async function generateMetadata({
-  params,
-  searchParams,
-}: {
-  params: Promise<{ slug: string }>;
-  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
-}): Promise<Metadata> {
-  const { slug } = await params;
-  const entity = await resolveProjectPathFromDb(slug);
-
-  if (!entity) {
-    return {
-      title: "Không tìm thấy trang | ELC",
-    };
-  }
-
-  if (entity.type === "project_type") {
-    const st = entity.data;
-    const resolvedSearchParams = await searchParams;
-    
-    // Resolve active filter slugs
-    const serviceSlug = typeof resolvedSearchParams.service === "string" ? resolvedSearchParams.service : undefined;
-    const categorySlug = typeof resolvedSearchParams.category === "string" ? resolvedSearchParams.category : undefined;
-    const condition = typeof resolvedSearchParams.condition === "string" ? resolvedSearchParams.condition : undefined;
-
-    let serviceName: string | undefined = undefined;
-    let categoryName: string | undefined = undefined;
-
-    if (serviceSlug) {
-      const service = await getServiceBySlugAction(serviceSlug);
-      if (service) {
-        serviceName = service.title;
-      }
-    }
-
-    if (categorySlug) {
-      const { data: catData } = await getCategoryBySlugAction(categorySlug);
-      if (catData) {
-        categoryName = catData.name;
-      }
-    }
-
-    return generateProjectTypeMetadata(
-      st,
-      { service: serviceSlug, category: categorySlug, condition },
-      serviceName,
-      categoryName
-    );
-  }
-
-  if (entity.type === "project") {
-    const proj = entity.data;
-    return generateProjectDetailMetadata(proj);
-  }
-
-  return {};
-}
 
 // Generate static parameters for high performance static pre-rendering
 
@@ -125,11 +56,6 @@ export default async function ProjectDetailPage({
   notFound();
 }
 
-async function getCachedCurrentYear() {
-  "use cache";
-  return new Date().getFullYear();
-}
-
 // Sub-component to render the Project Detail page view
 async function ProjectDetailView({
   project,
@@ -140,7 +66,7 @@ async function ProjectDetailView({
   const displayCategory =
     project.categories?.[0]?.name || project.projectType?.name || "Dự án";
 
-  const currentYear = await getCachedCurrentYear();
+  const currentYear = new Date().getFullYear();
   const { data: { prev, next } } = await getAdjacentProjectsAction(project.id, project.projectTypeId);
 
   const breadcrumbItems = [
@@ -158,16 +84,9 @@ async function ProjectDetailView({
     { label: project.title, active: true },
   ];
 
-  const branches = await getBranchesAction({ isPublished: true }).then(unwrapActionResult);
-  const articleSchema = generateProjectDetailSchema(project, branches);
-
   return (
     <main className="w-full bg-background min-h-screen flex flex-col">
       <TrackView entityType="project" entityId={project.id} entityName={project.title} />
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(articleSchema) }}
-      />
       {/* ===== KHỐI 1: NỘI DUNG BÀI VIẾT ===== */}
       <GridSection
         id="project-detail-content"
@@ -196,8 +115,7 @@ async function ProjectDetailView({
           {images[0] && (
             <div className="w-full mt-2 overflow-hidden rounded-sm border border-border/40">
               <AspectRatio ratio={16 / 9}>
-                <ImageWithSkeleton
-                  wrapperClassName="w-full h-full"
+                <Image
                   src={images[0].url}
                   alt={images[0].alt || project.title}
                   fill
@@ -225,8 +143,7 @@ async function ProjectDetailView({
                     className="w-full overflow-hidden rounded-sm border border-border/40"
                   >
                     <AspectRatio ratio={3 / 2}>
-                      <ImageWithSkeleton
-                        wrapperClassName="w-full h-full"
+                      <Image
                         src={img.url}
                         alt={img.alt || `${project.title} - ảnh ${i + 2}`}
                         fill

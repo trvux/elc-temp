@@ -8,13 +8,11 @@ import { BASE_URL } from '@/shared/lib/seo-schema';
 export async function GET() {
   await connection();
 
-  const [{ data: allPages }, { data: services }, { data: branches }] = await Promise.all([
-    getPagesAction(),
+  const [{ data: pages }, { data: services }, { data: branches }] = await Promise.all([
+    getPagesAction({ isPublished: true }),
     getServicesAction({ isPublished: true }),
     getBranchesAction({ isPublished: true }),
   ]);
-
-  const pages = allPages.filter((p) => p.isPublished);
 
   const staticRoutes = [
     '',
@@ -58,11 +56,14 @@ export async function GET() {
 
   const xml = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  ${allRoutes.map(r => `
+  ${allRoutes.map(r => {
+    const lastmod = toSitemapLastmod(r.lastmod);
+    return `
   <url>
-    <loc>${r.url}</loc>${r.lastmod ? `
-    <lastmod>${toSitemapLastmod(r.lastmod)}</lastmod>` : ''}
-  </url>`).join('')}
+    <loc>${r.url}</loc>${lastmod ? `
+    <lastmod>${lastmod}</lastmod>` : ''}
+  </url>`;
+  }).join('')}
 </urlset>`;
 
   return new NextResponse(xml, {

@@ -2,7 +2,7 @@ import { getNewsAction } from "@/modules/news/presentation/actions";
 import { Breadcrumbs } from "@/shared/components/layout/user/breadcrumbs";
 import { ScrollToTop } from "@/shared/components/layout/user/scroll-to-top";
 import { GridSection } from "@/shared/components/sections/grid-section";
-import { ImageWithSkeleton } from "@/shared/components/ui/image-with-skeleton";
+import Image from "next/image";
 import { primaryImageUrl } from "@/shared/lib/image-asset";
 import {
   TypographyH1,
@@ -10,26 +10,8 @@ import {
   TypographyLead,
   TypographySmall,
 } from "@/shared/components/ui/typography";
-import { cacheLife, cacheTag } from "next/cache";
 import Link from "next/link";
-import {
-  BASE_URL,
-  generateBreadcrumbSchema,
-  generateSystemPageMetadata,
-} from "@/shared/lib/seo-utils";
-import type { Metadata } from "next";
-import { getCachedSystemPage } from "@/shared/lib/cached-system-page";
 import { unwrapActionResult } from "@/shared/lib/action-result";
-
-export async function generateMetadata(): Promise<Metadata> {
-  const systemPage = await getCachedSystemPage("tin-tuc");
-  return generateSystemPageMetadata(
-    systemPage,
-    "Tin tức | Điện máy ELC",
-    "Cập nhật những giải pháp kỹ thuật mới nhất và các tin tức chuyên sâu từ đội ngũ kỹ sư ELC",
-    "/tin-tuc"
-  ) as Metadata;
-}
 
 const STYLES = {
   main: "w-full bg-background min-h-screen",
@@ -114,10 +96,6 @@ function getExcerptFromContent(
 }
 
 async function getCachedNewsHubData() {
-  "use cache";
-  cacheLife("hours");
-  cacheTag("news-list");
-
   const allNews = await getNewsAction({
     isPublished: true,
     sortBy: "created_at",
@@ -210,15 +188,16 @@ export default async function NewsHub() {
                   </div>
 
                   {primaryImageUrl(news.images) && (
-                    <ImageWithSkeleton
-                      wrapperClassName={STYLES.imageWrapper}
-                      src={primaryImageUrl(news.images)}
-                      alt={news.images[0]?.alt || news.title}
-                      fill
-                      className={STYLES.image}
-                      sizes="(max-width: 640px) 144px, (max-width: 768px) 192px, 256px"
-                      priority={index === 0}
-                    />
+                    <div className={STYLES.imageWrapper}>
+                      <Image
+                        src={primaryImageUrl(news.images)!}
+                        alt={news.images[0]?.alt || news.title}
+                        fill
+                        className={STYLES.image}
+                        sizes="(max-width: 640px) 144px, (max-width: 768px) 192px, 256px"
+                        priority={index === 0}
+                      />
+                    </div>
                   )}
                 </Link>
               );
@@ -253,18 +232,6 @@ export default async function NewsHub() {
           <Breadcrumbs items={[{ label: "Tin tức", active: true }]} />
         </div>
       </GridSection>
-
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{
-          __html: JSON.stringify(
-            generateBreadcrumbSchema(
-              [{ label: "Tin tức" }],
-              `${BASE_URL}/tin-tuc`,
-            ),
-          ),
-        }}
-      />
     </main>
   );
 }

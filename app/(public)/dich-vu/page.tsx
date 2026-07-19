@@ -19,14 +19,6 @@ import {
   TypographySmall,
 } from "@/shared/components/ui/typography";
 import { cn } from "@/shared/lib/utils";
-import { cacheLife, cacheTag } from "next/cache";
-import {
-  BASE_URL,
-  generateBreadcrumbSchema,
-  generateSystemPageMetadata,
-} from "@/shared/lib/seo-utils";
-import type { Metadata } from "next";
-import { getCachedSystemPage } from "@/shared/lib/cached-system-page";
 
 const STYLES = {
   main: cn("w-full bg-background flex flex-col flex-1"),
@@ -43,24 +35,7 @@ const STYLES = {
   ),
 };
 
-export async function generateMetadata(): Promise<Metadata> {
-  const systemPage = await getCachedSystemPage("dich-vu");
-  return generateSystemPageMetadata(
-    systemPage,
-    "Dịch vụ chuyên nghiệp | Điện máy ELC",
-    "Giải pháp chuyên nghiệp dành cho hệ thống lạnh công nghiệp, điều hòa trung tâm và bảo trì hệ thống.",
-    "/dich-vu"
-  ) as Metadata;
-}
-
 async function getCachedServicesData() {
-  "use cache";
-  cacheLife("days");
-  cacheTag("services-list");
-
-  // Neu Go API loi that (khong phai rong hop le), ham nay throw thay vi tra
-  // ve mang rong -- "use cache" se giu nguyen ban cache cu (stale-if-error)
-  // thay vi ghi de bang ket qua rong.
   const groupedServices = await getPublishedServicesGroupedAction();
   const currentYear = new Date().getFullYear();
 
@@ -174,18 +149,6 @@ export default async function ServicesHub() {
           <Breadcrumbs items={[{ label: "Dịch vụ", active: true }]} />
         </div>
       </GridSection>
-
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{
-          __html: JSON.stringify(
-            generateBreadcrumbSchema(
-              [{ label: "Dịch vụ" }],
-              `${BASE_URL}/dich-vu`,
-            ),
-          ),
-        }}
-      />
     </main>
   );
 }

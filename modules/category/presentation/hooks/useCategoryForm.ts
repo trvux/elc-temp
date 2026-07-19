@@ -19,9 +19,9 @@ export type CategoryFormValues = {
   metaTitle?: string | null;
   metaDescription?: string | null;
   isFeatured?: boolean;
+  isHidden?: boolean;
   orderIndex?: number;
   content?: unknown;
-  faq?: Array<{ question: string; answer: string }> | null;
 };
 
 export function useCategoryForm(
@@ -41,9 +41,9 @@ export function useCategoryForm(
       metaTitle: "",
       metaDescription: "",
       isFeatured: false,
+      isHidden: false,
       orderIndex: 0,
       content: "",
-      faq: [],
     },
   });
 
@@ -61,9 +61,9 @@ export function useCategoryForm(
         metaTitle: values.metaTitle || null,
         metaDescription: values.metaDescription || null,
         isFeatured: !!values.isFeatured,
+        isHidden: !!values.isHidden,
         orderIndex: Number(values.orderIndex || 0),
         content: values.content || null,
-        faq: values.faq || null,
       };
 
       if (activeCategory && activeCategory !== "new") {

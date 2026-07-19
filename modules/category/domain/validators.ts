@@ -15,17 +15,9 @@ export const categorySchema = z.object({
   metaTitle: z.string().nullable().optional(),
   metaDescription: z.string().nullable().optional(),
   isFeatured: z.boolean().default(false),
+  isHidden: z.boolean().default(false),
   orderIndex: z.number().default(0),
   content: z.unknown().nullable().optional(),
-  faq: z
-    .array(
-      z.object({
-        question: z.string().min(1, { message: "Câu hỏi không được để trống" }),
-        answer: z.string().min(1, { message: "Câu trả lời không được để trống" }),
-      })
-    )
-    .nullable()
-    .optional(),
   createdAt: z.iso.datetime({
     message: "Thời gian tạo không đúng định dạng ISO",
   }),

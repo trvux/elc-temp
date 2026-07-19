@@ -8,37 +8,27 @@ import {
   ProductWithRelations,
   Product,
   Json,
-  PRODUCT_CONDITION,
-  ProductCondition,
+  ProductStatus,
+  PRODUCT_STATUS,
   VariantStockStatus,
   ProductOptionInput,
   ProductVariantInput,
   AttributeValueInput,
   AttributeDataType,
+  ProductFacets,
+  NumberBucket,
+  CatalogPage,
+  UpdateCatalogPageInput,
   createProductSchema,
   updateProductSchema,
 } from "../domain";
 import { authHeaders, toSnakeCaseBody } from "@/shared/lib/go-api";
 import { submitToIndexNow } from "@/shared/lib/indexnow";
 import { warmCache } from "@/shared/lib/cache-warm";
-import { purgeCloudflareCache } from "@/shared/lib/cloudflare-purge";
 import { BASE_URL } from "@/shared/lib/seo-schema";
 import type { ImageAsset } from "@/shared/lib/image-asset";
 
 const GO_API_URL = process.env.GO_API_URL;
-
-interface GoSpecSubItem {
-  label: string;
-  value: string;
-  unit?: string;
-}
-
-interface GoSpecItem {
-  label: string;
-  value?: string;
-  unit?: string;
-  items?: GoSpecSubItem[];
-}
 
 interface GoCategoryRef {
   id: string;
@@ -57,12 +47,6 @@ interface GoBrandRef {
   meta_description: string | null;
   is_featured: boolean;
   order_index: number;
-}
-
-interface GoSeo {
-  title?: string;
-  description?: string;
-  noindex?: boolean;
 }
 
 // --- v2: options/variants (see elc-go/docs/product-v2-design.md) ---
@@ -123,6 +107,7 @@ interface GoAttributeValue {
   value_text: string | null;
   value_number: number | null;
   value_boolean: boolean | null;
+  value_options: string[] | null;
 }
 
 interface GoProductResponse {
@@ -132,19 +117,15 @@ interface GoProductResponse {
   name: string;
   slug: string;
   description: Json;
-  specs: GoSpecItem[] | null;
+  short_description: string | null;
   images: ImageAsset[] | null;
-  labels: string[] | null;
   is_featured: boolean;
-  is_published: boolean;
+  status: string;
+  rejection_reason: string | null;
   order_index: number;
-  condition: string;
   meta_title: string | null;
   meta_description: string | null;
-  seo: GoSeo;
   product_line_id: string | null;
-  warranty_months: number | null;
-  warranty_terms: string | null;
   default_variant_id: string | null;
   display_price: number | null;
   display_stock_status: string | null;
@@ -161,17 +142,79 @@ interface GoProductResponse {
   attribute_values: GoAttributeValue[] | null;
 }
 
-interface GoFacetsResponse {
-  brands: { id: string; name: string; slug: string }[];
-  specs: { label: string; values: string[] }[];
-  min_price: number;
-  max_price: number;
+interface GoBrandFacet {
+  id: string;
+  name: string;
+  slug: string;
+  logo_url: string;
+  count: number;
+}
+
+interface GoNumberBucket {
+  min: number;
+  max: number;
+  count: number;
+}
+
+interface GoPriceFacet {
+  min: number;
+  max: number;
+  buckets?: GoNumberBucket[];
+}
+
+interface GoAttributeFacetOption {
+  value: string;
+  count: number;
+}
+
+interface GoAttributeFacet {
+  code: string;
+  name: string;
+  group_label: string | null;
+  data_type: AttributeDataType;
+  unit: string | null;
+  options?: GoAttributeFacetOption[];
+  min?: number | null;
+  max?: number | null;
+  buckets?: GoNumberBucket[];
+}
+
+interface GoProductFacets {
+  brands: GoBrandFacet[];
+  price: GoPriceFacet;
+  attributes: GoAttributeFacet[];
 }
 
 interface GoProductListResponse {
   data: GoProductResponse[] | null;
   total_count: number;
-  facets: GoFacetsResponse;
+  facets?: GoProductFacets;
+}
+
+function mapGoNumberBuckets(buckets?: GoNumberBucket[]): NumberBucket[] {
+  return (buckets ?? []).map((b) => ({ min: b.min, max: b.max, count: b.count }));
+}
+
+function mapGoProductFacets(facets?: GoProductFacets): ProductFacets {
+  return {
+    brands: (facets?.brands ?? []).map((b) => ({ id: b.id, name: b.name, slug: b.slug, logoUrl: b.logo_url, count: b.count })),
+    price: {
+      min: facets?.price?.min ?? 0,
+      max: facets?.price?.max ?? 0,
+      buckets: mapGoNumberBuckets(facets?.price?.buckets),
+    },
+    attributes: (facets?.attributes ?? []).map((a) => ({
+      code: a.code,
+      name: a.name,
+      groupLabel: a.group_label,
+      dataType: a.data_type,
+      unit: a.unit,
+      options: a.options ?? [],
+      min: a.min,
+      max: a.max,
+      buckets: mapGoNumberBuckets(a.buckets),
+    })),
+  };
 }
 
 interface GoErrorResponse {
@@ -180,26 +223,13 @@ interface GoErrorResponse {
   fields?: Record<string, string[]>;
 }
 
-interface GoAdjacentProductResponse {
-  name: string;
-  slug: string;
-}
-
-interface GoAdjacentProductsResponse {
-  prev: GoAdjacentProductResponse | null;
-  next: GoAdjacentProductResponse | null;
-}
-
-const EMPTY_FACETS = {
-  brands: [] as { id: string; name: string; slug: string }[],
-  specs: [] as { label: string; values: string[] }[],
-  minPrice: 0,
-  maxPrice: 0,
-};
-
 async function extractErrorMessage(res: Response, fallback: string): Promise<string> {
   try {
     const body = (await res.json()) as GoErrorResponse;
+    const fieldMessages = body.fields ? Object.values(body.fields).flat() : [];
+    if (fieldMessages.length > 0) {
+      return `${body.message || fallback}: ${fieldMessages.join(", ")}`;
+    }
     return body.message || fallback;
   } catch {
     return fallback;
@@ -228,20 +258,16 @@ function mapGoProduct(row: GoProductResponse): ProductWithRelations {
     slug: row.slug || "",
     metaTitle: row.meta_title,
     metaDescription: row.meta_description,
-    seo: row.seo,
     description: row.description ?? null,
-    specs: (row.specs ?? null) as unknown as Json,
+    shortDescription: row.short_description ?? null,
     images: row.images || [],
-    labels: row.labels || [],
     isFeatured: row.is_featured || false,
-    isPublished: row.is_published || false,
+    status: (row.status as ProductStatus) || PRODUCT_STATUS.DRAFT,
+    rejectionReason: row.rejection_reason ?? null,
     orderIndex: row.order_index || 0,
     categoryId: row.category_id || "",
     brandId: row.brand_id || "",
-    condition: (row.condition as ProductCondition) || PRODUCT_CONDITION.NEW,
     productLineId: row.product_line_id ?? null,
-    warrantyMonths: row.warranty_months ?? null,
-    warrantyTerms: row.warranty_terms ?? null,
     defaultVariantId: row.default_variant_id ?? null,
     displayPrice: row.display_price ?? null,
     displayStockStatus: row.display_stock_status ?? null,
@@ -296,6 +322,7 @@ function mapGoProduct(row: GoProductResponse): ProductWithRelations {
       valueText: av.value_text,
       valueNumber: av.value_number,
       valueBoolean: av.value_boolean,
+      valueOptions: av.value_options,
     })),
     category: row.category
       ? {
@@ -343,33 +370,38 @@ function buildProductSearchParams(filter?: ProductFilter): URLSearchParams {
   if (filter.brandIds && filter.brandIds.length > 0) {
     params.set("brand_ids", filter.brandIds.join(","));
   }
-  if (filter.brandSlugs && filter.brandSlugs.length > 0) {
-    params.set("brand_slugs", filter.brandSlugs.join(","));
-  }
   if (filter.productLineId) params.set("product_line_id", filter.productLineId);
   if (filter.isFeatured !== undefined) params.set("is_featured", String(filter.isFeatured));
-  if (filter.isPublished !== undefined) params.set("is_published", String(filter.isPublished));
-  if (filter.search) params.set("search", filter.search);
-  if (filter.minPrice !== undefined) params.set("min_price", String(Math.round(filter.minPrice)));
-  if (filter.maxPrice !== undefined) params.set("max_price", String(Math.round(filter.maxPrice)));
-  if (filter.sortBy) params.set("sort_by", filter.sortBy);
-  if (filter.condition) params.set("condition", filter.condition);
-  if (filter.specs) {
-    Object.entries(filter.specs).forEach(([label, values]) => {
-      if (!values || values.length === 0) return;
-      values.forEach((value) => params.append(`spec_${label}`, value));
-    });
-  }
+  if (filter.status !== undefined) params.set("status", filter.status);
   if (filter.limit !== undefined) params.set("limit", String(filter.limit));
   if (filter.offset !== undefined) params.set("offset", String(filter.offset));
   if (filter.includeDeleted !== undefined) params.set("include_deleted", String(filter.includeDeleted));
 
+  if (filter.search) params.set("search", filter.search);
+  if (filter.minPrice !== undefined) params.set("min_price", String(filter.minPrice));
+  if (filter.maxPrice !== undefined) params.set("max_price", String(filter.maxPrice));
+  if (filter.sortBy) params.set("sort_by", filter.sortBy);
+
+  if (filter.attributeTokens) {
+    for (const [code, values] of Object.entries(filter.attributeTokens)) {
+      if (values.length > 0) params.set(`attr_${code}`, values.join(","));
+    }
+  }
+  if (filter.attributeRanges) {
+    for (const [code, [min, max]] of Object.entries(filter.attributeRanges)) {
+      if (min !== undefined) params.set(`attr_${code}_min`, String(min));
+      if (max !== undefined) params.set(`attr_${code}_max`, String(max));
+    }
+  }
+
   return params;
 }
 
+const emptyProductFacets: ProductFacets = { brands: [], price: { min: 0, max: 0, buckets: [] }, attributes: [] };
+
 export async function getProductsAction(filter?: ProductFilter) {
   if (!GO_API_URL) {
-    return { data: [] as ProductWithRelations[], totalCount: 0, facets: EMPTY_FACETS, error: null };
+    return { data: [] as ProductWithRelations[], totalCount: 0, facets: emptyProductFacets, error: null };
   }
   try {
     const params = buildProductSearchParams(filter);
@@ -378,7 +410,7 @@ export async function getProductsAction(filter?: ProductFilter) {
       return {
         data: [] as ProductWithRelations[],
         totalCount: 0,
-        facets: EMPTY_FACETS,
+        facets: emptyProductFacets,
         error: await extractErrorMessage(res, "Không thể tải danh sách sản phẩm"),
       };
     }
@@ -387,12 +419,7 @@ export async function getProductsAction(filter?: ProductFilter) {
     return {
       data: (body.data ?? []).map(mapGoProduct),
       totalCount: body.total_count || 0,
-      facets: {
-        brands: body.facets?.brands ?? [],
-        specs: body.facets?.specs ?? [],
-        minPrice: body.facets?.min_price ?? 0,
-        maxPrice: body.facets?.max_price ?? 0,
-      },
+      facets: mapGoProductFacets(body.facets),
       error: null,
     };
   } catch (error) {
@@ -401,7 +428,7 @@ export async function getProductsAction(filter?: ProductFilter) {
     return {
       data: [] as ProductWithRelations[],
       totalCount: 0,
-      facets: EMPTY_FACETS,
+      facets: emptyProductFacets,
       error: "Không thể tải danh sách sản phẩm",
     };
   }
@@ -476,21 +503,31 @@ export async function getProductsByIdsAction(ids: string[]) {
   }
 }
 
-export async function getAdjacentProductsAction(id: string) {
-  const empty = { prev: null, next: null } as { prev: GoAdjacentProductResponse | null; next: GoAdjacentProductResponse | null };
-  if (!GO_API_URL) return empty;
+// getProductCompareAction hits the new /products/compare endpoint (2-4
+// published products, same category, attribute_values attached) — the Go
+// API validates category-match/status/count and returns 400 otherwise.
+export async function getProductCompareAction(ids: string[]) {
+  if (!GO_API_URL || ids.length < 2) {
+    return { data: [] as ProductWithRelations[], error: null };
+  }
   try {
-    const res = await fetch(`${GO_API_URL}/products/${id}/adjacent`, { cache: "no-store" });
-    if (!res.ok) return empty;
+    const params = new URLSearchParams({ ids: ids.join(",") });
+    const res = await fetch(`${GO_API_URL}/products/compare?${params.toString()}`, {
+      cache: "no-store",
+    });
+    if (!res.ok) {
+      return { data: [], error: await extractErrorMessage(res, "Không thể so sánh sản phẩm") };
+    }
 
-    const body = (await res.json()) as GoAdjacentProductsResponse;
-    return { prev: body.prev ?? null, next: body.next ?? null };
+    const rows = (await res.json()) as GoProductResponse[] | null;
+    return { data: (rows ?? []).map(mapGoProduct), error: null };
   } catch (error) {
     if (isPrerenderError(error)) throw error;
-    console.error("getAdjacentProductsAction error:", error);
-    return empty;
+    console.error("getProductCompareAction error:", error);
+    return { data: [], error: "Không thể so sánh sản phẩm" };
   }
 }
+
 
 // toSnakeCaseBody is shallow by design (see shared/lib/go-api.ts) — it does
 // NOT recurse into nested arrays/objects, so options/variants (whose Go DTO
@@ -539,6 +576,7 @@ function toGoAttributeValuesPayload(values: AttributeValueInput[] | undefined) {
     value_text: v.valueText ?? undefined,
     value_number: v.valueNumber ?? undefined,
     value_boolean: v.valueBoolean ?? undefined,
+    value_options: v.valueOptions ?? undefined,
   }));
 }
 
@@ -572,15 +610,13 @@ export async function createProductAction(input: CreateProductInput) {
     revalidatePath("/san-pham", "layout");
     revalidatePath("/", "layout");
     revalidateTag("products-list", { expire: 0 });
-    await purgeCloudflareCache();
     if (data?.slug) {
       revalidateTag(`slug:${data.slug}`, { expire: 0 });
     }
-    if (data?.isPublished && data?.slug) {
-      const url = `${BASE_URL}/san-pham/${data.slug}`;
-      submitToIndexNow([url]).catch((err) => console.error("IndexNow product create error:", err));
-      warmCache([url]);
-    }
+    // No IndexNow submission here — a created product always starts as
+    // draft (see domain.NewProduct), never published, so there is nothing
+    // to index yet. That happens in approveProductAction/
+    // unarchiveProductAction below, the actual moments a product goes live.
     return { data, error: null };
   } catch (error) {
     if (isPrerenderError(error)) throw error;
@@ -622,11 +658,10 @@ export async function updateProductAction(input: UpdateProductInput) {
     revalidatePath("/san-pham", "layout");
     revalidatePath("/", "layout");
     revalidateTag("products-list", { expire: 0 });
-    await purgeCloudflareCache();
     if (data?.slug) {
       revalidateTag(`slug:${data.slug}`, { expire: 0 });
     }
-    if (data?.isPublished && data?.slug) {
+    if (data?.status === PRODUCT_STATUS.PUBLISHED && data?.slug) {
       const url = `${BASE_URL}/san-pham/${data.slug}`;
       submitToIndexNow([url]).catch((err) => console.error("IndexNow product update error:", err));
       warmCache([url]);
@@ -640,6 +675,82 @@ export async function updateProductAction(input: UpdateProductInput) {
       error: error instanceof Error ? error.message : "Failed to update product",
     };
   }
+}
+
+// --- Status workflow: draft -> proposed -> published, or published ->
+// archived -> published. Status only ever moves through these dedicated
+// endpoints, never through createProductAction/updateProductAction's
+// generic payload — see elc-go's routes.go (CanWriteContent vs
+// CanPublishContent) for the permission boundary this mirrors.
+
+async function postProductTransition(
+  path: string,
+  successError: string,
+  body?: Record<string, unknown>
+): Promise<{ data: Product | null; error: string | null }> {
+  if (!GO_API_URL) {
+    return { data: null, error: "GO_API_URL is not configured" };
+  }
+  try {
+    const res = await fetch(`${GO_API_URL}/products/${path}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", ...(await authHeaders()) },
+      body: body ? JSON.stringify(body) : undefined,
+    });
+    if (!res.ok) {
+      return { data: null, error: await extractErrorMessage(res, successError) };
+    }
+
+    const row = (await res.json()) as GoProductResponse;
+    const data = mapGoProductPlain(row);
+
+    revalidatePath("/admin/products");
+    revalidatePath("/san-pham", "layout");
+    revalidatePath("/", "layout");
+    revalidateTag("products-list", { expire: 0 });
+    if (data?.slug) {
+      revalidateTag(`slug:${data.slug}`, { expire: 0 });
+    }
+    // The two transitions that actually make a product publicly visible —
+    // this is the real "went live" moment createProductAction/
+    // updateProductAction no longer trigger it at.
+    if (
+      (data?.status === PRODUCT_STATUS.PUBLISHED) &&
+      data?.slug
+    ) {
+      const url = `${BASE_URL}/san-pham/${data.slug}`;
+      submitToIndexNow([url]).catch((err) => console.error("IndexNow product publish error:", err));
+      warmCache([url]);
+    }
+    return { data, error: null };
+  } catch (error) {
+    if (isPrerenderError(error)) throw error;
+    console.error(`postProductTransition(${path}) error:`, error);
+    return {
+      data: null,
+      error: error instanceof Error ? error.message : successError,
+    };
+  }
+}
+
+export async function submitProductForReviewAction(id: string) {
+  return postProductTransition(`${id}/submit`, "Không thể gửi duyệt sản phẩm");
+}
+
+export async function approveProductAction(id: string) {
+  return postProductTransition(`${id}/approve`, "Không thể duyệt sản phẩm");
+}
+
+export async function rejectProductAction(id: string, reason: string) {
+  return postProductTransition(`${id}/reject`, "Không thể từ chối sản phẩm", { reason });
+}
+
+export async function archiveProductAction(id: string) {
+  return postProductTransition(`${id}/archive`, "Không thể ngừng bán sản phẩm");
+}
+
+export async function unarchiveProductAction(id: string) {
+  return postProductTransition(`${id}/unarchive`, "Không thể mở bán lại sản phẩm");
 }
 
 export async function deleteProductAction(id: string) {
@@ -658,7 +769,6 @@ export async function deleteProductAction(id: string) {
     revalidatePath("/san-pham", "layout");
     revalidatePath("/", "layout");
     revalidateTag("products-list", { expire: 0 });
-    await purgeCloudflareCache();
     if (product?.slug) {
       revalidateTag(`slug:${product.slug}`, { expire: 0 });
     }
@@ -669,6 +779,69 @@ export async function deleteProductAction(id: string) {
     return {
       data: null,
       error: error instanceof Error ? error.message : "Failed to delete product",
+    };
+  }
+}
+
+interface GoCatalogPageResponse {
+  content: Json | null;
+  meta_title: string | null;
+  meta_description: string | null;
+  updated_at: string;
+}
+
+function mapGoCatalogPage(row: GoCatalogPageResponse): CatalogPage {
+  return {
+    content: row.content,
+    metaTitle: row.meta_title,
+    metaDescription: row.meta_description,
+    updatedAt: row.updated_at,
+  };
+}
+
+export async function getCatalogPageAction() {
+  if (!GO_API_URL) {
+    return { data: null as CatalogPage | null, error: null };
+  }
+  try {
+    const res = await fetch(`${GO_API_URL}/catalog-page`, { cache: "no-store" });
+    if (!res.ok) {
+      return { data: null, error: await extractErrorMessage(res, "Không thể tải cấu hình trang sản phẩm") };
+    }
+    const row = (await res.json()) as GoCatalogPageResponse;
+    return { data: mapGoCatalogPage(row), error: null };
+  } catch (error) {
+    console.error("getCatalogPageAction error:", error);
+    return { data: null, error: "Không thể tải cấu hình trang sản phẩm" };
+  }
+}
+
+export async function updateCatalogPageAction(input: UpdateCatalogPageInput) {
+  if (!GO_API_URL) {
+    return { data: null, error: "GO_API_URL is not configured" };
+  }
+  try {
+    const res = await fetch(`${GO_API_URL}/catalog-page`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json", ...(await authHeaders()) },
+      body: JSON.stringify({
+        content: input.content ?? null,
+        meta_title: input.metaTitle ?? null,
+        meta_description: input.metaDescription ?? null,
+      }),
+    });
+    if (!res.ok) {
+      return { data: null, error: await extractErrorMessage(res, "Không thể cập nhật cấu hình trang sản phẩm") };
+    }
+    const row = (await res.json()) as GoCatalogPageResponse;
+    revalidatePath("/admin/catalog-page");
+    revalidatePath("/san-pham");
+    return { data: mapGoCatalogPage(row), error: null };
+  } catch (error) {
+    console.error("updateCatalogPageAction error:", error);
+    return {
+      data: null,
+      error: error instanceof Error ? error.message : "Không thể cập nhật cấu hình trang sản phẩm",
     };
   }
 }
