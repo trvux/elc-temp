@@ -69,7 +69,6 @@ export const productSchema = z.object({
       message: "Slug chỉ được chứa chữ thường, số và dấu gạch ngang",
     }),
   description: z.custom<Json>().default({}),
-  shortDescription: z.string().max(500, { message: "Mô tả ngắn không nên quá 500 ký tự" }).nullable().optional(),
   images: z.array(imageAssetSchema).default([]),
   isFeatured: z.boolean().default(false),
   orderIndex: z.coerce.number().int().default(0),

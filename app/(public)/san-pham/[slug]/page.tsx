@@ -27,7 +27,7 @@ function metadataForEntity(entity: ResolvedEntity, slug: string): Metadata {
     if (product.status === PRODUCT_STATUS.ARCHIVED) return {};
 
     const title = product.metaTitle || product.name;
-    const description = product.metaDescription || product.shortDescription || undefined;
+    const description = product.metaDescription || undefined;
     const image = primaryImageUrl(product.images);
     return {
       title: `${title} | ${SITE_NAME}`,
@@ -48,10 +48,15 @@ function metadataForEntity(entity: ResolvedEntity, slug: string): Metadata {
   const title = data.metaTitle || data.name;
   const description = data.metaDescription || undefined;
   const image = entity.type === "brand" ? entity.data.logoUrl : entity.data.imageUrl;
+  // Hidden category/group: kept reachable at its URL (e.g. linked from a
+  // product's breadcrumb) but not meant to be found/promoted via search —
+  // same intent as is_hidden already hiding it from listing sub-nav.
+  const isHidden = (entity.type === "category" || entity.type === "group") && entity.data.isHidden;
   return {
     title: `${title} | ${SITE_NAME}`,
     description,
     alternates,
+    ...(isHidden ? { robots: { index: false, follow: true } } : {}),
     openGraph: {
       type: "website",
       title,
@@ -71,7 +76,7 @@ export async function generateMetadata({ params, searchParams }: Props): Promise
   const { slug } = await params;
   const sp = await searchParams;
   const hasFilterParams = Object.keys(sp).some(
-    (key) => key === "search" || key === "min_price" || key === "max_price" || key === "sort_by" || key.startsWith("attr_"),
+    (key) => key === "search" || key === "min_price" || key === "max_price" || key === "sort_by" || key === "brand_ids" || key.startsWith("attr_"),
   );
   if (hasFilterParams) {
     return {
