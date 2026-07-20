@@ -1,7 +1,5 @@
 "use client";
 
-import { type Contact } from "@/modules/contact/domain";
-import { ContactLink } from "@/modules/contact/presentation/components/ContactLink";
 import {
   type NavLink,
   checkActiveLink,
@@ -21,7 +19,6 @@ interface MobileMenuProps {
   links: NavLink[];
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
-  socialContacts?: Contact[];
   groupCategories?: GroupCategoryRef[];
   categoriesList?: CategoryRef[];
   brands?: BrandNavRef[];
@@ -31,7 +28,6 @@ export function MobileMenu({
   links,
   isOpen,
   onOpenChange,
-  socialContacts = [],
   groupCategories = [],
   categoriesList = [],
   brands = [],
@@ -112,26 +108,6 @@ export function MobileMenu({
               ),
             )}
           </div>
-
-          {socialContacts.length > 0 && (
-            <div className="flex flex-col gap-1 mt-auto pt-4 border-t border-border/40">
-              <div className="px-3 text-sm font-medium text-muted-foreground">
-                Liên hệ
-              </div>
-              {socialContacts.map((contact) => (
-                <ContactLink
-                  key={contact.id}
-                  contact={contact}
-                  showLabel={true}
-                  showValue={false}
-                  iconProps={{ size: 20, weight: "regular" }}
-                  className="rounded-lg px-3 py-2.5 text-foreground text-lg font-medium transition-colors flex items-center gap-3 hover:bg-muted"
-                  iconClassName="size-5 shrink-0 flex items-center justify-center text-muted-foreground"
-                  title={contact.label || contact.type}
-                />
-              ))}
-            </div>
-          )}
         </div>
       </div>
 

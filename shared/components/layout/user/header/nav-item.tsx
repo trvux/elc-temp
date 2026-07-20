@@ -32,7 +32,7 @@ export const DesktopNavItem = ({ link, isActive }: NavItemProps) => {
   );
 };
 
-export const MobileNavItem = ({ link, isActive, onClick }: NavItemProps) => {
+export const MobileNavItem = ({ link, onClick }: NavItemProps) => {
   return (
     <Link
       href={link.href}
@@ -41,10 +41,7 @@ export const MobileNavItem = ({ link, isActive, onClick }: NavItemProps) => {
         onClick?.();
       }}
       className={cn(
-        "flex items-center rounded-lg px-3 py-3 text-xl font-bold no-underline! transition-colors",
-        isActive
-          ? "text-foreground"
-          : "text-muted-foreground hover:text-foreground",
+        "flex items-center rounded-lg px-3 py-3 text-2xl font-semibold text-foreground no-underline! transition-colors",
       )}
     >
       {link.name}

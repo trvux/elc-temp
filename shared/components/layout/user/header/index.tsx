@@ -107,7 +107,6 @@ export function Header({
               links={navLinks}
               isOpen={isMenuOpen}
               onOpenChange={handleMenuToggle}
-              socialContacts={socialContacts}
               groupCategories={groupCategories}
               categoriesList={categoriesList}
               brands={brands}

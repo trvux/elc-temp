@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { useMemo } from "react";
 
@@ -10,7 +11,6 @@ import {
   AccordionTrigger,
 } from "@/shared/components/ui/accordion";
 import { Button } from "@/shared/components/ui/button";
-import { TypographySmall } from "@/shared/components/ui/typography";
 import { groupCategoriesByGroup, type CategoryRef, type GroupCategoryRef } from "@/shared/lib/group-categories";
 import { sortByOrderIndex } from "@/shared/lib/helpers";
 import type { BrandNavRef } from "./nav-mega-menu";
@@ -47,51 +47,77 @@ export function MobileProductAccordion({
   return (
     <Accordion type="single" collapsible className="w-full">
       <AccordionItem value="san-pham" className="border-b-0">
-        <AccordionTrigger className="px-3 py-3 text-xl font-bold text-foreground hover:no-underline!">
+        <AccordionTrigger className="px-3 py-3 text-2xl font-semibold text-foreground hover:no-underline! [&_[data-slot=accordion-trigger-icon]]:hidden">
           Sản phẩm
         </AccordionTrigger>
-        <AccordionContent className="flex flex-col gap-6 pl-3">
-          {groupsWithCategories.map(({ group, categories }) => (
-            <div key={group.id} className="flex flex-col gap-2.5">
-              <Link
-                href={`/san-pham/${group.slug}`}
-                onClick={onNavigate}
-                className="text-base font-semibold text-foreground no-underline!"
-              >
-                {group.name}
-              </Link>
-              {categories.map((cat) => (
-                <Link
-                  key={cat.id}
-                  href={`/san-pham/${cat.slug}`}
-                  onClick={onNavigate}
-                  className="text-base text-muted-foreground no-underline! hover:text-foreground"
-                >
-                  {cat.name}
-                </Link>
-              ))}
-            </div>
-          ))}
+        <AccordionContent className="flex h-auto flex-col gap-2 pl-3">
+          <Accordion type="single" collapsible className="w-full">
+            {groupsWithCategories.map(({ group, categories }) => (
+              <AccordionItem key={group.id} value={group.id} className="border-b-0">
+                <AccordionTrigger className="py-3 text-xl font-semibold text-foreground hover:no-underline!">
+                  {group.name}
+                </AccordionTrigger>
+                <AccordionContent className="h-auto pl-1">
+                  <div className="flex flex-col gap-1">
+                    {categories.map((cat) => (
+                      <Link
+                        key={cat.id}
+                        href={`/san-pham/${cat.slug}`}
+                        onClick={onNavigate}
+                        className="flex items-center gap-3 rounded-md py-1.5 text-lg text-muted-foreground no-underline! hover:text-foreground"
+                      >
+                        <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-md bg-background">
+                          {cat.imageUrl && (
+                            <Image
+                              src={cat.imageUrl}
+                              alt={cat.name}
+                              fill
+                              sizes="40px"
+                              className="object-contain"
+                            />
+                          )}
+                        </div>
+                        <span>{cat.name}</span>
+                      </Link>
+                    ))}
+                  </div>
+                </AccordionContent>
+              </AccordionItem>
+            ))}
 
-          {featuredBrands.length > 0 && (
-            <div className="flex flex-col gap-4 pt-5 border-t border-border/40">
-              <TypographySmall className="text-base font-semibold text-foreground">
-                Thương hiệu
-              </TypographySmall>
-              <div className="flex flex-col gap-2.5">
-                {featuredBrands.map((brand) => (
-                  <Link
-                    key={brand.id}
-                    href={`/san-pham/${brand.slug}`}
-                    onClick={onNavigate}
-                    className="text-base text-muted-foreground no-underline! hover:text-foreground"
-                  >
-                    {brand.name}
-                  </Link>
-                ))}
-              </div>
-            </div>
-          )}
+            {featuredBrands.length > 0 && (
+              <AccordionItem value="thuong-hieu" className="border-b-0">
+                <AccordionTrigger className="py-3 text-xl font-semibold text-foreground hover:no-underline!">
+                  Thương hiệu
+                </AccordionTrigger>
+                <AccordionContent className="h-auto pl-1">
+                  <div className="flex flex-col gap-1">
+                    {featuredBrands.map((brand) => (
+                      <Link
+                        key={brand.id}
+                        href={`/san-pham/${brand.slug}`}
+                        onClick={onNavigate}
+                        className="flex items-center gap-3 rounded-md py-1.5 text-lg text-muted-foreground no-underline! hover:text-foreground"
+                      >
+                        <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-md bg-background">
+                          {brand.logoUrl && (
+                            <Image
+                              src={brand.logoUrl}
+                              alt={brand.name}
+                              fill
+                              sizes="40px"
+                              className="object-contain p-1"
+                            />
+                          )}
+                        </div>
+                        <span>Tất cả sản phẩm {brand.name}</span>
+                      </Link>
+                    ))}
+                  </div>
+                </AccordionContent>
+              </AccordionItem>
+            )}
+          </Accordion>
 
           <Button variant="outline" className="mt-1 w-full no-underline!" asChild>
             <Link href="/san-pham" onClick={onNavigate}>
