@@ -3,6 +3,17 @@
 // per review, enforced server-side). See elc-go's internal/review/domain.
 export type ReviewEntityType = "product" | "project" | "service" | "news";
 
+// Short Vietnamese noun per entity type — used for compact UI chrome (CTA
+// button, dialog title) that shouldn't grow to fit a full product/project
+// name, unlike the review section heading which shows the actual entity
+// name (e.g. "Đánh giá Máy lạnh Daikin Inverter 1HP FTKB25ZVMV").
+export const REVIEW_ENTITY_TYPE_LABEL: Record<ReviewEntityType, string> = {
+  product: "sản phẩm",
+  project: "dự án",
+  service: "dịch vụ",
+  news: "bài viết",
+};
+
 // No reviewerPhone here — the public GET endpoint never returns it (PII,
 // see elc-go's reviewResponse doc comment), so the read shape doesn't carry
 // a field that would always be empty.
