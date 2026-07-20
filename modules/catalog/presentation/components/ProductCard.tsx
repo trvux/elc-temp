@@ -10,7 +10,6 @@ import { Badge } from "@/shared/components/ui/badge";
 import {
   Card,
   CardContent,
-  CardDescription,
   CardFooter,
   CardHeader,
   CardTitle,
@@ -97,11 +96,6 @@ export function ProductCard({
           <CardTitle className="line-clamp-2 h-10 text-sm leading-snug font-semibold">
             {product.name}
           </CardTitle>
-          {product.shortDescription && (
-            <CardDescription className="line-clamp-1 text-xs">
-              {product.shortDescription}
-            </CardDescription>
-          )}
         </CardHeader>
 
         <CardContent className="flex flex-col gap-1.5 px-3 pt-2">

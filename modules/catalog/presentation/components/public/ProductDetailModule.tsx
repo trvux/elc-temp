@@ -18,15 +18,9 @@ import { InView } from "@/shared/components/motion-primitives/in-view";
 import { Badge } from "@/shared/components/ui/badge";
 import { Item, ItemActions, ItemContent, ItemGroup, ItemSeparator, ItemTitle } from "@/shared/components/ui/item";
 import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-} from "@/shared/components/ui/tabs";
-import {
   TypographyH1,
   TypographyH2,
-  TypographyLead,
+  TypographyH3,
   TypographySmall,
 } from "@/shared/components/ui/typography";
 import { primaryImageUrl } from "@/shared/lib/image-asset";
@@ -38,6 +32,26 @@ const AVAILABILITY_SCHEMA: Record<string, string> = {
   in_stock: "https://schema.org/InStock",
   order_from_supplier: "https://schema.org/PreOrder",
   discontinued: "https://schema.org/Discontinued",
+};
+
+const CONDITION_SCHEMA: Record<string, string> = {
+  "Mới": "https://schema.org/NewCondition",
+  "Cũ": "https://schema.org/UsedCondition",
+};
+
+// ELC: no returns accepted, free shipping nationwide — reflect the real
+// business policy here (Google penalizes inaccurate return/shipping markup),
+// not a guessed/default value.
+const MERCHANT_RETURN_POLICY = {
+  "@type": "MerchantReturnPolicy",
+  applicableCountry: "VN",
+  returnPolicyCategory: "https://schema.org/MerchantReturnNotPermitted",
+};
+
+const SHIPPING_DETAILS = {
+  "@type": "OfferShippingDetails",
+  shippingRate: { "@type": "MonetaryAmount", value: "0", currency: "VND" },
+  shippingDestination: { "@type": "DefinedRegion", addressCountry: "VN" },
 };
 
 async function getCachedProductDetailData() {
@@ -141,12 +155,6 @@ export async function ProductDetailModule({
                 {product.name}
               </TypographyH1>
 
-              {product.shortDescription && (
-                <TypographyLead className="text-muted-foreground">
-                  {product.shortDescription}
-                </TypographyLead>
-              )}
-
               <ProductVariantSwitcher
                 product={product}
                 variants={product.variants || []}
@@ -159,69 +167,81 @@ export async function ProductDetailModule({
         </InView>
       </section>
 
-      {/* ===== TABS: THÔNG SỐ / MÔ TẢ ===== */}
-      <section className="w-full max-w-350 mx-auto px-4 md:px-6 lg:px-8 py-6 md:py-10 border-t border-dashed border-border/40">
-        {/* Floating CTA bar trigger — sits at the top of this section instead
-            of right after the hero CTA, so on mobile (where the hero alone
-            can exceed one viewport) the bar only appears once the user
-            actually scrolls down to the specs/description tabs, not on
-            first paint before they've seen the hero at all. */}
-        <div id="product-cta-sentinel" aria-hidden="true" />
-        <Tabs defaultValue={attributeGroups.length > 0 ? "specs" : "description"} className="w-full">
-          <TabsList className="mx-auto w-fit">
-            {attributeGroups.length > 0 && <TabsTrigger value="specs">Thông số kỹ thuật</TabsTrigger>}
-            {product.description ? <TabsTrigger value="description">Mô tả sản phẩm</TabsTrigger> : null}
-          </TabsList>
+      {/* ===== THÔNG SỐ KỸ THUẬT / MÔ TẢ SẢN PHẨM =====
+          Stacked sections, not tabs — both are always present in the
+          server-rendered DOM. A tabbed layout only mounts the active
+          panel's content client-side, so Googlebot (which renders JS but
+          never clicks) only ever saw whichever panel was the default —
+          the other one was invisible to indexing. */}
+      {(attributeGroups.length > 0 || product.description) && (
+        <section className="w-full max-w-350 mx-auto px-4 md:px-6 lg:px-8 py-6 md:py-10 border-t border-dashed border-border/40">
+          {/* Floating CTA bar trigger — sits at the top of this section instead
+              of right after the hero CTA, so on mobile (where the hero alone
+              can exceed one viewport) the bar only appears once the user
+              actually scrolls down to the specs/description, not on
+              first paint before they've seen the hero at all. */}
+          <div id="product-cta-sentinel" aria-hidden="true" />
 
-          {attributeGroups.length > 0 && (
-            <TabsContent value="specs" className="pt-10 focus-visible:outline-none">
-              {(() => {
-                const specList = (
-                  <div className="max-w-3xl mx-auto flex flex-col gap-6">
-                    {attributeGroups.map((group) => (
-                      <div key={group.label ?? "__chung__"} className="flex flex-col gap-2">
-                        {group.label && (
-                          <TypographyH2 className="text-base font-semibold">{group.label}</TypographyH2>
-                        )}
-                        <ItemGroup className="rounded-xl border border-border/50 overflow-hidden bg-white/50">
-                          {group.rows.map((av, i) => (
-                            <div key={av.id}>
-                              <Item size="sm">
-                                <ItemContent>
-                                  <ItemTitle className="text-muted-foreground font-normal">{av.name}</ItemTitle>
-                                </ItemContent>
-                                <ItemActions>
-                                  <span className="text-sm font-medium">{formatAttributeValue(av)}</span>
-                                </ItemActions>
-                              </Item>
-                              {i < group.rows.length - 1 && <ItemSeparator className="my-0" />}
-                            </div>
-                          ))}
-                        </ItemGroup>
-                      </div>
-                    ))}
-                  </div>
-                );
+          <div className="flex flex-col gap-12 md:gap-16">
+            {attributeGroups.length > 0 && (
+              <div>
+                <TypographyH2 className="text-xl md:text-2xl font-bold tracking-tight text-center mb-8">
+                  Thông số kỹ thuật
+                </TypographyH2>
+                {(() => {
+                  const specList = (
+                    <div className="max-w-3xl mx-auto flex flex-col gap-6">
+                      {attributeGroups.map((group) => (
+                        <div key={group.label ?? "__chung__"} className="flex flex-col gap-2">
+                          {group.label && (
+                            <TypographyH3 className="text-base font-semibold">{group.label}</TypographyH3>
+                          )}
+                          <ItemGroup className="rounded-xl border border-border/50 overflow-hidden bg-white/50">
+                            {group.rows.map((av, i) => (
+                              <div key={av.id}>
+                                <Item size="sm">
+                                  <ItemContent>
+                                    <ItemTitle className="text-muted-foreground font-normal">{av.name}</ItemTitle>
+                                  </ItemContent>
+                                  <ItemActions>
+                                    <span className="text-sm font-medium">{formatAttributeValue(av)}</span>
+                                  </ItemActions>
+                                </Item>
+                                {i < group.rows.length - 1 && <ItemSeparator className="my-0" />}
+                              </div>
+                            ))}
+                          </ItemGroup>
+                        </div>
+                      ))}
+                    </div>
+                  );
 
-                return totalSpecRows > SPEC_COLLAPSE_THRESHOLD ? (
-                  <ExpandableContent>{specList}</ExpandableContent>
-                ) : (
-                  specList
-                );
-              })()}
-            </TabsContent>
-          )}
-
-          {product.description && (
-            <TabsContent value="description" className="pt-10 focus-visible:outline-none">
-              <div className="max-w-4xl mx-auto">
-                <ProductDescription content={product.description} fallbackAlt={product.name} />
+                  return totalSpecRows > SPEC_COLLAPSE_THRESHOLD ? (
+                    <ExpandableContent>{specList}</ExpandableContent>
+                  ) : (
+                    specList
+                  );
+                })()}
               </div>
-            </TabsContent>
-          )}
+            )}
 
-        </Tabs>
-      </section>
+            {product.description && (
+              <div
+                className={cn(
+                  attributeGroups.length > 0 && "pt-12 md:pt-16 border-t border-dashed border-border/40",
+                )}
+              >
+                <TypographyH2 className="text-xl md:text-2xl font-bold tracking-tight text-center mb-8">
+                  Mô tả sản phẩm
+                </TypographyH2>
+                <div className="max-w-4xl mx-auto">
+                  <ProductDescription content={product.description} fallbackAlt={product.name} />
+                </div>
+              </div>
+            )}
+          </div>
+        </section>
+      )}
 
       {/* ===== SẢN PHẨM ĐÃ XEM =====
           No border-t here (unlike the sections around it) — RecentlyViewedSection
@@ -294,12 +314,15 @@ export async function ProductDetailModule({
 
         const hasDiscount = !!defaultVariant && defaultVariant.discountPercent > 0;
 
+        const conditionValue = (product.attributeValues || []).find((av) => av.code === "tinh_trang_san_pham")?.valueOptions?.[0];
+        const itemCondition = CONDITION_SCHEMA[conditionValue || ""] || CONDITION_SCHEMA["Mới"];
+
         const productSchema = {
           "@context": "https://schema.org",
           "@type": "Product",
           name: product.name,
           image: images.map((img) => img.url),
-          description: product.shortDescription || product.metaDescription || undefined,
+          description: product.metaDescription || undefined,
           sku: defaultVariant?.sku || undefined,
           brand: product.brand?.name ? { "@type": "Brand", name: product.brand.name } : undefined,
           ...(additionalProperty.length > 0 ? { additionalProperty } : {}),
@@ -331,6 +354,9 @@ export async function ProductDetailModule({
                 priceCurrency: "VND",
                 price: finalPrice,
                 availability: AVAILABILITY_SCHEMA[product.displayStockStatus || ""] || "https://schema.org/InStock",
+                itemCondition,
+                hasMerchantReturnPolicy: MERCHANT_RETURN_POLICY,
+                shippingDetails: SHIPPING_DETAILS,
                 // List price before discount — only meaningful when the
                 // default variant is actually on sale.
                 priceSpecification: hasDiscount
