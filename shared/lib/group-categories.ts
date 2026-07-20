@@ -15,6 +15,7 @@ export interface CategoryRef {
   name: string;
   slug: string;
   groupId?: string | null;
+  imageUrl?: string | null;
 }
 
 export interface GroupWithCategories<
