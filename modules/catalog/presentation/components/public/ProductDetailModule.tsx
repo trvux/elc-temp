@@ -16,6 +16,7 @@ import { ScrollToTop } from "@/shared/components/layout/user/scroll-to-top";
 import { TrackProductView } from "@/shared/components/layout/user/track-product-view";
 import { InView } from "@/shared/components/motion-primitives/in-view";
 import { Badge } from "@/shared/components/ui/badge";
+import { CheckCircle } from "@phosphor-icons/react/dist/ssr";
 import { Item, ItemActions, ItemContent, ItemGroup, ItemSeparator, ItemTitle } from "@/shared/components/ui/item";
 import {
   TypographyH1,
@@ -104,6 +105,9 @@ export async function ProductDetailModule({
   // Only collapse when the table is actually long enough to need it — a
   // 3-row spec list doesn't need a "Xem thêm" button under it.
   const SPEC_COLLAPSE_THRESHOLD = 8;
+  const highlights = (product.highlights || []).filter((h) => h.trim());
+  const hasHighlights = highlights.length > 0;
+  const hasSpecs = attributeGroups.length > 0;
   // displayPrice (default-variant cache, see elc-go/docs/product-v2-design.md)
   // is the source of truth once a product has real variants — used here for
   // the floating CTA bar / recently-viewed snapshot, which (unlike
@@ -173,7 +177,7 @@ export async function ProductDetailModule({
           panel's content client-side, so Googlebot (which renders JS but
           never clicks) only ever saw whichever panel was the default —
           the other one was invisible to indexing. */}
-      {(attributeGroups.length > 0 || product.description) && (
+      {(hasHighlights || hasSpecs || product.description) && (
         <section className="w-full max-w-350 mx-auto px-4 md:px-6 lg:px-8 py-6 md:py-10 border-t border-dashed border-border/40">
           {/* Floating CTA bar trigger — sits at the top of this section instead
               of right after the hero CTA, so on mobile (where the hero alone
@@ -183,8 +187,26 @@ export async function ProductDetailModule({
           <div id="product-cta-sentinel" aria-hidden="true" />
 
           <div className="flex flex-col gap-12 md:gap-16">
-            {attributeGroups.length > 0 && (
+            {hasHighlights && (
               <div>
+                <TypographyH2 className="text-xl md:text-2xl font-bold tracking-tight text-center mb-8">
+                  Đặc điểm nổi bật
+                </TypographyH2>
+                <ul className="max-w-3xl mx-auto flex flex-col gap-3">
+                  {highlights.map((item, i) => (
+                    <li key={i} className="flex items-start gap-3">
+                      <CheckCircle weight="fill" className="mt-0.5 size-5 shrink-0 text-primary" />
+                      <span className="text-sm md:text-base">{item}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+            {hasSpecs && (
+              <div
+                className={cn(hasHighlights && "pt-12 md:pt-16 border-t border-dashed border-border/40")}
+              >
                 <TypographyH2 className="text-xl md:text-2xl font-bold tracking-tight text-center mb-8">
                   Thông số kỹ thuật
                 </TypographyH2>
@@ -228,7 +250,7 @@ export async function ProductDetailModule({
             {product.description && (
               <div
                 className={cn(
-                  attributeGroups.length > 0 && "pt-12 md:pt-16 border-t border-dashed border-border/40",
+                  (hasHighlights || hasSpecs) && "pt-12 md:pt-16 border-t border-dashed border-border/40",
                 )}
               >
                 <TypographyH2 className="text-xl md:text-2xl font-bold tracking-tight text-center mb-8">

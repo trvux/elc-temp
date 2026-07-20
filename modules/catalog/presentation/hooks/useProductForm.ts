@@ -52,6 +52,7 @@ const EMPTY_DEFAULTS: ProductFormValues = {
   metaDescription: "",
   tagIds: [],
   productLineId: null,
+  highlights: [],
   options: [],
   attributeValues: [],
   // Every product needs >=1 variant (the Go backend rejects zero — see
@@ -117,6 +118,7 @@ function mapProductToFormValues(p: ProductWithRelations): ProductFormValues {
     metaDescription: p.metaDescription || "",
     tagIds: (p.tags || []).map((t) => t.id),
     productLineId: p.productLineId || null,
+    highlights: p.highlights || [],
     options,
     variants,
     attributeValues: (p.attributeValues || []).map((av) => ({

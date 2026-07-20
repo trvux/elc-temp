@@ -76,6 +76,7 @@ export const productSchema = z.object({
   brandId: z.uuid({ message: "ID thương hiệu không đúng định dạng UUID" }),
   tagIds: z.array(z.string()).optional(),
   productLineId: z.uuid().nullable().optional(),
+  highlights: z.array(z.string().min(1)).nullable().optional(),
   options: z.array(productOptionInputSchema).optional(),
   // At least one variant is required — Product itself carries no sku/mpn/
   // price, see elc-go's domain.Product doc comment.

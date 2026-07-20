@@ -133,6 +133,7 @@ interface GoProductResponse {
   meta_title: string | null;
   meta_description: string | null;
   product_line_id: string | null;
+  highlights: string[] | null;
   default_variant_id: string | null;
   display_price: number | null;
   display_stock_status: string | null;
@@ -275,6 +276,7 @@ function mapGoProduct(row: GoProductResponse): ProductWithRelations {
     categoryId: row.category_id || "",
     brandId: row.brand_id || "",
     productLineId: row.product_line_id ?? null,
+    highlights: row.highlights ?? null,
     defaultVariantId: row.default_variant_id ?? null,
     displayPrice: row.display_price ?? null,
     displayStockStatus: row.display_stock_status ?? null,
