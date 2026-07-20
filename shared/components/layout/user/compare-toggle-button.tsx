@@ -31,7 +31,13 @@ export function CompareToggleButton({ item, variant = "button", size = "default"
         type="button"
         variant="secondary"
         size="icon-sm"
-        className={cn("rounded-full", selected && "bg-primary text-primary-foreground hover:bg-primary/90", className)}
+        className={cn(
+          "rounded-full",
+          selected
+            ? "bg-primary text-primary-foreground hover:bg-primary/90"
+            : "max-sm:bg-transparent max-sm:hover:bg-muted max-sm:hover:text-foreground",
+          className
+        )}
         aria-label={selected ? "Bỏ khỏi so sánh" : "Thêm vào so sánh"}
         aria-pressed={selected}
         onClick={() => toggle(item)}
