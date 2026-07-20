@@ -75,7 +75,7 @@ export function CategoryManagement() {
         toast.error(res.error);
         return;
       }
-      toast.success("Đã xóa danh mục mới");
+      toast.success("Đã xóa danh mục");
       setDeletingId(null);
       queryClient.invalidateQueries({ queryKey: ["categories-new"] });
       queryClient.invalidateQueries({ queryKey: ["project-types"] });
@@ -136,7 +136,7 @@ export function CategoryManagement() {
     <div>
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 mb-8">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">Danh mục mới</h1>
+          <h1 className="text-2xl font-bold tracking-tight">Danh mục</h1>
           <p className="text-sm text-muted-foreground">
             Quản lý danh mục sản phẩm lắp đặt chi tiết (Dòng sản phẩm thực tế).
           </p>
