@@ -15,7 +15,7 @@ export async function GET() {
   ]);
 
   const categoryRoutes = categories
-    .filter((cat) => cat.slug)
+    .filter((cat) => cat.slug && !cat.isHidden)
     .map((cat) => ({
       url: `${BASE_URL}/san-pham/${cat.slug}`,
       lastmod: cat.updatedAt,
@@ -29,7 +29,7 @@ export async function GET() {
     }));
 
   const groupRoutes = groupCategories
-    .filter((g) => g.slug)
+    .filter((g) => g.slug && !g.isHidden)
     .map((g) => ({
       url: `${BASE_URL}/san-pham/${g.slug}`,
       lastmod: g.updatedAt,
