@@ -585,15 +585,33 @@ function toGoVariantsPayload(variants: ProductVariantInput[] | undefined) {
   }));
 }
 
+// Drops entries with no actual value — ProductSpecsTab.tsx pads the form
+// with one stub per attribute definition applicable to the category (so an
+// admin can fill any of them in), but an optional (is_required=false)
+// attribute the admin never touched has no data to send. Submitting the
+// blank stub as-is fails the Go backend's shape validation (e.g.
+// "value_number is required for data_type number") for number/boolean
+// types — a plain "" happens to pass its non-nil check for text/select,
+// masking the same "nothing was actually entered" case there. Omitting the
+// entry entirely is the correct payload either way: attribute_values
+// replaces the whole set wholesale, so a definition just isn't included.
 function toGoAttributeValuesPayload(values: AttributeValueInput[] | undefined) {
   if (!values) return undefined;
-  return values.map((v) => ({
-    attribute_definition_id: v.attributeDefinitionId,
-    value_text: v.valueText ?? undefined,
-    value_number: v.valueNumber ?? undefined,
-    value_boolean: v.valueBoolean ?? undefined,
-    value_options: v.valueOptions ?? undefined,
-  }));
+  return values
+    .filter(
+      (v) =>
+        (v.valueText ?? "") !== "" ||
+        v.valueNumber != null ||
+        v.valueBoolean != null ||
+        (v.valueOptions && v.valueOptions.length > 0),
+    )
+    .map((v) => ({
+      attribute_definition_id: v.attributeDefinitionId,
+      value_text: v.valueText ?? undefined,
+      value_number: v.valueNumber ?? undefined,
+      value_boolean: v.valueBoolean ?? undefined,
+      value_options: v.valueOptions ?? undefined,
+    }));
 }
 
 export async function createProductAction(input: CreateProductInput) {
