@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import { Controller, UseFormReturn } from "react-hook-form";
+import { Controller, useFieldArray, UseFormReturn } from "react-hook-form";
 import {
   Field,
   FieldDescription,
@@ -26,23 +26,46 @@ import { ProductFormValues } from "../../hooks/useProductForm";
 interface ProductSpecsTabProps {
   form: UseFormReturn<ProductFormValues>;
   attributeDefinitions: AttributeDefinition[];
+  // True while the attribute-definitions query is still in flight — the
+  // sync effect below must not run yet, see its own doc comment for why.
+  isLoading?: boolean;
 }
 
 const GLOBAL_GROUP_KEY = "__chung__";
 
-export function ProductSpecsTab({ form, attributeDefinitions }: ProductSpecsTabProps) {
+export function ProductSpecsTab({ form, attributeDefinitions, isLoading }: ProductSpecsTabProps) {
   const categoryId = form.watch("categoryId");
 
   const relevantDefs = attributeDefinitions
     .filter((d) => d.categoryIds.length === 0 || d.categoryIds.includes(categoryId))
     .sort((a, b) => (a.groupLabel || "").localeCompare(b.groupLabel || "") || a.orderIndex - b.orderIndex);
 
+  // useFieldArray (not plain form.setValue on the array) is required here —
+  // this array's membership/order changes at runtime (padding in stubs for
+  // definitions the product has no value for yet, reordering to match
+  // relevantDefs' groupLabel/orderIndex sort), and plain form.setValue()
+  // only replaces the VALUE at each path; it doesn't tell RHF the
+  // structure changed. RHF still tracks each Controller's registered state
+  // by its "attributeValues.{index}.value*" name path, so when the same
+  // index later refers to a different attribute definition, the new
+  // Controller can inherit the previous occupant's already-registered
+  // value instead of the fresh one being passed in — e.g. an untouched,
+  // always-blank "Bảo hành tổng" (number) field silently saving whatever
+  // number happened to sit at that index a moment earlier ("Công suất làm
+  // lạnh", 9200), corrupting a completely unrelated attribute on save.
+  // replace() is useFieldArray's own reorder/resize primitive — combined
+  // with always deriving each Controller's index from `fields` itself
+  // (see the groups/capacityFieldIndex computation below, never from
+  // relevantDefs), a slot can never carry over a stale value from
+  // whatever used to occupy that array position.
+  const { fields, replace } = useFieldArray({ control: form.control, name: "attributeValues" });
+
   // Keeps the attributeValues field array in sync with whichever
   // definitions apply to the currently-selected category — one entry per
   // definition, preserving existing values by attributeDefinitionId when
   // the set changes (e.g. after switching category). Unlike the plain
   // useState "sync during render" pattern ProductOrganizationCard.tsx uses,
-  // this must run in an effect: form.setValue() pushes updates into the
+  // this must run in an effect: replace() pushes updates into the
   // Controller children's subscriptions, which React doesn't allow doing
   // synchronously during a different component's render (see the "Cannot
   // update a component while rendering a different component" warning).
@@ -59,23 +82,41 @@ export function ProductSpecsTab({ form, attributeDefinitions }: ProductSpecsTabP
   // the mount-time merge that fixes this.
   const relevantKey = relevantDefs.map((d) => d.id).join(",");
   useEffect(() => {
+    // attributeDefinitions loads async (react-query, defaulted to [] while
+    // in flight — see ProductForm.tsx) — running this while it's still
+    // empty-because-loading (not empty-because-the-category-genuinely-has-
+    // none) would wipe attributeValues to [], and then the very next run
+    // (once the real definitions arrive) rebuilds every entry as a blank
+    // stub instead of preserving what GetByID actually returned, since by
+    // then form.getValues("attributeValues") is already the wiped [].
+    // Concretely: every save silently dropped every attribute value,
+    // failing validation for every number/boolean-typed one (text/select
+    // stubs default to "" which happens to still satisfy the Go backend's
+    // non-nil check, masking the same underlying data loss for those).
+    if (isLoading) return;
     const existing = form.getValues("attributeValues") || [];
     const byDefId = new Map(existing.map((v) => [v.attributeDefinitionId, v]));
-    form.setValue(
-      "attributeValues",
+    replace(
       relevantDefs.map(
         (d) =>
           byDefId.get(d.id) || {
             attributeDefinitionId: d.id,
             valueText: "",
-            valueNumber: undefined,
-            valueBoolean: undefined,
+            // null, not undefined — RHF's array replace() appears to treat
+            // an undefined leaf value as "no change" rather than "clear
+            // it", so a blank stub reusing an array slot a differently-
+            // typed, filled-in value previously occupied (relevantDefs is
+            // re-sorted/padded at runtime, see this effect's doc comment)
+            // kept reading back the OLD occupant's stale valueNumber/
+            // valueBoolean on submit even though this object never set it.
+            valueNumber: null,
+            valueBoolean: null,
             valueOptions: [],
           }
       )
     );
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [relevantKey]);
+  }, [relevantKey, isLoading]);
 
   const scrollToCategory = () => {
     document
@@ -105,20 +146,37 @@ export function ProductSpecsTab({ form, attributeDefinitions }: ProductSpecsTabP
     );
   }
 
-  const groups: { label: string; defs: AttributeDefinition[] }[] = [];
-  for (const def of relevantDefs) {
+  // Grouped from `fields` (useFieldArray's own array), never from
+  // relevantDefs — a Controller's `name` must always be built from the
+  // SAME array RHF is tracking, at that array's own current index. Doing
+  // it the other way around (iterate relevantDefs, look up an index into
+  // the values array separately, e.g. via relevantDefs.indexOf or a fresh
+  // form.watch().findIndex on every render) lets the computed index drift
+  // from what RHF has actually registered for that position — RHF doesn't
+  // reset an input's registered value when a Controller's `name` prop
+  // changes to point at a different logical item, so a stale value can
+  // silently carry over onto an unrelated attribute. Concretely: an
+  // untouched, always-blank "Bảo hành tổng" (number) field saving whatever
+  // number happened to occupy that array slot a moment earlier ("Công
+  // suất làm lạnh", 9200) — corrupting a completely unrelated attribute on
+  // save, even though no user ever touched either field.
+  const defsById = new Map(attributeDefinitions.map((d) => [d.id, d]));
+  const groups: { label: string; entries: { def: AttributeDefinition; index: number }[] }[] = [];
+  fields.forEach((f, index) => {
+    const def = defsById.get(f.attributeDefinitionId);
+    if (!def) return; // stale entry for a deleted/inapplicable definition
     const key = def.groupLabel || GLOBAL_GROUP_KEY;
     let group = groups.find((g) => g.label === key);
     if (!group) {
-      group = { label: key, defs: [] };
+      group = { label: key, entries: [] };
       groups.push(group);
     }
-    group.defs.push(def);
-  }
+    group.entries.push({ def, index });
+  });
 
-  const capacityBtu = relevantDefs.find((d) => d.code === CAPACITY_BTU_ATTRIBUTE_CODE);
-  const capacityIndex = capacityBtu ? relevantDefs.indexOf(capacityBtu) : -1;
-  const capacityBtuValue = capacityIndex >= 0 ? form.watch(`attributeValues.${capacityIndex}.valueNumber`) : undefined;
+  const capacityFieldIndex = fields.findIndex((f) => defsById.get(f.attributeDefinitionId)?.code === CAPACITY_BTU_ATTRIBUTE_CODE);
+  const capacityBtuValue =
+    capacityFieldIndex >= 0 ? form.watch(`attributeValues.${capacityFieldIndex}.valueNumber`) : undefined;
 
   return (
     <>
@@ -133,8 +191,7 @@ export function ProductSpecsTab({ form, attributeDefinitions }: ProductSpecsTabP
             <h4 className="text-sm font-semibold text-muted-foreground mb-3">{group.label}</h4>
           )}
           <FieldGroup className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-5">
-            {group.defs.map((def) => {
-              const index = relevantDefs.indexOf(def);
+            {group.entries.map(({ def, index }) => {
               return (
                 <Field key={def.id}>
                   <FieldLabel>
@@ -148,7 +205,13 @@ export function ProductSpecsTab({ form, attributeDefinitions }: ProductSpecsTabP
                       control={form.control}
                       name={`attributeValues.${index}.valueText`}
                       render={({ field }) => (
-                        <Input {...field} value={field.value || ""} placeholder={`Nhập ${def.name.toLowerCase()}...`} />
+                        <Input
+                          {...field}
+                          name={`attr-text-${def.id}`}
+                          autoComplete="off"
+                          value={field.value || ""}
+                          placeholder={`Nhập ${def.name.toLowerCase()}...`}
+                        />
                       )}
                     />
                   )}
@@ -162,6 +225,8 @@ export function ProductSpecsTab({ form, attributeDefinitions }: ProductSpecsTabP
                           <Input
                             type="number"
                             {...field}
+                            name={`attr-number-${def.id}`}
+                            autoComplete="off"
                             value={field.value ?? ""}
                             onFocus={(e) => e.target.select()}
                             onChange={(e) => field.onChange(e.target.value === "" ? undefined : Number(e.target.value))}

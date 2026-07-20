@@ -84,7 +84,7 @@ export function ProductForm({ mode, product, currentUserRole }: ProductFormProps
     },
   });
 
-  const { data: attributeDefinitions = [] } = useQuery({
+  const { data: attributeDefinitions = [], isLoading: attributeDefinitionsLoading } = useQuery({
     queryKey: ["attribute-definitions"],
     queryFn: async () => {
       const { data, error } = await getAttributeDefinitionsAction();
@@ -201,7 +201,11 @@ export function ProductForm({ mode, product, currentUserRole }: ProductFormProps
                 <Badge variant="outline" className="font-normal">cấp Sản phẩm</Badge>
               </CardHeader>
               <CardContent className="pt-0">
-                <ProductSpecsTab form={form} attributeDefinitions={attributeDefinitions} />
+                <ProductSpecsTab
+                  form={form}
+                  attributeDefinitions={attributeDefinitions}
+                  isLoading={attributeDefinitionsLoading}
+                />
               </CardContent>
             </Card>
           </div>
