@@ -10,7 +10,7 @@ import { Controller, useForm } from "react-hook-form";
 import type { Resolver } from "react-hook-form";
 import { toast } from "sonner";
 
-import { createReviewSchema, ReviewEntityType } from "@/modules/review/domain";
+import { createReviewSchema, REVIEW_ENTITY_TYPE_LABEL, ReviewEntityType } from "@/modules/review/domain";
 import { createReviewAction } from "@/modules/review/presentation/actions";
 import { Button } from "@/shared/components/ui/button";
 import {
@@ -38,6 +38,10 @@ import { Input } from "@/shared/components/ui/input";
 import { StarRating, StarRatingInput } from "@/shared/components/ui/star-rating";
 import { Textarea } from "@/shared/components/ui/textarea";
 import { useIsMobile } from "@/shared/hooks/use-mobile";
+
+function capitalize(s: string): string {
+  return s.charAt(0).toUpperCase() + s.slice(1);
+}
 
 type ReviewFormValues = {
   rating: number;
@@ -70,7 +74,7 @@ export function ReviewFormSheet({
   entityImage,
   ratingAverage = 0,
   ratingCount = 0,
-  triggerLabel = "Đánh giá sản phẩm",
+  triggerLabel = `Đánh giá ${REVIEW_ENTITY_TYPE_LABEL[entityType]}`,
   className,
 }: ReviewFormSheetProps) {
   const [open, setOpen] = useState(false);
@@ -136,7 +140,9 @@ export function ReviewFormSheet({
 
       <FieldGroup className="gap-4 md:gap-7">
         <Field>
-          <FieldLabel className="text-center justify-center">Sản phẩm này có tốt không?</FieldLabel>
+          <FieldLabel className="text-center justify-center">
+            {capitalize(REVIEW_ENTITY_TYPE_LABEL[entityType])} này có tốt không?
+          </FieldLabel>
           <FieldContent>
             <Controller
               control={form.control}
@@ -237,7 +243,7 @@ export function ReviewFormSheet({
               className="flex flex-col overflow-hidden"
             >
               <DrawerHeader>
-                <DrawerTitle>Đánh giá sản phẩm</DrawerTitle>
+                <DrawerTitle>{triggerLabel}</DrawerTitle>
               </DrawerHeader>
               <div className="overflow-y-auto px-4 pb-4">{fields}</div>
               <DrawerFooter>{submitButton}</DrawerFooter>
@@ -255,7 +261,7 @@ export function ReviewFormSheet({
         <DialogContent className="sm:max-w-md">
           <form onSubmit={form.handleSubmit((v) => submitMutation.mutate(v))}>
             <DialogHeader>
-              <DialogTitle>Đánh giá sản phẩm</DialogTitle>
+              <DialogTitle>{triggerLabel}</DialogTitle>
             </DialogHeader>
             <div className="py-4">{fields}</div>
             <DialogFooter>{submitButton}</DialogFooter>

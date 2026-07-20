@@ -29,7 +29,7 @@ export function ReviewSection({ entityType, entityId, entityName, entityImage, r
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div className="flex flex-col gap-2">
           <TypographyH2 className="text-xl md:text-2xl font-bold tracking-tight">
-            Đánh giá sản phẩm
+            Đánh giá {entityName}
           </TypographyH2>
           {aggregate.count > 0 && (
             <div className="flex items-center gap-2">
@@ -59,7 +59,7 @@ export function ReviewSection({ entityType, entityId, entityName, entityImage, r
             </EmptyMedia>
             <EmptyTitle>Chưa có đánh giá nào</EmptyTitle>
             <EmptyDescription>
-              Hãy là người đầu tiên đánh giá sản phẩm này.
+              Hãy là người đầu tiên đánh giá {entityName}.
             </EmptyDescription>
           </EmptyHeader>
         </Empty>
