@@ -138,7 +138,7 @@ export function ProductCard({
           <WishlistButton productId={product.id} variant="icon" className="hidden sm:inline-flex sm:order-2" />
           <CompareToggleButton
             variant="icon"
-            className="max-sm:bg-transparent max-sm:hover:bg-muted max-sm:hover:text-foreground rounded-md sm:order-3 sm:rounded-full"
+            className="rounded-md sm:order-3 sm:rounded-full"
             item={{ id: product.id, name: product.name, slug: product.slug, categoryId: product.categoryId }}
           />
         </div>
