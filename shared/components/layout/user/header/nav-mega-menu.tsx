@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 
 import { Button } from "@/shared/components/ui/button";
 import {
@@ -18,6 +18,7 @@ import {
   type GroupCategoryRef,
 } from "@/shared/lib/group-categories";
 import { sortByOrderIndex } from "@/shared/lib/helpers";
+import { cn } from "@/shared/lib/utils";
 
 export interface BrandNavRef {
   id: string;
@@ -36,11 +37,18 @@ interface ProductMegaMenuItemProps {
 
 const FEATURED_BRANDS_CAP = 8;
 
-// The "Sản phẩm" nav item — replaces a plain flat link with a two-column
-// dropdown: categories grouped by Group (left), featured brands (right).
-// Data is already fetched server-side in app/(public)/layout.tsx (same
-// arrays Footer uses) and passed down as props, so this component only
-// shapes/renders — no client-side fetch, no loading state.
+// Sentinel rail entry id for the brands section, kept alongside group ids
+// in the same left-rail state so "Thương hiệu" behaves like just another
+// group instead of a separate column.
+const BRANDS_RAIL_ID = "__brands__";
+
+// The "Sản phẩm" nav item — replaces a plain flat link with a dropdown:
+// a left rail listing groups plus a trailing "Thương hiệu" entry (hover to
+// switch), and the active entry's items (categories or brands) shown as
+// image cards in the middle panel. Data is already fetched server-side in
+// app/(public)/layout.tsx (same arrays Footer uses) and passed down as
+// props, so this component only shapes/renders — no client-side fetch, no
+// loading state.
 export function ProductMegaMenuItem({
   groupCategories,
   categoriesList,
@@ -60,72 +68,128 @@ export function ProductMegaMenuItem({
     [brands],
   );
 
+  const [activeRailId, setActiveRailId] = useState<string | null>(
+    groupsWithCategories[0]?.group.id ?? null,
+  );
+
+  const activeGroup = groupsWithCategories.find(
+    (g) => g.group.id === activeRailId,
+  );
+  const isBrandsActive =
+    activeRailId === BRANDS_RAIL_ID ||
+    (!activeGroup && groupsWithCategories.length === 0);
+
   return (
     <NavigationMenuItem>
       <NavigationMenuTrigger>Sản phẩm</NavigationMenuTrigger>
       <NavigationMenuContent>
-        <div className="flex flex-col gap-4 w-220 max-w-[90vw] p-4">
-          <div className="grid grid-cols-[1fr_auto] gap-10">
-            <div className="flex flex-col gap-3">
-              <TypographyLarge className="pl-5">Danh mục</TypographyLarge>
-              <div className="columns-3 gap-x-2">
-                {groupsWithCategories.map(({ group, categories }) => (
-                  <div
-                    key={group.id}
-                    className="mb-2 flex flex-col gap-1.5 min-w-0 break-inside-avoid 1 rounded-md p-3"
+        <div className="flex flex-col gap-4 w-240 max-w-[90vw] p-4">
+          <div className="grid grid-cols-[180px_1fr] gap-6">
+            <div className="flex flex-col gap-1">
+              <TypographyLarge className="pl-3 pb-1">
+                Danh mục
+              </TypographyLarge>
+              {groupsWithCategories.map(({ group }) => (
+                <NavigationMenuLink asChild key={group.id}>
+                  <Link
+                    href={`/san-pham/${group.slug}`}
+                    onMouseEnter={() => setActiveRailId(group.id)}
+                    onFocus={() => setActiveRailId(group.id)}
+                    className={cn(
+                      "rounded-md px-3 py-2 text-sm font-medium transition-colors",
+                      !isBrandsActive && group.id === activeGroup?.group.id
+                        ? "bg-accent text-accent-foreground"
+                        : "text-foreground hover:bg-accent/60",
+                    )}
                   >
-                    <NavigationMenuLink asChild>
-                      <Link
-                        href={`/san-pham/${group.slug}`}
-                        className="font-semibold text-sm"
-                      >
-                        {group.name}
-                      </Link>
-                    </NavigationMenuLink>
-                    {categories.map((cat) => (
-                      <NavigationMenuLink asChild key={cat.id}>
-                        <Link
-                          href={`/san-pham/${cat.slug}`}
-                          className="text-sm text-muted-foreground"
-                        >
-                          {cat.name}
-                        </Link>
-                      </NavigationMenuLink>
-                    ))}
-                  </div>
-                ))}
-              </div>
+                    {group.name}
+                  </Link>
+                </NavigationMenuLink>
+              ))}
+              {featuredBrands.length > 0 && (
+                <Link
+                  href="/san-pham"
+                  onMouseEnter={() => setActiveRailId(BRANDS_RAIL_ID)}
+                  onFocus={() => setActiveRailId(BRANDS_RAIL_ID)}
+                  className={cn(
+                    "rounded-md px-3 py-2 text-sm font-medium transition-colors",
+                    isBrandsActive
+                      ? "bg-accent text-accent-foreground"
+                      : "text-foreground hover:bg-accent/60",
+                  )}
+                >
+                  Thương hiệu
+                </Link>
+              )}
             </div>
 
-            {featuredBrands.length > 0 && (
-              <div className="flex flex-col items-center gap-3 w-48 shrink-0">
-                <TypographyLarge>Thương hiệu</TypographyLarge>
-                <div className="flex flex-col items-center gap-4 p-3">
+            <div className="min-w-0 border-l pl-6">
+              {isBrandsActive ? (
+                <div className="grid grid-cols-6 gap-3">
                   {featuredBrands.map((brand) => (
-                    <Link
-                      key={brand.id}
-                      href={`/san-pham/${brand.slug}`}
-                      className="flex h-9 w-24 items-center justify-center p-1 transition-opacity hover:opacity-70"
-                      title={brand.name}
-                    >
-                      {brand.logoUrl ? (
-                        <Image
-                          src={brand.logoUrl}
-                          alt={brand.name}
-                          width={96}
-                          height={36}
-                          className="h-full w-full object-contain"
-                        />
-                      ) : (
-                        <span className="text-xs text-muted-foreground">
+                    <NavigationMenuLink asChild key={brand.id}>
+                      <Link
+                        href={`/san-pham/${brand.slug}`}
+                        className="group flex flex-col gap-2 rounded-md p-2 transition-colors hover:bg-accent/60"
+                      >
+                        <div className="relative aspect-square w-full overflow-hidden rounded-md bg-background">
+                          {brand.logoUrl ? (
+                            <Image
+                              src={brand.logoUrl}
+                              alt={brand.name}
+                              fill
+                              sizes="120px"
+                              className="object-contain p-2 transition-transform group-hover:scale-105"
+                            />
+                          ) : (
+                            <span className="absolute inset-0 flex items-center justify-center text-xs text-muted-foreground">
+                              {brand.name}
+                            </span>
+                          )}
+                        </div>
+                        <span className="text-center text-sm text-foreground line-clamp-2">
                           {brand.name}
                         </span>
-                      )}
-                    </Link>
+                      </Link>
+                    </NavigationMenuLink>
                   ))}
                 </div>
-              </div>
-            )}
+              ) : activeGroup && activeGroup.categories.length > 0 ? (
+                <div className="grid grid-cols-4 gap-3">
+                  {activeGroup.categories.map((cat) => (
+                    <NavigationMenuLink asChild key={cat.id}>
+                      <Link
+                        href={`/san-pham/${cat.slug}`}
+                        className="group flex flex-col gap-2 rounded-md p-2 transition-colors hover:bg-accent/60"
+                      >
+                        <div className="relative aspect-square w-full overflow-hidden rounded-md bg-background">
+                          {cat.imageUrl ? (
+                            <Image
+                              src={cat.imageUrl}
+                              alt={cat.name}
+                              fill
+                              sizes="120px"
+                              className="object-contain transition-transform group-hover:scale-105"
+                            />
+                          ) : (
+                            <span className="absolute inset-0 flex items-center justify-center text-xs text-muted-foreground">
+                              {cat.name}
+                            </span>
+                          )}
+                        </div>
+                        <span className="text-center text-sm text-foreground line-clamp-2">
+                          {cat.name}
+                        </span>
+                      </Link>
+                    </NavigationMenuLink>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-sm text-muted-foreground">
+                  Chưa có danh mục con.
+                </p>
+              )}
+            </div>
           </div>
 
           <Button

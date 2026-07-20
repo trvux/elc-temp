@@ -90,6 +90,7 @@ export async function getPublicLayoutData() {
       name: c.name,
       slug: c.slug || "",
       groupId: c.groupId,
+      imageUrl: c.imageUrl,
     }));
 
   const settings: Record<string, string> = {};
