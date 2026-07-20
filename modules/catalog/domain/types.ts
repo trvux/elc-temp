@@ -41,6 +41,9 @@ export interface Product {
     categoryId: string;
     brandId: string;
     productLineId?: string | null;
+    // Đặc điểm nổi bật — short bullet-point claims shown above the
+    // description article, distinct from description's rich-text body.
+    highlights?: string[] | null;
     // Denormalized read cache computed from the variant tree — see
     // elc-go/docs/product-v2-design.md.
     defaultVariantId?: string | null;
@@ -223,6 +226,7 @@ export interface CreateProductInput {
     brandId: string;
     tagIds?: string[];
     productLineId?: string | null;
+    highlights?: string[] | null;
     options?: ProductOptionInput[];
     // Must contain at least one entry — the Go backend rejects an empty
     // list, since Product itself carries no price/sku (see the Product doc
