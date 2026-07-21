@@ -6,11 +6,11 @@ export default function ProductNotFound() {
   return (
     <div className="flex flex-col items-center justify-center min-h-[70vh] bg-background px-6 text-center">
       <div className="space-y-6 max-w-md">
-        <h1 className="text-8xl font-bold text-primary/10 tracking-tighter">
+        <h1 className="font-heading text-8xl font-bold text-primary/10 tracking-tighter">
           404
         </h1>
         <div className="space-y-2">
-          <h2 className="text-2xl font-bold tracking-tight text-primary">
+          <h2 className="font-heading text-2xl font-bold tracking-tight text-primary">
             Sản phẩm không còn kinh doanh
           </h2>
           <p className="text-muted-foreground">

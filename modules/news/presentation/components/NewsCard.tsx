@@ -33,7 +33,7 @@ export const NewsCard: React.FC<NewsCardProps> = ({ news }) => {
           <span>{formattedDate}</span>
         </div>
         <Link href={`/tin-tuc/${news.slug}`}>
-          <h3 className="font-bold text-lg line-clamp-2 group-hover:text-primary transition-colors">
+          <h3 className="font-heading font-bold text-lg line-clamp-2 group-hover:text-primary transition-colors">
             {news.title}
           </h3>
         </Link>

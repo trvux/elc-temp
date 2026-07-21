@@ -29,7 +29,8 @@ import {
   TypographyLarge,
   TypographySmall,
 } from "@/shared/components/ui/typography";
-import { cn, formatCurrency } from "@/shared/lib/utils";
+import { cn } from "@/shared/lib/utils";
+import { formatCurrency } from "@/shared/lib/format";
 
 interface ServiceDetailModuleProps {
   service: ServiceWithRelations;

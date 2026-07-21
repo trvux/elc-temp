@@ -8,9 +8,11 @@ import { cn } from "@/shared/lib/utils";
 import { QueryProvider } from "@/shared/providers/query-provider";
 import { BASE_URL } from "@/shared/lib/seo-schema";
 import type { Metadata, Viewport } from "next";
-import { Inter } from "next/font/google";
+import { Inter, Merriweather } from "next/font/google";
 import { Suspense } from "react";
 import "./globals.css";
+
+const merriweatherHeading = Merriweather({subsets:['latin'],variable:'--font-heading'});
 
 const inter = Inter({subsets:['latin'],variable:'--font-sans'});
 
@@ -57,7 +59,7 @@ export default function RootLayout({
     <html
       lang="vi"
       suppressHydrationWarning
-      className={cn("h-full antialiased font-sans", "font-sans", inter.variable)}
+      className={cn("h-full antialiased font-sans", "font-sans", inter.variable, merriweatherHeading.variable)}
     >
       <head>
         <link

@@ -17,7 +17,7 @@ export default function NotFound() {
         className="flex-1 flex flex-col"
         contentClassName="flex-1 flex flex-col items-center justify-center text-center gap-6 max-w-2xl mx-auto py-16 md:py-24"
       >
-        <h1 className="text-8xl md:text-9xl font-extrabold text-foreground/15 tracking-tighter leading-none select-none animate-pulse">
+        <h1 className="font-heading text-8xl md:text-9xl font-extrabold text-foreground/15 tracking-tighter leading-none select-none animate-pulse">
           404
         </h1>
         <div className="space-y-3">

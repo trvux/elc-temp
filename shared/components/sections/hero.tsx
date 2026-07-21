@@ -13,7 +13,7 @@ export function HeroSection({ contacts = [] }: HeroSectionProps) {
   return (
     <div className="w-full flex flex-col items-center justify-center gap-8 py-8 md:py-12">
       <div className="flex flex-col gap-6 items-center justify-center text-center max-w-4xl w-full">
-        <h1 className="z-10 max-w-5xl text-3xl font-extrabold sm:text-5xl lg:text-6xl leading-tight sm:leading-none tracking-tight sm:whitespace-nowrap">
+        <h1 className="z-10 max-w-5xl font-heading text-3xl font-extrabold sm:text-5xl lg:text-6xl leading-tight sm:leading-none tracking-tight sm:whitespace-nowrap">
           Giải pháp Không khí{" "}
           <span className="relative text-foreground font-black inline-block">
             <HeroRotatingWord />

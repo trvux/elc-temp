@@ -1,7 +1,7 @@
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
 import { ButtonGroup } from "@/shared/components/ui/button-group";
-import { formatCurrency } from "@/shared/lib/utils";
+import { formatCurrency } from "@/shared/lib/format";
 import { ColumnDef } from "@tanstack/react-table";
 import { Check, PencilSimple, Minus, Star, Trash, X } from "@phosphor-icons/react/dist/ssr";
 import Image from "next/image";

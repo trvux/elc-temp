@@ -295,7 +295,7 @@ export default async function NewsDetailPage({ params }: PageProps) {
                           {itemDate}
                         </span>
                       )}
-                      <h4 className="text-sm font-semibold tracking-tight text-foreground group-hover:text-foreground/70 transition-colors line-clamp-2 leading-snug">
+                      <h4 className="font-heading text-sm font-semibold tracking-tight text-foreground group-hover:text-foreground/70 transition-colors line-clamp-2 leading-snug">
                         {item.title}
                       </h4>
                     </div>

@@ -1,5 +1,5 @@
 import { ServiceWithRelations } from "./types";
-import { formatCurrency } from "@/shared/lib/utils";
+import { formatCurrency } from "@/shared/lib/format";
 import { primaryImageUrl } from "@/shared/lib/image-asset";
 
 export interface ServiceCardData {

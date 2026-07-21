@@ -11,7 +11,7 @@ export function TypographyH1({ children, className }: Typography) {
   return (
     <h1
       className={cn(
-        "scroll-m-20 text-3xl font-extrabold tracking-tight md:text-4xl",
+        "scroll-m-20 font-heading text-3xl font-extrabold tracking-tight md:text-4xl",
         className,
       )}
     >
@@ -24,7 +24,7 @@ export function TypographyH2({ children, className }: Typography) {
   return (
     <h2
       className={cn(
-        "scroll-m-20 text-2xl font-semibold tracking-tight first:mt-0 md:text-3xl",
+        "scroll-m-20 font-heading text-2xl font-semibold tracking-tight first:mt-0 md:text-3xl",
         className,
       )}
     >
@@ -37,7 +37,7 @@ export function TypographyH3({ children, className }: Typography) {
   return (
     <h3
       className={cn(
-        "scroll-m-20 text-xl font-semibold tracking-tight md:text-2xl",
+        "scroll-m-20 font-heading text-xl font-semibold tracking-tight md:text-2xl",
         className,
       )}
     >
@@ -50,7 +50,7 @@ export function TypographyH4({ children, className }: Typography) {
   return (
     <h4
       className={cn(
-        "scroll-m-20 text-lg font-semibold tracking-tight md:text-xl",
+        "scroll-m-20 font-heading text-lg font-semibold tracking-tight md:text-xl",
         className,
       )}
     >

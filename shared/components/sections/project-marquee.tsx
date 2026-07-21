@@ -90,7 +90,7 @@ export function ProjectMarqueeSection({
 
         {/* Text underneath */}
         <div className="flex flex-col gap-1.5 px-1">
-          <h3 className="text-lg font-bold tracking-tight text-foreground transition-colors group-hover:text-primary leading-snug line-clamp-1">
+          <h3 className="font-heading text-lg font-bold tracking-tight text-foreground transition-colors group-hover:text-primary leading-snug line-clamp-1">
             {project.title}
           </h3>
           <p className="text-xs sm:text-sm text-muted-foreground line-clamp-2 leading-relaxed">
