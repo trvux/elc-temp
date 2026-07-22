@@ -3,8 +3,8 @@ import { getBranchesAction } from "@/modules/branch/presentation/actions";
 import { getPagesAction } from "@/modules/page/presentation/actions";
 import { ScrollToTop } from "@/shared/components/layout/user/scroll-to-top";
 import { GridSection } from "@/shared/components/sections/grid-section";
+import { PageHero } from "@/shared/components/sections/page-hero";
 import {
-  TypographyH1,
   TypographyH2,
   TypographyLead,
   TypographyP,
@@ -77,13 +77,10 @@ export default async function InformationHub({
         showDiamond={true}
         contentClassName="py-12 md:py-16 lg:py-20 flex flex-col gap-12"
       >
-        <header className={STYLES.header}>
-          <TypographyH1>Thông tin về ELC</TypographyH1>
-          <TypographyLead>
-            Các chính sách thương mại và dịch vụ công ty cam kết luôn luôn theo
-            đuổi cam kết thực hiện
-          </TypographyLead>
-        </header>
+        <PageHero
+          title="Thông tin về ELC"
+          description="Các chính sách thương mại và dịch vụ công ty cam kết luôn luôn theo đuổi cam kết thực hiện"
+        />
 
         {allPages.length === 0 ? (
           <div className="text-center py-10 min-h-[200px] flex items-center justify-center border border-dashed rounded-lg bg-background/50 backdrop-blur-sm">

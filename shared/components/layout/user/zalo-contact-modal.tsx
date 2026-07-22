@@ -9,7 +9,7 @@ import {
   DialogTitle,
 } from "@/shared/components/ui/dialog";
 import { Button } from "@/shared/components/ui/button";
-import { buildZaloProductMessage, ZaloProductInfo } from "@/shared/lib/zalo-message";
+import { buildZaloProductsMessage, ZaloProductInfo } from "@/shared/lib/zalo-message";
 import { ZaloIcon } from "@/shared/components/ui/social-icons";
 import { toast } from "sonner";
 
@@ -20,7 +20,11 @@ interface ZaloContactModalProps {
   zaloPhone: string;
   phoneHref?: string;
   phoneNumber?: string;
-  productInfo: ZaloProductInfo;
+  // A single product (every existing caller — BuyNowButton, ProductFloatingBar,
+  // order-button) or several at once (ProductChatFinder's ChatContactActions,
+  // for a turn that suggested multiple products) — buildZaloProductsMessage
+  // handles both, so callers don't need to branch on count themselves.
+  productInfo: ZaloProductInfo | ZaloProductInfo[];
 }
 
 export function ZaloContactModal({
@@ -33,7 +37,8 @@ export function ZaloContactModal({
   productInfo,
 }: ZaloContactModalProps) {
   const [copied, setCopied] = useState(false);
-  const message = buildZaloProductMessage(productInfo);
+  const products = Array.isArray(productInfo) ? productInfo : [productInfo];
+  const message = buildZaloProductsMessage(products);
 
   const handleCopyMessage = async () => {
     try {
@@ -68,7 +73,7 @@ export function ZaloContactModal({
                 Liên hệ tư vấn qua Zalo
               </DialogTitle>
               <DialogDescription className="text-xs text-muted-foreground mt-0.5 line-clamp-1">
-                {productInfo.productName}
+                {products.length > 1 ? `${products.length} sản phẩm đã gợi ý` : products[0].productName}
               </DialogDescription>
             </div>
           </div>

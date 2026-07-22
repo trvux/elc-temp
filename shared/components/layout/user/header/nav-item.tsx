@@ -1,11 +1,6 @@
 "use client";
 
 import { type NavLink } from "@/modules/settings/domain/navigation";
-import {
-  NavigationMenuItem,
-  NavigationMenuLink,
-  navigationMenuTriggerStyle,
-} from "@/shared/components/ui/navigation-menu";
 import { cn } from "@/shared/lib/utils";
 import Link from "next/link";
 
@@ -17,18 +12,16 @@ interface NavItemProps {
 
 export const DesktopNavItem = ({ link, isActive }: NavItemProps) => {
   return (
-    <NavigationMenuItem>
-      <NavigationMenuLink
-        asChild
-        active={isActive}
-        className={cn(
-          navigationMenuTriggerStyle(),
-          "focus:bg-transparent focus:text-foreground focus-visible:ring-0 focus-visible:outline-none"
-        )}
-      >
-        <Link href={link.href}>{link.name}</Link>
-      </NavigationMenuLink>
-    </NavigationMenuItem>
+    <Link
+      href={link.href}
+      aria-current={isActive ? "page" : undefined}
+      className={cn(
+        "text-sm font-medium transition-colors",
+        isActive ? "text-foreground" : "text-foreground/70 hover:text-foreground",
+      )}
+    >
+      {link.name}
+    </Link>
   );
 };
 

@@ -6,27 +6,18 @@ import {
 import { Breadcrumbs } from "@/shared/components/layout/user/breadcrumbs";
 import { ScrollToTop } from "@/shared/components/layout/user/scroll-to-top";
 import { GridSection } from "@/shared/components/sections/grid-section";
+import { PageHero } from "@/shared/components/sections/page-hero";
 import {
   Tabs,
   TabsContent,
   TabsList,
   TabsTrigger,
 } from "@/shared/components/ui/tabs";
-import {
-  TypographyH1,
-  TypographyLead,
-  TypographyP,
-  TypographySmall,
-} from "@/shared/components/ui/typography";
+import { TypographySmall } from "@/shared/components/ui/typography";
 import { cn } from "@/shared/lib/utils";
 
 const STYLES = {
   main: cn("w-full bg-background flex flex-col flex-1"),
-  header: cn(
-    "flex flex-col gap-6 max-w-2xl w-full mx-auto items-center text-center",
-  ),
-  title: cn(),
-  description: cn(),
   footer: cn(
     "w-full flex flex-col md:flex-row justify-between items-center gap-8 text-muted-foreground",
   ),
@@ -57,12 +48,10 @@ export default async function ServicesHub() {
           showDiamond={true}
           contentClassName="py-6 md:py-8 lg:py-10"
         >
-          <header className={STYLES.header}>
-            <TypographyH1 className={STYLES.title}>Dịch vụ</TypographyH1>
-            <TypographyP className="text-muted-foreground">
-              Hiện tại chưa có dịch vụ nào được đăng tải.
-            </TypographyP>
-          </header>
+          <PageHero
+            title="Dịch vụ"
+            description="Hiện tại chưa có dịch vụ nào được đăng tải."
+          />
         </GridSection>
       </main>
     );
@@ -76,13 +65,10 @@ export default async function ServicesHub() {
         showDiamond={true}
         contentClassName="py-6 md:py-8 lg:py-10"
       >
-        <header className={STYLES.header}>
-          <TypographyH1 className={STYLES.title}>Dịch vụ</TypographyH1>
-          <TypographyLead className={STYLES.description}>
-            Giải pháp chuyên nghiệp dành cho hệ thống lạnh công nghiệp, điều hòa
-            trung tâm và bảo trì hệ thống
-          </TypographyLead>
-        </header>
+        <PageHero
+          title="Dịch vụ"
+          description="Giải pháp chuyên nghiệp dành cho hệ thống lạnh công nghiệp, điều hòa trung tâm và bảo trì hệ thống"
+        />
       </GridSection>
 
       <GridSection

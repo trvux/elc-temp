@@ -36,7 +36,6 @@ const STYLES = {
   accordion: cn("w-full"),
   accordionItem: cn("flex flex-col gap-4 border-b last:border-b-0"),
   accordionContent: cn("text-lg"),
-  prose: cn("prose prose-neutral max-w-none dark:prose-invert"),
   mapCard: cn("m-1 overflow-hidden p-2 shadow-sm bg-background/60"),
   mapIframe: cn(
     "w-full h-full rounded-lg transition-all duration-2000 ease-in-out ",

@@ -9,11 +9,9 @@ import { Breadcrumbs } from "@/shared/components/layout/user/breadcrumbs";
 import { FilteredGridWrapper } from "@/shared/components/layout/user/filtered-grid-wrapper";
 import { ScrollToTop } from "@/shared/components/layout/user/scroll-to-top";
 import { GridSection } from "@/shared/components/sections/grid-section";
+import { PageHero } from "@/shared/components/sections/page-hero";
 import { Button } from "@/shared/components/ui/button";
-import {
-  TypographyH1,
-  TypographySmall,
-} from "@/shared/components/ui/typography";
+import { TypographySmall } from "@/shared/components/ui/typography";
 import { getQueryTokens } from "@/shared/lib/search-utils";
 import { BASE_URL } from "@/shared/lib/seo-schema";
 import Image from "next/image";
@@ -312,13 +310,11 @@ export async function ProjectListModule({
         showDiamond={true}
         contentClassName="py-6 md:py-8 lg:py-10"
       >
-        {/* Hero Header Section */}
-        <header className={STYLES.header}>
-          <TypographyH1>{pageTitle}</TypographyH1>
-          <p className="text-sm md:text-base text-muted-foreground mt-2 max-w-2xl mx-auto">
-            {pageSubtitle}
-          </p>
-          
+        <PageHero
+          className={STYLES.header}
+          title={pageTitle}
+          description={pageSubtitle}
+        >
           {/* Project Type Representative Image - Hidden if null */}
           {projectType && projectType.image && (
             <div className="w-full max-w-4xl mt-6 overflow-hidden rounded-md border border-border/40 shadow-sm animate-fade-in-up">
@@ -334,7 +330,7 @@ export async function ProjectListModule({
               </AspectRatio>
             </div>
           )}
-        </header>
+        </PageHero>
       </GridSection>
 
       <GridSection

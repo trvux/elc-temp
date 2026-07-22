@@ -9,7 +9,7 @@ import {
   StaggerItem,
 } from "@/shared/components/ui/animate-in";
 import {
-  TypographyH3,
+  TypographyH2,
   TypographyMuted,
 } from "@/shared/components/ui/typography";
 import { Spinner } from "@phosphor-icons/react";
@@ -79,14 +79,14 @@ export function FeaturesSection({
   return (
     <div className="w-full flex flex-col items-center justify-center gap-8">
       <StaggerContainer className="w-full" immediate>
-        <div className="flex flex-col gap-3">
+        <div className="flex flex-col items-center gap-3">
           <StaggerItem>
-            <Button asChild variant="secondary">
+            <Button asChild variant="link">
               <Link
                 href={`/san-pham/${slug}`}
                 className="group relative inline-flex items-center justify-center transition-colors p-2"
               >
-                <TypographyH3>{title}</TypographyH3>
+                <TypographyH2>{title}</TypographyH2>
               </Link>
             </Button>
           </StaggerItem>

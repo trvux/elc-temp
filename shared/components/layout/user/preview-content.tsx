@@ -12,11 +12,9 @@ interface PreviewContentProps {
   // back to this page-level name (product/article/page title) for any image node
   // that shipped without one, applied at render time so it covers old content too.
   fallbackAlt?: string;
-  // Base Typography-plugin scale. Kept as a single conditional class (not
-  // merged via className, e.g. "prose-lg" + caller's "prose-sm") because
-  // tailwind-merge doesn't dedupe the typography plugin's prose-size
-  // classes, so both would ship and the winner would depend on generated
-  // CSS order rather than intent.
+  // Base typeset scale, expressed as --typeset-size (px). Kept as a size
+  // keyword (not a raw className) so callers can't collide with the
+  // typeset-docs preset's own --typeset-size declaration via specificity.
   size?: "sm" | "base" | "lg";
 }
 
@@ -44,7 +42,7 @@ function fillMissingImageAlt(
 
 /**
  * PreviewContent component renders Tiptap JSON content into styled HTML.
- * It uses the shared design system and Tailwind's Typography (prose) plugin.
+ * It uses the shared design system and shadcn/typeset.
  *
  * Body content never contains an <h1> — the page's own title is always a
  * separate structured field, rendered elsewhere by the caller. Headings
@@ -89,12 +87,9 @@ export const PreviewContent = ({
   return (
     <div
       className={cn(
-        "prose dark:prose-invert max-w-none",
-        size === "lg" && "prose-lg",
-        size === "base" && "prose-base",
-        size === "sm" && "prose-sm",
-        "prose-headings:font-bold prose-headings:tracking-tight prose-headings:text-foreground",
-        "prose-img:rounded-sm",
+        "typeset typeset-docs max-w-none",
+        size === "lg" && "typeset-lg",
+        size === "sm" && "typeset-sm",
         "tiptap",
         className,
       )}

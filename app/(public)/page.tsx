@@ -1,11 +1,10 @@
-import { BrandShowcase } from "@/shared/components/sections/brand-showcase";
 import { CTASection } from "@/shared/components/sections/cta";
 import { FeaturesSection } from "@/shared/components/sections/features";
 import { GridSection } from "@/shared/components/sections/grid-section";
+import { HeroChatFinderSection } from "@/shared/components/sections/hero-chat-finder";
 import { HeroSection } from "@/shared/components/sections/hero";
 import { ProjectMarqueeSection } from "@/shared/components/sections/project-marquee";
 
-import { getBranchesAction } from "@/modules/branch/presentation/actions";
 import { getBrandsAction } from "@/modules/brand/presentation/actions";
 import { getProductsAction } from "@/modules/catalog/presentation/actions";
 import { PRODUCT_STATUS } from "@/modules/catalog/domain";
@@ -17,7 +16,7 @@ import { getSiteSettingsAction } from "@/modules/settings/presentation/actions";
 import { unwrapActionResult } from "@/shared/lib/action-result";
 
 async function getCachedHomeData() {
-  const [settingsData, projects, categories, contacts, brands, branches] =
+  const [settingsData, projects, categories, contacts, brands] =
     await Promise.all([
       getSiteSettingsAction().then(unwrapActionResult),
       getProjectsAction({
@@ -27,7 +26,6 @@ async function getCachedHomeData() {
       getCategoriesAction().then(unwrapActionResult),
       getContactsAction().then(unwrapActionResult),
       getBrandsAction({ limit: 100 }).then(unwrapActionResult),
-      getBranchesAction({ isPublished: true }).then(unwrapActionResult),
     ]);
 
   // Convert settings array to a more usable object
@@ -65,12 +63,11 @@ async function getCachedHomeData() {
     categoriesWithProducts: activeCategoriesWithProducts,
     contacts,
     brands,
-    branches,
   };
 }
 
 export default async function Home() {
-  const { settings, projects, categoriesWithProducts, contacts, brands, branches } =
+  const { settings, projects, categoriesWithProducts, contacts, brands } =
     await getCachedHomeData();
 
   const otherProjects = (projects || [])
@@ -80,7 +77,11 @@ export default async function Home() {
   const categorySections = (categoriesWithProducts || []).map((catData, idx) => ({
     id: `category-${catData.category.slug}`,
     className: "",
-    showDiamond: true,
+    // The first category section sits directly under HeroChatFinderSection
+    // (not a GridSection itself, so its own boundary line has no diamond
+    // markers to begin with) — showing them only on this one junction read
+    // as a stray leftover rather than a deliberate divider.
+    showDiamond: idx !== 0,
     component: (
       <FeaturesSection
         title={catData.category.name}
@@ -94,24 +95,6 @@ export default async function Home() {
   }));
 
   const sections = [
-    {
-      id: "hero",
-      className: "", // bg-background text-foreground dark
-      showDiamond: true,
-      component: (
-        <HeroSection
-          title={settings.hero_title}
-          subtitle={settings.hero_subtitle}
-          contacts={contacts || []}
-        />
-      ),
-    },
-    {
-      id: "brand",
-      className: "",
-      showDiamond: true,
-      component: <BrandShowcase brands={brands || []} />,
-    },
     ...categorySections,
     {
       id: "project-marquee",
@@ -154,12 +137,21 @@ export default async function Home() {
   return (
     <>
       <main className="w-full flex flex-col mt-0 mb-0">
-        {sections.map((section, index) => (
+        {/* id read by useIsOverHero — the header (and sticky contact pill)
+            stay in their "floating over a dark hero" look for exactly this
+            combined region (Hero + chat finder, both full-viewport dark
+            sections), not a fixed pixel guess that only ever covered one of
+            them. */}
+        <div id="hero-chat-region">
+          <HeroSection contacts={contacts || []} brands={brands || []} />
+          <HeroChatFinderSection />
+        </div>
+        {sections.map((section) => (
           <GridSection
             key={section.id}
             id={section.id}
             className={section.className}
-            isFirst={index === 0}
+            isFirst={false}
             showDiamond={section.showDiamond}
           >
             {section.component}

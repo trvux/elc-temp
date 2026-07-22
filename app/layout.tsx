@@ -8,13 +8,24 @@ import { cn } from "@/shared/lib/utils";
 import { QueryProvider } from "@/shared/providers/query-provider";
 import { BASE_URL } from "@/shared/lib/seo-schema";
 import type { Metadata, Viewport } from "next";
-import { Inter, Merriweather } from "next/font/google";
+import { Geist_Mono, Inter, JetBrains_Mono, Merriweather } from "next/font/google";
 import { Suspense } from "react";
 import "./globals.css";
 
 const merriweatherHeading = Merriweather({subsets:['latin'],variable:'--font-heading'});
 
 const inter = Inter({subsets:['latin'],variable:'--font-sans'});
+
+const jetbrainsMono = JetBrains_Mono({subsets:['latin'],variable:'--font-mono'});
+
+// Inter/Merriweather above already cover typeset's --typeset-font-body/
+// --typeset-font-heading (site already uses them as --font-sans/--font-heading,
+// see .typeset-docs in globals.css) — no need to load a second instance under
+// a different variable name. Geist Mono is genuinely new: the site's own
+// --font-mono is JetBrains Mono, but shadcn/typeset's reference design uses
+// Geist Mono specifically for its code blocks, so it gets its own variable
+// scoped to typeset content only.
+const geistMono = Geist_Mono({ subsets: ["latin"], variable: "--font-geist-mono" });
 
 export const metadata: Metadata = {
   metadataBase: new URL(BASE_URL),
@@ -59,7 +70,7 @@ export default function RootLayout({
     <html
       lang="vi"
       suppressHydrationWarning
-      className={cn("h-full antialiased font-sans", "font-sans", inter.variable, merriweatherHeading.variable)}
+      className={cn("h-full antialiased font-sans", "font-sans", inter.variable, merriweatherHeading.variable, jetbrainsMono.variable, geistMono.variable)}
     >
       <head>
         <link

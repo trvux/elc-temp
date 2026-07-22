@@ -4,7 +4,6 @@ import {
   type NavLink,
   checkActiveLink,
 } from "@/modules/settings/domain/navigation";
-import { Button } from "@/shared/components/ui/button";
 import { cn } from "@/shared/lib/utils";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef } from "react";
@@ -24,6 +23,11 @@ interface MobileMenuProps {
   brands?: BrandNavRef[];
 }
 
+// Dropdown panel content only — the hamburger trigger lives in
+// header/index.tsx (one toggle, matching the reference). Uses the
+// reference's CSS Grid height-animation technique (`grid-rows-[0fr]` →
+// `[1fr]`) so it collapses/expands inside the header's own rounded
+// capsule, instead of a full-viewport overlay.
 export function MobileMenu({
   links,
   isOpen,
@@ -45,80 +49,35 @@ export function MobileMenu({
   }, [pathname]);
 
   return (
-    <>
-      {/* Trigger */}
-      <Button
-        variant="ghost"
-        size="default"
-        className="flex lg:hidden items-center justify-start gap-2.5 p-0! h-8 bg-transparent! hover:bg-transparent! focus-visible:bg-transparent! focus-visible:ring-0 active:bg-transparent!"
-        aria-label="Toggle Menu"
-        aria-expanded={isOpen}
-        onClick={() => onOpenChange(!isOpen)}
-      >
-        <div className="relative flex h-8 w-4 items-center justify-center">
-          <div className="relative size-4">
-            <span
-              className={cn(
-                "absolute left-0 block h-0.5 w-4 bg-foreground transition-all duration-100",
-                isOpen ? "top-[0.4rem] -rotate-45" : "top-1",
-              )}
-            />
-            <span
-              className={cn(
-                "absolute left-0 block h-0.5 w-4 bg-foreground transition-all duration-200",
-                isOpen ? "top-[0.4rem] rotate-45" : "top-2.5",
-              )}
-            />
-          </div>
-        </div>
-        <span className="flex h-8 items-center text-lg leading-none font-medium">
-          Menu
-        </span>
-      </Button>
-
-      {/* Menu panel — absolute below sticky header */}
-      <div
-        className={cn(
-          "absolute inset-x-0 top-full h-[calc(100svh-64px)] bg-background border-t border-border/40",
-          "transition-all duration-300 ease-out",
-          isOpen
-            ? "translate-y-0 opacity-100 visible pointer-events-auto"
-            : "-translate-y-4 opacity-0 invisible pointer-events-none",
-        )}
-        aria-hidden={!isOpen}
-      >
-        <div className="flex flex-col gap-6 h-full overflow-auto px-4 py-6 pb-12">
-          <div className="flex flex-col gap-2 w-full">
-            {links.map((link) =>
-              link.href === PRODUCT_LINK_HREF ? (
-                <MobileProductAccordion
-                  key={link.name}
-                  groupCategories={groupCategories}
-                  categoriesList={categoriesList}
-                  brands={brands}
-                  onNavigate={() => onOpenChange(false)}
-                />
-              ) : (
-                <MobileNavItem
-                  key={link.name}
-                  link={link}
-                  isActive={checkActiveLink(link.href, pathname)}
-                  onClick={() => onOpenChange(false)}
-                />
-              ),
-            )}
-          </div>
+    <div
+      className={cn(
+        "grid transition-all duration-500 ease-in-out lg:hidden",
+        isOpen ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0",
+      )}
+      aria-hidden={!isOpen}
+    >
+      <div className="overflow-hidden">
+        <div className="flex max-h-[calc(100svh-7rem)] flex-col gap-2 overflow-y-auto border-t border-border/40 px-4 py-4">
+          {links.map((link) =>
+            link.href === PRODUCT_LINK_HREF ? (
+              <MobileProductAccordion
+                key={link.name}
+                groupCategories={groupCategories}
+                categoriesList={categoriesList}
+                brands={brands}
+                onNavigate={() => onOpenChange(false)}
+              />
+            ) : (
+              <MobileNavItem
+                key={link.name}
+                link={link}
+                isActive={checkActiveLink(link.href, pathname)}
+                onClick={() => onOpenChange(false)}
+              />
+            ),
+          )}
         </div>
       </div>
-
-      {/* Click-outside backdrop */}
-      {isOpen && (
-        <div
-          className="fixed inset-0 -z-10"
-          onClick={() => onOpenChange(false)}
-          aria-hidden="true"
-        />
-      )}
-    </>
+    </div>
   );
 }

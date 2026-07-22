@@ -1,6 +1,5 @@
 "use client";
 
-import { NavigationMenu, NavigationMenuList } from "@/shared/components/ui/navigation-menu";
 import { type NavLink, checkActiveLink } from "@/modules/settings/domain/navigation";
 import { usePathname } from "next/navigation";
 import { DesktopNavItem } from "./nav-item";
@@ -25,25 +24,23 @@ export function DesktopMenu({
   const pathname = usePathname();
 
   return (
-    <NavigationMenu className="hidden lg:flex">
-      <NavigationMenuList className="flex items-center gap-0.5 lg:gap-1">
-        {links.map((link) =>
-          link.href === PRODUCT_LINK_HREF ? (
-            <ProductMegaMenuItem
-              key={link.name}
-              groupCategories={groupCategories}
-              categoriesList={categoriesList}
-              brands={brands}
-            />
-          ) : (
-            <DesktopNavItem
-              key={link.name}
-              link={link}
-              isActive={checkActiveLink(link.href, pathname)}
-            />
-          ),
-        )}
-      </NavigationMenuList>
-    </NavigationMenu>
+    <nav className="hidden items-center gap-6 lg:flex">
+      {links.map((link) =>
+        link.href === PRODUCT_LINK_HREF ? (
+          <ProductMegaMenuItem
+            key={link.name}
+            groupCategories={groupCategories}
+            categoriesList={categoriesList}
+            brands={brands}
+          />
+        ) : (
+          <DesktopNavItem
+            key={link.name}
+            link={link}
+            isActive={checkActiveLink(link.href, pathname)}
+          />
+        ),
+      )}
+    </nav>
   );
 }

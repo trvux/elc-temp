@@ -2,12 +2,11 @@ import { getNewsAction } from "@/modules/news/presentation/actions";
 import { Breadcrumbs } from "@/shared/components/layout/user/breadcrumbs";
 import { ScrollToTop } from "@/shared/components/layout/user/scroll-to-top";
 import { GridSection } from "@/shared/components/sections/grid-section";
+import { PageHero } from "@/shared/components/sections/page-hero";
 import Image from "next/image";
 import { primaryImageUrl } from "@/shared/lib/image-asset";
 import {
-  TypographyH1,
   TypographyH2,
-  TypographyLead,
   TypographySmall,
 } from "@/shared/components/ui/typography";
 import Link from "next/link";
@@ -15,7 +14,6 @@ import { unwrapActionResult } from "@/shared/lib/action-result";
 
 const STYLES = {
   main: "w-full bg-background min-h-screen",
-  header: "flex flex-col items-center text-center gap-4 max-w-2xl mx-auto",
   list: "flex flex-col w-full min-h-[400px] animate-fade-in-up",
   article:
     "group flex flex-row justify-between items-center gap-4 sm:gap-6 md:gap-8 py-8 border-b border-border/60 last:border-b-0 no-underline transition-all duration-300 w-full",
@@ -116,12 +114,10 @@ export default async function NewsHub() {
     return (
       <main className={STYLES.main}>
         <GridSection id="news-header-empty" isFirst={true} showDiamond={true}>
-          <header className={STYLES.header}>
-            <TypographyH1>Tin tức</TypographyH1>
-            <p className="text-muted-foreground">
-              Hiện tại chưa có tin tức nào được đăng tải.
-            </p>
-          </header>
+          <PageHero
+            title="Tin tức"
+            description="Hiện tại chưa có tin tức nào được đăng tải."
+          />
         </GridSection>
       </main>
     );
@@ -136,13 +132,10 @@ export default async function NewsHub() {
         showDiamond={true}
         contentClassName="py-6 md:py-8 lg:py-10"
       >
-        <header className={STYLES.header}>
-          <TypographyH1>{"Tin tức"}</TypographyH1>
-          <TypographyLead>
-            Cập nhật những giải pháp kỹ thuật mới nhất và các tin tức chuyên sâu
-            từ đội ngũ kỹ sư ELC
-          </TypographyLead>
-        </header>
+        <PageHero
+          title="Tin tức"
+          description="Cập nhật những giải pháp kỹ thuật mới nhất và các tin tức chuyên sâu từ đội ngũ kỹ sư ELC"
+        />
       </GridSection>
 
       {/* Khối 2: Danh sách bài viết */}

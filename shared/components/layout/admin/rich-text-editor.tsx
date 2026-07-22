@@ -63,9 +63,7 @@ const RichTextEditor = ({
     editorProps: {
       attributes: {
         class: cn(
-          "prose prose-lg dark:prose-invert focus:outline-none max-w-none min-h-125 py-12",
-          "prose-headings:font-bold prose-headings:tracking-tight prose-headings:text-foreground",
-          "prose-img:rounded-sm",
+          "typeset typeset-docs focus:outline-none max-w-none min-h-125 py-12",
           "tiptap",
           className,
         ),

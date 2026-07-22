@@ -41,7 +41,7 @@ export function HeroRotatingWord() {
         animate={{ opacity: 1, y: 0 }}
         exit={{ opacity: 0, y: -6 }}
         transition={{ duration: 0.25, ease: "easeOut" }}
-        className="inline-block text-foreground will-change-transform"
+        className="inline-block text-inherit will-change-transform"
       >
         {ROTATING_WORDS[wordIndex]}
       </m.span>

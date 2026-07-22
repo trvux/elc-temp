@@ -66,7 +66,7 @@ export function MobileProductAccordion({
                         onClick={onNavigate}
                         className="flex items-center gap-3 rounded-md py-1.5 text-lg text-muted-foreground no-underline! hover:text-foreground"
                       >
-                        <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-md bg-background">
+                        <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-md bg-white">
                           {cat.imageUrl && (
                             <Image
                               src={cat.imageUrl}
@@ -99,7 +99,7 @@ export function MobileProductAccordion({
                         onClick={onNavigate}
                         className="flex items-center gap-3 rounded-md py-1.5 text-lg text-muted-foreground no-underline! hover:text-foreground"
                       >
-                        <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-md bg-background">
+                        <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-md bg-white">
                           {brand.logoUrl && (
                             <Image
                               src={brand.logoUrl}

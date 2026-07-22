@@ -39,14 +39,10 @@ export function ProductDescription({ content, fallbackAlt, variant = "article" }
           className={cn(
             "overflow-hidden transition-[max-height] duration-500 ease-in-out",
             isOpen ? "max-h-none" : "max-h-96",
-            // Heading font-size can't be shrunk via prose-headings:* utilities
-            // here — app/globals.css hardcodes .prose h1-h4 sizes with
-            // !important (for the shared article/Tiptap typography scale),
-            // which always beats a plain utility class. "prose-hero" is a
-            // second, equally-specific !important block defined right after
-            // it in that same file, so normal cascade order picks it.
-            isHero &&
-              "prose-hero prose-headings:text-foreground/80 prose-headings:mt-4 first:prose-headings:mt-0 prose-p:text-muted-foreground prose-li:text-muted-foreground prose-li:marker:text-muted-foreground prose-strong:text-foreground/80",
+            // "typeset-hero" (app/globals.css) shrinks the type scale and
+            // mutes color so this reference-only card doesn't compete with
+            // the page's real H1 or the product grid above it.
+            isHero && "typeset-hero",
           )}
         />
       </article>

@@ -3,6 +3,7 @@
 import { Contact, getDisplayContacts } from "@/modules/contact/domain";
 import { ContactLink } from "@/modules/contact/presentation/components/ContactLink";
 import { Button } from "@/shared/components/ui/button";
+import { useIsOverHero } from "@/shared/hooks/use-is-over-hero";
 import { useProductFloating } from "@/shared/providers/product-floating-provider";
 import { cn } from "@/shared/lib/utils";
 import { AnimatePresence, m, Variants } from "motion/react";
@@ -15,6 +16,10 @@ interface StickyContactActionsProps {
 export function StickyContactActions({ contacts }: StickyContactActionsProps) {
   const { active: productFloatingActive } = useProductFloating();
   const [isVisible, setIsVisible] = useState(false);
+  // Hidden while floating over the homepage's full-viewport hero — it
+  // already has its own prominent CTA pair, so the pill would just clutter
+  // it. Reappears once scrolled past, same as everywhere else.
+  const isOverHero = useIsOverHero();
 
   const displayContacts = useMemo(
     () => getDisplayContacts(contacts, { include: ["phone", "zalo"] }),
@@ -63,7 +68,7 @@ export function StickyContactActions({ contacts }: StickyContactActionsProps) {
 
   return (
     <AnimatePresence>
-      {isVisible && (
+      {isVisible && !isOverHero && (
         <m.div
           variants={itemVariants}
           initial="hidden"
