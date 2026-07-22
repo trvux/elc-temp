@@ -806,63 +806,6 @@ function useTypewriterPlaceholder(phrases: string[], active: boolean): string {
   return text;
 }
 
-// Tracks how much shorter the *visual* viewport is than the layout
-// viewport right now — 0 normally, and roughly the on-screen keyboard's
-// height while it's open. `interactive-widget: resizes-content` (set
-// globally in app/layout.tsx) already makes Android Chrome shrink the
-// layout viewport itself when the keyboard opens, which — since the
-// composer is an ordinary last-flex-item, not position:fixed — already
-// makes it land right above the keyboard for free there, no JS needed.
-// iOS Safari's support for that meta is newer and inconsistent, though:
-// when the layout viewport doesn't actually shrink to match, the
-// composer stays where flexbox thinks the container's bottom edge is —
-// which can end up under the keyboard instead of above it. This hook
-// measures that gap directly via the VisualViewport API (broadly
-// supported, including iOS, unlike the newer Chromium-only
-// VirtualKeyboard API) so the composer can correct for it with a plain
-// CSS transform — see its one call site below for why a transform nudge
-// on an already-mounted element, not position:fixed or a portal: neither
-// remounts the input (which would drop focus and dismiss the keyboard
-// the moment it opens) or fights Framer Motion's own transform
-// management on the animated ancestor around it.
-function useKeyboardInset(): number {
-  const [inset, setInset] = useState(0);
-  // The viewport's own tallest measurement seen so far — a self-tracking
-  // baseline, not window.innerHeight. innerHeight reflects the layout
-  // viewport (mobile Safari sizes it for the largest possible visible
-  // area, chrome retracted) while visualViewport.height reflects what's
-  // *currently* visible — these two legitimately differ just from the
-  // address bar showing/hiding during ordinary scrolling, with no
-  // keyboard involved at all. Comparing against innerHeight directly
-  // (the first version of this hook) would have misread that as a
-  // permanent keyboard-sized nudge on iOS Safari even with no keyboard
-  // open. Only a shrink *relative to the tallest this session has seen*
-  // is actually the keyboard.
-  const baselineRef = useRef<number | null>(null);
-
-  useEffect(() => {
-    const viewport = window.visualViewport;
-    if (!viewport) return;
-
-    const update = () => {
-      if (baselineRef.current === null || viewport.height > baselineRef.current) {
-        baselineRef.current = viewport.height;
-      }
-      setInset(Math.max(0, Math.round(baselineRef.current - viewport.height)));
-    };
-
-    update();
-    viewport.addEventListener("resize", update);
-    viewport.addEventListener("scroll", update);
-    return () => {
-      viewport.removeEventListener("resize", update);
-      viewport.removeEventListener("scroll", update);
-    };
-  }, []);
-
-  return inset;
-}
-
 // The composer is identical in both states — same input, same button —
 // only the surrounding layout changes (centered vs. pinned below a
 // transcript), so it's one function instead of two near-duplicate JSX
@@ -882,6 +825,24 @@ function Composer({
     PLACEHOLDER_QUERIES,
     message.length === 0 && !isPending,
   );
+
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  // Scrolls the input into view once the on-screen keyboard has actually
+  // opened — a simpler, more robust fix than the transform-based
+  // "keyboard inset" nudge this replaced (that one moved only the
+  // composer via `transform`, which repositions paint but not layout, so
+  // it visually overlapped ExamplePrompts sitting right above it instead
+  // of making room — a real bug caught from a live screenshot). A plain
+  // scrollIntoView is a genuine scroll, not an out-of-flow paint shift, so
+  // it can't create that class of overlap. The delay lets the keyboard's
+  // own show animation start first — scrolling immediately on focus can
+  // measure the pre-keyboard layout and land in the wrong place.
+  const handleFocus = () => {
+    window.setTimeout(() => {
+      inputRef.current?.scrollIntoView({ block: "center", behavior: "smooth" });
+    }, 300);
+  };
 
   return (
     <form
@@ -905,8 +866,10 @@ function Composer({
           dark background, not another bordered box nested inside one. */}
       <InputGroup className="h-auto rounded-2xl border border-white/15 bg-white/10 px-1.5 py-1.5 shadow-lg shadow-black/30">
         <InputGroupInput
+          ref={inputRef}
           value={message}
           onChange={(e) => setMessage(e.target.value)}
+          onFocus={handleFocus}
           placeholder={typedPlaceholder}
           disabled={isPending}
           // text-foreground explicit for the same reason as BubbleContent
@@ -1169,7 +1132,6 @@ export function ProductChatFinder() {
   };
 
   const hasTurns = turns.length > 0;
-  const keyboardInset = useKeyboardInset();
   // Starts as the pool's first ROTATION_SIZE entries (matches the server's
   // render exactly) and reshuffles once in useEffect, which only ever runs
   // client-side post-hydration — see EXAMPLE_PROMPTS' doc comment.
@@ -1321,31 +1283,16 @@ export function ProductChatFinder() {
             </m.div>
           )}
         </AnimatePresence>
-        {/* Plain div, not another m.div — Framer Motion already owns the
-            `transform` CSS property on its own layout-animated elements
-            (this is literally how its FLIP animations work), so setting
-            an inline transform directly on an m.div here would fight that
-            and get overwritten on the next animation frame. A plain,
-            non-motion element has no such owner, so the keyboard-inset
-            nudge (see useKeyboardInset) is free to use `transform` for
-            its own, unrelated purpose. w-full so it still stretches
-            correctly inside the parent's items-center empty-state
-            layout, same reasoning as Composer's own w-full. */}
-        <div
-          className="flex w-full flex-col gap-4"
-          style={keyboardInset > 0 ? { transform: `translateY(-${keyboardInset}px)` } : undefined}
-        >
-          <Composer
-            message={message}
-            setMessage={setMessage}
-            isPending={isPending}
-            onSubmit={() => submitMessage(message)}
-          />
-          <p className="text-center text-xs text-white/40 sm:text-sm">
-            AI đang trong quá trình huấn luyện, thông tin chỉ mang tính tham khảo.
-            Cần tư vấn chuyên sâu, liên hệ Zalo nhé!
-          </p>
-        </div>
+        <Composer
+          message={message}
+          setMessage={setMessage}
+          isPending={isPending}
+          onSubmit={() => submitMessage(message)}
+        />
+        <p className="text-center text-xs text-white/40 sm:text-sm">
+          AI đang trong quá trình huấn luyện, thông tin chỉ mang tính tham khảo.
+          Cần tư vấn chuyên sâu, liên hệ Zalo nhé!
+        </p>
       </m.div>
     </m.div>
   );
