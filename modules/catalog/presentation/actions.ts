@@ -198,6 +198,16 @@ interface GoProductListResponse {
   data: GoProductResponse[] | null;
   total_count: number;
   facets?: GoProductFacets;
+  // explanation: chat-search only — a plain-language, template-assembled
+  // (not LLM-generated) sentence describing why these filters were chosen
+  // (see chat_search.go's buildExplanation). Absent on the regular listing
+  // endpoint.
+  explanation?: string;
+  // suggestions: chat-search only — follow-up queries a shopper can tap to
+  // keep narrowing, already folded with whatever context this turn
+  // resolved (see chat_search.go's buildSuggestions). Absent on the
+  // regular listing endpoint.
+  suggestions?: string[];
 }
 
 function mapGoNumberBuckets(buckets?: GoNumberBucket[]): NumberBucket[] {
@@ -491,6 +501,48 @@ export async function getProductByIdAction(id: string) {
     if (isPrerenderError(error)) throw error;
     console.error("getProductByIdAction error:", error);
     return { data: null, error: "Không thể tải thông tin sản phẩm" };
+  }
+}
+
+// chatSearchProductsAction is the conversational counterpart to
+// getProductsAction: instead of query-param facets, it sends one free-text
+// shopper message to POST /products/chat-search, which parses it
+// rule-based (price range, category synonyms, stopword stripping — no
+// LLM/embeddings) into the same ProductFilter the regular listing uses and
+// returns a short curated list (see chat_search.go on the Go side).
+export async function chatSearchProductsAction(message: string) {
+  if (!GO_API_URL || !message.trim()) {
+    return { data: [] as ProductWithRelations[], explanation: null, suggestions: [] as string[], error: null };
+  }
+  try {
+    const res = await fetch(`${GO_API_URL}/products/chat-search`, {
+      // Public read-only route (rate-limited on the Go side) — no auth
+      // header needed.
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ message }),
+      cache: "no-store",
+    });
+    if (!res.ok) {
+      return {
+        data: [],
+        explanation: null,
+        suggestions: [] as string[],
+        error: await extractErrorMessage(res, "Không thể tìm sản phẩm phù hợp"),
+      };
+    }
+
+    const body = (await res.json()) as GoProductListResponse;
+    return {
+      data: (body.data ?? []).map(mapGoProduct),
+      explanation: body.explanation ?? null,
+      suggestions: body.suggestions ?? [],
+      error: null,
+    };
+  } catch (error) {
+    if (isPrerenderError(error)) throw error;
+    console.error("chatSearchProductsAction error:", error);
+    return { data: [], explanation: null, suggestions: [] as string[], error: "Không thể tìm sản phẩm phù hợp" };
   }
 }
 

@@ -29,7 +29,7 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/shared/components/ui/sidebar";
-import { Medal, CaretUpDown, FileText, Kanban, Gauge, SignOut, MapPin, Package, Phone, ChatCircleText, Gear, ShieldCheck, GridFour, List, Stack, Briefcase, SquaresFour, Newspaper, Globe, UsersThree, MagnifyingGlass, PenNib, TagSimple, UserCircle, Sliders, Notepad, Star } from "@phosphor-icons/react";
+import { Medal, CaretUpDown, FileText, Kanban, Gauge, SignOut, MapPin, Package, Phone, ChatCircleText, Gear, ShieldCheck, GridFour, List, Stack, Briefcase, SquaresFour, Newspaper, Globe, UsersThree, MagnifyingGlass, PenNib, TagSimple, UserCircle, Sliders, Notepad, Star, Robot } from "@phosphor-icons/react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
@@ -70,6 +70,7 @@ const navGroups: { label: string; items: NavItemDef[] }[] = [
       { href: "/admin/inquiries", label: "Yêu cầu tư vấn", icon: ChatCircleText },
       { href: "/admin/reviews", label: "Đánh giá sản phẩm", icon: Star },
       { href: "/admin/contacts", label: "Liên hệ", icon: Phone },
+      { href: "/admin/chat-logs", label: "Lịch sử Chat AI", icon: Robot },
     ],
   },
   {
