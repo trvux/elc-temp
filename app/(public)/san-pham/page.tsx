@@ -28,9 +28,12 @@ const PAGE_URL = `${BASE_URL}/san-pham`;
 // returned {} and the hub page — arguably the single most-linked page on
 // the site — fell all the way back to the root layout's generic site
 // tagline instead of anything catalog-specific.
-const DEFAULT_META_TITLE = "Tất cả sản phẩm - Máy lạnh, hệ thống khí tươi chính hãng";
+// Keyword-first: "Tất cả sản phẩm" is a UI label, not something anyone
+// searches for — lead with the actual product terms instead, same lesson
+// learned from hp-page/brand-page titles.
+const DEFAULT_META_TITLE = "Máy lạnh, hệ thống khí tươi, máy lọc nước chính hãng";
 const DEFAULT_META_DESCRIPTION =
-  "Toàn bộ sản phẩm máy lạnh, hệ thống cấp khí tươi, máy lọc nước tại Điện máy ELC - đầy đủ thương hiệu Daikin, LG, Panasonic, Menred... Giao hàng nhanh, lắp đặt chuyên nghiệp, bảo hành chính hãng.";
+  "Máy lạnh, hệ thống cấp khí tươi, máy lọc nước chính hãng tại Điện máy ELC - đầy đủ thương hiệu Daikin, LG, Panasonic, Menred... Giao hàng nhanh, lắp đặt chuyên nghiệp, bảo hành chính hãng.";
 
 export async function generateMetadata(): Promise<Metadata> {
   const { data: catalogPage } = await getCatalogPageAction();
