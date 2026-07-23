@@ -4,6 +4,8 @@ import { CategoryWithGroup } from "@/modules/category/domain/types";
 import { getCategoryByIdAction } from "@/modules/category/presentation/actions";
 import { Brand, ProductWithRelations } from "@/modules/catalog/domain/types";
 import { getBrandByIdAction } from "@/modules/brand/presentation/actions";
+import { HpPage } from "@/modules/hp-page/domain/types";
+import { getHpPageByIdAction } from "@/modules/hp-page/presentation/actions";
 import { getProductByIdAction } from "./actions";
 import { getSlugRegistryEntry } from "@/shared/lib/go-api";
 
@@ -11,6 +13,7 @@ export type ResolvedEntity =
   | { type: "group"; data: Group }
   | { type: "category"; data: CategoryWithGroup }
   | { type: "brand"; data: Brand }
+  | { type: "hp_page"; data: HpPage }
   | { type: "product"; data: ProductWithRelations }
   | null;
 
@@ -39,6 +42,11 @@ export async function resolveProductPathFromDb(slug: string): Promise<ResolvedEn
     case "brand": {
       const { data } = await getBrandByIdAction(registryItem.entityId);
       return data ? { type: "brand", data } : null;
+    }
+
+    case "hp_page": {
+      const { data } = await getHpPageByIdAction(registryItem.entityId);
+      return data ? { type: "hp_page", data } : null;
     }
 
     case "product": {

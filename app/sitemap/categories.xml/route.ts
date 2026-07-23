@@ -2,16 +2,18 @@ import { NextResponse, connection } from 'next/server';
 import { getCategoriesAction } from '@/modules/category/presentation/actions';
 import { getBrandsAction } from '@/modules/brand/presentation/actions';
 import { getGroupsAction } from '@/modules/group/presentation/actions';
+import { getHpPagesAction } from '@/modules/hp-page/presentation/actions';
 import { toSitemapLastmod } from '@/shared/lib/sitemap-lastmod';
 import { BASE_URL } from '@/shared/lib/seo-schema';
 
 export async function GET() {
   await connection();
 
-  const [{ data: categories }, { data: brands }, { data: groupCategories }] = await Promise.all([
+  const [{ data: categories }, { data: brands }, { data: groupCategories }, { data: hpPages }] = await Promise.all([
     getCategoriesAction(),
     getBrandsAction(),
     getGroupsAction(),
+    getHpPagesAction(),
   ]);
 
   const categoryRoutes = categories
@@ -35,10 +37,18 @@ export async function GET() {
       lastmod: g.updatedAt,
     }));
 
+  const hpPageRoutes = hpPages
+    .filter((p) => p.slug)
+    .map((p) => ({
+      url: `${BASE_URL}/san-pham/${p.slug}`,
+      lastmod: p.updatedAt,
+    }));
+
   const allRoutes = [
     ...groupRoutes,
     ...categoryRoutes,
     ...brandRoutes,
+    ...hpPageRoutes,
   ];
 
   const xml = `<?xml version="1.0" encoding="UTF-8"?>

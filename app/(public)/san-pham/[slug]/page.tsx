@@ -97,6 +97,7 @@ async function hasPublishedProducts(entity: ResolvedEntity): Promise<boolean> {
 
   let categoryIds: string[] | undefined;
   let brandIds: string[] | undefined;
+  let attributeTokens: Record<string, string[]> | undefined;
 
   if (entity.type === "brand") {
     brandIds = [entity.data.id];
@@ -105,11 +106,14 @@ async function hasPublishedProducts(entity: ResolvedEntity): Promise<boolean> {
   } else if (entity.type === "group") {
     const allCategories = await getCategoriesAction().then(unwrapActionResult);
     categoryIds = allCategories.filter((c) => c.groupId === entity.data.id && !c.isHidden).map((c) => c.id);
+  } else if (entity.type === "hp_page") {
+    attributeTokens = { [entity.data.attributeCode]: entity.data.attributeValues };
   }
 
   const { totalCount } = await getProductsAction({
     categoryIds,
     brandIds,
+    attributeTokens,
     status: PRODUCT_STATUS.PUBLISHED,
     limit: 1,
   });

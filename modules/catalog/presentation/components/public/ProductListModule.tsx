@@ -68,6 +68,8 @@ async function getCachedListModuleData(entity: ResolvedEntity, sp: SearchParams)
       .filter((c) => c.groupId === entity.data.id && !c.isHidden)
       .map((c) => c.id);
   }
+  // hp_page has no categoryIds/brandIds — its own attributeCode/attributeValues
+  // filter is merged into attributeTokens below, once that record exists.
 
   // Brand-facet selection from the filter dialog only applies on
   // non-brand-scoped pages (category/group) — a brand page's own scope
@@ -84,6 +86,12 @@ async function getCachedListModuleData(entity: ResolvedEntity, sp: SearchParams)
 
   const attributeTokens: Record<string, string[]> = {};
   const attributeRanges: Record<string, [number | undefined, number | undefined]> = {};
+  // hp_page's own filter is fixed by the page, not the visitor — set it
+  // first, then skip any query-param value for that same code below so a
+  // crafted URL can't override the page's locked capacity filter.
+  if (entity.type === "hp_page") {
+    attributeTokens[entity.data.attributeCode] = entity.data.attributeValues;
+  }
   for (const [key, rawValue] of Object.entries(sp)) {
     if (!key.startsWith("attr_") || rawValue === undefined) continue;
     const value = Array.isArray(rawValue) ? rawValue[0] : rawValue;
@@ -94,7 +102,7 @@ async function getCachedListModuleData(entity: ResolvedEntity, sp: SearchParams)
     } else if (code.endsWith("_max")) {
       const c = code.slice(0, -4);
       attributeRanges[c] = [attributeRanges[c]?.[0], Number(value)];
-    } else {
+    } else if (!(entity.type === "hp_page" && code === entity.data.attributeCode)) {
       attributeTokens[code] = value.split(",").filter(Boolean);
     }
   }
@@ -158,6 +166,14 @@ export async function ProductListModule({
   } = await getCachedListModuleData(entity, searchParams);
   const { data: shippingZone } = await getPersonalizedShippingZoneAction();
 
+  // Hide the facet the page itself is already locked to — same reasoning
+  // as showBrandFacet=false for brand pages, just for one attribute code
+  // instead of the whole brand block.
+  const visibleAttributeFacets =
+    entity.type === "hp_page"
+      ? facets.attributes.filter((a) => a.code !== entity.data.attributeCode)
+      : facets.attributes;
+
   return (
     <main className="w-full bg-background min-h-screen public-catalog-page">
       <div className="w-full flex flex-col gap-6 p-4 md:p-6 lg:p-8 max-w-350 mx-auto">
@@ -211,7 +227,7 @@ export async function ProductListModule({
               price={facets.price}
               currentMinPrice={currentMinPrice}
               currentMaxPrice={currentMaxPrice}
-              attributes={facets.attributes}
+              attributes={visibleAttributeFacets}
               currentAttrTokens={currentAttrTokens}
               currentAttrRanges={currentAttrRanges}
             />
