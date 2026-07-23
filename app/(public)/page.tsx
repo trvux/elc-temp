@@ -1,3 +1,5 @@
+import type { Metadata } from "next";
+
 import { CTASection } from "@/shared/components/sections/cta";
 import { FeaturesSection } from "@/shared/components/sections/features";
 import { GridSection } from "@/shared/components/sections/grid-section";
@@ -14,6 +16,14 @@ import { getProjectsAction } from "@/modules/project/presentation/actions";
 import { getSiteSettingsAction } from "@/modules/settings/presentation/actions";
 
 import { unwrapActionResult } from "@/shared/lib/action-result";
+import { BASE_URL } from "@/shared/lib/seo-schema";
+
+// Every other page in the app sets its own alternates.canonical — the
+// homepage was the one exception (root layout.tsx's metadata has none),
+// so it had no canonical tag at all.
+export const metadata: Metadata = {
+  alternates: { canonical: BASE_URL },
+};
 
 async function getCachedHomeData() {
   const [settingsData, projects, categories, contacts, brands] =
