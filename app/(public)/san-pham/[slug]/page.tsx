@@ -4,6 +4,7 @@ import { PRODUCT_STATUS, ProductWithRelations } from "@/modules/catalog/domain";
 import { ProductDetailModule } from "@/modules/catalog/presentation/components/public/ProductDetailModule";
 import { ProductListModule } from "@/modules/catalog/presentation/components/public/ProductListModule";
 import { BASE_URL } from "@/shared/lib/seo-schema";
+import { excerptFromRichText } from "@/shared/lib/rich-text";
 import { primaryImageUrl } from "@/shared/lib/image-asset";
 import { notFound } from "next/navigation";
 
@@ -27,10 +28,13 @@ function metadataForEntity(entity: ResolvedEntity, slug: string): Metadata {
     if (product.status === PRODUCT_STATUS.ARCHIVED) return {};
 
     const title = product.metaTitle || product.name;
-    const description = product.metaDescription || undefined;
+    // Fall back to an excerpt of the product's own body copy rather than
+    // leaving the description empty — most products never get a hand-written
+    // metaDescription filled in by admin.
+    const description = product.metaDescription || excerptFromRichText(product.description);
     const image = primaryImageUrl(product.images);
     return {
-      title: `${title} | ${SITE_NAME}`,
+      title,
       description,
       alternates,
       openGraph: {
@@ -39,6 +43,12 @@ function metadataForEntity(entity: ResolvedEntity, slug: string): Metadata {
         description,
         url: pageUrl,
         images: image ? [{ url: image }] : undefined,
+      },
+      twitter: {
+        card: "summary_large_image",
+        title,
+        description,
+        images: image ? [image] : undefined,
       },
     };
   }

@@ -19,8 +19,12 @@ export function formatAttributeValue(av: AttributeValue): string {
   // A single-select's picked value lives in the same valueOptions array as
   // multiselect (just constrained to one entry) — there's no separate
   // "selected label" field, so without this branch a select attribute with
-  // no valueText renders as a blank value.
-  if (av.dataType === "select" || av.dataType === "multiselect") return (av.valueOptions || []).join(", ");
+  // no valueText renders as a blank value. Some legacy rows were migrated
+  // with the value left in valueText instead (valueOptions empty) — fall
+  // back to that rather than rendering blank.
+  if (av.dataType === "select" || av.dataType === "multiselect") {
+    return av.valueOptions && av.valueOptions.length > 0 ? av.valueOptions.join(", ") : av.valueText || "";
+  }
   if (av.dataType === "number" && av.valueNumber != null) {
     const suffix = av.unit ? ` ${av.unit}` : "";
     const kwHint = av.code === CAPACITY_BTU_ATTRIBUTE_CODE && av.valueNumber > 0

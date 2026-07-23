@@ -7,6 +7,8 @@ import { getContactsAction } from "@/modules/contact/presentation/actions";
 import { TrackView } from "@/modules/event";
 import { getReviewsAction } from "@/modules/review";
 import { ReviewSection } from "@/modules/review/presentation/components/ReviewSection";
+import { getProductLineByIdAction } from "@/modules/product-line/presentation/actions";
+import { getCategoryByIdAction } from "@/modules/category/presentation/actions";
 import { Breadcrumbs } from "@/shared/components/layout/user/breadcrumbs";
 import { ExpandableContent } from "@/shared/components/layout/user/expandable-content";
 import { ProductDescription } from "@/shared/components/layout/user/product-description";
@@ -71,9 +73,11 @@ export async function ProductDetailModule({
   product: ProductWithRelations;
 }) {
   const { contacts, currentYear } = await getCachedProductDetailData();
-  const [relatedProducts, { data: reviews, aggregate }] = await Promise.all([
+  const [relatedProducts, { data: reviews, aggregate }, { data: productLine }, { data: categoryWithGroup }] = await Promise.all([
     getRelatedProducts(product),
     getReviewsAction("product", product.id),
+    product.productLineId ? getProductLineByIdAction(product.productLineId) : Promise.resolve({ data: null }),
+    product.category?.id ? getCategoryByIdAction(product.category.id) : Promise.resolve({ data: null }),
   ]);
 
   const category = product.category;
@@ -290,9 +294,9 @@ export async function ProductDetailModule({
       {relatedProducts.length > 0 && (
         <section className="w-full max-w-350 mx-auto px-4 md:px-6 lg:px-8 py-6 md:py-10 border-t border-dashed border-border/40">
           <div className="w-full flex flex-col gap-6">
-            <TypographyH1 className="text-xl md:text-2xl font-bold tracking-tight">
+            <TypographyH2 className="text-xl md:text-2xl font-bold tracking-tight">
               Sản phẩm liên quan
-            </TypographyH1>
+            </TypographyH2>
             <ProductGrid products={relatedProducts} />
           </div>
         </section>
@@ -334,18 +338,73 @@ export async function ProductDetailModule({
           ...(av.unit ? { unitText: av.unit } : {}),
         }));
 
+        const conditionAv = (product.attributeValues || []).find((av) => av.code === "tinh_trang_san_pham");
+        const conditionValue = conditionAv ? formatAttributeValue(conditionAv) : undefined;
+        const itemCondition = CONDITION_SCHEMA[conditionValue || ""] || CONDITION_SCHEMA["Mới"];
+
+        // variants.sku is warehouse shorthand for the indoor+outdoor unit
+        // pair (e.g. "FTKB35ZVMV / RKB35ZVMV") — not a single merchant
+        // identifier, so schema.org sku here takes just the indoor half
+        // (the model customers actually search for) rather than that
+        // slash-joined pair.
+        const indoorSku = (sku: string) => sku.split("/")[0]?.trim() || undefined;
+
         const hasDiscount = !!defaultVariant && defaultVariant.discountPercent > 0;
 
-        const conditionValue = (product.attributeValues || []).find((av) => av.code === "tinh_trang_san_pham")?.valueOptions?.[0];
-        const itemCondition = CONDITION_SCHEMA[conditionValue || ""] || CONDITION_SCHEMA["Mới"];
+        // Always a single Offer off the default variant, even for the small
+        // set of products with >1 sellable variant (different Điện áp) —
+        // Google's own guidance is that AggregateOffer isn't meant to
+        // describe variants of one product (it's for the same product sold
+        // by multiple merchants), and ProductGroup's variesBy has no
+        // "voltage" dimension to fit this catalog's actual variant axis. A
+        // single Offer keeps every page eligible for the Merchant Listing
+        // rich result (Shopping tab, price/availability badge) at the cost
+        // of the offer reflecting the default variant rather than whatever
+        // the shopper has picked in the on-page switcher.
+        const offers = finalPrice && finalPrice > 0
+          ? {
+              "@type": "Offer",
+              url: pageUrl,
+              priceCurrency: "VND",
+              price: finalPrice,
+              sku: defaultVariant?.sku ? indoorSku(defaultVariant.sku) : undefined,
+              availability: AVAILABILITY_SCHEMA[product.displayStockStatus || ""] || "https://schema.org/InStock",
+              itemCondition,
+              hasMerchantReturnPolicy: MERCHANT_RETURN_POLICY,
+              shippingDetails: SHIPPING_DETAILS,
+              priceSpecification: hasDiscount
+                ? {
+                    "@type": "UnitPriceSpecification",
+                    priceType: "https://schema.org/ListPrice",
+                    price: defaultVariant!.originalPrice,
+                    priceCurrency: "VND",
+                  }
+                : undefined,
+            }
+          : undefined;
 
         const productSchema = {
           "@context": "https://schema.org",
           "@type": "Product",
           name: product.name,
-          image: images.map((img) => img.url),
+          url: pageUrl,
+          // Google's Merchant Listing guidance recommends multiple aspect
+          // ratios per image (16:9, 4:3, 1:1) — cropVariants (only present
+          // for images uploaded after elc-go's crop-on-upload shipped) adds
+          // the 4:3/1:1 derivatives right after each original 16:9 photo.
+          image: images.flatMap((img) => [img.url, ...Object.values(img.cropVariants || {})]),
           description: product.metaDescription || undefined,
-          sku: defaultVariant?.sku || undefined,
+          // Google's documented format for a text category is a
+          // breadcrumb-style hierarchy ("Group > Category") — group is the
+          // parent (e.g. "Máy lạnh"), category the child (e.g. "Máy lạnh
+          // treo tường"), matching the same nav hierarchy Breadcrumbs shows.
+          category: categoryWithGroup?.group?.name
+            ? `${categoryWithGroup.group.name} > ${category.name}`
+            : category.name,
+          sku: defaultVariant?.sku ? indoorSku(defaultVariant.sku) : undefined,
+          mpn: defaultVariant?.mpn || undefined,
+          gtin: defaultVariant?.gtin || undefined,
+          model: productLine?.name || undefined,
           brand: product.brand?.name ? { "@type": "Brand", name: product.brand.name } : undefined,
           ...(additionalProperty.length > 0 ? { additionalProperty } : {}),
           // aggregateRating requires ratingCount >= 1 per Google's guidelines
@@ -360,37 +419,14 @@ export async function ProductDetailModule({
                 },
                 review: reviews.slice(0, 10).map((r) => ({
                   "@type": "Review",
+                  datePublished: r.createdAt,
                   reviewRating: { "@type": "Rating", ratingValue: r.rating },
                   author: { "@type": "Person", name: r.reviewerName },
                   reviewBody: r.comment,
                 })),
               }
             : {}),
-          // Google requires price > 0 for Merchant Listings eligibility — a
-          // quote-only product (displayPrice 0/null) omits offers entirely
-          // rather than emitting a literal 0.
-          offers: finalPrice && finalPrice > 0
-            ? {
-                "@type": "Offer",
-                url: pageUrl,
-                priceCurrency: "VND",
-                price: finalPrice,
-                availability: AVAILABILITY_SCHEMA[product.displayStockStatus || ""] || "https://schema.org/InStock",
-                itemCondition,
-                hasMerchantReturnPolicy: MERCHANT_RETURN_POLICY,
-                shippingDetails: SHIPPING_DETAILS,
-                // List price before discount — only meaningful when the
-                // default variant is actually on sale.
-                priceSpecification: hasDiscount
-                  ? {
-                      "@type": "UnitPriceSpecification",
-                      priceType: "https://schema.org/ListPrice",
-                      price: defaultVariant!.originalPrice,
-                      priceCurrency: "VND",
-                    }
-                  : undefined,
-              }
-            : undefined,
+          offers,
         };
 
         // BreadcrumbList JSON-LD is emitted by <Breadcrumbs> above, from the
