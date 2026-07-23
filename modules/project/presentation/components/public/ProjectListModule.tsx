@@ -13,7 +13,7 @@ import { PageHero } from "@/shared/components/sections/page-hero";
 import { Button } from "@/shared/components/ui/button";
 import { TypographySmall } from "@/shared/components/ui/typography";
 import { getQueryTokens } from "@/shared/lib/search-utils";
-import { BASE_URL } from "@/shared/lib/seo-schema";
+import { BASE_URL, toJsonLdHtml } from "@/shared/lib/seo-schema";
 import Image from "next/image";
 import Link from "next/link";
 import { Suspense } from "react";
@@ -454,7 +454,7 @@ export async function ProjectListModule({
         return (
           <script
             type="application/ld+json"
-            dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
+            dangerouslySetInnerHTML={{ __html: toJsonLdHtml(schema) }}
           />
         );
       })()}

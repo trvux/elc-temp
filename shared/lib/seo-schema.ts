@@ -3,6 +3,14 @@ import { primaryImageUrl } from "./image-asset";
 
 export const BASE_URL = process.env.NEXT_PUBLIC_APP_URL || "https://dienmayelc.com.vn";
 
+// Next.js's own JSON-LD guide (docs/01-app/02-guides/json-ld.mdx) escapes
+// "<" before dangerouslySetInnerHTML — admin-entered text (product/category
+// name, description, review body...) ending up verbatim in a <script> tag
+// could otherwise contain "</script>" and break out of it.
+export function toJsonLdHtml(data: unknown): string {
+  return JSON.stringify(data).replace(/</g, "\\u003c");
+}
+
 export function parseAddress(addr: string) {
   const parts = addr.split(",").map((s) => s.trim());
   if (parts.length >= 3) {

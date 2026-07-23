@@ -21,7 +21,7 @@ import { RecentlyViewedSection } from "@/shared/components/layout/user/recently-
 import { ScrollToTop } from "@/shared/components/layout/user/scroll-to-top";
 import { TypographyH1, TypographySmall } from "@/shared/components/ui/typography";
 import { unwrapActionResult } from "@/shared/lib/action-result";
-import { BASE_URL } from "@/shared/lib/seo-schema";
+import { BASE_URL, toJsonLdHtml } from "@/shared/lib/seo-schema";
 
 // No pagination/infinite-scroll — renders the full matching catalog for the
 // category/brand/group in one shot (small catalog, largest single category
@@ -287,7 +287,7 @@ export async function ProductListModule({
         return (
           <script
             type="application/ld+json"
-            dangerouslySetInnerHTML={{ __html: JSON.stringify(collectionPageSchema) }}
+            dangerouslySetInnerHTML={{ __html: toJsonLdHtml(collectionPageSchema) }}
           />
         );
       })()}

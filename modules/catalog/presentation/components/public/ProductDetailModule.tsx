@@ -29,7 +29,7 @@ import {
   TypographySmall,
 } from "@/shared/components/ui/typography";
 import { primaryImageUrl } from "@/shared/lib/image-asset";
-import { BASE_URL } from "@/shared/lib/seo-schema";
+import { BASE_URL, toJsonLdHtml } from "@/shared/lib/seo-schema";
 import { cn } from "@/shared/lib/utils";
 import { notFound } from "next/navigation";
 
@@ -476,7 +476,7 @@ export async function ProductDetailModule({
         // same breadcrumbItems — not duplicated here.
 
         return (
-          <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(productSchema) }} />
+          <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: toJsonLdHtml(productSchema) }} />
         );
       })()}
     </main>

@@ -56,7 +56,12 @@ function metadataForEntity(entity: ResolvedEntity, slug: string): Metadata {
   // group/category/brand — same listing-page metadata shape
   const data = entity.data;
   const title = data.metaTitle || data.name;
-  const description = data.metaDescription || undefined;
+  // Same fallback as the product page above: most categories/groups/brands
+  // never get a hand-written metaDescription, so fall back to an excerpt
+  // of the page's own body copy (heroContent in ProductListModule) rather
+  // than shipping an empty <meta description> — was the case for e.g.
+  // "Nhà thông minh" until this fix.
+  const description = data.metaDescription || excerptFromRichText(data.content);
   const image = entity.type === "brand" ? entity.data.logoUrl : entity.data.imageUrl;
   // Hidden category/group: kept reachable at its URL (e.g. linked from a
   // product's breadcrumb) but not meant to be found/promoted via search —

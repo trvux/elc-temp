@@ -11,7 +11,7 @@ import { CompareTray } from "@/shared/components/layout/user/compare-tray";
 import { WishlistDialog } from "@/shared/components/layout/user/wishlist-dialog";
 import { TopProgressBar } from "@/shared/components/layout/user/top-progress-bar";
 import { StickyContactActions } from "@/shared/components/sections/sticky-contact-actions";
-import { SEOSchema } from "@/shared/lib/seo-schema";
+import { SEOSchema, toJsonLdHtml } from "@/shared/lib/seo-schema";
 import Script from "next/script";
 
 // No caching anywhere in this tree anymore (see cacheComponents removal in
@@ -50,7 +50,7 @@ export default async function PublicLayout({ children }: PublicLayoutProps) {
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
-          __html: JSON.stringify({
+          __html: toJsonLdHtml({
             "@context": "https://schema.org",
             "@graph": [SEOSchema.getOrganization(branches, contacts), SEOSchema.getWebSite()],
           }),

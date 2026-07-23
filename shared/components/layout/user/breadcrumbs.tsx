@@ -6,7 +6,7 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/shared/components/ui/breadcrumb";
-import { BASE_URL } from "@/shared/lib/seo-schema";
+import { BASE_URL, toJsonLdHtml } from "@/shared/lib/seo-schema";
 import React from "react";
 
 export interface BreadcrumbStep {
@@ -78,7 +78,7 @@ export function Breadcrumbs({ items, className }: BreadcrumbsProps) {
       </Breadcrumb>
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
+        dangerouslySetInnerHTML={{ __html: toJsonLdHtml(breadcrumbSchema) }}
       />
     </nav>
   );
