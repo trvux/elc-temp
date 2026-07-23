@@ -7,24 +7,49 @@ import {
   CategorySectionsGrid,
   type CategorySectionData,
 } from "@/shared/components/layout/user/category-sections-grid";
+import { Breadcrumbs } from "@/shared/components/layout/user/breadcrumbs";
 import { CompareLinkButton } from "@/shared/components/layout/user/compare-link-button";
 import { ProductDescription } from "@/shared/components/layout/user/product-description";
 import { WishlistDialogButton } from "@/shared/components/layout/user/wishlist-dialog-button";
 import { ScrollToTop } from "@/shared/components/layout/user/scroll-to-top";
 import { RecentlyViewedSection } from "@/shared/components/layout/user/recently-viewed-section";
 import { unwrapActionResult } from "@/shared/lib/action-result";
+import { excerptFromRichText } from "@/shared/lib/rich-text";
+import { BASE_URL, toJsonLdHtml } from "@/shared/lib/seo-schema";
 import { cn } from "@/shared/lib/utils";
 import {
   TypographyH1,
   TypographySmall,
 } from "@/shared/components/ui/typography";
 
+const PAGE_URL = `${BASE_URL}/san-pham`;
+// Fallback copy for when admin hasn't filled in catalog-page SEO fields yet
+// (was the case site-wide until now) — without this, generateMetadata
+// returned {} and the hub page — arguably the single most-linked page on
+// the site — fell all the way back to the root layout's generic site
+// tagline instead of anything catalog-specific.
+const DEFAULT_META_TITLE = "Tất cả sản phẩm - Máy lạnh, hệ thống khí tươi chính hãng";
+const DEFAULT_META_DESCRIPTION =
+  "Toàn bộ sản phẩm máy lạnh, hệ thống cấp khí tươi, máy lọc nước tại Điện máy ELC - đầy đủ thương hiệu Daikin, LG, Panasonic, Menred... Giao hàng nhanh, lắp đặt chuyên nghiệp, bảo hành chính hãng.";
+
 export async function generateMetadata(): Promise<Metadata> {
   const { data: catalogPage } = await getCatalogPageAction();
-  if (!catalogPage?.metaTitle && !catalogPage?.metaDescription) return {};
+  const title = catalogPage?.metaTitle || DEFAULT_META_TITLE;
+  const description =
+    catalogPage?.metaDescription ||
+    excerptFromRichText(catalogPage?.content) ||
+    DEFAULT_META_DESCRIPTION;
+
   return {
-    title: catalogPage.metaTitle || undefined,
-    description: catalogPage.metaDescription || undefined,
+    title,
+    description,
+    alternates: { canonical: PAGE_URL },
+    openGraph: {
+      type: "website",
+      title,
+      description,
+      url: PAGE_URL,
+    },
   };
 }
 
@@ -97,6 +122,8 @@ export default async function ProductsPage() {
   return (
     <main className={STYLES.main}>
       <div className="flex flex-col gap-6 p-4 md:p-6 lg:p-8 w-full max-w-400 mx-auto">
+        <Breadcrumbs items={[{ label: "Sản phẩm", href: "/san-pham", active: true }]} />
+
         {/* Recently Viewed Products */}
         <RecentlyViewedSection />
 
@@ -128,6 +155,37 @@ export default async function ProductsPage() {
           </ScrollToTop>
         </div>
       </div>
+
+      {/* BreadcrumbList JSON-LD is emitted by <Breadcrumbs> above. This hub
+          only previews each category (INITIAL_PER_SECTION items) rather
+          than listing every product, so the ItemList here links to each
+          category's own full listing page instead of individual products —
+          same "collection of collections" shape as a sitemap. */}
+      {(() => {
+        const collectionPageSchema = {
+          "@context": "https://schema.org",
+          "@type": "CollectionPage",
+          name: "Tất cả sản phẩm",
+          url: PAGE_URL,
+          mainEntity: {
+            "@type": "ItemList",
+            numberOfItems: sections.length,
+            itemListElement: sections.map((s, idx) => ({
+              "@type": "ListItem",
+              position: idx + 1,
+              url: `${BASE_URL}/san-pham/${s.categorySlug}`,
+              name: s.categoryName,
+            })),
+          },
+        };
+
+        return (
+          <script
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{ __html: toJsonLdHtml(collectionPageSchema) }}
+          />
+        );
+      })()}
     </main>
   );
 }
