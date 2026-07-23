@@ -25,9 +25,10 @@ export function ProductGalleryTab({ form }: ProductGalleryTabProps) {
             <div className="space-y-4">
               <ImageUpload
                 value=""
-                onChange={(url) => {
+                onChange={() => {}}
+                onUploaded={({ url, cropVariants }) => {
                   if (url) {
-                    field.onChange([...images, { url }]);
+                    field.onChange([...images, { url, ...(cropVariants ? { cropVariants } : {}) }]);
                   }
                 }}
                 aspectRatio={3.5}

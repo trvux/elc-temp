@@ -4,9 +4,9 @@ import { authHeaders } from "@/shared/lib/go-api";
 
 const GO_API_URL = process.env.GO_API_URL;
 
-export async function uploadImageAction(formData: FormData): Promise<{ url: string | null; error: string | null }> {
+export async function uploadImageAction(formData: FormData): Promise<{ url: string | null; cropVariants: Record<string, string> | null; error: string | null }> {
   if (!GO_API_URL) {
-    return { url: null, error: "GO_API_URL is not configured" };
+    return { url: null, cropVariants: null, error: "GO_API_URL is not configured" };
   }
   try {
     const res = await fetch(`${GO_API_URL}/uploads`, {
@@ -16,12 +16,12 @@ export async function uploadImageAction(formData: FormData): Promise<{ url: stri
     });
     if (!res.ok) {
       const body = (await res.json().catch(() => null)) as { message?: string } | null;
-      return { url: null, error: body?.message || `Upload failed (${res.status})` };
+      return { url: null, cropVariants: null, error: body?.message || `Upload failed (${res.status})` };
     }
-    const body = (await res.json()) as { url: string };
-    return { url: body.url, error: null };
+    const body = (await res.json()) as { url: string; cropVariants?: Record<string, string> };
+    return { url: body.url, cropVariants: body.cropVariants || null, error: null };
   } catch (error) {
     console.error("uploadImageAction error:", error);
-    return { url: null, error: "Failed to upload image" };
+    return { url: null, cropVariants: null, error: "Failed to upload image" };
   }
 }

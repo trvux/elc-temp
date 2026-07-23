@@ -6,6 +6,11 @@ const imageAssetSchema = z.object({
   url: z.string(),
   alt: z.string().optional(),
   caption: z.string().optional(),
+  // Generated server-side at upload time for the "products" folder only
+  // (see elc-go's cropVariantsFolder) — must be declared here or Zod's
+  // default strip-unknown-keys behavior silently drops it on every
+  // create/update product submission.
+  cropVariants: z.record(z.string(), z.string()).optional(),
 });
 
 // --- v2: options/variants (see elc-go/docs/product-v2-design.md) ---

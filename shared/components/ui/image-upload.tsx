@@ -8,12 +8,17 @@ import { toast } from "sonner";
 import { AspectRatio } from "@/shared/components/ui/aspect-ratio";
 import { Button } from "@/shared/components/ui/button";
 import { convertToWebP } from "@/shared/lib/image";
-import { uploadImageFile } from "@/shared/lib/upload-image";
+import { uploadImageFileWithVariants } from "@/shared/lib/upload-image";
 import { cn } from "@/shared/lib/utils";
 
 interface ImageUploadProps {
   value?: string;
   onChange: (url: string) => void;
+  // Optional — fires alongside onChange with the full upload result
+  // (including cropVariants, when the folder is one that generates them).
+  // Callers that don't need it (the vast majority — avatars, page heroes,
+  // branch/category photos, ...) can ignore this and nothing changes.
+  onUploaded?: (result: { url: string; cropVariants: Record<string, string> | null }) => void;
   aspectRatio?: "1:1" | "16:9" | "19:9" | "2:1" | "portrait" | number;
   folderPath: string;
   maxSizeMB?: number;
@@ -24,6 +29,7 @@ interface ImageUploadProps {
 export function ImageUpload({
   value,
   onChange,
+  onUploaded,
   aspectRatio = "16:9",
   folderPath,
   maxSizeMB = 5,
@@ -68,8 +74,9 @@ export function ImageUpload({
     try {
       // Automatic WebP compression on client side
       const webpFile = await convertToWebP(file);
-      const url = await uploadImageFile(webpFile, folderPath, webpFile.name);
-      onChange(url);
+      const result = await uploadImageFileWithVariants(webpFile, folderPath, webpFile.name);
+      onChange(result.url);
+      onUploaded?.(result);
       toast.success("Tải ảnh lên thành công");
     } catch (err) {
       console.error("[ImageUpload] Error:", err);

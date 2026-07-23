@@ -7,13 +7,25 @@ import { uploadImageAction } from "@/shared/lib/upload-actions";
  * try/catch + toast.error blocks keep working unchanged.
  */
 export async function uploadImageFile(file: Blob, folderPath: string, filename = "upload.webp"): Promise<string> {
+  const { url } = await uploadImageFileWithVariants(file, folderPath, filename);
+  return url;
+}
+
+// Same upload, but also surfaces cropVariants — only the "products" folder
+// populates it server-side (see elc-go's cropVariantsFolder), so every other
+// caller can keep using the plain uploadImageFile above unchanged.
+export async function uploadImageFileWithVariants(
+  file: Blob,
+  folderPath: string,
+  filename = "upload.webp",
+): Promise<{ url: string; cropVariants: Record<string, string> | null }> {
   const formData = new FormData();
   formData.append("file", file, filename);
   formData.append("folder", folderPath.replace(/\/+$/, ""));
 
-  const { url, error } = await uploadImageAction(formData);
+  const { url, cropVariants, error } = await uploadImageAction(formData);
   if (error || !url) {
     throw new Error(error || "Upload failed");
   }
-  return url;
+  return { url, cropVariants };
 }
