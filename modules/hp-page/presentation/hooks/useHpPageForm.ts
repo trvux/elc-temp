@@ -33,6 +33,8 @@ export function useHpPageForm(
       content: "",
       attributeCode: "phan_khuc_hp",
       attributeValues: [],
+      categoryIds: [],
+      brandIds: [],
     },
   });
 

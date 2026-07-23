@@ -10,13 +10,18 @@ export interface HpPage {
   updatedAt: string;
   deletedAt: string | null;
   content?: unknown | null;
-  // Generic, not hardcoded — which attribute_definitions.code this page
-  // filters products by (default "phan_khuc_hp"), and which of that
-  // attribute's options this page matches (e.g. ["1 HP"], or several
-  // combined into one page). Same mechanism could back a landing page for
-  // a different attribute later without a new migration.
-  attributeCode: string;
+  // Three independent, combinable (AND) filters — a page needs at least
+  // one. attributeCode/attributeValues: generic, not hardcoded, which
+  // attribute_definitions.code this page filters by (e.g. "phan_khuc_hp")
+  // and which of its options match. categoryIds/brandIds: scope to
+  // specific categories and/or brands instead of (or combined with) the
+  // attribute — e.g. "Máy lạnh Daikin" (category=máy lạnh's
+  // sub-categories, brand=Daikin), distinct from the plain brand page
+  // (all of Daikin's products, whatever categories that spans).
+  attributeCode: string | null;
   attributeValues: string[];
+  categoryIds: string[];
+  brandIds: string[];
 }
 
 export interface CreateHpPageInput {
@@ -27,8 +32,10 @@ export interface CreateHpPageInput {
   metaTitle?: string | null;
   metaDescription?: string | null;
   content?: unknown | null;
-  attributeCode: string;
+  attributeCode: string | null;
   attributeValues: string[];
+  categoryIds: string[];
+  brandIds: string[];
 }
 
 export interface UpdateHpPageInput extends Partial<CreateHpPageInput> {

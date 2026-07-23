@@ -67,9 +67,15 @@ async function getCachedListModuleData(entity: ResolvedEntity, sp: SearchParams)
     categoryIds = allCategories
       .filter((c) => c.groupId === entity.data.id && !c.isHidden)
       .map((c) => c.id);
+  } else if (entity.type === "hp_page") {
+    if (entity.data.categoryIds.length > 0) categoryIds = entity.data.categoryIds;
+    if (entity.data.brandIds.length > 0) {
+      brandIds = entity.data.brandIds;
+      showBrandFacet = false; // page itself is already brand-scoped
+    }
   }
-  // hp_page has no categoryIds/brandIds — its own attributeCode/attributeValues
-  // filter is merged into attributeTokens below, once that record exists.
+  // hp_page's attributeCode/attributeValues filter is merged into
+  // attributeTokens below, once that record exists.
 
   // Brand-facet selection from the filter dialog only applies on
   // non-brand-scoped pages (category/group) — a brand page's own scope
@@ -89,8 +95,9 @@ async function getCachedListModuleData(entity: ResolvedEntity, sp: SearchParams)
   // hp_page's own filter is fixed by the page, not the visitor — set it
   // first, then skip any query-param value for that same code below so a
   // crafted URL can't override the page's locked capacity filter.
-  if (entity.type === "hp_page") {
-    attributeTokens[entity.data.attributeCode] = entity.data.attributeValues;
+  const hpPageAttributeCode = entity.type === "hp_page" ? entity.data.attributeCode : null;
+  if (entity.type === "hp_page" && hpPageAttributeCode) {
+    attributeTokens[hpPageAttributeCode] = entity.data.attributeValues;
   }
   for (const [key, rawValue] of Object.entries(sp)) {
     if (!key.startsWith("attr_") || rawValue === undefined) continue;
@@ -102,7 +109,7 @@ async function getCachedListModuleData(entity: ResolvedEntity, sp: SearchParams)
     } else if (code.endsWith("_max")) {
       const c = code.slice(0, -4);
       attributeRanges[c] = [attributeRanges[c]?.[0], Number(value)];
-    } else if (!(entity.type === "hp_page" && code === entity.data.attributeCode)) {
+    } else if (code !== hpPageAttributeCode) {
       attributeTokens[code] = value.split(",").filter(Boolean);
     }
   }

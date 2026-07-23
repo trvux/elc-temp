@@ -15,8 +15,10 @@ interface GoHpPageResponse {
   meta_description: string | null;
   order_index: number;
   content: unknown | null;
-  attribute_code: string;
+  attribute_code: string | null;
   attribute_values: string[];
+  category_ids: string[];
+  brand_ids: string[];
   created_at: string;
   updated_at: string;
   deleted_at: string | null;
@@ -40,6 +42,8 @@ function mapGoHpPage(row: GoHpPageResponse): HpPage {
     content: row.content,
     attributeCode: row.attribute_code,
     attributeValues: row.attribute_values,
+    categoryIds: row.category_ids,
+    brandIds: row.brand_ids,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
     deletedAt: row.deleted_at,

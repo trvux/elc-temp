@@ -27,12 +27,19 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/shared/components/ui
 import { ImageUpload } from "@/shared/components/ui/image-upload";
 
 import { getAttributeDefinitionsAction } from "@/modules/attribute-definition";
+import { getCategoriesAction } from "@/modules/category";
+import { getBrandsAction } from "@/modules/brand";
 
 import { HpPage } from "../../domain";
 import { deleteHpPageAction, getHpPagesAction } from "../actions";
 import { getHpPageColumns } from "./HpPageColumns";
 import { useHpPageForm } from "../hooks/useHpPageForm";
 import { AttributeValueMultiSelect } from "./AttributeValueMultiSelect";
+import { EntityMultiSelect } from "./EntityMultiSelect";
+
+// Radix Select can't represent an empty-string item value — use a sentinel
+// for "no attribute filter" and translate to/from null at the boundary.
+const NO_ATTRIBUTE = "__none__";
 
 export function HpPageManagement() {
   const queryClient = useQueryClient();
@@ -62,6 +69,24 @@ export function HpPageManagement() {
   const selectableAttributes = attributeDefinitions.filter(
     (a) => a.dataType === "select" || a.dataType === "multiselect"
   );
+
+  const { data: categories = [] } = useQuery({
+    queryKey: ["categories"],
+    queryFn: async () => {
+      const { data, error } = await getCategoriesAction();
+      if (error) throw new Error(error);
+      return data;
+    },
+  });
+
+  const { data: brands = [] } = useQuery({
+    queryKey: ["brands"],
+    queryFn: async () => {
+      const { data, error } = await getBrandsAction();
+      if (error) throw new Error(error);
+      return data;
+    },
+  });
 
   const { form, saveMutation, onNameChange } =
     useHpPageForm(activePage, () => setActivePage(null));
@@ -97,6 +122,8 @@ export function HpPageManagement() {
             content: p.content || "",
             attributeCode: p.attributeCode,
             attributeValues: p.attributeValues,
+            categoryIds: p.categoryIds,
+            brandIds: p.brandIds,
           });
         },
         onDelete: setDeletingId,
@@ -116,6 +143,8 @@ export function HpPageManagement() {
       content: "",
       attributeCode: "phan_khuc_hp",
       attributeValues: [],
+      categoryIds: [],
+      brandIds: [],
     });
   }
 
@@ -239,18 +268,22 @@ export function HpPageManagement() {
                   </FieldGroup>
                 </TabsContent>
 
-                <TabsContent value="filter" className="m-0 space-y-6">
+                <TabsContent value="filter" className="m-0 space-y-8">
                   <div className="max-w-2xl space-y-6">
+                    <FieldDescription className="text-sm">
+                      3 điều kiện lọc dưới đây kết hợp với nhau (AND) — chọn ít nhất 1. VD "Máy lạnh Daikin" chỉ cần chọn Danh mục (các category máy lạnh) + Thương hiệu (Daikin), không cần thuộc tính.
+                    </FieldDescription>
+
                     <Controller
                       control={form.control}
                       name="attributeCode"
                       render={({ field, fieldState }) => (
                         <Field>
-                          <FieldLabel>Thuộc tính lọc *</FieldLabel>
+                          <FieldLabel>Thuộc tính lọc (tùy chọn)</FieldLabel>
                           <Select
-                            value={field.value}
+                            value={field.value ?? NO_ATTRIBUTE}
                             onValueChange={(code) => {
-                              field.onChange(code);
+                              field.onChange(code === NO_ATTRIBUTE ? null : code);
                               // Values belonged to the previous attribute's
                               // option list — clear them.
                               form.setValue("attributeValues", []);
@@ -260,6 +293,7 @@ export function HpPageManagement() {
                               <SelectValue placeholder="Chọn thuộc tính" />
                             </SelectTrigger>
                             <SelectContent>
+                              <SelectItem value={NO_ATTRIBUTE}>Không lọc theo thuộc tính</SelectItem>
                               {selectableAttributes.map((a) => (
                                 <SelectItem key={a.code} value={a.code}>
                                   {a.name} ({a.code})
@@ -267,31 +301,65 @@ export function HpPageManagement() {
                               ))}
                             </SelectContent>
                           </Select>
-                          <FieldDescription>
-                            Trang sẽ liệt kê sản phẩm có thuộc tính này khớp giá trị chọn bên dưới, trên toàn bộ danh mục.
-                          </FieldDescription>
                           <FieldError errors={[fieldState.error]} />
+                        </Field>
+                      )}
+                    />
+
+                    {selectedAttributeCode && (
+                      <Controller
+                        control={form.control}
+                        name="attributeValues"
+                        render={({ field, fieldState }) => (
+                          <Field>
+                            <FieldLabel>Giá trị thuộc tính</FieldLabel>
+                            <AttributeValueMultiSelect
+                              options={selectedAttributeDefinition?.options ?? []}
+                              value={field.value}
+                              onChange={field.onChange}
+                              placeholder="Chọn giá trị công suất..."
+                              disabled={!selectedAttributeDefinition}
+                            />
+                            <FieldDescription>
+                              Có thể chọn nhiều giá trị để gộp vào 1 trang (VD "1 HP" và "1.5 HP" cùng lúc).
+                            </FieldDescription>
+                            <FieldError errors={[fieldState.error]} />
+                          </Field>
+                        )}
+                      />
+                    )}
+
+                    <Controller
+                      control={form.control}
+                      name="categoryIds"
+                      render={({ field }) => (
+                        <Field>
+                          <FieldLabel>Danh mục (tùy chọn)</FieldLabel>
+                          <EntityMultiSelect
+                            options={categories.map((c) => ({ id: c.id, name: c.name }))}
+                            value={field.value}
+                            onChange={field.onChange}
+                            placeholder="Chọn danh mục..."
+                          />
+                          <FieldDescription>
+                            Chọn nhiều danh mục con để gộp cả nhóm (VD chọn cả 5 category máy lạnh cho "Máy lạnh Daikin").
+                          </FieldDescription>
                         </Field>
                       )}
                     />
 
                     <Controller
                       control={form.control}
-                      name="attributeValues"
-                      render={({ field, fieldState }) => (
+                      name="brandIds"
+                      render={({ field }) => (
                         <Field>
-                          <FieldLabel>Giá trị *</FieldLabel>
-                          <AttributeValueMultiSelect
-                            options={selectedAttributeDefinition?.options ?? []}
+                          <FieldLabel>Thương hiệu (tùy chọn)</FieldLabel>
+                          <EntityMultiSelect
+                            options={brands.map((b) => ({ id: b.id, name: b.name }))}
                             value={field.value}
                             onChange={field.onChange}
-                            placeholder="Chọn giá trị công suất..."
-                            disabled={!selectedAttributeDefinition}
+                            placeholder="Chọn thương hiệu..."
                           />
-                          <FieldDescription>
-                            Có thể chọn nhiều giá trị để gộp vào 1 trang (VD "1 HP" và "1.5 HP" cùng lúc).
-                          </FieldDescription>
-                          <FieldError errors={[fieldState.error]} />
                         </Field>
                       )}
                     />

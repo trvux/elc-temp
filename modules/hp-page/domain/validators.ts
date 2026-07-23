@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-export const hpPageSchema = z.object({
+const hpPageObjectSchema = z.object({
   id: z.uuid({ message: "ID không đúng định dạng UUID" }),
   name: z
     .string()
@@ -21,8 +21,13 @@ export const hpPageSchema = z.object({
   metaTitle: z.string().max(70, { message: "Tiêu đề SEO không nên quá 70 ký tự" }).nullable().optional(),
   metaDescription: z.string().max(160, { message: "Mô tả SEO không nên quá 160 ký tự" }).nullable().optional(),
   content: z.unknown().nullable().optional(),
-  attributeCode: z.string().min(1, { message: "Chọn thuộc tính để lọc sản phẩm" }),
-  attributeValues: z.array(z.string()).min(1, { message: "Chọn ít nhất 1 giá trị" }),
+  // Three independent, combinable (AND) filters — "at least one filter"
+  // is enforced by createHpPageSchema's .refine() below, not here (the
+  // full entity as loaded from the API always satisfies it anyway).
+  attributeCode: z.string().nullable(),
+  attributeValues: z.array(z.string()),
+  categoryIds: z.array(z.string()),
+  brandIds: z.array(z.string()),
   createdAt: z.iso.datetime({
     message: "Thời gian tạo không đúng định dạng ISO",
   }),
@@ -34,13 +39,20 @@ export const hpPageSchema = z.object({
     .nullable(),
 });
 
-export const createHpPageSchema = hpPageSchema.omit({
+export const hpPageSchema = hpPageObjectSchema;
+
+const createHpPageObjectSchema = hpPageObjectSchema.omit({
   id: true,
   createdAt: true,
   updatedAt: true,
   deletedAt: true,
 });
 
-export const updateHpPageSchema = createHpPageSchema.partial().extend({
+export const createHpPageSchema = createHpPageObjectSchema.refine(
+  (v) => (!!v.attributeCode && v.attributeValues.length > 0) || v.categoryIds.length > 0 || v.brandIds.length > 0,
+  { message: "Chọn ít nhất 1 điều kiện lọc: thuộc tính, danh mục, hoặc thương hiệu", path: ["attributeValues"] },
+);
+
+export const updateHpPageSchema = createHpPageObjectSchema.partial().extend({
   id: z.uuid({ message: "ID không đúng định dạng UUID" }),
 });

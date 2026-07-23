@@ -107,7 +107,11 @@ async function hasPublishedProducts(entity: ResolvedEntity): Promise<boolean> {
     const allCategories = await getCategoriesAction().then(unwrapActionResult);
     categoryIds = allCategories.filter((c) => c.groupId === entity.data.id && !c.isHidden).map((c) => c.id);
   } else if (entity.type === "hp_page") {
-    attributeTokens = { [entity.data.attributeCode]: entity.data.attributeValues };
+    if (entity.data.attributeCode) {
+      attributeTokens = { [entity.data.attributeCode]: entity.data.attributeValues };
+    }
+    if (entity.data.categoryIds.length > 0) categoryIds = entity.data.categoryIds;
+    if (entity.data.brandIds.length > 0) brandIds = entity.data.brandIds;
   }
 
   const { totalCount } = await getProductsAction({
