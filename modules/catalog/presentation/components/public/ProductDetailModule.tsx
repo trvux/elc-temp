@@ -372,6 +372,17 @@ export async function ProductDetailModule({
             ? {
                 deliveryTime: {
                   "@type": "ShippingDeliveryTime",
+                  // Order processing time before it leaves the warehouse —
+                  // distinct from transitTime (carrier time to the buyer).
+                  // Recommended by Google, not admin-configurable anywhere
+                  // yet, so a fixed same-day/next-day default until there's
+                  // an actual setting to source it from.
+                  handlingTime: {
+                    "@type": "QuantitativeValue",
+                    minValue: 0,
+                    maxValue: 1,
+                    unitCode: "DAY",
+                  },
                   transitTime: {
                     "@type": "QuantitativeValue",
                     minValue: defaultShippingZone.minDays,
