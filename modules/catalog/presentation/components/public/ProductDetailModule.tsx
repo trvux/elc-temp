@@ -9,6 +9,8 @@ import { getReviewsAction } from "@/modules/review";
 import { ReviewSection } from "@/modules/review/presentation/components/ReviewSection";
 import { getProductLineByIdAction } from "@/modules/product-line/presentation/actions";
 import { getCategoryByIdAction } from "@/modules/category/presentation/actions";
+import { getDefaultShippingZoneAction, getPersonalizedShippingZoneAction } from "@/modules/shipping-zone";
+import { getSavedProvinceCode, getSavedWardCode } from "@/modules/shipping-zone/presentation/delivery-cookie";
 import { Breadcrumbs } from "@/shared/components/layout/user/breadcrumbs";
 import { ExpandableContent } from "@/shared/components/layout/user/expandable-content";
 import { ProductDescription } from "@/shared/components/layout/user/product-description";
@@ -51,12 +53,6 @@ const MERCHANT_RETURN_POLICY = {
   returnPolicyCategory: "https://schema.org/MerchantReturnNotPermitted",
 };
 
-const SHIPPING_DETAILS = {
-  "@type": "OfferShippingDetails",
-  shippingRate: { "@type": "MonetaryAmount", value: "0", currency: "VND" },
-  shippingDestination: { "@type": "DefinedRegion", addressCountry: "VN" },
-};
-
 async function getCachedProductDetailData() {
   const { data: rawContacts } = await getContactsAction();
   const contacts = (rawContacts || []).filter((c) => c.isActive);
@@ -73,11 +69,15 @@ export async function ProductDetailModule({
   product: ProductWithRelations;
 }) {
   const { contacts, currentYear } = await getCachedProductDetailData();
-  const [relatedProducts, { data: reviews, aggregate }, { data: productLine }, { data: categoryWithGroup }] = await Promise.all([
+  const [relatedProducts, { data: reviews, aggregate }, { data: productLine }, { data: categoryWithGroup }, { data: defaultShippingZone }, savedProvinceCode, savedWardCode, { data: personalizedShippingZone }] = await Promise.all([
     getRelatedProducts(product),
     getReviewsAction("product", product.id),
     product.productLineId ? getProductLineByIdAction(product.productLineId) : Promise.resolve({ data: null }),
     product.category?.id ? getCategoryByIdAction(product.category.id) : Promise.resolve({ data: null }),
+    getDefaultShippingZoneAction(),
+    getSavedProvinceCode(),
+    getSavedWardCode(),
+    getPersonalizedShippingZoneAction(),
   ]);
 
   const category = product.category;
@@ -169,6 +169,8 @@ export async function ProductDetailModule({
                 options={product.options || []}
                 contacts={contacts || []}
                 compareItem={compareItem}
+                savedProvinceCode={savedProvinceCode}
+                savedWardCode={savedWardCode}
               />
             </div>
           </div>
@@ -297,7 +299,7 @@ export async function ProductDetailModule({
             <TypographyH2 className="text-xl md:text-2xl font-bold tracking-tight">
               Sản phẩm liên quan
             </TypographyH2>
-            <ProductGrid products={relatedProducts} />
+            <ProductGrid products={relatedProducts} shippingZone={personalizedShippingZone} />
           </div>
         </section>
       )}
@@ -351,6 +353,36 @@ export async function ProductDetailModule({
 
         const hasDiscount = !!defaultVariant && defaultVariant.discountPercent > 0;
 
+        // Sourced from the admin-configured default shipping zone (see
+        // modules/shipping-zone) instead of a hardcoded constant — this is
+        // the site-wide default, not the customer's live address selection
+        // from <DeliveryEstimate> on this same page (that can only run
+        // client-side, after this JSON-LD has already been server-rendered).
+        // Falls back to a free/no-estimate value only if no zone is
+        // configured yet (shouldn't happen once the seed migration ran).
+        const shippingDetails = {
+          "@type": "OfferShippingDetails",
+          shippingRate: {
+            "@type": "MonetaryAmount",
+            value: String(defaultShippingZone?.feeVnd ?? 0),
+            currency: "VND",
+          },
+          shippingDestination: { "@type": "DefinedRegion", addressCountry: "VN" },
+          ...(defaultShippingZone
+            ? {
+                deliveryTime: {
+                  "@type": "ShippingDeliveryTime",
+                  transitTime: {
+                    "@type": "QuantitativeValue",
+                    minValue: defaultShippingZone.minDays,
+                    maxValue: defaultShippingZone.maxDays,
+                    unitCode: "DAY",
+                  },
+                },
+              }
+            : {}),
+        };
+
         // Always a single Offer off the default variant, even for the small
         // set of products with >1 sellable variant (different Điện áp) —
         // Google's own guidance is that AggregateOffer isn't meant to
@@ -371,7 +403,7 @@ export async function ProductDetailModule({
               availability: AVAILABILITY_SCHEMA[product.displayStockStatus || ""] || "https://schema.org/InStock",
               itemCondition,
               hasMerchantReturnPolicy: MERCHANT_RETURN_POLICY,
-              shippingDetails: SHIPPING_DETAILS,
+              shippingDetails,
               priceSpecification: hasDiscount
                 ? {
                     "@type": "UnitPriceSpecification",

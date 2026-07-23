@@ -49,27 +49,28 @@ export const SEOSchema = {
   getOrganization(branches?: Branch[], contacts?: Array<{ type: string; value: string; isActive: boolean }>) {
     const sameAsLinks = this.getSameAs(contacts, branches);
 
-    const mainAddress = contacts?.find((c) => c.type === "address" && c.isActive)?.value || "06 Dương Quảng Hàm, phường An Nhơn, Quận Gò Vấp, Thành phố Hồ Chí Minh";
-    const parsedMainAddress = parseAddress(mainAddress);
     const phoneVal = contacts?.find((c) => c.type === "phone" && c.isActive)?.value || "0789978898";
     const formattedPhone = formatPhone(phoneVal);
 
+    // Real structured location (tỉnh/thành + phường/xã + mã bưu chính) from
+    // the branch record itself — set via the cascading combobox in
+    // BranchManagement.tsx, reusing internal/shippingzone's real
+    // provinces/wards data — instead of guessing locality/region/postcode by
+    // splitting a free-text address string on commas.
     const companyBranchCoverage = (branches || [])
       .filter((b) => b.isPublished)
-      .map((b) => {
-        const parsedBranch = parseAddress(b.address);
-        return {
-          "@type": "Place",
-          "name": b.name,
-          "address": {
-            "@type": "PostalAddress",
-            "streetAddress": parsedBranch.streetAddress,
-            "addressLocality": parsedBranch.addressLocality,
-            "addressRegion": parsedBranch.addressRegion || "Thành phố Hồ Chí Minh",
-            "addressCountry": "VN",
-          }
-        };
-      });
+      .map((b) => ({
+        "@type": "Place",
+        "name": b.name,
+        "address": {
+          "@type": "PostalAddress",
+          "streetAddress": b.address,
+          "addressLocality": b.wardName || undefined,
+          "addressRegion": b.provinceName || "Thành phố Hồ Chí Minh",
+          "postalCode": b.postalCode || undefined,
+          "addressCountry": "VN",
+        },
+      }));
 
     // Create subOrganization links to all published branch LocalBusiness endpoints
     const subOrganizations = (branches || [])
@@ -77,6 +78,30 @@ export const SEOSchema = {
       .map((b) => ({
         "@id": `${BASE_URL}/thong-tin/${b.slug}#localbusiness`
       }));
+
+    // The Organization's own top-level address is the Showroom branch's real
+    // address (the one customers actually see as "the store") — falls back
+    // to the old contacts-string heuristic only if that branch record is
+    // somehow missing.
+    const showroomBranch = branches?.find((b) => b.slug === "van-phong");
+    const mainAddress = contacts?.find((c) => c.type === "address" && c.isActive)?.value || "06 Dương Quảng Hàm, phường An Nhơn, Quận Gò Vấp, Thành phố Hồ Chí Minh";
+    const parsedMainAddress = parseAddress(mainAddress);
+    const organizationAddress = showroomBranch
+      ? {
+          "@type": "PostalAddress",
+          "streetAddress": showroomBranch.address,
+          "addressLocality": showroomBranch.wardName || "Gò Vấp",
+          "addressRegion": showroomBranch.provinceName || "Thành phố Hồ Chí Minh",
+          "postalCode": showroomBranch.postalCode || undefined,
+          "addressCountry": "VN",
+        }
+      : {
+          "@type": "PostalAddress",
+          "streetAddress": parsedMainAddress.streetAddress,
+          "addressLocality": parsedMainAddress.addressLocality || "Gò Vấp",
+          "addressRegion": parsedMainAddress.addressRegion || "Thành phố Hồ Chí Minh",
+          "addressCountry": "VN",
+        };
 
     return {
       "@type": "Organization",
@@ -91,13 +116,7 @@ export const SEOSchema = {
         "height": 112,
       },
       "image": `${BASE_URL}/opengraph-image.png`,
-      "address": {
-        "@type": "PostalAddress",
-        "streetAddress": parsedMainAddress.streetAddress,
-        "addressLocality": parsedMainAddress.addressLocality || "Gò Vấp",
-        "addressRegion": parsedMainAddress.addressRegion || "Thành phố Hồ Chí Minh",
-        "addressCountry": "VN",
-      },
+      "address": organizationAddress,
       "contactPoint": {
         "@type": "ContactPoint",
         "telephone": formattedPhone,

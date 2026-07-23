@@ -12,6 +12,7 @@ import { ProductSearchBox } from "@/modules/catalog/presentation/components/publ
 import { ProductSortSelect } from "@/modules/catalog/presentation/components/public/ProductSortSelect";
 import { ResolvedEntity } from "@/modules/catalog/presentation/resolveProductPath";
 import { getCategoriesAction } from "@/modules/category/presentation/actions";
+import { getPersonalizedShippingZoneAction } from "@/modules/shipping-zone";
 import { Breadcrumbs } from "@/shared/components/layout/user/breadcrumbs";
 import { CompareLinkButton } from "@/shared/components/layout/user/compare-link-button";
 import { ProductDescription } from "@/shared/components/layout/user/product-description";
@@ -155,6 +156,7 @@ export async function ProductListModule({
     breadcrumbParent,
     currentYear,
   } = await getCachedListModuleData(entity, searchParams);
+  const { data: shippingZone } = await getPersonalizedShippingZoneAction();
 
   return (
     <main className="w-full bg-background min-h-screen public-catalog-page">
@@ -233,7 +235,7 @@ export async function ProductListModule({
         </div>
 
         {products.length > 0 ? (
-          <ProductGrid products={products} />
+          <ProductGrid products={products} shippingZone={shippingZone} />
         ) : (
           <div className="py-24 text-center min-h-75 w-full">
             <p className="text-muted-foreground/60 italic text-sm">

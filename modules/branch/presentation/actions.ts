@@ -15,6 +15,11 @@ interface GoBranchResponse {
   email: string;
   maps_url: string;
   maps_embed: string;
+  province_code: string | null;
+  province_name: string | null;
+  ward_code: string | null;
+  ward_name: string | null;
+  postal_code: string | null;
   description: Json;
   images: ImageAsset[];
   is_published: boolean;
@@ -42,6 +47,11 @@ function mapGoBranch(row: GoBranchResponse): Branch {
     email: row.email,
     mapsUrl: row.maps_url,
     mapsEmbed: row.maps_embed,
+    provinceCode: row.province_code,
+    provinceName: row.province_name,
+    wardCode: row.ward_code,
+    wardName: row.ward_name,
+    postalCode: row.postal_code,
     description: row.description,
     images: row.images || [],
     isPublished: row.is_published,

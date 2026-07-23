@@ -25,6 +25,11 @@ export interface Branch {
   email: string;
   mapsUrl: string;
   mapsEmbed: string;
+  provinceCode?: string | null;
+  provinceName?: string | null;
+  wardCode?: string | null;
+  wardName?: string | null;
+  postalCode?: string | null;
   description: Json;
   images: ImageAsset[];
   isPublished: boolean;
@@ -44,6 +49,11 @@ export interface CreateBranchInput {
   email: string;
   mapsUrl: string;
   mapsEmbed: string;
+  provinceCode?: string | null;
+  provinceName?: string | null;
+  wardCode?: string | null;
+  wardName?: string | null;
+  postalCode?: string | null;
   description: Json;
   images?: ImageAsset[];
   isPublished: boolean;

@@ -70,14 +70,22 @@ export function toLegacyStockStatusForBadge(status: string | null | undefined): 
 // Shared by ProductCard and ProductVariantSwitcher — a delivery claim only
 // while actually in stock (a supplier/pre-order item's own stock badge
 // already says "Đặt trước", a delivery-days claim there would contradict
-// it), using the real lead-time estimate when we have one.
-export function resolveDeliveryLabel(variant?: {
-  stockStatus?: string | null;
-  leadTimeDays?: number | null;
-} | null): string | null {
+// it). Prefers the variant's own lead-time estimate; falls back to the
+// site-wide default shipping zone's day range (modules/shipping-zone)
+// instead of a made-up "Giao nhanh" string with no data behind it.
+export function resolveDeliveryLabel(
+  variant?: { stockStatus?: string | null; leadTimeDays?: number | null } | null,
+  fallbackZone?: { minDays: number; maxDays: number } | null,
+): string | null {
   if (!variant || variant.stockStatus !== VARIANT_STOCK_STATUS.IN_STOCK) return null;
-  return variant.leadTimeDays && variant.leadTimeDays > 0
-    ? `Giao trong ${variant.leadTimeDays} ngày`
-    : "Giao nhanh";
+  if (variant.leadTimeDays && variant.leadTimeDays > 0) {
+    return `Giao trong ${variant.leadTimeDays} ngày`;
+  }
+  if (fallbackZone) {
+    return fallbackZone.minDays === fallbackZone.maxDays
+      ? `Giao trong ${fallbackZone.minDays} ngày`
+      : `Giao trong ${fallbackZone.minDays}-${fallbackZone.maxDays} ngày`;
+  }
+  return null;
 }
 

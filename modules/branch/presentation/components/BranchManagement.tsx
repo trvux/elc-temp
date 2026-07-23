@@ -24,6 +24,9 @@ import { TiptapEditor } from "@/shared/components/ui/tiptap-editor";
 import { capitalize, generateSlug } from "@/shared/lib/helpers";
 import { uploadImageFile } from "@/shared/lib/upload-image";
 
+import { getProvincesAction, getWardsAction } from "@/modules/shipping-zone";
+import { LocationCombobox } from "@/modules/shipping-zone/presentation/components/LocationCombobox";
+
 import { Branch } from "../../domain";
 import { deleteBranchAction, getBranchesAction } from "../actions";
 import { useBranchForm } from "../hooks/useBranchForm";
@@ -47,6 +50,27 @@ export function BranchManagement() {
   // Custom Form Hook
   const { form, saveMutation } =
     useBranchForm(activeBranch, () => setActiveBranch(null));
+
+  const selectedProvinceCode = form.watch("provinceCode") ?? "";
+
+  const { data: provinces = [] } = useQuery({
+    queryKey: ["shipping-provinces"],
+    queryFn: async () => {
+      const { data, error } = await getProvincesAction();
+      if (error) throw new Error(error);
+      return data;
+    },
+  });
+
+  const { data: wards = [] } = useQuery({
+    queryKey: ["shipping-wards", selectedProvinceCode],
+    queryFn: async () => {
+      const { data, error } = await getWardsAction(selectedProvinceCode);
+      if (error) throw new Error(error);
+      return data;
+    },
+    enabled: !!selectedProvinceCode,
+  });
 
   // Delete Mutation
   const deleteMutation = useMutation({
@@ -83,6 +107,11 @@ export function BranchManagement() {
             email: b.email || "",
             mapsUrl: b.mapsUrl || "",
             mapsEmbed: b.mapsEmbed || "",
+            provinceCode: b.provinceCode || "",
+            provinceName: b.provinceName || "",
+            wardCode: b.wardCode || "",
+            wardName: b.wardName || "",
+            postalCode: b.postalCode || "",
             description,
             images: b.images || [],
             isPublished: b.isPublished,
@@ -106,6 +135,11 @@ export function BranchManagement() {
       email: "",
       mapsUrl: "",
       mapsEmbed: "",
+      provinceCode: "",
+      provinceName: "",
+      wardCode: "",
+      wardName: "",
+      postalCode: "",
       description: "",
       images: [],
       isPublished: true,
@@ -294,22 +328,84 @@ export function BranchManagement() {
                     />
                   </div>
 
-                  <Controller
-                    control={form.control}
-                    name="address"
-                    render={({ field }) => (
-                      <Field>
-                        <FieldLabel>Địa chỉ chi tiết</FieldLabel>
-                        <Input
-                          {...field}
-                          placeholder="Số 123, Đường ABC, Quận..."
-                          onChange={(e) =>
-                            field.onChange(capitalize(e.target.value))
-                          }
-                        />
-                      </Field>
-                    )}
-                  />
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <Controller
+                      control={form.control}
+                      name="provinceCode"
+                      render={({ field }) => (
+                        <Field>
+                          <FieldLabel>Tỉnh/thành</FieldLabel>
+                          <LocationCombobox
+                            items={provinces}
+                            value={field.value || ""}
+                            onValueChange={(code) => {
+                              field.onChange(code);
+                              const province = provinces.find((p) => p.code === code);
+                              form.setValue("provinceName", province?.name || "");
+                              // Ward belonged to the previous province — clear it.
+                              form.setValue("wardCode", "");
+                              form.setValue("wardName", "");
+                            }}
+                            placeholder="Chọn tỉnh/thành"
+                            emptyText="Không tìm thấy tỉnh/thành."
+                            className="w-full"
+                          />
+                        </Field>
+                      )}
+                    />
+                    <Controller
+                      control={form.control}
+                      name="wardCode"
+                      render={({ field }) => (
+                        <Field>
+                          <FieldLabel>Phường/xã</FieldLabel>
+                          <LocationCombobox
+                            items={wards}
+                            value={field.value || ""}
+                            onValueChange={(code) => {
+                              field.onChange(code);
+                              const ward = wards.find((w) => w.code === code);
+                              form.setValue("wardName", ward?.name || "");
+                            }}
+                            placeholder="Chọn phường/xã"
+                            disabled={!selectedProvinceCode}
+                            emptyText="Không tìm thấy phường/xã."
+                            className="w-full"
+                          />
+                        </Field>
+                      )}
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <Controller
+                      control={form.control}
+                      name="address"
+                      render={({ field }) => (
+                        <Field>
+                          <FieldLabel>Số nhà, tên đường</FieldLabel>
+                          <Input
+                            {...field}
+                            placeholder="Số 123, Đường ABC, Hẻm..."
+                            onChange={(e) =>
+                              field.onChange(capitalize(e.target.value))
+                            }
+                          />
+                        </Field>
+                      )}
+                    />
+                    <Controller
+                      control={form.control}
+                      name="postalCode"
+                      render={({ field, fieldState }) => (
+                        <Field>
+                          <FieldLabel>Mã bưu chính</FieldLabel>
+                          <Input {...field} value={field.value || ""} placeholder="VD: 71424" />
+                          <FieldError errors={[fieldState.error]} />
+                        </Field>
+                      )}
+                    />
+                  </div>
                 </div>
               </div>
 

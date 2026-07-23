@@ -11,6 +11,7 @@ import {
   VARIANT_STOCK_STATUS,
 } from "@/modules/catalog/domain";
 import { FormattedPrice } from "@/modules/catalog/presentation/components/FormattedPrice";
+import { DeliveryEstimate } from "@/modules/catalog/presentation/components/public/DeliveryEstimate";
 import { Contact } from "@/modules/contact/domain";
 import { Button } from "@/shared/components/ui/button";
 import { OrderButton } from "@/shared/components/layout/user/order-button";
@@ -27,6 +28,8 @@ interface ProductVariantSwitcherProps {
   options: ProductOption[];
   contacts: Contact[];
   compareItem: CompareItem;
+  savedProvinceCode?: string | null;
+  savedWardCode?: string | null;
 }
 
 // Everything from here down to the CTAs is one continuous block — a single
@@ -34,7 +37,7 @@ interface ProductVariantSwitcherProps {
 // (price/stock/CTAs), instead of the previous stack of separately bordered
 // boxes (specs box, SKU+stock box, delivery box) that read as disconnected
 // modules bolted together rather than one designed unit.
-export function ProductVariantSwitcher({ product, variants, options, contacts, compareItem }: ProductVariantSwitcherProps) {
+export function ProductVariantSwitcher({ product, variants, options, contacts, compareItem, savedProvinceCode, savedWardCode }: ProductVariantSwitcherProps) {
   // Only variants meant to be independently purchasable — bundle parts
   // (is_standalone=false, e.g. "Dàn lạnh FTKB25") never appear as a
   // selectable option here.
@@ -79,6 +82,8 @@ export function ProductVariantSwitcher({ product, variants, options, contacts, c
       )}
 
       <div className="h-px bg-border" />
+
+      <DeliveryEstimate initialProvinceCode={savedProvinceCode} initialWardCode={savedWardCode} />
 
       <BuyBox
         variant={selected}

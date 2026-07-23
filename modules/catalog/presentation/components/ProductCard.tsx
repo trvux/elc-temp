@@ -20,6 +20,7 @@ import {
   TypographySmall,
 } from "@/shared/components/ui/typography";
 import { primaryImageUrl } from "@/shared/lib/image-asset";
+import { ZoneLookupResult } from "@/modules/shipping-zone";
 import { BuyNowButton } from "@/shared/components/layout/user/buy-now-button";
 import { WishlistButton } from "@/shared/components/layout/user/wishlist-button";
 import { CompareToggleButton } from "@/shared/components/layout/user/compare-toggle-button";
@@ -30,11 +31,14 @@ import Link from "next/link";
 interface ProductCardProps {
   product: ProductWithRelations;
   priority?: boolean;
+  // Fetched once by the parent ProductGrid, not per-card — see its comment.
+  defaultShippingZone?: ZoneLookupResult | null;
 }
 
 export function ProductCard({
   product,
   priority = false,
+  defaultShippingZone,
 }: ProductCardProps) {
   const productUrl = `/san-pham/${product.slug}`;
 
@@ -46,7 +50,7 @@ export function ProductCard({
   const imageUrl = primaryImageUrl(product.images);
   const primaryTag = product.tags?.[0];
 
-  const deliveryLabel = resolveDeliveryLabel(defaultVariant);
+  const deliveryLabel = resolveDeliveryLabel(defaultVariant, defaultShippingZone);
 
   return (
     <Card className="relative mx-auto w-full h-full max-w-sm pt-0 gap-0 overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-lg">
