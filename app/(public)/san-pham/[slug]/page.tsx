@@ -1,11 +1,14 @@
 import type { Metadata } from "next";
 import { resolveProductPathFromDb, ResolvedEntity } from "@/modules/catalog/presentation/resolveProductPath";
 import { PRODUCT_STATUS, ProductWithRelations } from "@/modules/catalog/domain";
+import { getProductsAction } from "@/modules/catalog/presentation/actions";
+import { getCategoriesAction } from "@/modules/category/presentation/actions";
 import { ProductDetailModule } from "@/modules/catalog/presentation/components/public/ProductDetailModule";
 import { ProductListModule } from "@/modules/catalog/presentation/components/public/ProductListModule";
 import { BASE_URL } from "@/shared/lib/seo-schema";
 import { excerptFromRichText } from "@/shared/lib/rich-text";
 import { primaryImageUrl } from "@/shared/lib/image-asset";
+import { unwrapActionResult } from "@/shared/lib/action-result";
 import { notFound } from "next/navigation";
 
 type Props = {
@@ -82,6 +85,37 @@ function metadataForEntity(entity: ResolvedEntity, slug: string): Metadata {
   };
 }
 
+// A brand/category/group with zero published products right now (e.g. a
+// brand admin added before stocking any of its products) is a thin, empty
+// results page that would otherwise still ship a full title/description —
+// happy to rank and draw a click, then show "Không tìm thấy sản phẩm nào."
+// Checked live (not an admin flag like category/group's isHidden, which
+// brand doesn't even have) so it self-corrects the moment products are
+// added, no admin toggle to remember.
+async function hasPublishedProducts(entity: ResolvedEntity): Promise<boolean> {
+  if (!entity || entity.type === "product") return true;
+
+  let categoryIds: string[] | undefined;
+  let brandIds: string[] | undefined;
+
+  if (entity.type === "brand") {
+    brandIds = [entity.data.id];
+  } else if (entity.type === "category") {
+    categoryIds = [entity.data.id];
+  } else if (entity.type === "group") {
+    const allCategories = await getCategoriesAction().then(unwrapActionResult);
+    categoryIds = allCategories.filter((c) => c.groupId === entity.data.id && !c.isHidden).map((c) => c.id);
+  }
+
+  const { totalCount } = await getProductsAction({
+    categoryIds,
+    brandIds,
+    status: PRODUCT_STATUS.PUBLISHED,
+    limit: 1,
+  });
+  return totalCount > 0;
+}
+
 // Filter/search/sort query params make this a distinct view of the same
 // listing — canonicalize back to the clean URL + noindex (still follow, so
 // crawl budget isn't wasted on the near-infinite filter-combination space)
@@ -101,7 +135,13 @@ export async function generateMetadata({ params, searchParams }: Props): Promise
   }
 
   const resolved = await resolveProductPathFromDb(slug);
-  return metadataForEntity(resolved, slug);
+  const metadata = metadataForEntity(resolved, slug);
+
+  if (resolved && resolved.type !== "product" && !(await hasPublishedProducts(resolved))) {
+    return { ...metadata, robots: { index: false, follow: true } };
+  }
+
+  return metadata;
 }
 
 export default async function FlatSlugPage({ params, searchParams }: Props) {
