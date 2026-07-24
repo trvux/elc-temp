@@ -16,6 +16,7 @@ import {
   CommandList,
 } from "@/shared/components/ui/command";
 import { Popover, PopoverContent, PopoverTrigger } from "@/shared/components/ui/popover";
+import { useManualScroll } from "@/shared/lib/use-manual-scroll";
 import { cn } from "@/shared/lib/utils";
 
 interface WardMultiSelectProps {
@@ -31,6 +32,7 @@ interface WardMultiSelectProps {
 // province(s)", same as before, just no longer via free-text keywords.
 export function WardMultiSelect({ provinceCodes, value, onChange, placeholder }: WardMultiSelectProps) {
   const [open, setOpen] = useState(false);
+  const scrollHandlers = useManualScroll();
 
   const { data: wards = [] } = useQuery({
     queryKey: ["shipping-wards", provinceCodes],
@@ -69,16 +71,21 @@ export function WardMultiSelect({ provinceCodes, value, onChange, placeholder }:
         <PopoverContent className="w-full p-0" align="start">
           <Command>
             <CommandInput placeholder="Tìm phường/xã..." />
-            <CommandList className="max-h-96">
-              <CommandEmpty>Không tìm thấy phường/xã nào.</CommandEmpty>
-              <CommandGroup>
-                {wards.map((ward) => (
-                  <CommandItem key={ward.code} value={ward.name} onSelect={() => toggle(ward.code)}>
-                    <Check className={cn("mr-2 h-4 w-4", value.includes(ward.code) ? "opacity-100" : "opacity-0")} />
-                    {ward.name}
-                  </CommandItem>
-                ))}
-              </CommandGroup>
+            {/* Radix Dialog's scroll-lock blocks native scroll here (this
+                combobox opens from inside AdminDialog forms) — plain div +
+                manual scrollTop drive, same fix as LocationCombobox. */}
+            <CommandList className="max-h-none overflow-visible p-0">
+              <CommandEmpty className="px-2 py-3">Không tìm thấy phường/xã nào.</CommandEmpty>
+              <div style={{ maxHeight: 288, overflowY: "auto" }} {...scrollHandlers}>
+                <CommandGroup>
+                  {wards.map((ward) => (
+                    <CommandItem key={ward.code} value={ward.name} onSelect={() => toggle(ward.code)}>
+                      <Check className={cn("mr-2 h-4 w-4", value.includes(ward.code) ? "opacity-100" : "opacity-0")} />
+                      {ward.name}
+                    </CommandItem>
+                  ))}
+                </CommandGroup>
+              </div>
             </CommandList>
           </Command>
         </PopoverContent>

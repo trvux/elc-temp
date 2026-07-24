@@ -13,6 +13,7 @@ import {
   CommandList,
 } from "@/shared/components/ui/command";
 import { Popover, PopoverContent, PopoverTrigger } from "@/shared/components/ui/popover";
+import { useManualScroll } from "@/shared/lib/use-manual-scroll";
 import { cn } from "@/shared/lib/utils";
 
 interface LocationOption {
@@ -48,6 +49,7 @@ export function LocationCombobox({
 }: LocationComboboxProps) {
   const [open, setOpen] = useState(false);
   const selected = items.find((item) => item.code === value);
+  const scrollHandlers = useManualScroll();
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -85,9 +87,7 @@ export function LocationCombobox({
                 scrollTop ourselves instead of relying on the browser. */}
             <div
               style={{ maxHeight: 288, overflowY: "auto" }}
-              onWheel={(e) => {
-                e.currentTarget.scrollTop += e.deltaY;
-              }}
+              {...scrollHandlers}
             >
               <CommandGroup>
                 {items.map((item) => (
