@@ -55,7 +55,7 @@ export const ImageBubbleMenu = ({ editor }: ImageBubbleMenuProps) => {
         currentEditor.isActive("image")
       }
       // @ts-expect-error - Tippy options type mismatch
-      tippyOptions={{ duration: 100, offset: [0, 15] }}
+      tippyOptions={{ duration: 100, offset: [0, 15], appendTo: () => document.body, zIndex: 9999 }}
     >
       <div className="tiptap-menu-wrapper">
         <ButtonGroup>

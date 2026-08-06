@@ -63,7 +63,7 @@ const RichTextEditor = ({
     editorProps: {
       attributes: {
         class: cn(
-          "typeset typeset-docs focus:outline-none max-w-none min-h-125 py-12",
+          "typeset typeset-docs focus:outline-none max-w-none min-h-[320px] py-8 pl-14 pr-6",
           "tiptap",
           className,
         ),
@@ -216,7 +216,7 @@ const RichTextEditor = ({
   }
 
   return (
-    <div className="relative w-full max-w-3xl mx-auto">
+    <div className="relative w-full rounded-2xl border border-border/50 bg-background/60 shadow-xs transition-all focus-within:border-primary/40">
       {/* Sub-component Menus (SOLID Architecture) */}
       <TextBubbleMenu editor={editor} />
       <ImageBubbleMenu editor={editor} />

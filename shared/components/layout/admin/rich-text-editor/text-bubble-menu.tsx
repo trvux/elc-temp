@@ -53,6 +53,8 @@ export const TextBubbleMenu = ({ editor }: TextBubbleMenuProps) => {
       // @ts-expect-error - Tippy options type mismatch
       tippyOptions={{
         duration: 100,
+        appendTo: () => document.body,
+        zIndex: 9999,
       }}
       shouldShow={({
         state,

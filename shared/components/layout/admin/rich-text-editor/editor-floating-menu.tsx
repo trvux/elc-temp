@@ -87,13 +87,21 @@ export const EditorFloatingMenu = ({
   return (
     <FloatingMenu
       editor={editor}
-      // @ts-expect-error: tippyOptions is not fully typed in Tiptap React wrapper
+      shouldShow={({ state }) => {
+        const { selection } = state;
+        const { $anchor, empty } = selection;
+        const isRootDepth = $anchor.depth === 1;
+        const isEmptyText = $anchor.parent.textContent.trim().length === 0;
+        return empty && isRootDepth && isEmptyText;
+      }}
       tippyOptions={{
         duration: 100,
-        offset: [0, 24],
-        placement: "left-start",
+        offset: [-4, 0],
+        placement: "top-start",
+        appendTo: () => document.body,
+        zIndex: 9999,
       }}
-      className="transition-all duration-300 ease-out flex flex-row items-center gap-2 -translate-x-20"
+      className="-ml-12 transition-all duration-300 ease-out flex flex-row items-center gap-2 z-20"
     >
       <Popover>
         <PopoverTrigger asChild>
@@ -101,9 +109,9 @@ export const EditorFloatingMenu = ({
             type="button"
             variant="outline"
             size="icon"
-            className="rounded-full border border-foreground hover:border-primary transition-colors bg-background shadow-sm"
+            className="h-7 w-7 rounded-full border border-border hover:border-primary/60 hover:bg-accent transition-all bg-background shadow-xs text-muted-foreground hover:text-foreground shrink-0"
           >
-            <Plus />
+            <Plus className="h-4 w-4" />
           </Button>
         </PopoverTrigger>
         <PopoverContent

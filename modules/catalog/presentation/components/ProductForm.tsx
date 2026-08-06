@@ -138,7 +138,7 @@ export function ProductForm({ mode, product, currentUserRole }: ProductFormProps
       </div>
 
       <div className="flex-1 p-6 lg:p-10">
-        <div className="grid grid-cols-1 md:grid-cols-[2fr_1fr] gap-6 items-start max-w-6xl mx-auto">
+        <div className="grid grid-cols-1 md:grid-cols-[2fr_1fr] gap-6 items-start w-full">
           {/* Primary column */}
           <div className="flex flex-col gap-6 min-w-0">
             <Card>
