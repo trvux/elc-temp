@@ -94,6 +94,7 @@ export const EditorFloatingMenu = ({
         const isEmptyText = $anchor.parent.textContent.trim().length === 0;
         return empty && isRootDepth && isEmptyText;
       }}
+      // @ts-expect-error - Tippy options type mismatch
       tippyOptions={{
         duration: 100,
         offset: [-4, 0],
