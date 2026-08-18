@@ -34,7 +34,7 @@ export const getBranchColumns = ({
               className="object-cover"
             />
           ) : (
-            <div className="flex h-full w-full items-center justify-center text-[9px] uppercase tracking-wider text-muted-foreground/40">
+            <div className="flex h-full w-full items-center justify-center text-xs uppercase tracking-wider text-muted-foreground/40">
               No Image
             </div>
           )}

@@ -30,7 +30,7 @@ export const getAuthorColumns = ({
             className="object-cover"
           />
         ) : (
-          <span className="text-[10px] text-muted-foreground uppercase font-bold">
+          <span className="text-xs text-muted-foreground uppercase font-bold">
             {row.original.name.slice(0, 1)}
           </span>
         )}
@@ -43,7 +43,7 @@ export const getAuthorColumns = ({
     cell: ({ row }) => (
       <div className="flex flex-col gap-0.5">
         <span className="font-semibold text-sm text-foreground">{row.original.name}</span>
-        <span className="text-[11px] text-foreground/75">/{row.original.slug}</span>
+        <span className="text-xs text-foreground/75">/{row.original.slug}</span>
       </div>
     ),
   },
@@ -51,7 +51,7 @@ export const getAuthorColumns = ({
     accessorKey: "bio",
     header: "Tiểu sử",
     cell: ({ row }) => (
-      <span className="text-xs text-muted-foreground line-clamp-1 max-w-[300px]">
+      <span className="text-xs text-muted-foreground line-clamp-1 max-w-75">
         {row.original.bio || "—"}
       </span>
     ),

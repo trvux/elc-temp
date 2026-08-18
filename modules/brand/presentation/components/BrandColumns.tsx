@@ -31,7 +31,7 @@ export const getBrandColumns = ({
             className="object-contain p-1"
           />
         ) : (
-          <span className="text-[10px] text-muted-foreground uppercase font-bold tracking-tighter text-center">No Logo</span>
+          <span className="text-xs text-muted-foreground uppercase font-bold tracking-tighter text-center">No Logo</span>
         )}
       </div>
     ),
@@ -47,7 +47,7 @@ export const getBrandColumns = ({
             href={`/san-pham/all/${row.original.slug}`}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-[11px] text-foreground/75 hover:text-foreground hover:underline flex items-center gap-1 w-fit"
+            className="text-xs text-foreground/75 hover:text-foreground hover:underline flex items-center gap-1 w-fit"
           >
             /{row.original.slug}
             <ArrowSquareOut size={11} />

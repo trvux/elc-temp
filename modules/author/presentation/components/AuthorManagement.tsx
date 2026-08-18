@@ -155,7 +155,7 @@ export function AuthorManagement() {
                         {...field}
                         value={field.value || ""}
                         placeholder="Vài dòng giới thiệu về tác giả..."
-                        className="min-h-[100px] resize-y"
+                        className="min-h-25 resize-y"
                       />
                       <FieldDescription>
                         Hiển thị ở cuối bài viết, hỗ trợ E-E-A-T cho SEO.
@@ -171,7 +171,7 @@ export function AuthorManagement() {
                   control={form.control}
                   name="avatarUrl"
                   render={({ field }) => (
-                    <Field className="max-w-[200px] w-full">
+                    <Field className="max-w-50 w-full">
                       <FieldLabel>Ảnh đại diện</FieldLabel>
                       <ImageUpload
                         value={field.value}

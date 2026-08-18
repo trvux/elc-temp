@@ -55,7 +55,7 @@ export const getUserColumns = ({
           disabled={isSelf}
           onValueChange={(value) => onRoleChange(user, value as Role)}
         >
-          <SelectTrigger className="w-[160px]" disabled={isSelf}>
+          <SelectTrigger className="w-40" disabled={isSelf}>
             <SelectValue />
           </SelectTrigger>
           <SelectContent>

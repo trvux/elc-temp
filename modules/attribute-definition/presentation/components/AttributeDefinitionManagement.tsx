@@ -217,7 +217,7 @@ export function AttributeDefinitionManagement() {
                               {(def.dataType === "select" || def.dataType === "multiselect") && def.options.length > 0 && (
                                 <div className="flex flex-wrap gap-1 mt-1">
                                   {def.options.map((opt) => (
-                                    <Badge key={opt} variant="outline" className="text-[10px] px-1 py-0 h-4 font-normal">
+                                    <Badge key={opt} variant="outline" className="text-xs px-1 py-0 h-4 font-normal">
                                       {opt}
                                     </Badge>
                                   ))}

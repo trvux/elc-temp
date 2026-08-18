@@ -205,11 +205,11 @@ export function BrandManagement() {
                           control={form.control}
                           name="isFeatured"
                           render={({ field }) => (
-                            <Field className="flex flex-col justify-between h-[85px] border p-4 rounded-xl bg-muted/10">
+                            <Field className="flex flex-col justify-between h-21 border p-4 rounded-xl bg-muted/10">
                               <div className="flex items-center justify-between">
                                 <div className="space-y-0.5">
                                   <FieldLabel className="text-sm font-medium">Nổi bật</FieldLabel>
-                                  <FieldDescription className="text-[11px] leading-tight">Hiển thị ở trang chủ</FieldDescription>
+                                  <FieldDescription className="text-xs leading-tight">Hiển thị ở trang chủ</FieldDescription>
                                 </div>
                                 <Switch
                                   checked={field.value}
@@ -247,7 +247,7 @@ export function BrandManagement() {
                         control={form.control}
                         name="logoUrl"
                         render={({ field }) => (
-                          <Field className="max-w-[240px] w-full">
+                          <Field className="max-w-60 w-full">
                             <FieldLabel>Upload ảnh</FieldLabel>
                             <ImageUpload
                               value={field.value}
@@ -293,7 +293,7 @@ export function BrandManagement() {
                             {...field}
                             value={field.value || ""}
                             placeholder="Mô tả tóm tắt thương hiệu hiển thị trên Google..."
-                            className="min-h-[120px] resize-y"
+                            className="min-h-30 resize-y"
                           />
                           <FieldDescription>
                             Đoạn mô tả ngắn hiển thị dưới tiêu đề trang trên trang kết quả tìm kiếm Google.
@@ -311,9 +311,9 @@ export function BrandManagement() {
                     <div className="flex items-center justify-between border-b pb-2">
                       <div>
                         <h3 className="text-sm font-semibold tracking-tight">Bài viết chi tiết SEO</h3>
-                        <p className="text-[11px] text-muted-foreground">Nội dung bài viết hiển thị ở cuối danh sách sản phẩm.</p>
+                        <p className="text-xs text-muted-foreground">Nội dung bài viết hiển thị ở cuối danh sách sản phẩm.</p>
                       </div>
-                      <span className="text-[10px] text-muted-foreground uppercase tracking-widest">Tiptap Editor</span>
+                      <span className="text-xs text-muted-foreground uppercase tracking-widest">Tiptap Editor</span>
                     </div>
                     <Controller
                       control={form.control}
