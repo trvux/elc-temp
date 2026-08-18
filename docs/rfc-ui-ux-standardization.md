@@ -99,7 +99,7 @@ Quét trước đó chỉ thấy 2 file còn `<button>/<input>/<select>` thô �
 Việc chủ yếu là đổi `w-[160px]`→`w-40`, `text-[10px]/[11px]`→`text-xs` theo bảng map — mỗi batch ước ~15-20 phút, không cần suy nghĩ nhiều vì pattern lặp lại.
 
 - [x] **Batch A** — users/attribute/author/branch/brand: `UsersColumns.tsx`, `AttributeDefinitionManagement.tsx`, `AuthorColumns.tsx`, `AuthorManagement.tsx`, `BranchColumns.tsx`, `BranchList.tsx`, `BranchManagement.tsx`, `BrandColumns.tsx`, `BrandManagement.tsx` — xong 2026-08-18, commit theo sau
-- [ ] **Batch B** — category/contact/dashboard/group: `CategoryManagement.tsx`, `category/columns.tsx`, `ContactManagement.tsx`, `DashboardOverview.tsx`, `group/columns.tsx`, `GroupManagement.tsx`
+- [x] **Batch B** — category/contact/dashboard/group: `CategoryManagement.tsx`, `category/columns.tsx`, `ContactManagement.tsx`, `DashboardOverview.tsx`, `group/columns.tsx`, `GroupManagement.tsx` — xong 2026-08-18, commit theo sau
 - [ ] **Batch C** — hp-page/inquiry/news/page: `HpPageColumns.tsx`, `HpPageManagement.tsx`, `InquiryManagement.tsx`, `LeadForm.tsx`, `NewsColumns.tsx`, `NewsManagement.tsx`, `PageManagement.tsx`
 - [ ] **Batch D** — product-line/project-type/project: `ProductLineManagement.tsx`, `project-type/columns.tsx`, `ProjectTypeManagement.tsx`, `ProjectColumns.tsx`, `ProjectManagement.tsx`, `public/ProjectFilterMobile.tsx`
 - [ ] **Batch E** — review/service: `ReviewColumns.tsx`, `ReviewFormSheet.tsx`, `ServiceGroupColumns.tsx`, `ServiceGroupManagement.tsx`, `ServiceColumns.tsx`, `ServiceManagement.tsx`

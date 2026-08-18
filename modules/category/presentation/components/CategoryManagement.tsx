@@ -253,7 +253,7 @@ export function CategoryManagement() {
                       control={form.control}
                       name="isFeatured"
                       render={({ field }) => (
-                        <Field orientation="horizontal" className="justify-between items-center border px-3 py-2 rounded-xl self-end h-[42px] gap-2">
+                        <Field orientation="horizontal" className="justify-between items-center border px-3 py-2 rounded-xl self-end h-11 gap-2">
                           <FieldLabel className="font-normal text-xs whitespace-nowrap mb-0">Nổi bật</FieldLabel>
                           <Switch checked={field.value} onCheckedChange={field.onChange} />
                         </Field>
@@ -264,7 +264,7 @@ export function CategoryManagement() {
                       control={form.control}
                       name="isHidden"
                       render={({ field }) => (
-                        <Field orientation="horizontal" className="justify-between items-center border px-3 py-2 rounded-xl self-end h-[42px] gap-2">
+                        <Field orientation="horizontal" className="justify-between items-center border px-3 py-2 rounded-xl self-end h-11 gap-2">
                           <FieldLabel className="font-normal text-xs whitespace-nowrap mb-0">Ẩn khỏi hiển thị công khai</FieldLabel>
                           <Switch checked={field.value} onCheckedChange={field.onChange} />
                         </Field>
@@ -279,7 +279,7 @@ export function CategoryManagement() {
                     control={form.control}
                     name="imageUrl"
                     render={({ field }) => (
-                      <Field className="max-w-[240px] w-full">
+                      <Field className="max-w-60 w-full">
                         <FieldLabel>Upload ảnh</FieldLabel>
                         <ImageUpload
                           value={field.value || ""}
@@ -297,7 +297,7 @@ export function CategoryManagement() {
               <div className="space-y-6 border p-6 rounded-2xl bg-muted/10">
                 <div className="border-b pb-2">
                   <h3 className="text-sm font-semibold tracking-tight">Cấu hình SEO</h3>
-                  <p className="text-[11px] text-muted-foreground">Tối ưu hóa hiển thị trên các công cụ tìm kiếm (Google, Bing,...).</p>
+                  <p className="text-xs text-muted-foreground">Tối ưu hóa hiển thị trên các công cụ tìm kiếm (Google, Bing,...).</p>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <Controller
@@ -318,7 +318,7 @@ export function CategoryManagement() {
                     render={({ field, fieldState }) => (
                       <Field>
                         <FieldLabel className="text-xs">Mô tả SEO</FieldLabel>
-                        <Textarea {...field} value={field.value || ""} placeholder="Nhập mô tả tóm tắt..." className="min-h-[80px]" />
+                        <Textarea {...field} value={field.value || ""} placeholder="Nhập mô tả tóm tắt..." className="min-h-20" />
                         <FieldError errors={[fieldState.error]} />
                       </Field>
                     )}
@@ -331,9 +331,9 @@ export function CategoryManagement() {
                 <div className="flex items-center justify-between border-b pb-2">
                   <div>
                     <h3 className="text-sm font-semibold tracking-tight">Bài viết chi tiết SEO</h3>
-                    <p className="text-[11px] text-muted-foreground">Nội dung bài viết hiển thị ở cuối danh sách sản phẩm.</p>
+                    <p className="text-xs text-muted-foreground">Nội dung bài viết hiển thị ở cuối danh sách sản phẩm.</p>
                   </div>
-                  <span className="text-[10px] text-muted-foreground uppercase tracking-widest">Tiptap Editor</span>
+                  <span className="text-xs text-muted-foreground uppercase tracking-widest">Tiptap Editor</span>
                 </div>
                 <Controller
                   control={form.control}

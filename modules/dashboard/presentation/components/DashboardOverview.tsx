@@ -258,7 +258,7 @@ export function DashboardOverview() {
               Phân bổ sản phẩm theo danh mục, màu đậm = xếp hạng cao hơn.
             </p>
           </div>
-          <div className="flex-1 min-h-[320px]">
+          <div className="flex-1 min-h-80">
             {isLoading ? null : categoryData.length > 0 ? (
               <ChartContainer config={categoryChartConfig} className="h-full w-full">
                 <BarChart
@@ -319,9 +319,9 @@ export function DashboardOverview() {
               Tỉ lệ sản phẩm theo từng thương hiệu (top 5).
             </p>
           </div>
-          <div className="flex-1 min-h-[280px] flex flex-col items-center justify-center">
+          <div className="flex-1 min-h-70 flex flex-col items-center justify-center">
             {isLoading ? null : brandData.length > 0 ? (
-              <ChartContainer config={brandChartConfig} className="h-[260px] w-full">
+              <ChartContainer config={brandChartConfig} className="h-65 w-full">
                 <PieChart>
                   <ChartTooltip
                     content={
@@ -387,7 +387,7 @@ export function DashboardOverview() {
             </p>
           </div>
         </div>
-        <div className="h-[200px] w-full">
+        <div className="h-50 w-full">
           {isLoading ? null : topViewedData.length > 0 ? (
             <ChartContainer config={topViewedChartConfig} className="h-full w-full">
               <BarChart
@@ -450,9 +450,9 @@ export function DashboardOverview() {
               Phân bổ giữa sản phẩm, dự án và tin tức.
             </p>
           </div>
-          <div className="flex-1 min-h-[220px]">
+          <div className="flex-1 min-h-55">
             {isLoading ? null : contentMixData.length > 0 ? (
-              <ChartContainer config={contentMixConfig} className="h-[220px] w-full">
+              <ChartContainer config={contentMixConfig} className="h-55 w-full">
                 <PieChart>
                   <ChartTooltip
                     content={
@@ -517,7 +517,7 @@ export function DashboardOverview() {
                   <p className="font-medium text-sm leading-tight line-clamp-1 flex-1">
                     {item.title}
                   </p>
-                  <span className="text-[10px] font-bold uppercase tracking-wide bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300 px-1.5 py-0.5 rounded shrink-0">
+                  <span className="text-xs font-bold uppercase tracking-wide bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300 px-1.5 py-0.5 rounded shrink-0">
                     SP
                   </span>
                 </div>
@@ -551,7 +551,7 @@ export function DashboardOverview() {
                   <p className="font-medium text-sm leading-tight line-clamp-1 flex-1">
                     {item.title}
                   </p>
-                  <span className="text-[10px] font-bold uppercase tracking-wide bg-violet-100 text-violet-700 dark:bg-violet-900/40 dark:text-violet-300 px-1.5 py-0.5 rounded shrink-0">
+                  <span className="text-xs font-bold uppercase tracking-wide bg-violet-100 text-violet-700 dark:bg-violet-900/40 dark:text-violet-300 px-1.5 py-0.5 rounded shrink-0">
                     DA
                   </span>
                 </div>
@@ -589,7 +589,7 @@ export function DashboardOverview() {
                     </p>
                     <div className="flex items-center gap-2">
                       <span
-                        className={`text-[10px] font-bold uppercase tracking-wide px-1.5 py-0.5 rounded ${badgeCls}`}
+                        className={`text-xs font-bold uppercase tracking-wide px-1.5 py-0.5 rounded ${badgeCls}`}
                       >
                         {label}
                       </span>
