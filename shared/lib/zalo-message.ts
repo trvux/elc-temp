@@ -15,12 +15,11 @@ export function buildZaloProductMessage(info: ZaloProductInfo): string {
 }
 
 /**
- * Same message, but for several products at once — the chat finder can
- * suggest up to ChatSearchLimit (6) products in one turn (see
- * ProductChatFinder.tsx), and a shopper asking to buy/contact about "these"
- * means all of them, not just whichever happened to be first. Numbered
- * list instead of buildZaloProductMessage repeated N times so it reads as
- * one message about a set, not N separate inquiries pasted together.
+ * Same message, but for several products at once — a shopper asking to
+ * buy/contact about "these" means all of them, not just whichever
+ * happened to be first. Numbered list instead of buildZaloProductMessage
+ * repeated N times so it reads as one message about a set, not N separate
+ * inquiries pasted together.
  */
 export function buildZaloProductsMessage(products: ZaloProductInfo[]): string {
   if (products.length === 1) return buildZaloProductMessage(products[0]);

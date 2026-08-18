@@ -3,7 +3,6 @@ import type { Metadata } from "next";
 import { CTASection } from "@/shared/components/sections/cta";
 import { FeaturesSection } from "@/shared/components/sections/features";
 import { GridSection } from "@/shared/components/sections/grid-section";
-import { HeroChatFinderSection } from "@/shared/components/sections/hero-chat-finder";
 import { HeroSection } from "@/shared/components/sections/hero";
 import { ProjectMarqueeSection } from "@/shared/components/sections/project-marquee";
 
@@ -87,10 +86,10 @@ export default async function Home() {
   const categorySections = (categoriesWithProducts || []).map((catData, idx) => ({
     id: `category-${catData.category.slug}`,
     className: "",
-    // The first category section sits directly under HeroChatFinderSection
-    // (not a GridSection itself, so its own boundary line has no diamond
-    // markers to begin with) — showing them only on this one junction read
-    // as a stray leftover rather than a deliberate divider.
+    // The first category section sits directly under HeroSection (not a
+    // GridSection itself, so its own boundary line has no diamond markers
+    // to begin with) — showing them only on this one junction read as a
+    // stray leftover rather than a deliberate divider.
     showDiamond: idx !== 0,
     component: (
       <FeaturesSection
@@ -149,12 +148,9 @@ export default async function Home() {
       <main className="w-full flex flex-col mt-0 mb-0">
         {/* id read by useIsOverHero — the header (and sticky contact pill)
             stay in their "floating over a dark hero" look for exactly this
-            combined region (Hero + chat finder, both full-viewport dark
-            sections), not a fixed pixel guess that only ever covered one of
-            them. */}
+            region, not a fixed pixel guess. */}
         <div id="hero-chat-region">
           <HeroSection contacts={contacts || []} brands={brands || []} />
-          <HeroChatFinderSection />
         </div>
         {sections.map((section) => (
           <GridSection

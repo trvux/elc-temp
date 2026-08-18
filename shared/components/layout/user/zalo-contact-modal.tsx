@@ -21,9 +21,8 @@ interface ZaloContactModalProps {
   phoneHref?: string;
   phoneNumber?: string;
   // A single product (every existing caller — BuyNowButton, ProductFloatingBar,
-  // order-button) or several at once (ProductChatFinder's ChatContactActions,
-  // for a turn that suggested multiple products) — buildZaloProductsMessage
-  // handles both, so callers don't need to branch on count themselves.
+  // order-button) or several at once — buildZaloProductsMessage handles
+  // both, so callers don't need to branch on count themselves.
   productInfo: ZaloProductInfo | ZaloProductInfo[];
 }
 

@@ -20,11 +20,8 @@ import {
 import { TypographyH2 } from "@/shared/components/ui/typography";
 import { primaryImageUrl } from "@/shared/lib/image-asset";
 
-// Shared by the standalone /san-pham/so-sanh page and the chat finder's
-// comparison turns (see ProductChatFinder.tsx) — same table, same
-// attribute-union/grouping logic, just embedded in two different
-// surroundings. Extracted out of the page so a fix/change to how
-// comparisons render doesn't need to be made twice.
+// Extracted out of the standalone /san-pham/so-sanh page so a fix/change
+// to how comparisons render lives in one place.
 export function ComparisonTable({ products }: { products: ProductWithRelations[] }) {
   return (
     <div className="overflow-x-auto rounded-md border">

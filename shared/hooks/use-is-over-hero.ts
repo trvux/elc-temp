@@ -4,23 +4,21 @@ import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 
 // Matches the id app/(public)/page.tsx puts on the wrapper around
-// HeroSection + HeroChatFinderSection — the combined region anything
-// "floating over the dark hero" (the header capsule, the sticky contact
-// pill) should stay in that look for. Measuring the real element instead
-// of guessing a fixed scroll distance means this keeps working correctly
-// if either section's height ever changes, instead of silently drifting
-// out of sync with a hardcoded pixel constant (the previous version's
-// HERO_SCROLL_CLEARANCE_PX=550 only ever covered part of one hero-height
-// section, well short of the two full-viewport sections stacked here).
+// HeroSection — the region anything "floating over the dark hero" (the
+// header capsule, the sticky contact pill) should stay in that look for.
+// Measuring the real element instead of guessing a fixed scroll distance
+// means this keeps working correctly if the section's height ever
+// changes, instead of silently drifting out of sync with a hardcoded
+// pixel constant (the previous version's HERO_SCROLL_CLEARANCE_PX=550
+// only ever covered part of the hero-height section).
 const HERO_CHAT_REGION_ID = "hero-chat-region";
 
 /**
- * True while the homepage's Hero + chat finder region (the only
- * full-viewport dark sections on the site) is still in view; false on
- * every other route, and false once scrolled past it on "/". Shared by
- * anything that changes appearance or visibility depending on whether
- * it's currently floating over that region (the header capsule, the
- * sticky contact pill).
+ * True while the homepage's Hero region (the only full-viewport dark
+ * section on the site) is still in view; false on every other route, and
+ * false once scrolled past it on "/". Shared by anything that changes
+ * appearance or visibility depending on whether it's currently floating
+ * over that region (the header capsule, the sticky contact pill).
  */
 export function useIsOverHero(): boolean {
   const pathname = usePathname();
