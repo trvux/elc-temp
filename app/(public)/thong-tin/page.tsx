@@ -24,7 +24,7 @@ const STYLES = {
   title: cn(),
   description: cn(),
   list: cn(
-    "flex flex-col justify-center gap-4 min-h-[200px] animate-fade-in-up max-w-3xl w-full mx-auto",
+    "flex flex-col justify-center gap-4 min-h-50 animate-fade-in-up max-w-3xl w-full mx-auto",
   ),
   article: cn(
     "group flex flex-col gap-6 no-underline transition-all duration-300 p-6 border-b border-border last:border-b-0",
@@ -83,7 +83,7 @@ export default async function InformationHub({
         />
 
         {allPages.length === 0 ? (
-          <div className="text-center py-10 min-h-[200px] flex items-center justify-center border border-dashed rounded-lg bg-background/50 backdrop-blur-sm">
+          <div className="text-center py-10 min-h-50 flex items-center justify-center border border-dashed rounded-lg bg-background/50 backdrop-blur-sm">
             <TypographyP className="text-muted-foreground">
               Chưa có thông tin nào được cập nhật.
             </TypographyP>

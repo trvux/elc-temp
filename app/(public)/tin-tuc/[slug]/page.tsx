@@ -291,7 +291,7 @@ export default async function NewsDetailPage({ params }: PageProps) {
                     )}
                     <div className="flex flex-col gap-1.5">
                       {itemDate && (
-                        <span className="text-[10px] text-muted-foreground/60 font-medium font-sans">
+                        <span className="text-xs text-muted-foreground/60 font-medium font-sans">
                           {itemDate}
                         </span>
                       )}

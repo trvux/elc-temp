@@ -21,7 +21,7 @@ export const getTagColumns = ({
     cell: ({ row }) => (
       <div className="flex flex-col gap-0.5">
         <span className="font-semibold text-sm text-foreground">{row.original.name}</span>
-        <span className="text-[11px] text-foreground/75">/{row.original.slug}</span>
+        <span className="text-xs text-foreground/75">/{row.original.slug}</span>
       </div>
     ),
   },

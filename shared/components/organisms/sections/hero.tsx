@@ -32,7 +32,7 @@ export function HeroSection({ contacts = [], brands = [] }: HeroSectionProps) {
       // -mt cancels the (public) layout's fixed-header clearance so this
       // full-bleed section reaches the very top, matching the reference:
       // the floating header sits transparently over the hero, not above it.
-      className="relative -mt-[5.75rem] flex h-screen min-h-[650px] w-full items-center justify-center overflow-hidden bg-black"
+      className="relative -mt-23 flex h-screen min-h-163 w-full items-center justify-center overflow-hidden bg-black"
     >
       <FluidBackground />
 

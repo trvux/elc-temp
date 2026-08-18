@@ -140,7 +140,7 @@ export function SystemPageManagement() {
                   <Field>
                     <div className="flex justify-between items-center w-full">
                       <FieldLabel>Tiêu đề SEO</FieldLabel>
-                      <span className="text-[10px] text-muted-foreground font-medium">
+                      <span className="text-xs text-muted-foreground font-medium">
                         {(field.value || "").length}/70 ký tự (Khuyên dùng)
                       </span>
                     </div>
@@ -157,11 +157,11 @@ export function SystemPageManagement() {
                   <Field>
                     <div className="flex justify-between items-center w-full">
                       <FieldLabel>Mô tả SEO</FieldLabel>
-                      <span className="text-[10px] text-muted-foreground font-medium">
+                      <span className="text-xs text-muted-foreground font-medium">
                         {(field.value || "").length}/160 ký tự (Khuyên dùng)
                       </span>
                     </div>
-                    <Textarea {...field} value={field.value || ""} placeholder="Nhập mô tả tóm tắt nội dung trang để hiển thị trên Google..." className="min-h-[120px]" />
+                    <Textarea {...field} value={field.value || ""} placeholder="Nhập mô tả tóm tắt nội dung trang để hiển thị trên Google..." className="min-h-30" />
                     <FieldError errors={[fieldState.error]} />
                   </Field>
                 )}

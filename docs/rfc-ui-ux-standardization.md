@@ -103,7 +103,9 @@ Việc chủ yếu là đổi `w-[160px]`→`w-40`, `text-[10px]/[11px]`→`text
 - [x] **Batch C** — hp-page/inquiry/news/page: `HpPageColumns.tsx`, `HpPageManagement.tsx`, `InquiryManagement.tsx`, `LeadForm.tsx`, `NewsColumns.tsx`, `NewsManagement.tsx`, `PageManagement.tsx` — xong 2026-08-18, commit theo sau. `LeadForm.tsx` còn `-left-[9999px]` **cố ý giữ nguyên** — honeypot chống bot off-screen, đã có comment giải thích tại chỗ, không phải nợ kỹ thuật.
 - [x] **Batch D** — product-line/project-type/project: `ProductLineManagement.tsx`, `project-type/columns.tsx`, `ProjectTypeManagement.tsx`, `ProjectColumns.tsx`, `ProjectManagement.tsx`, `public/ProjectFilterMobile.tsx` — xong 2026-08-18, commit theo sau
 - [x] **Batch E** — review/service: `ReviewColumns.tsx`, `ReviewFormSheet.tsx`, `ServiceGroupColumns.tsx`, `ServiceGroupManagement.tsx`, `ServiceColumns.tsx`, `ServiceManagement.tsx` — xong 2026-08-18, commit theo sau. `ReviewFormSheet.tsx` cũng có honeypot `-left-[9999px]` (như `LeadForm.tsx`) — giữ nguyên.
-- [ ] **Batch F** — shipping-zone/system-page/tag + app public: `ShippingZoneManagement.tsx`, `SystemPageColumns.tsx`, `SystemPageManagement.tsx`, `TagColumns.tsx`, `app/(public)/layout.tsx`, `app/(public)/thong-tin/page.tsx`, `app/(public)/tin-tuc/[slug]/page.tsx`
+- [x] **Batch F** — shipping-zone/system-page/tag + app public: `ShippingZoneManagement.tsx`, `SystemPageColumns.tsx`, `SystemPageManagement.tsx`, `TagColumns.tsx`, `app/(public)/layout.tsx`, `app/(public)/thong-tin/page.tsx`, `app/(public)/tin-tuc/[slug]/page.tsx` — xong 2026-08-18, commit theo sau. Tiện tay dọn thêm `shared/components/organisms/sections/hero.tsx` (cùng giá trị `5.75rem` với `layout.tsx`, tìm thấy khi audit — không thuộc list gốc nhưng cùng pattern nên sửa luôn cho nhất quán).
+
+**§4b hoàn tất — 41/41 file đã chuẩn hoá** (trừ 2 ngoại lệ honeypot cố ý giữ nguyên: `LeadForm.tsx`, `ReviewFormSheet.tsx`).
 
 Sau khi tick hết 1 batch: `npm run build` xác nhận, rồi mới sang batch kế (không bắt buộc gộp build cuối cùng cho cả 6 batch — lỗi phát hiện sớm theo batch dễ sửa hơn).
 
@@ -117,5 +119,5 @@ Sau khi tick hết 1 batch: `npm run build` xác nhận, rồi mới sang batch 
 ## 7. Log
 
 - **2026-08-18** — Phase 0 xong (restructure `shared/components/`), viết `design-system.md` + RFC này, cài `madge`. Commit `cc38dd7` (restructure) + `e87e005` (docs).
-- **2026-08-18** — Fix build error do ví dụ `bg-[var(--...)]` trong `design-system.md` bị Tailwind quét nhầm thành class thật (Turbopack dev parse CSS lỗi). Sửa ví dụ + thêm cảnh báo trong doc.
+- **2026-08-18** — Fix build error do 1 ví dụ dở dang (arbitrary-value class có dấu `...` chưa điền bên trong ngoặc vuông) trong `design-system.md` bị Tailwind quét nhầm thành class thật (Turbopack dev parse CSS lỗi). Sửa ví dụ thành class hoàn chỉnh + thêm cảnh báo trong doc (xem §8 của `design-system.md`) — lưu ý: viết lại ví dụ này ở bất kỳ đâu trong repo (kể cả log này) cũng phải tránh nguyên văn chuỗi dở dang đó, chỉ mô tả bằng lời.
 - **2026-08-18** — Chia §4b thành 6 batch cụ thể (§5a) để chạy dứt điểm khi cần, giữ track chỉ bằng checklist trong file này (không dùng Linear — task cơ học quy mô nhỏ).

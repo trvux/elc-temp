@@ -146,7 +146,7 @@ export function ShippingZoneManagement() {
                   <div className="flex items-center justify-between">
                     <div className="space-y-0.5">
                       <FieldLabel className="text-sm font-medium">Khu vực mặc định</FieldLabel>
-                      <FieldDescription className="text-[11px] leading-tight">
+                      <FieldDescription className="text-xs leading-tight">
                         Áp dụng cho tỉnh/thành chưa cấu hình khu vực nào.
                       </FieldDescription>
                     </div>

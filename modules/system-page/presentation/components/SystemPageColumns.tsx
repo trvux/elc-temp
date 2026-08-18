@@ -44,7 +44,7 @@ export const getSystemPageColumns = ({
     accessorKey: "metaTitle",
     header: "Tiêu đề SEO",
     cell: ({ row }) => (
-      <span className="text-muted-foreground truncate max-w-[200px] block">
+      <span className="text-muted-foreground truncate max-w-50 block">
         {row.original.metaTitle || "Chưa cấu hình"}
       </span>
     ),
@@ -53,7 +53,7 @@ export const getSystemPageColumns = ({
     accessorKey: "metaDescription",
     header: "Mô tả SEO",
     cell: ({ row }) => (
-      <span className="text-muted-foreground truncate max-w-[300px] block">
+      <span className="text-muted-foreground truncate max-w-75 block">
         {row.original.metaDescription || "Chưa cấu hình"}
       </span>
     ),
