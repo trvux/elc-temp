@@ -1,6 +1,6 @@
 # RFC: Chuẩn hoá UI/UX (atomic design + 4pt grid)
 
-- **Status:** Đang thực hiện (Phase 0 done, Phase 1 chưa bắt đầu — đã chia batch cụ thể ở §5a, sẵn sàng chạy bất cứ lúc nào)
+- **Status:** Phase 0 + Phase 1 (§4b, §4c) done. Còn lại: §4a (tách nhỏ thêm vài file trong `organisms/layout/user/` xuống `molecules/`) — không bắt buộc, chỉ làm khi đụng tới file đó vì lý do khác.
 - **Owner:** solo dev
 - **Đọc thêm:** [`docs/design-system.md`](./design-system.md) — chuẩn/luật. File này (RFC) là **quyết định + tiến độ + kế hoạch**, không lặp lại nội dung luật.
 - File này là nguồn sự thật để 1 phiên Claude mới đọc và biết chính xác cần làm gì tiếp — cập nhật checklist mỗi khi xong 1 phần, không cần hỏi lại "còn gì chưa làm".
@@ -82,9 +82,12 @@ Danh sách file (check khi xong):
 - [ ] `app/(public)/tin-tuc/[slug]/page.tsx`
 - [ ] `modules/project/presentation/components/public/ProjectFilterMobile.tsx`
 
-### 4c. Raw HTML thay vì shadcn primitive
+### 4c. Raw HTML thay vì shadcn primitive — [x] đã quét, cả 2 đều là ngoại lệ chấp nhận được
 
-Quét trước đó chỉ thấy 2 file còn `<button>/<input>/<select>` thô — chưa xác định file cụ thể, cần quét lại lúc bắt tay làm phase này (`grep -rlE "<button[ >]|<input[ >]|<select[ >]" --include="*.tsx" shared modules app | grep -v /ui/`).
+- `ReviewFormSheet.tsx` — `<input>` thô nằm trong honeypot chống bot (cùng khối với `-left-[9999px]` ở §5a Batch E), cố ý không dùng `Input` để giữ tối giản/không style, giữ nguyên.
+- `AttributeDefinitionManagement.tsx` — `<button>` thô là nút "x" xoá tag nhỏ lồng trong `Badge` (icon `X` 12px), pattern phổ biến của shadcn cho remove-button trong badge vì `Button` mang theo padding/height mặc định không phù hợp kích thước này. Giữ nguyên, không ép vào `Button`.
+
+Không còn raw `<button>/<input>/<select>` nào khác trong `shared/`, `modules/`, `app/` ngoài `ui/`.
 
 ## 5. Cách thực hiện phần còn lại (cho phiên Claude bất kỳ đọc file này)
 
