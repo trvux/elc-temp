@@ -33,7 +33,7 @@ export const getNewsColumns = ({
               className="object-cover"
             />
           ) : (
-            <div className="flex h-full w-full items-center justify-center text-[10px] text-muted-foreground">
+            <div className="flex h-full w-full items-center justify-center text-xs text-muted-foreground">
               No image
             </div>
           )}
@@ -49,7 +49,7 @@ export const getNewsColumns = ({
         <span className="text-sm font-semibold tracking-tight text-foreground">
           {row.original.title}
         </span>
-        <span className="text-[10px] text-muted-foreground">
+        <span className="text-xs text-muted-foreground">
           Thứ tự: {row.original.orderIndex}
         </span>
       </div>

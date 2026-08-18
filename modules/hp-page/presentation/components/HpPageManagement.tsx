@@ -253,7 +253,7 @@ export function HpPageManagement() {
                         control={form.control}
                         name="imageUrl"
                         render={({ field }) => (
-                          <Field className="max-w-[240px] w-full">
+                          <Field className="max-w-60 w-full">
                             <FieldLabel>Ảnh đại diện</FieldLabel>
                             <ImageUpload
                               value={field.value}
@@ -397,7 +397,7 @@ export function HpPageManagement() {
                             {...field}
                             value={field.value || ""}
                             placeholder="Mô tả tóm tắt trang hiển thị trên Google..."
-                            className="min-h-[120px] resize-y"
+                            className="min-h-30 resize-y"
                           />
                           <FieldError errors={[fieldState.error]} />
                         </Field>
@@ -411,9 +411,9 @@ export function HpPageManagement() {
                     <div className="flex items-center justify-between border-b pb-2">
                       <div>
                         <h3 className="text-sm font-semibold tracking-tight">Bài viết chi tiết SEO</h3>
-                        <p className="text-[11px] text-muted-foreground">Nội dung hiển thị ở cuối danh sách sản phẩm.</p>
+                        <p className="text-xs text-muted-foreground">Nội dung hiển thị ở cuối danh sách sản phẩm.</p>
                       </div>
-                      <span className="text-[10px] text-muted-foreground uppercase tracking-widest">Tiptap Editor</span>
+                      <span className="text-xs text-muted-foreground uppercase tracking-widest">Tiptap Editor</span>
                     </div>
                     <Controller
                       control={form.control}

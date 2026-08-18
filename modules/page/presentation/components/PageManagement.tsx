@@ -139,7 +139,7 @@ export function PageManagement() {
 
       <div className="flex flex-wrap items-center gap-4 mb-4">
         <Select value={filterIsPublished} onValueChange={setFilterIsPublished}>
-          <SelectTrigger className="w-full md:w-[200px]">
+          <SelectTrigger className="w-full md:w-50">
             <SelectValue placeholder="Trạng thái" />
           </SelectTrigger>
           <SelectContent>
@@ -263,7 +263,7 @@ export function PageManagement() {
               <div className="space-y-6 border p-6 rounded-2xl bg-muted/10">
                 <div className="border-b pb-2">
                   <h3 className="text-sm font-semibold tracking-tight">Cấu hình SEO</h3>
-                  <p className="text-[11px] text-muted-foreground">Tối ưu hóa hiển thị trên các công cụ tìm kiếm (Google, Bing,...).</p>
+                  <p className="text-xs text-muted-foreground">Tối ưu hóa hiển thị trên các công cụ tìm kiếm (Google, Bing,...).</p>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <Controller
@@ -284,7 +284,7 @@ export function PageManagement() {
                     render={({ field, fieldState }) => (
                       <Field>
                         <FieldLabel>Mô tả SEO</FieldLabel>
-                        <Textarea {...field} value={field.value || ""} placeholder="Mô tả tóm tắt nội dung trang để hiển thị trên Google..." className="min-h-[80px]" />
+                        <Textarea {...field} value={field.value || ""} placeholder="Mô tả tóm tắt nội dung trang để hiển thị trên Google..." className="min-h-20" />
                         <FieldError errors={[fieldState.error]} />
                       </Field>
                     )}
@@ -296,7 +296,7 @@ export function PageManagement() {
               <div className="space-y-4">
                 <div className="flex items-center justify-between border-b pb-2">
                   <h3 className="text-sm font-semibold tracking-tight">Nội dung trang</h3>
-                  <span className="text-[10px] text-muted-foreground uppercase tracking-widest">Tiptap Editor</span>
+                  <span className="text-xs text-muted-foreground uppercase tracking-widest">Tiptap Editor</span>
                 </div>
                 <Controller
                   control={form.control}

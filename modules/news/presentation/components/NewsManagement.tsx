@@ -179,7 +179,7 @@ export function NewsManagement() {
 
       <div className="flex flex-wrap items-center gap-4 mb-4">
         <Select value={filterIsPublished} onValueChange={setFilterIsPublished}>
-          <SelectTrigger className="w-full md:w-[200px]">
+          <SelectTrigger className="w-full md:w-50">
             <SelectValue placeholder="Trạng thái" />
           </SelectTrigger>
           <SelectContent>
@@ -259,7 +259,7 @@ export function NewsManagement() {
                               ) : (
                                 <label className="flex flex-col items-center justify-center h-full w-full cursor-pointer">
                                   <Upload size={24} className="text-muted-foreground mb-2" />
-                                  <span className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
+                                  <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
                                     {uploading ? "Đang tải..." : "Tải ảnh lên"}
                                   </span>
                                   <input
@@ -433,13 +433,13 @@ export function NewsManagement() {
                       <Field>
                         <div className="flex items-center justify-between">
                           <FieldLabel>Tóm tắt</FieldLabel>
-                          <span className="text-[11px] text-muted-foreground">{(field.value || "").length}/300</span>
+                          <span className="text-xs text-muted-foreground">{(field.value || "").length}/300</span>
                         </div>
                         <Textarea
                           {...field}
                           value={field.value || ""}
                           placeholder="Tóm tắt ngắn hiển thị ở trang danh sách tin tức..."
-                          className="min-h-[80px]"
+                          className="min-h-20"
                         />
                         <FieldDescription>
                           Khác với mô tả SEO — đây là đoạn dẫn nhập hiển thị cho người đọc, không phải cho Google.
@@ -455,7 +455,7 @@ export function NewsManagement() {
               <div className="space-y-6 border p-6 rounded-2xl bg-muted/10">
                 <div className="border-b pb-2">
                   <h3 className="text-sm font-semibold tracking-tight">Cấu hình SEO</h3>
-                  <p className="text-[11px] text-muted-foreground">Tối ưu hóa hiển thị trên các công cụ tìm kiếm (Google, Bing,...).</p>
+                  <p className="text-xs text-muted-foreground">Tối ưu hóa hiển thị trên các công cụ tìm kiếm (Google, Bing,...).</p>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <Controller
@@ -465,7 +465,7 @@ export function NewsManagement() {
                       <Field>
                         <div className="flex items-center justify-between">
                           <FieldLabel>Tiêu đề SEO</FieldLabel>
-                          <span className="text-[11px] text-muted-foreground">{(field.value || "").length}/70</span>
+                          <span className="text-xs text-muted-foreground">{(field.value || "").length}/70</span>
                         </div>
                         <Input {...field} value={field.value || ""} placeholder="Để trống sẽ tự động dùng tiêu đề..." />
                         <FieldError errors={[fieldState.error]} />
@@ -480,9 +480,9 @@ export function NewsManagement() {
                       <Field>
                         <div className="flex items-center justify-between">
                           <FieldLabel>Mô tả SEO</FieldLabel>
-                          <span className="text-[11px] text-muted-foreground">{(field.value || "").length}/160</span>
+                          <span className="text-xs text-muted-foreground">{(field.value || "").length}/160</span>
                         </div>
-                        <Textarea {...field} value={field.value || ""} placeholder="Mô tả tóm tắt bài viết để hiển thị trên Google..." className="min-h-[80px]" />
+                        <Textarea {...field} value={field.value || ""} placeholder="Mô tả tóm tắt bài viết để hiển thị trên Google..." className="min-h-20" />
                         <FieldError errors={[fieldState.error]} />
                       </Field>
                     )}
@@ -499,7 +499,7 @@ export function NewsManagement() {
               <div className="space-y-4">
                 <div className="flex items-center justify-between border-b pb-2">
                   <h3 className="text-sm font-semibold tracking-tight">Nội dung bài viết</h3>
-                  <span className="text-[10px] text-muted-foreground uppercase tracking-widest">Tiptap</span>
+                  <span className="text-xs text-muted-foreground uppercase tracking-widest">Tiptap</span>
                 </div>
                 <Controller
                   control={form.control}

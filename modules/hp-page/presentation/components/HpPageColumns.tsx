@@ -31,7 +31,7 @@ export const getHpPageColumns = ({
             className="object-contain p-1"
           />
         ) : (
-          <span className="text-[10px] text-muted-foreground uppercase font-bold tracking-tighter text-center">No Image</span>
+          <span className="text-xs text-muted-foreground uppercase font-bold tracking-tighter text-center">No Image</span>
         )}
       </div>
     ),
@@ -47,7 +47,7 @@ export const getHpPageColumns = ({
             href={`/san-pham/${row.original.slug}`}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-[11px] text-foreground/75 hover:text-foreground hover:underline flex items-center gap-1 w-fit"
+            className="text-xs text-foreground/75 hover:text-foreground hover:underline flex items-center gap-1 w-fit"
           >
             /{row.original.slug}
             <ArrowSquareOut size={11} />
@@ -60,9 +60,9 @@ export const getHpPageColumns = ({
     accessorKey: "attributeValues",
     header: "Giá trị lọc",
     cell: ({ row }) => (
-      <div className="flex flex-wrap gap-1 max-w-[220px]">
+      <div className="flex flex-wrap gap-1 max-w-55">
         {row.original.attributeValues.map((v) => (
-          <Badge key={v} variant="outline" className="text-[11px]">
+          <Badge key={v} variant="outline" className="text-xs">
             {v}
           </Badge>
         ))}

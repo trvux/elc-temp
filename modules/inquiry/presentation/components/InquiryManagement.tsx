@@ -82,7 +82,7 @@ export function InquiryManagement() {
 
       <div className="flex flex-wrap items-center gap-4 mb-4">
         <Select value={filterStatus} onValueChange={setFilterStatus}>
-          <SelectTrigger className="w-full md:w-[200px]">
+          <SelectTrigger className="w-full md:w-50">
             <SelectValue placeholder="Trạng thái" />
           </SelectTrigger>
           <SelectContent>
