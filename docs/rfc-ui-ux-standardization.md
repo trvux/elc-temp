@@ -1,6 +1,6 @@
 # RFC: Chuẩn hoá UI/UX (atomic design + 4pt grid)
 
-- **Status:** Đang thực hiện (Phase 0 done, Phase 1 chưa bắt đầu)
+- **Status:** Đang thực hiện (Phase 0 done, Phase 1 chưa bắt đầu — đã chia batch cụ thể ở §5a, sẵn sàng chạy bất cứ lúc nào)
 - **Owner:** solo dev
 - **Đọc thêm:** [`docs/design-system.md`](./design-system.md) — chuẩn/luật. File này (RFC) là **quyết định + tiến độ + kế hoạch**, không lặp lại nội dung luật.
 - File này là nguồn sự thật để 1 phiên Claude mới đọc và biết chính xác cần làm gì tiếp — cập nhật checklist mỗi khi xong 1 phần, không cần hỏi lại "còn gì chưa làm".
@@ -89,10 +89,23 @@ Quét trước đó chỉ thấy 2 file còn `<button>/<input>/<select>` thô �
 ## 5. Cách thực hiện phần còn lại (cho phiên Claude bất kỳ đọc file này)
 
 1. Khi user giao việc sửa 1 module/file bất kỳ nằm trong checklist §4b/§4a → tiện tay chuẩn hoá luôn theo `docs/design-system.md` §7, tick checkbox tương ứng trong file này.
-2. Không tự ý mở 1 đợt riêng dọn hết toàn bộ §4b trừ khi user yêu cầu rõ ("dọn hết đi", "làm 1 lần cho xong").
+2. Không tự ý mở 1 đợt riêng dọn hết toàn bộ §4b trừ khi user yêu cầu rõ ("dọn hết đi", "làm 1 lần cho xong") — khi đó chạy tuần tự theo batch ở mục 5a, không cần hỏi lại giữa chừng trừ khi gặp lỗi.
 3. Mỗi lần đổi xong 1 file: `npx tsc --noEmit` (tối thiểu); nếu đổi từ 3 file trở lên trong 1 lần thì thêm `npm run build`.
 4. Nếu move file đổi vị trí thư mục: chạy `pnpm graph:circular` trước và sau.
-5. Cập nhật checklist trong RFC này (tick `[x]`) — đây là cách track tiến độ qua nhiều phiên, không phải hỏi lại từ đầu.
+5. Cập nhật checklist trong RFC này (tick `[x]`) — đây là cách track tiến độ qua nhiều phiên, không phải hỏi lại từ đầu. Không dùng Linear/tool ngoài cho việc này — task cơ học, quy mô nhỏ.
+
+### 5a. Batch cho §4b (dùng khi làm dứt điểm 1 lần, hoặc chọn đúng batch khi opportunistic)
+
+Việc chủ yếu là đổi `w-[160px]`→`w-40`, `text-[10px]/[11px]`→`text-xs` theo bảng map — mỗi batch ước ~15-20 phút, không cần suy nghĩ nhiều vì pattern lặp lại.
+
+- [ ] **Batch A** — users/attribute/author/branch/brand: `UsersColumns.tsx`, `AttributeDefinitionManagement.tsx`, `AuthorColumns.tsx`, `AuthorManagement.tsx`, `BranchColumns.tsx`, `BranchList.tsx`, `BranchManagement.tsx`, `BrandColumns.tsx`, `BrandManagement.tsx`
+- [ ] **Batch B** — category/contact/dashboard/group: `CategoryManagement.tsx`, `category/columns.tsx`, `ContactManagement.tsx`, `DashboardOverview.tsx`, `group/columns.tsx`, `GroupManagement.tsx`
+- [ ] **Batch C** — hp-page/inquiry/news/page: `HpPageColumns.tsx`, `HpPageManagement.tsx`, `InquiryManagement.tsx`, `LeadForm.tsx`, `NewsColumns.tsx`, `NewsManagement.tsx`, `PageManagement.tsx`
+- [ ] **Batch D** — product-line/project-type/project: `ProductLineManagement.tsx`, `project-type/columns.tsx`, `ProjectTypeManagement.tsx`, `ProjectColumns.tsx`, `ProjectManagement.tsx`, `public/ProjectFilterMobile.tsx`
+- [ ] **Batch E** — review/service: `ReviewColumns.tsx`, `ReviewFormSheet.tsx`, `ServiceGroupColumns.tsx`, `ServiceGroupManagement.tsx`, `ServiceColumns.tsx`, `ServiceManagement.tsx`
+- [ ] **Batch F** — shipping-zone/system-page/tag + app public: `ShippingZoneManagement.tsx`, `SystemPageColumns.tsx`, `SystemPageManagement.tsx`, `TagColumns.tsx`, `app/(public)/layout.tsx`, `app/(public)/thong-tin/page.tsx`, `app/(public)/tin-tuc/[slug]/page.tsx`
+
+Sau khi tick hết 1 batch: `npm run build` xác nhận, rồi mới sang batch kế (không bắt buộc gộp build cuối cùng cho cả 6 batch — lỗi phát hiện sớm theo batch dễ sửa hơn).
 
 ## 6. Không làm (non-goals)
 
@@ -103,4 +116,6 @@ Quét trước đó chỉ thấy 2 file còn `<button>/<input>/<select>` thô �
 
 ## 7. Log
 
-- **2026-08-18** — Phase 0 xong (restructure `shared/components/`), viết `design-system.md` + RFC này, cài `madge`. Chưa commit Phase 0.
+- **2026-08-18** — Phase 0 xong (restructure `shared/components/`), viết `design-system.md` + RFC này, cài `madge`. Commit `cc38dd7` (restructure) + `e87e005` (docs).
+- **2026-08-18** — Fix build error do ví dụ `bg-[var(--...)]` trong `design-system.md` bị Tailwind quét nhầm thành class thật (Turbopack dev parse CSS lỗi). Sửa ví dụ + thêm cảnh báo trong doc.
+- **2026-08-18** — Chia §4b thành 6 batch cụ thể (§5a) để chạy dứt điểm khi cần, giữ track chỉ bằng checklist trong file này (không dùng Linear — task cơ học quy mô nhỏ).
