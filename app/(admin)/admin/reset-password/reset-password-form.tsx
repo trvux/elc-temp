@@ -12,7 +12,7 @@ import { Button } from "@/shared/components/ui/button";
 import { Input } from "@/shared/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/shared/components/ui/card";
 import { Field, FieldError, FieldGroup, FieldLabel } from "@/shared/components/ui/field";
-import { PasswordChecklist } from "@/shared/components/auth/password-checklist";
+import { PasswordChecklist } from "@/shared/components/molecules/auth/password-checklist";
 
 const formSchema = resetPasswordSchema.pick({ password: true });
 type FormValues = { password: string };

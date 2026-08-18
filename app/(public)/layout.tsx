@@ -1,16 +1,16 @@
 import { getPublicLayoutData } from "@/modules/settings";
-import { Footer } from "@/shared/components/layout/user/footer";
-import { Header } from "@/shared/components/layout/user/header";
-import { ChunkErrorListener } from "@/shared/components/layout/user/chunk-error-listener";
+import { Footer } from "@/shared/components/organisms/layout/user/footer";
+import { Header } from "@/shared/components/organisms/layout/user/header";
+import { ChunkErrorListener } from "@/shared/components/organisms/layout/user/chunk-error-listener";
 import { FilterTransitionProvider } from "@/shared/providers/filter-transition-provider";
 import { ProductFloatingProvider } from "@/shared/providers/product-floating-provider";
 import { WishlistProvider } from "@/shared/providers/wishlist-provider";
 import { CompareProvider } from "@/shared/providers/compare-provider";
 import { ContactProvider } from "@/shared/providers/contact-provider";
-import { CompareTray } from "@/shared/components/layout/user/compare-tray";
-import { WishlistDialog } from "@/shared/components/layout/user/wishlist-dialog";
-import { TopProgressBar } from "@/shared/components/layout/user/top-progress-bar";
-import { StickyContactActions } from "@/shared/components/sections/sticky-contact-actions";
+import { CompareTray } from "@/shared/components/organisms/layout/user/compare-tray";
+import { WishlistDialog } from "@/shared/components/organisms/layout/user/wishlist-dialog";
+import { TopProgressBar } from "@/shared/components/organisms/layout/user/top-progress-bar";
+import { StickyContactActions } from "@/shared/components/organisms/sections/sticky-contact-actions";
 import { SEOSchema, toJsonLdHtml } from "@/shared/lib/seo-schema";
 import Script from "next/script";
 

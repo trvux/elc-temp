@@ -5,7 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 
 import { formatPrice } from "@/modules/catalog/domain";
-import { WishlistButton } from "@/shared/components/layout/user/wishlist-button";
+import { WishlistButton } from "@/shared/components/organisms/layout/user/wishlist-button";
 import { Empty, EmptyHeader, EmptyMedia, EmptyTitle, EmptyDescription } from "@/shared/components/ui/empty";
 import { TypographyH1 } from "@/shared/components/ui/typography";
 import { Heart } from "@phosphor-icons/react";

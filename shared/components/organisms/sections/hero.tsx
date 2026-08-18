@@ -1,7 +1,7 @@
 import { Brand } from "@/modules/brand/domain";
 import { Contact } from "@/modules/contact/domain";
 import { ContactIcon } from "@/modules/contact/presentation/utils";
-import FluidBackground from "@/shared/components/effects/fluid-background";
+import FluidBackground from "@/shared/components/molecules/effects/fluid-background";
 import { Button } from "@/shared/components/ui/button";
 import { TypographyP } from "@/shared/components/ui/typography";
 import { HeroBrandMarquee } from "./hero-brand-marquee";

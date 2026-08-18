@@ -14,8 +14,8 @@ import { FormattedPrice } from "@/modules/catalog/presentation/components/Format
 import { DeliveryEstimate } from "@/modules/catalog/presentation/components/public/DeliveryEstimate";
 import { Contact } from "@/modules/contact/domain";
 import { Button } from "@/shared/components/ui/button";
-import { OrderButton } from "@/shared/components/layout/user/order-button";
-import { CompareToggleButton } from "@/shared/components/layout/user/compare-toggle-button";
+import { OrderButton } from "@/shared/components/organisms/layout/user/order-button";
+import { CompareToggleButton } from "@/shared/components/organisms/layout/user/compare-toggle-button";
 import { StockBadge } from "@/shared/components/ui/stock-badge";
 import { TypographyLarge, TypographySmall } from "@/shared/components/ui/typography";
 import type { CompareItem } from "@/shared/providers/compare-provider";

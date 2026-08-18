@@ -1,8 +1,8 @@
 import { getCurrentUser } from "@/modules/auth/server";
 import { authRepo } from "@/modules/auth/infrastructure/authRepo";
 import { redirect } from "next/navigation";
-import AdminSidebar from "@/shared/components/layout/admin/sidebar";
-import AdminBreadcrumb from "@/shared/components/layout/admin/breadcrumb";
+import AdminSidebar from "@/shared/components/organisms/layout/admin/sidebar";
+import AdminBreadcrumb from "@/shared/components/organisms/layout/admin/breadcrumb";
 import { Separator } from "@/shared/components/ui/separator";
 import {
   SidebarInset,

@@ -10,8 +10,8 @@ import {
   isMobileDevice,
   ZaloProductInfo,
 } from "@/shared/lib/zalo-message";
-import { ZaloContactModal } from "@/shared/components/layout/user/zalo-contact-modal";
-import { WishlistButton } from "@/shared/components/layout/user/wishlist-button";
+import { ZaloContactModal } from "@/shared/components/organisms/layout/user/zalo-contact-modal";
+import { WishlistButton } from "@/shared/components/organisms/layout/user/wishlist-button";
 import { toast } from "sonner";
 import { AnimatePresence, m } from "motion/react";
 import Image from "next/image";

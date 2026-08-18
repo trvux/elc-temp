@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
 
-import { CTASection } from "@/shared/components/sections/cta";
-import { FeaturesSection } from "@/shared/components/sections/features";
-import { GridSection } from "@/shared/components/sections/grid-section";
-import { HeroSection } from "@/shared/components/sections/hero";
-import { ProjectMarqueeSection } from "@/shared/components/sections/project-marquee";
+import { CTASection } from "@/shared/components/organisms/sections/cta";
+import { FeaturesSection } from "@/shared/components/organisms/sections/features";
+import { GridSection } from "@/shared/components/organisms/sections/grid-section";
+import { HeroSection } from "@/shared/components/organisms/sections/hero";
+import { ProjectMarqueeSection } from "@/shared/components/organisms/sections/project-marquee";
 
 import { getBrandsAction } from "@/modules/brand/presentation/actions";
 import { getProductsAction } from "@/modules/catalog/presentation/actions";

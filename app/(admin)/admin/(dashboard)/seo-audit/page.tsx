@@ -1,4 +1,4 @@
-import { SeoAuditPanel } from "@/shared/components/layout/admin/seo-audit-panel";
+import { SeoAuditPanel } from "@/shared/components/organisms/layout/admin/seo-audit-panel";
 
 export default function SeoAuditPage() {
   return (

@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { getPageBySlugAction } from "@/modules/page/presentation/actions";
-import { PreviewContent } from "@/shared/components/layout/user/preview-content";
-import { ScrollToTop } from "@/shared/components/layout/user/scroll-to-top";
+import { PreviewContent } from "@/shared/components/organisms/layout/user/preview-content";
+import { ScrollToTop } from "@/shared/components/organisms/layout/user/scroll-to-top";
 import {
   TypographyH1,
   TypographySmall,
@@ -9,8 +9,8 @@ import {
 import { ArrowLeft } from "@phosphor-icons/react/dist/ssr";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { Breadcrumbs } from "@/shared/components/layout/user/breadcrumbs";
-import { GridSection } from "@/shared/components/sections/grid-section";
+import { Breadcrumbs } from "@/shared/components/organisms/layout/user/breadcrumbs";
+import { GridSection } from "@/shared/components/organisms/sections/grid-section";
 import { unwrapActionResult } from "@/shared/lib/action-result";
 import { BASE_URL } from "@/shared/lib/seo-schema";
 

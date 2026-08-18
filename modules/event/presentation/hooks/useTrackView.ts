@@ -6,7 +6,7 @@ import { EntityType } from "../../domain";
 import { logEventAction } from "../actions";
 
 // Named distinctly from the existing, unrelated
-// shared/components/layout/user/track-product-view.tsx (a client-only
+// shared/components/organisms/layout/user/track-product-view.tsx (a client-only
 // "recently viewed" localStorage widget) — this hook is server-side
 // analytics, that one is a personalization feature. Neither should be
 // mistaken for the other.

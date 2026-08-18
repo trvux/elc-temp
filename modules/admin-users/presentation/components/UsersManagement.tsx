@@ -7,7 +7,7 @@ import { Controller, useForm } from "react-hook-form";
 import { standardSchemaResolver } from "@hookform/resolvers/standard-schema";
 import { toast } from "sonner";
 
-import { AdminDialog } from "@/shared/components/layout/admin/admin-dialog";
+import { AdminDialog } from "@/shared/components/organisms/layout/admin/admin-dialog";
 import {
   AlertDialog,
   AlertDialogAction,

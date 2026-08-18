@@ -5,11 +5,11 @@ import { resolveProjectPathFromDb } from "@/modules/project/presentation/resolve
 import { ProjectWithCategory } from "@/modules/project/domain/types";
 import { ProjectListModule } from "@/modules/project/presentation/components/public/ProjectListModule";
 import { RelatedProjects } from "@/modules/project/presentation/components/public/RelatedProjects";
-import { Breadcrumbs } from "@/shared/components/layout/user/breadcrumbs";
-import { DetailPager } from "@/shared/components/layout/user/detail-pager";
-import { PreviewContent } from "@/shared/components/layout/user/preview-content";
-import { ScrollToTop } from "@/shared/components/layout/user/scroll-to-top";
-import { GridSection } from "@/shared/components/sections/grid-section";
+import { Breadcrumbs } from "@/shared/components/organisms/layout/user/breadcrumbs";
+import { DetailPager } from "@/shared/components/organisms/layout/user/detail-pager";
+import { PreviewContent } from "@/shared/components/organisms/layout/user/preview-content";
+import { ScrollToTop } from "@/shared/components/organisms/layout/user/scroll-to-top";
+import { GridSection } from "@/shared/components/organisms/sections/grid-section";
 import { AspectRatio } from "@/shared/components/ui/aspect-ratio";
 import { Badge } from "@/shared/components/ui/badge";
 import { TypographyH1, TypographySmall } from "@/shared/components/ui/typography";

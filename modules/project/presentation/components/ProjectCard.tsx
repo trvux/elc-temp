@@ -1,4 +1,4 @@
-import { HighlightedText } from "@/shared/components/layout/user/highlighted-text";
+import { HighlightedText } from "@/shared/components/organisms/layout/user/highlighted-text";
 import { Badge } from "@/shared/components/ui/badge";
 import {
   Card,

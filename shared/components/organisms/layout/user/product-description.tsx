@@ -5,7 +5,7 @@ import { Collapsible, CollapsibleTrigger } from "@/shared/components/ui/collapsi
 import { cn } from "@/shared/lib/utils";
 import { CaretDown, CaretUp } from "@phosphor-icons/react";
 import { useState } from "react";
-import { PreviewContent } from "@/shared/components/layout/user/preview-content";
+import { PreviewContent } from "@/shared/components/organisms/layout/user/preview-content";
 
 interface ProductDescriptionProps {
   content: unknown;

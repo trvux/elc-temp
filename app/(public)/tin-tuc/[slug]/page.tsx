@@ -4,11 +4,11 @@ import { ProductCard } from "@/modules/catalog/presentation/components/ProductCa
 import { getCategoriesAction } from "@/modules/category/presentation/actions";
 import { getGroupsAction } from "@/modules/group/presentation/actions";
 import { getNewsAction, getNewsBySlugAction } from "@/modules/news/presentation/actions";
-import { Breadcrumbs } from "@/shared/components/layout/user/breadcrumbs";
-import { DetailPager } from "@/shared/components/layout/user/detail-pager";
-import { PreviewContent } from "@/shared/components/layout/user/preview-content";
-import { ScrollToTop } from "@/shared/components/layout/user/scroll-to-top";
-import { GridSection } from "@/shared/components/sections/grid-section";
+import { Breadcrumbs } from "@/shared/components/organisms/layout/user/breadcrumbs";
+import { DetailPager } from "@/shared/components/organisms/layout/user/detail-pager";
+import { PreviewContent } from "@/shared/components/organisms/layout/user/preview-content";
+import { ScrollToTop } from "@/shared/components/organisms/layout/user/scroll-to-top";
+import { GridSection } from "@/shared/components/organisms/sections/grid-section";
 import Image from "next/image";
 import { primaryImageUrl } from "@/shared/lib/image-asset";
 import {

@@ -3,8 +3,8 @@
 import { useEffect, useState } from "react";
 import Image from "next/image";
 
-import { WishlistButton } from "@/shared/components/layout/user/wishlist-button";
-import { Spotlight } from "@/shared/components/motion-primitives/spotlight";
+import { WishlistButton } from "@/shared/components/organisms/layout/user/wishlist-button";
+import { Spotlight } from "@/shared/components/molecules/motion-primitives/spotlight";
 import { AspectRatio } from "@/shared/components/ui/aspect-ratio";
 import {
   Carousel,

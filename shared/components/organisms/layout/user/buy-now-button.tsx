@@ -4,7 +4,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 
 import { Button } from "@/shared/components/ui/button";
-import { ZaloContactModal } from "@/shared/components/layout/user/zalo-contact-modal";
+import { ZaloContactModal } from "@/shared/components/organisms/layout/user/zalo-contact-modal";
 import { cn } from "@/shared/lib/utils";
 import { buildZaloProductMessage, isMobileDevice, type ZaloProductInfo } from "@/shared/lib/zalo-message";
 import { useContacts } from "@/shared/providers/contact-provider";

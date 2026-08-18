@@ -8,7 +8,7 @@ import {
   isMobileDevice,
   ZaloProductInfo,
 } from "@/shared/lib/zalo-message";
-import { ZaloContactModal } from "@/shared/components/layout/user/zalo-contact-modal";
+import { ZaloContactModal } from "@/shared/components/organisms/layout/user/zalo-contact-modal";
 import { cn } from "@/shared/lib/utils";
 import { toast } from "sonner";
 

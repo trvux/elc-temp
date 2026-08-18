@@ -13,12 +13,12 @@ import { ProductSortSelect } from "@/modules/catalog/presentation/components/pub
 import { ResolvedEntity } from "@/modules/catalog/presentation/resolveProductPath";
 import { getCategoriesAction } from "@/modules/category/presentation/actions";
 import { getPersonalizedShippingZoneAction } from "@/modules/shipping-zone";
-import { Breadcrumbs } from "@/shared/components/layout/user/breadcrumbs";
-import { CompareLinkButton } from "@/shared/components/layout/user/compare-link-button";
-import { ProductDescription } from "@/shared/components/layout/user/product-description";
-import { WishlistDialogButton } from "@/shared/components/layout/user/wishlist-dialog-button";
-import { RecentlyViewedSection } from "@/shared/components/layout/user/recently-viewed-section";
-import { ScrollToTop } from "@/shared/components/layout/user/scroll-to-top";
+import { Breadcrumbs } from "@/shared/components/organisms/layout/user/breadcrumbs";
+import { CompareLinkButton } from "@/shared/components/organisms/layout/user/compare-link-button";
+import { ProductDescription } from "@/shared/components/organisms/layout/user/product-description";
+import { WishlistDialogButton } from "@/shared/components/organisms/layout/user/wishlist-dialog-button";
+import { RecentlyViewedSection } from "@/shared/components/organisms/layout/user/recently-viewed-section";
+import { ScrollToTop } from "@/shared/components/organisms/layout/user/scroll-to-top";
 import { TypographyH1, TypographySmall } from "@/shared/components/ui/typography";
 import { unwrapActionResult } from "@/shared/lib/action-result";
 import { BASE_URL, toJsonLdHtml } from "@/shared/lib/seo-schema";

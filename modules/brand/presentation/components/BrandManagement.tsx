@@ -9,8 +9,8 @@ import { TiptapEditor } from "@/shared/components/ui/tiptap-editor";
 import { convertToWebP } from "@/shared/lib/image";
 import { uploadImageFile } from "@/shared/lib/upload-image";
 
-import { AdminDialog } from "@/shared/components/layout/admin/admin-dialog";
-import { DeleteDialog } from "@/shared/components/layout/admin/delete-dialog";
+import { AdminDialog } from "@/shared/components/organisms/layout/admin/admin-dialog";
+import { DeleteDialog } from "@/shared/components/organisms/layout/admin/delete-dialog";
 import { Button } from "@/shared/components/ui/button";
 import { DataTable } from "@/shared/components/ui/data-table";
 import {

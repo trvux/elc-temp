@@ -6,13 +6,13 @@ import { getPersonalizedShippingZoneAction } from "@/modules/shipping-zone";
 import {
   CategorySectionsGrid,
   type CategorySectionData,
-} from "@/shared/components/layout/user/category-sections-grid";
-import { Breadcrumbs } from "@/shared/components/layout/user/breadcrumbs";
-import { CompareLinkButton } from "@/shared/components/layout/user/compare-link-button";
-import { ProductDescription } from "@/shared/components/layout/user/product-description";
-import { WishlistDialogButton } from "@/shared/components/layout/user/wishlist-dialog-button";
-import { ScrollToTop } from "@/shared/components/layout/user/scroll-to-top";
-import { RecentlyViewedSection } from "@/shared/components/layout/user/recently-viewed-section";
+} from "@/shared/components/organisms/layout/user/category-sections-grid";
+import { Breadcrumbs } from "@/shared/components/organisms/layout/user/breadcrumbs";
+import { CompareLinkButton } from "@/shared/components/organisms/layout/user/compare-link-button";
+import { ProductDescription } from "@/shared/components/organisms/layout/user/product-description";
+import { WishlistDialogButton } from "@/shared/components/organisms/layout/user/wishlist-dialog-button";
+import { ScrollToTop } from "@/shared/components/organisms/layout/user/scroll-to-top";
+import { RecentlyViewedSection } from "@/shared/components/organisms/layout/user/recently-viewed-section";
 import { unwrapActionResult } from "@/shared/lib/action-result";
 import { excerptFromRichText } from "@/shared/lib/rich-text";
 import { BASE_URL, toJsonLdHtml } from "@/shared/lib/seo-schema";

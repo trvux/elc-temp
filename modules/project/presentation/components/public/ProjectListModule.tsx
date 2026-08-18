@@ -5,11 +5,11 @@ import { getProjectsAction, getCategoriesByProjectTypeIdAction } from "@/modules
 import { ProjectCard } from "@/modules/project/presentation/components/ProjectCard";
 import { getServicesAction } from "@/modules/service/presentation/actions";
 import { unwrapActionResult } from "@/shared/lib/action-result";
-import { Breadcrumbs } from "@/shared/components/layout/user/breadcrumbs";
-import { FilteredGridWrapper } from "@/shared/components/layout/user/filtered-grid-wrapper";
-import { ScrollToTop } from "@/shared/components/layout/user/scroll-to-top";
-import { GridSection } from "@/shared/components/sections/grid-section";
-import { PageHero } from "@/shared/components/sections/page-hero";
+import { Breadcrumbs } from "@/shared/components/organisms/layout/user/breadcrumbs";
+import { FilteredGridWrapper } from "@/shared/components/organisms/layout/user/filtered-grid-wrapper";
+import { ScrollToTop } from "@/shared/components/organisms/layout/user/scroll-to-top";
+import { GridSection } from "@/shared/components/organisms/sections/grid-section";
+import { PageHero } from "@/shared/components/organisms/sections/page-hero";
 import { Button } from "@/shared/components/ui/button";
 import { TypographySmall } from "@/shared/components/ui/typography";
 import { getQueryTokens } from "@/shared/lib/search-utils";

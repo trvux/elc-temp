@@ -1,4 +1,4 @@
-import { GridSection } from "@/shared/components/sections/grid-section";
+import { GridSection } from "@/shared/components/organisms/sections/grid-section";
 import { Button } from "@/shared/components/ui/button";
 import {
   TypographyH1,

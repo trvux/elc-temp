@@ -1,6 +1,6 @@
 import { getBranchBySlugAction } from "@/modules/branch/presentation/actions";
-import { PreviewContent } from "@/shared/components/layout/user/preview-content";
-import { ScrollToTop } from "@/shared/components/layout/user/scroll-to-top";
+import { PreviewContent } from "@/shared/components/organisms/layout/user/preview-content";
+import { ScrollToTop } from "@/shared/components/organisms/layout/user/scroll-to-top";
 import {
   Accordion,
   AccordionContent,
@@ -16,12 +16,12 @@ import {
 import { cn } from "@/shared/lib/utils";
 import Image from "next/image";
 import { notFound } from "next/navigation";
-import { Breadcrumbs } from "@/shared/components/layout/user/breadcrumbs";
+import { Breadcrumbs } from "@/shared/components/organisms/layout/user/breadcrumbs";
 import { ArrowLeft } from "@phosphor-icons/react/dist/ssr";
 import Link from "next/link";
 import { getPublicLayoutData } from "@/modules/settings";
 import { primaryImageUrl } from "@/shared/lib/image-asset";
-import { GridSection } from "@/shared/components/sections/grid-section";
+import { GridSection } from "@/shared/components/organisms/sections/grid-section";
 import { unwrapActionResult } from "@/shared/lib/action-result";
 
 // Helper to control Google Maps zoom level

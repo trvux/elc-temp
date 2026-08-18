@@ -3,10 +3,10 @@ import {
   getPublishedServicesGroupedAction,
   mapServiceToCardData,
 } from "@/modules/service";
-import { Breadcrumbs } from "@/shared/components/layout/user/breadcrumbs";
-import { ScrollToTop } from "@/shared/components/layout/user/scroll-to-top";
-import { GridSection } from "@/shared/components/sections/grid-section";
-import { PageHero } from "@/shared/components/sections/page-hero";
+import { Breadcrumbs } from "@/shared/components/organisms/layout/user/breadcrumbs";
+import { ScrollToTop } from "@/shared/components/organisms/layout/user/scroll-to-top";
+import { GridSection } from "@/shared/components/organisms/sections/grid-section";
+import { PageHero } from "@/shared/components/organisms/sections/page-hero";
 import {
   Tabs,
   TabsContent,

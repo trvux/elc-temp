@@ -1,8 +1,8 @@
 import { getNewsAction } from "@/modules/news/presentation/actions";
-import { Breadcrumbs } from "@/shared/components/layout/user/breadcrumbs";
-import { ScrollToTop } from "@/shared/components/layout/user/scroll-to-top";
-import { GridSection } from "@/shared/components/sections/grid-section";
-import { PageHero } from "@/shared/components/sections/page-hero";
+import { Breadcrumbs } from "@/shared/components/organisms/layout/user/breadcrumbs";
+import { ScrollToTop } from "@/shared/components/organisms/layout/user/scroll-to-top";
+import { GridSection } from "@/shared/components/organisms/sections/grid-section";
+import { PageHero } from "@/shared/components/organisms/sections/page-hero";
 import Image from "next/image";
 import { primaryImageUrl } from "@/shared/lib/image-asset";
 import {

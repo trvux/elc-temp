@@ -4,7 +4,7 @@ import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
 
-import { AdminDialog } from "@/shared/components/layout/admin/admin-dialog";
+import { AdminDialog } from "@/shared/components/organisms/layout/admin/admin-dialog";
 import { Badge } from "@/shared/components/ui/badge";
 import { DataTable } from "@/shared/components/ui/data-table";
 import { StarRating } from "@/shared/components/ui/star-rating";

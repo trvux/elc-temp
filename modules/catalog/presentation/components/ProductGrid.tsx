@@ -1,7 +1,7 @@
 import { ProductWithRelations } from "@/modules/catalog/domain";
 import { ProductCard } from "@/modules/catalog/presentation/components/ProductCard";
 import { ZoneLookupResult } from "@/modules/shipping-zone";
-import { InView } from "@/shared/components/motion-primitives/in-view";
+import { InView } from "@/shared/components/molecules/motion-primitives/in-view";
 import { cn } from "@/shared/lib/utils";
 
 const GRID_CLASS =

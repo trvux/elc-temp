@@ -8,8 +8,8 @@ import { toast } from "sonner";
 
 import { Check, CaretUpDown, X } from "@phosphor-icons/react";
 
-import { AdminDialog } from "@/shared/components/layout/admin/admin-dialog";
-import { DeleteDialog } from "@/shared/components/layout/admin/delete-dialog";
+import { AdminDialog } from "@/shared/components/organisms/layout/admin/admin-dialog";
+import { DeleteDialog } from "@/shared/components/organisms/layout/admin/delete-dialog";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/shared/components/ui/accordion";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";

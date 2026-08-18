@@ -19,11 +19,11 @@ import {
 import { useServiceForm } from "../hooks/useServiceForm";
 import { getServiceColumns } from "./ServiceColumns";
 
-import { AdminDialog } from "@/shared/components/layout/admin/admin-dialog";
-import { DeleteDialog } from "@/shared/components/layout/admin/delete-dialog";
+import { AdminDialog } from "@/shared/components/organisms/layout/admin/admin-dialog";
+import { DeleteDialog } from "@/shared/components/organisms/layout/admin/delete-dialog";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
-import { SeoSnippetPreview } from "@/shared/components/layout/admin/seo-snippet-preview";
+import { SeoSnippetPreview } from "@/shared/components/organisms/layout/admin/seo-snippet-preview";
 import { DataTable } from "@/shared/components/ui/data-table";
 import {
   Field,

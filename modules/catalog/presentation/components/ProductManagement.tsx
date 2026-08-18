@@ -6,7 +6,7 @@ import { Plus } from "@phosphor-icons/react";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
 
-import { DeleteDialog } from "@/shared/components/layout/admin/delete-dialog";
+import { DeleteDialog } from "@/shared/components/organisms/layout/admin/delete-dialog";
 import { Button } from "@/shared/components/ui/button";
 import { DataTable } from "@/shared/components/ui/data-table";
 import {

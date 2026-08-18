@@ -1,9 +1,9 @@
 import { BranchList } from "@/modules/branch";
 import { getBranchesAction } from "@/modules/branch/presentation/actions";
 import { getPagesAction } from "@/modules/page/presentation/actions";
-import { ScrollToTop } from "@/shared/components/layout/user/scroll-to-top";
-import { GridSection } from "@/shared/components/sections/grid-section";
-import { PageHero } from "@/shared/components/sections/page-hero";
+import { ScrollToTop } from "@/shared/components/organisms/layout/user/scroll-to-top";
+import { GridSection } from "@/shared/components/organisms/sections/grid-section";
+import { PageHero } from "@/shared/components/organisms/sections/page-hero";
 import {
   TypographyH2,
   TypographyLead,

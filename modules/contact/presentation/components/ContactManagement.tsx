@@ -8,8 +8,8 @@ import { Controller, useForm } from "react-hook-form";
 import type { Resolver } from "react-hook-form";
 import { toast } from "sonner";
 
-import { AdminDialog } from "@/shared/components/layout/admin/admin-dialog";
-import { DeleteDialog } from "@/shared/components/layout/admin/delete-dialog";
+import { AdminDialog } from "@/shared/components/organisms/layout/admin/admin-dialog";
+import { DeleteDialog } from "@/shared/components/organisms/layout/admin/delete-dialog";
 import { Button } from "@/shared/components/ui/button";
 import { DataTable } from "@/shared/components/ui/data-table";
 import {

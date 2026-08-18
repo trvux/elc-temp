@@ -15,7 +15,7 @@ import {
   UpdateProfileInput,
   updateProfileSchema,
 } from "@/modules/auth";
-import { PasswordChecklist } from "@/shared/components/auth/password-checklist";
+import { PasswordChecklist } from "@/shared/components/molecules/auth/password-checklist";
 import { Avatar, AvatarFallback, AvatarImage } from "@/shared/components/ui/avatar";
 import { Button } from "@/shared/components/ui/button";
 import {

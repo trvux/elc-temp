@@ -6,7 +6,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 
 import { formatPrice } from "@/modules/catalog/domain";
-import { WishlistButton } from "@/shared/components/layout/user/wishlist-button";
+import { WishlistButton } from "@/shared/components/organisms/layout/user/wishlist-button";
 import { Button } from "@/shared/components/ui/button";
 import {
   Dialog,

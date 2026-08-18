@@ -7,10 +7,10 @@ import { useMemo, useState } from "react";
 import { Controller } from "react-hook-form";
 import { toast } from "sonner";
 
-import { AdminDialog } from "@/shared/components/layout/admin/admin-dialog";
-import { DeleteDialog } from "@/shared/components/layout/admin/delete-dialog";
+import { AdminDialog } from "@/shared/components/organisms/layout/admin/admin-dialog";
+import { DeleteDialog } from "@/shared/components/organisms/layout/admin/delete-dialog";
 import { Button } from "@/shared/components/ui/button";
-import { SeoSnippetPreview } from "@/shared/components/layout/admin/seo-snippet-preview";
+import { SeoSnippetPreview } from "@/shared/components/organisms/layout/admin/seo-snippet-preview";
 import { TagMultiSelect } from "@/shared/components/ui/tag-multi-select";
 import {
   Card,

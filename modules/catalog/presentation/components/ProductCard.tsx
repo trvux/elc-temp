@@ -21,9 +21,9 @@ import {
 } from "@/shared/components/ui/typography";
 import { primaryImageUrl } from "@/shared/lib/image-asset";
 import { ZoneLookupResult } from "@/modules/shipping-zone";
-import { BuyNowButton } from "@/shared/components/layout/user/buy-now-button";
-import { WishlistButton } from "@/shared/components/layout/user/wishlist-button";
-import { CompareToggleButton } from "@/shared/components/layout/user/compare-toggle-button";
+import { BuyNowButton } from "@/shared/components/organisms/layout/user/buy-now-button";
+import { WishlistButton } from "@/shared/components/organisms/layout/user/wishlist-button";
+import { CompareToggleButton } from "@/shared/components/organisms/layout/user/compare-toggle-button";
 import { Truck } from "@phosphor-icons/react/dist/ssr";
 import Image from "next/image";
 import Link from "next/link";

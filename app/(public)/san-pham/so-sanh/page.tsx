@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 
 import { getProductCompareAction } from "@/modules/catalog/presentation/actions";
 import { ComparisonTable } from "@/modules/catalog/presentation/components/ComparisonTable";
-import { Breadcrumbs } from "@/shared/components/layout/user/breadcrumbs";
+import { Breadcrumbs } from "@/shared/components/organisms/layout/user/breadcrumbs";
 import { TypographyH1 } from "@/shared/components/ui/typography";
 
 export const metadata: Metadata = {
