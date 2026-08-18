@@ -38,7 +38,7 @@ Tra bằng `git log`, tìm component/interface "thay thế" (grep chéo), đọc
 **Mock data cũ, module đã chuyển sang API thật (1 file):**
 `modules/branch/domain/mocks.ts` — data chi nhánh hardcode, `BranchManagement.tsx`/`BranchList.tsx` hiện fetch API thật.
 
-**Utility/hook/type cô lập, chưa từng được gắn vào đâu — 0 tham chiếu tuyệt đối (12 file):**
+**Utility/hook/type cô lập, chưa từng được gắn vào đâu — 0 tham chiếu tuyệt đối (15 file):**
 `shared/hooks/use-debounce.ts`, `use-featured-image-upload.ts`, `use-local-storage.ts`, `shared/lib/cached-system-page.ts`, `glass-utils.ts`, `hover-effects.ts`, `errors.ts`, `events.ts`, `pagination.ts`, `shared/types/api.ts`, `common.ts`, `shared/components/organisms/layout/user/motion-provider.tsx`, `pagination-nav.tsx`, `info-toc.tsx`, `public-filter-sidebar.tsx`
 
 **Leftover Supabase-era type, đã migrate sang Go API (2 file):**
