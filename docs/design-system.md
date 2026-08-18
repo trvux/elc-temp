@@ -43,14 +43,20 @@ Riêng **font-size** (kể cả khi viết dạng `text-[11px]`) không tra bả
 
 > Lưu ý viết ví dụ Tailwind trong doc: Tailwind v4 tự quét toàn bộ project kể cả file `.md` để tìm class candidate. Ví dụ arbitrary-value trong doc phải là class **hoàn chỉnh, thật**, không để dấu ba chấm thay cho phần chưa điền bên trong cặp ngoặc vuông — chuỗi dở dang đó có thể bị scan thành 1 utility class và sinh CSS lỗi, từng gây `next dev` crash (xem RFC §7 log 2026-08-18).
 
+**Ngoại lệ hợp lệ khác** (không phải nợ kỹ thuật, không cần đổi khi thấy lại):
+- **`%`/`vh`/`vw`** (`basis-[70%]`, `max-h-[85vh]`...) — không thuộc 4pt grid (không phải pixel cố định), dùng khi tỷ lệ tương đối/viewport là đúng ý đồ (carousel item width, dialog max-height theo màn hình).
+- **`min-[87.5rem]` / `min-[112.5rem]`** — custom breakpoint (1400px/1800px) cho màn hình rất rộng, ngoài thang breakpoint mặc định của Tailwind, không phải spacing.
+- **`rounded-[1px]`** trên khối trang trí rất nhỏ (marker góc dạng kim cương, kích thước ~10px) — token radius nhỏ nhất (`rounded-sm`≈6px) quá lớn so với tỷ lệ khối, cần gần-vuông thật sự.
+
 ## 3. Font size / line-height
 
 Dùng thang chữ Tailwind (`text-xs` → `text-4xl`), không dùng `text-[13px]`. Cỡ chữ tuỳ ý ngoài thang chỉ chấp nhận khi khớp pixel-perfect với design đã duyệt (hiếm).
 
 ## 4. Radius & màu — luôn dùng token, không hex/px tay
 
-- Radius: `rounded-sm/md/lg/xl/2xl` (map theo `--radius-*` trong `globals.css`), không `rounded-[6px]`.
+- Radius: `rounded-sm/md/lg/xl/2xl/3xl/4xl` (map theo `--radius-*` trong `globals.css`), không `rounded-[6px]`. Số không khớp token nào thì làm tròn tới token gần nhất (vd 24px nằm giữa `3xl`≈22px và `4xl`≈26px → chọn `4xl`), trừ trường hợp trang trí quá nhỏ (xem ngoại lệ ở mục 2).
 - Màu: `bg-background`, `text-foreground`, `text-muted-foreground`, `border-border`, `bg-primary`... Không dùng `bg-[#fff]`, `text-[#666]`, không dùng bảng màu Tailwind thô (`bg-zinc-800`) cho surface nền tảng — chỉ token theo `@theme` trong `globals.css`.
+- **Ngoại lệ hợp lệ**: màu hex tay được phép khi cần khớp chính xác brand/sản phẩm bên thứ 3 mà token của app không (và không nên) đại diện — vd nút "Nhắn Zalo" dùng đúng xanh Zalo (`#0068ff`), khối preview kết quả tìm kiếm Google dùng đúng màu Google (`#1a0dab`/`#8ab4f8`). Bắt buộc có comment tại chỗ giải thích lý do, không tự ý mở rộng ra màu khác không có căn cứ tương tự.
 
 ## 5. shadcn — quy tắc cứng
 

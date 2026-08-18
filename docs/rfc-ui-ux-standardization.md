@@ -1,6 +1,6 @@
 # RFC: Chuẩn hoá UI/UX (atomic design + 4pt grid)
 
-- **Status:** Phase 0 + Phase 1 (§4b, §4c) done. Còn lại: §4a (tách nhỏ thêm vài file trong `organisms/layout/user/` xuống `molecules/`) — không bắt buộc, chỉ làm khi đụng tới file đó vì lý do khác.
+- **Status:** Phase 0, Phase 1 (§4b, §4c) và Phase 2 (audit toàn bộ `shared/components/` — spacing/font/radius/màu, kể cả phần không có trong list gốc) đều done. Còn lại: §4a (tách nhỏ thêm vài file trong `organisms/layout/user/` xuống `molecules/`) — không bắt buộc, chỉ làm khi đụng tới file đó vì lý do khác. Coi như **hoàn tất yêu cầu gốc** trừ mục này.
 - **Owner:** solo dev
 - **Đọc thêm:** [`docs/design-system.md`](./design-system.md) — chuẩn/luật. File này (RFC) là **quyết định + tiến độ + kế hoạch**, không lặp lại nội dung luật.
 - File này là nguồn sự thật để 1 phiên Claude mới đọc và biết chính xác cần làm gì tiếp — cập nhật checklist mỗi khi xong 1 phần, không cần hỏi lại "còn gì chưa làm".
@@ -124,3 +124,5 @@ Sau khi tick hết 1 batch: `npm run build` xác nhận, rồi mới sang batch 
 - **2026-08-18** — Phase 0 xong (restructure `shared/components/`), viết `design-system.md` + RFC này, cài `madge`. Commit `cc38dd7` (restructure) + `e87e005` (docs).
 - **2026-08-18** — Fix build error do 1 ví dụ dở dang (arbitrary-value class có dấu `...` chưa điền bên trong ngoặc vuông) trong `design-system.md` bị Tailwind quét nhầm thành class thật (Turbopack dev parse CSS lỗi). Sửa ví dụ thành class hoàn chỉnh + thêm cảnh báo trong doc (xem §8 của `design-system.md`) — lưu ý: viết lại ví dụ này ở bất kỳ đâu trong repo (kể cả log này) cũng phải tránh nguyên văn chuỗi dở dang đó, chỉ mô tả bằng lời.
 - **2026-08-18** — Chia §4b thành 6 batch cụ thể (§5a) để chạy dứt điểm khi cần, giữ track chỉ bằng checklist trong file này (không dùng Linear — task cơ học quy mô nhỏ).
+- **2026-08-18** — Chạy dứt điểm batch A-F (§5a) — 41/41 file §4b xong, commit `40a5a95`/`b1a1e70`/`1e2a74c`/`9f29a05`/`754527b`/`456e26b`. Quét lại §4c (raw HTML) — commit `f7a0c49`.
+- **2026-08-18** — Phase 2: audit lại toàn bộ nội dung `shared/components/` (bỏ sót ở Phase 0 vì lúc đó chỉ move file, chưa soát nội dung bên trong) — spacing/font-size/radius theo bảng map, cộng phát hiện 3 nhóm ngoại lệ hợp lệ mới (hex màu brand thứ 3, radius trang trí dưới thang, custom breakpoint/%/vh) — ghi vào `design-system.md` §2/§4 để không bị quét nhầm lần sau. Commit `05d42c7`.
