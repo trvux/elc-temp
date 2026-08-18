@@ -248,7 +248,7 @@ export function ProjectTypeManagement() {
                         control={form.control}
                         name="image"
                         render={({ field, fieldState }) => (
-                          <Field className="max-w-[280px] w-full">
+                          <Field className="max-w-70 w-full">
                             <FieldLabel>Upload ảnh</FieldLabel>
                             <ImageUpload
                               value={field.value || ""}
@@ -327,7 +327,7 @@ export function ProjectTypeManagement() {
                       render={({ field, fieldState }) => (
                         <Field>
                           <FieldLabel>SEO Description</FieldLabel>
-                          <Textarea {...field} value={field.value || ""} placeholder="Nhập mô tả SEO..." className="min-h-[120px]" />
+                          <Textarea {...field} value={field.value || ""} placeholder="Nhập mô tả SEO..." className="min-h-30" />
                           <FieldError errors={[fieldState.error]} />
                         </Field>
                       )}

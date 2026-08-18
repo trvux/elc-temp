@@ -109,7 +109,7 @@ export function ProjectFilterMobile({
         </SheetTrigger>
         <SheetContent
           side="right"
-          className="!z-[300] !w-full !max-w-none sm:!max-w-[400px]"
+          className="!z-[300] !w-full !max-w-none sm:!max-w-100"
           showCloseButton={true}
         >
           <SheetHeader className="hidden p-6">

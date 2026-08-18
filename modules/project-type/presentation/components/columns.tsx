@@ -38,7 +38,7 @@ export function getColumns({
             />
           </div>
         ) : (
-          <div className="w-10 h-10 bg-muted rounded-md flex items-center justify-center text-muted-foreground/40 text-[9px] font-bold">
+          <div className="w-10 h-10 bg-muted rounded-md flex items-center justify-center text-muted-foreground/40 text-xs font-bold">
             N/A
           </div>
         );
@@ -55,7 +55,7 @@ export function getColumns({
               href={`/${row.original.slug}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-[11px] text-foreground/75 hover:text-foreground hover:underline flex items-center gap-1 w-fit"
+              className="text-xs text-foreground/75 hover:text-foreground hover:underline flex items-center gap-1 w-fit"
             >
               /{row.original.slug}
               <ArrowSquareOut size={11} />
@@ -88,7 +88,7 @@ export function getColumns({
         });
 
         return (
-          <div className="flex flex-col gap-2 py-1 max-w-[280px]">
+          <div className="flex flex-col gap-2 py-1 max-w-70">
             {Object.entries(grouped).map(([groupName, catNames]) => (
               <div key={groupName} className="flex flex-col gap-1">
                 <span className="font-semibold text-xs text-foreground w-fit">
@@ -98,7 +98,7 @@ export function getColumns({
                   {catNames.map((name) => (
                     <span
                       key={name}
-                      className="text-[10px] bg-muted text-muted-foreground px-1.5 py-0.5 rounded"
+                      className="text-xs bg-muted text-muted-foreground px-1.5 py-0.5 rounded"
                     >
                       {name}
                     </span>

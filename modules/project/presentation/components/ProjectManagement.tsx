@@ -329,7 +329,7 @@ export function ProjectManagement() {
           value={filterProjectTypeId}
           onValueChange={setFilterProjectTypeId}
         >
-          <SelectTrigger className="w-full md:w-[180px]">
+          <SelectTrigger className="w-full md:w-45">
             <SelectValue placeholder="Loại hình công trình" />
           </SelectTrigger>
           <SelectContent>
@@ -344,7 +344,7 @@ export function ProjectManagement() {
 
         {/* Group Filter */}
         <Select value={filterGroupId} onValueChange={handleGroupIdChange}>
-          <SelectTrigger className="w-full md:w-[180px]">
+          <SelectTrigger className="w-full md:w-45">
             <SelectValue placeholder="Nhóm danh mục" />
           </SelectTrigger>
           <SelectContent>
@@ -359,7 +359,7 @@ export function ProjectManagement() {
 
         {/* Category Filter */}
         <Select value={filterCategoryId} onValueChange={setFilterCategoryId}>
-          <SelectTrigger className="w-full md:w-[180px]">
+          <SelectTrigger className="w-full md:w-45">
             <SelectValue placeholder="Danh mục" />
           </SelectTrigger>
           <SelectContent>
@@ -374,7 +374,7 @@ export function ProjectManagement() {
 
         {/* Featured Filter (Mức độ) */}
         <Select value={filterIsFeatured} onValueChange={setFilterIsFeatured}>
-          <SelectTrigger className="w-full md:w-[150px]">
+          <SelectTrigger className="w-full md:w-38">
             <SelectValue placeholder="Mức độ" />
           </SelectTrigger>
           <SelectContent>
@@ -386,7 +386,7 @@ export function ProjectManagement() {
 
         {/* Published Filter */}
         <Select value={filterIsPublished} onValueChange={setFilterIsPublished}>
-          <SelectTrigger className="w-full md:w-[170px]">
+          <SelectTrigger className="w-full md:w-43">
             <SelectValue placeholder="Trạng thái" />
           </SelectTrigger>
           <SelectContent>
@@ -398,7 +398,7 @@ export function ProjectManagement() {
 
         {/* Condition Filter */}
         <Select value={filterCondition} onValueChange={setFilterCondition}>
-          <SelectTrigger className="w-full md:w-[150px]">
+          <SelectTrigger className="w-full md:w-38">
             <SelectValue placeholder="Tình trạng" />
           </SelectTrigger>
           <SelectContent>
@@ -413,7 +413,7 @@ export function ProjectManagement() {
           value={filterServiceGroupId}
           onValueChange={handleServiceGroupIdChange}
         >
-          <SelectTrigger className="w-full md:w-[180px]">
+          <SelectTrigger className="w-full md:w-45">
             <SelectValue placeholder="Nhóm dịch vụ" />
           </SelectTrigger>
           <SelectContent>
@@ -428,7 +428,7 @@ export function ProjectManagement() {
 
         {/* Service Filter */}
         <Select value={filterServiceId} onValueChange={setFilterServiceId}>
-          <SelectTrigger className="w-full md:w-[180px]">
+          <SelectTrigger className="w-full md:w-45">
             <SelectValue placeholder="Dịch vụ thực hiện" />
           </SelectTrigger>
           <SelectContent>
@@ -716,7 +716,7 @@ export function ProjectManagement() {
                   <div className="space-y-6 border p-6 rounded-2xl bg-muted/10">
                     <div className="border-b pb-2">
                       <h3 className="text-sm font-semibold tracking-tight">Thông tin công trình</h3>
-                      <p className="text-[11px] text-muted-foreground">
+                      <p className="text-xs text-muted-foreground">
                         Tăng độ tin cậy khi hiển thị công khai — theo chuẩn portfolio các nhà thầu lớn.
                       </p>
                     </div>
@@ -762,7 +762,7 @@ export function ProjectManagement() {
                             <Textarea
                               {...field}
                               placeholder="VD: Đội thi công rất chuyên nghiệp, đúng tiến độ..."
-                              className="min-h-[80px]"
+                              className="min-h-20"
                             />
                           </Field>
                         )}
@@ -786,7 +786,7 @@ export function ProjectManagement() {
                       <h3 className="text-sm font-semibold tracking-tight">
                         Cấu hình SEO
                       </h3>
-                      <p className="text-[11px] text-muted-foreground">
+                      <p className="text-xs text-muted-foreground">
                         Tối ưu hóa hiển thị trên các công cụ tìm kiếm (Google,
                         Bing,...).
                       </p>
@@ -799,7 +799,7 @@ export function ProjectManagement() {
                           <Field>
                             <div className="flex items-center justify-between">
                               <FieldLabel>Tiêu đề SEO</FieldLabel>
-                              <span className="text-[11px] text-muted-foreground">{(field.value || "").length}/70</span>
+                              <span className="text-xs text-muted-foreground">{(field.value || "").length}/70</span>
                             </div>
                             <Input
                               {...field}
@@ -818,13 +818,13 @@ export function ProjectManagement() {
                           <Field>
                             <div className="flex items-center justify-between">
                               <FieldLabel>Mô tả SEO</FieldLabel>
-                              <span className="text-[11px] text-muted-foreground">{(field.value || "").length}/160</span>
+                              <span className="text-xs text-muted-foreground">{(field.value || "").length}/160</span>
                             </div>
                             <Textarea
                               {...field}
                               value={field.value || ""}
                               placeholder="Mô tả tóm tắt nội dung để hiển thị trên Google..."
-                              className="min-h-[80px]"
+                              className="min-h-20"
                             />
                             <FieldError errors={[fieldState.error]} />
                           </Field>
@@ -1255,7 +1255,7 @@ export function ProjectManagement() {
                       <h3 className="text-sm font-semibold tracking-tight">
                         Nội dung chi tiết dự án
                       </h3>
-                      <span className="text-[10px] text-muted-foreground uppercase tracking-widest">
+                      <span className="text-xs text-muted-foreground uppercase tracking-widest">
                         Tiptap Editor
                       </span>
                     </div>

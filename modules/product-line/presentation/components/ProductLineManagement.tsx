@@ -372,7 +372,7 @@ export function ProductLineManagement() {
                       {...field}
                       value={field.value || ""}
                       placeholder="Mô tả ngắn về dòng sản phẩm này..."
-                      className="min-h-[80px]"
+                      className="min-h-20"
                     />
                   </Field>
                 )}
