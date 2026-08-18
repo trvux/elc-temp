@@ -167,11 +167,11 @@ export function SeoAuditPanel() {
             {issues.map((row, i) => (
               <TableRow key={i}>
                 <TableCell className="whitespace-nowrap">{row.type}</TableCell>
-                <TableCell className="max-w-[280px] truncate">{row.name}</TableCell>
+                <TableCell className="max-w-70 truncate">{row.name}</TableCell>
                 <TableCell>
                   <div className="flex flex-wrap gap-1.5">
                     {row.problems.map((p, j) => (
-                      <Badge key={j} variant="outline" className="text-[11px] font-normal">
+                      <Badge key={j} variant="outline" className="text-xs font-normal">
                         {p}
                       </Badge>
                     ))}

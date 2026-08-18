@@ -85,6 +85,8 @@ export function StickyContactActions({ contacts }: StickyContactActionsProps) {
                 variant={contact.type === "zalo" ? "default" : "ghost"}
                 className={cn(
                   "h-9 sm:h-10 px-4 rounded-full transition-all active:scale-95 text-xs sm:text-sm flex items-center gap-1.5 font-semibold",
+                  // #242424/#f5efe6 + shadow nhiều lớp = mô phỏng đúng nút Zalo OA
+                  // chính thức, cố ý không dùng token app (xem docs/design-system.md §4)
                   contact.type === "zalo"
                     ? "bg-[#242424] text-[#f5efe6] hover:bg-[#242424]/90 shadow-[0_0.84px_0.84px_-0.31px_rgba(36,36,36,0.15),0_1.99px_1.99px_-0.625px_rgba(36,36,36,0.15),0_3.63px_3.63px_-0.9375px_rgba(36,36,36,0.15),0_6.04px_6.04px_-1.25px_rgba(36,36,36,0.15),0_9.75px_9.75px_-1.56px_rgba(36,36,36,0.15),0_15.96px_15.96px_-1.875px_rgba(36,36,36,0.15),0_27.48px_27.48px_-2.19px_rgba(36,36,36,0.15),0_50px_50px_-2.5px_rgba(36,36,36,0.15)] border-none"
                     : "",

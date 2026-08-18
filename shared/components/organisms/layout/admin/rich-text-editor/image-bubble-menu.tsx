@@ -132,7 +132,7 @@ export const ImageBubbleMenu = ({ editor }: ImageBubbleMenuProps) => {
             </PopoverTrigger>
             <PopoverContent className="w-80 p-3 rounded-lg shadow-xl bg-primary border-muted">
               <div className="flex flex-col gap-2">
-                <span className="text-[12px] text-muted-foreground font-medium">
+                <span className="text-xs text-muted-foreground font-medium">
                   Alternative text
                 </span>
                 <Input

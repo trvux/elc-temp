@@ -237,7 +237,7 @@ export function DeleteDialog({
                         <p className="font-semibold text-sm text-foreground">
                           {section.title} (tổng cộng {section.items.length}):
                         </p>
-                        <ul className="list-disc pl-5 space-y-1 text-xs max-h-[120px] overflow-y-auto">
+                        <ul className="list-disc pl-5 space-y-1 text-xs max-h-30 overflow-y-auto">
                           {section.items.map((item) => (
                             <li key={item.id}>{item.name}</li>
                           ))}

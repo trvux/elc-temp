@@ -64,6 +64,7 @@ export function ZaloContactModal({
         {/* Header */}
         <DialogHeader className="px-5 pt-5 pb-4 border-b border-border/50">
           <div className="flex items-center gap-3">
+            {/* #0068ff = đúng xanh brand Zalo, cố ý không dùng token app (xem docs/design-system.md §4) */}
             <div className="w-9 h-9 rounded-full bg-[#0068ff] flex items-center justify-center shrink-0">
               <ZaloIcon size={16} className="text-white" />
             </div>

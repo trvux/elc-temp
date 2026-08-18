@@ -95,7 +95,7 @@ export function PublicFilterSidebarLayout({
         >
           <CaretRight className="size-3.5 text-muted-foreground group-hover:text-foreground transition-colors" />
           <span
-            className="text-[10px] font-medium text-muted-foreground group-hover:text-foreground transition-colors tracking-widest leading-none"
+            className="text-xs font-medium text-muted-foreground group-hover:text-foreground transition-colors tracking-widest leading-none"
             style={{ writingMode: "vertical-rl" }}
           >
             Bộ lọc
@@ -121,7 +121,7 @@ export function PublicFilterSidebarLayout({
                 {activeFilterCount > 0 && (
                   <Badge
                     variant="secondary"
-                    className="ml-0.5 h-4 min-w-4 px-1 text-[10px] font-bold"
+                    className="ml-0.5 h-4 min-w-4 px-1 text-xs font-bold"
                   >
                     {activeFilterCount}
                   </Badge>
@@ -130,7 +130,7 @@ export function PublicFilterSidebarLayout({
             </SheetTrigger>
             <SheetContent
               side="left"
-              className="!z-[300] w-full max-w-[320px] p-0 flex flex-col bg-sidebar"
+              className="!z-[300] w-full max-w-80 p-0 flex flex-col bg-sidebar"
             >
               <SheetHeader className="px-5 py-3.5 border-b border-border/60 shrink-0">
                 <SheetTitle className="flex items-center gap-2 text-sm font-semibold">

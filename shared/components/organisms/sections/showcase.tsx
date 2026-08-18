@@ -171,7 +171,7 @@ export function ShowcaseSection({ projects }: ShowcaseSectionProps) {
         )}
       </StaggerContainer>
 
-      <div className="w-full min-h-[300px] flex items-center" key={activeTab}>
+      <div className="w-full min-h-75 flex items-center" key={activeTab}>
         {filteredProjects.length > 0 ? (
           renderMarquee(baseRow)
         ) : (

@@ -76,7 +76,7 @@ export function ProjectMarqueeSection({
         className="shrink-0 flex flex-col gap-4 group w-full block"
       >
         {/* Card Background Image without Overlay */}
-        <div className="relative w-full aspect-[4/3] rounded-[24px] overflow-hidden border border-border/40 bg-muted shadow-sm transition-all duration-500 group-hover:shadow-md">
+        <div className="relative w-full aspect-[4/3] rounded-4xl overflow-hidden border border-border/40 bg-muted shadow-sm transition-all duration-500 group-hover:shadow-md">
           {/* Background image */}
           <Image
             src={firstImage}
