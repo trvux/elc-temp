@@ -231,7 +231,7 @@ export function ServiceManagement({
       <div className="flex flex-wrap items-center gap-4">
         {/* Service Group Filter */}
         <Select value={filterGroupId} onValueChange={handleGroupIdChange}>
-          <SelectTrigger className="w-full md:w-[180px]">
+          <SelectTrigger className="w-full md:w-45">
             <SelectValue placeholder="Nhóm dịch vụ" />
           </SelectTrigger>
           <SelectContent>
@@ -246,7 +246,7 @@ export function ServiceManagement({
 
         {/* Category Filter */}
         <Select value={filterCategoryId} onValueChange={setFilterCategoryId}>
-          <SelectTrigger className="w-full md:w-[200px]">
+          <SelectTrigger className="w-full md:w-50">
             <SelectValue placeholder="Dòng sản phẩm" />
           </SelectTrigger>
           <SelectContent>
@@ -261,7 +261,7 @@ export function ServiceManagement({
 
         {/* Featured Filter */}
         <Select value={filterIsFeatured} onValueChange={setFilterIsFeatured}>
-          <SelectTrigger className="w-full md:w-[150px]">
+          <SelectTrigger className="w-full md:w-38">
             <SelectValue placeholder="Mức độ" />
           </SelectTrigger>
           <SelectContent>
@@ -273,7 +273,7 @@ export function ServiceManagement({
 
         {/* Published Filter */}
         <Select value={filterIsPublished} onValueChange={setFilterIsPublished}>
-          <SelectTrigger className="w-full md:w-[150px]">
+          <SelectTrigger className="w-full md:w-38">
             <SelectValue placeholder="Trạng thái" />
           </SelectTrigger>
           <SelectContent>
@@ -644,7 +644,7 @@ export function ServiceManagement({
                                     <FieldLabel className="text-sm font-semibold tracking-tight">
                                       Hiển thị
                                     </FieldLabel>
-                                    <span className="text-[10px] text-muted-foreground block">
+                                    <span className="text-xs text-muted-foreground block">
                                       Công khai
                                     </span>
                                   </div>
@@ -667,7 +667,7 @@ export function ServiceManagement({
                                     <FieldLabel className="text-sm font-semibold tracking-tight">
                                       Nổi bật
                                     </FieldLabel>
-                                    <span className="text-[10px] text-muted-foreground block">
+                                    <span className="text-xs text-muted-foreground block">
                                       Lên đầu
                                     </span>
                                   </div>
@@ -708,7 +708,7 @@ export function ServiceManagement({
                       <FieldLegend>Nhãn hiển thị (Badges)</FieldLegend>
                       <div className="border rounded-xl p-5 bg-muted/5 space-y-3">
                         <div className="space-y-1">
-                          <p className="text-[11px] text-muted-foreground">
+                          <p className="text-xs text-muted-foreground">
                             Ví dụ: Bảo hành 1 năm, Khảo sát miễn phí...
                           </p>
                         </div>
@@ -770,7 +770,7 @@ export function ServiceManagement({
                     <h3 className="text-sm font-semibold tracking-tight">
                       Cấu hình SEO
                     </h3>
-                    <p className="text-[11px] text-muted-foreground">
+                    <p className="text-xs text-muted-foreground">
                       Tối ưu hóa hiển thị trên các công cụ tìm kiếm.
                     </p>
                   </div>
@@ -784,7 +784,7 @@ export function ServiceManagement({
                             <FieldLabel className="text-xs">
                               Tiêu đề SEO
                             </FieldLabel>
-                            <span className="text-[11px] text-muted-foreground">{(field.value || "").length}/70</span>
+                            <span className="text-xs text-muted-foreground">{(field.value || "").length}/70</span>
                           </div>
                           <Input
                             {...field}
@@ -803,13 +803,13 @@ export function ServiceManagement({
                         <Field>
                           <div className="flex items-center justify-between">
                             <FieldLabel className="text-xs">Mô tả SEO</FieldLabel>
-                            <span className="text-[11px] text-muted-foreground">{(field.value || "").length}/160</span>
+                            <span className="text-xs text-muted-foreground">{(field.value || "").length}/160</span>
                           </div>
                           <Textarea
                             {...field}
                             value={field.value || ""}
                             placeholder="Mô tả tóm tắt dịch vụ để hiển thị trên Google..."
-                            className="min-h-[80px]"
+                            className="min-h-20"
                           />
                           <FieldError errors={[fieldState.error]} />
                         </Field>
@@ -827,7 +827,7 @@ export function ServiceManagement({
                 <div className="space-y-4">
                   <div className="flex items-center justify-between border-b pb-2">
                     <h3 className="text-sm font-semibold tracking-tight">Nội dung chi tiết dịch vụ</h3>
-                    <span className="text-[10px] text-muted-foreground uppercase tracking-widest">Tiptap</span>
+                    <span className="text-xs text-muted-foreground uppercase tracking-widest">Tiptap</span>
                   </div>
                   <Controller
                     control={form.control}

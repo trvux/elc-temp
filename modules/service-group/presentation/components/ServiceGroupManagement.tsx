@@ -183,7 +183,7 @@ export function ServiceGroupManagement({ initialData }: ServiceGroupManagementPr
       <div className="flex flex-wrap items-center gap-4">
         {/* Category Filter */}
         <Select value={filterCategoryId} onValueChange={setFilterCategoryId}>
-          <SelectTrigger className="w-full md:w-[220px]">
+          <SelectTrigger className="w-full md:w-55">
             <SelectValue placeholder="Dòng sản phẩm liên kết" />
           </SelectTrigger>
           <SelectContent>
@@ -198,7 +198,7 @@ export function ServiceGroupManagement({ initialData }: ServiceGroupManagementPr
 
         {/* Featured Filter */}
         <Select value={filterIsFeatured} onValueChange={setFilterIsFeatured}>
-          <SelectTrigger className="w-full md:w-[150px]">
+          <SelectTrigger className="w-full md:w-38">
             <SelectValue placeholder="Mức độ" />
           </SelectTrigger>
           <SelectContent>
@@ -384,7 +384,7 @@ export function ServiceGroupManagement({ initialData }: ServiceGroupManagementPr
                           control={form.control}
                           name="isFeatured"
                           render={({ field, fieldState }) => (
-                            <Field orientation="horizontal" className="justify-between items-center border px-3 py-2 rounded-xl self-end h-[42px] gap-2">
+                            <Field orientation="horizontal" className="justify-between items-center border px-3 py-2 rounded-xl self-end h-11 gap-2">
                               <FieldLabel className="font-normal text-xs whitespace-nowrap mb-0">Nổi bật</FieldLabel>
                               <Switch checked={field.value} onCheckedChange={field.onChange} />
                               <FieldError errors={[fieldState.error]} />
@@ -401,7 +401,7 @@ export function ServiceGroupManagement({ initialData }: ServiceGroupManagementPr
               <div className="space-y-6 border p-6 rounded-2xl bg-muted/10">
                 <div className="border-b pb-2">
                   <h3 className="text-sm font-semibold tracking-tight">Cấu hình SEO</h3>
-                  <p className="text-[11px] text-muted-foreground">Tối ưu hóa hiển thị trên các công cụ tìm kiếm.</p>
+                  <p className="text-xs text-muted-foreground">Tối ưu hóa hiển thị trên các công cụ tìm kiếm.</p>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <Controller
@@ -422,7 +422,7 @@ export function ServiceGroupManagement({ initialData }: ServiceGroupManagementPr
                     render={({ field, fieldState }) => (
                       <Field>
                         <FieldLabel className="text-xs">Mô tả SEO</FieldLabel>
-                        <Textarea {...field} value={field.value || ""} placeholder="Nhập mô tả SEO..." className="min-h-[80px]" />
+                        <Textarea {...field} value={field.value || ""} placeholder="Nhập mô tả SEO..." className="min-h-20" />
                         <FieldError errors={[fieldState.error]} />
                       </Field>
                     )}

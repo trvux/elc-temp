@@ -43,7 +43,7 @@ export const getReviewColumns = ({ onView }: ColumnProps): ColumnDef<AdminReview
       return (
         <Link
           href={`/admin/products/${productId}`}
-          className="text-sm text-primary hover:underline line-clamp-1 max-w-[220px]"
+          className="text-sm text-primary hover:underline line-clamp-1 max-w-55"
         >
           {productName}
         </Link>

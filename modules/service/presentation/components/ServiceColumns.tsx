@@ -34,7 +34,7 @@ export const getServiceColumns = ({
           />
         </div>
       ) : (
-        <div className="w-10 h-10 bg-muted/50 rounded-md flex items-center justify-center text-muted-foreground/40 text-[9px] font-bold leading-none text-center px-1 capitalize tracking-tighter">
+        <div className="w-10 h-10 bg-muted/50 rounded-md flex items-center justify-center text-muted-foreground/40 text-xs font-bold leading-none text-center px-1 capitalize tracking-tighter">
           N/A
         </div>
       );
@@ -72,7 +72,7 @@ export const getServiceColumns = ({
             <span className="text-muted-foreground italic text-xs">-</span>
           )}
           {service.category && (
-            <span className="text-[11px] text-muted-foreground">
+            <span className="text-xs text-muted-foreground">
               {service.category.name}
             </span>
           )}
@@ -112,7 +112,7 @@ export const getServiceColumns = ({
                 </span>
                 <Badge
                   variant="destructive"
-                  className="px-1 py-0 h-4 text-[10px] leading-none"
+                  className="px-1 py-0 h-4 text-xs leading-none"
                 >
                   -{discount}%
                 </Badge>
@@ -136,12 +136,12 @@ export const getServiceColumns = ({
       if (labels.length === 0)
         return <span className="text-muted-foreground">—</span>;
       return (
-        <div className="flex flex-wrap gap-1 max-w-[150px]">
+        <div className="flex flex-wrap gap-1 max-w-38">
           {labels.map((l) => (
             <Badge
               key={l}
               variant="outline"
-              className="text-[10px] px-1.5 py-0.5 font-normal"
+              className="text-xs px-1.5 py-0.5 font-normal"
             >
               {l}
             </Badge>

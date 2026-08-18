@@ -36,7 +36,7 @@ export const getServiceGroupColumns = ({
           />
         </div>
       ) : (
-        <div className="w-10 h-10 bg-muted/50 rounded-md flex items-center justify-center text-muted-foreground/40 text-[9px] font-bold leading-none text-center px-1 capitalize tracking-tighter">
+        <div className="w-10 h-10 bg-muted/50 rounded-md flex items-center justify-center text-muted-foreground/40 text-xs font-bold leading-none text-center px-1 capitalize tracking-tighter">
           N/A
         </div>
       );
@@ -93,7 +93,7 @@ export const getServiceGroupColumns = ({
       });
 
       return (
-        <div className="flex flex-col gap-2 py-1 max-w-[280px]">
+        <div className="flex flex-col gap-2 py-1 max-w-70">
           {Object.entries(grouped).map(([groupName, catNames]) => (
             <div key={groupName} className="flex flex-col gap-1">
               <span className="font-semibold text-xs text-foreground w-fit">
@@ -103,7 +103,7 @@ export const getServiceGroupColumns = ({
                 {catNames.map((name) => (
                   <span
                     key={name}
-                    className="text-[10px] bg-muted text-muted-foreground px-1.5 py-0.5 rounded"
+                    className="text-xs bg-muted text-muted-foreground px-1.5 py-0.5 rounded"
                   >
                     {name}
                   </span>
