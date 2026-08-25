@@ -16,15 +16,10 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: pnpm/action-setup@v4
+      - uses: oven-sh/setup-bun@v2
 
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 22
-          cache: pnpm
-
-      - run: pnpm install --frozen-lockfile
-      - run: pnpm exec tsc --noEmit
+      - run: bun install --frozen-lockfile
+      - run: bunx tsc --noEmit
       # Non-blocking on purpose: the current codebase has ~36 pre-existing
       # lint errors (checked 2026-07-08, mostly react/no-unescaped-entities
       # and react-hooks rules) that are unrelated to any given change. Making
@@ -32,13 +27,13 @@ jobs:
       # new breaks, and train everyone to ignore it. Still runs and reports
       # so the count is visible — tighten to blocking once the baseline is
       # actually clean.
-      - run: pnpm run lint
+      - run: bun run lint
         continue-on-error: true
       # GO_API_URL is deliberately fake here — every Server Action wraps its
       # fetch in try/catch specifically so a build never depends on a live
       # Go API being reachable (see the "PR #588 lesson" in project memory).
       # Set anyway as cheap insurance against a future call site regressing
       # that pattern.
-      - run: pnpm run build
+      - run: bun run build
         env:
           GO_API_URL: http://localhost:8090
