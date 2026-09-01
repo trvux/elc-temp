@@ -21,7 +21,7 @@ export type ProductFormValues = Omit<
 
 // The single default variant every new product form starts with — see the
 // Product doc comment in domain/types.ts.
-export const DEFAULT_VARIANT: ProductFormValues["variants"][number] = {
+const DEFAULT_VARIANT: ProductFormValues["variants"][number] = {
   mpn: "",
   sku: "",
   gtin: "",

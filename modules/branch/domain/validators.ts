@@ -6,7 +6,7 @@ const imageAssetSchema = z.object({
     caption: z.string().optional(),
 });
 
-export const branchSchema = z.object({
+const branchSchema = z.object({
     id: z.uuid({message: "ID không đúng định dạng UUID"}),
     name: z
         .string()

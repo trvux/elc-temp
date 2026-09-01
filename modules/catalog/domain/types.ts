@@ -1,11 +1,10 @@
 
-import { Brand, CreateBrandInput, UpdateBrandInput } from "../../brand/domain";
-export type { Brand, CreateBrandInput, UpdateBrandInput };
+import { Brand } from "../../brand/domain";
+export type { Brand };
 import type { AttributeDataType } from "../../attribute-definition/domain";
 export type { AttributeDataType };
 import { ProductStatus, VariantStockStatus } from "./constants";
 import type { ImageAsset } from "@/shared/lib/image-asset";
-export type { ImageAsset };
 
 export type Json =
     | string

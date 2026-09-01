@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-export const attributeDefinitionSchema = z.object({
+const attributeDefinitionSchema = z.object({
   id: z.uuid({ message: "ID không đúng định dạng UUID" }),
   categoryIds: z.array(z.uuid({ message: "ID danh mục không đúng định dạng UUID" })).default([]),
   code: z

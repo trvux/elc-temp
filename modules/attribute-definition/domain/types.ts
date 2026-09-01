@@ -56,11 +56,6 @@ export interface UpdateAttributeDefinitionInput {
   isRequired?: boolean;
 }
 
-export interface AttachAttributeDefinitionCategoriesInput {
-  id: string;
-  categoryIds: string[];
-}
-
 export interface AttributeDefinitionFilter {
   categoryId?: string;
   // IncludeGlobal also returns definitions attached to zero categories

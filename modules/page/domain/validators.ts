@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { Json } from "./types";
 
-export const pageSchema = z.object({
+const pageSchema = z.object({
   id: z.uuid({ message: "ID không đúng định dạng UUID" }),
   title: z
     .string()

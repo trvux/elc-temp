@@ -91,7 +91,7 @@ async function persistSession(session: GoAccessTokenResponse) {
 // endpoints server-to-server and stores the resulting tokens as this app's
 // own httpOnly cookies. The browser only ever talks to Next.js — elc-go's
 // own Set-Cookie response header never needs to reach it.
-export class GoAuthRepository implements AuthRepository {
+class GoAuthRepository implements AuthRepository {
   async login(input: LoginInput): Promise<{ user: AuthUser | null; error: string | null }> {
     if (!GO_API_URL) {
       return { user: null, error: "GO_API_URL is not configured" };

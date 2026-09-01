@@ -8,8 +8,6 @@ export const CONTACT_TYPES = {
   TIKTOK: "tiktok",
 } as const;
 
-export type ContactType = typeof CONTACT_TYPES[keyof typeof CONTACT_TYPES];
-
 export const SETTINGS_KEYS = {
   SITE_NAME: "site_name",
   SITE_DESCRIPTION: "site_description",

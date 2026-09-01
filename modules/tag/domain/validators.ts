@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-export const tagSchema = z.object({
+const tagSchema = z.object({
   id: z.uuid({ message: "ID không đúng định dạng UUID" }),
   name: z
     .string()

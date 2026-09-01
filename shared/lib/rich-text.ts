@@ -1,7 +1,7 @@
 // Flattens a Tiptap/ProseMirror JSON doc (products.description, pages.content,
 // etc.) into plain text — used wherever we need a text excerpt (meta
 // description fallback, llms-full.txt) rather than the rendered rich content.
-export function richTextToPlainText(node: unknown): string {
+function richTextToPlainText(node: unknown): string {
   if (!node) return "";
   if (typeof node === "object") {
     const obj = node as Record<string, unknown>;

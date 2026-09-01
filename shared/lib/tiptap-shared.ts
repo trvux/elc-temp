@@ -15,7 +15,7 @@ import { cn } from "@/shared/lib/utils";
 // page's own <h1> always comes from a separate structured title field, never
 // from this content, so no heading in body content is ever level 1.
 // ---------------------------------------------------------------------------
-export type TiptapNode = {
+type TiptapNode = {
   type: string;
   attrs?: Record<string, unknown>;
   content?: TiptapNode[];

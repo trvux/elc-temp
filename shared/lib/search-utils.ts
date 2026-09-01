@@ -7,7 +7,7 @@ export function normalize(str: string): string {
     .replace(/Đ/g, "d");
 }
 
-export function cleanTelex(word: string): string {
+function cleanTelex(word: string): string {
   if (!/[aeiou]/.test(word)) return word;
   return word.replace(/[fjx]$/, "").replace(/([aeiou])w/g, "$1");
 }
