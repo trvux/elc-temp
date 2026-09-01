@@ -32,7 +32,3 @@ export const createAuthorSchema = authorSchema.omit({
   updatedAt: true,
   deletedAt: true,
 });
-
-export const updateAuthorSchema = createAuthorSchema.partial().extend({
-  id: z.uuid({ message: "ID không đúng định dạng UUID" }),
-});

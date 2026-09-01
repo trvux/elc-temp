@@ -39,8 +39,6 @@ const hpPageObjectSchema = z.object({
     .nullable(),
 });
 
-export const hpPageSchema = hpPageObjectSchema;
-
 const createHpPageObjectSchema = hpPageObjectSchema.omit({
   id: true,
   createdAt: true,
@@ -52,7 +50,3 @@ export const createHpPageSchema = createHpPageObjectSchema.refine(
   (v) => (!!v.attributeCode && v.attributeValues.length > 0) || v.categoryIds.length > 0 || v.brandIds.length > 0,
   { message: "Chọn ít nhất 1 điều kiện lọc: thuộc tính, danh mục, hoặc thương hiệu", path: ["attributeValues"] },
 );
-
-export const updateHpPageSchema = createHpPageObjectSchema.partial().extend({
-  id: z.uuid({ message: "ID không đúng định dạng UUID" }),
-});

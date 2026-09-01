@@ -20,11 +20,3 @@ export const contactSchema = z.object({
 export const createContactSchema = contactSchema.omit({
   id: true,
 });
-
-export const updateContactSchema = createContactSchema.partial().extend({
-  id: z.uuid({ message: "ID không đúng định dạng UUID" }),
-});
-
-export const updateSettingsSchema = z.object({
-  settings: z.array(siteSettingSchema),
-});

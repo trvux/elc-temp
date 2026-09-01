@@ -21,19 +21,4 @@ const dayRangeIssue = {
   path: ["maxDays"] as (string | number)[],
 };
 
-export const shippingZoneSchema = z
-  .object({
-    id: z.uuid({ message: "ID không đúng định dạng UUID" }),
-    ...baseShippingZoneFields,
-    createdAt: z.iso.datetime({ message: "Thời gian tạo không đúng định dạng ISO" }),
-    updatedAt: z.iso.datetime({ message: "Thời gian cập nhật không đúng định dạng ISO" }),
-    deletedAt: z.iso.datetime({ message: "Thời gian xóa không đúng định dạng ISO" }).nullable(),
-  })
-  .refine(dayRangeRefine, dayRangeIssue);
-
 export const createShippingZoneSchema = z.object(baseShippingZoneFields).refine(dayRangeRefine, dayRangeIssue);
-
-export const updateShippingZoneSchema = z
-  .object({ ...baseShippingZoneFields, id: z.uuid({ message: "ID không đúng định dạng UUID" }) })
-  .partial()
-  .extend({ id: z.uuid({ message: "ID không đúng định dạng UUID" }) });

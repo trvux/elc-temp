@@ -33,12 +33,3 @@ export const createAttributeDefinitionSchema = attributeDefinitionSchema.omit({
   updatedAt: true,
   deletedAt: true,
 });
-
-// code/dataType are not sendable on update — see UpdateAttributeDefinitionInput's
-// doc comment. categoryIds stays (reconciled via attach/detach after update).
-export const updateAttributeDefinitionSchema = createAttributeDefinitionSchema
-  .omit({ code: true, dataType: true })
-  .partial()
-  .extend({
-    id: z.uuid({ message: "ID không đúng định dạng UUID" }),
-  });

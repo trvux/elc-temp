@@ -37,7 +37,3 @@ export const createCategorySchema = categorySchema.omit({
   updatedAt: true,
   deletedAt: true,
 });
-
-export const updateCategorySchema = createCategorySchema.partial().extend({
-  id: z.uuid({ message: "ID không đúng định dạng UUID" }),
-});

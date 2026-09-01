@@ -52,7 +52,3 @@ export const createBranchSchema = branchSchema.omit({
     updatedAt: true,
     deletedAt: true,
 });
-
-export const updateBranchSchema = createBranchSchema.partial().extend({
-    id: z.uuid({message: "ID không đúng định dạng UUID"}),
-});

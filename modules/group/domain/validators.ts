@@ -36,7 +36,3 @@ export const createGroupSchema = groupSchema.omit({
   updatedAt: true,
   deletedAt: true,
 });
-
-export const updateGroupSchema = createGroupSchema.partial().extend({
-  id: z.uuid({ message: "ID không đúng định dạng UUID" }),
-});

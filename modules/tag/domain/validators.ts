@@ -30,7 +30,3 @@ export const createTagSchema = tagSchema.omit({
   updatedAt: true,
   deletedAt: true,
 });
-
-export const updateTagSchema = createTagSchema.partial().extend({
-  id: z.uuid({ message: "ID không đúng định dạng UUID" }),
-});

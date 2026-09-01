@@ -28,11 +28,3 @@ export const createProductLineSchema = productLineSchema.omit({
 });
 
 // brandId is intentionally not sendable on update — elc-go's UpdateProductLine
-// only ever touches categoryId/name/tierRank/description, matching the Go
-// application layer's domain.UpdateProductLineInput shape exactly.
-export const updateProductLineSchema = createProductLineSchema
-  .omit({ brandId: true, code: true })
-  .partial()
-  .extend({
-    id: z.uuid({ message: "ID không đúng định dạng UUID" }),
-  });

@@ -36,7 +36,3 @@ export const createProjectTypeSchema = projectTypeSchema.omit({
   updatedAt: true,
   deletedAt: true,
 });
-
-export const updateProjectTypeSchema = createProjectTypeSchema.partial().extend({
-  id: z.uuid({ message: "ID không đúng định dạng UUID" }),
-});
