@@ -1,10 +1,3 @@
-export const BRANCH_STATUS = {
-  PUBLISHED: "published",
-  DRAFT: "draft",
-} as const;
-
-export type BranchStatus = typeof BRANCH_STATUS[keyof typeof BRANCH_STATUS];
-
 export type Json =
   | string
   | number
@@ -64,4 +57,11 @@ export interface CreateBranchInput {
 
 export interface UpdateBranchInput extends Partial<CreateBranchInput> {
   id: string;
+}
+
+export interface BranchFilter {
+  isPublished?: boolean;
+  limit?: number;
+  offset?: number;
+  search?: string;
 }

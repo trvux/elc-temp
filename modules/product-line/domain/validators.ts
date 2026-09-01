@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-export const productLineSchema = z.object({
+const productLineSchema = z.object({
   id: z.uuid({ message: "ID không đúng định dạng UUID" }),
   brandId: z.uuid({ message: "ID thương hiệu không đúng định dạng UUID" }),
   categoryId: z.uuid({ message: "ID danh mục không đúng định dạng UUID" }).nullable().optional(),
@@ -26,13 +26,3 @@ export const createProductLineSchema = productLineSchema.omit({
   updatedAt: true,
   deletedAt: true,
 });
-
-// brandId is intentionally not sendable on update — elc-go's UpdateProductLine
-// only ever touches categoryId/name/tierRank/description, matching the Go
-// application layer's domain.UpdateProductLineInput shape exactly.
-export const updateProductLineSchema = createProductLineSchema
-  .omit({ brandId: true, code: true })
-  .partial()
-  .extend({
-    id: z.uuid({ message: "ID không đúng định dạng UUID" }),
-  });

@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-export const categorySchema = z.object({
+const categorySchema = z.object({
   id: z.uuid({ message: "ID không đúng định dạng UUID" }),
   name: z
     .string()
@@ -36,8 +36,4 @@ export const createCategorySchema = categorySchema.omit({
   createdAt: true,
   updatedAt: true,
   deletedAt: true,
-});
-
-export const updateCategorySchema = createCategorySchema.partial().extend({
-  id: z.uuid({ message: "ID không đúng định dạng UUID" }),
 });

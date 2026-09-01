@@ -11,7 +11,7 @@ export function toJsonLdHtml(data: unknown): string {
   return JSON.stringify(data).replace(/</g, "\\u003c");
 }
 
-export function parseAddress(addr: string) {
+function parseAddress(addr: string) {
   const parts = addr.split(",").map((s) => s.trim());
   if (parts.length >= 3) {
     return {
@@ -27,7 +27,7 @@ export function parseAddress(addr: string) {
   };
 }
 
-export function formatPhone(phone: string) {
+function formatPhone(phone: string) {
   const cleaned = phone.replace(/\s+/g, "");
   if (cleaned.startsWith("0") && cleaned.length === 10) {
     return `+84${cleaned.slice(1)}`;

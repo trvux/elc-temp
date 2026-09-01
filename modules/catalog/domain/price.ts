@@ -1,6 +1,6 @@
 import type { ProductVariant } from "./types";
 
-export function roundPrice(price: number | null | undefined): number {
+function roundPrice(price: number | null | undefined): number {
   if (!price || price <= 0) return 0;
   return Math.round(price / 1000) * 1000;
 }

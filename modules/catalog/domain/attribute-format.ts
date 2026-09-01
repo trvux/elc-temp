@@ -4,7 +4,7 @@ import type { AttributeValue } from "./types";
 // display. Unlike this, HP ("ngựa") is a VN retail marketing bucket brands
 // assign inconsistently around the BTU value, so it stays its own
 // admin-picked select attribute (cong_suat_lam_lanh_hp), never computed.
-export const BTU_PER_KW = 3412.14;
+const BTU_PER_KW = 3412.14;
 
 export const CAPACITY_BTU_ATTRIBUTE_CODE = "cong_suat_lam_lanh_btu";
 

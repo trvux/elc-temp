@@ -40,19 +40,3 @@ export function matchLinksByName<T extends NamedLink>(
   }
   return matches;
 }
-
-/** Reverse direction: which news articles mention this category/group by name. */
-export function matchNewsByEntityName<T extends { title: string; slug: string }>(
-  entityName: string,
-  news: T[],
-  limit: number,
-): T[] {
-  const matches: T[] = [];
-  for (const n of news) {
-    if (matches.length >= limit) break;
-    if (n.title.toLowerCase().includes(entityName.toLowerCase())) {
-      matches.push(n);
-    }
-  }
-  return matches;
-}

@@ -27,7 +27,7 @@ export type ForgotPasswordInput = z.infer<typeof forgotPasswordSchema>;
 // Mirrors elc-go's domain.ValidatePassword (internal/auth/domain/types.ts) —
 // kept in sync by hand for immediate client-side feedback; Go re-validates
 // authoritatively regardless, so drift here is a UX issue, not a security one.
-export const passwordSchema = z
+const passwordSchema = z
   .string()
   .min(9, "Mật khẩu phải nhiều hơn 8 ký tự")
   .regex(/[A-Z]/, "Mật khẩu phải có ít nhất 1 chữ hoa")

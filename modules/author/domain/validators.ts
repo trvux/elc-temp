@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-export const authorSchema = z.object({
+const authorSchema = z.object({
   id: z.uuid({ message: "ID không đúng định dạng UUID" }),
   name: z
     .string()
@@ -31,8 +31,4 @@ export const createAuthorSchema = authorSchema.omit({
   createdAt: true,
   updatedAt: true,
   deletedAt: true,
-});
-
-export const updateAuthorSchema = createAuthorSchema.partial().extend({
-  id: z.uuid({ message: "ID không đúng định dạng UUID" }),
 });

@@ -1,6 +1,9 @@
 # RFC: Dọn dead code FE
 
-- **Status:** Hoàn thành — nhóm A, D, E đã xóa/gỡ dep trên `main`; nhóm B (`scratch/`, `index_urls.js`) giữ nguyên như quyết định; nhóm C, F chưa đụng, để opportunistic.
+- **Status:** Hoàn thành — nhóm A, D, E, F đã xử lý (F trên nhánh
+  `chore/knip-unused-exports`, chưa merge vào `main`); nhóm B (`scratch/`,
+  `index_urls.js`) giữ nguyên như quyết định; nhóm C giữ nguyên có chủ đích
+  (xem hàng bảng bên dưới).
 - **Đọc trước:** [`docs/fe-dead-code-audit.md`](./fe-dead-code-audit.md) — báo cáo audit gốc bằng `knip`, 6 nhóm A-F.
 - File này chỉ quyết định + lý do cho từng nhóm, không lặp lại số liệu ở audit gốc.
 
@@ -13,7 +16,7 @@
 | C (26 shadcn primitive chưa dùng) | **Giữ nguyên** | Không đụng `ui/`, để dành dùng tương lai gần. |
 | D (37 file app thật không ai import) | **Xoá, đã điều tra từng nhóm nhỏ** — xem mục dưới. |
 | E (dep `package.json` thừa) | **Xoá 6 dep + 4 devDep**, trừ `sharp` (giữ lại phòng self-host cần) | Đã verify 0 tham chiếu thật trong source. |
-| F (65 export + 31 type thừa trong file đang sống) | **Bỏ qua đợt này** | Rủi ro thấp nhưng dàn trải nhiều file, để opportunistic như đã thống nhất trước. |
+| F (65 export + 31 type thừa trong file đang sống) | **Xoá/de-export, đã làm riêng 1 đợt** (2026-09-01, nhánh `chore/knip-unused-exports`) | User quyết định làm hẳn thay vì để opportunistic — xem chi tiết cách phân loại (dead hẳn vs. chỉ thừa `export`) trong lịch sử commit của nhánh. |
 
 ## Điều tra Nhóm D — vì sao không ai import nữa
 

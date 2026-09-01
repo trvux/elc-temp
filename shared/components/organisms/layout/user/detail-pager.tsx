@@ -7,7 +7,7 @@ import { cn } from "@/shared/lib/utils";
 import { ArrowLeft, ArrowRight } from "@phosphor-icons/react/dist/ssr";
 import Link from "next/link";
 
-export interface DetailPagerItem {
+interface DetailPagerItem {
   title: string;
   href: string;
 }

@@ -15,7 +15,7 @@ const imageAssetSchema = z.object({
 
 // --- v2: options/variants (see elc-go/docs/product-v2-design.md) ---
 
-export const productOptionInputSchema = z.object({
+const productOptionInputSchema = z.object({
   name: z.string().min(1, { message: "Tên option không được để trống" }),
   values: z.array(z.string().min(1)).min(1, { message: "Cần ít nhất 1 giá trị" }),
 });
@@ -31,7 +31,7 @@ const variantComponentInputSchema = z.object({
   role: z.string().nullable().optional(),
 });
 
-export const attributeValueInputSchema = z.object({
+const attributeValueInputSchema = z.object({
   attributeDefinitionId: z.string().min(1),
   valueText: z.string().nullable().optional(),
   valueNumber: z.coerce.number().nullable().optional(),
@@ -40,7 +40,7 @@ export const attributeValueInputSchema = z.object({
   valueOptions: z.array(z.string()).nullable().optional(),
 });
 
-export const productVariantInputSchema = z.object({
+const productVariantInputSchema = z.object({
   mpn: z.string().min(1, { message: "MPN không được để trống" }),
   sku: z.string().optional(),
   gtin: z.string().nullable().optional(),

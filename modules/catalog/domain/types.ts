@@ -1,11 +1,10 @@
 
-import { Brand, CreateBrandInput, UpdateBrandInput } from "../../brand/domain";
-export type { Brand, CreateBrandInput, UpdateBrandInput };
+import { Brand } from "../../brand/domain";
+export type { Brand };
 import type { AttributeDataType } from "../../attribute-definition/domain";
 export type { AttributeDataType };
 import { ProductStatus, VariantStockStatus } from "./constants";
 import type { ImageAsset } from "@/shared/lib/image-asset";
-export type { ImageAsset };
 
 export type Json =
     | string
@@ -59,7 +58,7 @@ export interface Product {
 // --- v2: variants/options/bundle components/product lines ---
 // Mirrors elc-go's product v2 model 1:1 (see elc-go/docs/product-v2-design.md).
 
-export interface ProductOptionValue {
+interface ProductOptionValue {
     id: string;
     value: string;
     orderIndex: number;
@@ -72,7 +71,7 @@ export interface ProductOption {
     values: ProductOptionValue[];
 }
 
-export interface VariantComponent {
+interface VariantComponent {
     id: string;
     componentId: string;
     componentMpn: string;
@@ -181,12 +180,12 @@ export interface ProductOptionInput {
     values: string[];
 }
 
-export interface VariantOptionSelectionInput {
+interface VariantOptionSelectionInput {
     optionName: string;
     value: string;
 }
 
-export interface VariantComponentInput {
+interface VariantComponentInput {
     componentIndex: number;
     quantity: number;
     role?: string | null;
@@ -291,7 +290,7 @@ export interface PriceFacet {
     buckets: NumberBucket[];
 }
 
-export interface AttributeFacetOption {
+interface AttributeFacetOption {
     value: string;
     count: number;
 }

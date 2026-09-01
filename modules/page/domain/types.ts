@@ -6,8 +6,6 @@ export type Json =
   | { [key: string]: Json | undefined }
   | Json[];
 
-import { AboutBlockType } from "./constants";
-
 export interface Page {
   id: string;
   title: string;
@@ -22,15 +20,6 @@ export interface Page {
   orderIndex: number;
 }
 
-export interface AboutBlock {
-  id: string;
-  type: AboutBlockType | string;
-  content: string;
-  caption: string;
-  orderIndex: number;
-  createdAt: string;
-}
-
 export interface CreatePageInput {
   title: string;
   slug: string;
@@ -43,11 +32,4 @@ export interface CreatePageInput {
 
 export interface UpdatePageInput extends Partial<CreatePageInput> {
   id: string;
-}
-
-export interface CreateAboutBlockInput {
-  type: AboutBlockType | string;
-  content: string;
-  caption?: string;
-  orderIndex?: number;
 }

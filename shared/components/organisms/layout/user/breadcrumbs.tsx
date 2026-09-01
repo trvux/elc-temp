@@ -9,7 +9,7 @@ import {
 import { BASE_URL, toJsonLdHtml } from "@/shared/lib/seo-schema";
 import React from "react";
 
-export interface BreadcrumbStep {
+interface BreadcrumbStep {
   label: string;
   href?: string;
   active?: boolean;

@@ -30,7 +30,7 @@ export interface AttributeDefinition {
 }
 
 // categoryIds is deliberately absent — attaching to a category is its own
-// use case (see AttachAttributeDefinitionCategoriesInput), same "create,
+// use case (see attachAttributeDefinitionCategoriesAction), same "create,
 // then relate" split as the Go backend.
 export interface CreateAttributeDefinitionInput {
   code: string;
@@ -54,11 +54,6 @@ export interface UpdateAttributeDefinitionInput {
   options?: string[];
   orderIndex?: number;
   isRequired?: boolean;
-}
-
-export interface AttachAttributeDefinitionCategoriesInput {
-  id: string;
-  categoryIds: string[];
 }
 
 export interface AttributeDefinitionFilter {

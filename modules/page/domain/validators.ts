@@ -1,13 +1,7 @@
 import { z } from "zod";
-import { ABOUT_BLOCK_TYPES } from "./constants";
 import { Json } from "./types";
 
-const aboutBlockTypeValues = Object.values(ABOUT_BLOCK_TYPES) as [
-  string,
-  ...string[],
-];
-
-export const pageSchema = z.object({
+const pageSchema = z.object({
   id: z.uuid({ message: "ID không đúng định dạng UUID" }),
   title: z
     .string()
@@ -41,19 +35,4 @@ export const createPageSchema = pageSchema.omit({
   createdAt: true,
   updatedAt: true,
   deletedAt: true,
-});
-
-export const updatePageSchema = createPageSchema.partial().extend({
-  id: z.uuid({ message: "ID không đúng định dạng UUID" }),
-});
-
-export const aboutBlockSchema = z.object({
-  id: z.uuid({ message: "ID không đúng định dạng UUID" }),
-  type: z.enum(aboutBlockTypeValues).or(z.string()),
-  content: z.string().default(""),
-  caption: z.string().default(""),
-  orderIndex: z.number().int().default(0),
-  createdAt: z.iso.datetime({
-    message: "Thời gian tạo không đúng định dạng ISO",
-  }),
 });

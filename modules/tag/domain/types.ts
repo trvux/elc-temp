@@ -22,9 +22,3 @@ export interface TagFilter {
   offset?: number;
   includeDeleted?: boolean;
 }
-
-export interface TagRef {
-  id: string;
-  name: string;
-  slug: string;
-}

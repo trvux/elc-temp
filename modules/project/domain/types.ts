@@ -9,7 +9,7 @@ export type Json =
   | { [key: string]: Json | undefined }
   | Json[];
 
-export interface Project {
+interface Project {
   id: string;
   title: string;
   slug: string;
@@ -83,4 +83,20 @@ export interface CreateProjectInput {
 
 export interface UpdateProjectInput extends Partial<CreateProjectInput> {
   id: string;
+}
+
+export interface ProjectFilter {
+  projectTypeId?: string;
+  categorySlug?: string;
+  categorySlugs?: string[];
+  serviceSlug?: string;
+  serviceSlugs?: string[];
+  isPublished?: boolean;
+  isFeatured?: boolean;
+  search?: string;
+  limit?: number;
+  offset?: number;
+  includeDeleted?: boolean;
+  orderBy?: "orderIndex" | "createdAt" | "title";
+  orderDirection?: "asc" | "desc";
 }

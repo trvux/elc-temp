@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-export const groupSchema = z.object({
+const groupSchema = z.object({
   id: z.uuid({ message: "ID không đúng định dạng UUID" }),
   name: z
     .string()
@@ -35,8 +35,4 @@ export const createGroupSchema = groupSchema.omit({
   createdAt: true,
   updatedAt: true,
   deletedAt: true,
-});
-
-export const updateGroupSchema = createGroupSchema.partial().extend({
-  id: z.uuid({ message: "ID không đúng định dạng UUID" }),
 });

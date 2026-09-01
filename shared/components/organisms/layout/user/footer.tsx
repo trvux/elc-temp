@@ -20,20 +20,20 @@ import {
   TypographyH3,
 } from "@/shared/components/ui/typography";
 
-export interface BrandFooter {
+interface BrandFooter {
   id: string;
   name: string;
   slug: string;
   logoUrl?: string | null;
 }
 
-export interface GroupCategoryFooter {
+interface GroupCategoryFooter {
   id: string;
   name: string;
   slug: string;
 }
 
-export interface CategoryFooter {
+interface CategoryFooter {
   id: string;
   name: string;
   slug: string;
@@ -49,20 +49,20 @@ export interface ProjectFooter {
   projectTypeSlug: string | null;
 }
 
-export interface BranchFooter {
+interface BranchFooter {
   id: string;
   name: string;
   slug: string;
   address?: string;
 }
 
-export interface PageFooter {
+interface PageFooter {
   id: string;
   title: string;
   slug: string;
 }
 
-export interface ProjectTypeFooter {
+interface ProjectTypeFooter {
   id: string;
   name: string;
   slug: string;
