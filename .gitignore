@@ -42,3 +42,18 @@ next-env.d.ts
 
 # Google Indexing API
 service-account.json
+google-service-account.json
+
+# generated lint output
+eslint-report.json
+eslint-errors.json
+eslint-errors-grouped.txt
+
+# stale root sitemap snapshot (real sitemap is app/sitemap.xml route)
+/sitemap.xml
+
+# build/debug artifacts
+tmp/
+
+# scratchpad — working files, not app source (see docs/fe-dead-code-audit.md group B)
+scratch/

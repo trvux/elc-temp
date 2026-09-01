@@ -1,6 +1,6 @@
 # RFC: Dọn dead code FE
 
-- **Status:** Quyết định xong, đang thực hiện.
+- **Status:** Hoàn thành — nhóm A, D, E đã xóa/gỡ dep trên `main`; nhóm B (`scratch/`, `index_urls.js`) giữ nguyên như quyết định; nhóm C, F chưa đụng, để opportunistic.
 - **Đọc trước:** [`docs/fe-dead-code-audit.md`](./fe-dead-code-audit.md) — báo cáo audit gốc bằng `knip`, 6 nhóm A-F.
 - File này chỉ quyết định + lý do cho từng nhóm, không lặp lại số liệu ở audit gốc.
 
