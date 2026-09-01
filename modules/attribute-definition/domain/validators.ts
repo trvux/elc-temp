@@ -24,7 +24,7 @@ const attributeDefinitionSchema = z.object({
 });
 
 // categoryIds isn't part of Create's own payload (attaching is a separate
-// call, see AttachAttributeDefinitionCategoriesInput) — the form still
+// call, see attachAttributeDefinitionCategoriesAction) — the form still
 // collects it here for UX (create, then immediately attach), so it stays in
 // this schema and is stripped before the actual create request is built.
 export const createAttributeDefinitionSchema = attributeDefinitionSchema.omit({

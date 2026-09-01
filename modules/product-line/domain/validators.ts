@@ -26,5 +26,3 @@ export const createProductLineSchema = productLineSchema.omit({
   updatedAt: true,
   deletedAt: true,
 });
-
-// brandId is intentionally not sendable on update — elc-go's UpdateProductLine
