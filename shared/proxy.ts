@@ -2,8 +2,6 @@ import { updateSession } from "@/shared/lib/auth/session";
 import { type NextRequest, NextResponse } from "next/server";
 import redirectsMap from "./redirects-map.json";
 
-const WP_PREFIXES = ["/product/", "/category/", "/shop/", "/tag/", "/author/", "/wp-content/", "/danh-muc/"];
-
 function normalizePath(rawPath: string): string {
   let p = rawPath.trim();
   if (p.length > 1 && p.endsWith("/")) {
@@ -55,52 +53,7 @@ export async function proxy(request: NextRequest) {
     }
   }
 
-  // 3. Handle WordPress prefixes without DB queries
-  const startsWithWpPrefix = WP_PREFIXES.some(prefix => pathname.startsWith(prefix));
-  if (startsWithWpPrefix) {
-    if (pathname.startsWith("/category/") || pathname.startsWith("/danh-muc/")) {
-      // Lấy segment cuối có nghĩa (bỏ qua "page", số trang, "feed")
-      const parts = pathname.split("/").filter(p => p && p !== "page" && !/^\d+$/.test(p) && p !== "feed");
-      const last = parts[parts.length - 1];
-      // Bỏ segment đầu "danh-muc" hoặc "category"
-      const dest = parts.length > 1 ? last : null;
-      return NextResponse.redirect(
-        new URL(dest ? `/san-pham/${dest}` : "/san-pham", request.url),
-        308
-      );
-    }
-    if (pathname.startsWith("/product/") || pathname.startsWith("/shop/")) {
-      return NextResponse.redirect(new URL("/san-pham", request.url), 308);
-    }
-    if (pathname.startsWith("/tag/") || pathname.startsWith("/author/")) {
-      return NextResponse.redirect(new URL("/tin-tuc", request.url), 308);
-    }
-    return NextResponse.redirect(new URL("/", request.url), 308);
-  }
-
-  // 3b. Các prefix WP cũ không có trong WP_PREFIXES
-  if (pathname.startsWith("/dien-may/")) {
-    return NextResponse.redirect(new URL("/san-pham", request.url), 308);
-  }
-  if (pathname.startsWith("/cong-trinh/")) {
-    return NextResponse.redirect(new URL("/du-an", request.url), 308);
-  }
-
-  // 4. Old WP category hierarchy pages (không có trong WP_PREFIXES)
-  if (
-    pathname.startsWith("/he-thong-cap-khi-tuoi/") ||
-    pathname.startsWith("/he-thong-dieu-hoa-khong-khi/")
-  ) {
-    const parts = pathname.split("/").filter(Boolean);
-    // ["he-thong-...", "{category}"] → /san-pham/{category}
-    const cat = parts[1];
-    return NextResponse.redirect(
-      new URL(cat ? `/san-pham/${cat}` : "/san-pham", request.url),
-      308
-    );
-  }
-
-  // 5. /du-an/ multi-segment (URL cũ WP taxonomy hierarchy)
+  // 3. /du-an/ multi-segment (taxonomy hierarchy cũ)
   if (pathname.startsWith("/du-an/")) {
     const parts = pathname.split("/").filter(Boolean); // ["du-an", ...]
     if (parts.length >= 3) {
@@ -109,7 +62,7 @@ export async function proxy(request: NextRequest) {
     }
   }
 
-  // 6. /chi-nhanh/{slug} → /thong-tin/{slug} (giữ đúng trang chi nhánh, không dồn về hub
+  // 4. /chi-nhanh/{slug} → /thong-tin/{slug} (giữ đúng trang chi nhánh, không dồn về hub
   // chung — hub chung làm mất internal-link equity của các URL /chi-nhanh cũ)
   if (pathname.startsWith("/chi-nhanh/")) {
     const parts = pathname.split("/").filter(Boolean); // ["chi-nhanh", slug, ...]
@@ -120,7 +73,7 @@ export async function proxy(request: NextRequest) {
     );
   }
 
-  // 7. Handle old .html URLs (if not matched in static map, fallback to hubs)
+  // 5. Handle old .html URLs (if not matched in static map, fallback to hubs)
   // Loại trừ file xác thực domain của bên thứ 3 (ví dụ Zalo) nằm trong public/,
   // nếu không sẽ bị redirect về "/" trước khi Next.js kịp serve static file.
   if (pathname.endsWith(".html") && !pathname.startsWith("/zalo_verifier")) {
