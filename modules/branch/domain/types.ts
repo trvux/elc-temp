@@ -65,3 +65,10 @@ export interface CreateBranchInput {
 export interface UpdateBranchInput extends Partial<CreateBranchInput> {
   id: string;
 }
+
+export interface BranchFilter {
+  isPublished?: boolean;
+  limit?: number;
+  offset?: number;
+  search?: string;
+}

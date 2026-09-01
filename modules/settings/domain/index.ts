@@ -3,4 +3,3 @@ export * from "./constants";
 export * from "./validators";
 export * from "./footer";
 export * from "./navigation";
-export * from "./repository";

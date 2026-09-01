@@ -48,3 +48,14 @@ export interface UpdateNewsInput extends Partial<CreateNewsInput> {
 }
 
 
+export interface NewsFilter {
+  isPublished?: boolean;
+  search?: string;
+  categoryId?: string | null;
+  excludeId?: string;
+  limit?: number;
+  offset?: number;
+  includeDeleted?: boolean;
+  sortBy?: "created_at" | "order_index";
+  sortOrder?: "asc" | "desc";
+}
