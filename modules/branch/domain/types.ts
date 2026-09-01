@@ -1,10 +1,3 @@
-export const BRANCH_STATUS = {
-  PUBLISHED: "published",
-  DRAFT: "draft",
-} as const;
-
-export type BranchStatus = typeof BRANCH_STATUS[keyof typeof BRANCH_STATUS];
-
 export type Json =
   | string
   | number

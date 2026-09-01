@@ -4,7 +4,3 @@ export interface SiteSetting {
   key: SettingsKey | string;
   value: string;
 }
-
-export interface UpdateSettingsInput {
-  settings: SiteSetting[];
-}

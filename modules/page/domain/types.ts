@@ -44,10 +44,3 @@ export interface CreatePageInput {
 export interface UpdatePageInput extends Partial<CreatePageInput> {
   id: string;
 }
-
-export interface CreateAboutBlockInput {
-  type: AboutBlockType | string;
-  content: string;
-  caption?: string;
-  orderIndex?: number;
-}
