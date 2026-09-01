@@ -9,10 +9,6 @@ const nextConfig: NextConfig = {
     remotePatterns: [
       {
         protocol: "https",
-        hostname: "gdzihzsjfczuggwpykjk.supabase.co",
-      },
-      {
-        protocol: "https",
         hostname: "media.dienmayelc.com.vn",
       },
       {
