@@ -1,30 +1,15 @@
 # Load env variables from .env.local
 include .env.local
-.PHONY: gen login dev build rsdev rsbuild
-
-# Extract project ID from URL (e.g., https://[ID].supabase.co)
-PROJECT_ID=$(shell echo $(NEXT_PUBLIC_SUPABASE_URL) | sed -e 's|https://||' -e 's|\.supabase\.co||')
-
-
-gen:
-	@echo "Generating types for project: $(PROJECT_ID)..."
-	SUPABASE_ACCESS_TOKEN=$(SUPABASE_ACCESS_TOKEN) npx supabase gen types typescript --project-id $(PROJECT_ID) > database.types.ts
-	@echo "Done! Check database.types.ts"
-
-
-login:
-	npx supabase login
-
+.PHONY: dev build rsdev rsbuild
 
 dev:
-	pnpm run dev
-
+	bun run dev
 
 build:
-	pnpm run build
+	bun run build
 
 rsdev:
-	rm -rf .next && pnpm dev
+	rm -rf .next && bun dev
 
 rsbuild:
-	rm -rf .next && pnpm build
+	rm -rf .next && bun build

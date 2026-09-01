@@ -1,8 +1,15 @@
 import { ServiceGroup } from "@/modules/service-group/domain/types";
 import { CategoryWithGroup } from "@/modules/category/domain/types";
-import { Database } from "@/database.types";
 import type { ImageAsset } from "@/shared/lib/image-asset";
 export type { ImageAsset };
+
+export type Json =
+  | string
+  | number
+  | boolean
+  | null
+  | { [key: string]: Json | undefined }
+  | Json[];
 
 export interface Service {
   id: string;
@@ -16,7 +23,7 @@ export interface Service {
   priceDisplayText: string | null;
   labels: string[] | null;
   description: string | null;
-  content: Database["public"]["Tables"]["services"]["Row"]["content"]; // Json
+  content: Json;
   images: ImageAsset[];
   metaTitle: string | null;
   metaDescription: string | null;
@@ -44,7 +51,7 @@ export interface CreateServiceInput {
   priceDisplayText?: string | null;
   labels?: string[] | null;
   description?: string | null;
-  content?: Database["public"]["Tables"]["services"]["Row"]["content"];
+  content?: Json;
   images?: ImageAsset[];
   metaTitle?: string | null;
   metaDescription?: string | null;
