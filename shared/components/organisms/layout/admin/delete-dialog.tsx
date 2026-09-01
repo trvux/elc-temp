@@ -23,9 +23,9 @@ import { Service } from "@/modules/service/domain/types";
 
 const EMPTY_ARRAY: unknown[] = [];
 
-export type DeleteEntityType = "group" | "category" | "project-type" | "service-group";
+type DeleteEntityType = "group" | "category" | "project-type" | "service-group";
 
-export interface AffectedSection {
+interface AffectedSection {
   title: string;
   items: { id: string; name: string }[];
 }

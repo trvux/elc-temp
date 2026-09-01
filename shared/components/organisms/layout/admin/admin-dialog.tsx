@@ -13,7 +13,7 @@ import {
 import { ScrollArea } from "@/shared/components/ui/scroll-area"
 import { Button } from "@/shared/components/ui/button"
 
-export type AdminDialogSize = "xs" | "sm" | "md" | "lg" | "xl" | "2xl" | "3xl" | "4xl" | "5xl" | "full" | "screen"
+type AdminDialogSize = "xs" | "sm" | "md" | "lg" | "xl" | "2xl" | "3xl" | "4xl" | "5xl" | "full" | "screen"
 
 const sizeClasses: Record<AdminDialogSize, string> = {
   xs: "sm:max-w-xs",

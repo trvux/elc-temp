@@ -1,7 +1,7 @@
 // Kieu du lieu cho Dashboard Stats — day la output cua use case,
 // khong phai entity co persistence.
 
-export interface DashboardCounts {
+interface DashboardCounts {
   products: number;
   categories: number;
   brands: number;

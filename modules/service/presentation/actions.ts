@@ -231,7 +231,7 @@ export async function getServiceBySlugAction(slug: string): Promise<ServiceWithR
   return mapGoService(row);
 }
 
-export interface AdjacentService {
+interface AdjacentService {
   title: string;
   slug: string;
 }
