@@ -33,7 +33,7 @@ const eslintConfig = defineConfig([
   {
     // Standalone CommonJS Node script, run directly via `node`, not part of
     // the Next.js app bundle — no ESM/TS conventions apply here.
-    files: ["index_urls.js"],
+    files: ["scripts/index_urls.js"],
     rules: {
       "@typescript-eslint/no-require-imports": "off",
     },
