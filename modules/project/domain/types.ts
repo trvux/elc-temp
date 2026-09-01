@@ -9,7 +9,7 @@ export type Json =
   | { [key: string]: Json | undefined }
   | Json[];
 
-export interface Project {
+interface Project {
   id: string;
   title: string;
   slug: string;

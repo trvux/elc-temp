@@ -16,7 +16,3 @@ const contactSchema = z.object({
   value: z.string().min(1, { message: "Giá trị không được để trống" }),
   orderIndex: z.number().int().default(0),
 });
-
-export const createContactSchema = contactSchema.omit({
-  id: true,
-});

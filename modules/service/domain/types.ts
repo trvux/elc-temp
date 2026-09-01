@@ -3,7 +3,7 @@ import { CategoryWithGroup } from "@/modules/category/domain/types";
 import type { ImageAsset } from "@/shared/lib/image-asset";
 export type { ImageAsset };
 
-export type Json =
+type Json =
   | string
   | number
   | boolean
