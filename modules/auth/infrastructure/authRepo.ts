@@ -83,7 +83,7 @@ async function persistSession(session: GoAccessTokenResponse) {
 // own httpOnly cookies. The browser only ever talks to Next.js — elc-go's
 // own Set-Cookie response header never needs to reach it.
 class GoAuthRepository implements AuthRepository {
-  async googleLogin(code: string, redirectUri: string): Promise<{ user: AuthUser | null; error: string | null }> {
+  async googleLogin(code: string): Promise<{ user: AuthUser | null; error: string | null }> {
     if (!GO_API_URL) {
       return { user: null, error: "GO_API_URL is not configured" };
     }
@@ -91,7 +91,7 @@ class GoAuthRepository implements AuthRepository {
       const res = await fetch(`${GO_API_URL}/auth/google/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(toSnakeCaseBody({ code, redirectUri })),
+        body: JSON.stringify(toSnakeCaseBody({ code })),
         signal: AbortSignal.timeout(GO_API_TIMEOUT_MS),
       });
       if (!res.ok) {

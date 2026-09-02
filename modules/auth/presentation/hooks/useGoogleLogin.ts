@@ -36,7 +36,7 @@ export function useGoogleLogin() {
   const [configError, setConfigError] = useState<string | null>(null);
 
   const loginMutation = useMutation({
-    mutationFn: (code: string) => googleLoginAction(code, window.location.origin),
+    mutationFn: (code: string) => googleLoginAction(code),
     onSuccess: (result) => {
       if (result.user) {
         // router.refresh() bên cạnh push() — chỉ push() thôi thì Router Cache

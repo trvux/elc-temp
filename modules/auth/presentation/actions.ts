@@ -26,9 +26,9 @@ import {
 // for a form/plain-call action. So these three deliberately do NOT redirect
 // server-side — they just return { user, error } and the calling hook
 // navigates client-side based on user.role once the mutation/query resolves.
-export async function googleLoginAction(code: string, redirectUri: string): Promise<AuthResponse> {
+export async function googleLoginAction(code: string): Promise<AuthResponse> {
   try {
-    const result = await googleLogin(authRepo, code, redirectUri);
+    const result = await googleLogin(authRepo, code);
     if (result.error) {
       console.warn("[googleLoginAction] Login failed with error:", result.error);
     } else {

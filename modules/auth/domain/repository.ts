@@ -5,10 +5,7 @@ export interface AuthRepository {
 
   logout(): Promise<{ error: string | null }>;
 
-  googleLogin(
-    code: string,
-    redirectUri: string,
-  ): Promise<{ user: AuthUser | null; error: string | null }>;
+  googleLogin(code: string): Promise<{ user: AuthUser | null; error: string | null }>;
 
   requestMagicLink(input: RequestMagicLinkInput): Promise<{ error: string | null }>;
 
