@@ -39,17 +39,17 @@ export function LoginForm() {
   }
 
   return (
-    <div className="flex w-full max-w-sm flex-col gap-6">
+    <div className="flex w-full flex-col items-center gap-6">
       <div className="flex flex-col items-center gap-2 text-center">
-        <h1 className="text-xl font-semibold tracking-tight sm:text-2xl">
-          Đăng nhập
+        <h1 className="font-heading text-2xl font-medium tracking-tight text-balance sm:text-4xl sm:whitespace-nowrap">
+          Mát lành mọi không gian
         </h1>
         <p className="text-sm text-muted-foreground">
-          Đăng nhập để tiếp tục với Điện máy ELC
+          Máy lạnh, khí tươi & dự án trọn gói cho ngôi nhà của bạn
         </p>
       </div>
 
-      <Card className="shadow-sm">
+      <Card className="w-full max-w-sm shadow-sm">
         <CardContent className="flex flex-col gap-4">
           <Button
             variant="outline"
