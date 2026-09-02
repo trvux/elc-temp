@@ -2,10 +2,10 @@
 
 import { revalidatePath } from "next/cache";
 
-import { authHeaders, toSnakeCaseBody } from "@/shared/lib/go-api";
+import { authHeaders } from "@/shared/lib/go-api";
 import type { Role } from "@/modules/auth";
 
-import { AdminUser, InviteUserInput, inviteUserSchema } from "../domain/types";
+import { AdminUser } from "../domain/types";
 
 const GO_API_URL = process.env.GO_API_URL;
 
@@ -68,27 +68,6 @@ export async function getAdminUsersAction() {
   } catch (error) {
     console.error("getAdminUsersAction error:", error);
     return { data: [], error: "Không thể tải danh sách người dùng" };
-  }
-}
-
-export async function inviteUserAction(input: InviteUserInput) {
-  if (!GO_API_URL) {
-    return { error: "GO_API_URL is not configured" };
-  }
-  try {
-    const validated = inviteUserSchema.parse(input);
-    const res = await fetch(`${GO_API_URL}/admin/invites`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json", ...(await authHeaders()) },
-      body: JSON.stringify(toSnakeCaseBody(validated)),
-    });
-    if (!res.ok) {
-      return { error: await extractErrorMessage(res, "Không thể gửi lời mời") };
-    }
-    return { error: null };
-  } catch (error) {
-    console.error("inviteUserAction error:", error);
-    return { error: error instanceof Error ? error.message : "Không thể gửi lời mời" };
   }
 }
 

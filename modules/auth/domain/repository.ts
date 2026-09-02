@@ -1,33 +1,27 @@
-import {
-  AcceptInviteInput,
-  AuthUser,
-  ChangePasswordInput,
-  ForgotPasswordInput,
-  LoginInput,
-  ResetPasswordInput,
-  UpdateProfileInput,
-} from "./types";
+import { AuthUser, RequestMagicLinkInput, UpdateProfileInput } from "./types";
 
 export interface AuthRepository {
   getCurrentUser(): Promise<AuthUser | null>;
 
-  login(
-    input: LoginInput,
-  ): Promise<{ user: AuthUser | null; error: string | null }>;
-
   logout(): Promise<{ error: string | null }>;
 
-  forgotPassword(input: ForgotPasswordInput): Promise<{ error: string | null }>;
+  googleLogin(
+    code: string,
+    redirectUri: string,
+  ): Promise<{ user: AuthUser | null; error: string | null }>;
 
-  resetPassword(input: ResetPasswordInput): Promise<{ error: string | null }>;
+  requestMagicLink(input: RequestMagicLinkInput): Promise<{ error: string | null }>;
 
-  acceptInvite(
-    input: AcceptInviteInput,
+  verifyMagicLinkCode(
+    email: string,
+    code: string,
+  ): Promise<{ user: AuthUser | null; error: string | null }>;
+
+  verifyMagicLinkToken(
+    token: string,
   ): Promise<{ user: AuthUser | null; error: string | null }>;
 
   updateProfile(
     input: UpdateProfileInput,
   ): Promise<{ user: AuthUser | null; error: string | null }>;
-
-  changePassword(input: ChangePasswordInput): Promise<{ error: string | null }>;
 }

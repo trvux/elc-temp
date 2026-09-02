@@ -1,5 +1,3 @@
-import { z } from "zod";
-
 import type { AuthUser, Role } from "@/modules/auth";
 
 // AdminUser is the same shape as the current session's AuthUser — both
@@ -9,13 +7,13 @@ export type AdminUser = AuthUser & {
   status: "active" | "disabled";
 };
 
-export const inviteUserSchema = z.object({
-  email: z.email("Email không hợp lệ"),
-  role: z.enum(["user", "admin", "super_admin"] satisfies Role[]),
-});
-export type InviteUserInput = z.infer<typeof inviteUserSchema>;
-
+// There is no more "invite" flow — anyone who signs in via Google/magic
+// link (see modules/auth) already has a row here as role=member. Granting
+// admin-panel access is just promoting that existing row's role, which is
+// exactly what this screen's role Select (see UsersColumns) does via
+// updateUserRoleAction.
 export const ROLE_LABELS: Record<Role, string> = {
+  member: "Thành viên",
   user: "Nhân viên",
   admin: "Quản trị viên",
   super_admin: "Quản trị cấp cao",

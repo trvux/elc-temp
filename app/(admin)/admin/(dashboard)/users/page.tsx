@@ -6,7 +6,7 @@ import { UsersManagement } from "@/modules/admin-users";
 
 export default async function UsersPage() {
   const user = await getCurrentUser(authRepo);
-  if (!user) redirect("/admin/login");
+  if (!user) redirect("/login");
   if (user.role === "user") redirect("/admin");
 
   return <UsersManagement currentUserId={user.id} />;

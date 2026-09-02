@@ -6,7 +6,7 @@ import { ProductManagement } from "@/modules/catalog";
 
 export default async function ProductsPage() {
   const user = await getCurrentUser(authRepo);
-  if (!user) redirect("/admin/login");
+  if (!user) redirect("/login");
 
   return <ProductManagement />;
 }

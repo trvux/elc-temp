@@ -68,6 +68,7 @@
   "devDependencies": {
     "@playwright/test": "^1.59.1",
     "@tailwindcss/postcss": "^4",
+    "@types/google.accounts": "^0.0.18",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",

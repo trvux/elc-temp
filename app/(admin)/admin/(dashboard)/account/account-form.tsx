@@ -8,14 +8,10 @@ import { Camera, Spinner } from "@phosphor-icons/react";
 
 import {
   AuthUser,
-  changePasswordAction,
-  ChangePasswordInput,
-  changePasswordSchema,
   updateProfileAction,
   UpdateProfileInput,
   updateProfileSchema,
 } from "@/modules/auth";
-import { PasswordChecklist } from "@/shared/components/molecules/auth/password-checklist";
 import { Avatar, AvatarFallback, AvatarImage } from "@/shared/components/ui/avatar";
 import { Button } from "@/shared/components/ui/button";
 import {
@@ -35,22 +31,18 @@ export default function AccountForm({ user }: { user: AuthUser }) {
   const [avatarUrl, setAvatarUrl] = useState(user.avatarUrl);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
   const [savingProfile, setSavingProfile] = useState(false);
-  const [changingPassword, setChangingPassword] = useState(false);
 
-  const displayName = user.name || user.username;
+  // username is empty for any account created via Google/magic-link (see
+  // domain.NewOAuthUser on the Go side) — including a staff account
+  // promoted straight from a member, which never went through the old
+  // invite flow that used to set one.
+  const displayName = user.name || user.username || user.email;
 
   const profileForm = useForm<UpdateProfileInput>({
     resolver: standardSchemaResolver(updateProfileSchema),
     defaultValues: { name: user.name, email: user.email, avatarUrl: user.avatarUrl },
     mode: "onTouched",
   });
-
-  const passwordForm = useForm<ChangePasswordInput>({
-    resolver: standardSchemaResolver(changePasswordSchema),
-    defaultValues: { currentPassword: "", newPassword: "" },
-    mode: "onTouched",
-  });
-  const newPassword = passwordForm.watch("newPassword");
 
   async function handleAvatarChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
@@ -88,23 +80,12 @@ export default function AccountForm({ user }: { user: AuthUser }) {
     toast.success("Đã cập nhật thông tin tài khoản");
   }
 
-  async function onSubmitPassword(values: ChangePasswordInput) {
-    setChangingPassword(true);
-    // On success, changePasswordAction redirects server-side to /admin/login
-    // and never returns here — only a failure path reaches this line.
-    const result = await changePasswordAction(values);
-    setChangingPassword(false);
-    if (result?.error) {
-      toast.error(result.error);
-    }
-  }
-
   return (
     <div className="max-w-2xl pb-20 space-y-8">
       <div>
         <h1 className="text-2xl font-bold tracking-tight">Tài khoản của tôi</h1>
         <p className="text-sm text-muted-foreground">
-          Quản lý thông tin cá nhân và mật khẩu đăng nhập.
+          Quản lý thông tin cá nhân của bạn.
         </p>
       </div>
 
@@ -173,52 +154,6 @@ export default function AccountForm({ user }: { user: AuthUser }) {
               <div className="flex justify-end">
                 <Button type="submit" disabled={savingProfile}>
                   {savingProfile ? "Đang lưu..." : "Lưu thay đổi"}
-                </Button>
-              </div>
-            </FieldGroup>
-          </form>
-        </CardContent>
-      </Card>
-
-      <Card className="overflow-hidden border-border/40 shadow-sm rounded-2xl">
-        <CardHeader className="bg-muted/30">
-          <CardTitle className="text-lg font-bold tracking-tight">Đổi mật khẩu</CardTitle>
-          <CardDescription className="text-sm">
-            Sau khi đổi mật khẩu, bạn sẽ cần đăng nhập lại trên mọi thiết bị.
-          </CardDescription>
-        </CardHeader>
-        <Separator />
-        <CardContent className="p-6">
-          <form onSubmit={passwordForm.handleSubmit(onSubmitPassword)}>
-            <FieldGroup>
-              <Controller
-                control={passwordForm.control}
-                name="currentPassword"
-                render={({ field, fieldState }) => (
-                  <Field>
-                    <FieldLabel htmlFor="currentPassword">Mật khẩu hiện tại</FieldLabel>
-                    <Input id="currentPassword" type="password" autoComplete="current-password" {...field} />
-                    <FieldError errors={[fieldState.error]} />
-                  </Field>
-                )}
-              />
-
-              <Controller
-                control={passwordForm.control}
-                name="newPassword"
-                render={({ field, fieldState }) => (
-                  <Field>
-                    <FieldLabel htmlFor="newPassword">Mật khẩu mới</FieldLabel>
-                    <Input id="newPassword" type="password" autoComplete="new-password" {...field} />
-                    <PasswordChecklist password={newPassword} />
-                    <FieldError errors={[fieldState.error]} />
-                  </Field>
-                )}
-              />
-
-              <div className="flex justify-end">
-                <Button type="submit" variant="destructive" disabled={changingPassword}>
-                  {changingPassword ? "Đang xử lý..." : "Đổi mật khẩu"}
                 </Button>
               </div>
             </FieldGroup>

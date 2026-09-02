@@ -10,15 +10,6 @@ import {
 
 const GO_API_URL = process.env.GO_API_URL;
 
-// Pages that must stay reachable without a session — the whole point of the
-// invite/reset flows is that they work for someone who isn't logged in yet.
-const PUBLIC_ADMIN_PATHS = new Set([
-  "/admin/login",
-  "/admin/accept-invite",
-  "/admin/forgot-password",
-  "/admin/reset-password",
-]);
-
 interface GoRefreshResponse {
   access_token: string;
   refresh_token: string;
@@ -28,7 +19,11 @@ interface GoRefreshResponse {
 export async function updateSession(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
 
-  if (!pathname.startsWith("/admin") || PUBLIC_ADMIN_PATHS.has(pathname)) {
+  // Sign-in lives entirely outside /admin now (/login, /login/verify,
+  // /magic-link — see modules/auth), so there's no "public admin path"
+  // allowlist to maintain here anymore: this gate only ever needs to guard
+  // /admin/* itself.
+  if (!pathname.startsWith("/admin")) {
     return NextResponse.next({ request });
   }
 
@@ -82,7 +77,7 @@ export async function updateSession(request: NextRequest) {
   }
 
   const url = request.nextUrl.clone();
-  url.pathname = "/admin/login";
+  url.pathname = "/login";
 
   const accept = request.headers.get("accept") || "";
   const isRsc =

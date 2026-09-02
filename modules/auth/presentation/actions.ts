@@ -3,52 +3,79 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
-import {
-  acceptInvite,
-  changePassword,
-  forgotPassword,
-  login,
-  logout,
-  resetPassword,
-  updateProfile,
-} from "../application";
+import { googleLogin, logout, requestMagicLink, updateProfile, verifyMagicLinkCode, verifyMagicLinkToken } from "../application";
 import { authRepo } from "../infrastructure/authRepo";
 import {
-  AcceptInviteInput,
-  acceptInviteSchema,
-  ChangePasswordInput,
-  changePasswordSchema,
-  ForgotPasswordInput,
-  forgotPasswordSchema,
-  LoginInput,
-  loginSchema,
-  ResetPasswordInput,
-  resetPasswordSchema,
+  AuthResponse,
+  RequestMagicLinkInput,
+  requestMagicLinkSchema,
   UpdateProfileInput,
   updateProfileSchema,
+  VerifyMagicLinkCodeInput,
+  verifyMagicLinkCodeSchema,
 } from "../domain/types";
 
-export async function loginAction(input: LoginInput) {
+// googleLoginAction/verifyMagicLinkCodeAction/verifyMagicLinkTokenAction are
+// all called from client code through react-query's useMutation/useQuery
+// (see modules/auth/presentation/hooks) — NOT via a <form action> or a plain
+// awaited call the way logoutAction below is. redirect() thrown from inside
+// an action invoked that way surfaces to the caller as a genuine rejected
+// promise (react-query's global MutationCache.onError then shows it as a
+// "NEXT_REDIRECT" toast, even though navigation still quietly happens
+// underneath), instead of being intercepted by Next's router the way it is
+// for a form/plain-call action. So these three deliberately do NOT redirect
+// server-side — they just return { user, error } and the calling hook
+// navigates client-side based on user.role once the mutation/query resolves.
+export async function googleLoginAction(code: string, redirectUri: string): Promise<AuthResponse> {
   try {
-    const validated = loginSchema.parse(input);
-    const { error } = await login(authRepo, validated);
-
-    if (error) {
-      console.warn("[loginAction] Login failed with error:", error);
-      return { error };
+    const result = await googleLogin(authRepo, code, redirectUri);
+    if (result.error) {
+      console.warn("[googleLoginAction] Login failed with error:", result.error);
+    } else {
+      revalidatePath("/", "layout");
     }
-
-    revalidatePath("/", "layout");
+    return result;
   } catch (error) {
-    console.error("[loginAction] Exception caught in loginAction:", error);
-    return {
-      error: error instanceof Error ? error.message : "Đã có lỗi xảy ra",
-    };
+    console.error("[googleLoginAction] Exception:", error);
+    return { user: null, error: error instanceof Error ? error.message : "Đã có lỗi xảy ra" };
   }
+}
 
-  // Outside the try/catch — redirect() throws internally and must not be
-  // swallowed by the catch block above.
-  redirect("/admin");
+export async function requestMagicLinkAction(input: RequestMagicLinkInput) {
+  try {
+    const validated = requestMagicLinkSchema.parse(input);
+    return await requestMagicLink(authRepo, validated);
+  } catch (error) {
+    console.error("[requestMagicLinkAction] Exception:", error);
+    return { error: error instanceof Error ? error.message : "Đã có lỗi xảy ra" };
+  }
+}
+
+export async function verifyMagicLinkCodeAction(input: VerifyMagicLinkCodeInput): Promise<AuthResponse> {
+  try {
+    const validated = verifyMagicLinkCodeSchema.parse(input);
+    const result = await verifyMagicLinkCode(authRepo, validated.email, validated.code);
+    if (!result.error) {
+      revalidatePath("/", "layout");
+    }
+    return result;
+  } catch (error) {
+    console.error("[verifyMagicLinkCodeAction] Exception:", error);
+    return { user: null, error: error instanceof Error ? error.message : "Đã có lỗi xảy ra" };
+  }
+}
+
+export async function verifyMagicLinkTokenAction(token: string): Promise<AuthResponse> {
+  try {
+    const result = await verifyMagicLinkToken(authRepo, token);
+    if (!result.error) {
+      revalidatePath("/", "layout");
+    }
+    return result;
+  } catch (error) {
+    console.error("[verifyMagicLinkTokenAction] Exception:", error);
+    return { user: null, error: error instanceof Error ? error.message : "Đã có lỗi xảy ra" };
+  }
 }
 
 export async function logoutAction() {
@@ -67,44 +94,11 @@ export async function logoutAction() {
     };
   }
 
-  // Outside the try/catch, same reason as loginAction — redirect server-side
-  // instead of returning success and letting the client orchestrate
-  // router.push + router.refresh, which can race with the admin layout's own
-  // redirect once it notices the session cookie is gone.
-  redirect("/admin/login");
-}
-
-export async function forgotPasswordAction(input: ForgotPasswordInput) {
-  try {
-    const validated = forgotPasswordSchema.parse(input);
-    return await forgotPassword(authRepo, validated);
-  } catch (error) {
-    console.error("[forgotPasswordAction] Exception:", error);
-    return { error: error instanceof Error ? error.message : "Đã có lỗi xảy ra" };
-  }
-}
-
-export async function resetPasswordAction(input: ResetPasswordInput) {
-  try {
-    const validated = resetPasswordSchema.parse(input);
-    return await resetPassword(authRepo, validated);
-  } catch (error) {
-    console.error("[resetPasswordAction] Exception:", error);
-    return { error: error instanceof Error ? error.message : "Đã có lỗi xảy ra" };
-  }
-}
-
-export async function acceptInviteAction(input: AcceptInviteInput) {
-  try {
-    const validated = acceptInviteSchema.parse(input);
-    return await acceptInvite(authRepo, validated);
-  } catch (error) {
-    console.error("[acceptInviteAction] Exception:", error);
-    return {
-      user: null,
-      error: error instanceof Error ? error.message : "Đã có lỗi xảy ra",
-    };
-  }
+  // Outside the try/catch, same reason as googleLoginAction — redirect
+  // server-side instead of returning success and letting the client
+  // orchestrate router.push + router.refresh, which can race with the admin
+  // layout's own redirect once it notices the session cookie is gone.
+  redirect("/login");
 }
 
 export async function updateProfileAction(input: UpdateProfileInput) {
@@ -122,24 +116,4 @@ export async function updateProfileAction(input: UpdateProfileInput) {
       error: error instanceof Error ? error.message : "Đã có lỗi xảy ra",
     };
   }
-}
-
-export async function changePasswordAction(input: ChangePasswordInput) {
-  let result: { error: string | null };
-  try {
-    const validated = changePasswordSchema.parse(input);
-    result = await changePassword(authRepo, validated);
-  } catch (error) {
-    console.error("[changePasswordAction] Exception:", error);
-    return { error: error instanceof Error ? error.message : "Đã có lỗi xảy ra" };
-  }
-
-  if (result.error) {
-    return result;
-  }
-
-  // Every session (including this one) was just revoked server-side — same
-  // reasoning as logoutAction for redirecting outside the try/catch instead
-  // of letting the client orchestrate navigation.
-  redirect("/admin/login");
 }

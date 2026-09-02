@@ -137,7 +137,7 @@ function NavUser({ user }: { user: UserInfo }) {
   const { isMobile } = useSidebar();
 
   async function handleLogout() {
-    // logoutAction redirects to /admin/login itself on success (server-side,
+    // logoutAction redirects to /login itself on success (server-side,
     // same pattern as loginAction) — no client-side router.push/refresh
     // needed, and doing so was racing with the admin layout's own redirect
     // once it noticed the session cookie was gone.

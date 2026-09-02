@@ -21,14 +21,22 @@ export default async function AdminLayout({
   await connection();
   const user = await getCurrentUser(authRepo);
 
-  if (!user) redirect("/admin/login");
+  if (!user) redirect("/login");
+  // "member" is the public role (anyone who signs in via Google/magic link)
+  // — admin-panel access is always a deliberate promotion by an existing
+  // admin (see modules/admin-users), never automatic. Gated here once for
+  // the whole dashboard tree instead of per-page.
+  if (user.role === "member") redirect("/");
 
   return (
     <AdminIconProvider>
       <SidebarProvider>
         <AdminSidebar
           user={{
-            name: user.name || user.username,
+            // username is empty for any account created via Google/magic
+            // link, including a staff account promoted straight from a
+            // member — see account-form.tsx's same fallback.
+            name: user.name || user.username || user.email,
             email: user.email,
             avatar: user.avatarUrl,
             role: user.role,

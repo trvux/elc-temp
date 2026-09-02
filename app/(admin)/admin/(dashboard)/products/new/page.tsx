@@ -6,7 +6,7 @@ import { ProductForm } from "@/modules/catalog";
 
 export default async function NewProductPage() {
   const user = await getCurrentUser(authRepo);
-  if (!user) redirect("/admin/login");
+  if (!user) redirect("/login");
 
   return <ProductForm mode="create" currentUserRole={user.role} />;
 }

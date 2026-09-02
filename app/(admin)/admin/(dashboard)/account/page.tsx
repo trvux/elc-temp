@@ -7,7 +7,7 @@ import AccountForm from "./account-form";
 
 export default async function AccountPage() {
   const user = await getCurrentUser(authRepo);
-  if (!user) redirect("/admin/login");
+  if (!user) redirect("/login");
 
   return <AccountForm user={user} />;
 }

@@ -34,8 +34,12 @@ export const getUserColumns = ({
     header: "Người dùng",
     cell: ({ row }) => (
       <div className="flex flex-col">
-        <span className="font-medium">{row.original.name || row.original.username}</span>
-        <span className="text-xs text-muted-foreground">@{row.original.username}</span>
+        <span className="font-medium">{row.original.name || row.original.email}</span>
+        {/* Google/magic-link accounts (role=member) have no username — only
+            invited admin-panel accounts ever set one. */}
+        {row.original.username && (
+          <span className="text-xs text-muted-foreground">@{row.original.username}</span>
+        )}
       </div>
     ),
   },
