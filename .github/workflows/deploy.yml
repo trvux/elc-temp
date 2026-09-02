@@ -28,6 +28,7 @@ jobs:
         run: bun run build
         env:
           NEXT_PUBLIC_HOTJAR_ID: ${{ secrets.NEXT_PUBLIC_HOTJAR_ID }}
+          NEXT_PUBLIC_GOOGLE_CLIENT_ID: ${{ secrets.NEXT_PUBLIC_GOOGLE_CLIENT_ID }}
           GOOGLE_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}
           # Can thiet vi cac trang public duoc prerender tinh (static) luc build,
           # nen can goi duoc Go API ngay trong buoc build nay.
