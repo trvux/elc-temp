@@ -119,16 +119,23 @@ export const TextBubbleMenu = ({ editor }: TextBubbleMenuProps) => {
                 <LinkIcon size={16} />
               </Button>
             </PopoverTrigger>
-            <PopoverContent className="w-80 p-2 flex gap-2">
+            <PopoverContent className="w-80 p-3 rounded-lg shadow-xl bg-primary border-muted flex flex-col gap-2">
               <Input
                 placeholder="Paste or type a link..."
                 value={linkUrl}
                 onChange={(e) => setLinkUrl(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && setLink()}
-                className="h-8 focus-visible:ring-offset-0 focus-visible:ring-1"
+                className="h-8 focus-visible:ring-offset-0 focus-visible:ring-1 focus-visible:ring-muted text-sm text-primary-foreground placeholder:text-muted-foreground"
                 disabled={isH1}
               />
-              <Button type="button" size="icon" onClick={setLink} disabled={isH1}>
+              <Button
+                type="button"
+                variant="secondary"
+                size="sm"
+                className="self-end"
+                onClick={setLink}
+                disabled={isH1}
+              >
                 Apply
               </Button>
             </PopoverContent>
