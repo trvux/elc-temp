@@ -29,7 +29,7 @@ async function fetchLinkPreview(href: string): Promise<LinkPreviewData> {
 // visually distinct from the (non-interactive) metadata preview above it.
 function CardShell({ href, children }: { href: string; children: React.ReactNode }) {
   return (
-    <div className="w-72 rounded-xl bg-muted p-2 text-popover-foreground shadow-md">
+    <div className="w-72 rounded-xl bg-muted p-2 text-popover-foreground shadow-inner ring-1 ring-foreground/10">
       {children}
       <Button asChild variant="default" size="sm" className="mt-2 w-full">
         <a href={href} target="_blank" rel="noopener noreferrer">

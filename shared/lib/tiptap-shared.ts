@@ -111,7 +111,7 @@ export const getTiptapExtensions = () => [
   Link.configure({
     openOnClick: false,
     HTMLAttributes: {
-      class: "font-medium text-primary underline underline-offset-4 cursor-pointer",
+      class: "font-medium text-blue-600 dark:text-blue-400 no-underline cursor-pointer",
     },
   }),
   Image.extend({
