@@ -246,6 +246,18 @@
   color: color-mix(in oklab, var(--foreground) 80%, transparent);
 }
 
+/* Tiptap links — styled here instead of via the Link mark's stored
+   HTMLAttributes.class: Tiptap bakes that class string into each mark's
+   own attrs the moment it's created, so a change to the extension's
+   default only ever affects links created afterward — every link already
+   saved in the DB keeps whatever class string was current when it was
+   made. A CSS rule keyed off .tiptap applies uniformly to old and new
+   content alike, in both the admin editor and public rendering (both
+   wrap content in .tiptap). */
+.tiptap a {
+  @apply text-blue-600 no-underline dark:text-blue-400;
+}
+
 /* Tiptap Placeholder */
 .tiptap .is-empty::before {
   color: var(--muted-foreground);

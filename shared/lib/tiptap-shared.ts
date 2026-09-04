@@ -111,7 +111,12 @@ export const getTiptapExtensions = () => [
   Link.configure({
     openOnClick: false,
     HTMLAttributes: {
-      class: "font-medium text-blue-600 dark:text-blue-400 no-underline cursor-pointer",
+      // Structural only — color/underline live in globals.css's `.tiptap
+      // a` rule instead. This class string gets baked into each mark's
+      // own stored attrs the moment it's created (see that CSS comment),
+      // so anything we'd want to change later (like a color) has no
+      // business being here.
+      class: "font-medium cursor-pointer",
     },
   }),
   Image.extend({
