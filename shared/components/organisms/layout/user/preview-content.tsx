@@ -1,6 +1,7 @@
 import { getTiptapExtensions, normalizeTiptapJson } from "@/shared/lib/tiptap-shared";
 import { cn } from "@/shared/lib/utils";
 import { generateHTML } from "@tiptap/html";
+import { WithLinkPreview } from "@/shared/components/organisms/link-preview/with-link-preview";
 
 interface PreviewContentProps {
   content: unknown;
@@ -85,17 +86,19 @@ export const PreviewContent = ({
   }
 
   return (
-    <div
-      className={cn(
-        "typeset typeset-docs max-w-none",
-        size === "lg" && "typeset-lg",
-        size === "sm" && "typeset-sm",
-        "tiptap",
-        className,
-      )}
-      dangerouslySetInnerHTML={{
-        __html: html.replace(/<table/g, '<div class="table-wrapper"><table').replace(/<\/table>/g, '</table></div>')
-      }}
-    />
+    <WithLinkPreview className="contents">
+      <div
+        className={cn(
+          "typeset typeset-docs max-w-none",
+          size === "lg" && "typeset-lg",
+          size === "sm" && "typeset-sm",
+          "tiptap",
+          className,
+        )}
+        dangerouslySetInnerHTML={{
+          __html: html.replace(/<table/g, '<div class="table-wrapper"><table').replace(/<\/table>/g, '</table></div>')
+        }}
+      />
+    </WithLinkPreview>
   );
 };

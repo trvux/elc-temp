@@ -18,6 +18,7 @@ import { ImageBubbleMenu } from "./rich-text-editor/image-bubble-menu";
 import { TableBubbleMenu } from "./rich-text-editor/table-bubble-menu";
 import { TextBubbleMenu } from "./rich-text-editor/text-bubble-menu";
 import { DividerBubbleMenu } from "./rich-text-editor/divider-bubble-menu";
+import { WithLinkPreview } from "@/shared/components/organisms/link-preview/with-link-preview";
 
 interface RichTextEditorProps {
   value: unknown;
@@ -242,7 +243,9 @@ const RichTextEditor = ({
       <DividerBubbleMenu editor={editor} />
       <EditorFloatingMenu editor={editor} uploadImage={uploadImage} />
 
-      <EditorContent editor={editor} />
+      <WithLinkPreview className="contents">
+        <EditorContent editor={editor} />
+      </WithLinkPreview>
     </div>
   );
 };
