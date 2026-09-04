@@ -29,7 +29,7 @@ async function fetchLinkPreview(href: string): Promise<LinkPreviewData> {
 // visually distinct from the (non-interactive) metadata preview above it.
 function CardShell({ href, children }: { href: string; children: React.ReactNode }) {
   return (
-    <div className="w-72 rounded-xl bg-muted p-2 text-popover-foreground shadow-md">
+    <div className="w-72 rounded-xl bg-muted/70 p-2 text-popover-foreground shadow-md backdrop-blur-md">
       {children}
       <Button asChild variant="default" size="sm" className="mt-2 w-full">
         <a href={href} target="_blank" rel="noopener noreferrer">
@@ -59,9 +59,9 @@ export function LinkPreviewCard({ href }: { href: string }) {
   if (isLoading) {
     return (
       <CardShell href={href}>
-        <div className="overflow-hidden rounded-lg bg-background shadow-sm">
-          <Skeleton className="h-32 w-full rounded-none" />
-          <div className="flex flex-col gap-1.5 p-3">
+        <div className="flex flex-col gap-2 rounded-lg bg-background p-2 shadow-sm">
+          <Skeleton className="h-32 w-full rounded-md" />
+          <div className="flex flex-col gap-1.5 px-1 pb-1">
             <Skeleton className="h-3.5 w-4/5" />
             <Skeleton className="h-3 w-full" />
             <Skeleton className="h-3 w-2/3" />
@@ -77,7 +77,7 @@ export function LinkPreviewCard({ href }: { href: string }) {
   if (!data || data.error || (!data.title && !data.description && !data.image)) {
     return (
       <CardShell href={href}>
-        <div className="rounded-lg bg-muted/50 p-3 text-sm ring-1 ring-foreground/5">
+        <div className="rounded-lg bg-background p-3 text-sm shadow-sm">
           <span className="text-muted-foreground">{hostname}</span>
         </div>
       </CardShell>
@@ -86,14 +86,14 @@ export function LinkPreviewCard({ href }: { href: string }) {
 
   return (
     <CardShell href={href}>
-      <div className="overflow-hidden rounded-lg bg-background shadow-sm">
+      <div className="flex flex-col gap-2 rounded-lg bg-background p-2 shadow-sm">
         {data.image && (
           // Arbitrary external domain — not worth registering every one in
           // next.config's image allowlist just for a hover preview thumbnail.
           // eslint-disable-next-line @next/next/no-img-element
-          <img src={data.image} alt="" className="h-32 w-full object-cover" />
+          <img src={data.image} alt="" className="h-32 w-full rounded-md object-cover" />
         )}
-        <div className="flex flex-col gap-1 p-3">
+        <div className="flex flex-col gap-1 px-1 pb-1">
           <span className="line-clamp-1 text-xs text-muted-foreground">
             {data.siteName || hostname}
           </span>
