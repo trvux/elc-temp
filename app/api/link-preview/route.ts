@@ -137,14 +137,21 @@ export async function GET(req: NextRequest) {
     return Response.json({ error: "missing url" }, { status: 400 });
   }
 
+  // Everything past this point is an *expected*, routine outcome of trying
+  // to preview an arbitrary URL (unreachable, blocked, not HTML, requires
+  // auth, etc.) — not an application error. All of it responds 200 with
+  // {error} rather than a 4xx/5xx, so the client can treat "no preview
+  // available" as normal data instead of a thrown fetch failure that lights
+  // up dev-mode error overlays for something the UI already renders a
+  // graceful fallback for.
   let parsed: URL;
   try {
     parsed = new URL(rawUrl);
   } catch {
-    return Response.json({ error: "invalid url" }, { status: 400 });
+    return Response.json({ error: "invalid url" });
   }
   if (parsed.protocol !== "http:" && parsed.protocol !== "https:") {
-    return Response.json({ error: "unsupported protocol" }, { status: 400 });
+    return Response.json({ error: "unsupported protocol" });
   }
 
   const cached = cache.get(parsed.href);
@@ -153,7 +160,7 @@ export async function GET(req: NextRequest) {
   }
 
   if (await isBlockedHost(parsed.hostname)) {
-    return Response.json({ error: "host not allowed" }, { status: 400 });
+    return Response.json({ error: "host not allowed" });
   }
 
   const controller = new AbortController();
@@ -168,7 +175,7 @@ export async function GET(req: NextRequest) {
       },
     });
     if (!res.ok || !(res.headers.get("content-type") || "").includes("text/html")) {
-      return Response.json({ error: "fetch failed" }, { status: 502 });
+      return Response.json({ error: "fetch failed" });
     }
 
     const html = await readBounded(res, MAX_BYTES);
@@ -176,7 +183,7 @@ export async function GET(req: NextRequest) {
     cache.set(parsed.href, { data, expiresAt: Date.now() + CACHE_TTL_MS });
     return Response.json(data);
   } catch {
-    return Response.json({ error: "fetch error" }, { status: 502 });
+    return Response.json({ error: "fetch error" });
   } finally {
     clearTimeout(timer);
   }
