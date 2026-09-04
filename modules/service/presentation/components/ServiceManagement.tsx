@@ -146,10 +146,20 @@ export function ServiceManagement({
   // --- Mutations ---
   const saveMutation = useMutation({
     mutationFn: async (data: CreateServiceInput | UpdateServiceInput) => {
+      // content (Tiptap JSON) doesn't survive Next.js Server Action argument
+      // serialization intact when passed straight from RHF's field value —
+      // nested mark/node attrs (e.g. a link's href) silently disappear en
+      // route to the server. A JSON round-trip forces a genuinely plain
+      // value that serializes correctly — see useProductForm.ts for the
+      // same fix with the trace that found it.
+      const payload = {
+        ...data,
+        ...(data.content !== undefined ? { content: JSON.parse(JSON.stringify(data.content)) } : {}),
+      };
       if (activeService === "new") {
-        return createServiceAction(data as CreateServiceInput);
+        return createServiceAction(payload as CreateServiceInput);
       }
-      return updateServiceAction(data as UpdateServiceInput);
+      return updateServiceAction(payload as UpdateServiceInput);
     },
     onSuccess: (res) => {
       if (res.error) {

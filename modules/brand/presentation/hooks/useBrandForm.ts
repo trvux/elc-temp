@@ -38,13 +38,23 @@ export function useBrandForm(
 
   const saveMutation = useMutation({
     mutationFn: async (values: BrandFormValues) => {
+      // content (Tiptap JSON) doesn't survive Next.js Server Action argument
+      // serialization intact when passed straight from RHF's field value —
+      // nested mark/node attrs (e.g. a link's href) silently disappear en
+      // route to the server. A JSON round-trip forces a genuinely plain
+      // value that serializes correctly — see useProductForm.ts for the
+      // same fix with the trace that found it.
+      const payload = {
+        ...values,
+        content: values.content ? JSON.parse(JSON.stringify(values.content)) : null,
+      };
       if (activeBrand && activeBrand !== "new") {
         return updateBrandAction({
-          ...values,
+          ...payload,
           id: activeBrand.id,
         } as UpdateBrandInput);
       }
-      return createBrandAction(values as CreateBrandInput);
+      return createBrandAction(payload as CreateBrandInput);
     },
     onSuccess: (res) => {
       if (res.error) {

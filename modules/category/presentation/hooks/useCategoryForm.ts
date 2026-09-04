@@ -63,7 +63,12 @@ export function useCategoryForm(
         isFeatured: !!values.isFeatured,
         isHidden: !!values.isHidden,
         orderIndex: Number(values.orderIndex || 0),
-        content: values.content || null,
+        // Tiptap JSON doesn't survive Next.js Server Action argument
+        // serialization intact when passed straight from RHF's field value
+        // — nested mark/node attrs (e.g. a link's href) silently disappear
+        // en route to the server. A JSON round-trip forces a genuinely
+        // plain value — see useProductForm.ts for the trace that found it.
+        content: values.content ? JSON.parse(JSON.stringify(values.content)) : null,
       };
 
       if (activeCategory && activeCategory !== "new") {

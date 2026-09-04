@@ -40,13 +40,23 @@ export function useHpPageForm(
 
   const saveMutation = useMutation({
     mutationFn: async (values: HpPageFormValues) => {
+      // content (Tiptap JSON) doesn't survive Next.js Server Action argument
+      // serialization intact when passed straight from RHF's field value —
+      // nested mark/node attrs (e.g. a link's href) silently disappear en
+      // route to the server. A JSON round-trip forces a genuinely plain
+      // value that serializes correctly — see useProductForm.ts for the
+      // same fix with the trace that found it.
+      const payload = {
+        ...values,
+        content: JSON.parse(JSON.stringify(values.content)),
+      };
       if (activePage && activePage !== "new") {
         return updateHpPageAction({
-          ...values,
+          ...payload,
           id: activePage.id,
         } as UpdateHpPageInput);
       }
-      return createHpPageAction(values as CreateHpPageInput);
+      return createHpPageAction(payload as CreateHpPageInput);
     },
     onSuccess: (res) => {
       if (res.error) {
