@@ -174,13 +174,23 @@ export function useProductForm(
 
   const saveMutation = useMutation({
     mutationFn: async (values: ProductFormValues) => {
+      // React Hook Form's field values (description in particular — deeply
+      // nested Tiptap JSON with marks/attrs) are plain-looking objects but
+      // don't survive Next.js Server Action argument serialization intact:
+      // nested attrs silently disappear en route to the server (confirmed
+      // by comparing the client-side value against what the action actually
+      // receives — deeply nested mark attrs, e.g. a link's href, were
+      // missing server-side even though present client-side). A JSON
+      // round-trip forces genuinely plain objects/arrays that survive the
+      // Server Action boundary intact.
+      const plainValues = JSON.parse(JSON.stringify(values)) as ProductFormValues;
       if (activeProduct && activeProduct !== "new") {
         return updateProductAction({
-          ...values,
+          ...plainValues,
           id: activeProduct.id,
         } as unknown as UpdateProductInput);
       }
-      return createProductAction(values as unknown as CreateProductInput);
+      return createProductAction(plainValues as unknown as CreateProductInput);
     },
     onSuccess: (res) => {
       if (res.error) {
