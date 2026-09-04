@@ -24,6 +24,14 @@ interface TextBubbleMenuProps {
 export const TextBubbleMenu = ({ editor }: TextBubbleMenuProps) => {
   const [linkUrl, setLinkUrl] = useState("");
 
+  // The popover input must show the link's *current* href when reopened on
+  // already-linked text — otherwise it looks empty even when a (possibly
+  // broken/missing-href) link mark is already there, and there's no way to
+  // tell from the UI that anything needs fixing.
+  const syncLinkUrlFromSelection = useCallback(() => {
+    setLinkUrl((editor.getAttributes("link").href as string | undefined) ?? "");
+  }, [editor]);
+
   const setLink = useCallback(() => {
     if (linkUrl === "") {
       editor.chain().focus().extendMarkRange("link").unsetLink().run();
@@ -99,7 +107,7 @@ export const TextBubbleMenu = ({ editor }: TextBubbleMenuProps) => {
           </Button>
 
           {/* Link */}
-          <Popover>
+          <Popover onOpenChange={(open) => open && syncLinkUrlFromSelection()}>
             <PopoverTrigger asChild>
               <Button
                 type="button"

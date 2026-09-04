@@ -69,16 +69,34 @@ const RichTextEditor = ({
         ),
       },
       transformPastedHTML(html) {
-        // Strip all attributes except href and src
+        // Strip all attributes except href and src.
+        //
+        // Attribute values may come quoted with either " or ' depending on
+        // the source (Word/Docs exports, other sites) — matching only
+        // double quotes silently drops the attribute (and thus the whole
+        // link/image, since the schema requires a[href]/img[src] to parse
+        // one at all) on anything that used single quotes.
         return html.replace(/<([a-z0-9]+)([^>]*)>/gi, (match, tag, attrs) => {
+          const getAttr = (name: string) => {
+            const attrMatch = attrs.match(new RegExp(`${name}\\s*=\\s*["']([^"']*)["']`, "i"));
+            return attrMatch ? attrMatch[1] : null;
+          };
+
           if (tag.toLowerCase() === "a") {
-            const hrefMatch = attrs.match(/href="([^"]*)"/i);
-            return hrefMatch ? `<a href="${hrefMatch[1]}">` : "<a>";
+            const href = getAttr("href");
+            return href ? `<a href="${href}">` : "<a>";
           }
           if (tag.toLowerCase() === "img") {
-            const srcMatch = attrs.match(/src="([^"]*)"/i);
-            const altMatch = attrs.match(/alt="([^"]*)"/i);
-            return `<img ${srcMatch ? `src="${srcMatch[1]}"` : ""} ${altMatch ? `alt="${altMatch[1]}"` : ""}>`;
+            // Many source pages lazy-load images: the real URL sits in
+            // data-src/data-original/srcset while `src` itself is a blank
+            // or placeholder pixel. Prefer those, or the pasted image
+            // vanishes entirely (an img with no usable src never becomes
+            // an image node in the first place).
+            const firstSrcsetUrl = attrs.match(/srcset\s*=\s*["']?\s*([^\s,"']+)/i)?.[1] ?? null;
+            const src = getAttr("data-src") || getAttr("data-original") || getAttr("data-lazy-src") || firstSrcsetUrl || getAttr("src");
+            const alt = getAttr("alt");
+            if (!src) return "";
+            return `<img src="${src}"${alt ? ` alt="${alt}"` : ""}>`;
           }
           return `<${tag}>`;
         });
