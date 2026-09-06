@@ -79,6 +79,15 @@ const nextConfig: NextConfig = {
         destination: "/",
         permanent: true,
       },
+      // 2026-09-06: group "Máy lọc không khí" bị đặt tên/slug sai — nhóm này
+      // thực chất chỉ chứa máy cấp khí tươi thu hồi nhiệt Menred (không có
+      // sản phẩm lọc không khí gia dụng nào), gây lệch search intent. Đổi
+      // tên + slug sang đúng nội dung thật; giữ redirect này cho URL cũ.
+      {
+        source: "/san-pham/may-loc-khong-khi",
+        destination: "/san-pham/cap-khi-tuoi-thu-hoi-nhiet",
+        permanent: true,
+      },
       // WP pagination URL cũ
       {
         source: "/thiet-ke-cung-cap-thi-cong-lap-dat/:path*",
