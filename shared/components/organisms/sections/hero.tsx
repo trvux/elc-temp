@@ -19,6 +19,26 @@ function pickContact(contacts: Contact[], type: Contact["type"]): Contact | unde
   );
 }
 
+// Tileable fractal-noise grain, laid between the bg photo and the dark
+// scrim below — breaks up the sky photo's smooth gradient banding without
+// needing an extra image asset. The matrix zeroes out RGB and drives only
+// alpha from the turbulence (gain 0.5, so alpha stays mostly in the
+// 0-0.4 range — fine specks, not a wash), so this paints translucent
+// black specks straight onto whatever's beneath — visible on any
+// photo/color, unlike a flat gray tile blended with mix-blend-mode. (An
+// earlier gain of 8 clipped nearly every pixel to full alpha, which is
+// why it looked like a flat dark overlay instead of grain.)
+const NOISE_SVG = `
+<svg xmlns="http://www.w3.org/2000/svg" width="180" height="180">
+  <filter id="n">
+    <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="3" stitchTiles="stitch" />
+    <feColorMatrix type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.5 0" />
+  </filter>
+  <rect width="100%" height="100%" filter="url(#n)" />
+</svg>
+`;
+const NOISE_BG_IMAGE = `url("data:image/svg+xml,${encodeURIComponent(NOISE_SVG)}")`;
+
 // Business content (headline, CTA) stays driven by real contact data.
 export function HeroSection({ contacts = [], brands = [] }: HeroSectionProps) {
   const phoneContact = pickContact(contacts, "phone");
@@ -43,13 +63,25 @@ export function HeroSection({ contacts = [], brands = [] }: HeroSectionProps) {
         className="object-cover"
       />
 
-      {/* Darkens the bright sky photo so the white headline/copy stays
-          readable, and blends it into solid black before the section's
-          hard bottom edge so the next section's bg-black reads as a
-          continuation rather than a sudden cut. */}
       <div
         aria-hidden
-        className="pointer-events-none absolute inset-0 z-[5] bg-black/30 lg:bg-black/20"
+        className="pointer-events-none absolute inset-0 z-[2] opacity-40"
+        style={{ backgroundImage: NOISE_BG_IMAGE, backgroundRepeat: "repeat" }}
+      />
+
+      {/* Top-to-bottom linear fade — clean edge-to-edge scrim rather than
+          a spotlight/ellipse (an earlier radial-gradient version read as
+          an odd floating blob instead of an intentional effect). Dark at
+          the top where the header/heading/CTA sit, fully transparent
+          well before the clouds lower in the frame, so the photo stays
+          untouched there. */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 z-[5]"
+        style={{
+          background:
+            "linear-gradient(to bottom, rgba(0,0,0,0.25) 0%, rgba(0,0,0,0.12) 30%, rgba(0,0,0,0) 50%)",
+        }}
       />
       <div
         aria-hidden
@@ -68,7 +100,7 @@ export function HeroSection({ contacts = [], brands = [] }: HeroSectionProps) {
           </span>
         </h1>
 
-        <TypographyP className="max-w-md text-base leading-relaxed text-white/80 drop-shadow-sm sm:text-lg">
+        <TypographyP className="max-w-md text-base leading-relaxed font-medium text-white/80 drop-shadow-sm sm:text-lg">
           Cung cấp, thi công lắp đặt trọn gói các dòng điều hòa không khí, hệ
           thống cấp khí tươi thu hồi nhiệt và lọc không khí cho công trình
           dân dụng đến công nghiệp từ những thương hiệu uy tín hàng đầu.
