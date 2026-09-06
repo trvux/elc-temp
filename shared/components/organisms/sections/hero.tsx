@@ -1,4 +1,5 @@
 import Image from "next/image";
+import heroBg from "@/public/images/hero-section-bg.jpg";
 import { Brand } from "@/modules/brand/domain";
 import { LeadForm } from "@/modules/inquiry/presentation/components/LeadForm";
 import { TypographyP } from "@/shared/components/ui/typography";
@@ -37,13 +38,14 @@ export function HeroSection({ brands = [] }: HeroSectionProps) {
       // is top-anchored (pt-*, items-start) rather than true-centered so it
       // sits in the clear sky area of the bg photo instead of getting
       // covered by the clouds lower down.
-      className="relative -mt-16 flex h-screen min-h-163 w-full items-start justify-center overflow-hidden bg-black pt-28 sm:pt-32 lg:pt-40"
+      className="relative -mt-16 flex h-screen min-h-163 w-full items-start justify-center overflow-hidden bg-[#173b84] pt-28 sm:pt-32 lg:pt-40"
     >
       <Image
-        src="/images/hero-section-bg.jpg"
+        src={heroBg}
         alt=""
         fill
         priority
+        placeholder="blur"
         sizes="100vw"
         // object-[center_35%] biases the cover-crop toward the top of the
         // (portrait, cloud-heavy-at-the-bottom) source photo — pushes the

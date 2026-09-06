@@ -2,6 +2,14 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
+// Static import (not a "/images/..." string src) so Next generates a
+// blurDataURL at build time — gives an instant blurred preview instead of
+// empty space while the full photo streams in, which is what was showing
+// as a black/gray flash on slow production connections (user-reported,
+// 2026-09-07). The bg-[#3c70b0] fallback on each wrapping div (this
+// photo's own average color, sampled via PIL) covers the sliver of time
+// before even the blur preview paints.
+import typeformBg from "@/public/images/typeform-bg.jpg";
 import { useRouter } from "next/navigation";
 import { standardSchemaResolver } from "@hookform/resolvers/standard-schema";
 import { useMutation } from "@tanstack/react-query";
@@ -1051,8 +1059,8 @@ export function LeadFormScreen({
 
   if (submitted) {
     return (
-      <div className="relative flex h-[100dvh] w-full flex-col items-center justify-center overflow-hidden">
-        <Image src="/images/typeform-bg.jpg" alt="" fill priority sizes="100vw" className="object-cover -z-20" />
+      <div className="relative flex h-[100dvh] w-full flex-col items-center justify-center overflow-hidden bg-[#3c70b0]">
+        <Image src={typeformBg} alt="" fill priority placeholder="blur" sizes="100vw" className="object-cover -z-20" />
         <div className="absolute inset-0 -z-10 bg-blue-950/25" />
 
         <div className="flex flex-col items-center gap-6 px-6 text-center">
@@ -1095,7 +1103,7 @@ export function LeadFormScreen({
     currentStep.kind === "project-category-picker";
 
   return (
-    <div className="relative h-[100dvh] flex flex-col overflow-hidden">
+    <div className="relative h-[100dvh] flex flex-col overflow-hidden bg-[#3c70b0]">
       {/* User-supplied background (2026-09-07). Text/buttons throughout this
           form are now explicitly light (text-white etc., matching
           HeroSection's own approach) so a darkening overlay only helps
@@ -1104,7 +1112,7 @@ export function LeadFormScreen({
           (not a directional gradient like hero's) since the ask was
           simply "make the photo read as a deeper blue," not to fade any
           one edge. */}
-      <Image src="/images/typeform-bg.jpg" alt="" fill priority sizes="100vw" className="object-cover -z-20" />
+      <Image src={typeformBg} alt="" fill priority placeholder="blur" sizes="100vw" className="object-cover -z-20" />
       <div className="absolute inset-0 -z-10 bg-blue-950/25" />
 
       {/* Step 2 (2026-09-07): every "bare" text/border element (no opaque
