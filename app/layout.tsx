@@ -30,13 +30,24 @@ const geistMono = Geist_Mono({ subsets: ["latin"], variable: "--font-geist-mono"
 
 export const metadata: Metadata = {
   metadataBase: new URL(BASE_URL),
-  title: "Điện máy ELC | Máy lạnh, Hệ thống khí tươi & Dự án trọn gói",
+  // Title: brand moved to the tail ("| Điện Máy ELC") instead of leading —
+  // frees the high-weight leading position for the actual search-intent
+  // keywords (mua bán / thi công / dịch vụ / sản phẩm), while still
+  // keeping the brand name present for recognition + branded-query CTR.
+  // Brand identity for Google itself doesn't depend on this string alone
+  // — it's already covered by the domain, openGraph.siteName below, and
+  // the Organization JSON-LD schema (see SEOSchema.getOrganization in
+  // app/(public)/page.tsx) — so dropping it from the description text
+  // entirely (per explicit instruction) doesn't lose that signal.
+  // Both strings sit close to Google's practical SERP display budget
+  // (~60 chars title, ~155-160 chars description) without padding.
+  title: "Mua Bán, Thi Công, Dịch Vụ Máy Lạnh & Khí Tươi | Điện Máy ELC",
   description:
-    "Điện máy ELC chuyên cung cấp, lắp đặt & thi công máy lạnh, hệ thống khí tươi chính hãng. Đầy đủ dịch vụ: bảo trì, cho thuê, thu cũ đổi mới uy tín hàng đầu.",
+    "Cung cấp máy lạnh, hệ thống cấp khí tươi thu hồi nhiệt Menred, lọc nước chính hãng. Nhận thi công công trình, sửa chữa, bảo trì, vệ sinh máy lạnh.",
   openGraph: {
-    title: "Điện máy ELC - Máy lạnh chính hãng, giá tốt",
+    title: "Mua Bán, Thi Công, Dịch Vụ Máy Lạnh & Khí Tươi | Điện Máy ELC",
     description:
-      "Giải pháp không khí chuyên nghiệp cho gia đình và doanh nghiệp. Lắp đặt nhanh, bảo hành tận tâm.",
+      "Cung cấp máy lạnh, hệ thống cấp khí tươi thu hồi nhiệt Menred, lọc nước chính hãng. Nhận thi công công trình, sửa chữa, bảo trì, vệ sinh máy lạnh.",
     url: BASE_URL,
     siteName: "Điện máy ELC",
     locale: "vi_VN",
@@ -44,9 +55,9 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Điện máy ELC - Máy lạnh chính hãng, giá tốt",
+    title: "Mua Bán, Thi Công, Dịch Vụ Máy Lạnh & Khí Tươi | Điện Máy ELC",
     description:
-      "Chuyên máy lạnh, hệ thống lọc khí chuyên nghiệp. Giá tốt nhất thị trường.",
+      "Cung cấp máy lạnh, hệ thống cấp khí tươi thu hồi nhiệt Menred, lọc nước chính hãng. Nhận thi công công trình, sửa chữa, bảo trì, vệ sinh máy lạnh.",
   },
 };
 

@@ -1,22 +1,11 @@
 import Image from "next/image";
 import { Brand } from "@/modules/brand/domain";
-import { Contact } from "@/modules/contact/domain";
-import { ContactIcon } from "@/modules/contact/presentation/utils";
-import { Button } from "@/shared/components/ui/button";
+import { LeadForm } from "@/modules/inquiry/presentation/components/LeadForm";
 import { TypographyP } from "@/shared/components/ui/typography";
 import { HeroBrandMarquee } from "./hero-brand-marquee";
-import { HeroRotatingWord } from "./hero-rotating-word";
 
 interface HeroSectionProps {
-  contacts?: Contact[];
   brands?: Brand[];
-}
-
-function pickContact(contacts: Contact[], type: Contact["type"]): Contact | undefined {
-  return (
-    contacts.find((c) => c.type === type && c.isActive) ||
-    contacts.find((c) => c.type === type)
-  );
 }
 
 // Tileable fractal-noise grain, laid between the bg photo and the dark
@@ -39,11 +28,7 @@ const NOISE_SVG = `
 `;
 const NOISE_BG_IMAGE = `url("data:image/svg+xml,${encodeURIComponent(NOISE_SVG)}")`;
 
-// Business content (headline, CTA) stays driven by real contact data.
-export function HeroSection({ contacts = [], brands = [] }: HeroSectionProps) {
-  const phoneContact = pickContact(contacts, "phone");
-  const zaloContact = pickContact(contacts, "zalo");
-
+export function HeroSection({ brands = [] }: HeroSectionProps) {
   return (
     <section
       // -mt cancels the (public) layout's fixed-header clearance so this
@@ -60,7 +45,12 @@ export function HeroSection({ contacts = [], brands = [] }: HeroSectionProps) {
         fill
         priority
         sizes="100vw"
-        className="object-cover"
+        // object-[center_35%] biases the cover-crop toward the top of the
+        // (portrait, cloud-heavy-at-the-bottom) source photo — pushes the
+        // cloud line further down the viewport instead of sitting right
+        // behind the description/CTA text, without needing extra
+        // darkening on top of it.
+        className="object-cover object-[center_35%]"
       />
 
       <div
@@ -93,60 +83,29 @@ export function HeroSection({ contacts = [], brands = [] }: HeroSectionProps) {
           Điện máy ELC
         </span>
 
-        <h1 className="font-heading text-4xl font-bold leading-tight tracking-tight text-white drop-shadow-sm sm:text-5xl lg:text-6xl">
-          Giải pháp Không khí{" "}
-          <span className="inline-block">
-            <HeroRotatingWord />
-          </span>
+        <h1 className="font-heading text-3xl font-bold leading-tight tracking-tight text-white drop-shadow-sm sm:text-4xl lg:text-5xl">
+          Đối Tác Điện Lạnh Trọn Gói
         </h1>
 
         <TypographyP className="max-w-md text-base leading-relaxed font-medium text-white/80 drop-shadow-sm sm:text-lg">
-          Cung cấp, thi công lắp đặt trọn gói các dòng điều hòa không khí, hệ
-          thống cấp khí tươi thu hồi nhiệt và lọc không khí cho công trình
-          dân dụng đến công nghiệp từ những thương hiệu uy tín hàng đầu.
+          Phân phối chính hãng máy lạnh và hệ thống cấp khí tươi thu hồi
+          nhiệt Menred, thi công công trình trọn gói từ dân dụng đến công
+          nghiệp, cùng dịch vụ bảo trì, vệ sinh, sửa chữa chuyên nghiệp.
         </TypographyP>
 
-        {/* CTA pair ported from the reference's Github/Medium buttons: a
-            solid primary action + a translucent glass secondary one. `dark`
-            scopes `foreground`/`border` to their dark-theme values here so
-            the glass button reads correctly regardless of the site's actual
-            light/dark setting — the hero backdrop is always dark. Colors
-            come from theme tokens (not hardcoded white/black) so swapping
-            the shadcn theme later just works. */}
-        {(phoneContact || zaloContact) && (
-          <div className="dark mt-2 flex w-full flex-col items-center justify-center gap-2.5 sm:mt-4 sm:w-auto sm:flex-row sm:gap-3.5">
-            {phoneContact && (
-              <Button asChild size="lg" className="w-full sm:w-auto">
-                <a
-                  href={phoneContact.href}
-                  target={phoneContact.isExternal ? "_blank" : undefined}
-                  rel={phoneContact.isExternal ? "noopener noreferrer" : undefined}
-                >
-                  <ContactIcon type="phone" className="size-4" />
-                  Gọi ngay - {phoneContact.value}
-                </a>
-              </Button>
-            )}
-
-            {zaloContact && (
-              <Button
-                asChild
-                variant="outline"
-                size="lg"
-                className="w-full border-foreground/15 bg-foreground/5 text-foreground backdrop-blur-md hover:bg-foreground/10 hover:text-foreground sm:w-auto"
-              >
-                <a
-                  href={zaloContact.href}
-                  target={zaloContact.isExternal ? "_blank" : undefined}
-                  rel={zaloContact.isExternal ? "noopener noreferrer" : undefined}
-                >
-                  <ContactIcon type="zalo" className="size-4" />
-                  Tư vấn miễn phí
-                </a>
-              </Button>
-            )}
-          </div>
-        )}
+        {/* Single CTA into the full-screen consultation form at /form
+            (see LeadForm) — replaces the previous "Gọi ngay" / "Tư vấn
+            miễn phí" button pair. No entity context passed, since this is
+            a general homepage inquiry rather than about one product. */}
+        <div className="mt-2 sm:mt-4">
+          <LeadForm
+            triggerLabel="Yêu cầu tư vấn"
+            triggerSize="lg"
+            triggerVariant="default"
+            showIcon={false}
+            className="bg-white text-neutral-900 shadow-lg hover:bg-white/90"
+          />
+        </div>
       </div>
 
       {/* Sits low inside the hero itself (not a separate section below it),
