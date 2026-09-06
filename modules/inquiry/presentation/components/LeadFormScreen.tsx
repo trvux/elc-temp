@@ -8,7 +8,12 @@ import Image from "next/image";
 // as a black/gray flash on slow production connections (user-reported,
 // 2026-09-07). The bg-[#3c70b0] fallback on each wrapping div (this
 // photo's own average color, sampled via PIL) covers the sliver of time
-// before even the blur preview paints.
+// before even the blur preview paints — that div also needs its own `z-0`
+// (see the two return blocks below): a `relative` element with no z-index
+// of its own doesn't form a stacking context, so a negative-z-index child
+// (the Image, at -z-20) escapes to an ancestor's stacking context instead
+// and paints *behind* this div's own bg-color, hiding the photo
+// completely — hit this for real the moment the fallback color was added.
 import typeformBg from "@/public/images/typeform-bg.jpg";
 import { useRouter } from "next/navigation";
 import { standardSchemaResolver } from "@hookform/resolvers/standard-schema";
@@ -1059,7 +1064,7 @@ export function LeadFormScreen({
 
   if (submitted) {
     return (
-      <div className="relative flex h-[100dvh] w-full flex-col items-center justify-center overflow-hidden bg-[#3c70b0]">
+      <div className="relative z-0 flex h-[100dvh] w-full flex-col items-center justify-center overflow-hidden bg-[#3c70b0]">
         <Image src={typeformBg} alt="" fill priority placeholder="blur" sizes="100vw" className="object-cover -z-20" />
         <div className="absolute inset-0 -z-10 bg-blue-950/25" />
 
@@ -1103,7 +1108,7 @@ export function LeadFormScreen({
     currentStep.kind === "project-category-picker";
 
   return (
-    <div className="relative h-[100dvh] flex flex-col overflow-hidden bg-[#3c70b0]">
+    <div className="relative z-0 h-[100dvh] flex flex-col overflow-hidden bg-[#3c70b0]">
       {/* User-supplied background (2026-09-07). Text/buttons throughout this
           form are now explicitly light (text-white etc., matching
           HeroSection's own approach) so a darkening overlay only helps
