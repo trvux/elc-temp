@@ -49,8 +49,12 @@ export function HeroSection({ brands = [] }: HeroSectionProps) {
         // (portrait, cloud-heavy-at-the-bottom) source photo — pushes the
         // cloud line further down the viewport instead of sitting right
         // behind the description/CTA text, without needing extra
-        // darkening on top of it.
-        className="object-cover object-[center_35%]"
+        // darkening on top of it. Only mobile/tablet need this: on wide
+        // short (desktop) viewports the cover-crop window is already much
+        // shorter, so the same 35% bias crops almost all the way past the
+        // clouds, leaving just a sliver at the very bottom. lg: reverts to
+        // plain center, matching how this looked before the bias existed.
+        className="object-cover object-[center_35%] lg:object-center"
       />
 
       <div

@@ -4,7 +4,7 @@ import { ColumnDef } from "@tanstack/react-table";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
 import { Eye } from "@phosphor-icons/react";
-import { INQUIRY_STATUSES, Inquiry, InquiryStatus } from "../../domain";
+import { computeLeadPriority, INQUIRY_STATUSES, Inquiry, InquiryStatus, LeadType } from "../../domain";
 
 interface ColumnProps {
   onView: (inquiry: Inquiry) => void;
@@ -17,12 +17,12 @@ const STATUS_BADGE_VARIANT: Record<InquiryStatus, "default" | "secondary" | "des
   closed: "destructive",
 };
 
-function sourceLabel(inquiry: Inquiry): string {
-  if (inquiry.productId) return "Sản phẩm";
-  if (inquiry.projectId) return "Dự án";
-  if (inquiry.serviceId) return "Dịch vụ";
-  return "Tư vấn chung";
-}
+const LEAD_TYPE_LABEL: Record<LeadType, string> = {
+  product: "Sản phẩm",
+  service: "Dịch vụ",
+  project: "Dự án",
+  general: "Tư vấn chung",
+};
 
 export const getInquiryColumns = ({ onView }: ColumnProps): ColumnDef<Inquiry>[] => [
   {
@@ -46,9 +46,26 @@ export const getInquiryColumns = ({ onView }: ColumnProps): ColumnDef<Inquiry>[]
   {
     id: "source",
     header: "Quan tâm",
-    cell: ({ row }) => (
-      <span className="text-sm text-muted-foreground">{sourceLabel(row.original)}</span>
-    ),
+    cell: ({ row }) => {
+      const inquiry = row.original;
+      return (
+        <div className="flex flex-col gap-1">
+          <span className="text-sm text-muted-foreground">
+            {LEAD_TYPE_LABEL[inquiry.leadType]}
+            {inquiry.subType ? ` · ${inquiry.subType}` : ""}
+          </span>
+        </div>
+      );
+    },
+  },
+  {
+    id: "priority",
+    header: "Ưu tiên",
+    cell: ({ row }) => {
+      const priority = computeLeadPriority(row.original);
+      if (!priority) return null;
+      return <Badge variant={priority.variant}>{priority.label}</Badge>;
+    },
   },
   {
     accessorKey: "status",

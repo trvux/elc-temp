@@ -150,7 +150,7 @@ export default async function Home() {
             stay in their "floating over a dark hero" look for exactly this
             region, not a fixed pixel guess. */}
         <div id="hero-chat-region">
-          <HeroSection contacts={contacts || []} brands={brands || []} />
+          <HeroSection brands={brands || []} />
         </div>
         {sections.map((section) => (
           <GridSection

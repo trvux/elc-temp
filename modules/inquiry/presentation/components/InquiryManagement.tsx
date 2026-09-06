@@ -139,6 +139,38 @@ export function InquiryManagement() {
               </div>
             )}
 
+            {Object.keys(activeInquiry.qualifyData).length > 0 && (
+              <div>
+                <TypographySmall className="text-muted-foreground">
+                  Thông tin khảo sát
+                </TypographySmall>
+                <dl className="mt-1 grid grid-cols-2 gap-x-4 gap-y-1 text-sm">
+                  {Object.entries(activeInquiry.qualifyData).map(([key, value]) => (
+                    <div key={key} className="contents">
+                      <dt className="text-muted-foreground">{key}</dt>
+                      <dd>{value}</dd>
+                    </div>
+                  ))}
+                </dl>
+              </div>
+            )}
+
+            {activeInquiry.attachments.length > 0 && (
+              <div>
+                <TypographySmall className="text-muted-foreground">
+                  Ảnh khách gửi
+                </TypographySmall>
+                <div className="mt-2 flex flex-wrap gap-2">
+                  {activeInquiry.attachments.map((url) => (
+                    <a key={url} href={url} target="_blank" rel="noopener noreferrer">
+                      {/* eslint-disable-next-line @next/next/no-img-element -- ad-hoc R2 URLs from visitor uploads, not worth wiring into next/image's remote patterns for an admin-only thumbnail */}
+                      <img src={url} alt="" className="size-20 rounded-lg border border-border object-cover" />
+                    </a>
+                  ))}
+                </div>
+              </div>
+            )}
+
             <Field>
               <FieldLabel className="mb-2 font-medium">Trạng thái</FieldLabel>
               <FieldContent>

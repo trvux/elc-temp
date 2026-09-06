@@ -21,6 +21,10 @@ interface GoInquiryResponse {
   product_id: string | null;
   project_id: string | null;
   service_id: string | null;
+  lead_type: string;
+  sub_type: string | null;
+  qualify_data: Record<string, string> | null;
+  attachments: string[] | null;
   status: string;
   internal_note: string | null;
   created_at: string;
@@ -43,6 +47,10 @@ function mapGoInquiry(row: GoInquiryResponse): Inquiry {
     productId: row.product_id,
     projectId: row.project_id,
     serviceId: row.service_id,
+    leadType: row.lead_type as Inquiry["leadType"],
+    subType: row.sub_type,
+    qualifyData: row.qualify_data ?? {},
+    attachments: row.attachments ?? [],
     status: row.status as Inquiry["status"],
     internalNote: row.internal_note,
     createdAt: row.created_at,
@@ -95,6 +103,34 @@ export async function createInquiryAction(input: CreateInquiryInput) {
   } catch (error) {
     console.error("createInquiryAction error:", error);
     return { data: null, error: "Không thể gửi yêu cầu, vui lòng thử lại." };
+  }
+}
+
+// Public — same anonymous-submission posture as createInquiryAction. Lets a
+// visitor attach photos (e.g. a leaking AC unit, a job site) before the
+// inquiry itself exists yet; the resulting URL rides along in the final
+// createInquiryAction call's `attachments` array. No authHeaders(): the Go
+// side rate-limits this per-IP instead (see elc-go internal/inquiry
+// presentation's UploadAttachment).
+export async function uploadInquiryAttachmentAction(
+  formData: FormData,
+): Promise<{ url: string | null; error: string | null }> {
+  if (!GO_API_URL) {
+    return { url: null, error: "GO_API_URL is not configured" };
+  }
+  try {
+    const res = await fetch(`${GO_API_URL}/inquiries/uploads`, {
+      method: "POST",
+      body: formData,
+    });
+    if (!res.ok) {
+      return { url: null, error: await extractErrorMessage(res) };
+    }
+    const body = (await res.json()) as { url: string };
+    return { url: body.url, error: null };
+  } catch (error) {
+    console.error("uploadInquiryAttachmentAction error:", error);
+    return { url: null, error: "Không thể tải ảnh lên, vui lòng thử lại." };
   }
 }
 
