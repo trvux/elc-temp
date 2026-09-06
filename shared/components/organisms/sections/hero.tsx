@@ -1,7 +1,7 @@
+import Image from "next/image";
 import { Brand } from "@/modules/brand/domain";
 import { Contact } from "@/modules/contact/domain";
 import { ContactIcon } from "@/modules/contact/presentation/utils";
-import FluidBackground from "@/shared/components/molecules/effects/fluid-background";
 import { Button } from "@/shared/components/ui/button";
 import { TypographyP } from "@/shared/components/ui/typography";
 import { HeroBrandMarquee } from "./hero-brand-marquee";
@@ -19,10 +19,7 @@ function pickContact(contacts: Contact[], type: Contact["type"]): Contact | unde
   );
 }
 
-// Ported from the animated-grainy-gradient-background reference: a
-// full-viewport WebGL fluid gradient behind centered copy, minus its
-// runtime shader control panel. Business content (headline, CTA) stays
-// driven by real contact data instead of the reference's placeholder links.
+// Business content (headline, CTA) stays driven by real contact data.
 export function HeroSection({ contacts = [], brands = [] }: HeroSectionProps) {
   const phoneContact = pickContact(contacts, "phone");
   const zaloContact = pickContact(contacts, "zalo");
@@ -34,11 +31,23 @@ export function HeroSection({ contacts = [], brands = [] }: HeroSectionProps) {
       // the floating header sits transparently over the hero, not above it.
       className="relative -mt-23 flex h-screen min-h-163 w-full items-center justify-center overflow-hidden bg-black"
     >
-      <FluidBackground />
+      <Image
+        src="/images/hero-section-bg.jpg"
+        alt=""
+        fill
+        priority
+        sizes="100vw"
+        className="object-cover"
+      />
 
-      {/* Blends the canvas into solid black before the section's hard
-          bottom edge, so the next section's bg-black reads as a
-          continuation of the gradient rather than a sudden cut. */}
+      {/* Darkens the bright sky photo so the white headline/copy stays
+          readable, and blends it into solid black before the section's
+          hard bottom edge so the next section's bg-black reads as a
+          continuation rather than a sudden cut. */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 z-[5] bg-black/20"
+      />
       <div
         aria-hidden
         className="pointer-events-none absolute inset-x-0 bottom-0 z-[5] h-1/3 bg-gradient-to-b from-transparent to-black"
