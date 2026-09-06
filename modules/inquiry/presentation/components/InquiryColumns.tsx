@@ -48,11 +48,22 @@ export const getInquiryColumns = ({ onView }: ColumnProps): ColumnDef<Inquiry>[]
     header: "Quan tâm",
     cell: ({ row }) => {
       const inquiry = row.original;
+      // subType itself is a slug (e.g. "may-lanh-treo-tuong") — meant for
+      // filtering, not display. qualifyData already carries the same pick
+      // as a human name (productCategory/serviceGroup/projectType, set
+      // alongside subType in LeadFormScreen's select* handlers), so prefer
+      // that; only fall back to the raw slug if qualifyData is somehow
+      // missing it (a general-branch or pre-picker-conversion lead).
+      const subTypeLabel =
+        inquiry.qualifyData.productCategory ??
+        inquiry.qualifyData.serviceGroup ??
+        inquiry.qualifyData.projectType ??
+        inquiry.subType;
       return (
         <div className="flex flex-col gap-1">
           <span className="text-sm text-muted-foreground">
             {LEAD_TYPE_LABEL[inquiry.leadType]}
-            {inquiry.subType ? ` · ${inquiry.subType}` : ""}
+            {subTypeLabel ? ` · ${subTypeLabel}` : ""}
           </span>
         </div>
       );

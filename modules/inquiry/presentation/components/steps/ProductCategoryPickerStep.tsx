@@ -4,12 +4,18 @@ import type { CategoryWithGroup } from "@/modules/category/domain/types";
 
 import { EntityPickerCard } from "./EntityPickerCard";
 import { PickerLayout } from "./PickerLayout";
-import { getCategoryModelKey } from "./three-models.js";
 
 export interface PickedProductCategory {
   id: string;
   name: string;
   slug: string;
+  // The category's parent group (Máy lạnh / Máy lọc không khí / Máy lọc
+  // nước / Nhà thông minh) — these are priced and qualified completely
+  // differently (a remote control isn't asked "quy mô/công suất cần lắp?"
+  // the way an AC unit is), so LeadFormScreen branches the follow-up
+  // questions on this, the same way ServiceGroupPickerStep's slug drives
+  // deriveSupportType.
+  groupSlug?: string;
 }
 
 interface ProductCategoryPickerStepProps {
@@ -41,10 +47,11 @@ export function ProductCategoryPickerStep({
         {(categories ?? []).map((category) => (
           <EntityPickerCard
             key={category.id}
-            modelKey={getCategoryModelKey(category.slug)}
             title={category.name}
             selected={selectedId === category.id}
-            onClick={() => onSelect({ id: category.id, name: category.name, slug: category.slug })}
+            onClick={() =>
+              onSelect({ id: category.id, name: category.name, slug: category.slug, groupSlug: category.group?.slug })
+            }
           />
         ))}
       </div>

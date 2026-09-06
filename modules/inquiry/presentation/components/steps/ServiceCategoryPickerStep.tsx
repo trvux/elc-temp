@@ -3,13 +3,17 @@
 import type { CategoryWithGroup } from "@/modules/category/domain/types";
 
 import { EntityPickerCard } from "./EntityPickerCard";
-import { getCategoryIcon } from "./entity-icons";
 import { PickerLayout } from "./PickerLayout";
 
 export interface PickedServiceCategory {
   id: string;
   name: string;
   slug: string;
+  // The category's parent group (Máy lạnh / Máy lọc không khí / Máy lọc
+  // nước / Nhà thông minh) — LeadFormScreen's "install" supportType
+  // branches its capacity question on this, same reasoning as
+  // ProductCategoryPickerStep's own groupSlug.
+  groupSlug?: string;
 }
 
 interface ServiceCategoryPickerStepProps {
@@ -43,10 +47,11 @@ export function ServiceCategoryPickerStep({
         {(categories ?? []).map((category) => (
           <EntityPickerCard
             key={category.id}
-            icon={getCategoryIcon(category.slug)}
             title={category.name}
             selected={selectedId === category.id}
-            onClick={() => onSelect({ id: category.id, name: category.name, slug: category.slug })}
+            onClick={() =>
+              onSelect({ id: category.id, name: category.name, slug: category.slug, groupSlug: category.group?.slug })
+            }
           />
         ))}
       </div>

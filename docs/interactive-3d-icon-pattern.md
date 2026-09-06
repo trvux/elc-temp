@@ -1,6 +1,16 @@
 # Interactive 3D icon pattern (drag-to-rotate, gesture-gated)
 
-Status:
+**Status: REMOVED (2026-09-06).** The user asked to delete all 3D models
+from `/form` and replace every picker card with a plain text button, like
+the rest of the form (`ChoiceStep`). `DragRotate3DCard.tsx`,
+`three-models.js`, `three-scene-rig.js`, `entity-icons.tsx`, the
+`public/images/3d-icons/` snapshots, `public/models/kenney/` glTF assets,
+`scripts/render-3d-icon-snapshots.mjs`, and the `three` dependency were all
+deleted; `EntityPickerCard` and `BranchSelectStep` no longer take an
+`icon`/`modelKey` prop. Kept below for historical reference only — nothing
+in this doc reflects the current code anymore.
+
+Status (historical, pre-removal):
 
 - **Live and confirmed**: `BranchSelectStep` (the "Bạn đang cần gì hôm
   nay?" step, 3 cards: Mua sản phẩm / Dịch vụ / Dự án công trình) — user

@@ -4,7 +4,6 @@ import type { ServiceGroup } from "@/modules/service-group/domain/types";
 
 import { EntityPickerCard } from "./EntityPickerCard";
 import { PickerLayout } from "./PickerLayout";
-import { getServiceGroupModelKey } from "./three-models.js";
 
 export interface PickedServiceGroup {
   id: string;
@@ -31,7 +30,6 @@ export function ServiceGroupPickerStep({ groups, selectedId, onSelect, onSkip }:
         {(groups ?? []).map((group) => (
           <EntityPickerCard
             key={group.id}
-            modelKey={getServiceGroupModelKey(group.slug)}
             title={group.name}
             selected={selectedId === group.id}
             onClick={() => onSelect({ id: group.id, name: group.name, slug: group.slug })}

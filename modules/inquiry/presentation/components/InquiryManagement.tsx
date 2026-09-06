@@ -18,7 +18,7 @@ import {
 import { Textarea } from "@/shared/components/ui/textarea";
 import { TypographySmall } from "@/shared/components/ui/typography";
 
-import { INQUIRY_STATUSES, Inquiry, InquiryStatus } from "../../domain";
+import { decodeQualifyValue, INQUIRY_STATUSES, Inquiry, InquiryStatus, QUALIFY_STEP_LABELS } from "../../domain";
 import { getInquiriesAction, updateInquiryStatusAction } from "../actions";
 import { getInquiryColumns } from "./InquiryColumns";
 
@@ -147,8 +147,8 @@ export function InquiryManagement() {
                 <dl className="mt-1 grid grid-cols-2 gap-x-4 gap-y-1 text-sm">
                   {Object.entries(activeInquiry.qualifyData).map(([key, value]) => (
                     <div key={key} className="contents">
-                      <dt className="text-muted-foreground">{key}</dt>
-                      <dd>{value}</dd>
+                      <dt className="text-muted-foreground">{QUALIFY_STEP_LABELS[key] ?? key}</dt>
+                      <dd>{decodeQualifyValue(key, value)}</dd>
                     </div>
                   ))}
                 </dl>

@@ -3,7 +3,6 @@
 import type { CategoryWithGroup } from "@/modules/category/domain/types";
 
 import { EntityPickerCard } from "./EntityPickerCard";
-import { getCategoryIcon } from "./entity-icons";
 import { PickerLayout } from "./PickerLayout";
 
 export interface PickedProjectCategory {
@@ -43,7 +42,6 @@ export function ProjectCategoryPickerStep({
         {(categories ?? []).map((category) => (
           <EntityPickerCard
             key={category.id}
-            icon={getCategoryIcon(category.slug)}
             title={category.name}
             selected={selectedIds.includes(category.id)}
             onClick={() => onToggle({ id: category.id, name: category.name, slug: category.slug })}

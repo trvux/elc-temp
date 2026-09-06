@@ -4,7 +4,6 @@ import type { ProjectTypeWithCategories } from "@/modules/project-type/domain/ty
 
 import { EntityPickerCard } from "./EntityPickerCard";
 import { PickerLayout } from "./PickerLayout";
-import { getProjectTypeModelKey } from "./three-models.js";
 
 export interface PickedProjectType {
   id: string;
@@ -36,7 +35,6 @@ export function ProjectTypePickerStep({
         {(projectTypes ?? []).map((type) => (
           <EntityPickerCard
             key={type.id}
-            modelKey={getProjectTypeModelKey(type.slug)}
             title={type.name}
             selected={selectedId === type.id}
             onClick={() => onSelect({ id: type.id, name: type.name, slug: type.slug })}

@@ -29,6 +29,16 @@ const nextConfig: NextConfig = {
     cpus: 2,
     staticGenerationMinPagesPerWorker: 150,
     staticGenerationMaxConcurrency: 2,
+    // Defensive backstop above Next's 1MB default — every image upload
+    // Server Action (admin's ImageUpload, the lead form's AttachmentStep)
+    // already compresses client-side via convertToWebP before this point,
+    // but a large/detailed photo can still land in the low single-digit
+    // MB range after compression (user hit the 1MB default directly,
+    // 2026-09-06). Client-side compression is still the primary fix — this
+    // just keeps a compressed-but-still-a-few-MB upload from hard-failing.
+    serverActions: {
+      bodySizeLimit: "4mb",
+    },
     staleTimes: {
       // Next.js enforces a hard floor of 30s on `static` — 0 is rejected as
       // an invalid config value, so this is the closest to "off" possible.

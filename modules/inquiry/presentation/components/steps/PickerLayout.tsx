@@ -28,10 +28,10 @@ export function PickerLayout({
 }: PickerLayoutProps) {
   return (
     <div>
-      <h1 className="text-2xl sm:text-3xl md:text-4xl font-semibold leading-tight text-balance">
+      <h1 className="text-2xl sm:text-3xl md:text-4xl font-semibold leading-tight text-balance text-white drop-shadow-sm">
         {question}
       </h1>
-      {description && <p className="mt-3 text-muted-foreground">{description}</p>}
+      {description && <p className="mt-3 text-white/80 drop-shadow-sm">{description}</p>}
 
       {filters && <div className="mt-6">{filters}</div>}
 
@@ -39,7 +39,7 @@ export function PickerLayout({
         {loading ? (
           <div className="grid grid-cols-2 gap-3">
             {Array.from({ length: 4 }).map((_, i) => (
-              <Skeleton key={i} className="aspect-[4/3] w-full rounded-lg" />
+              <Skeleton key={i} className="h-12 w-full rounded-lg bg-white/20" />
             ))}
           </div>
         ) : (
@@ -50,7 +50,7 @@ export function PickerLayout({
       <button
         type="button"
         onClick={onSkip}
-        className="mt-6 text-sm text-muted-foreground underline underline-offset-4 hover:text-foreground"
+        className="mt-6 text-sm text-white/70 underline underline-offset-4 drop-shadow-sm hover:text-white"
       >
         {skipLabel}
       </button>

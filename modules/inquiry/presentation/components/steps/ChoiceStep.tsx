@@ -1,11 +1,9 @@
 "use client";
 
 import { cn } from "@/shared/lib/utils";
+import type { ChoiceOption } from "../../../domain";
 
-export interface ChoiceOption {
-  value: string;
-  label: string;
-}
+export type { ChoiceOption };
 
 interface ChoiceStepProps {
   question: string;
@@ -22,10 +20,10 @@ interface ChoiceStepProps {
 export function ChoiceStep({ question, description, options, value, onSelect }: ChoiceStepProps) {
   return (
     <div>
-      <h1 className="text-2xl sm:text-3xl md:text-4xl font-semibold leading-tight text-balance">
+      <h1 className="text-2xl sm:text-3xl md:text-4xl font-semibold leading-tight text-balance text-white drop-shadow-sm">
         {question}
       </h1>
-      {description && <p className="mt-3 text-muted-foreground">{description}</p>}
+      {description && <p className="mt-3 text-white/80 drop-shadow-sm">{description}</p>}
 
       <div className="mt-8 flex flex-wrap gap-3">
         {options.map((option) => (
@@ -34,10 +32,10 @@ export function ChoiceStep({ question, description, options, value, onSelect }: 
             type="button"
             onClick={() => onSelect(option.value)}
             className={cn(
-              "rounded-full border-2 px-5 py-2.5 text-sm sm:text-base font-medium transition-colors",
+              "rounded-lg border-2 px-5 py-2.5 text-sm sm:text-base font-medium transition-colors drop-shadow-sm",
               value === option.value
                 ? "border-primary bg-primary text-primary-foreground"
-                : "border-border hover:border-primary/50",
+                : "border-white/40 text-white hover:border-white",
             )}
           >
             {option.label}

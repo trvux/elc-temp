@@ -32,6 +32,16 @@ interface LocationComboboxProps {
   // combobox should stretch to fill a full-width form field instead (see
   // BranchManagement.tsx/ShippingZoneManagement.tsx usages).
   className?: string;
+  // "outline" (default) is the boxed admin-form look every existing caller
+  // (BranchManagement, ShippingZoneManagement, LocationPickerDialog) still
+  // gets unchanged. "ghost" drops the Button's own border/background so a
+  // caller can restyle it as a borderless underline field via `className`
+  // instead — added for the lead form's AddressStep, which wanted the same
+  // airy Typeform-input look as its other steps, not a bordered dropdown
+  // (user feedback, 2026-09-07: "cái input cũ nó thoáng còn cái này khuôn
+  // quá"). The Popover/Command/scroll-fix internals are untouched either
+  // way — only the trigger's own visual variant changes.
+  variant?: "outline" | "ghost";
 }
 
 // Single-select, type-to-filter combobox for province/ward pickers — same
@@ -46,6 +56,7 @@ export function LocationCombobox({
   disabled,
   emptyText = "Không tìm thấy.",
   className,
+  variant = "outline",
 }: LocationComboboxProps) {
   const [open, setOpen] = useState(false);
   const selected = items.find((item) => item.code === value);
@@ -56,7 +67,7 @@ export function LocationCombobox({
       <PopoverTrigger asChild>
         <Button
           type="button"
-          variant="outline"
+          variant={variant}
           role="combobox"
           aria-expanded={open}
           disabled={disabled}
