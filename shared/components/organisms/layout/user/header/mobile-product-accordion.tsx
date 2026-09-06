@@ -10,7 +10,6 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/shared/components/ui/accordion";
-import { Button } from "@/shared/components/ui/button";
 import { groupCategoriesByGroup, type CategoryRef, type GroupCategoryRef } from "@/shared/lib/group-categories";
 import { sortByOrderIndex } from "@/shared/lib/helpers";
 import type { BrandNavRef } from "./nav-mega-menu";
@@ -46,14 +45,14 @@ export function MobileProductAccordion({
 
   return (
     <Accordion type="single" collapsible className="w-full">
-      <AccordionItem value="san-pham" className="border-b-0">
-        <AccordionTrigger className="px-3 py-3 text-2xl font-semibold text-foreground hover:no-underline! [&_[data-slot=accordion-trigger-icon]]:hidden">
+      <AccordionItem value="san-pham" className="not-last:border-b-0">
+        <AccordionTrigger className="px-3 py-3 text-xl font-semibold text-foreground hover:no-underline! [&_[data-slot=accordion-trigger-icon]]:hidden">
           Sản phẩm
         </AccordionTrigger>
-        <AccordionContent className="flex h-auto flex-col gap-2 pl-3">
+        <AccordionContent className="flex h-auto flex-col gap-2 pb-0 pl-3">
           <Accordion type="single" collapsible className="w-full">
             {groupsWithCategories.map(({ group, categories }) => (
-              <AccordionItem key={group.id} value={group.id} className="border-b-0">
+              <AccordionItem key={group.id} value={group.id} className="not-last:border-b-0">
                 <AccordionTrigger className="py-3 text-xl font-semibold text-foreground hover:no-underline!">
                   {group.name}
                 </AccordionTrigger>
@@ -64,7 +63,7 @@ export function MobileProductAccordion({
                         key={cat.id}
                         href={`/san-pham/${cat.slug}`}
                         onClick={onNavigate}
-                        className="flex items-center gap-3 rounded-md py-1.5 text-lg text-muted-foreground no-underline! hover:text-foreground"
+                        className="flex items-center gap-3 rounded-md py-1.5 text-xl font-semibold text-foreground no-underline! transition-colors hover:text-foreground/70"
                       >
                         <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-md bg-white">
                           {cat.imageUrl && (
@@ -86,7 +85,7 @@ export function MobileProductAccordion({
             ))}
 
             {featuredBrands.length > 0 && (
-              <AccordionItem value="thuong-hieu" className="border-b-0">
+              <AccordionItem value="thuong-hieu" className="not-last:border-b-0">
                 <AccordionTrigger className="py-3 text-xl font-semibold text-foreground hover:no-underline!">
                   Thương hiệu
                 </AccordionTrigger>
@@ -97,7 +96,7 @@ export function MobileProductAccordion({
                         key={brand.id}
                         href={`/san-pham/${brand.slug}`}
                         onClick={onNavigate}
-                        className="flex items-center gap-3 rounded-md py-1.5 text-lg text-muted-foreground no-underline! hover:text-foreground"
+                        className="flex items-center gap-3 rounded-md py-1.5 text-xl font-semibold text-foreground no-underline! transition-colors hover:text-foreground/70"
                       >
                         <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-md bg-white">
                           {brand.logoUrl && (
@@ -118,12 +117,6 @@ export function MobileProductAccordion({
               </AccordionItem>
             )}
           </Accordion>
-
-          <Button variant="outline" className="mt-1 w-full no-underline!" asChild>
-            <Link href="/san-pham" onClick={onNavigate}>
-              Xem tất cả sản phẩm
-            </Link>
-          </Button>
         </AccordionContent>
       </AccordionItem>
     </Accordion>

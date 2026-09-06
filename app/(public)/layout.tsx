@@ -102,10 +102,10 @@ export default async function PublicLayout({ children }: PublicLayoutProps) {
           categoriesList={categoriesList}
           brands={brands}
         />
-        {/* pt clears the fixed floating header (h-16 + top-3 gap + breathing
-            room); pages with a full-bleed hero cancel it with -mt-23
-            on their own root section so the header can float over them. */}
-        <div className="flex-1 pt-23">{children}</div>
+        {/* pt clears the fixed header (h-16); pages with a full-bleed hero
+            cancel it with -mt-16 on their own root section so the header
+            can sit transparently over them. */}
+        <div className="flex-1 pt-16">{children}</div>
         <Footer
           branches={branches}
           projects={projects}

@@ -28,8 +28,11 @@ export function HeroSection({ contacts = [], brands = [] }: HeroSectionProps) {
     <section
       // -mt cancels the (public) layout's fixed-header clearance so this
       // full-bleed section reaches the very top, matching the reference:
-      // the floating header sits transparently over the hero, not above it.
-      className="relative -mt-23 flex h-screen min-h-163 w-full items-center justify-center overflow-hidden bg-black"
+      // the header sits transparently over the hero, not above it. Content
+      // is top-anchored (pt-*, items-start) rather than true-centered so it
+      // sits in the clear sky area of the bg photo instead of getting
+      // covered by the clouds lower down.
+      className="relative -mt-16 flex h-screen min-h-163 w-full items-start justify-center overflow-hidden bg-black pt-28 sm:pt-32 lg:pt-40"
     >
       <Image
         src="/images/hero-section-bg.jpg"
@@ -46,14 +49,14 @@ export function HeroSection({ contacts = [], brands = [] }: HeroSectionProps) {
           continuation rather than a sudden cut. */}
       <div
         aria-hidden
-        className="pointer-events-none absolute inset-0 z-[5] bg-black/20"
+        className="pointer-events-none absolute inset-0 z-[5] bg-black/30 lg:bg-black/20"
       />
       <div
         aria-hidden
         className="pointer-events-none absolute inset-x-0 bottom-0 z-[5] h-1/3 bg-gradient-to-b from-transparent to-black"
       />
 
-      <div className="relative z-10 mx-auto flex max-w-3xl flex-col items-center gap-6 px-6 text-center select-none">
+      <div className="relative z-10 mx-auto flex max-w-3xl flex-col items-center gap-4 px-6 text-center select-none sm:gap-6">
         <span className="text-sm font-semibold text-white/70">
           Điện máy ELC
         </span>
@@ -79,7 +82,7 @@ export function HeroSection({ contacts = [], brands = [] }: HeroSectionProps) {
             come from theme tokens (not hardcoded white/black) so swapping
             the shadcn theme later just works. */}
         {(phoneContact || zaloContact) && (
-          <div className="dark mt-4 flex w-full flex-col items-center justify-center gap-3.5 sm:w-auto sm:flex-row">
+          <div className="dark mt-2 flex w-full flex-col items-center justify-center gap-2.5 sm:mt-4 sm:w-auto sm:flex-row sm:gap-3.5">
             {phoneContact && (
               <Button asChild size="lg" className="w-full sm:w-auto">
                 <a
