@@ -43,6 +43,17 @@ export interface ServiceInput {
   metaDescription?: string | null;
 }
 
+export interface ProjectInput {
+  title: string;
+  slug: string;
+  description?: string; // excerpt, không phải richtext gốc
+  location?: string;
+  images?: { url: string }[];
+  testimonialQuote?: string;
+  testimonialAuthor?: string;
+  clientName?: string;
+}
+
 export interface BranchInput {
   name: string;
   slug: string;
@@ -240,6 +251,40 @@ export const SEOSchema = {
           "name": "Đồng Nai",
         },
       ]
+    };
+  },
+
+  getProject(project: ProjectInput) {
+    return {
+      "@type": "Service",
+      "@id": `${BASE_URL}/du-an/${project.slug}#service`,
+      "name": project.title,
+      "description": project.description || undefined,
+      "url": `${BASE_URL}/du-an/${project.slug}`,
+      "image": primaryImageUrl(project.images) || undefined,
+      "provider": {
+        "@id": `${BASE_URL}/#organization`,
+      },
+      ...(project.location ? {
+        "areaServed": {
+          "@type": "AdministrativeArea",
+          "name": project.location,
+        },
+      } : {}),
+      // Chỉ thêm review khi ĐÃ có testimonial thật — không tự bịa placeholder,
+      // tránh vi phạm Google structured data guidelines (dữ liệu không đúng
+      // thực tế trang hiển thị). Field này sẽ tự động xuất hiện dần khi nhân
+      // viên điền testimonial theo brief content_brief_eeat_projects.md.
+      ...(project.testimonialQuote ? {
+        "review": {
+          "@type": "Review",
+          "reviewBody": project.testimonialQuote,
+          "author": {
+            "@type": "Person",
+            "name": project.testimonialAuthor || project.clientName || "Khách hàng",
+          },
+        },
+      } : {}),
     };
   },
 

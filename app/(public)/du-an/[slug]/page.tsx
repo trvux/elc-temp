@@ -14,7 +14,7 @@ import { GridSection } from "@/shared/components/organisms/sections/grid-section
 import { AspectRatio } from "@/shared/components/ui/aspect-ratio";
 import { Badge } from "@/shared/components/ui/badge";
 import { TypographyH1, TypographySmall } from "@/shared/components/ui/typography";
-import { BASE_URL } from "@/shared/lib/seo-schema";
+import { BASE_URL, SEOSchema, toJsonLdHtml } from "@/shared/lib/seo-schema";
 import { excerptFromRichText } from "@/shared/lib/rich-text";
 import { primaryImageUrl } from "@/shared/lib/image-asset";
 import { Sparkle } from "@phosphor-icons/react/dist/ssr";
@@ -139,6 +139,17 @@ async function ProjectDetailView({
   const currentYear = new Date().getFullYear();
   const { data: { prev, next } } = await getAdjacentProjectsAction(project.id, project.projectTypeId);
 
+  const projectSchema = SEOSchema.getProject({
+    title: project.title,
+    slug: project.slug,
+    description: excerptFromRichText(project.description),
+    location: project.location,
+    images: project.images,
+    testimonialQuote: project.testimonialQuote,
+    testimonialAuthor: project.testimonialAuthor,
+    clientName: project.clientName,
+  });
+
   const breadcrumbItems = [
     { label: "Dự án", href: "/du-an" },
     ...(project.projectType
@@ -157,6 +168,10 @@ async function ProjectDetailView({
   return (
     <main className="w-full bg-background min-h-screen flex flex-col">
       <TrackView entityType="project" entityId={project.id} entityName={project.title} />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: toJsonLdHtml({ "@context": "https://schema.org", ...projectSchema }) }}
+      />
       {/* ===== KHỐI 1: NỘI DUNG BÀI VIẾT ===== */}
       <GridSection
         id="project-detail-content"

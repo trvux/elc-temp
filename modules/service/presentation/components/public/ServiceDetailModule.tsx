@@ -31,6 +31,7 @@ import {
 } from "@/shared/components/ui/typography";
 import { cn } from "@/shared/lib/utils";
 import { formatCurrency } from "@/shared/lib/format";
+import { SEOSchema, toJsonLdHtml } from "@/shared/lib/seo-schema";
 
 interface ServiceDetailModuleProps {
   service: ServiceWithRelations;
@@ -89,9 +90,19 @@ export async function ServiceDetailModule({
   const images = service.images || [];
   const finalPrice = service.salePrice || service.originalPrice;
 
+  const serviceSchema = SEOSchema.getService({
+    title: service.title,
+    slug: service.slug,
+    metaDescription: service.metaDescription,
+  });
+
   return (
     <main className={STYLES.main}>
       <TrackView entityType="service" entityId={service.id} entityName={service.title} />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: toJsonLdHtml({ "@context": "https://schema.org", ...serviceSchema }) }}
+      />
       {/* ===== SECTION 1: IMAGE + SERVICE INFO ===== */}
       <GridSection
         id="service-detail-top"
