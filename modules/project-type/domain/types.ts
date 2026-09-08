@@ -1,5 +1,13 @@
 import { CategoryWithGroup } from "@/modules/category/domain/types";
 
+export type Json =
+  | string
+  | number
+  | boolean
+  | null
+  | { [key: string]: Json | undefined }
+  | Json[];
+
 export interface ProjectType {
   id: string;
   name: string;
@@ -9,6 +17,7 @@ export interface ProjectType {
   metaDescription: string | null;
   isFeatured: boolean;
   orderIndex: number;
+  content?: Json;
   createdAt: string;
   updatedAt: string;
   deletedAt: string | null;
@@ -26,6 +35,7 @@ export interface CreateProjectTypeInput {
   metaDescription?: string | null;
   isFeatured?: boolean;
   orderIndex?: number;
+  content?: Json;
   categoryIds?: string[];
 }
 
@@ -38,5 +48,6 @@ export interface UpdateProjectTypeInput {
   metaDescription?: string | null;
   isFeatured?: boolean;
   orderIndex?: number;
+  content?: Json;
   categoryIds?: string[];
 }

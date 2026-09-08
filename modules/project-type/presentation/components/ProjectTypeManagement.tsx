@@ -21,6 +21,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/shared/components/ui
 import { Textarea } from "@/shared/components/ui/textarea";
 import { getCategoriesAction } from "@/modules/category/presentation/actions";
 import { ImageUpload } from "@/shared/components/ui/image-upload";
+import { TiptapEditor } from "@/shared/components/ui/tiptap-editor";
+import { convertToWebP } from "@/shared/lib/image";
+import { uploadImageFile } from "@/shared/lib/upload-image";
 
 import { ProjectTypeWithCategories } from "../../domain";
 import { deleteProjectTypeAction, getProjectTypesAction } from "../actions";
@@ -84,6 +87,7 @@ export function ProjectTypeManagement() {
             metaDescription: st.metaDescription || "",
             isFeatured: !!st.isFeatured,
             orderIndex: st.orderIndex || 0,
+            content: st.content || "",
             categoryIds: (st.categories || []).map((c) => c.id),
           });
         },
@@ -104,6 +108,7 @@ export function ProjectTypeManagement() {
       metaDescription: "",
       isFeatured: false,
       orderIndex: 0,
+      content: "",
       categoryIds: [],
     });
   }
@@ -330,6 +335,33 @@ export function ProjectTypeManagement() {
                           <Textarea {...field} value={field.value || ""} placeholder="Nhập mô tả SEO..." className="min-h-30" />
                           <FieldError errors={[fieldState.error]} />
                         </Field>
+                      )}
+                    />
+                  </div>
+
+                  {/* Editor Section */}
+                  <div className="max-w-2xl space-y-4">
+                    <div className="flex items-center justify-between border-b pb-2">
+                      <div>
+                        <h3 className="text-sm font-semibold tracking-tight">Đoạn giới thiệu</h3>
+                        <p className="text-xs text-muted-foreground">Nội dung hiển thị ở trang phân khúc /du-an/&lt;slug&gt;.</p>
+                      </div>
+                      <span className="text-xs text-muted-foreground uppercase tracking-widest">Tiptap Editor</span>
+                    </div>
+                    <Controller
+                      control={form.control}
+                      name="content"
+                      render={({ field }) => (
+                        <TiptapEditor
+                          key={activeProjectType === "new" ? "new" : activeProjectType?.id}
+                          value={field.value ?? ""}
+                          onChange={field.onChange}
+                          placeholder="Bắt đầu viết đoạn giới thiệu tối ưu SEO tại đây..."
+                          uploadImage={async (file) => {
+                            const webpFile = await convertToWebP(file);
+                            return uploadImageFile(webpFile, "project-types", webpFile.name);
+                          }}
+                        />
                       )}
                     />
                   </div>

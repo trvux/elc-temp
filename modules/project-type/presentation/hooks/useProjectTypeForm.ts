@@ -19,6 +19,7 @@ export type ProjectTypeFormValues = {
   metaDescription?: string | null;
   isFeatured?: boolean;
   orderIndex?: number;
+  content?: unknown;
   categoryIds?: string[];
 };
 
@@ -39,6 +40,7 @@ export function useProjectTypeForm(
       metaDescription: "",
       isFeatured: false,
       orderIndex: 0,
+      content: "",
       categoryIds: [],
     },
   });
@@ -57,6 +59,12 @@ export function useProjectTypeForm(
         metaDescription: values.metaDescription || null,
         isFeatured: !!values.isFeatured,
         orderIndex: Number(values.orderIndex || 0),
+        // Tiptap JSON doesn't survive Next.js Server Action argument
+        // serialization intact when passed straight from RHF's field value
+        // — nested mark/node attrs (e.g. a link's href) silently disappear
+        // en route to the server. A JSON round-trip forces a genuinely
+        // plain value — see useCategoryForm.ts for the same fix.
+        content: values.content ? JSON.parse(JSON.stringify(values.content)) : null,
         categoryIds: values.categoryIds || [],
       };
 

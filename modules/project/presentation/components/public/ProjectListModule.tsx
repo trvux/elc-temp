@@ -10,6 +10,7 @@ import { FilteredGridWrapper } from "@/shared/components/organisms/layout/user/f
 import { ScrollToTop } from "@/shared/components/organisms/layout/user/scroll-to-top";
 import { GridSection } from "@/shared/components/organisms/sections/grid-section";
 import { PageHero } from "@/shared/components/organisms/sections/page-hero";
+import { ProductDescription } from "@/shared/components/organisms/layout/user/product-description";
 import { Button } from "@/shared/components/ui/button";
 import { TypographySmall } from "@/shared/components/ui/typography";
 import { getQueryTokens } from "@/shared/lib/search-utils";
@@ -302,6 +303,8 @@ export async function ProjectListModule({
     ? `Các công trình thiết kế và thi công hệ thống, điều hòa không khí trong không gian kiến trúc ${projectType.name} do ELC thực hiện.`
     : "Tổng hợp các công trình tiêu biểu do đội ngũ ELC trực tiếp tư vấn, thiết kế và thi công lắp đặt cho khách hàng toàn quốc.";
 
+  const heroContent = projectType?.content;
+
   return (
     <main className={STYLES.main}>
       <GridSection
@@ -404,6 +407,21 @@ export async function ProjectListModule({
           </div>
         </div>
       </GridSection>
+
+      {/* Đặt sau lưới dự án, không phải trước — người xem trang phân khúc
+          cần thấy dự án trước tiên; nội dung mô tả chỉ dành cho ai muốn tìm
+          hiểu thêm, nên không nên chắn đường xem dự án trước lưới, cùng
+          convention ProductListModule.tsx dùng cho heroContent. */}
+      {heroContent ? (
+        <GridSection
+          id="projects-hero-content"
+          isFirst={false}
+          showDiamond={true}
+          contentClassName="py-6 md:py-8 lg:py-10"
+        >
+          <ProductDescription content={heroContent} fallbackAlt={projectType?.name} variant="hero" />
+        </GridSection>
+      ) : null}
 
       <GridSection
         id="products-footer"

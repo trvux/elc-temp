@@ -15,6 +15,7 @@ const projectTypeSchema = z.object({
   metaDescription: z.string().nullable().optional(),
   isFeatured: z.boolean().default(false),
   orderIndex: z.coerce.number().default(0),
+  content: z.unknown().nullable().optional(),
   categoryIds: z.array(z.uuid({ message: "ID danh mục không đúng định dạng UUID" })).optional(),
   createdAt: z.string().datetime({
     message: "Thời gian tạo không đúng định dạng ISO",
