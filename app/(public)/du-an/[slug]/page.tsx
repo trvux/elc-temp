@@ -1,7 +1,8 @@
+import type { Metadata } from "next";
 import { TrackView } from "@/modules/event";
 import { LeadForm } from "@/modules/inquiry/presentation/components/LeadForm";
 import { getAdjacentProjectsAction } from "@/modules/project/presentation/actions";
-import { resolveProjectPathFromDb } from "@/modules/project/presentation/resolveProjectPath";
+import { resolveProjectPathFromDb, ResolvedProjectEntity } from "@/modules/project/presentation/resolveProjectPath";
 import { ProjectWithCategory } from "@/modules/project/domain/types";
 import { ProjectListModule } from "@/modules/project/presentation/components/public/ProjectListModule";
 import { RelatedProjects } from "@/modules/project/presentation/components/public/RelatedProjects";
@@ -13,16 +14,85 @@ import { GridSection } from "@/shared/components/organisms/sections/grid-section
 import { AspectRatio } from "@/shared/components/ui/aspect-ratio";
 import { Badge } from "@/shared/components/ui/badge";
 import { TypographyH1, TypographySmall } from "@/shared/components/ui/typography";
+import { BASE_URL } from "@/shared/lib/seo-schema";
+import { excerptFromRichText } from "@/shared/lib/rich-text";
+import { primaryImageUrl } from "@/shared/lib/image-asset";
 import { Sparkle } from "@phosphor-icons/react/dist/ssr";
 import Image from "next/image";
 import { notFound } from "next/navigation";
 
 // Generate static parameters for high performance static pre-rendering
 
+const SITE_NAME = "Điện máy ELC";
 
 interface ProjectDetailPageProps {
   params: Promise<{ slug: string }>;
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+}
+
+function metadataForEntity(entity: ResolvedProjectEntity, slug: string): Metadata {
+  if (!entity) return {};
+
+  const pageUrl = `${BASE_URL}/du-an/${slug}`;
+  const alternates = { canonical: pageUrl };
+
+  if (entity.type === "project_type") {
+    const projectType = entity.data;
+    const title = projectType.metaTitle || `Dự án ${projectType.name} | ${SITE_NAME}`;
+    // ProjectType has no body-copy field to excerpt from (unlike Project),
+    // so the fallback is a template sentence built from its name.
+    const description =
+      projectType.metaDescription ||
+      `Các công trình thi công hệ thống điều hòa, khí tươi tại phân khúc ${projectType.name} do ${SITE_NAME} thực hiện.`;
+    const image = projectType.image || undefined;
+    return {
+      title,
+      description,
+      alternates,
+      openGraph: {
+        type: "website",
+        title,
+        description,
+        url: pageUrl,
+        images: image ? [{ url: image }] : undefined,
+      },
+      twitter: {
+        card: "summary_large_image",
+        title,
+        description,
+        images: image ? [image] : undefined,
+      },
+    };
+  }
+
+  const project = entity.data;
+  const title = project.metaTitle || `${project.title} | ${SITE_NAME}`;
+  const description = project.metaDescription || excerptFromRichText(project.description);
+  const image = primaryImageUrl(project.images);
+  return {
+    title,
+    description,
+    alternates,
+    openGraph: {
+      type: "website",
+      title,
+      description,
+      url: pageUrl,
+      images: image ? [{ url: image }] : undefined,
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: image ? [image] : undefined,
+    },
+  };
+}
+
+export async function generateMetadata({ params }: ProjectDetailPageProps): Promise<Metadata> {
+  const { slug } = await params;
+  const entity = await resolveProjectPathFromDb(slug);
+  return metadataForEntity(entity, slug);
 }
 
 export default async function ProjectDetailPage({

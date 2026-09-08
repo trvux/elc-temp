@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import {
   CardService,
   getPublishedServicesGroupedAction,
@@ -14,7 +15,15 @@ import {
   TabsTrigger,
 } from "@/shared/components/ui/tabs";
 import { TypographySmall } from "@/shared/components/ui/typography";
+import { BASE_URL } from "@/shared/lib/seo-schema";
 import { cn } from "@/shared/lib/utils";
+
+export const metadata: Metadata = {
+  title: "Dịch vụ máy lạnh & hệ thống khí tươi | Điện máy ELC",
+  description:
+    "Giải pháp chuyên nghiệp cho hệ thống lạnh công nghiệp, điều hòa trung tâm và bảo trì hệ thống — lắp đặt, sửa chữa, vệ sinh, bảo trì máy lạnh.",
+  alternates: { canonical: `${BASE_URL}/dich-vu` },
+};
 
 const STYLES = {
   main: cn("w-full bg-background flex flex-col flex-1"),
