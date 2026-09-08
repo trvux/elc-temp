@@ -1,29 +1,20 @@
-// Thin, typed wrapper around window.gtag — every call is a no-op if the GA
-// script hasn't loaded (NEXT_PUBLIC_GA_ID unset, or still loading), so
-// callers never need to guard on gtag's presence themselves.
-export const GA_TRACKING_ID = process.env.NEXT_PUBLIC_GA_ID;
-
+// GTM (GTM-TQ9DL8CG) is the only tracking loader on this site — no gtag.js
+// script is ever loaded (see docs/fix-ga4-conversion-tracking-dark.md), so
+// events go straight to the dataLayer GTM already reads from, instead of a
+// window.gtag() that never exists.
 declare global {
   interface Window {
     dataLayer?: unknown[];
-    gtag?: (...args: unknown[]) => void;
   }
-}
-
-// Manual, single source of truth for pageviews — the init script below sets
-// `send_page_view: false` specifically so GA's own automatic pageview on
-// script load never fires alongside this one. The previous implementation
-// had both active at once and double-counted every first pageview.
-export function pageview(pagePath: string) {
-  if (typeof window === "undefined" || !window.gtag) return;
-  window.gtag("config", GA_TRACKING_ID, { page_path: pagePath });
 }
 
 // GA4's own recommended-event names (view_item, generate_lead, ...) — see
 // modules/event/domain/types.ts, which uses the identical vocabulary for
 // our own internal pipeline so both systems describe the same funnel the
-// same way.
+// same way. Corresponding triggers/tags for these events must exist in the
+// GTM container for them to actually reach GA4.
 export function event(name: string, params: Record<string, unknown> = {}) {
-  if (typeof window === "undefined" || !window.gtag) return;
-  window.gtag("event", name, params);
+  if (typeof window === "undefined") return;
+  window.dataLayer = window.dataLayer || [];
+  window.dataLayer.push({ event: name, ...params });
 }
