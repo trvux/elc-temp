@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { getProductsAction } from "@/modules/catalog/presentation/actions";
 import { PRODUCT_STATUS } from "@/modules/catalog/domain";
 import { ProductCard } from "@/modules/catalog/presentation/components/ProductCard";
@@ -21,6 +22,8 @@ import {
   type NamedLink,
 } from "@/shared/lib/content-relevance";
 import { unwrapActionResult } from "@/shared/lib/action-result";
+import { getExcerptFromContent } from "@/shared/lib/rich-text";
+import { BASE_URL } from "@/shared/lib/seo-schema";
 import { ArrowLeft, ArrowRightIcon } from "@phosphor-icons/react/dist/ssr";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -37,6 +40,39 @@ interface PageProps {
   params: Promise<{
     slug: string;
   }>;
+}
+
+// Lighter than getCachedNewsDetailData below (which also fetches related
+// news/products) — generateMetadata only needs the news item itself.
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+  const { slug } = await params;
+  const newsItem = await getNewsBySlugAction(slug).then(unwrapActionResult);
+  if (!newsItem || !newsItem.isPublished) return {};
+
+  const title = newsItem.metaTitle || `${newsItem.title} | Điện máy ELC`;
+  const description =
+    newsItem.metaDescription || getExcerptFromContent(newsItem.content, undefined);
+  const image = primaryImageUrl(newsItem.images);
+  const pageUrl = `${BASE_URL}/tin-tuc/${slug}`;
+
+  return {
+    title,
+    description,
+    alternates: { canonical: pageUrl },
+    openGraph: {
+      type: "article",
+      title,
+      description,
+      url: pageUrl,
+      images: image ? [{ url: image }] : undefined,
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: image ? [image] : undefined,
+    },
+  };
 }
 
 async function getCachedNewsDetailData(slug: string) {

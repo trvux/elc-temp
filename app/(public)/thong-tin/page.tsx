@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { BranchList } from "@/modules/branch";
 import { getBranchesAction } from "@/modules/branch/presentation/actions";
 import { getPagesAction } from "@/modules/page/presentation/actions";
@@ -16,6 +17,14 @@ import { ArrowUpRight } from "@phosphor-icons/react/dist/ssr";
 import Link from "next/link";
 import { ScrollToActiveBranch } from "./ScrollToActiveBranch";
 import { unwrapActionResult } from "@/shared/lib/action-result";
+import { BASE_URL } from "@/shared/lib/seo-schema";
+
+export const metadata: Metadata = {
+  title: "Thông tin liên hệ & chi nhánh | Điện máy ELC",
+  description:
+    "Địa chỉ văn phòng, showroom, kho bãi kỹ thuật của Điện máy ELC — thông tin liên hệ, bản đồ và giờ làm việc từng chi nhánh.",
+  alternates: { canonical: `${BASE_URL}/thong-tin` },
+};
 
 const STYLES = {
   header: cn(

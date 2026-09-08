@@ -30,3 +30,68 @@ export function excerptFromRichText(node: unknown, maxLength = 160): string | un
   const lastSpace = truncated.lastIndexOf(" ");
   return `${(lastSpace > 0 ? truncated.slice(0, lastSpace) : truncated).trimEnd()}…`;
 }
+
+interface TiptapNode {
+  type?: string;
+  text?: string;
+  content?: TiptapNode[];
+}
+
+// News content can be stored as either Tiptap JSON or a plain/HTML string
+// (legacy WordPress-imported rows) — unlike excerptFromRichText above, this
+// handles both shapes and drops heading nodes so the excerpt is body copy,
+// not a repeat of the title.
+export function getExcerptFromContent(
+  content: unknown,
+  fallbackDescription: string | null | undefined,
+): string {
+  if (!content) return fallbackDescription || "";
+
+  try {
+    let doc: TiptapNode | null = null;
+
+    if (typeof content === "string") {
+      const trimmed = content.trim();
+      if (trimmed.startsWith("{")) {
+        doc = JSON.parse(trimmed) as TiptapNode;
+      } else {
+        const stripped = content
+          .replace(/<[^>]*>/g, " ")
+          .replace(/\s+/g, " ")
+          .trim();
+        if (stripped.length > 180) {
+          return stripped.substring(0, 180) + "...";
+        }
+        return stripped || fallbackDescription || "";
+      }
+    } else if (typeof content === "object" && content !== null) {
+      doc = content as TiptapNode;
+    }
+
+    if (doc) {
+      const textParts: string[] = [];
+      const traverse = (node: TiptapNode) => {
+        if (node.type === "heading") {
+          return;
+        }
+        if (node.type === "text" && node.text) {
+          textParts.push(node.text);
+        }
+        if (node.content) {
+          node.content.forEach(traverse);
+        }
+      };
+
+      traverse(doc);
+      const combinedText = textParts.join(" ").replace(/\s+/g, " ").trim();
+      if (combinedText.length > 180) {
+        return combinedText.substring(0, 180) + "...";
+      }
+      return combinedText || fallbackDescription || "";
+    }
+  } catch (err) {
+    console.error("Error parsing news content for excerpt:", err);
+  }
+
+  return fallbackDescription || "";
+}

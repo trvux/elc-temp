@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { getBranchBySlugAction } from "@/modules/branch/presentation/actions";
 import { PreviewContent } from "@/shared/components/organisms/layout/user/preview-content";
 import { ScrollToTop } from "@/shared/components/organisms/layout/user/scroll-to-top";
@@ -21,8 +22,10 @@ import { ArrowLeft } from "@phosphor-icons/react/dist/ssr";
 import Link from "next/link";
 import { getPublicLayoutData } from "@/modules/settings";
 import { primaryImageUrl } from "@/shared/lib/image-asset";
+import { excerptFromRichText } from "@/shared/lib/rich-text";
 import { GridSection } from "@/shared/components/organisms/sections/grid-section";
 import { unwrapActionResult } from "@/shared/lib/action-result";
+import { BASE_URL } from "@/shared/lib/seo-schema";
 
 // Helper to control Google Maps zoom level
 const getZoomedUrl = (url: string, zoomLevel = "15") => {
@@ -48,7 +51,32 @@ interface Props {
   params: Promise<{ slug: string }>;
 }
 
+// Lighter than getBranchData below (which also fetches getPublicLayoutData
+// for the header/footer) — generateMetadata only needs the branch itself.
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { slug } = await params;
+  const branch = await getBranchBySlugAction(slug).then(unwrapActionResult);
+  if (!branch || !branch.isPublished) return {};
 
+  const title = branch.metaTitle || `${branch.name} | Điện máy ELC`;
+  const description =
+    branch.metaDescription || excerptFromRichText(branch.description) || branch.address;
+  const image = primaryImageUrl(branch.images);
+  const pageUrl = `${BASE_URL}/thong-tin/${slug}`;
+
+  return {
+    title,
+    description,
+    alternates: { canonical: pageUrl },
+    openGraph: {
+      type: "website",
+      title,
+      description,
+      url: pageUrl,
+      images: image ? [{ url: image }] : undefined,
+    },
+  };
+}
 
 async function getBranchData(slug: string) {
   const branch = await getBranchBySlugAction(slug).then(unwrapActionResult);

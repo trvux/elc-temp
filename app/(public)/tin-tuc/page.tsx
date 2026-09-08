@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { getNewsAction } from "@/modules/news/presentation/actions";
 import { Breadcrumbs } from "@/shared/components/organisms/layout/user/breadcrumbs";
 import { ScrollToTop } from "@/shared/components/organisms/layout/user/scroll-to-top";
@@ -11,6 +12,15 @@ import {
 } from "@/shared/components/ui/typography";
 import Link from "next/link";
 import { unwrapActionResult } from "@/shared/lib/action-result";
+import { getExcerptFromContent } from "@/shared/lib/rich-text";
+import { BASE_URL } from "@/shared/lib/seo-schema";
+
+export const metadata: Metadata = {
+  title: "Tin tức & kiến thức điện lạnh | Điện máy ELC",
+  description:
+    "Cập nhật kiến thức kỹ thuật, hướng dẫn sử dụng và bảo trì máy lạnh, điều hòa, hệ thống khí tươi từ đội ngũ kỹ sư Điện máy ELC.",
+  alternates: { canonical: `${BASE_URL}/tin-tuc` },
+};
 
 const STYLES = {
   main: "w-full bg-background min-h-screen",
@@ -31,67 +41,6 @@ const STYLES = {
   scrollToTop:
     "flex items-center gap-2 cursor-pointer hover:text-foreground transition-colors",
 };
-
-interface TiptapNode {
-  type?: string;
-  text?: string;
-  content?: TiptapNode[];
-}
-
-function getExcerptFromContent(
-  content: unknown,
-  fallbackDescription: string | null | undefined,
-): string {
-  if (!content) return fallbackDescription || "";
-
-  try {
-    let doc: TiptapNode | null = null;
-
-    if (typeof content === "string") {
-      const trimmed = content.trim();
-      if (trimmed.startsWith("{")) {
-        doc = JSON.parse(trimmed) as TiptapNode;
-      } else {
-        const stripped = content
-          .replace(/<[^>]*>/g, " ")
-          .replace(/\s+/g, " ")
-          .trim();
-        if (stripped.length > 180) {
-          return stripped.substring(0, 180) + "...";
-        }
-        return stripped || fallbackDescription || "";
-      }
-    } else if (typeof content === "object" && content !== null) {
-      doc = content as TiptapNode;
-    }
-
-    if (doc) {
-      const textParts: string[] = [];
-      const traverse = (node: TiptapNode) => {
-        if (node.type === "heading") {
-          return;
-        }
-        if (node.type === "text" && node.text) {
-          textParts.push(node.text);
-        }
-        if (node.content) {
-          node.content.forEach(traverse);
-        }
-      };
-
-      traverse(doc);
-      const combinedText = textParts.join(" ").replace(/\s+/g, " ").trim();
-      if (combinedText.length > 180) {
-        return combinedText.substring(0, 180) + "...";
-      }
-      return combinedText || fallbackDescription || "";
-    }
-  } catch (err) {
-    console.error("Error parsing news content for excerpt:", err);
-  }
-
-  return fallbackDescription || "";
-}
 
 async function getCachedNewsHubData() {
   const allNews = await getNewsAction({
