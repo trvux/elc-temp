@@ -1,13 +1,7 @@
 import { HighlightedText } from "@/shared/components/organisms/layout/user/highlighted-text";
 import { Badge } from "@/shared/components/ui/badge";
-import {
-  Card,
-  CardAction,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/shared/components/ui/card";
-import { Sparkle } from "@phosphor-icons/react/dist/ssr";
+import { Button } from "@/shared/components/ui/button";
+import { ArrowRight, Sparkle } from "@phosphor-icons/react/dist/ssr";
 import Image from "next/image";
 import Link from "next/link";
 import { ProjectWithCategory } from "../../domain/types";
@@ -24,69 +18,42 @@ export function ProjectCard({
   queryTokens = [],
   priority = false,
 }: ProjectCardProps) {
-  const firstImage = primaryImageUrl(project.images) || "/placeholder.png";
-
-  // Smartly extract the project name/location for a premium short title
-  const match =
-    project.title.match(/(?:tại|Tại|cho|Cho)\s+(.+)$/) ||
-    project.title.match(/-\s+([^-]+)$/);
-  const displayTitle =
-    match && match[1]
-      ? match[1].trim().charAt(0).toUpperCase() + match[1].trim().slice(1)
-      : project.title;
-
-  // If a short title was extracted, show the full details in description. Otherwise, use metaDescription.
-  const displayDescription =
-    displayTitle !== project.title
-      ? project.title
-      : project.metaDescription ||
-        "Dự án thi công hoàn thiện hệ thống bởi đội ngũ ELC.";
-
+  const image = primaryImageUrl(project.images) || "/placeholder.png";
   const projectUrl = `/du-an/${project.slug}`;
 
   return (
-    <Link href={projectUrl} className="w-full block group h-full" prefetch={false}>
-      <Card className="relative mx-auto w-full h-full max-w-sm pt-0 overflow-hidden">
-        <div className="relative z-20 aspect-video w-full">
-          <Image
-            src={firstImage}
-            alt={project.title}
-            fill
-            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-            className="object-cover"
-            priority={priority}
-            loading={priority ? "eager" : "lazy"}
-          />
-          <div className="absolute inset-0 z-30" />
-        </div>
-        <CardHeader className="flex-1">
-          {project.isFeatured && (
-            <CardAction>
-              <Badge variant="secondary">
-                <Sparkle
-                  data-icon="inline-start"
-                  className="fill-amber-500 text-amber-500"
-                />
-                Nổi bật
-              </Badge>
-            </CardAction>
-          )}
+    <div className="rounded-2xl bg-muted/30 p-1 flex flex-col border border-border gap-1.5 shadow-xs">
+      {/* Card con: ảnh dự án */}
+      <div className="relative aspect-video w-full overflow-hidden rounded-xl bg-background border border-border">
+        <Image
+          src={image}
+          alt={project.title}
+          fill
+          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+          className="object-fill"
+          priority={priority}
+          loading={priority ? "eager" : "lazy"}
+        />
+        {project.isFeatured && (
+          <Badge variant="secondary" className="absolute left-2 top-2">
+            <Sparkle data-icon="inline-start" className="fill-amber-500 text-amber-500" />
+            Nổi bật
+          </Badge>
+        )}
+      </div>
 
-          <CardTitle className="line-clamp-1">
-            <HighlightedText text={displayTitle} queryTokens={queryTokens} />
-          </CardTitle>
-          <CardDescription className="line-clamp-3">
-            <HighlightedText
-              text={displayDescription}
-              queryTokens={queryTokens}
-            />
-          </CardDescription>
-        </CardHeader>
-        {/* <CardFooter>
-          <Button className="w-full">Đọc bài viết</Button>
-        </CardFooter> */}
-      </Card>
-    </Link>
+      {/* Header: tên dự án (trái) + button truy cập (phải) */}
+      <div className="flex items-center justify-between gap-3 px-2 py-1">
+        <h3 className="font-heading text-base font-medium leading-tight line-clamp-1 min-w-0">
+          <HighlightedText text={project.title} queryTokens={queryTokens} />
+        </h3>
+        <Button asChild variant="ghost" size="icon-sm" className="shrink-0">
+          <Link href={projectUrl} aria-label={`Xem dự án ${project.title}`}>
+            <ArrowRight weight="bold" />
+          </Link>
+        </Button>
+      </div>
+    </div>
   );
 }
 
