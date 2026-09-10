@@ -1,25 +1,25 @@
-import type { Metadata } from "next";
-import { TrackView } from "@/modules/event";
-import { LeadForm } from "@/modules/inquiry/presentation/components/LeadForm";
-import { getAdjacentProjectsAction } from "@/modules/project/presentation/actions";
-import { resolveProjectPathFromDb, ResolvedProjectEntity } from "@/modules/project/presentation/resolveProjectPath";
-import { ProjectWithCategory } from "@/modules/project/domain/types";
-import { ProjectListModule } from "@/modules/project/presentation/components/public/ProjectListModule";
-import { RelatedProjects } from "@/modules/project/presentation/components/public/RelatedProjects";
-import { Breadcrumbs } from "@/shared/components/organisms/layout/user/breadcrumbs";
-import { DetailPager } from "@/shared/components/organisms/layout/user/detail-pager";
-import { PreviewContent } from "@/shared/components/organisms/layout/user/preview-content";
-import { ScrollToTop } from "@/shared/components/organisms/layout/user/scroll-to-top";
-import { GridSection } from "@/shared/components/organisms/sections/grid-section";
-import { AspectRatio } from "@/shared/components/ui/aspect-ratio";
-import { Badge } from "@/shared/components/ui/badge";
-import { TypographyH1, TypographySmall } from "@/shared/components/ui/typography";
-import { BASE_URL, SEOSchema, toJsonLdHtml } from "@/shared/lib/seo-schema";
-import { excerptFromRichText } from "@/shared/lib/rich-text";
-import { primaryImageUrl } from "@/shared/lib/image-asset";
-import { Sparkle } from "@phosphor-icons/react/dist/ssr";
+import type {Metadata} from "next";
+import {TrackView} from "@/modules/event";
+import {ProjectLeadFloatingBar} from "@/modules/inquiry/presentation/components/ProjectLeadFloatingBar";
+import {getAdjacentProjectsAction} from "@/modules/project/presentation/actions";
+import {ResolvedProjectEntity, resolveProjectPathFromDb} from "@/modules/project/presentation/resolveProjectPath";
+import {ProjectWithCategory} from "@/modules/project/domain/types";
+import {ProjectListModule} from "@/modules/project/presentation/components/public/ProjectListModule";
+import {RelatedProjects} from "@/modules/project/presentation/components/public/RelatedProjects";
+import {Breadcrumbs} from "@/shared/components/organisms/layout/user/breadcrumbs";
+import {DetailPager} from "@/shared/components/organisms/layout/user/detail-pager";
+import {PreviewContent} from "@/shared/components/organisms/layout/user/preview-content";
+import {ScrollToTop} from "@/shared/components/organisms/layout/user/scroll-to-top";
+import {GridSection} from "@/shared/components/organisms/sections/grid-section";
+import {AspectRatio} from "@/shared/components/ui/aspect-ratio";
+import {Badge} from "@/shared/components/ui/badge";
+import {TypographyH1, TypographySmall} from "@/shared/components/ui/typography";
+import {BASE_URL, SEOSchema, toJsonLdHtml} from "@/shared/lib/seo-schema";
+import {excerptFromRichText} from "@/shared/lib/rich-text";
+import {primaryImageUrl} from "@/shared/lib/image-asset";
+import {Sparkle} from "@phosphor-icons/react/dist/ssr";
 import Image from "next/image";
-import { notFound } from "next/navigation";
+import {notFound} from "next/navigation";
 
 // Generate static parameters for high performance static pre-rendering
 
@@ -168,6 +168,7 @@ async function ProjectDetailView({
   return (
     <main className="w-full bg-background min-h-screen flex flex-col">
       <TrackView entityType="project" entityId={project.id} entityName={project.title} />
+      <ProjectLeadFloatingBar projectId={project.id} entityName={project.title} />
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: toJsonLdHtml({ "@context": "https://schema.org", ...projectSchema }) }}
@@ -241,19 +242,6 @@ async function ProjectDetailView({
               </div>
             )}
           </article>
-
-          {/* CTA placed after the case study content, not before it — by
-              this point the visitor has seen the finished work and is the
-              most likely to want something similar, not before they've read
-              anything. */}
-          <div className="mt-4 pt-6 border-t border-border/40">
-            <LeadForm
-              projectId={project.id}
-              entityName={project.title}
-              entityKind="project"
-              triggerLabel="Yêu cầu tư vấn dự án tương tự"
-            />
-          </div>
         </div>
       </GridSection>
 
