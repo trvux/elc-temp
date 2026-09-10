@@ -1,6 +1,6 @@
 import { HighlightedText } from "@/shared/components/organisms/layout/user/highlighted-text";
 import { Badge } from "@/shared/components/ui/badge";
-import { Button } from "@/shared/components/ui/button";
+import { buttonVariants } from "@/shared/components/ui/button";
 import { ArrowRight, Sparkle } from "@phosphor-icons/react/dist/ssr";
 import Image from "next/image";
 import Link from "next/link";
@@ -22,7 +22,11 @@ export function ProjectCard({
   const projectUrl = `/du-an/${project.slug}`;
 
   return (
-    <div className="rounded-2xl bg-muted/30 p-1 flex flex-col border border-border gap-1.5 shadow-xs">
+    <Link
+      href={projectUrl}
+      aria-label={`Xem dự án ${project.title}`}
+      className="rounded-2xl bg-muted/30 p-1 flex flex-col border border-border gap-1.5 shadow-xs"
+    >
       {/* Card con: ảnh dự án */}
       <div className="relative aspect-video w-full overflow-hidden rounded-xl bg-background border border-border">
         <Image
@@ -47,13 +51,14 @@ export function ProjectCard({
         <h3 className="font-heading text-base font-medium leading-tight line-clamp-1 min-w-0">
           <HighlightedText text={project.title} queryTokens={queryTokens} />
         </h3>
-        <Button asChild variant="ghost" size="icon-sm" className="shrink-0">
-          <Link href={projectUrl} aria-label={`Xem dự án ${project.title}`}>
-            <ArrowRight weight="bold" />
-          </Link>
-        </Button>
+        <span
+          aria-hidden="true"
+          className={buttonVariants({ variant: "ghost", size: "icon-sm", className: "shrink-0" })}
+        >
+          <ArrowRight weight="bold" />
+        </span>
       </div>
-    </div>
+    </Link>
   );
 }
 
