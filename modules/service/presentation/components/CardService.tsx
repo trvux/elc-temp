@@ -1,15 +1,8 @@
 "use client";
 import { Badge } from "@/shared/components/ui/badge";
-import { Button } from "@/shared/components/ui/button";
+import { Button, buttonVariants } from "@/shared/components/ui/button";
+import { ArrowRight } from "@phosphor-icons/react/dist/ssr";
 import Image from "next/image";
-
-import {
-  Card,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/shared/components/ui/card";
 import Link from "next/link";
 
 export interface CardServiceProps {
@@ -24,7 +17,7 @@ export interface CardServiceProps {
 
 // Tạm thời tắt việc click vào card để vào trang chi tiết dịch vụ —
 // khách chỉ dừng ở trang /dich-vu và bấm "Đặt lịch". Đổi lại thành `true`
-// khi cần bật lại trang chi tiết.
+// khi cần bật lại trang chi tiết (mũi tên truy cập sẽ hiện lại theo).
 const ENABLE_DETAIL_LINK = false;
 
 export function CardService({
@@ -37,83 +30,67 @@ export function CardService({
   locationSlug,
 }: CardServiceProps) {
   const imageSrc = image || "/placeholder.png";
-
-  const renderImage = () => {
-    const imgEl = (
-      <Image
-        src={imageSrc}
-        alt={title || ""}
-        fill
-        sizes="(max-width: 768px) 100vw, 384px"
-        className="relative z-20 object-cover transition-transform duration-300 group-hover:scale-105"
-      />
-    );
-
-    if (slug && ENABLE_DETAIL_LINK) {
-      const href = locationSlug ? `/dich-vu/${slug}/${locationSlug}` : `/dich-vu/${slug}`;
-      return (
-        <Link
-          href={href}
-          className="block relative z-20 overflow-hidden w-full h-full"
-        >
-          {imgEl}
-        </Link>
-      );
-    }
-    return imgEl;
-  };
-
-  const renderTitle = () => {
-    if (slug && ENABLE_DETAIL_LINK) {
-      const href = locationSlug ? `/dich-vu/${slug}/${locationSlug}` : `/dich-vu/${slug}`;
-      return (
-        <Link
-          href={href}
-          className="hover:text-primary transition-colors"
-        >
-          {title}
-        </Link>
-      );
-    }
-    return title;
-  };
+  const href = slug
+    ? locationSlug
+      ? `/dich-vu/${slug}/${locationSlug}`
+      : `/dich-vu/${slug}`
+    : undefined;
+  const isLinked = ENABLE_DETAIL_LINK && !!href;
 
   return (
-    <Card className="relative mx-auto w-full max-w-sm pt-0 overflow-hidden flex flex-col h-full group">
-      {/* Thumbnail overlay at top */}
-      <div className="relative aspect-video w-full overflow-hidden">
-        <div className="absolute inset-0 z-30 bg-black/35 pointer-events-none" />
-        {renderImage()}
+    <div className="rounded-2xl bg-muted/30 p-1 flex h-full flex-col gap-1.5 border border-border shadow-xs">
+      {/* Card con: ảnh dịch vụ */}
+      <div className="relative aspect-video w-full overflow-hidden rounded-xl bg-background border border-border">
+        <Image
+          src={imageSrc}
+          alt={title || ""}
+          fill
+          sizes="(max-width: 768px) 100vw, 384px"
+          className="object-cover"
+        />
       </div>
 
-      {/* Info details */}
-      <CardHeader className="flex-1 px-4">
-        <CardTitle className="text-base sm:text-lg leading-snug">{renderTitle()}</CardTitle>
-
-        {/* Display badges if exists */}
-        {badges && badges.length > 0 && (
-          <div className="flex flex-wrap gap-1 mt-2">
-            {badges.map((badge, idx) => (
-              <Badge
-                key={idx}
-                variant="secondary"
-              >
-                {badge}
-              </Badge>
-            ))}
-          </div>
+      {/* Header: tên dịch vụ (trái) + mũi tên truy cập (phải, chỉ hiện khi bật lại trang chi tiết) */}
+      <div className="flex items-center justify-between gap-3 px-2 py-1">
+        <h3 className="font-heading text-base font-medium leading-tight line-clamp-1 min-w-0">
+          {isLinked ? (
+            <Link href={href!} className="hover:text-primary transition-colors">
+              {title}
+            </Link>
+          ) : (
+            title
+          )}
+        </h3>
+        {isLinked && (
+          <Link
+            href={href!}
+            aria-label={`Xem chi tiết ${title}`}
+            className={buttonVariants({ variant: "ghost", size: "icon-sm", className: "shrink-0" })}
+          >
+            <ArrowRight weight="bold" />
+          </Link>
         )}
+      </div>
 
-        {description && (
-          <CardDescription className="mt-2 line-clamp-2">
-            {description}
-          </CardDescription>
-        )}
-      </CardHeader>
+      {/* Display badges if exists */}
+      {badges && badges.length > 0 && (
+        <div className="flex flex-wrap gap-1 px-2">
+          {badges.map((badge, idx) => (
+            <Badge key={idx} variant="secondary">
+              {badge}
+            </Badge>
+          ))}
+        </div>
+      )}
 
-      {/* Footer controls */}
-      <CardFooter className="mt-auto flex flex-col gap-2 w-full px-4">
-        {/* Price block designed as a secondary button-like element */}
+      {description && (
+        <p className="px-2 text-sm text-muted-foreground line-clamp-2">
+          {description}
+        </p>
+      )}
+
+      {/* Footer: giá + đặt lịch (giữ nguyên như card cũ) */}
+      <div className="mt-auto flex w-full flex-col gap-2 px-2 pb-1">
         <div
           className="flex h-9 w-full items-center justify-center rounded-md bg-secondary px-3 text-sm font-semibold text-secondary-foreground truncate"
           title={price}
@@ -130,7 +107,7 @@ export function CardService({
             Đặt lịch
           </a>
         </Button>
-      </CardFooter>
-    </Card>
+      </div>
+    </div>
   );
 }
