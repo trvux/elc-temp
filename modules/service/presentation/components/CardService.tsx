@@ -54,7 +54,7 @@ export function CardService({
         <div className="flex flex-1 flex-col gap-2 p-3">
           {/* Tên dịch vụ (trái) + mũi tên truy cập (phải, chỉ hiện khi bật lại trang chi tiết) */}
           <div className="flex items-center justify-between gap-3">
-            <h3 className="font-heading text-lg font-bold leading-tight line-clamp-1 min-w-0">
+            <h3 className="font-heading text-base font-semibold leading-tight line-clamp-1 min-w-0">
               {isLinked ? (
                 <Link href={href!} className="hover:text-primary transition-colors">
                   {title}
@@ -75,7 +75,7 @@ export function CardService({
           </div>
 
           {price && (
-            <p className="truncate text-base font-semibold text-foreground md:text-lg" title={price}>
+            <p className="truncate text-sm font-medium text-muted-foreground" title={price}>
               {price}
             </p>
           )}
