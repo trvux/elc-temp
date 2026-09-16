@@ -39,64 +39,71 @@ export function CardService({
 
   return (
     <div className="rounded-2xl bg-muted/30 p-1 flex h-full flex-col gap-1.5 border border-border shadow-xs">
-      {/* Card con: ảnh dịch vụ */}
-      <div className="relative aspect-video w-full overflow-hidden rounded-xl bg-background border border-border">
-        <Image
-          src={imageSrc}
-          alt={title || ""}
-          fill
-          sizes="(max-width: 768px) 100vw, 384px"
-          className="object-cover"
-        />
-      </div>
-
-      {/* Header: tên dịch vụ (trái) + mũi tên truy cập (phải, chỉ hiện khi bật lại trang chi tiết) */}
-      <div className="flex items-center justify-between gap-3 px-2 py-1">
-        <h3 className="font-heading text-base font-medium leading-tight line-clamp-1 min-w-0">
-          {isLinked ? (
-            <Link href={href!} className="hover:text-primary transition-colors">
-              {title}
-            </Link>
-          ) : (
-            title
-          )}
-        </h3>
-        {isLinked && (
-          <Link
-            href={href!}
-            aria-label={`Xem chi tiết ${title}`}
-            className={buttonVariants({ variant: "ghost", size: "icon-sm", className: "shrink-0" })}
-          >
-            <ArrowRight weight="bold" />
-          </Link>
-        )}
-      </div>
-
-      {/* Display badges if exists */}
-      {badges && badges.length > 0 && (
-        <div className="flex flex-wrap gap-1 px-2">
-          {badges.map((badge, idx) => (
-            <Badge key={idx} variant="secondary">
-              {badge}
-            </Badge>
-          ))}
+      {/* Card con: ảnh + tên + badge + mô tả + giá dịch vụ */}
+      <div className="flex flex-1 flex-col overflow-hidden rounded-xl border border-border bg-background">
+        <div className="relative aspect-video w-full overflow-hidden">
+          <Image
+            src={imageSrc}
+            alt={title || ""}
+            fill
+            sizes="(max-width: 768px) 100vw, 384px"
+            className="object-cover"
+          />
         </div>
-      )}
 
-      {description && (
-        <p className="px-2 text-sm text-muted-foreground line-clamp-2">
-          {description}
-        </p>
-      )}
+        <div className="flex flex-1 flex-col gap-2 p-3">
+          {/* Tên dịch vụ (trái) + mũi tên truy cập (phải, chỉ hiện khi bật lại trang chi tiết) */}
+          <div className="flex items-center justify-between gap-3">
+            <h3 className="font-heading text-base font-medium leading-tight line-clamp-1 min-w-0">
+              {isLinked ? (
+                <Link href={href!} className="hover:text-primary transition-colors">
+                  {title}
+                </Link>
+              ) : (
+                title
+              )}
+            </h3>
+            {isLinked && (
+              <Link
+                href={href!}
+                aria-label={`Xem chi tiết ${title}`}
+                className={buttonVariants({ variant: "ghost", size: "icon-sm", className: "shrink-0" })}
+              >
+                <ArrowRight weight="bold" />
+              </Link>
+            )}
+          </div>
 
-      {/* Footer: giá + đặt lịch */}
-      <div className="mt-auto flex w-full flex-col gap-2 px-2 pb-1">
-        {price && (
-          <p className="truncate text-base font-semibold text-foreground md:text-lg" title={price}>
-            {price}
-          </p>
-        )}
+          {/* Display badges if exists */}
+          {badges && badges.length > 0 && (
+            <div className="flex flex-wrap gap-1">
+              {badges.map((badge, idx) => (
+                <Badge key={idx} variant="secondary">
+                  {badge}
+                </Badge>
+              ))}
+            </div>
+          )}
 
+          {description && (
+            <p className="text-sm text-muted-foreground line-clamp-2">
+              {description}
+            </p>
+          )}
+
+          {price && (
+            <p
+              className="mt-auto truncate text-base font-semibold text-foreground md:text-lg"
+              title={price}
+            >
+              {price}
+            </p>
+          )}
+        </div>
+      </div>
+
+      {/* Đặt lịch — ngoài card con */}
+      <div className="px-1 pb-1">
         <Button asChild className="w-full">
           <a
             href="https://zalo.me/0789978898"
