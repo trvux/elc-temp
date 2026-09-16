@@ -22,6 +22,11 @@ export interface CardServiceProps {
   locationSlug?: string;
 }
 
+// Tạm thời tắt việc click vào card để vào trang chi tiết dịch vụ —
+// khách chỉ dừng ở trang /dich-vu và bấm "Đặt lịch". Đổi lại thành `true`
+// khi cần bật lại trang chi tiết.
+const ENABLE_DETAIL_LINK = false;
+
 export function CardService({
   title,
   price,
@@ -44,7 +49,7 @@ export function CardService({
       />
     );
 
-    if (slug) {
+    if (slug && ENABLE_DETAIL_LINK) {
       const href = locationSlug ? `/dich-vu/${slug}/${locationSlug}` : `/dich-vu/${slug}`;
       return (
         <Link
@@ -59,7 +64,7 @@ export function CardService({
   };
 
   const renderTitle = () => {
-    if (slug) {
+    if (slug && ENABLE_DETAIL_LINK) {
       const href = locationSlug ? `/dich-vu/${slug}/${locationSlug}` : `/dich-vu/${slug}`;
       return (
         <Link
