@@ -38,6 +38,14 @@ function getTileSpanClass(itemCount: number) {
   return "md:col-span-2 lg:col-span-3";
 }
 
+// Lưới card bên trong 1 ô: phải khớp với số item thật sự có, không thì
+// item duy nhất bị chia đôi cột trong ô hẹp, co lại nhìn lạc lõng.
+function getItemsGridClass(itemCount: number) {
+  if (itemCount === 1) return "grid grid-cols-1";
+  if (itemCount === 2) return "grid grid-cols-1 sm:grid-cols-2";
+  return "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3";
+}
+
 async function getCachedServicesData() {
   const groupedServices = await getPublishedServicesGroupedAction();
   const currentYear = new Date().getFullYear();
@@ -89,12 +97,17 @@ export default async function ServicesHub() {
         />
       </GridSection>
 
-      {groupedServices.length > 1 && (
-        <nav
-          aria-label="Chuyển nhanh tới nhóm dịch vụ"
-          className="sticky top-16 z-30 w-full border-b border-border/60 bg-background/95 backdrop-blur-sm"
-        >
-          <div className="mx-auto flex w-full max-w-350 min-[112.5rem]:max-w-384 gap-2 overflow-x-auto px-4 md:px-6 lg:px-8 py-3 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+      <GridSection
+        id="services-content"
+        isFirst={false}
+        showDiamond={true}
+        contentClassName="py-6 md:py-8 lg:py-10"
+      >
+        {groupedServices.length > 1 && (
+          <nav
+            aria-label="Chuyển nhanh tới nhóm dịch vụ"
+            className="sticky top-16 z-30 -mx-4 md:-mx-6 lg:-mx-8 mb-6 flex gap-2 overflow-x-auto border-b border-border/60 bg-background/95 px-4 py-3 backdrop-blur-sm md:px-6 lg:px-8 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
+          >
             {groupedServices.map((group, idx) => (
               <a
                 key={group.name}
@@ -104,16 +117,9 @@ export default async function ServicesHub() {
                 {group.name}
               </a>
             ))}
-          </div>
-        </nav>
-      )}
+          </nav>
+        )}
 
-      <GridSection
-        id="services-content"
-        isFirst={false}
-        showDiamond={true}
-        contentClassName="py-6 md:py-8 lg:py-10"
-      >
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 md:gap-6">
           {groupedServices.map((group, idx) => (
             <div
@@ -132,7 +138,7 @@ export default async function ServicesHub() {
                   {group.items.length} dịch vụ
                 </span>
               </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6">
+              <div className={cn("gap-4 md:gap-6", getItemsGridClass(group.items.length))}>
                 {group.items.map((service) => {
                   const cardProps = mapServiceToCardData(service);
                   return <CardService key={service.id} {...cardProps} />;
