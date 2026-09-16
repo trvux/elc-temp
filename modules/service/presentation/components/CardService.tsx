@@ -74,15 +74,10 @@ export function CardService({
             )}
           </div>
 
-          {/* Display badges if exists */}
-          {badges && badges.length > 0 && (
-            <div className="flex flex-wrap gap-1">
-              {badges.map((badge, idx) => (
-                <Badge key={idx} variant="secondary">
-                  {badge}
-                </Badge>
-              ))}
-            </div>
+          {price && (
+            <p className="truncate text-base font-semibold text-foreground md:text-lg" title={price}>
+              {price}
+            </p>
           )}
 
           {description && (
@@ -91,13 +86,16 @@ export function CardService({
             </p>
           )}
 
-          {price && (
-            <p
-              className="mt-auto truncate text-base font-semibold text-foreground md:text-lg"
-              title={price}
-            >
-              {price}
-            </p>
+          {/* Badge để cuối, sát nút Đặt lịch — mắt lướt tới đây đọc badge
+              ngay trước khi quyết định bấm, tăng độ tin tưởng. */}
+          {badges && badges.length > 0 && (
+            <div className="mt-auto flex flex-wrap gap-1">
+              {badges.map((badge, idx) => (
+                <Badge key={idx} variant="secondary">
+                  {badge}
+                </Badge>
+              ))}
+            </div>
           )}
         </div>
       </div>
