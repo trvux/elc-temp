@@ -49,7 +49,7 @@ export async function RelatedProjects({
 
   return (
     <section className={STYLES.section}>
-      <TypographyH2 className={STYLES.title}>Du an lien quan</TypographyH2>
+      <TypographyH2 className={STYLES.title}>Dự án liên quan</TypographyH2>
       <div className={STYLES.grid}>
         {related.map((project) => (
           <ProjectCard key={project.id} project={project} />
