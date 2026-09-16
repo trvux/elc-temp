@@ -92,7 +92,7 @@ export function CardService({
       {/* Footer: giá + đặt lịch */}
       <div className="mt-auto flex w-full flex-col gap-2 px-2 pb-1">
         {price && (
-          <p className="truncate text-sm font-semibold text-foreground" title={price}>
+          <p className="truncate text-base font-semibold text-foreground md:text-lg" title={price}>
             {price}
           </p>
         )}
