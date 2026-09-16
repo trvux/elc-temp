@@ -8,12 +8,7 @@ import { Breadcrumbs } from "@/shared/components/organisms/layout/user/breadcrum
 import { ScrollToTop } from "@/shared/components/organisms/layout/user/scroll-to-top";
 import { GridSection } from "@/shared/components/organisms/sections/grid-section";
 import { PageHero } from "@/shared/components/organisms/sections/page-hero";
-import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-} from "@/shared/components/ui/tabs";
+import { Separator } from "@/shared/components/ui/separator";
 import { TypographySmall } from "@/shared/components/ui/typography";
 import { BASE_URL } from "@/shared/lib/seo-schema";
 import { cn } from "@/shared/lib/utils";
@@ -46,7 +41,11 @@ async function getCachedServicesData() {
 }
 
 export default async function ServicesHub() {
-  const { groupedServices, currentYear } = await getCachedServicesData();
+  const { groupedServices: allGroups, currentYear } =
+    await getCachedServicesData();
+  const groupedServices = (allGroups ?? []).filter(
+    (group) => group.items.length > 0,
+  );
 
   if (!groupedServices || groupedServices.length === 0) {
     return (
@@ -86,38 +85,22 @@ export default async function ServicesHub() {
         showDiamond={true}
         contentClassName="py-6 md:py-8 lg:py-10"
       >
-        {groupedServices.length > 0 && (
-          <Tabs defaultValue={groupedServices[0].name} className="w-full">
-            <TabsList className="flex w-full justify-start md:justify-center overflow-x-auto mb-6 h-auto p-1 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
-              {groupedServices.map((group, idx) => (
-                <TabsTrigger
-                  key={idx}
-                  value={group.name}
-                  className="shrink-0 px-4 py-2"
-                >
-                  {group.name}
-                </TabsTrigger>
-              ))}
-            </TabsList>
-
-            {groupedServices.map((group, idx) => (
-              <TabsContent key={idx} value={group.name}>
-                {group.items.length > 0 ? (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-                    {group.items.map((service) => {
-                      const cardProps = mapServiceToCardData(service);
-                      return <CardService key={service.id} {...cardProps} />;
-                    })}
-                  </div>
-                ) : (
-                  <div className="text-center py-16 text-muted-foreground bg-muted/5">
-                    Hiện tại chưa có dịch vụ nào trong nhóm này.
-                  </div>
-                )}
-              </TabsContent>
-            ))}
-          </Tabs>
-        )}
+        <div className="flex flex-col gap-8">
+          {groupedServices.map((group, idx) => (
+            <div key={group.name} className="flex flex-col gap-4">
+              <h2 className="text-lg md:text-xl font-bold tracking-tight text-foreground font-heading">
+                {group.name}
+              </h2>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+                {group.items.map((service) => {
+                  const cardProps = mapServiceToCardData(service);
+                  return <CardService key={service.id} {...cardProps} />;
+                })}
+              </div>
+              {idx < groupedServices.length - 1 && <Separator className="mt-4" />}
+            </div>
+          ))}
+        </div>
       </GridSection>
 
       <GridSection
