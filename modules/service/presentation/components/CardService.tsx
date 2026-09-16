@@ -89,14 +89,13 @@ export function CardService({
         </p>
       )}
 
-      {/* Footer: giá + đặt lịch (giữ nguyên như card cũ) */}
+      {/* Footer: giá + đặt lịch */}
       <div className="mt-auto flex w-full flex-col gap-2 px-2 pb-1">
-        <div
-          className="flex h-9 w-full items-center justify-center rounded-md bg-secondary px-3 text-sm font-semibold text-secondary-foreground truncate"
-          title={price}
-        >
-          {price}
-        </div>
+        {price && (
+          <p className="truncate text-sm font-semibold text-foreground" title={price}>
+            {price}
+          </p>
+        )}
 
         <Button asChild className="w-full">
           <a
