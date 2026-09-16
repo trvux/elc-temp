@@ -106,7 +106,7 @@ export default async function ServicesHub() {
         {groupedServices.length > 1 && (
           <nav
             aria-label="Chuyển nhanh tới nhóm dịch vụ"
-            className="sticky top-16 z-30 -mx-4 md:-mx-6 lg:-mx-8 mb-6 flex gap-2 overflow-x-auto border-b border-border/60 bg-background/95 px-4 py-3 backdrop-blur-sm md:px-6 lg:px-8 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
+            className="sticky top-16 z-30 -mx-4 md:-mx-6 lg:-mx-8 mb-6 flex items-center gap-2 overflow-x-auto border-b border-border/60 bg-background/95 px-4 py-2 backdrop-blur-sm md:px-6 lg:px-8 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
           >
             {groupedServices.map((group, idx) => (
               <a
