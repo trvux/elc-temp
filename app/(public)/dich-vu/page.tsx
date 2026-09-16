@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import {
   CardService,
-  ServiceGroupNav,
   getPublishedServicesGroupedAction,
   mapServiceToCardData,
 } from "@/modules/service";
@@ -82,8 +81,6 @@ export default async function ServicesHub() {
     );
   }
 
-  const groupAnchors = groupedServices.map((_, idx) => `nhom-dich-vu-${idx}`);
-
   return (
     <main className={STYLES.main}>
       <GridSection
@@ -104,20 +101,12 @@ export default async function ServicesHub() {
         showDiamond={true}
         contentClassName="py-6 md:py-8 lg:py-10"
       >
-        <ServiceGroupNav
-          groups={groupedServices.map((group, idx) => ({
-            name: group.name,
-            anchor: groupAnchors[idx],
-          }))}
-        />
-
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 md:gap-6">
-          {groupedServices.map((group, idx) => (
+          {groupedServices.map((group) => (
             <div
               key={group.name}
-              id={groupAnchors[idx]}
               className={cn(
-                "scroll-mt-32 flex flex-col gap-5 rounded-2xl border border-border/70 p-5 md:p-6",
+                "flex flex-col gap-5 rounded-2xl border border-border/70 p-5 md:p-6",
                 getTileSpanClass(group.items.length),
               )}
             >
