@@ -8,7 +8,6 @@ import { Breadcrumbs } from "@/shared/components/organisms/layout/user/breadcrum
 import { ScrollToTop } from "@/shared/components/organisms/layout/user/scroll-to-top";
 import { GridSection } from "@/shared/components/organisms/sections/grid-section";
 import { PageHero } from "@/shared/components/organisms/sections/page-hero";
-import { Separator } from "@/shared/components/ui/separator";
 import { TypographySmall } from "@/shared/components/ui/typography";
 import { BASE_URL } from "@/shared/lib/seo-schema";
 import { cn } from "@/shared/lib/utils";
@@ -43,11 +42,9 @@ async function getCachedServicesData() {
 export default async function ServicesHub() {
   const { groupedServices: allGroups, currentYear } =
     await getCachedServicesData();
-  const groupedServices = (allGroups ?? []).filter(
-    (group) => group.items.length > 0,
-  );
+  const services = (allGroups ?? []).flatMap((group) => group.items);
 
-  if (!groupedServices || groupedServices.length === 0) {
+  if (services.length === 0) {
     return (
       <main className={STYLES.main}>
         <GridSection
@@ -85,26 +82,11 @@ export default async function ServicesHub() {
         showDiamond={true}
         contentClassName="py-6 md:py-8 lg:py-10"
       >
-        <div className="flex flex-col gap-8">
-          {groupedServices.map((group, idx) => (
-            <div key={group.name} className="flex flex-col gap-4">
-              <div className="flex items-baseline justify-between gap-3">
-                <h2 className="text-lg md:text-xl font-bold tracking-tight text-foreground font-heading">
-                  {group.name}
-                </h2>
-                <span className="text-xs text-muted-foreground shrink-0">
-                  {group.items.length} dịch vụ
-                </span>
-              </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-                {group.items.map((service) => {
-                  const cardProps = mapServiceToCardData(service);
-                  return <CardService key={service.id} {...cardProps} />;
-                })}
-              </div>
-              {idx < groupedServices.length - 1 && <Separator className="mt-4" />}
-            </div>
-          ))}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+          {services.map((service) => {
+            const cardProps = mapServiceToCardData(service);
+            return <CardService key={service.id} {...cardProps} />;
+          })}
         </div>
       </GridSection>
 
