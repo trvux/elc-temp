@@ -87,6 +87,12 @@ export function ProjectBounceCardsSection({
             >
               <m.div
                 className="relative w-[86px] h-[86px] sm:w-[150px] sm:h-[150px] rounded-2xl sm:rounded-3xl overflow-hidden border-2 sm:border-4 border-background shadow-xl bg-muted cursor-pointer"
+                // Framer Motion rounds the transform it writes to fewer decimal
+                // places than the raw `base.rotate` float baked into the SSR-ed
+                // inline style, so the two markups disagree on the transform
+                // string by a fraction of a degree on first hydrate — same
+                // value, just formatted differently, nothing to reconcile.
+                suppressHydrationWarning
                 initial={{ scale: 0, rotate: base.rotate, x: base.x }}
                 animate={{
                   scale: (isHovered ? 1.07 : 1) * scaleDown,
