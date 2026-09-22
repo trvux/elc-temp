@@ -66,6 +66,17 @@ export interface UpdateInquiryStatusInput {
   internalNote?: string;
 }
 
+// Separate from UpdateInquiryStatusInput — see elc-go's
+// UpdateInquiryDetailsInput doc comment for why. name/phone are always
+// sent (not optional): the admin dialog always submits its full current
+// draft, same posture as status/internalNote above.
+export interface UpdateInquiryDetailsInput {
+  id: string;
+  name: string;
+  phone: string;
+  conversionValue?: number | null;
+}
+
 export interface InquiryFilter {
   status?: string;
   search?: string;

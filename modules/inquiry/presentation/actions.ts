@@ -8,6 +8,7 @@ import {
   CreateInquiryInput,
   Inquiry,
   InquiryFilter,
+  UpdateInquiryDetailsInput,
   UpdateInquiryStatusInput,
 } from "../domain";
 
@@ -269,6 +270,35 @@ export async function updateInquiryStatusAction(input: UpdateInquiryStatusInput)
     return { data: mapGoInquiry(row), error: null };
   } catch (error) {
     console.error("updateInquiryStatusAction error:", error);
+    return { data: null, error: "Failed to update inquiry" };
+  }
+}
+
+// Separate PATCH from updateInquiryStatusAction — see elc-go's
+// UpdateInquiryDetailsInput doc comment. InquiryManagement calls this one
+// first, then updateInquiryStatusAction, so a status change to "converted"
+// always sees the conversion_value just saved in the same "Lưu thay đổi"
+// click, not a stale one from before it.
+export async function updateInquiryDetailsAction(input: UpdateInquiryDetailsInput) {
+  if (!GO_API_URL) {
+    return { data: null, error: "GO_API_URL is not configured" };
+  }
+  try {
+    const { id, ...rest } = input;
+    const res = await fetch(`${GO_API_URL}/inquiries/${id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json", ...(await authHeaders()) },
+      body: JSON.stringify(toSnakeCaseBody(rest)),
+    });
+    if (!res.ok) {
+      return { data: null, error: await extractErrorMessage(res) };
+    }
+
+    const row = (await res.json()) as GoInquiryResponse;
+    revalidatePath("/admin/inquiries");
+    return { data: mapGoInquiry(row), error: null };
+  } catch (error) {
+    console.error("updateInquiryDetailsAction error:", error);
     return { data: null, error: "Failed to update inquiry" };
   }
 }

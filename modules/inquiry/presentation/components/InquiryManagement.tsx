@@ -8,6 +8,7 @@ import { AdminDialog } from "@/shared/components/organisms/layout/admin/admin-di
 import { Button } from "@/shared/components/ui/button";
 import { DataTable } from "@/shared/components/ui/data-table";
 import { Field, FieldContent, FieldLabel } from "@/shared/components/ui/field";
+import { Input } from "@/shared/components/ui/input";
 import {
   Select,
   SelectContent,
@@ -18,8 +19,15 @@ import {
 import { Textarea } from "@/shared/components/ui/textarea";
 import { TypographySmall } from "@/shared/components/ui/typography";
 
-import { decodeQualifyValue, INQUIRY_STATUSES, Inquiry, InquiryStatus, QUALIFY_STEP_LABELS } from "../../domain";
-import { getInquiriesAction, updateInquiryStatusAction } from "../actions";
+import {
+  CHANNEL_LABEL,
+  decodeQualifyValue,
+  INQUIRY_STATUSES,
+  Inquiry,
+  InquiryStatus,
+  QUALIFY_STEP_LABELS,
+} from "../../domain";
+import { getInquiriesAction, updateInquiryDetailsAction, updateInquiryStatusAction } from "../actions";
 import { getInquiryColumns } from "./InquiryColumns";
 
 export function InquiryManagement() {
@@ -28,6 +36,11 @@ export function InquiryManagement() {
   const [activeInquiry, setActiveInquiry] = useState<Inquiry | null>(null);
   const [draftStatus, setDraftStatus] = useState<InquiryStatus>("new");
   const [draftNote, setDraftNote] = useState("");
+  const [draftName, setDraftName] = useState("");
+  const [draftPhone, setDraftPhone] = useState("");
+  // Raw text, not number — avoids fighting an <input type="number"> over
+  // intermediate states ("", "1.", "1.5") while typing; parsed on save.
+  const [draftConversionValue, setDraftConversionValue] = useState("");
 
   const { data: inquiries = [], isLoading } = useQuery({
     queryKey: ["inquiries", filterStatus],
@@ -41,12 +54,26 @@ export function InquiryManagement() {
   });
 
   const updateMutation = useMutation({
-    mutationFn: () =>
-      updateInquiryStatusAction({
+    // Sequential, not parallel — updateInquiryDetailsAction (name/phone/
+    // conversion value) must land first, so that when this changes status
+    // to "converted", elc-go's PATCH /status sees this same save's
+    // conversion_value rather than a stale one from before it (matters for
+    // the GA4/Ads conversion push it triggers).
+    mutationFn: async () => {
+      const detailsRes = await updateInquiryDetailsAction({
+        id: activeInquiry!.id,
+        name: draftName,
+        phone: draftPhone,
+        conversionValue: draftConversionValue.trim() === "" ? null : Number(draftConversionValue),
+      });
+      if (detailsRes.error) return detailsRes;
+
+      return updateInquiryStatusAction({
         id: activeInquiry!.id,
         status: draftStatus,
         internalNote: draftNote,
-      }),
+      });
+    },
     onSuccess: (res) => {
       if (res.error) {
         toast.error(res.error);
@@ -63,6 +90,9 @@ export function InquiryManagement() {
     setActiveInquiry(inquiry);
     setDraftStatus(inquiry.status);
     setDraftNote(inquiry.internalNote ?? "");
+    setDraftName(inquiry.name);
+    setDraftPhone(inquiry.phone);
+    setDraftConversionValue(inquiry.conversionValue != null ? String(inquiry.conversionValue) : "");
   }
 
   const columns = useMemo(() => getInquiryColumns({ onView: openDetail }), []);
@@ -119,10 +149,37 @@ export function InquiryManagement() {
         onOpenChange={(open) => !open && setActiveInquiry(null)}
         size="lg"
         title="Chi tiết yêu cầu tư vấn"
-        description={activeInquiry ? `${activeInquiry.name} — ${activeInquiry.phone}` : undefined}
+        description={
+          activeInquiry
+            ? `${activeInquiry.name || "Chưa có tên"} — ${activeInquiry.phone || "Chưa có SĐT"} · ${CHANNEL_LABEL[activeInquiry.channel]}`
+            : undefined
+        }
       >
         {activeInquiry && (
           <div className="space-y-6">
+            <div className="grid grid-cols-2 gap-4">
+              <Field>
+                <FieldLabel className="mb-2 font-medium">Họ tên</FieldLabel>
+                <FieldContent>
+                  <Input
+                    value={draftName}
+                    onChange={(e) => setDraftName(e.target.value)}
+                    placeholder="Chưa có — điền sau khi liên hệ được khách"
+                  />
+                </FieldContent>
+              </Field>
+              <Field>
+                <FieldLabel className="mb-2 font-medium">Số điện thoại</FieldLabel>
+                <FieldContent>
+                  <Input
+                    value={draftPhone}
+                    onChange={(e) => setDraftPhone(e.target.value)}
+                    placeholder="Chưa có — điền sau khi liên hệ được khách"
+                  />
+                </FieldContent>
+              </Field>
+            </div>
+
             {activeInquiry.email && (
               <div>
                 <TypographySmall className="text-muted-foreground">Email</TypographySmall>
@@ -188,6 +245,27 @@ export function InquiryManagement() {
                 </Select>
               </FieldContent>
             </Field>
+
+            {draftStatus === "converted" && (
+              <Field>
+                <FieldLabel className="mb-2 font-medium">Giá trị đơn hàng (VNĐ)</FieldLabel>
+                <FieldContent>
+                  <Input
+                    type="number"
+                    inputMode="numeric"
+                    min={0}
+                    value={draftConversionValue}
+                    onChange={(e) => setDraftConversionValue(e.target.value)}
+                    placeholder="VD: 15000000"
+                  />
+                  <p className="mt-1.5 text-xs text-muted-foreground">
+                    {activeInquiry.adsConversionSyncedAt
+                      ? `Đã đồng bộ Google Ads lúc ${new Date(activeInquiry.adsConversionSyncedAt).toLocaleString("vi-VN")}`
+                      : "Chưa đồng bộ Google Ads."}
+                  </p>
+                </FieldContent>
+              </Field>
+            )}
 
             <Field>
               <FieldLabel className="mb-2 font-medium">Ghi chú nội bộ</FieldLabel>

@@ -4,7 +4,14 @@ import { ColumnDef } from "@tanstack/react-table";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
 import { Eye } from "@phosphor-icons/react";
-import { computeLeadPriority, INQUIRY_STATUSES, Inquiry, InquiryStatus, LeadType } from "../../domain";
+import {
+  CHANNEL_LABEL,
+  computeLeadPriority,
+  INQUIRY_STATUSES,
+  Inquiry,
+  InquiryStatus,
+  LeadType,
+} from "../../domain";
 
 interface ColumnProps {
   onView: (inquiry: Inquiry) => void;
@@ -37,11 +44,25 @@ export const getInquiryColumns = ({ onView }: ColumnProps): ColumnDef<Inquiry>[]
   {
     accessorKey: "name",
     header: "Họ tên",
-    cell: ({ row }) => <span className="font-medium">{row.original.name}</span>,
+    cell: ({ row }) =>
+      row.original.name ? (
+        <span className="font-medium">{row.original.name}</span>
+      ) : (
+        <span className="text-muted-foreground italic">Chưa có</span>
+      ),
   },
   {
     accessorKey: "phone",
     header: "Số điện thoại",
+    cell: ({ row }) =>
+      row.original.phone || <span className="text-muted-foreground italic">Chưa có</span>,
+  },
+  {
+    id: "channel",
+    header: "Kênh liên hệ",
+    cell: ({ row }) => (
+      <Badge variant="outline">{CHANNEL_LABEL[row.original.channel]}</Badge>
+    ),
   },
   {
     id: "source",
