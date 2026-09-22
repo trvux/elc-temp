@@ -254,6 +254,27 @@ export const SEOSchema = {
     };
   },
 
+  // FAQPage schema (mã 8823) — classic rich-snippet eligibility for this
+  // type is gone (Google restricted it to gov/health sites in 2023), so the
+  // real value here is feeding AI answer engines (Google AI Overviews,
+  // ChatGPT, Gemini, Perplexity...) a pre-chunked, directly-citable Q&A
+  // block. Built from the SAME faqs array the visible accordion renders —
+  // one source of truth, two outputs. Caller wraps @context, same
+  // convention as getService/getProject.
+  getFAQPage(faqs: { question: string; answer: string }[]) {
+    return {
+      "@type": "FAQPage",
+      "mainEntity": faqs.map((faq) => ({
+        "@type": "Question",
+        "name": faq.question,
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": faq.answer,
+        },
+      })),
+    };
+  },
+
   getProject(project: ProjectInput) {
     return {
       "@type": "Service",

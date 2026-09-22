@@ -32,6 +32,7 @@ import {
 import { cn } from "@/shared/lib/utils";
 import { formatCurrency } from "@/shared/lib/format";
 import { SEOSchema, toJsonLdHtml } from "@/shared/lib/seo-schema";
+import { FAQAccordion, getFAQsAction } from "@/modules/faq";
 
 interface ServiceDetailModuleProps {
   service: ServiceWithRelations;
@@ -86,6 +87,7 @@ export async function ServiceDetailModule({
 }: ServiceDetailModuleProps) {
   const { contacts, currentYear } = await getCachedServiceDetailModuleData();
   const { prev, next } = await getAdjacentServicesAction(service);
+  const { data: faqs } = await getFAQsAction("service", service.id);
 
   const images = service.images || [];
   const finalPrice = service.salePrice || service.originalPrice;
@@ -95,6 +97,7 @@ export async function ServiceDetailModule({
     slug: service.slug,
     metaDescription: service.metaDescription,
   });
+  const faqSchema = faqs.length > 0 ? SEOSchema.getFAQPage(faqs) : null;
 
   return (
     <main className={STYLES.main}>
@@ -103,6 +106,12 @@ export async function ServiceDetailModule({
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: toJsonLdHtml({ "@context": "https://schema.org", ...serviceSchema }) }}
       />
+      {faqSchema && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: toJsonLdHtml({ "@context": "https://schema.org", ...faqSchema }) }}
+        />
+      )}
       {/* ===== SECTION 1: IMAGE + SERVICE INFO ===== */}
       <GridSection
         id="service-detail-top"
@@ -229,6 +238,18 @@ export async function ServiceDetailModule({
               </TabsContent>
             </Tabs>
           </div>
+        </GridSection>
+      )}
+
+      {/* ===== SECTION 2.5: FAQ ===== */}
+      {faqs.length > 0 && (
+        <GridSection
+          id="service-detail-faq"
+          isFirst={false}
+          showDiamond={true}
+          contentClassName="py-6 md:py-8 lg:py-10"
+        >
+          <FAQAccordion faqs={faqs} />
         </GridSection>
       )}
 

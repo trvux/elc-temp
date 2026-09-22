@@ -50,6 +50,7 @@ import { Plus, X } from "@phosphor-icons/react";
 import { Controller } from "react-hook-form";
 import { TiptapEditor } from "@/shared/components/ui/tiptap-editor";
 import { uploadImageFile } from "@/shared/lib/upload-image";
+import { FAQManager } from "@/modules/faq";
 
 interface ServiceManagementProps {
   initialData: ServiceWithRelations[];
@@ -853,6 +854,25 @@ export function ServiceManagement({
                     )}
                   />
                 </div>
+
+                {/* FAQ Section — chỉ hiện khi sửa dịch vụ đã tồn tại (cần
+                    có id thật làm owner_id, xem mã 8823). Câu hỏi cụ thể
+                    (mã lỗi, cách xử lý...) ở đây tăng khả năng được AI
+                    Overview/answer engine trích dẫn trực tiếp. */}
+                {activeService !== "new" && activeService?.id && (
+                  <div className="space-y-4">
+                    <div className="border-b pb-2">
+                      <h3 className="text-sm font-semibold tracking-tight">
+                        Câu hỏi thường gặp (FAQ)
+                      </h3>
+                      <p className="text-xs text-muted-foreground">
+                        Hiển thị công khai dạng accordion + giúp AI (Google AI Overview, ChatGPT...)
+                        trích dẫn trực tiếp nội dung này.
+                      </p>
+                    </div>
+                    <FAQManager ownerType="service" ownerId={activeService.id} />
+                  </div>
+                )}
               </div>
             </div>
 
