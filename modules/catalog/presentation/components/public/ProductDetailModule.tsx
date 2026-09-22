@@ -29,7 +29,8 @@ import {
   TypographySmall,
 } from "@/shared/components/ui/typography";
 import { primaryImageUrl } from "@/shared/lib/image-asset";
-import { BASE_URL, toJsonLdHtml } from "@/shared/lib/seo-schema";
+import { BASE_URL, SEOSchema, toJsonLdHtml } from "@/shared/lib/seo-schema";
+import { FAQAccordion, getFAQsAction } from "@/modules/faq";
 import { cn } from "@/shared/lib/utils";
 import { notFound } from "next/navigation";
 
@@ -69,7 +70,7 @@ export async function ProductDetailModule({
   product: ProductWithRelations;
 }) {
   const { contacts, currentYear } = await getCachedProductDetailData();
-  const [relatedProducts, { data: reviews, aggregate }, { data: productLine }, { data: categoryWithGroup }, { data: defaultShippingZone }, savedProvinceCode, savedWardCode, { data: personalizedShippingZone }] = await Promise.all([
+  const [relatedProducts, { data: reviews, aggregate }, { data: productLine }, { data: categoryWithGroup }, { data: defaultShippingZone }, savedProvinceCode, savedWardCode, { data: personalizedShippingZone }, { data: faqs }] = await Promise.all([
     getRelatedProducts(product),
     getReviewsAction("product", product.id),
     product.productLineId ? getProductLineByIdAction(product.productLineId) : Promise.resolve({ data: null }),
@@ -78,6 +79,7 @@ export async function ProductDetailModule({
     getSavedProvinceCode(),
     getSavedWardCode(),
     getPersonalizedShippingZoneAction(),
+    getFAQsAction("product", product.id),
   ]);
 
   const category = product.category;
@@ -297,6 +299,13 @@ export async function ProductDetailModule({
         />
       </section>
 
+      {/* ===== CÂU HỎI THƯỜNG GẶP ===== */}
+      {faqs.length > 0 && (
+        <section className="w-full max-w-350 mx-auto px-4 md:px-6 lg:px-8 py-6 md:py-10 border-t border-dashed border-border/40">
+          <FAQAccordion faqs={faqs} />
+        </section>
+      )}
+
       {/* ===== SẢN PHẨM LIÊN QUAN ===== */}
       {relatedProducts.length > 0 && (
         <section className="w-full max-w-350 mx-auto px-4 md:px-6 lg:px-8 py-6 md:py-10 border-t border-dashed border-border/40">
@@ -481,7 +490,17 @@ export async function ProductDetailModule({
         // same breadcrumbItems — not duplicated here.
 
         return (
-          <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: toJsonLdHtml(productSchema) }} />
+          <>
+            <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: toJsonLdHtml(productSchema) }} />
+            {faqs.length > 0 && (
+              <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{
+                  __html: toJsonLdHtml({ "@context": "https://schema.org", ...SEOSchema.getFAQPage(faqs) }),
+                }}
+              />
+            )}
+          </>
         );
       })()}
     </main>

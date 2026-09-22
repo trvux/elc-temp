@@ -25,6 +25,7 @@ import { getCategoriesAction } from "@/modules/category/presentation/actions";
 import { getBrandsAction } from "@/modules/brand/presentation/actions";
 import { getProductLinesAction } from "@/modules/product-line/presentation/actions";
 import { getAttributeDefinitionsAction } from "@/modules/attribute-definition/presentation/actions";
+import { FAQManager } from "@/modules/faq";
 
 interface ProductFormProps {
   mode: "create" | "edit";
@@ -208,6 +209,20 @@ export function ProductForm({ mode, product, currentUserRole }: ProductFormProps
                 />
               </CardContent>
             </Card>
+
+            {mode === "edit" && product && (
+              <Card>
+                <CardHeader className="pb-4 flex flex-row items-center justify-between">
+                  <CardTitle className="text-sm font-semibold tracking-tight text-foreground">
+                    Câu hỏi thường gặp (FAQ)
+                  </CardTitle>
+                  <Badge variant="outline" className="font-normal">cấp Sản phẩm</Badge>
+                </CardHeader>
+                <CardContent className="pt-0">
+                  <FAQManager ownerType="product" ownerId={product.id} />
+                </CardContent>
+              </Card>
+            )}
           </div>
 
           {/* Secondary column */}
