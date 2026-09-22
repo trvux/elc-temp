@@ -16,6 +16,7 @@ import Link from "next/link";
 import { useMemo } from "react";
 
 import { Contact, getDisplayContacts } from "@/modules/contact/domain";
+import { trackContactClick } from "@/modules/inquiry";
 
 interface CTASectionProps {
   settings?: Record<string, string>;
@@ -74,6 +75,7 @@ export function CTASection({ settings, contacts }: CTASectionProps) {
                   rel={
                     zaloContact.isExternal ? "noopener noreferrer" : undefined
                   }
+                  onClick={() => trackContactClick({ channel: "zalo" })}
                 >
                   {settings?.cta_primary_btn_text || "Tư vấn lắp đặt miễn phí"}
                 </a>
@@ -94,6 +96,7 @@ export function CTASection({ settings, contacts }: CTASectionProps) {
             <Link
               href={phoneHref}
               className="hover:opacity-80 transition-opacity"
+              onClick={() => trackContactClick({ channel: "hotline" })}
             >
               <TypographyLarge>{phone}</TypographyLarge>
             </Link>
