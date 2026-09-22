@@ -98,7 +98,7 @@ export function ProductFloatingBar({
         description: "Paste vào Zalo để gửi cho tư vấn viên.",
         duration: 4000,
       });
-      trackContactClick({ channel: "zalo", leadType: "product", entityId: productId });
+      trackContactClick({ channel: "zalo", leadType: "product", entityId: productId, entityName: productName });
       // No e.preventDefault() - let href open Zalo app
     } else {
       e.preventDefault();

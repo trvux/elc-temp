@@ -205,6 +205,12 @@ export function formatMillion(vnd: number): string {
 // cần lắp hệ thống?" for máy lọc không khí) — admin needs a stable header,
 // not a verbatim replay of the exact question text shown that session.
 export const QUALIFY_STEP_LABELS: Record<string, string> = {
+  // Not a real qualify-flow step — folded into the same JSONB bag by
+  // buildClickQualifyData (elc-go) for a click-origin lead (Zalo/Messenger/
+  // Hotline), alongside pagePath, so admin can see WHICH product/service/
+  // project the lead was about without going into the DB by hand.
+  entityName: "Quan tâm cụ thể",
+  pagePath: "Trang đang xem lúc bấm",
   // "scale" holds an HP segment (may-lanh, e.g. "2.5 HP" — already
   // human-readable as-is) or an airflow band (may-loc-khong-khi, decoded
   // below) or a diện tích bucket (project/legacy fallback) depending on

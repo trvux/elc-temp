@@ -56,7 +56,7 @@ export function OrderButton({ contacts, productInfo, leadType, entityId, classNa
         description: "Paste vào Zalo để gửi cho tư vấn viên.",
         duration: 4000,
       });
-      trackContactClick({ channel: "zalo", leadType, entityId });
+      trackContactClick({ channel: "zalo", leadType, entityId, entityName: productInfo.productName });
       // No e.preventDefault() - let href open Zalo app
     } else {
       e.preventDefault();

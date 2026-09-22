@@ -60,6 +60,9 @@ export function ZaloContactModal({
   // one id, so it's tracked without an entityId rather than picking one
   // arbitrarily.
   const trackableEntityId = Array.isArray(productInfo) ? undefined : entityId;
+  // Same single-entity restriction as trackableEntityId — an array click
+  // has no one name to attribute either.
+  const trackableEntityName = Array.isArray(productInfo) ? undefined : (subtitle ?? products[0]?.productName);
 
   const handleCopyMessage = async () => {
     try {
@@ -73,7 +76,7 @@ export function ZaloContactModal({
       // The deliberate hand-off gesture on desktop (where no real
       // navigation happens elsewhere in this flow) — this IS the moment
       // the visitor commits to reaching out via Zalo.
-      trackContactClick({ channel: "zalo", leadType, entityId: trackableEntityId });
+      trackContactClick({ channel: "zalo", leadType, entityId: trackableEntityId, entityName: trackableEntityName });
     } catch {
       toast.error("Không thể sao chép, vui lòng chép thủ công.");
     }
@@ -82,11 +85,11 @@ export function ZaloContactModal({
   const handleOpenZaloWeb = () => {
     window.open(zaloHref, "_blank", "noopener,noreferrer");
     onOpenChange(false);
-    trackContactClick({ channel: "zalo", leadType, entityId: trackableEntityId });
+    trackContactClick({ channel: "zalo", leadType, entityId: trackableEntityId, entityName: trackableEntityName });
   };
 
   const handlePhoneClick = () => {
-    trackContactClick({ channel: "hotline", leadType, entityId: trackableEntityId });
+    trackContactClick({ channel: "hotline", leadType, entityId: trackableEntityId, entityName: trackableEntityName });
   };
 
   return (

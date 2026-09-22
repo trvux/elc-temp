@@ -69,7 +69,7 @@ export function CardService({
           duration: 4000,
         });
       }
-      trackContactClick({ channel: "zalo", leadType: "service", entityId: id });
+      trackContactClick({ channel: "zalo", leadType: "service", entityId: id, entityName: title });
     } else {
       e.preventDefault();
       setModalOpen(true);

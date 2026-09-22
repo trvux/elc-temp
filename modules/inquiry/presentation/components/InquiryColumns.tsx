@@ -75,7 +75,11 @@ export const getInquiryColumns = ({ onView }: ColumnProps): ColumnDef<Inquiry>[]
       // alongside subType in LeadFormScreen's select* handlers), so prefer
       // that; only fall back to the raw slug if qualifyData is somehow
       // missing it (a general-branch or pre-picker-conversion lead).
+      // entityName (click-origin leads only — see buildClickQualifyData in
+      // elc-go) is checked first since it names the exact product/service/
+      // project, more specific than a category-level pick.
       const subTypeLabel =
+        inquiry.qualifyData.entityName ??
         inquiry.qualifyData.productCategory ??
         inquiry.qualifyData.serviceGroup ??
         inquiry.qualifyData.projectType ??

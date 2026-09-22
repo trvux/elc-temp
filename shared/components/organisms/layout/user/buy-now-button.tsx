@@ -45,7 +45,7 @@ export function BuyNowButton({ productId, productName, productSlug, salePrice, c
         description: "Paste vào Zalo để gửi cho tư vấn viên.",
         duration: 4000,
       });
-      trackContactClick({ channel: "zalo", leadType: "product", entityId: productId });
+      trackContactClick({ channel: "zalo", leadType: "product", entityId: productId, entityName: productName });
     } else {
       e.preventDefault();
       setModalOpen(true);

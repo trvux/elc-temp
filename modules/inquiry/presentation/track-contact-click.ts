@@ -10,6 +10,10 @@ interface TrackContactClickInput {
   // A product/project/service id, matched to leadType — omit for a general
   // (not-on-a-catalog-entity) contact link, e.g. the header/footer.
   entityId?: string;
+  // Display name of that same entity — callers already have it in hand
+  // (productName/title prop), so pass it here rather than have staff
+  // resolve entityId by hand in the DB to see what a lead was about.
+  entityName?: string;
 }
 
 const CONTACT_CLICK_ENDPOINT = "/api/contact-click";
@@ -20,7 +24,7 @@ const CONTACT_CLICK_ENDPOINT = "/api/contact-click";
 // the copy-message/modal flow, this just adds to it). Records the click as
 // a lead server-side (see app/api/contact-click/route.ts) and fires the
 // qualify_lead signal both to GA4 and our own tracking_events table.
-export function trackContactClick({ channel, leadType, entityId }: TrackContactClickInput) {
+export function trackContactClick({ channel, leadType, entityId, entityName }: TrackContactClickInput) {
   if (typeof window === "undefined") return;
 
   const pagePath = window.location.pathname;
@@ -30,6 +34,7 @@ export function trackContactClick({ channel, leadType, entityId }: TrackContactC
     productId: leadType === "product" ? entityId : undefined,
     projectId: leadType === "project" ? entityId : undefined,
     serviceId: leadType === "service" ? entityId : undefined,
+    entityName,
     pagePath,
   };
 
