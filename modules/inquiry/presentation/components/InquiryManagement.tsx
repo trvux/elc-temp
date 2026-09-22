@@ -222,6 +222,24 @@ export function InquiryManagement() {
               </div>
             )}
 
+            {activeInquiry.interestHistory.length > 0 && (
+              <div>
+                <TypographySmall className="text-muted-foreground">
+                  Lịch sử quan tâm ({activeInquiry.interestHistory.length})
+                </TypographySmall>
+                <ol className="mt-1.5 space-y-1 text-sm">
+                  {activeInquiry.interestHistory.map((touch, idx) => (
+                    <li key={idx} className="flex items-baseline gap-2">
+                      <span className="text-xs text-muted-foreground whitespace-nowrap tabular-nums">
+                        {new Date(touch.at).toLocaleString("vi-VN")}
+                      </span>
+                      <span>{touch.entityName || "Liên hệ chung (không gắn sản phẩm/dịch vụ)"}</span>
+                    </li>
+                  ))}
+                </ol>
+              </div>
+            )}
+
             {activeInquiry.attachments.length > 0 && (
               <div>
                 <TypographySmall className="text-muted-foreground">

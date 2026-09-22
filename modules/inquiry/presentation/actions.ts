@@ -8,6 +8,7 @@ import {
   CreateInquiryInput,
   Inquiry,
   InquiryFilter,
+  InterestTouch,
   UpdateInquiryDetailsInput,
   UpdateInquiryStatusInput,
 } from "../domain";
@@ -26,6 +27,7 @@ interface GoInquiryResponse {
   lead_type: string;
   sub_type: string | null;
   qualify_data: Record<string, string> | null;
+  interest_history: InterestTouch[] | null;
   attachments: string[] | null;
   channel: string;
   gclid: string | null;
@@ -62,6 +64,7 @@ function mapGoInquiry(row: GoInquiryResponse): Inquiry {
     leadType: row.lead_type as Inquiry["leadType"],
     subType: row.sub_type,
     qualifyData: row.qualify_data ?? {},
+    interestHistory: row.interest_history ?? [],
     attachments: row.attachments ?? [],
     channel: row.channel as Inquiry["channel"],
     gclid: row.gclid,

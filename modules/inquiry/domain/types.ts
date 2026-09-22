@@ -9,6 +9,14 @@ export type LeadType = "product" | "service" | "project" | "general";
 // looking at). See elc-go internal/inquiry/domain's ContactChannel.
 export type ContactChannel = "form" | "zalo" | "messenger" | "hotline";
 
+// One entry in a click-origin lead's accumulated browsing trail — see
+// elc-go's domain.AppendInterestTouch. Ordered oldest to newest.
+export interface InterestTouch {
+  entityName?: string;
+  pagePath?: string;
+  at: string;
+}
+
 export interface Inquiry {
   id: string;
   name: string;
@@ -21,6 +29,11 @@ export interface Inquiry {
   leadType: LeadType;
   subType: string | null;
   qualifyData: Record<string, string>;
+  // Every product/service the visitor touched before this lead was picked
+  // up, oldest first — split out from qualifyData server-side (see elc-go's
+  // splitInterestHistory) since it's an array, not a flat key/value pair.
+  // Empty for a form-origin lead (only click-origin leads accumulate this).
+  interestHistory: InterestTouch[];
   attachments: string[];
   channel: ContactChannel;
   gclid: string | null;
