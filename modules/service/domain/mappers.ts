@@ -3,6 +3,7 @@ import { formatCurrency } from "@/shared/lib/format";
 import { primaryImageUrl } from "@/shared/lib/image-asset";
 
 export interface ServiceCardData {
+  id: string;
   title: string;
   price: string;
   image: string;
@@ -25,6 +26,7 @@ export function mapServiceToCardData(service: ServiceWithRelations): ServiceCard
   }
 
   return {
+    id: service.id,
     title: service.title,
     price,
     image: primaryImageUrl(service.images) || "/placeholder.png",

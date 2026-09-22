@@ -4,8 +4,10 @@ import { Button, buttonVariants } from "@/shared/components/ui/button";
 import { ArrowRight } from "@phosphor-icons/react/dist/ssr";
 import Image from "next/image";
 import Link from "next/link";
+import { trackContactClick } from "@/modules/inquiry";
 
 export interface CardServiceProps {
+  id?: string;
   title?: string;
   price?: string;
   image?: string;
@@ -21,6 +23,7 @@ export interface CardServiceProps {
 const ENABLE_DETAIL_LINK = false;
 
 export function CardService({
+  id,
   title,
   price,
   image,
@@ -100,13 +103,16 @@ export function CardService({
         </div>
       </div>
 
-      {/* Đặt lịch — ngoài card con */}
+      {/* Đặt lịch — ngoài card con. Link thẳng ra Zalo (không qua modal như
+          OrderButton bên sản phẩm) — track ngay tại đây vì đây CHÍNH là hành
+          động outbound thật, không phải chỉ mở 1 lớp trung gian. */}
       <div className="px-1 pb-1">
         <Button asChild className="w-full">
           <a
             href="https://zalo.me/0789978898"
             target="_blank"
             rel="noopener noreferrer"
+            onClick={() => trackContactClick({ channel: "zalo", leadType: "service", entityId: id })}
           >
             Đặt lịch
           </a>
