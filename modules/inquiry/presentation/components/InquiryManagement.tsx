@@ -151,6 +151,7 @@ export function InquiryManagement() {
         isLoading={isLoading}
         searchKey="name"
         searchPlaceholder="Tìm theo tên khách hàng..."
+        getRowId={(row) => row.id}
       />
 
       <AdminDialog

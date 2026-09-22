@@ -64,6 +64,12 @@ interface DataTableProps<TData, TValue> {
   searchPlaceholder?: string;
   isLoading?: boolean;
   rowClassName?: (data: TData) => string;
+  // Opt-in — without it react-table falls back to index-based row identity,
+  // which is fine for tables that never reorder rows out from under an open
+  // action, but risks a stale/wrong row reference for tables where a row's
+  // position can shift after a mutation (e.g. sorting or a status change
+  // moving it). Callers with a stable id field on TData should pass this.
+  getRowId?: (row: TData) => string;
 }
 
 export function DataTable<TData, TValue>({
@@ -73,6 +79,7 @@ export function DataTable<TData, TValue>({
   searchPlaceholder = "Tìm kiếm...",
   isLoading = false,
   rowClassName,
+  getRowId,
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
@@ -81,6 +88,7 @@ export function DataTable<TData, TValue>({
   const table = useReactTable({
     data,
     columns,
+    ...(getRowId ? { getRowId } : {}),
     getCoreRowModel: getCoreRowModel(),
     onSortingChange: setSorting,
     getSortedRowModel: getSortedRowModel(),
