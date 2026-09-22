@@ -5,6 +5,10 @@ export type InquiryStatus = "new" | "contacted" | "converted" | "closed";
 // elc-go internal/inquiry/domain's LeadType.
 export type LeadType = "product" | "service" | "project" | "general";
 
+// How the visitor reached out — independent of LeadType (what they were
+// looking at). See elc-go internal/inquiry/domain's ContactChannel.
+export type ContactChannel = "form" | "zalo" | "messenger" | "hotline";
+
 export interface Inquiry {
   id: string;
   name: string;
@@ -18,8 +22,18 @@ export interface Inquiry {
   subType: string | null;
   qualifyData: Record<string, string>;
   attachments: string[];
+  channel: ContactChannel;
+  gclid: string | null;
+  utmSource: string | null;
+  utmMedium: string | null;
+  utmCampaign: string | null;
+  utmTerm: string | null;
+  utmContent: string | null;
+  gaClientId: string | null;
   status: InquiryStatus;
   internalNote: string | null;
+  conversionValue: number | null;
+  adsConversionSyncedAt: string | null;
   createdAt: string;
   updatedAt: string;
 }

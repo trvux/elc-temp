@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { authHeaders, toSnakeCaseBody } from "@/shared/lib/go-api";
+import { readAttribution, readGAClientID } from "@/shared/lib/attribution";
 import { logEventAction } from "@/modules/event";
 import {
   CreateInquiryInput,
@@ -25,8 +26,18 @@ interface GoInquiryResponse {
   sub_type: string | null;
   qualify_data: Record<string, string> | null;
   attachments: string[] | null;
+  channel: string;
+  gclid: string | null;
+  utm_source: string | null;
+  utm_medium: string | null;
+  utm_campaign: string | null;
+  utm_term: string | null;
+  utm_content: string | null;
+  ga_client_id: string | null;
   status: string;
   internal_note: string | null;
+  conversion_value: number | null;
+  ads_conversion_synced_at: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -51,8 +62,18 @@ function mapGoInquiry(row: GoInquiryResponse): Inquiry {
     subType: row.sub_type,
     qualifyData: row.qualify_data ?? {},
     attachments: row.attachments ?? [],
+    channel: row.channel as Inquiry["channel"],
+    gclid: row.gclid,
+    utmSource: row.utm_source,
+    utmMedium: row.utm_medium,
+    utmCampaign: row.utm_campaign,
+    utmTerm: row.utm_term,
+    utmContent: row.utm_content,
+    gaClientId: row.ga_client_id,
     status: row.status as Inquiry["status"],
     internalNote: row.internal_note,
+    conversionValue: row.conversion_value,
+    adsConversionSyncedAt: row.ads_conversion_synced_at,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
   };
@@ -75,10 +96,32 @@ export async function createInquiryAction(input: CreateInquiryInput) {
     return { data: null, error: "GO_API_URL is not configured" };
   }
   try {
+    // The on-site form is the "form" channel — always has name/phone, so
+    // it's the one channel fully wired end-to-end today. gclid/utm* come
+    // from middleware.ts's attribution cookie (set on arrival from an ad,
+    // read here rather than round-tripped through the client); gaClientId
+    // from GA4's own _ga cookie — both needed to tie a later "converted"
+    // outcome back to the campaign/session that produced this lead.
+    const [attribution, gaClientId] = await Promise.all([
+      readAttribution(),
+      readGAClientID(),
+    ]);
+    const payload = {
+      ...input,
+      channel: "form" as const,
+      gclid: attribution?.gclid,
+      utmSource: attribution?.utmSource,
+      utmMedium: attribution?.utmMedium,
+      utmCampaign: attribution?.utmCampaign,
+      utmTerm: attribution?.utmTerm,
+      utmContent: attribution?.utmContent,
+      gaClientId,
+    };
+
     const res = await fetch(`${GO_API_URL}/inquiries`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(toSnakeCaseBody(input)),
+      body: JSON.stringify(toSnakeCaseBody(payload)),
     });
     if (!res.ok) {
       return { data: null, error: await extractErrorMessage(res) };
