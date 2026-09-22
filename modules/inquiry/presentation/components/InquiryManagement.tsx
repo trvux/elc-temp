@@ -60,13 +60,22 @@ export function InquiryManagement() {
     // conversion_value rather than a stale one from before it (matters for
     // the GA4/Ads conversion push it triggers).
     mutationFn: async () => {
-      const detailsRes = await updateInquiryDetailsAction({
-        id: activeInquiry!.id,
-        name: draftName,
-        phone: draftPhone,
-        conversionValue: draftConversionValue.trim() === "" ? null : Number(draftConversionValue),
-      });
-      if (detailsRes.error) return detailsRes;
+      const conversionValue = draftConversionValue.trim() === "" ? null : Number(draftConversionValue);
+      // elc-go's SetIdentity requires non-blank name+phone whenever it's
+      // called at all (see its doc comment) — a click-origin lead staff
+      // never actually reached (still no name/phone) must skip this call
+      // entirely, not send blanks, or the save fails validation before
+      // the status change (e.g. just closing it out as unsuccessful) ever
+      // runs.
+      if (draftName.trim() !== "" || draftPhone.trim() !== "" || conversionValue !== null) {
+        const detailsRes = await updateInquiryDetailsAction({
+          id: activeInquiry!.id,
+          name: draftName,
+          phone: draftPhone,
+          conversionValue,
+        });
+        if (detailsRes.error) return detailsRes;
+      }
 
       return updateInquiryStatusAction({
         id: activeInquiry!.id,
