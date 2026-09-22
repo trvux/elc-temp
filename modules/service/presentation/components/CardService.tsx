@@ -1,10 +1,15 @@
 "use client";
+import { useState } from "react";
+import { toast } from "sonner";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button, buttonVariants } from "@/shared/components/ui/button";
 import { ArrowRight } from "@phosphor-icons/react/dist/ssr";
 import Image from "next/image";
 import Link from "next/link";
 import { trackContactClick } from "@/modules/inquiry";
+import { ZaloContactModal } from "@/shared/components/organisms/layout/user/zalo-contact-modal";
+import { buildZaloServiceMessage, isMobileDevice } from "@/shared/lib/zalo-message";
+import { useContacts } from "@/shared/providers/contact-provider";
 
 export interface CardServiceProps {
   id?: string;
@@ -39,6 +44,38 @@ export function CardService({
       : `/dich-vu/${slug}`
     : undefined;
   const isLinked = ENABLE_DETAIL_LINK && !!href;
+
+  const [modalOpen, setModalOpen] = useState(false);
+  const contacts = useContacts();
+  const zaloContact =
+    contacts.find((c) => c.type === "zalo" && c.isActive) || contacts.find((c) => c.type === "zalo");
+  const phoneContact =
+    contacts.find((c) => c.type === "phone" && c.isActive) || contacts.find((c) => c.type === "phone");
+  // Falls back to the same hardcoded number the old plain link used, for
+  // the edge case where contacts haven't loaded/aren't configured — the
+  // booking button should never just disappear.
+  const zaloHref = zaloContact?.href ?? "https://zalo.me/0789978898";
+  const zaloPhoneValue = zaloContact?.value ?? "0789978898";
+  const message = slug ? buildZaloServiceMessage({ serviceName: title ?? "", priceDisplay: price ?? "", serviceSlug: slug }) : undefined;
+
+  const handleBookClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    if (isMobileDevice()) {
+      // Copy fire-and-forget, no preventDefault — let href open the Zalo
+      // app natively, which needs the original click gesture to work.
+      if (message) {
+        navigator.clipboard.writeText(message).catch(() => {});
+        toast.success("Thông tin dịch vụ đã được sao chép", {
+          description: "Paste vào Zalo để gửi cho tư vấn viên.",
+          duration: 4000,
+        });
+      }
+      trackContactClick({ channel: "zalo", leadType: "service", entityId: id });
+    } else {
+      e.preventDefault();
+      setModalOpen(true);
+      // Tracked inside ZaloContactModal's own actions instead.
+    }
+  };
 
   return (
     <div className="rounded-2xl bg-muted/30 p-1 flex h-full flex-col gap-1.5 border border-border shadow-xs">
@@ -103,21 +140,33 @@ export function CardService({
         </div>
       </div>
 
-      {/* Đặt lịch — ngoài card con. Link thẳng ra Zalo (không qua modal như
-          OrderButton bên sản phẩm) — track ngay tại đây vì đây CHÍNH là hành
-          động outbound thật, không phải chỉ mở 1 lớp trung gian. */}
+      {/* Đặt lịch — ngoài card con. Cùng pattern mobile/desktop với
+          BuyNowButton bên sản phẩm: mobile sao chép tin nhắn + để href
+          navigate thật; desktop mở modal xem trước tin nhắn. Tin nhắn kèm
+          đúng link riêng của dịch vụ này (/dich-vu/{slug}), không phải link
+          /dich-vu chung — nhân viên nhận tin biết ngay khách hỏi dịch vụ nào. */}
       <div className="px-1 pb-1">
         <Button asChild className="w-full">
-          <a
-            href="https://zalo.me/0789978898"
-            target="_blank"
-            rel="noopener noreferrer"
-            onClick={() => trackContactClick({ channel: "zalo", leadType: "service", entityId: id })}
-          >
+          <a href={zaloHref} target="_blank" rel="noopener noreferrer" onClick={handleBookClick}>
             Đặt lịch
           </a>
         </Button>
       </div>
+
+      {message && (
+        <ZaloContactModal
+          open={modalOpen}
+          onOpenChange={setModalOpen}
+          zaloHref={zaloHref}
+          zaloPhone={zaloPhoneValue}
+          phoneHref={phoneContact?.href}
+          phoneNumber={phoneContact?.value}
+          message={message}
+          subtitle={title}
+          leadType="service"
+          entityId={id}
+        />
+      )}
     </div>
   );
 }

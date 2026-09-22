@@ -24,8 +24,15 @@ interface ZaloContactModalProps {
   phoneNumber?: string;
   // A single product (every existing caller — BuyNowButton, ProductFloatingBar,
   // order-button) or several at once — buildZaloProductsMessage handles
-  // both, so callers don't need to branch on count themselves.
-  productInfo: ZaloProductInfo | ZaloProductInfo[];
+  // both, so callers don't need to branch on count themselves. Omit when
+  // passing `message`/`subtitle` instead (services — ZaloProductInfo's URL
+  // shape is hardcoded to /san-pham/, doesn't fit).
+  productInfo?: ZaloProductInfo | ZaloProductInfo[];
+  // Escape hatch for a non-product entity: caller builds its own message
+  // (e.g. buildZaloServiceMessage) and subtitle instead of productInfo.
+  // Takes precedence over productInfo when given.
+  message?: string;
+  subtitle?: string;
   // For the qualify_lead signal only — omitted (no entityId) when
   // productInfo is an array, since there's no single entity to attribute.
   leadType?: LeadType;
@@ -40,12 +47,14 @@ export function ZaloContactModal({
   phoneHref,
   phoneNumber,
   productInfo,
+  message: messageOverride,
+  subtitle,
   leadType,
   entityId,
 }: ZaloContactModalProps) {
   const [copied, setCopied] = useState(false);
-  const products = Array.isArray(productInfo) ? productInfo : [productInfo];
-  const message = buildZaloProductsMessage(products);
+  const products = productInfo ? (Array.isArray(productInfo) ? productInfo : [productInfo]) : [];
+  const message = messageOverride ?? buildZaloProductsMessage(products);
   // Only attributable to a single entity when this modal is about exactly
   // one product/service — an array (multi-product) click can't point at
   // one id, so it's tracked without an entityId rather than picking one
@@ -95,7 +104,7 @@ export function ZaloContactModal({
                 Liên hệ tư vấn qua Zalo
               </DialogTitle>
               <DialogDescription className="text-xs text-muted-foreground mt-0.5 line-clamp-1">
-                {products.length > 1 ? `${products.length} sản phẩm đã gợi ý` : products[0].productName}
+                {subtitle ?? (products.length > 1 ? `${products.length} sản phẩm đã gợi ý` : products[0]?.productName)}
               </DialogDescription>
             </div>
           </div>

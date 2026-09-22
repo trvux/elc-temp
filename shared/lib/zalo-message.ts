@@ -40,6 +40,28 @@ function formatZaloProductLine(info: ZaloProductInfo): string {
   return `${info.productName}\nGiá: ${formattedPrice}\nLink: ${productUrl}`;
 }
 
+export interface ZaloServiceInfo {
+  serviceName: string;
+  // Already display-ready (mapServiceToCardData's `price` — either a
+  // formatted number or a literal override like "Liên hệ để nhận giá ưu
+  // đãi"), unlike ZaloProductInfo's raw salePrice — services don't always
+  // resolve to one number the way a product variant's price does.
+  priceDisplay: string;
+  serviceSlug: string;
+}
+
+/**
+ * Build a pre-formatted Zalo message for a service inquiry — mirrors
+ * buildZaloProductMessage, but under /dich-vu/ instead of /san-pham/ so the
+ * link staff receive actually points at the specific service asked about,
+ * not just the generic /dich-vu listing.
+ */
+export function buildZaloServiceMessage(info: ZaloServiceInfo): string {
+  const serviceUrl = `${SITE_URL}/dich-vu/${info.serviceSlug}`;
+  const price = info.priceDisplay || "Liên hệ để nhận giá ưu đãi";
+  return `Chào shop, tôi muốn tư vấn về dịch vụ:\n${info.serviceName}\n${price}\nLink: ${serviceUrl}`;
+}
+
 /**
  * Detect if the current device is mobile/tablet.
  * On mobile, zalo.me deep link opens the Zalo app directly.
