@@ -1,8 +1,13 @@
 import { proxy as sharedProxy } from "@/shared/proxy";
+import { captureAttribution } from "@/shared/lib/attribution-capture";
 import type { NextRequest } from "next/server";
 
 export async function proxy(request: NextRequest) {
-  return sharedProxy(request);
+  const response = await sharedProxy(request);
+  // Decorates whatever response the redirect/session logic above already
+  // produced (redirect or next) — doesn't change its behavior.
+  captureAttribution(request, response);
+  return response;
 }
 
 export const config = {

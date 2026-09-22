@@ -1,13 +1,17 @@
-import { NextRequest, NextResponse } from "next/server";
+import type { NextRequest, NextResponse } from "next/server";
 
 // Captures gclid/UTM params the moment a visitor arrives from an ad — the
 // only place this can happen, since the params only ever exist on the
 // landing request's URL. Without this, internal/inquiry (elc-go) has no way
-// to tie a lead back to the campaign/keyword that produced it — see
-// docs/... (measurement loop-closing plan). "Last Google-Ads-touch" model:
-// only overwrite when a NEW request actually carries a fresh ad click/
-// campaign — a later direct/organic visit in the same 90-day window must
-// not erase attribution already captured.
+// to tie a lead back to the campaign/keyword that produced it. Called from
+// proxy.ts (Next.js 16 renamed "middleware" to "proxy" — see
+// shared/proxy.ts's own redirect/session logic, left untouched) rather than
+// being its own proxy export, so it decorates whatever response the
+// existing redirect/session logic already produced instead of competing
+// with it for the single proxy.ts entry point. "Last Google-Ads-touch"
+// model: only overwrite when a NEW request actually carries a fresh ad
+// click/campaign — a later direct/organic visit in the same 90-day window
+// must not erase attribution already captured.
 const ATTRIBUTION_COOKIE = "elc_attribution";
 // 90 days — matches the outer bound of Google Ads' own gclid claim window
 // for offline conversion import, so the cookie never outlives its purpose.
@@ -24,16 +28,14 @@ export interface AttributionCookie {
   capturedAt: string;
 }
 
-export function middleware(request: NextRequest) {
+export function captureAttribution(request: NextRequest, response: NextResponse): void {
   const { searchParams, pathname } = request.nextUrl;
   const gclid = searchParams.get("gclid");
   const utmSource = searchParams.get("utm_source");
 
-  // No fresh ad-click/campaign signal on this request — pass through
-  // untouched, whatever attribution cookie already exists (if any) stays.
-  if (!gclid && !utmSource) {
-    return NextResponse.next();
-  }
+  // No fresh ad-click/campaign signal on this request — leave whatever
+  // attribution cookie already exists (if any) untouched.
+  if (!gclid && !utmSource) return;
 
   const attribution: AttributionCookie = {
     gclid: gclid ?? undefined,
@@ -46,7 +48,6 @@ export function middleware(request: NextRequest) {
     capturedAt: new Date().toISOString(),
   };
 
-  const response = NextResponse.next();
   // httpOnly: only ever read server-side (Server Actions/Route Handlers
   // building an inquiry payload) — same posture as modules/event's existing
   // elc_session_id cookie.
@@ -57,14 +58,4 @@ export function middleware(request: NextRequest) {
     path: "/",
     maxAge: ATTRIBUTION_MAX_AGE,
   });
-  return response;
 }
-
-// Excludes static assets/Next internals — running the cookie-write logic on
-// every JS/image chunk request would be wasted work, and none of those URLs
-// ever carry a real ad click's gclid/utm params anyway.
-export const config = {
-  matcher: [
-    "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|webp|gif|ico|css|js|woff2?)$).*)",
-  ],
-};

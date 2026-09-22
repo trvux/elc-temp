@@ -1,5 +1,5 @@
 import { cookies } from "next/headers";
-import type { AttributionCookie } from "@/middleware";
+import type { AttributionCookie } from "@/shared/lib/attribution-capture";
 
 const ATTRIBUTION_COOKIE = "elc_attribution";
 
