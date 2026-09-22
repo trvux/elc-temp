@@ -10,7 +10,12 @@ import { logEventAction } from "../actions";
 // "recently viewed" localStorage widget) — this hook is server-side
 // analytics, that one is a personalization feature. Neither should be
 // mistaken for the other.
-export function useTrackView(entityType: EntityType, entityId: string, entityName?: string) {
+export function useTrackView(
+  entityType: EntityType,
+  entityId: string,
+  entityName?: string,
+  gaItemId?: string,
+) {
   useEffect(() => {
     void logEventAction({
       name: "view_item",
@@ -20,10 +25,14 @@ export function useTrackView(entityType: EntityType, entityId: string, entityNam
     });
     // GA4's own recommended event — fired in parallel with our own
     // pipeline above, not instead of it. No-ops if GA isn't configured.
+    // item_id here must match the Merchant Center feed's g:id (SKU) so
+    // GA4 item-scoped data can be joined against Shopping/PMax product
+    // data — falls back to entityId (internal UUID) for entity types
+    // (project/service) that have no SKU/Merchant feed entry.
     gtag.event("view_item", {
-      items: [{ item_id: entityId, item_name: entityName, item_category: entityType }],
+      items: [{ item_id: gaItemId ?? entityId, item_name: entityName, item_category: entityType }],
     });
     // Fires once per (entityType, entityId) mount — a route change to a
     // different product/project/service remounts this with new values.
-  }, [entityType, entityId, entityName]);
+  }, [entityType, entityId, entityName, gaItemId]);
 }

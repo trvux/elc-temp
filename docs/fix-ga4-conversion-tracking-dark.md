@@ -1,16 +1,28 @@
 # Fix: `generate_lead` và `view_item` không bao giờ lên GA4 — 2 hệ thống tracking song song không kết nối nhau
 
-Status: Phần 1-2 Done (2026-09-08) — `shared/lib/gtag.ts` giờ push vào
-`dataLayer` thay vì gọi `window.gtag`; đã xoá hẳn `GoogleAnalytics.tsx` (chọn
-nhánh "Sạch hơn" ở mục 2 — file luôn render null vì `NEXT_PUBLIC_GA_ID` chưa
-set, và `pageview()` không còn ai gọi) + nơi mount nó ở `app/layout.tsx`.
-Verify bằng Playwright: mở trang project detail, xác nhận `window.gtag` là
-`undefined` (không còn code chết gọi API không tồn tại), `window.dataLayer`
-nhận đúng `{event: "view_item", items: [...]}`, không có console error. GTM
-(`gtm.js`, `GTM-TQ9DL8CG`) vẫn là script tracking duy nhất load trên trang —
-không có gtag.js nào bị load thêm. **Phần 3 (tạo trigger/tag mới trong GTM
-UI) chưa làm — cần người có quyền Edit/Publish trên container, không phải
-việc code.**
+Status: **DONE — toàn bộ 3 phần đã hoàn tất và Publish live (2026-09-08).**
+
+Phần 1-2 (code): `shared/lib/gtag.ts` giờ push vào `dataLayer` thay vì gọi
+`window.gtag`; đã xoá hẳn `GoogleAnalytics.tsx` (chọn nhánh "Sạch hơn" ở mục 2
+— file luôn render null vì `NEXT_PUBLIC_GA_ID` chưa set, và `pageview()`
+không còn ai gọi) + nơi mount nó ở `app/layout.tsx`. Verify bằng Playwright:
+mở trang project detail, xác nhận `window.gtag` là `undefined`, `window.
+dataLayer` nhận đúng `{event: "view_item", items: [...]}`, không có console
+error. GTM (`gtm.js`, `GTM-TQ9DL8CG`) vẫn là script tracking duy nhất load
+trên trang.
+
+Phần 3 (GTM UI): đã tạo thủ công qua tagmanager.google.com — 2 biến
+(`DLV - lead_source`, `DLV - items`, đều Data Layer Variable), 2 trigger
+(`Custom Event - generate_lead`, `Custom Event - view_item`), 2 tag GA4 Event
+(`GA4 Event - Generate Lead`, `GA4 Event - View Item`, measurement id
+`G-NQX12HH2XG`). Test qua GTM Preview (Tag Assistant) trên Chrome — cả 2 tag
+fired đúng: submit form tư vấn → `GA4 Event - Generate Lead` kích hoạt 1 lần;
+xem trang chi tiết → `GA4 Event - View Item` kích hoạt 2 lần. Đã **Publish**
+→ Phiên bản 6 "Add generate_lead + view_item tracking", live 16:54 08/09/2026.
+
+Việc còn lại (không phải code, không gấp): sau vài ngày có data thật, vào
+GA4 Admin → Events → đánh dấu `generate_lead` là Conversion để nó lên báo
+cáo Conversions.
 
 ## Bối cảnh
 

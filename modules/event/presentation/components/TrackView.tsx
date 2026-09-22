@@ -11,11 +11,13 @@ export function TrackView({
   entityType,
   entityId,
   entityName,
+  gaItemId,
 }: {
   entityType: EntityType;
   entityId: string;
   entityName?: string;
+  gaItemId?: string;
 }) {
-  useTrackView(entityType, entityId, entityName);
+  useTrackView(entityType, entityId, entityName, gaItemId);
   return null;
 }

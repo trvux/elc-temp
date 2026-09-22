@@ -130,7 +130,12 @@ export async function ProductDetailModule({
   return (
     <main className="w-full bg-background min-h-screen flex flex-col">
       <TrackProductView productId={product.id} />
-      <TrackView entityType="product" entityId={product.id} entityName={product.name} />
+      <TrackView
+        entityType="product"
+        entityId={product.id}
+        entityName={product.name}
+        gaItemId={defaultVariant?.sku}
+      />
 
       <div className="w-full max-w-350 mx-auto px-4 md:px-6 lg:px-8 pt-4">
         <Breadcrumbs items={breadcrumbItems} />
