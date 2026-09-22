@@ -4,6 +4,19 @@ import { cn } from "@/shared/lib/utils";
 import { IconProps } from "@phosphor-icons/react";
 import { Contact } from "../../domain";
 import { ContactIcon } from "../utils";
+import { trackContactClick } from "@/modules/inquiry";
+import type { ContactChannel } from "@/modules/inquiry/domain";
+
+// Maps Contact.type (this module's own taxonomy — phone/zalo/messenger/
+// facebook/email/...) to ContactChannel (internal/inquiry's narrower lead-
+// capture taxonomy) — only the 3 types that are real lead-capture channels
+// in this business's model get tracked; facebook/email/etc have no
+// matching ContactChannel and are left alone.
+const TRACKABLE_CHANNEL: Partial<Record<string, ContactChannel>> = {
+  phone: "hotline",
+  zalo: "zalo",
+  messenger: "messenger",
+};
 
 interface ContactLinkProps extends React.AnchorHTMLAttributes<HTMLAnchorElement> {
   contact: Contact;
@@ -34,6 +47,13 @@ export const ContactLink = React.forwardRef<HTMLAnchorElement, ContactLinkProps>
   ) => {
     if (!contact) return null;
 
+    const channel = TRACKABLE_CHANNEL[contact.type];
+
+    const handleClick: React.MouseEventHandler<HTMLAnchorElement> = (e) => {
+      if (channel) trackContactClick({ channel });
+      onClick?.(e);
+    };
+
     return (
       <a
         ref={ref}
@@ -41,7 +61,7 @@ export const ContactLink = React.forwardRef<HTMLAnchorElement, ContactLinkProps>
         target={contact.isExternal ? "_blank" : undefined}
         rel={contact.isExternal ? "noopener noreferrer" : undefined}
         className={cn("flex items-center gap-2.5 cursor-pointer", className)}
-        onClick={onClick}
+        onClick={handleClick}
         {...props}
       >
         <ContactIcon

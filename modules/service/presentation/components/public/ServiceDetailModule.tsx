@@ -200,7 +200,7 @@ export async function ServiceDetailModule({
               </div>
 
               <div className="flex flex-wrap items-center gap-3">
-                <OrderButton contacts={contacts || []} />
+                <OrderButton contacts={contacts || []} leadType="service" entityId={service.id} />
                 <LeadForm serviceId={service.id} entityName={service.title} entityKind="service" />
               </div>
             </div>

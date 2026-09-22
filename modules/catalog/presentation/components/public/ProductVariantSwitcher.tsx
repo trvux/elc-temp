@@ -166,6 +166,8 @@ function BuyBox({
         <OrderButton
           className="flex-1 sm:flex-none sm:min-w-56"
           contacts={contacts}
+          leadType="product"
+          entityId={product.id}
           productInfo={{
             productName: product.name,
             salePrice: price,

@@ -8,8 +8,10 @@ import { ZaloContactModal } from "@/shared/components/organisms/layout/user/zalo
 import { cn } from "@/shared/lib/utils";
 import { buildZaloProductMessage, isMobileDevice, type ZaloProductInfo } from "@/shared/lib/zalo-message";
 import { useContacts } from "@/shared/providers/contact-provider";
+import { trackContactClick } from "@/modules/inquiry";
 
 interface BuyNowButtonProps {
+  productId: string;
   productName: string;
   productSlug: string;
   salePrice: number;
@@ -20,7 +22,7 @@ interface BuyNowButtonProps {
 // Zalo conversation with a real salesperson", same flow as the product
 // detail page's ProductFloatingBar. Card-level so that flow is one tap
 // closer than making the buyer open the detail page first.
-export function BuyNowButton({ productName, productSlug, salePrice, className }: BuyNowButtonProps) {
+export function BuyNowButton({ productId, productName, productSlug, salePrice, className }: BuyNowButtonProps) {
   const contacts = useContacts();
   const [modalOpen, setModalOpen] = useState(false);
 
@@ -43,9 +45,11 @@ export function BuyNowButton({ productName, productSlug, salePrice, className }:
         description: "Paste vào Zalo để gửi cho tư vấn viên.",
         duration: 4000,
       });
+      trackContactClick({ channel: "zalo", leadType: "product", entityId: productId });
     } else {
       e.preventDefault();
       setModalOpen(true);
+      // Tracked inside ZaloContactModal's own actions instead.
     }
   };
 
@@ -65,6 +69,8 @@ export function BuyNowButton({ productName, productSlug, salePrice, className }:
         phoneHref={phoneContact?.href}
         phoneNumber={phoneContact?.value}
         productInfo={productInfo}
+        leadType="product"
+        entityId={productId}
       />
     </>
   );

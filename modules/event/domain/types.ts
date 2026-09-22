@@ -3,7 +3,7 @@
 // not arbitrary strings. See elc-go's migration doc comment for why that
 // distinction matters (the previous implementation drifted into
 // meaningless names like `scroll_50`).
-type EventName = "view_item" | "generate_lead";
+type EventName = "view_item" | "generate_lead" | "qualify_lead";
 
 export type EntityType = "product" | "project" | "service";
 

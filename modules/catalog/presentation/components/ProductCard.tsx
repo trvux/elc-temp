@@ -141,6 +141,7 @@ export function ProductCard({
           />
         </div>
         <BuyNowButton
+          productId={product.id}
           productName={product.name}
           productSlug={product.slug}
           salePrice={currentPrice}

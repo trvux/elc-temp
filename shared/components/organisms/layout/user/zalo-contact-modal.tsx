@@ -12,6 +12,8 @@ import { Button } from "@/shared/components/ui/button";
 import { buildZaloProductsMessage, ZaloProductInfo } from "@/shared/lib/zalo-message";
 import { ZaloIcon } from "@/shared/components/ui/social-icons";
 import { toast } from "sonner";
+import { trackContactClick } from "@/modules/inquiry";
+import type { LeadType } from "@/modules/inquiry/domain";
 
 interface ZaloContactModalProps {
   open: boolean;
@@ -24,6 +26,10 @@ interface ZaloContactModalProps {
   // order-button) or several at once — buildZaloProductsMessage handles
   // both, so callers don't need to branch on count themselves.
   productInfo: ZaloProductInfo | ZaloProductInfo[];
+  // For the qualify_lead signal only — omitted (no entityId) when
+  // productInfo is an array, since there's no single entity to attribute.
+  leadType?: LeadType;
+  entityId?: string;
 }
 
 export function ZaloContactModal({
@@ -34,10 +40,17 @@ export function ZaloContactModal({
   phoneHref,
   phoneNumber,
   productInfo,
+  leadType,
+  entityId,
 }: ZaloContactModalProps) {
   const [copied, setCopied] = useState(false);
   const products = Array.isArray(productInfo) ? productInfo : [productInfo];
   const message = buildZaloProductsMessage(products);
+  // Only attributable to a single entity when this modal is about exactly
+  // one product/service — an array (multi-product) click can't point at
+  // one id, so it's tracked without an entityId rather than picking one
+  // arbitrarily.
+  const trackableEntityId = Array.isArray(productInfo) ? undefined : entityId;
 
   const handleCopyMessage = async () => {
     try {
@@ -48,6 +61,10 @@ export function ZaloContactModal({
         duration: 3000,
       });
       setTimeout(() => setCopied(false), 3000);
+      // The deliberate hand-off gesture on desktop (where no real
+      // navigation happens elsewhere in this flow) — this IS the moment
+      // the visitor commits to reaching out via Zalo.
+      trackContactClick({ channel: "zalo", leadType, entityId: trackableEntityId });
     } catch {
       toast.error("Không thể sao chép, vui lòng chép thủ công.");
     }
@@ -56,6 +73,11 @@ export function ZaloContactModal({
   const handleOpenZaloWeb = () => {
     window.open(zaloHref, "_blank", "noopener,noreferrer");
     onOpenChange(false);
+    trackContactClick({ channel: "zalo", leadType, entityId: trackableEntityId });
+  };
+
+  const handlePhoneClick = () => {
+    trackContactClick({ channel: "hotline", leadType, entityId: trackableEntityId });
   };
 
   return (
@@ -111,6 +133,7 @@ export function ZaloContactModal({
               </div>
               <a
                 href={phoneHref}
+                onClick={handlePhoneClick}
                 className="flex items-center justify-center rounded-lg border border-border/60 bg-background hover:bg-muted/50 transition-colors px-4 py-2.5 text-sm font-semibold text-foreground w-full"
               >
                 Gọi {phoneNumber}

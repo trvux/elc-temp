@@ -12,6 +12,7 @@ import {
 } from "@/shared/lib/zalo-message";
 import { ZaloContactModal } from "@/shared/components/organisms/layout/user/zalo-contact-modal";
 import { WishlistButton } from "@/shared/components/organisms/layout/user/wishlist-button";
+import { trackContactClick } from "@/modules/inquiry";
 import { toast } from "sonner";
 import { AnimatePresence, m } from "motion/react";
 import Image from "next/image";
@@ -97,10 +98,12 @@ export function ProductFloatingBar({
         description: "Paste vào Zalo để gửi cho tư vấn viên.",
         duration: 4000,
       });
+      trackContactClick({ channel: "zalo", leadType: "product", entityId: productId });
       // No e.preventDefault() - let href open Zalo app
     } else {
       e.preventDefault();
       setModalOpen(true);
+      // Tracked inside ZaloContactModal's own actions instead.
     }
   };
 
@@ -216,6 +219,8 @@ export function ProductFloatingBar({
         phoneHref={phoneContact?.href}
         phoneNumber={phoneContact?.value}
         productInfo={productInfo}
+        leadType="product"
+        entityId={productId}
       />
     </>
   );

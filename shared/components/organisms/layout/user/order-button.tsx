@@ -11,14 +11,21 @@ import {
 import { ZaloContactModal } from "@/shared/components/organisms/layout/user/zalo-contact-modal";
 import { cn } from "@/shared/lib/utils";
 import { toast } from "sonner";
+import { trackContactClick } from "@/modules/inquiry";
+import type { LeadType } from "@/modules/inquiry/domain";
 
 interface OrderButtonProps {
   contacts: Contact[];
   productInfo?: ZaloProductInfo;
+  // Which product/service this button is on — for the qualify_lead signal
+  // only (see trackContactClick); ProductVariantSwitcher/ServiceDetailModule
+  // pass these, unlike productInfo (message-formatting only, no id).
+  leadType?: LeadType;
+  entityId?: string;
   className?: string;
 }
 
-export function OrderButton({ contacts, productInfo, className }: OrderButtonProps) {
+export function OrderButton({ contacts, productInfo, leadType, entityId, className }: OrderButtonProps) {
   const [modalOpen, setModalOpen] = useState(false);
 
   const zaloContact =
@@ -33,7 +40,12 @@ export function OrderButton({ contacts, productInfo, className }: OrderButtonPro
   if (!zaloContact) return null;
 
   const handleClick = async (e: React.MouseEvent<HTMLAnchorElement>) => {
-    if (!productInfo) return;
+    if (!productInfo) {
+      // No product to build a pre-filled message from (e.g. a service
+      // page) — plain link, always a real navigation to Zalo.
+      trackContactClick({ channel: "zalo", leadType, entityId });
+      return;
+    }
 
     if (isMobileDevice()) {
       // Mobile: let the <a href> navigate naturally to Zalo (preserves user gesture).
@@ -44,10 +56,13 @@ export function OrderButton({ contacts, productInfo, className }: OrderButtonPro
         description: "Paste vào Zalo để gửi cho tư vấn viên.",
         duration: 4000,
       });
+      trackContactClick({ channel: "zalo", leadType, entityId });
       // No e.preventDefault() - let href open Zalo app
     } else {
       e.preventDefault();
       setModalOpen(true);
+      // Tracked inside ZaloContactModal's own actions instead — opening
+      // the modal alone isn't yet a real outbound gesture.
     }
   };
 
@@ -66,7 +81,7 @@ export function OrderButton({ contacts, productInfo, className }: OrderButtonPro
           href={zaloContact.href}
           target={zaloContact.isExternal ? "_blank" : undefined}
           rel={zaloContact.isExternal ? "noopener noreferrer" : undefined}
-          onClick={productInfo ? handleClick : undefined}
+          onClick={handleClick}
         >
           Mua ngay
         </a>
@@ -81,6 +96,8 @@ export function OrderButton({ contacts, productInfo, className }: OrderButtonPro
           phoneHref={phoneContact?.href}
           phoneNumber={phoneContact?.value}
           productInfo={productInfo}
+          leadType={leadType}
+          entityId={entityId}
         />
       )}
     </>
