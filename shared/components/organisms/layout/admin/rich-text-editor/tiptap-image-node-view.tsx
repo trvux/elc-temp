@@ -227,7 +227,12 @@ export function TiptapImageNodeView(props: NodeViewProps) {
                     <DotsThreeVertical className="size-4" />
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="text-sm">
+                {/* This project's DropdownMenuContent defaults to
+                    w-(--radix-dropdown-menu-trigger-width) — same fix as
+                    heading.tsx/alignment.tsx: override width here, not on
+                    an inner element, or "Full Screen"/"Delete Image" wrap
+                    to two lines instead of fitting on one. */}
+                <DropdownMenuContent align="end" className="w-44 text-sm">
                   <DropdownMenuItem onClick={() => duplicateContent(editor)}>
                     <Copy className="mr-2 size-4" /> Duplicate
                   </DropdownMenuItem>
