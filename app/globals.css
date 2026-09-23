@@ -337,17 +337,15 @@
   transition: outline 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
 }
 
-/* Tiptap selected elements styling (only in editor mode) — one thin
-   outline, no glow, for whatever's selected (tables, the image
-   placeholder bar, etc.). Used to be a 3px outline + 6px glow "ring",
-   which looked disproportionate/heavy next to the shadcn-tiptap reference
-   design and, once the image NodeView added its own on-image overlay,
-   visibly stacked into 2-3 nested borders. */
+/* Tiptap selected elements styling (only in editor mode) — removed
+   entirely, per explicit request: no outline/glow at all for generic
+   selected nodes (tables, the image placeholder bar, etc.), matching the
+   shadcn-tiptap reference design's minimal look. The image NodeView keeps
+   its own dedicated outline below — that one wasn't the complaint. */
 .tiptap.ProseMirror .ProseMirror-selectednode:not(table):not(.tiptap-image-node-view),
 .tiptap.ProseMirror .tableWrapper:has(table:focus-within),
 .tiptap.ProseMirror .tableWrapper:has(table.ProseMirror-selectednode) {
-  outline: 2px solid var(--primary) !important;
-  outline-offset: 0px;
+  outline: none !important;
   box-shadow: none !important;
 }
 
