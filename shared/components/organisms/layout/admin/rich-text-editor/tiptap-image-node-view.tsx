@@ -188,11 +188,18 @@ export function TiptapImageNodeView(props: NodeViewProps) {
               <div className="z-20 h-[70px] w-1 rounded-xl border bg-foreground/60 opacity-0 transition-opacity group-hover:opacity-100" />
             </div>
 
+            {/* Computed as a plain boolean rather than relying on
+                tailwind-merge to resolve "opacity-0" vs "opacity-100" vs
+                "group-hover:opacity-100" all landing in the same cn()
+                call — kept the bar effectively hover-only in practice
+                (the overlay should also stay visible whenever the image
+                is selected, not just hovered). */}
             <div
               className={cn(
-                "absolute right-3 top-3 flex items-center gap-1 rounded-lg border bg-background p-1 opacity-0 shadow-xs transition-opacity",
-                !resizing && "group-hover:opacity-100",
-                (openedMore || selected) && "opacity-100",
+                "absolute right-3 top-3 flex items-center gap-1 rounded-lg border bg-background p-1 shadow-xs transition-opacity",
+                openedMore || selected
+                  ? "opacity-100"
+                  : cn("opacity-0", !resizing && "group-hover:opacity-100"),
               )}
             >
               <Button
