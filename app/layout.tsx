@@ -2,7 +2,6 @@ import { ThemeWatcher } from "@/shared/components/organisms/layout/user/theme-th
 import { ThemeProvider } from "@/shared/components/theme-provider";
 import { Toaster } from "@/shared/components/ui/sonner";
 import { TooltipProvider } from "@/shared/components/ui/tooltip";
-import Hotjar from "@/shared/components/organisms/layout/user/hotjar";
 import { cn } from "@/shared/lib/utils";
 import { QueryProvider } from "@/shared/providers/query-provider";
 import { BASE_URL } from "@/shared/lib/seo-schema";
@@ -96,7 +95,6 @@ export default function RootLayout({
         suppressHydrationWarning
         className={cn("min-h-full flex flex-col text-foreground")}
       >
-        <Hotjar id={process.env.NEXT_PUBLIC_HOTJAR_ID || ""} />
         {/* Google Identity Services — powers the "Continue with Google"
             button on /login (modules/auth/presentation/hooks/useGoogleLogin.ts).
             afterInteractive: not needed for first paint, loads once the page
