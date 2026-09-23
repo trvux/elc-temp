@@ -17,7 +17,6 @@ import { ColorHighlightToolbar } from "./color-and-highlight";
 import { HardBreakToolbar } from "./hard-break";
 import { HeadingToolbar } from "./heading";
 import { HorizontalRuleToolbar } from "./horizontal-rule";
-import { ImageAltTextToolbar } from "./image-alt-text-toolbar";
 import { ImagePlaceholderToolbar } from "./image-placeholder-toolbar";
 import { ItalicToolbar } from "./italic";
 import { LinkToolbar } from "./link";
@@ -74,7 +73,6 @@ export const RichTextToolbar = ({ editor }: RichTextToolbarProps) => {
         <Separator orientation="vertical" className="mx-1 h-6" />
 
         <ImagePlaceholderToolbar />
-        <ImageAltTextToolbar />
         <TableToolbar />
         <HorizontalRuleToolbar />
 

@@ -5,9 +5,9 @@
 // Align matches the demo's left/center/right + resize-handle model
 // (replacing this project's old center/wide/full breakout model — see
 // createImageExtension's comment in tiptap-render.ts for why the two can't
-// coexist). Alt-text stays in the fixed toolbar's Image Popover
-// (shared/.../toolbars/image.tsx) since a dropdown crammed onto the image
-// itself has no room for a real text input.
+// coexist). Alt-text lives in this same "..." dropdown (its own small form,
+// swapped in for the item list — see altFormOpen below) rather than a
+// separate fixed-toolbar button.
 import type { Editor } from "@tiptap/core";
 import type { NodeViewProps } from "@tiptap/react";
 import { NodeViewWrapper } from "@tiptap/react";
@@ -15,6 +15,7 @@ import {
   ArrowsOut,
   Copy,
   DotsThreeVertical,
+  TextAa,
   TextAlignCenter,
   TextAlignLeft,
   TextAlignRight,
@@ -30,6 +31,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/shared/components/ui/dropdown-menu";
+import { Input } from "@/shared/components/ui/input";
 import { Separator } from "@/shared/components/ui/separator";
 import { cn } from "@/shared/lib/utils";
 
@@ -60,6 +62,8 @@ export function TiptapImageNodeView(props: NodeViewProps) {
   const [resizeInitialWidth, setResizeInitialWidth] = useState(0);
   const [resizeInitialMouseX, setResizeInitialMouseX] = useState(0);
   const [openedMore, setOpenedMore] = useState(false);
+  const [altFormOpen, setAltFormOpen] = useState(false);
+  const [altDraft, setAltDraft] = useState("");
 
   function startResize(e: React.MouseEvent<HTMLDivElement>, position: "left" | "right") {
     e.preventDefault();
@@ -221,7 +225,13 @@ export function TiptapImageNodeView(props: NodeViewProps) {
 
               <Separator orientation="vertical" className="h-5" />
 
-              <DropdownMenu open={openedMore} onOpenChange={setOpenedMore}>
+              <DropdownMenu
+                open={openedMore}
+                onOpenChange={(next) => {
+                  setOpenedMore(next);
+                  if (!next) setAltFormOpen(false);
+                }}
+              >
                 <DropdownMenuTrigger asChild>
                   <Button size="icon" variant="ghost" className="size-7">
                     <DotsThreeVertical className="size-4" />
@@ -230,22 +240,73 @@ export function TiptapImageNodeView(props: NodeViewProps) {
                 {/* This project's DropdownMenuContent defaults to
                     w-(--radix-dropdown-menu-trigger-width) — same fix as
                     heading.tsx/alignment.tsx: override width here, not on
-                    an inner element, or "Full Screen"/"Delete Image" wrap
-                    to two lines instead of fitting on one. */}
-                <DropdownMenuContent align="end" className="w-44 text-sm">
-                  <DropdownMenuItem onClick={() => duplicateContent(editor)}>
-                    <Copy className="mr-2 size-4" /> Duplicate
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => updateAttributes({ width: "fit-content" })}>
-                    <ArrowsOut className="mr-2 size-4" /> Full Screen
-                  </DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem
-                    variant="destructive"
-                    onClick={() => deleteNode()}
-                  >
-                    <Trash className="mr-2 size-4" /> Delete Image
-                  </DropdownMenuItem>
+                    an inner element, or the items wrap/look cramped
+                    instead of matching the roomier reference design. */}
+                <DropdownMenuContent
+                  align="end"
+                  className="w-56 p-1.5"
+                  onCloseAutoFocus={(e) => {
+                    if (altFormOpen) e.preventDefault();
+                  }}
+                >
+                  {altFormOpen ? (
+                    <form
+                      className="flex flex-col gap-2 p-1"
+                      onSubmit={(e) => {
+                        e.preventDefault();
+                        updateAttributes({ alt: altDraft });
+                        setAltFormOpen(false);
+                        setOpenedMore(false);
+                      }}
+                    >
+                      <span className="text-xs font-medium text-muted-foreground">
+                        Alt text
+                      </span>
+                      <Input
+                        autoFocus
+                        value={altDraft}
+                        onChange={(e) => setAltDraft(e.target.value)}
+                        placeholder="What's in this image?"
+                        className="h-9 text-sm"
+                      />
+                      <Button type="submit" size="sm" className="mt-1">
+                        Confirm
+                      </Button>
+                    </form>
+                  ) : (
+                    <>
+                      <DropdownMenuItem
+                        className="gap-2 py-2.5 text-base"
+                        onSelect={(e) => {
+                          e.preventDefault();
+                          setAltDraft(node.attrs.alt || "");
+                          setAltFormOpen(true);
+                        }}
+                      >
+                        <TextAa className="size-5" /> Add alt
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        className="gap-2 py-2.5 text-base"
+                        onClick={() => duplicateContent(editor)}
+                      >
+                        <Copy className="size-5" /> Duplicate
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        className="gap-2 py-2.5 text-base"
+                        onClick={() => updateAttributes({ width: "fit-content" })}
+                      >
+                        <ArrowsOut className="size-5" /> Full Screen
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem
+                        variant="destructive"
+                        className="gap-2 py-2.5 text-base"
+                        onClick={() => deleteNode()}
+                      >
+                        <Trash className="size-5" /> Delete Image
+                      </DropdownMenuItem>
+                    </>
+                  )}
                 </DropdownMenuContent>
               </DropdownMenu>
             </div>
