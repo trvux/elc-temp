@@ -1,4 +1,4 @@
-import { getTiptapExtensionsForRender, normalizeTiptapJson } from "@/shared/lib/tiptap-shared";
+import { getTiptapExtensionsForRender, normalizeTiptapJson } from "@/shared/lib/tiptap-render";
 import { cn } from "@/shared/lib/utils";
 import { generateHTML } from "@tiptap/html";
 import { WithLinkPreview } from "@/shared/components/organisms/link-preview/with-link-preview";
