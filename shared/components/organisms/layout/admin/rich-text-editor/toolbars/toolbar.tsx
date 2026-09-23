@@ -38,52 +38,62 @@ interface RichTextToolbarProps {
 export const RichTextToolbar = ({ editor }: RichTextToolbarProps) => {
   return (
     <ToolbarProvider editor={editor}>
-      <div className="flex flex-wrap items-center gap-0.5 overflow-x-auto rounded-t-2xl border-b border-border/50 bg-muted/40 p-1.5">
-        {/* History */}
-        <UndoToolbar />
-        <RedoToolbar />
+      {/* ml-auto on an item INSIDE a flex-wrap row breaks wrapping for the
+          whole row (the auto margin's free-space calculation assumes a
+          single line) — with this many buttons that made almost the
+          entire toolbar disappear off-screen. Two-column layout instead:
+          the wrapping group stays its own flex-wrap container, and
+          justify-between on the outer (non-wrapping) row pins Search &
+          Replace to the right regardless of how many lines the left group
+          wraps to. */}
+      <div className="flex items-start justify-between gap-2 overflow-x-auto rounded-t-2xl border-b border-border/50 bg-muted/40 p-1.5">
+        <div className="flex flex-wrap items-center gap-0.5">
+          {/* History */}
+          <UndoToolbar />
+          <RedoToolbar />
 
-        <Separator orientation="vertical" className="mx-1 h-6" />
+          <Separator orientation="vertical" className="mx-1 h-6" />
 
-        {/* Block type + core inline marks — the demo's own first cluster,
-            same order (heading, bold/italic/link/underline). */}
-        <HeadingToolbar />
-        <BoldToolbar />
-        <ItalicToolbar />
-        <LinkToolbar />
-        <UnderlineToolbar />
-        <StrikeThroughToolbar />
+          {/* Block type + core inline marks — the demo's own first cluster,
+              same order (heading, bold/italic/link/underline). */}
+          <HeadingToolbar />
+          <BoldToolbar />
+          <ItalicToolbar />
+          <LinkToolbar />
+          <UnderlineToolbar />
+          <StrikeThroughToolbar />
 
-        <Separator orientation="vertical" className="mx-1 h-6" />
+          <Separator orientation="vertical" className="mx-1 h-6" />
 
-        {/* Lists + alignment — the demo's second cluster. */}
-        <BulletListToolbar />
-        <OrderedListToolbar />
-        <AlignmentTooolbar />
+          {/* Lists + alignment — the demo's second cluster. */}
+          <BulletListToolbar />
+          <OrderedListToolbar />
+          <AlignmentTooolbar />
 
-        <Separator orientation="vertical" className="mx-1 h-6" />
+          <Separator orientation="vertical" className="mx-1 h-6" />
 
-        {/* Insert: image/table/divider, then text color/highlight — mirrors
-            the demo's image + "A" dropdown placement. */}
-        <ImagePlaceholderToolbar />
-        <TableToolbar />
-        <HorizontalRuleToolbar />
-        <ColorHighlightToolbar />
+          {/* Insert: image/table/divider, then text color/highlight —
+              mirrors the demo's image + "A" dropdown placement. */}
+          <ImagePlaceholderToolbar />
+          <TableToolbar />
+          <HorizontalRuleToolbar />
+          <ColorHighlightToolbar />
 
-        <Separator orientation="vertical" className="mx-1 h-6" />
+          <Separator orientation="vertical" className="mx-1 h-6" />
 
-        {/* Less-frequent marks/blocks this project has beyond the demo —
-            grouped together rather than interleaved with the core set
-            above, so the common stuff stays scannable. */}
-        <SubscriptToolbar />
-        <SuperscriptToolbar />
-        <CodeToolbar />
-        <CodeBlockToolbar />
-        <BlockquoteToolbar />
-        <HardBreakToolbar />
+          {/* Less-frequent marks/blocks this project has beyond the demo —
+              grouped together rather than interleaved with the core set
+              above, so the common stuff stays scannable. */}
+          <SubscriptToolbar />
+          <SuperscriptToolbar />
+          <CodeToolbar />
+          <CodeBlockToolbar />
+          <BlockquoteToolbar />
+          <HardBreakToolbar />
+        </div>
 
-        {/* Pushed flush right, same as the demo's Search & Replace. */}
-        <SearchAndReplaceToolbar className="ml-auto" />
+        {/* Pinned flush right, same as the demo's Search & Replace. */}
+        <SearchAndReplaceToolbar className="shrink-0" />
       </div>
     </ToolbarProvider>
   );
