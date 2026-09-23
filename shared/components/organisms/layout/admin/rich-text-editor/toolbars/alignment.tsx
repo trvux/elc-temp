@@ -95,11 +95,15 @@ export const AlignmentTooolbar = () => {
       </Tooltip>
       <DropdownMenuContent
         loop
+        // See heading.tsx's identical comment — this project's
+        // DropdownMenuContent defaults to trigger-width, so the width
+        // override has to live here, not on the inner group.
+        className="w-40"
         onCloseAutoFocus={(e) => {
           e.preventDefault();
         }}
       >
-        <DropdownMenuGroup className=" w-40">
+        <DropdownMenuGroup>
           {alignmentOptions.map((option, index) => (
             <DropdownMenuItem
               onSelect={() => {

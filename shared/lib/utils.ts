@@ -22,3 +22,10 @@ export function getUrlFromString(str: string) {
   }
   return null
 }
+
+// `duplicateContent` (an editor-only helper needing @tiptap/core's Editor
+// type) intentionally does NOT live here — this file's `cn` is imported by
+// nearly every component in the app, including every public page, so
+// pulling @tiptap/core into it would ship tiptap's editing machinery to
+// every public bundle. It lives in the admin-only rich-text-editor tree
+// instead (tiptap-image-node-view.tsx).

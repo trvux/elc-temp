@@ -1,16 +1,13 @@
 "use client";
 
 // Authored for this project — shadcn-tiptap's own `image`/`image-placeholder`
-// extensions don't support this project's align/ratio/alt-text model or its
-// upload backend, so this keeps the existing business logic (previously in
-// image-bubble-menu.tsx + editor-floating-menu.tsx's addImage) behind a
-// fixed toolbar button + Popover instead of a BubbleMenu/FloatingMenu.
-import {
-  CornersOut,
-  Image as ImageIcon,
-  Rectangle,
-  Square,
-} from "@phosphor-icons/react";
+// extensions don't support this project's upload backend, so this keeps the
+// existing upload logic (previously in editor-floating-menu.tsx's addImage)
+// behind a fixed toolbar button + Popover instead of a FloatingMenu. Align
+// and resize now live directly on the image (see tiptap-image-node-view.tsx,
+// matching the shadcn-tiptap demo) — this Popover is just insert + alt-text,
+// since alt-text needs a real input a cramped on-image dropdown has no room for.
+import { Image as ImageIcon } from "@phosphor-icons/react";
 import { Selection } from "@tiptap/pm/state";
 import React from "react";
 
@@ -30,14 +27,6 @@ import {
 import { convertToWebP } from "@/shared/lib/image";
 import { cn } from "@/shared/lib/utils";
 import { useToolbar } from "./toolbar-provider";
-
-const RATIOS = [
-  { label: "Auto", value: "auto" },
-  { label: "1:1", value: "1/1" },
-  { label: "16:9", value: "16/9" },
-  { label: "9:16", value: "9/16" },
-  { label: "4:3", value: "4/3" },
-];
 
 interface ImageToolbarProps {
   uploadImage?: (file: File) => Promise<string>;
@@ -101,20 +90,10 @@ export const ImageToolbar = ({ uploadImage }: ImageToolbarProps) => {
     input.click();
   };
 
-  const setImageAlign = (align: string) => {
-    editor?.chain().focus().updateAttributes("image", { align }).run();
-  };
-
-  const setImageRatio = (ratio: string) => {
-    editor?.chain().focus().updateAttributes("image", { ratio }).run();
-  };
-
   const updateImageAlt = (alt: string) => {
     editor?.chain().focus().updateAttributes("image", { alt }).run();
   };
 
-  const currentAlign = editor?.getAttributes("image").align || "center";
-  const currentRatio = editor?.getAttributes("image").ratio || "auto";
   const currentAlt = editor?.getAttributes("image").alt || "";
 
   return (
@@ -148,57 +127,6 @@ export const ImageToolbar = ({ uploadImage }: ImageToolbarProps) => {
           </Button>
         ) : (
           <div className="flex flex-col gap-2">
-            <div className="flex items-center gap-1">
-              <Button
-                variant="ghost"
-                size="icon"
-                className={cn("h-8 w-8", currentAlign === "center" && "bg-accent")}
-                onClick={() => setImageAlign("center")}
-                title="Align center"
-              >
-                <Square className="h-4 w-4" />
-              </Button>
-              <Button
-                variant="ghost"
-                size="icon"
-                className={cn("h-8 w-8", currentAlign === "wide" && "bg-accent")}
-                onClick={() => setImageAlign("wide")}
-                title="Align wide"
-              >
-                <Rectangle className="h-4 w-4" />
-              </Button>
-              <Button
-                variant="ghost"
-                size="icon"
-                className={cn("h-8 w-8", currentAlign === "full" && "bg-accent")}
-                onClick={() => setImageAlign("full")}
-                title="Align full width"
-              >
-                <CornersOut className="h-4 w-4" />
-              </Button>
-            </div>
-
-            <Separator />
-
-            <div className="flex items-center gap-1">
-              {RATIOS.map((r) => (
-                <Button
-                  key={r.value}
-                  variant="ghost"
-                  size="sm"
-                  className={cn(
-                    "px-2 text-xs font-medium",
-                    currentRatio === r.value && "bg-accent",
-                  )}
-                  onClick={() => setImageRatio(r.value)}
-                >
-                  {r.label}
-                </Button>
-              ))}
-            </div>
-
-            <Separator />
-
             <div className="flex flex-col gap-1.5 px-1">
               <span className="text-xs font-medium text-muted-foreground">
                 Alt text
@@ -211,7 +139,7 @@ export const ImageToolbar = ({ uploadImage }: ImageToolbarProps) => {
                     updateImageAlt((e.target as HTMLInputElement).value);
                   }
                 }}
-                className="h-8 text-sm"
+                className="h-8 w-56 text-sm"
               />
             </div>
 

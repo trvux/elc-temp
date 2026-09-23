@@ -91,11 +91,17 @@ export const HeadingToolbar = () => {
       </Tooltip>
       <DropdownMenuContent
         loop
+        // This project's DropdownMenuContent defaults to
+        // w-(--radix-dropdown-menu-trigger-width), which is narrower than
+        // the content this dropdown needs — override it here (not on the
+        // inner group) so the checkmark has room instead of getting
+        // clipped by the content's own overflow-x-hidden.
+        className="w-40"
         onCloseAutoFocus={(e) => {
           e.preventDefault();
         }}
       >
-        <DropdownMenuGroup className="w-40">
+        <DropdownMenuGroup>
           {options.map((option) => (
             <DropdownMenuItem key={option.name} onSelect={option.onSelect}>
               <span className="mr-2">{option.icon}</span>

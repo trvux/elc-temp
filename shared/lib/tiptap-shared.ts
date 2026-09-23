@@ -1,6 +1,26 @@
 import StarterKit from "@tiptap/starter-kit";
-import { HEADING_LEVELS, sharedMarkExtensions, sharedNodeExtensions } from "@/shared/lib/tiptap-render";
+import { ReactNodeViewRenderer } from "@tiptap/react";
+import { HEADING_LEVELS, createImageExtension, sharedMarkExtensions, sharedNodeExtensions } from "@/shared/lib/tiptap-render";
 import { SearchAndReplace } from "@/shared/components/organisms/layout/admin/rich-text-editor/toolbars/search-and-replace";
+import { TiptapImageNodeView } from "@/shared/components/organisms/layout/admin/rich-text-editor/tiptap-image-node-view";
+
+// Same align/ratio/width attrs as the public Image (createImageExtension),
+// plus an interactive NodeView (resize handles + on-image overlay) that
+// only ever runs in the admin editor. Placed AFTER ...sharedNodeExtensions()
+// below so it overrides the plain "image" extension — see
+// createImageExtension's own comment in tiptap-render.ts for why that's
+// safe (Tiptap collapses same-named extensions to "last one wins").
+const AdminImage = createImageExtension()
+  .extend({
+    addNodeView() {
+      return ReactNodeViewRenderer(TiptapImageNodeView);
+    },
+  })
+  .configure({
+    HTMLAttributes: {
+      class: "h-auto transition-all duration-500 ease-in-out rounded-sm",
+    },
+  });
 
 // Re-exported so rich-text-editor.tsx (the only importer of this file) has
 // one import line for both — this file is intentionally the ONLY place
@@ -28,4 +48,5 @@ export const getTiptapExtensions = () => [
   SearchAndReplace,
   ...sharedNodeExtensions(),
   ...sharedMarkExtensions(),
+  AdminImage,
 ];

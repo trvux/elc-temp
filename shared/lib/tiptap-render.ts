@@ -138,6 +138,87 @@ export function normalizeTiptapJson(value: unknown): unknown {
   return { ...doc, content: doc.content.map(normalizeHeadingAttrs) };
 }
 
+// Exported (not just inlined into sharedNodeExtensions below) so
+// tiptap-shared.ts (admin) can `.extend()` this SAME base again to attach
+// a NodeView, instead of redefining align/ratio/width from scratch — see
+// tiptap-shared.ts's AdminImage. Extensions with the same `name` collapse
+// to "last one in the array wins" both for schema (getSchemaByResolvedExtensions'
+// Object.fromEntries) and for nodeViews (ExtensionManager.nodeViews' own
+// Object.fromEntries), so placing AdminImage after ...sharedNodeExtensions()
+// in getTiptapExtensions() safely overrides this plain version — verified
+// by reading @tiptap/core's dist source directly, not assumed.
+// left/center/right — matches shadcn-tiptap's demo model (position of a
+// width-capped image within the content column). Replaces the old
+// center/wide/full model (which let an image break out wider than the
+// content column) per an explicit decision: that breakout look can't
+// coexist with resize-handle-driven width, so legacy "wide"/"full" values
+// in already-stored content fall back to "center" (see ALIGN_VALUES below)
+// rather than being migrated — a real but accepted visual regression for
+// whatever existing images used those two values.
+const ALIGN_VALUES = ["left", "center", "right"] as const;
+type ImageAlign = (typeof ALIGN_VALUES)[number];
+
+function normalizeAlign(value: unknown): ImageAlign {
+  return (ALIGN_VALUES as readonly string[]).includes(value as string)
+    ? (value as ImageAlign)
+    : "center";
+}
+
+export function createImageExtension() {
+  return Image.extend({
+    addAttributes() {
+      return {
+        ...this.parent?.(),
+        align: {
+          default: "center",
+          renderHTML: (attributes) => {
+            const align = normalizeAlign(attributes.align);
+            const classes = cn(
+              "my-8 block transition-all duration-300 ease-in-out rounded-sm",
+              align === "left" && "mr-auto ml-0",
+              align === "center" && "mx-auto",
+              align === "right" && "ml-auto mr-0",
+            );
+            return {
+              "data-align": align,
+              class: classes,
+            };
+          },
+          parseHTML: (element) => normalizeAlign(element.getAttribute("data-align")),
+        },
+        // Legacy-only from here down: no longer editable from the UI, kept
+        // purely so images published before this change keep rendering
+        // with whatever aspect-ratio crop they already had.
+        ratio: {
+          default: "auto",
+          renderHTML: (attributes) => {
+            if (!attributes.ratio || attributes.ratio === "auto") return {};
+            return {
+              "data-ratio": attributes.ratio,
+              style: `aspect-ratio: ${attributes.ratio}; object-fit: cover;`,
+            };
+          },
+          parseHTML: (element) => element.getAttribute("data-ratio") || "auto",
+        },
+        // Free-drag resize (admin NodeView only). Defaults to "100%" —
+        // same effective width every image had under the old center/wide
+        // model's CSS classes — so nothing shifts for existing content
+        // until someone actually drags a handle on it.
+        width: {
+          default: "100%",
+          renderHTML: (attributes) => {
+            if (!attributes.width) return {};
+            const width =
+              typeof attributes.width === "number" ? `${attributes.width}px` : attributes.width;
+            return { style: `width: ${width}; max-width: 100%;` };
+          },
+          parseHTML: (element) => element.style.width || null,
+        },
+      };
+    },
+  });
+}
+
 // Shared by both extension lists (this file's getTiptapExtensionsForRender
 // and tiptap-shared.ts's getTiptapExtensions) — node types + the
 // interactive editor's own custom Image/HorizontalRule/Table config, none
@@ -155,43 +236,7 @@ export const sharedNodeExtensions = () => [
       class: "font-medium cursor-pointer",
     },
   }),
-  Image.extend({
-    addAttributes() {
-      return {
-        ...this.parent?.(),
-        align: {
-          default: "center",
-          renderHTML: (attributes) => {
-            const classes = cn(
-              "my-12 transition-all duration-500 ease-in-out block",
-              attributes.align === "center" && "mx-auto max-w-full rounded-sm",
-              attributes.align === "wide" &&
-                "w-full md:w-[calc(100%+160px)] md:-mx-20 max-w-none rounded-sm",
-              attributes.align === "full" &&
-                "w-screen max-w-none -ml-[calc((100vw-100%)/2)] -mr-[calc((100vw-100%)/2)] rounded-none",
-            );
-            return {
-              "data-align": attributes.align,
-              class: classes,
-            };
-          },
-          parseHTML: (element) =>
-            element.getAttribute("data-align") || "center",
-        },
-        ratio: {
-          default: "auto",
-          renderHTML: (attributes) => {
-            if (!attributes.ratio || attributes.ratio === "auto") return {};
-            return {
-              "data-ratio": attributes.ratio,
-              style: `aspect-ratio: ${attributes.ratio}; object-fit: cover;`,
-            };
-          },
-          parseHTML: (element) => element.getAttribute("data-ratio") || "auto",
-        },
-      };
-    },
-  }).configure({
+  createImageExtension().configure({
     HTMLAttributes: {
       class: "h-auto transition-all duration-500 ease-in-out rounded-sm",
     },
