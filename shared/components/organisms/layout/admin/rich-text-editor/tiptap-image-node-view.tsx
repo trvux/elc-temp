@@ -190,7 +190,7 @@ export function TiptapImageNodeView(props: NodeViewProps) {
 
             <div
               className={cn(
-                "absolute right-3 top-3 flex items-center gap-1.5 rounded-lg border bg-background p-1.5 opacity-0 shadow-xs transition-opacity",
+                "absolute right-3 top-3 flex items-center gap-1 rounded-lg border bg-background p-1 opacity-0 shadow-xs transition-opacity",
                 !resizing && "group-hover:opacity-100",
                 (openedMore || selected) && "opacity-100",
               )}
@@ -198,32 +198,32 @@ export function TiptapImageNodeView(props: NodeViewProps) {
               <Button
                 size="icon"
                 variant="ghost"
-                className={cn("size-9", align === "left" && "bg-accent")}
+                className={cn("size-8", align === "left" && "bg-accent")}
                 onClick={() => updateAttributes({ align: "left" })}
                 title="Align left"
               >
-                <TextAlignLeft className="size-5" />
+                <TextAlignLeft className="size-4" />
               </Button>
               <Button
                 size="icon"
                 variant="ghost"
-                className={cn("size-9", align === "center" && "bg-accent")}
+                className={cn("size-8", align === "center" && "bg-accent")}
                 onClick={() => updateAttributes({ align: "center" })}
                 title="Align center"
               >
-                <TextAlignCenter className="size-5" />
+                <TextAlignCenter className="size-4" />
               </Button>
               <Button
                 size="icon"
                 variant="ghost"
-                className={cn("size-9", align === "right" && "bg-accent")}
+                className={cn("size-8", align === "right" && "bg-accent")}
                 onClick={() => updateAttributes({ align: "right" })}
                 title="Align right"
               >
-                <TextAlignRight className="size-5" />
+                <TextAlignRight className="size-4" />
               </Button>
 
-              <Separator orientation="vertical" className="h-6" />
+              <Separator orientation="vertical" className="h-5" />
 
               <DropdownMenu
                 open={openedMore}
@@ -233,21 +233,29 @@ export function TiptapImageNodeView(props: NodeViewProps) {
                 }}
               >
                 <DropdownMenuTrigger asChild>
-                  <Button size="icon" variant="ghost" className="size-9">
-                    <DotsThreeVertical className="size-5" />
+                  <Button size="icon" variant="ghost" className="size-8">
+                    <DotsThreeVertical className="size-4" />
                   </Button>
                 </DropdownMenuTrigger>
                 {/* This project's DropdownMenuContent defaults to
                     w-(--radix-dropdown-menu-trigger-width) — same fix as
                     heading.tsx/alignment.tsx: override width here, not on
                     an inner element, or the items wrap/look cramped
-                    instead of matching the roomier reference design. */}
+                    instead of matching the roomier reference design. A
+                    bigger sideOffset gives it breathing room from the
+                    pill above it instead of touching. */}
                 <DropdownMenuContent
+                  sideOffset={8}
                   align="end"
                   className="w-44"
-                  onCloseAutoFocus={(e) => {
-                    if (altFormOpen) e.preventDefault();
-                  }}
+                  // Always prevent, not just while altFormOpen — that
+                  // state is already false by the time this fires (it's
+                  // set in the very same handler that triggers the
+                  // close), so the condition never actually held: Radix's
+                  // default was returning focus to the "..." trigger on
+                  // every close, including right after Confirm, which
+                  // visibly jerked the whole page's scroll position.
+                  onCloseAutoFocus={(e) => e.preventDefault()}
                 >
                   {altFormOpen ? (
                     <form
