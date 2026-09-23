@@ -40,14 +40,37 @@ const LinkToolbar = React.forwardRef<HTMLButtonElement, ButtonProps>(
       const url = getUrlFromString(link);
       if (url && editor && selectionRef.current) {
         const { from, to } = selectionRef.current;
-        // Run the edit — which synchronously moves DOM focus to the
-        // editor via .focus() — BEFORE closing the popover, not after.
-        // This was an *uncontrolled* Popover before: Radix could close it
-        // (unmounting the still-focused Input) on its own timing relative
-        // to this command, racing with .focus() moving focus elsewhere
-        // and visibly jerking the page. Controlling `open` explicitly and
-        // sequencing "apply, then close" removes that race.
-        editor.chain().focus().setTextSelection({ from, to }).setLink({ href: url }).run();
+        // setLink on a COLLAPSED range (from === to — cursor placed on an
+        // empty line, or just clicked inside an existing link without
+        // dragging to select its text) is invalid: you can't mark zero
+        // characters. That made the whole chain fail silently, including
+        // .focus() never actually moving DOM focus to the editor — so
+        // when the popover then closed and unmounted the still-focused
+        // Input, the browser fell back to focusing the page's first
+        // focusable element instead. Handle the collapsed case explicitly
+        // instead of feeding setLink a range it can't do anything with:
+        if (from === to) {
+          if (editor.isActive("link")) {
+            // Cursor sits inside an existing link's text — expand to that
+            // link's full range first (the standard Tiptap idiom for
+            // "update the mark under a collapsed cursor"), then reapply.
+            editor.chain().focus().extendMarkRange("link").setLink({ href: url }).run();
+          } else {
+            // Nothing there at all — insert the URL itself as new,
+            // visible link text rather than trying to mark empty space.
+            editor
+              .chain()
+              .focus()
+              .insertContentAt(from, {
+                type: "text",
+                text: url,
+                marks: [{ type: "link", attrs: { href: url } }],
+              })
+              .run();
+          }
+        } else {
+          editor.chain().focus().setTextSelection({ from, to }).setLink({ href: url }).run();
+        }
       }
       setOpen(false);
     };
@@ -129,8 +152,14 @@ const LinkToolbar = React.forwardRef<HTMLButtonElement, ButtonProps>(
                       className="h-8 text-muted-foreground"
                       variant="ghost"
                       onClick={() => {
-                        editor?.chain().focus().unsetLink().run();
+                        // Same collapsed-cursor idiom as handleSubmit's
+                        // update path — without extendMarkRange, a bare
+                        // cursor inside the link (not a drag-selection
+                        // over its text) wouldn't reliably clear the mark
+                        // across the whole link.
+                        editor?.chain().focus().extendMarkRange("link").unsetLink().run();
                         setLink("");
+                        setOpen(false);
                       }}
                     >
                       <Trash className="mr-2 h-4 w-4" />
