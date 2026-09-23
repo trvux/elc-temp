@@ -1,4 +1,4 @@
-import { getTiptapExtensions, normalizeTiptapJson } from "@/shared/lib/tiptap-shared";
+import { getTiptapExtensionsForRender, normalizeTiptapJson } from "@/shared/lib/tiptap-shared";
 import { cn } from "@/shared/lib/utils";
 import { generateHTML } from "@tiptap/html";
 import { WithLinkPreview } from "@/shared/components/organisms/link-preview/with-link-preview";
@@ -75,7 +75,7 @@ export const PreviewContent = ({
         contentToRender = fillMissingImageAlt(contentToRender, fallbackAlt);
       }
 
-      html = generateHTML(contentToRender as Parameters<typeof generateHTML>[0], getTiptapExtensions());
+      html = generateHTML(contentToRender as Parameters<typeof generateHTML>[0], getTiptapExtensionsForRender());
     } else {
       console.warn("Invalid content format received by PreviewContent");
       return null;

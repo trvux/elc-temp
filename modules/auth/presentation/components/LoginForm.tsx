@@ -1,6 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import Script from "next/script";
 import { useState } from "react";
 
 import { GoogleIcon } from "@/shared/components/molecules/auth/google-icon";
@@ -40,6 +41,12 @@ export function LoginForm() {
 
   return (
     <div className="flex w-full flex-col items-center gap-6">
+      {/* Google Identity Services — moved here from the root layout (was
+          loading on every single page site-wide for a script only this
+          form needs; useGoogleLogin already polls for `window.google` to
+          appear, so loading it late here doesn't need any other change). */}
+      <Script src="https://accounts.google.com/gsi/client" strategy="afterInteractive" />
+
       <div className="flex flex-col items-center gap-2 text-center">
         <h1 className="font-heading text-2xl font-medium tracking-tight text-balance sm:text-4xl sm:whitespace-nowrap">
           Mát lành mọi không gian

@@ -7,7 +7,6 @@ import { QueryProvider } from "@/shared/providers/query-provider";
 import { BASE_URL } from "@/shared/lib/seo-schema";
 import type { Metadata, Viewport } from "next";
 import { Geist_Mono, Inter, JetBrains_Mono, Merriweather } from "next/font/google";
-import Script from "next/script";
 import "./globals.css";
 
 const merriweatherHeading = Merriweather({subsets:['latin'],variable:'--font-heading'});
@@ -95,13 +94,6 @@ export default function RootLayout({
         suppressHydrationWarning
         className={cn("min-h-full flex flex-col text-foreground")}
       >
-        {/* Google Identity Services — powers the "Continue with Google"
-            button on /login (modules/auth/presentation/hooks/useGoogleLogin.ts).
-            afterInteractive: not needed for first paint, loads once the page
-            is interactive. */}
-        <Script src="https://accounts.google.com/gsi/client" strategy="afterInteractive" />
-
-
         <TooltipProvider>
           <ThemeProvider
             attribute="class"

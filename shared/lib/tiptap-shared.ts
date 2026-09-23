@@ -6,6 +6,19 @@ import { TableRow } from "@tiptap/extension-table-row";
 import { TableHeader } from "@tiptap/extension-table-header";
 import { TableCell } from "@tiptap/extension-table-cell";
 import Link from "@tiptap/extension-link";
+import Document from "@tiptap/extension-document";
+import Paragraph from "@tiptap/extension-paragraph";
+import Text from "@tiptap/extension-text";
+import Bold from "@tiptap/extension-bold";
+import Italic from "@tiptap/extension-italic";
+import Strike from "@tiptap/extension-strike";
+import Underline from "@tiptap/extension-underline";
+import Code from "@tiptap/extension-code";
+import CodeBlock from "@tiptap/extension-code-block";
+import Blockquote from "@tiptap/extension-blockquote";
+import HardBreak from "@tiptap/extension-hard-break";
+import Heading from "@tiptap/extension-heading";
+import { BulletList, OrderedList, ListItem } from "@tiptap/extension-list";
 import { cn } from "@/shared/lib/utils";
 
 // ---------------------------------------------------------------------------
@@ -100,14 +113,10 @@ export function normalizeTiptapJson(value: unknown): unknown {
   return { ...doc, content: doc.content.map(normalizeHeadingAttrs) };
 }
 
-export const getTiptapExtensions = () => [
-  StarterKit.configure({
-    horizontalRule: false,
-    link: false,
-    heading: {
-      levels: [...HEADING_LEVELS],
-    },
-  }),
+// Shared by both extension lists below — node types + the interactive
+// editor's own custom Image/HorizontalRule/Table config, none of which
+// differ between editing and read-only rendering.
+const sharedNodeExtensions = () => [
   Link.configure({
     openOnClick: false,
     HTMLAttributes: {
@@ -177,4 +186,53 @@ export const getTiptapExtensions = () => [
   TableRow,
   TableHeader,
   TableCell,
+];
+
+// Full set for the interactive admin editor (rich-text-editor.tsx) — needs
+// StarterKit's editing-only plugins (undo/redo, drop/gap cursor) for real
+// authoring UX.
+export const getTiptapExtensions = () => [
+  StarterKit.configure({
+    horizontalRule: false,
+    link: false,
+    heading: {
+      levels: [...HEADING_LEVELS],
+    },
+  }),
+  ...sharedNodeExtensions(),
+];
+
+// Read-only set for PreviewContent's generateHTML() call, which runs in
+// every visitor's browser on every product/service/news/page view.
+// StarterKit statically imports Dropcursor/Gapcursor/UndoRedo at module
+// scope regardless of its own `false` config (they're plugins, not schema,
+// so getSchema() never needed them) — configuring them off does NOT drop
+// them from the bundle, only skips instantiating them. Those plugins pull
+// in prosemirror-view's decoration/history machinery, which showed up as a
+// ~127KB, ~100%-unused JS chunk in a mobile Lighthouse audit of an ad
+// landing page (2026-09-23) — real weight/parse time on every public page
+// for editing features a static render can never use. Building the node
+// list from the individual @tiptap/extension-* packages instead (skipping
+// StarterKit, plus its own Dropcursor/Gapcursor/UndoRedo/TrailingNode/
+// ListKeymap) avoids pulling that code in at all, with an identical
+// resulting schema (those are pure ProseMirror plugins, not node/mark
+// types — generateHTML's getSchema() never reads them either way, so
+// output HTML is byte-for-byte the same as before this split).
+export const getTiptapExtensionsForRender = () => [
+  Document,
+  Paragraph,
+  Text,
+  Bold,
+  Italic,
+  Strike,
+  Underline,
+  Code,
+  CodeBlock,
+  Blockquote,
+  HardBreak,
+  Heading.configure({ levels: [...HEADING_LEVELS] }),
+  BulletList,
+  OrderedList,
+  ListItem,
+  ...sharedNodeExtensions(),
 ];
