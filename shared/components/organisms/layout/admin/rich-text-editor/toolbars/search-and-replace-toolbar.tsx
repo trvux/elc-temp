@@ -23,7 +23,11 @@ import { cn } from "@/shared/lib/utils";
 import type { SearchAndReplaceStorage } from "./search-and-replace";
 import { useToolbar } from "./toolbar-provider";
 
-export function SearchAndReplaceToolbar() {
+interface SearchAndReplaceToolbarProps {
+  className?: string;
+}
+
+export function SearchAndReplaceToolbar({ className }: SearchAndReplaceToolbarProps = {}) {
   const { editor } = useToolbar();
 
   const [open, setOpen] = useState(false);
@@ -78,7 +82,7 @@ export function SearchAndReplaceToolbar() {
             <Button
               variant="ghost"
               size="sm"
-              className={cn("h-8 w-max px-3 font-normal")}
+              className={cn("h-8 w-max px-3 font-normal", className)}
             >
               <Repeat className="mr-2 h-4 w-4" />
               <p>Search & Replace</p>

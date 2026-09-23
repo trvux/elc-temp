@@ -39,46 +39,51 @@ export const RichTextToolbar = ({ editor }: RichTextToolbarProps) => {
   return (
     <ToolbarProvider editor={editor}>
       <div className="flex flex-wrap items-center gap-0.5 overflow-x-auto rounded-t-2xl border-b border-border/50 bg-muted/40 p-1.5">
+        {/* History */}
         <UndoToolbar />
         <RedoToolbar />
 
         <Separator orientation="vertical" className="mx-1 h-6" />
 
+        {/* Block type + core inline marks — the demo's own first cluster,
+            same order (heading, bold/italic/link/underline). */}
         <HeadingToolbar />
-
-        <Separator orientation="vertical" className="mx-1 h-6" />
-
         <BoldToolbar />
         <ItalicToolbar />
+        <LinkToolbar />
         <UnderlineToolbar />
         <StrikeThroughToolbar />
-        <SubscriptToolbar />
-        <SuperscriptToolbar />
-        <CodeToolbar />
 
         <Separator orientation="vertical" className="mx-1 h-6" />
 
-        <ColorHighlightToolbar />
-        <AlignmentTooolbar />
-        <LinkToolbar />
-
-        <Separator orientation="vertical" className="mx-1 h-6" />
-
-        <BlockquoteToolbar />
+        {/* Lists + alignment — the demo's second cluster. */}
         <BulletListToolbar />
         <OrderedListToolbar />
-        <CodeBlockToolbar />
-        <HardBreakToolbar />
+        <AlignmentTooolbar />
 
         <Separator orientation="vertical" className="mx-1 h-6" />
 
+        {/* Insert: image/table/divider, then text color/highlight — mirrors
+            the demo's image + "A" dropdown placement. */}
         <ImagePlaceholderToolbar />
         <TableToolbar />
         <HorizontalRuleToolbar />
+        <ColorHighlightToolbar />
 
         <Separator orientation="vertical" className="mx-1 h-6" />
 
-        <SearchAndReplaceToolbar />
+        {/* Less-frequent marks/blocks this project has beyond the demo —
+            grouped together rather than interleaved with the core set
+            above, so the common stuff stays scannable. */}
+        <SubscriptToolbar />
+        <SuperscriptToolbar />
+        <CodeToolbar />
+        <CodeBlockToolbar />
+        <BlockquoteToolbar />
+        <HardBreakToolbar />
+
+        {/* Pushed flush right, same as the demo's Search & Replace. */}
+        <SearchAndReplaceToolbar className="ml-auto" />
       </div>
     </ToolbarProvider>
   );
