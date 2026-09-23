@@ -11,6 +11,7 @@ import { ScrollToTop } from "@/shared/components/organisms/layout/user/scroll-to
 import { GridSection } from "@/shared/components/organisms/sections/grid-section";
 import { PageHero } from "@/shared/components/organisms/sections/page-hero";
 import { ProductDescription } from "@/shared/components/organisms/layout/user/product-description";
+import { PreviewContent } from "@/shared/components/organisms/layout/user/preview-content";
 import { Button } from "@/shared/components/ui/button";
 import { TypographySmall } from "@/shared/components/ui/typography";
 import { getQueryTokens } from "@/shared/lib/search-utils";
@@ -419,7 +420,9 @@ export async function ProjectListModule({
           showDiamond={true}
           contentClassName="py-6 md:py-8 lg:py-10"
         >
-          <ProductDescription content={heroContent} fallbackAlt={projectType?.name} variant="hero" />
+          <ProductDescription variant="hero">
+            <PreviewContent content={heroContent} fallbackAlt={projectType?.name} size="sm" className="typeset-hero" />
+          </ProductDescription>
         </GridSection>
       ) : null}
 

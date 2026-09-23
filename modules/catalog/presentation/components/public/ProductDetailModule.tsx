@@ -14,6 +14,7 @@ import { getSavedProvinceCode, getSavedWardCode } from "@/modules/shipping-zone/
 import { Breadcrumbs } from "@/shared/components/organisms/layout/user/breadcrumbs";
 import { ExpandableContent } from "@/shared/components/organisms/layout/user/expandable-content";
 import { ProductDescription } from "@/shared/components/organisms/layout/user/product-description";
+import { PreviewContent } from "@/shared/components/organisms/layout/user/preview-content";
 import { ProductFloatingBar } from "@/shared/components/organisms/layout/user/product-floating-bar";
 import { RecentlyViewedSection } from "@/shared/components/organisms/layout/user/recently-viewed-section";
 import { ScrollToTop } from "@/shared/components/organisms/layout/user/scroll-to-top";
@@ -270,7 +271,9 @@ export async function ProductDetailModule({
                   Mô tả sản phẩm
                 </TypographyH2>
                 <div className="max-w-4xl mx-auto">
-                  <ProductDescription content={product.description} fallbackAlt={product.name} />
+                  <ProductDescription>
+                    <PreviewContent content={product.description} fallbackAlt={product.name} size="lg" />
+                  </ProductDescription>
                 </div>
               </div>
             )}

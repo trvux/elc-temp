@@ -16,6 +16,7 @@ import { getPersonalizedShippingZoneAction } from "@/modules/shipping-zone";
 import { Breadcrumbs } from "@/shared/components/organisms/layout/user/breadcrumbs";
 import { CompareLinkButton } from "@/shared/components/organisms/layout/user/compare-link-button";
 import { ProductDescription } from "@/shared/components/organisms/layout/user/product-description";
+import { PreviewContent } from "@/shared/components/organisms/layout/user/preview-content";
 import { WishlistDialogButton } from "@/shared/components/organisms/layout/user/wishlist-dialog-button";
 import { RecentlyViewedSection } from "@/shared/components/organisms/layout/user/recently-viewed-section";
 import { ScrollToTop } from "@/shared/components/organisms/layout/user/scroll-to-top";
@@ -271,7 +272,9 @@ export async function ProductListModule({
             mục cần thấy sản phẩm trước tiên; nội dung mô tả chỉ dành cho ai
             muốn tìm hiểu thêm, nên không nên chắn đường mua trước lưới. */}
         {heroContent ? (
-          <ProductDescription content={heroContent} fallbackAlt={pageTitle} variant="hero" />
+          <ProductDescription variant="hero">
+            <PreviewContent content={heroContent} fallbackAlt={pageTitle} size="sm" className="typeset-hero" />
+          </ProductDescription>
         ) : null}
       </div>
 

@@ -1,6 +1,24 @@
 import { getTiptapExtensionsForRender, normalizeTiptapJson } from "@/shared/lib/tiptap-render";
 import { cn } from "@/shared/lib/utils";
-import { generateHTML } from "@tiptap/html";
+// Server-side generateHTML (happy-dom, runs in Node) instead of
+// "@tiptap/html"'s browser version — @tiptap/core itself (needed by
+// either import path, for getSchema()) statically imports EditorView
+// from "@tiptap/pm/view" at module scope, regardless of which tiptap
+// extensions are actually used. That's harmless here: this file has no
+// "use client" of its own, and every caller now renders it from a Server
+// Component (passing the result down as `children` into whatever client
+// wrapper needs collapse/other interactivity — see product-description.tsx)
+// instead of importing/calling it directly inside a client module. So the
+// whole tiptap/prosemirror dependency graph — the actual weight, not just
+// StarterKit's slice of it — now runs only in Node and never reaches the
+// browser bundle at all. Confirmed via mobile Lighthouse audit
+// (2026-09-23/24): a ~127KB, ~100%-unused JS chunk on a public product/
+// service page survived TWO earlier attempts that only changed which
+// tiptap extensions were imported (first same-file, then split into
+// tiptap-render.ts) — it never budged, because neither attempt touched
+// the real cause: @tiptap/html's browser generateHTML always drags in
+// @tiptap/core's EditorView import no matter what.
+import { generateHTML } from "@tiptap/html/server";
 import { WithLinkPreview } from "@/shared/components/organisms/link-preview/with-link-preview";
 
 interface PreviewContentProps {

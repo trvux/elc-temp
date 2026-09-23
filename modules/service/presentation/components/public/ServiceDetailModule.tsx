@@ -7,6 +7,7 @@ import { Breadcrumbs } from "@/shared/components/organisms/layout/user/breadcrum
 import { DetailPager } from "@/shared/components/organisms/layout/user/detail-pager";
 import { OrderButton } from "@/shared/components/organisms/layout/user/order-button";
 import { ProductDescription } from "@/shared/components/organisms/layout/user/product-description";
+import { PreviewContent } from "@/shared/components/organisms/layout/user/preview-content";
 import RelatedServices from "@/shared/components/organisms/layout/user/related-services";
 import { ScrollToTop } from "@/shared/components/organisms/layout/user/scroll-to-top";
 import { GridSection } from "@/shared/components/organisms/sections/grid-section";
@@ -233,7 +234,9 @@ export async function ServiceDetailModule({
 
               <TabsContent value="description" className={STYLES.tabsContent}>
                 <div className={STYLES.descriptionWrapper}>
-                  <ProductDescription content={service.content} />
+                  <ProductDescription>
+                    <PreviewContent content={service.content} size="lg" />
+                  </ProductDescription>
                 </div>
               </TabsContent>
             </Tabs>

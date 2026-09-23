@@ -10,6 +10,7 @@ import {
 import { Breadcrumbs } from "@/shared/components/organisms/layout/user/breadcrumbs";
 import { CompareLinkButton } from "@/shared/components/organisms/layout/user/compare-link-button";
 import { ProductDescription } from "@/shared/components/organisms/layout/user/product-description";
+import { PreviewContent } from "@/shared/components/organisms/layout/user/preview-content";
 import { WishlistDialogButton } from "@/shared/components/organisms/layout/user/wishlist-dialog-button";
 import { ScrollToTop } from "@/shared/components/organisms/layout/user/scroll-to-top";
 import { RecentlyViewedSection } from "@/shared/components/organisms/layout/user/recently-viewed-section";
@@ -145,7 +146,9 @@ export default async function ProductsPage() {
             phẩm trước tiên; nội dung này chỉ dành cho ai muốn tìm hiểu
             thêm, không nên chắn đường trước danh mục. */}
         {catalogPage?.content ? (
-          <ProductDescription content={catalogPage.content} fallbackAlt="Tất cả sản phẩm" variant="hero" />
+          <ProductDescription variant="hero">
+            <PreviewContent content={catalogPage.content} fallbackAlt="Tất cả sản phẩm" size="sm" className="typeset-hero" />
+          </ProductDescription>
         ) : null}
 
         {/* Footer rights & Back to top */}

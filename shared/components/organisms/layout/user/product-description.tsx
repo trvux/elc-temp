@@ -5,11 +5,14 @@ import { Collapsible, CollapsibleTrigger } from "@/shared/components/ui/collapsi
 import { cn } from "@/shared/lib/utils";
 import { CaretDown, CaretUp } from "@phosphor-icons/react";
 import { useState } from "react";
-import { PreviewContent } from "@/shared/components/organisms/layout/user/preview-content";
 
 interface ProductDescriptionProps {
-  content: unknown;
-  fallbackAlt?: string;
+  // The rendered rich-text content (a Server Component's <PreviewContent />
+  // output), passed down as children instead of a `content` prop — so the
+  // actual tiptap/prosemirror HTML generation runs on the server, in the
+  // caller's Server Component tree, and never gets pulled into this
+  // client bundle. See preview-content.tsx for why that split matters.
+  children: React.ReactNode;
   // "article" (default): full-width prose, used where the content IS the
   // primary reading material (product/service detail description tabs).
   // "hero": supplementary SEO copy on listing pages (category/brand/group,
@@ -21,7 +24,7 @@ interface ProductDescriptionProps {
   variant?: "article" | "hero";
 }
 
-export function ProductDescription({ content, fallbackAlt, variant = "article" }: ProductDescriptionProps) {
+export function ProductDescription({ children, variant = "article" }: ProductDescriptionProps) {
   const [isOpen, setIsOpen] = useState(false);
   const isHero = variant === "hero";
 
@@ -31,20 +34,13 @@ export function ProductDescription({ content, fallbackAlt, variant = "article" }
       onOpenChange={setIsOpen}
       className={cn("relative", isHero && "rounded-lg border border-border/40 bg-muted p-4 md:p-6")}
     >
-      <article>
-        <PreviewContent
-          content={content}
-          fallbackAlt={fallbackAlt}
-          size={isHero ? "sm" : "lg"}
-          className={cn(
-            "overflow-hidden transition-[max-height] duration-500 ease-in-out",
-            isOpen ? "max-h-none" : "max-h-96",
-            // "typeset-hero" (app/globals.css) shrinks the type scale and
-            // mutes color so this reference-only card doesn't compete with
-            // the page's real H1 or the product grid above it.
-            isHero && "typeset-hero",
-          )}
-        />
+      <article
+        className={cn(
+          "overflow-hidden transition-[max-height] duration-500 ease-in-out",
+          isOpen ? "max-h-none" : "max-h-96",
+        )}
+      >
+        {children}
       </article>
 
       {!isOpen && (
