@@ -190,7 +190,7 @@ export function TiptapImageNodeView(props: NodeViewProps) {
 
             <div
               className={cn(
-                "absolute right-3 top-3 flex items-center gap-1 rounded-md border bg-background p-1 opacity-0 shadow-xs transition-opacity",
+                "absolute right-3 top-3 flex items-center gap-1.5 rounded-lg border bg-background p-1.5 opacity-0 shadow-xs transition-opacity",
                 !resizing && "group-hover:opacity-100",
                 (openedMore || selected) && "opacity-100",
               )}
@@ -198,32 +198,32 @@ export function TiptapImageNodeView(props: NodeViewProps) {
               <Button
                 size="icon"
                 variant="ghost"
-                className={cn("size-7", align === "left" && "bg-accent")}
+                className={cn("size-9", align === "left" && "bg-accent")}
                 onClick={() => updateAttributes({ align: "left" })}
                 title="Align left"
               >
-                <TextAlignLeft className="size-4" />
+                <TextAlignLeft className="size-5" />
               </Button>
               <Button
                 size="icon"
                 variant="ghost"
-                className={cn("size-7", align === "center" && "bg-accent")}
+                className={cn("size-9", align === "center" && "bg-accent")}
                 onClick={() => updateAttributes({ align: "center" })}
                 title="Align center"
               >
-                <TextAlignCenter className="size-4" />
+                <TextAlignCenter className="size-5" />
               </Button>
               <Button
                 size="icon"
                 variant="ghost"
-                className={cn("size-7", align === "right" && "bg-accent")}
+                className={cn("size-9", align === "right" && "bg-accent")}
                 onClick={() => updateAttributes({ align: "right" })}
                 title="Align right"
               >
-                <TextAlignRight className="size-4" />
+                <TextAlignRight className="size-5" />
               </Button>
 
-              <Separator orientation="vertical" className="h-5" />
+              <Separator orientation="vertical" className="h-6" />
 
               <DropdownMenu
                 open={openedMore}
@@ -233,8 +233,8 @@ export function TiptapImageNodeView(props: NodeViewProps) {
                 }}
               >
                 <DropdownMenuTrigger asChild>
-                  <Button size="icon" variant="ghost" className="size-7">
-                    <DotsThreeVertical className="size-4" />
+                  <Button size="icon" variant="ghost" className="size-9">
+                    <DotsThreeVertical className="size-5" />
                   </Button>
                 </DropdownMenuTrigger>
                 {/* This project's DropdownMenuContent defaults to
@@ -244,7 +244,7 @@ export function TiptapImageNodeView(props: NodeViewProps) {
                     instead of matching the roomier reference design. */}
                 <DropdownMenuContent
                   align="end"
-                  className="w-56 p-1.5"
+                  className="w-44"
                   onCloseAutoFocus={(e) => {
                     if (altFormOpen) e.preventDefault();
                   }}
@@ -276,34 +276,26 @@ export function TiptapImageNodeView(props: NodeViewProps) {
                   ) : (
                     <>
                       <DropdownMenuItem
-                        className="gap-2 py-2.5 text-base"
                         onSelect={(e) => {
                           e.preventDefault();
                           setAltDraft(node.attrs.alt || "");
                           setAltFormOpen(true);
                         }}
                       >
-                        <TextAa className="size-5" /> Add alt
+                        <TextAa className="mr-2 size-4" /> Add alt
                       </DropdownMenuItem>
-                      <DropdownMenuItem
-                        className="gap-2 py-2.5 text-base"
-                        onClick={() => duplicateContent(editor)}
-                      >
-                        <Copy className="size-5" /> Duplicate
+                      <DropdownMenuItem onClick={() => duplicateContent(editor)}>
+                        <Copy className="mr-2 size-4" /> Duplicate
                       </DropdownMenuItem>
-                      <DropdownMenuItem
-                        className="gap-2 py-2.5 text-base"
-                        onClick={() => updateAttributes({ width: "fit-content" })}
-                      >
-                        <ArrowsOut className="size-5" /> Full Screen
+                      <DropdownMenuItem onClick={() => updateAttributes({ width: "fit-content" })}>
+                        <ArrowsOut className="mr-2 size-4" /> Full Screen
                       </DropdownMenuItem>
                       <DropdownMenuSeparator />
                       <DropdownMenuItem
                         variant="destructive"
-                        className="gap-2 py-2.5 text-base"
                         onClick={() => deleteNode()}
                       >
-                        <Trash className="size-5" /> Delete Image
+                        <Trash className="mr-2 size-4" /> Delete Image
                       </DropdownMenuItem>
                     </>
                   )}
