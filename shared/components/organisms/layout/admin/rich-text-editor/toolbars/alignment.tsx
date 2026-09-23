@@ -82,12 +82,18 @@ export const AlignmentTooolbar = () => {
       <Tooltip>
         <TooltipTrigger asChild>
           <DropdownMenuTrigger disabled={isDisabled} asChild>
-            <Button variant="ghost" size="sm" className="h-8 w-max font-normal">
-              <span className="mr-2">
+            {/* Fixed width, not w-max — "Left Align" vs "Justify Align"
+                differ enough in text length that letting the button
+                auto-size shifted every button after it in the toolbar
+                row each time the selected option changed. */}
+            <Button variant="ghost" size="sm" className="h-8 w-[132px] justify-start font-normal">
+              <span className="mr-2 shrink-0">
                 {alignmentOptions[findIndex(currentTextAlign())].icon}
               </span>
-              {alignmentOptions[findIndex(currentTextAlign())].name}
-              <CaretDown className="ml-2 h-4 w-4" />
+              <span className="truncate">
+                {alignmentOptions[findIndex(currentTextAlign())].name}
+              </span>
+              <CaretDown className="ml-auto h-4 w-4 shrink-0" />
             </Button>
           </DropdownMenuTrigger>
         </TooltipTrigger>

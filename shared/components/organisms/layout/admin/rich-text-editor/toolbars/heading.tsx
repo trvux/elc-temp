@@ -80,10 +80,13 @@ export const HeadingToolbar = () => {
       <Tooltip>
         <TooltipTrigger asChild>
           <DropdownMenuTrigger disabled={!editor} asChild>
-            <Button variant="ghost" size="sm" className="h-8 w-max font-normal">
-              <span className="mr-2">{current.icon}</span>
-              {current.name}
-              <CaretDown className="ml-2 h-4 w-4" />
+            {/* Fixed width, not w-max — same reflow issue as
+                alignment.tsx: "Normal text"/"Heading 2"/"Heading 3" differ
+                enough to shift every button after this one when switched. */}
+            <Button variant="ghost" size="sm" className="h-8 w-[120px] justify-start font-normal">
+              <span className="mr-2 shrink-0">{current.icon}</span>
+              <span className="truncate">{current.name}</span>
+              <CaretDown className="ml-auto h-4 w-4 shrink-0" />
             </Button>
           </DropdownMenuTrigger>
         </TooltipTrigger>
