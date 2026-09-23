@@ -46,6 +46,16 @@ function Button({
   variant = "default",
   size = "default",
   asChild = false,
+  // A plain <button> with no explicit type defaults to type="submit" —
+  // inside any <form> (every admin edit page), clicking one triggers an
+  // implicit submit/validation pass instead of just running its onClick,
+  // which is what caused clicking a toolbar button (e.g. Underline) to
+  // jump focus to an unrelated required field elsewhere on the page.
+  // Every real submit button in this codebase already passes
+  // type="submit" explicitly (grep confirmed), so defaulting the rest to
+  // "button" here is safe and fixes it for every Button everywhere, not
+  // just in the rich-text-editor toolbar.
+  type = "button",
   ...props
 }: React.ComponentProps<"button"> &
   VariantProps<typeof buttonVariants> & {
@@ -55,6 +65,7 @@ function Button({
 
   return (
     <Comp
+      type={type}
       data-slot="button"
       data-variant={variant}
       data-size={size}
