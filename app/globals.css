@@ -337,9 +337,13 @@
   transition: outline 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
 }
 
-/* Tiptap selected elements styling (only in editor mode) */
-.tiptap.ProseMirror img.ProseMirror-selectednode,
-.tiptap.ProseMirror .ProseMirror-selectednode:not(table),
+/* Tiptap selected elements styling (only in editor mode). Excludes
+   .tiptap-image-node-view — that node has its own single-border styling
+   right below, since it already shows its own on-image overlay and
+   stacking this heavy outline+glow on top of it looked like 2-3 nested
+   borders. */
+.tiptap.ProseMirror img.ProseMirror-selectednode:not(.tiptap-image-node-view img),
+.tiptap.ProseMirror .ProseMirror-selectednode:not(table):not(.tiptap-image-node-view),
 .tiptap.ProseMirror .tableWrapper:has(table:focus-within),
 .tiptap.ProseMirror .tableWrapper:has(table.ProseMirror-selectednode) {
   outline: 3px solid oklch(0.68 0.20 145) !important;
@@ -347,11 +351,26 @@
   box-shadow: 0 0 0 6px oklch(0.68 0.20 145 / 20%) !important;
 }
 
-/* Tiptap image hover styling (only in editor mode) */
-.tiptap.ProseMirror img:hover:not(.ProseMirror-selectednode) {
+/* Tiptap image hover styling (only in editor mode) — same exclusion. */
+.tiptap.ProseMirror img:hover:not(.ProseMirror-selectednode):not(.tiptap-image-node-view img) {
   outline: 2px solid oklch(0.78 0.15 145) !important;
   outline-offset: 2px;
   box-shadow: 0 0 0 4px oklch(0.78 0.15 145 / 15%) !important;
+  cursor: pointer;
+}
+
+/* Image NodeView (tiptap-image-node-view.tsx): one thin border, identical
+   on hover and selected — matches the shadcn-tiptap demo instead of
+   stacking the generic ProseMirror-selectednode ring on top of it. */
+.tiptap.ProseMirror .tiptap-image-node-view img {
+  outline: 2px solid transparent !important;
+  outline-offset: 0px;
+  box-shadow: none !important;
+  transition: outline-color 0.15s ease-in-out;
+}
+.tiptap.ProseMirror .tiptap-image-node-view:hover img,
+.tiptap.ProseMirror .tiptap-image-node-view.ProseMirror-selectednode img {
+  outline-color: var(--primary) !important;
   cursor: pointer;
 }
 

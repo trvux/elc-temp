@@ -3,6 +3,7 @@ import { ReactNodeViewRenderer } from "@tiptap/react";
 import { HEADING_LEVELS, createImageExtension, sharedMarkExtensions, sharedNodeExtensions } from "@/shared/lib/tiptap-render";
 import { SearchAndReplace } from "@/shared/components/organisms/layout/admin/rich-text-editor/toolbars/search-and-replace";
 import { TiptapImageNodeView } from "@/shared/components/organisms/layout/admin/rich-text-editor/tiptap-image-node-view";
+import { ImagePlaceholder } from "@/shared/components/organisms/layout/admin/rich-text-editor/tiptap-image-placeholder";
 
 // Same align/ratio/width attrs as the public Image (createImageExtension),
 // plus an interactive NodeView (resize handles + on-image overlay) that
@@ -35,7 +36,9 @@ export { normalizeTiptapJson } from "@/shared/lib/tiptap-render";
 // authoring UX. The public read-only render path uses
 // getTiptapExtensionsForRender() from tiptap-render.ts instead — see that
 // file for why the two can't just be exports of this same module.
-export const getTiptapExtensions = () => [
+export const getTiptapExtensions = (options?: {
+  uploadImage?: (file: File) => Promise<string>;
+}) => [
   StarterKit.configure({
     horizontalRule: false,
     link: false,
@@ -46,6 +49,11 @@ export const getTiptapExtensions = () => [
   // Editor-only: operates on live decorations, never touches stored
   // content shape, so it has no counterpart in getTiptapExtensionsForRender.
   SearchAndReplace,
+  // Editor-only transient node: a real document never contains an
+  // unresolved placeholder (it's replaced the moment a file/URL is
+  // chosen), so — like SearchAndReplace — it has no render-side
+  // counterpart either.
+  ImagePlaceholder.configure({ uploadImage: options?.uploadImage }),
   ...sharedNodeExtensions(),
   ...sharedMarkExtensions(),
   AdminImage,

@@ -145,19 +145,14 @@ export function TiptapImageNodeView(props: NodeViewProps) {
     <NodeViewWrapper
       ref={nodeRef}
       className={cn(
-        "my-8 block",
+        "tiptap-image-node-view my-8 block",
         align === "left" && "mr-auto ml-0",
         align === "center" && "mx-auto",
         align === "right" && "ml-auto mr-0",
       )}
       style={node.attrs.width ? { width: node.attrs.width, maxWidth: "100%" } : undefined}
     >
-      <div
-        className={cn(
-          "group relative flex flex-col rounded-sm border-2 border-transparent",
-          selected && "border-primary/60",
-        )}
-      >
+      <div className="group relative flex flex-col rounded-sm">
         <img
           ref={imageRef}
           src={node.attrs.src}

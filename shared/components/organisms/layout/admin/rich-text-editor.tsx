@@ -38,7 +38,16 @@ const RichTextEditor = ({
   }, [uploadImage]);
 
   const extensions = useMemo(() => [
-    ...getTiptapExtensions(),
+    ...getTiptapExtensions({
+      // Reads uploadImageRef.current at call time (not at extensions-array
+      // build time), so this stays correct even though `extensions` itself
+      // only recomputes when `placeholder` changes — same pattern as
+      // handleDrop/handlePaste below.
+      uploadImage: (file: File) => {
+        const fn = uploadImageRef.current;
+        return fn ? fn(file) : Promise.reject(new Error("No uploadImage handler configured"));
+      },
+    }),
     Placeholder.configure({
       placeholder: placeholder || "Bắt đầu viết nội dung...",
     }),
@@ -228,7 +237,7 @@ const RichTextEditor = ({
 
   return (
     <div className="relative w-full rounded-2xl border border-border/50 bg-background/60 shadow-xs transition-all focus-within:border-primary/40">
-      <RichTextToolbar editor={editor} uploadImage={uploadImage} />
+      <RichTextToolbar editor={editor} />
 
       <WithLinkPreview className="contents">
         <EditorContent editor={editor} />

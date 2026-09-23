@@ -17,7 +17,8 @@ import { ColorHighlightToolbar } from "./color-and-highlight";
 import { HardBreakToolbar } from "./hard-break";
 import { HeadingToolbar } from "./heading";
 import { HorizontalRuleToolbar } from "./horizontal-rule";
-import { ImageToolbar } from "./image";
+import { ImageAltTextToolbar } from "./image-alt-text-toolbar";
+import { ImagePlaceholderToolbar } from "./image-placeholder-toolbar";
 import { ItalicToolbar } from "./italic";
 import { LinkToolbar } from "./link";
 import { OrderedListToolbar } from "./ordered-list";
@@ -33,10 +34,9 @@ import { UndoToolbar } from "./undo";
 
 interface RichTextToolbarProps {
   editor: Editor;
-  uploadImage?: (file: File) => Promise<string>;
 }
 
-export const RichTextToolbar = ({ editor, uploadImage }: RichTextToolbarProps) => {
+export const RichTextToolbar = ({ editor }: RichTextToolbarProps) => {
   return (
     <ToolbarProvider editor={editor}>
       <div className="flex flex-wrap items-center gap-0.5 overflow-x-auto rounded-t-2xl border-b border-border/50 bg-muted/40 p-1.5">
@@ -73,7 +73,8 @@ export const RichTextToolbar = ({ editor, uploadImage }: RichTextToolbarProps) =
 
         <Separator orientation="vertical" className="mx-1 h-6" />
 
-        <ImageToolbar uploadImage={uploadImage} />
+        <ImagePlaceholderToolbar />
+        <ImageAltTextToolbar />
         <TableToolbar />
         <HorizontalRuleToolbar />
 
