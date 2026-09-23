@@ -24,6 +24,18 @@ async function fetchLinkPreview(href: string): Promise<LinkPreviewData> {
   return res.json();
 }
 
+// Shared with with-link-preview.tsx so a prefetch (fired the moment the
+// cursor enters a link, before the reveal delay) and the card's own
+// useQuery below hit the exact same cache entry — same key shape, same
+// staleTime, so prefetching actually saves the round trip instead of
+// silently being a second, wasted fetch.
+export const linkPreviewQueryOptions = (href: string) => ({
+  queryKey: ["link-preview", href],
+  queryFn: () => fetchLinkPreview(href),
+  staleTime: 60 * 60 * 1000, // matches the API route's own 1h cache
+  retry: false,
+} as const);
+
 // Outer wrapper card holds the "Truy cập" action outside/below the inner
 // content card, so the click target for actually following the link stays
 // visually distinct from the (non-interactive) metadata preview above it.
@@ -42,12 +54,7 @@ function CardShell({ href, children }: { href: string; children: React.ReactNode
 }
 
 export function LinkPreviewCard({ href }: { href: string }) {
-  const { data, isLoading } = useQuery({
-    queryKey: ["link-preview", href],
-    queryFn: () => fetchLinkPreview(href),
-    staleTime: 60 * 60 * 1000, // matches the API route's own 1h cache
-    retry: false,
-  });
+  const { data, isLoading } = useQuery(linkPreviewQueryOptions(href));
 
   let hostname = href;
   try {

@@ -2,7 +2,8 @@
 
 import { ReactNode, useCallback, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import { LinkPreviewCard } from "./link-preview-card";
+import { useQueryClient } from "@tanstack/react-query";
+import { LinkPreviewCard, linkPreviewQueryOptions } from "./link-preview-card";
 
 // Wraps a block of content whose <a> tags aren't React elements we control
 // — either raw HTML from dangerouslySetInnerHTML (public rich-text
@@ -11,7 +12,16 @@ import { LinkPreviewCard } from "./link-preview-card";
 // mouseover/mouseout pair on this wrapper) plus a manually positioned
 // portal gets the same hover-preview behavior without needing the content
 // to be part of React's tree.
-const OPEN_DELAY_MS = 350;
+//
+// The actual network fetch (server does a DNS lookup + fetches the target
+// page, up to 5s) starts the instant the cursor lands on a link —
+// prefetchQuery below — decoupled from OPEN_DELAY_MS, which only gates
+// when the card becomes *visible* (still needed so a fast mouse pass
+// doesn't flash a card open). That overlap is most of the perceived speed
+// win: by the time the delay elapses, the fetch has already been in
+// flight for that whole time, often already resolved for previously-seen
+// URLs, or well underway for new ones.
+const OPEN_DELAY_MS = 200;
 const CLOSE_DELAY_MS = 150;
 const CARD_WIDTH = 288; // matches LinkPreviewCard's w-72
 const VIEWPORT_MARGIN = 12;
@@ -38,6 +48,7 @@ export function WithLinkPreview({
   const activeAnchorRef = useRef<Element | null>(null);
   const openTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const queryClient = useQueryClient();
 
   const clearTimers = () => {
     if (openTimer.current) clearTimeout(openTimer.current);
@@ -62,6 +73,12 @@ export function WithLinkPreview({
     if (closeTimer.current) clearTimeout(closeTimer.current);
     activeAnchorRef.current = anchor;
 
+    // Starts the network round trip immediately, well before the card is
+    // ever shown — a no-op if this href is already cached from a
+    // previous hover. void: this is fire-and-forget, the card's own
+    // useQuery reads whatever lands in the cache when it mounts.
+    void queryClient.prefetchQuery(linkPreviewQueryOptions(href));
+
     if (openTimer.current) clearTimeout(openTimer.current);
     openTimer.current = setTimeout(() => {
       if (activeAnchorRef.current !== anchor) return;
@@ -72,7 +89,7 @@ export function WithLinkPreview({
       );
       setPreview({ href, top: rect.bottom + 8, left });
     }, OPEN_DELAY_MS);
-  }, []);
+  }, [queryClient]);
 
   const handleMouseOut = useCallback(
     (e: React.MouseEvent<HTMLDivElement>) => {
@@ -93,6 +110,10 @@ export function WithLinkPreview({
         createPortal(
           <div
             role="tooltip"
+            // Fade + slight rise instead of an abrupt pop-in, matching
+            // this project's existing Radix popover/dropdown animation
+            // convention (tw-animate-css's animate-in utilities).
+            className="animate-in fade-in-0 slide-in-from-top-1 duration-150"
             style={{ position: "fixed", top: preview.top, left: preview.left, zIndex: 9999 }}
             onMouseEnter={clearTimers}
             onMouseLeave={scheduleClose}
