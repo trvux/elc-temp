@@ -361,7 +361,10 @@
 }
 .tiptap.ProseMirror .tiptap-image-node-view:hover img,
 .tiptap.ProseMirror .tiptap-image-node-view.ProseMirror-selectednode img {
-  outline-color: var(--primary) !important;
+  /* #93C5FD picked directly from the shadcn-tiptap reference — Tailwind's
+     own blue-300, converted to oklch from tailwindcss/theme.css rather
+     than guessed. */
+  outline-color: oklch(80.9% 0.105 251.813) !important;
   cursor: pointer;
 }
 
