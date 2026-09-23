@@ -85,8 +85,10 @@ export const AlignmentTooolbar = () => {
             {/* Fixed width, not w-max — "Left Align" vs "Justify Align"
                 differ enough in text length that letting the button
                 auto-size shifted every button after it in the toolbar
-                row each time the selected option changed. */}
-            <Button variant="ghost" size="sm" className="h-8 w-[132px] justify-start font-normal">
+                row each time the selected option changed. 172px, not
+                132px — 132 was still narrow enough to truncate "Left
+                Align"/"Justify Align" to "Left Ali…"/"Justify Ali…". */}
+            <Button variant="ghost" size="sm" className="h-8 w-[172px] justify-start font-normal">
               <span className="mr-2 shrink-0">
                 {alignmentOptions[findIndex(currentTextAlign())].icon}
               </span>

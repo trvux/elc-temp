@@ -82,8 +82,10 @@ export const HeadingToolbar = () => {
           <DropdownMenuTrigger disabled={!editor} asChild>
             {/* Fixed width, not w-max — same reflow issue as
                 alignment.tsx: "Normal text"/"Heading 2"/"Heading 3" differ
-                enough to shift every button after this one when switched. */}
-            <Button variant="ghost" size="sm" className="h-8 w-[120px] justify-start font-normal">
+                enough to shift every button after this one when switched.
+                150px, not 120px — 120 was still narrow enough to truncate
+                "Normal text" and "Left Align" to "Norm…"/"Left Ali…". */}
+            <Button variant="ghost" size="sm" className="h-8 w-[150px] justify-start font-normal">
               <span className="mr-2 shrink-0">{current.icon}</span>
               <span className="truncate">{current.name}</span>
               <CaretDown className="ml-auto h-4 w-4 shrink-0" />
