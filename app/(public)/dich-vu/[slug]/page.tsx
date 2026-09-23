@@ -1,9 +1,20 @@
 import type { Metadata } from "next";
+// Imported by direct path, NOT from "@/modules/service" — that barrel's
+// `export *` also re-exports ServiceManagement (the admin editor,
+// TiptapEditor/StarterKit/prosemirror-view and all). Barrel `export *`
+// defeats tree-shaking across that many re-export hops, so importing
+// ServiceDetailModule through it pulled the whole admin editor into this
+// public page's client bundle — confirmed via `next experimental-analyze`
+// (2026-09-24): tiptap-shared.ts and its prosemirror-view chain showed up
+// as real chunk_parts entries mapped to this route's own client output
+// file, not just "listed as available". modules/catalog already avoids
+// this (ProductDetailModule is imported by path, never through its
+// barrel) — this matches that pattern.
 import {
   getServiceBySlugAction,
   getServicesAction,
-  ServiceDetailModule,
-} from "@/modules/service";
+} from "@/modules/service/presentation/actions";
+import { ServiceDetailModule } from "@/modules/service/presentation/components/public/ServiceDetailModule";
 import { BASE_URL } from "@/shared/lib/seo-schema";
 import { primaryImageUrl } from "@/shared/lib/image-asset";
 import { notFound } from "next/navigation";

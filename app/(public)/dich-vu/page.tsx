@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
-import {
-  CardService,
-  getPublishedServicesGroupedAction,
-  mapServiceToCardData,
-} from "@/modules/service";
+// Imported by direct path, NOT from "@/modules/service" — see the same
+// note in dich-vu/[slug]/page.tsx for why (that barrel's `export *` also
+// re-exports the admin ServiceManagement/TiptapEditor chain).
+import { CardService } from "@/modules/service/presentation/components/CardService";
+import { getPublishedServicesGroupedAction } from "@/modules/service/presentation/actions";
+import { mapServiceToCardData } from "@/modules/service/domain/mappers";
 import { Breadcrumbs } from "@/shared/components/organisms/layout/user/breadcrumbs";
 import { ScrollToTop } from "@/shared/components/organisms/layout/user/scroll-to-top";
 import { GridSection } from "@/shared/components/organisms/sections/grid-section";
