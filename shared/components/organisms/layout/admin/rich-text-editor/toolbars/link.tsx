@@ -28,12 +28,21 @@ const LinkToolbar = React.forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className, ...props }, ref) => {
     const { editor } = useToolbar();
     const [link, setLink] = React.useState("");
+    // Captured when the popover opens, not read fresh in handleSubmit —
+    // same fix as the image alt-text form: the Input holds focus while
+    // typing, and closing the popover unmounts it mid-interaction, which
+    // can lose/collapse the editor's selection before the click handler
+    // runs. Re-applying this exact range explicitly (instead of trusting
+    // whatever "current selection" happens to be by then) stops the link
+    // from landing nowhere and the page jumping to the top.
+    const selectionRef = React.useRef<{ from: number; to: number } | null>(null);
 
     const handleSubmit = (e: FormEvent) => {
       e.preventDefault();
       const url = getUrlFromString(link);
-      if (url) {
-        editor?.chain().focus().setLink({ href: url }).run();
+      if (url && editor && selectionRef.current) {
+        const { from, to } = selectionRef.current;
+        editor.chain().focus().setTextSelection({ from, to }).setLink({ href: url }).run();
       }
     };
 
@@ -42,7 +51,14 @@ const LinkToolbar = React.forwardRef<HTMLButtonElement, ButtonProps>(
     }, [editor]);
 
     return (
-      <Popover>
+      <Popover
+        onOpenChange={(open) => {
+          if (open && editor) {
+            const { from, to } = editor.state.selection;
+            selectionRef.current = { from, to };
+          }
+        }}
+      >
         <Tooltip>
           <TooltipTrigger asChild>
             <PopoverTrigger
@@ -113,7 +129,7 @@ const LinkToolbar = React.forwardRef<HTMLButtonElement, ButtonProps>(
                       Remove
                     </Button>
                   )}
-                  <Button size="sm" className="h-8">
+                  <Button type="submit" size="sm" className="h-8">
                     {editor?.getAttributes("link").href ? "Update" : "Confirm"}
                   </Button>
                 </div>
