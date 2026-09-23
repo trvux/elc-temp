@@ -1,7 +1,5 @@
 "use client";
 
-import BubbleMenuExtension from "@tiptap/extension-bubble-menu";
-import FloatingMenuExtension from "@tiptap/extension-floating-menu";
 import Placeholder from "@tiptap/extension-placeholder";
 import { EditorContent, useEditor } from "@tiptap/react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -13,11 +11,7 @@ import { getTiptapExtensions, normalizeTiptapJson } from "@/shared/lib/tiptap-sh
 import { cn } from "@/shared/lib/utils";
 import { convertToWebP } from "@/shared/lib/image";
 
-import { EditorFloatingMenu } from "./rich-text-editor/editor-floating-menu";
-import { ImageBubbleMenu } from "./rich-text-editor/image-bubble-menu";
-import { TableBubbleMenu } from "./rich-text-editor/table-bubble-menu";
-import { TextBubbleMenu } from "./rich-text-editor/text-bubble-menu";
-import { DividerBubbleMenu } from "./rich-text-editor/divider-bubble-menu";
+import { RichTextToolbar } from "./rich-text-editor/toolbars/toolbar";
 import { WithLinkPreview } from "@/shared/components/organisms/link-preview/with-link-preview";
 
 interface RichTextEditorProps {
@@ -45,8 +39,6 @@ const RichTextEditor = ({
 
   const extensions = useMemo(() => [
     ...getTiptapExtensions(),
-    BubbleMenuExtension,
-    FloatingMenuExtension,
     Placeholder.configure({
       placeholder: placeholder || "Bắt đầu viết nội dung...",
     }),
@@ -108,10 +100,10 @@ const RichTextEditor = ({
           const images = files.filter((file) => file.type.startsWith("image/"));
           if (images.length > 0) {
             event.preventDefault();
-            
+
             const coordinates = view.posAtCoords({ left: event.clientX, top: event.clientY });
             const position = coordinates ? coordinates.pos : view.state.selection.from;
-            
+
             (async () => {
               const urls: string[] = [];
               for (const file of images) {
@@ -135,7 +127,7 @@ const RichTextEditor = ({
                   console.error("Lỗi xử lý ảnh khi drop:", error);
                 }
               }
-              
+
               if (urls.length > 0) {
                 let transaction = view.state.tr;
                 let currentPos = position;
@@ -160,7 +152,7 @@ const RichTextEditor = ({
           const images = files.filter((file) => file.type.startsWith("image/"));
           if (images.length > 0) {
             event.preventDefault();
-            
+
             const position = view.state.selection.from;
             (async () => {
               const urls: string[] = [];
@@ -185,7 +177,7 @@ const RichTextEditor = ({
                   console.error("Lỗi xử lý ảnh khi paste:", error);
                 }
               }
-              
+
               if (urls.length > 0) {
                 let transaction = view.state.tr;
                 let currentPos = position;
@@ -211,12 +203,12 @@ const RichTextEditor = ({
   // TipTap ignores prop changes after mount, so we must do this manually.
   useEffect(() => {
     if (!editor) return;
-    
+
     const normalizedIncoming = normalizeTiptapJson(value);
     const normalizedCurrent = normalizeTiptapJson(editor.getJSON());
     const currentJson = JSON.stringify(normalizedCurrent);
     const incomingJson = JSON.stringify(normalizedIncoming);
-    
+
     if (currentJson !== incomingJson) {
       // Nếu editor chưa focus, HOẶC editor đang trống thì ta luôn cho phép
       // nạp dữ liệu từ bên ngoài vào.
@@ -236,12 +228,7 @@ const RichTextEditor = ({
 
   return (
     <div className="relative w-full rounded-2xl border border-border/50 bg-background/60 shadow-xs transition-all focus-within:border-primary/40">
-      {/* Sub-component Menus (SOLID Architecture) */}
-      <TextBubbleMenu editor={editor} />
-      <ImageBubbleMenu editor={editor} />
-      <TableBubbleMenu editor={editor} />
-      <DividerBubbleMenu editor={editor} />
-      <EditorFloatingMenu editor={editor} uploadImage={uploadImage} />
+      <RichTextToolbar editor={editor} uploadImage={uploadImage} />
 
       <WithLinkPreview className="contents">
         <EditorContent editor={editor} />

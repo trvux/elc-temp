@@ -12,6 +12,12 @@ import Bold from "@tiptap/extension-bold";
 import Italic from "@tiptap/extension-italic";
 import Strike from "@tiptap/extension-strike";
 import Underline from "@tiptap/extension-underline";
+import Subscript from "@tiptap/extension-subscript";
+import Superscript from "@tiptap/extension-superscript";
+import { TextStyle } from "@tiptap/extension-text-style";
+import Color from "@tiptap/extension-color";
+import Highlight from "@tiptap/extension-highlight";
+import TextAlign from "@tiptap/extension-text-align";
 import Code from "@tiptap/extension-code";
 import CodeBlock from "@tiptap/extension-code-block";
 import Blockquote from "@tiptap/extension-blockquote";
@@ -81,6 +87,12 @@ function stripMarksFromContent(nodes: TiptapNode[], typesToStrip: string[]): Tip
 // Heading extension's own level clamping, which only applies at
 // render/DOM time, hasn't run yet) — see the clamp below.
 export const HEADING_LEVELS = [2, 3] as const;
+
+// Must match the same `types` passed to TextAlign in both extension lists
+// below — like HEADING_LEVELS, kept as one constant so admin and render
+// can't drift apart on which node types are allowed to carry a textAlign
+// attribute.
+export const TEXT_ALIGN_TYPES = ["heading", "paragraph"] as const;
 
 function normalizeHeadingAttrs(node: TiptapNode): TiptapNode {
   let normalizedContent = node.content
@@ -203,6 +215,20 @@ export const sharedNodeExtensions = () => [
   TableCell,
 ];
 
+// Pure marks/attributes (no ProseMirror view-plugin dependencies) shared by
+// both extension lists — same reasoning as sharedNodeExtensions() above:
+// content authored with any of these in the admin editor must render
+// identically on public pages, so the two lists can't be allowed to drift.
+export const sharedMarkExtensions = () => [
+  Underline,
+  Subscript,
+  Superscript,
+  TextStyle,
+  Color,
+  Highlight.configure({ multicolor: true }),
+  TextAlign.configure({ types: [...TEXT_ALIGN_TYPES] }),
+];
+
 // Read-only set for PreviewContent's generateHTML() call, which runs in
 // every visitor's browser on every product/service/news/page view.
 // StarterKit statically imports Dropcursor/Gapcursor/UndoRedo at module
@@ -230,7 +256,6 @@ export const getTiptapExtensionsForRender = () => [
   Bold,
   Italic,
   Strike,
-  Underline,
   Code,
   CodeBlock,
   Blockquote,
@@ -240,4 +265,5 @@ export const getTiptapExtensionsForRender = () => [
   OrderedList,
   ListItem,
   ...sharedNodeExtensions(),
+  ...sharedMarkExtensions(),
 ];

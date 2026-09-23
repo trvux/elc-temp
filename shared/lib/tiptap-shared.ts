@@ -1,5 +1,6 @@
 import StarterKit from "@tiptap/starter-kit";
-import { HEADING_LEVELS, sharedNodeExtensions } from "@/shared/lib/tiptap-render";
+import { HEADING_LEVELS, sharedMarkExtensions, sharedNodeExtensions } from "@/shared/lib/tiptap-render";
+import { SearchAndReplace } from "@/shared/components/organisms/layout/admin/rich-text-editor/toolbars/search-and-replace";
 
 // Re-exported so rich-text-editor.tsx (the only importer of this file) has
 // one import line for both — this file is intentionally the ONLY place
@@ -22,5 +23,9 @@ export const getTiptapExtensions = () => [
       levels: [...HEADING_LEVELS],
     },
   }),
+  // Editor-only: operates on live decorations, never touches stored
+  // content shape, so it has no counterpart in getTiptapExtensionsForRender.
+  SearchAndReplace,
   ...sharedNodeExtensions(),
+  ...sharedMarkExtensions(),
 ];
