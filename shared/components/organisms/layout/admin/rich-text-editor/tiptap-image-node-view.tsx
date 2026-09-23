@@ -54,7 +54,7 @@ function duplicateContent(editor: Editor) {
 const MIN_WIDTH = 150;
 
 export function TiptapImageNodeView(props: NodeViewProps) {
-  const { node, editor, selected, deleteNode, updateAttributes } = props;
+  const { node, editor, selected, deleteNode, updateAttributes, getPos } = props;
   const imageRef = useRef<HTMLImageElement | null>(null);
   const nodeRef = useRef<HTMLDivElement | null>(null);
   const [resizing, setResizing] = useState(false);
@@ -262,7 +262,20 @@ export function TiptapImageNodeView(props: NodeViewProps) {
                       className="flex flex-col gap-2 p-1"
                       onSubmit={(e) => {
                         e.preventDefault();
-                        updateAttributes({ alt: altDraft });
+                        // Plain updateAttributes() here let the
+                        // NodeSelection get lost the moment the focused
+                        // <Input> unmounts (dropdown closing) — ProseMirror
+                        // fell back to a selection near the document
+                        // start, and the browser then scrolled the page
+                        // there once focus returned. Explicitly re-select
+                        // this exact node by its own position first so the
+                        // update can't land anywhere else.
+                        const pos = getPos();
+                        if (typeof pos === "number") {
+                          editor.chain().setNodeSelection(pos).updateAttributes("image", { alt: altDraft }).run();
+                        } else {
+                          updateAttributes({ alt: altDraft });
+                        }
                         setAltFormOpen(false);
                         setOpenedMore(false);
                       }}
