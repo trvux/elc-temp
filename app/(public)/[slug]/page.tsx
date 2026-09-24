@@ -10,9 +10,16 @@ import { ArrowLeft } from "@phosphor-icons/react/dist/ssr";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Breadcrumbs } from "@/shared/components/organisms/layout/user/breadcrumbs";
-import { GridSection } from "@/shared/components/organisms/sections/grid-section";
 import { unwrapActionResult } from "@/shared/lib/action-result";
 import { BASE_URL } from "@/shared/lib/seo-schema";
+import { cn } from "@/shared/lib/utils";
+
+// The old GridSection component (dashed-line + diamond dividers between
+// sections) was removed entirely (2026-09-24) — sections are now separated
+// by plain spacing only. Every section below is a plain div pair sharing
+// this container class, plus its own py-* override.
+const SECTION_CONTAINER =
+  "mx-auto h-full w-full max-w-350 min-[112.5rem]:max-w-384 px-4 md:px-6 lg:px-12 relative";
 
 interface PageProps {
   params: Promise<{
@@ -54,12 +61,8 @@ export default async function StaticPage({ params }: PageProps) {
   return (
     <main className="w-full bg-background min-h-screen flex flex-col">
       {/* ===== KHỐI 1: CHI TIẾT TRANG ===== */}
-      <GridSection
-        id="static-page-content"
-        isFirst={true}
-        showDiamond={true}
-        contentClassName="py-10 md:py-16"
-      >
+      <div id="static-page-content" className="w-full relative">
+        <div className={cn(SECTION_CONTAINER, "py-10 md:py-16")}>
         {/* max-w-2xl, not max-w-3xl — see tin-tuc/[slug]/page.tsx's
             identical comment: measured against Linear's ~624px blog column
             for readability, 2xl (672px) is the closest Tailwind step. */}
@@ -92,39 +95,34 @@ export default async function StaticPage({ params }: PageProps) {
             />
           </article>
         </div>
-      </GridSection>
+        </div>
+      </div>
 
       {/* ===== KHỐI 3: FOOTER BẢN QUYỀN ===== */}
-      <GridSection
-        id="static-page-footer"
-        isFirst={false}
-        showDiamond={true}
-        contentClassName="py-6 md:py-8 lg:py-10"
-      >
-        <footer className="w-full flex flex-col md:flex-row justify-between items-center gap-6 text-muted-foreground">
-          <TypographySmall>&copy; {currentYear} Điện máy ELC.</TypographySmall>
-          <ScrollToTop className="flex items-center gap-2 cursor-pointer hover:text-foreground transition-colors">
-            <TypographySmall>Quay lại đầu trang</TypographySmall>
-          </ScrollToTop>
-        </footer>
-      </GridSection>
+      <div id="static-page-footer" className="w-full relative">
+        <div className={cn(SECTION_CONTAINER, "py-6 md:py-8 lg:py-10")}>
+          <footer className="w-full flex flex-col md:flex-row justify-between items-center gap-6 text-muted-foreground">
+            <TypographySmall>&copy; {currentYear} Điện máy ELC.</TypographySmall>
+            <ScrollToTop className="flex items-center gap-2 cursor-pointer hover:text-foreground transition-colors">
+              <TypographySmall>Quay lại đầu trang</TypographySmall>
+            </ScrollToTop>
+          </footer>
+        </div>
+      </div>
 
       {/* ===== KHỐI 4: BREADCRUMBS ===== */}
-      <GridSection
-        id="static-page-breadcrumbs"
-        isFirst={false}
-        showDiamond={false}
-        contentClassName="py-1"
-      >
-        <div className="w-full">
-          <Breadcrumbs
-            items={[
-              { label: "Thông tin", href: "/thong-tin" },
-              { label: page.title, active: true },
-            ]}
-          />
+      <div id="static-page-breadcrumbs" className="w-full relative">
+        <div className={cn(SECTION_CONTAINER, "py-1")}>
+          <div className="w-full">
+            <Breadcrumbs
+              items={[
+                { label: "Thông tin", href: "/thong-tin" },
+                { label: page.title, active: true },
+              ]}
+            />
+          </div>
         </div>
-      </GridSection>
+      </div>
     </main>
   );
 }

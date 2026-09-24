@@ -10,13 +10,13 @@ import {Breadcrumbs} from "@/shared/components/organisms/layout/user/breadcrumbs
 import {DetailPager} from "@/shared/components/organisms/layout/user/detail-pager";
 import {PreviewContent} from "@/shared/components/organisms/layout/user/preview-content";
 import {ScrollToTop} from "@/shared/components/organisms/layout/user/scroll-to-top";
-import {GridSection} from "@/shared/components/organisms/sections/grid-section";
 import {AspectRatio} from "@/shared/components/ui/aspect-ratio";
 import {Badge} from "@/shared/components/ui/badge";
 import {TypographyH1, TypographySmall} from "@/shared/components/ui/typography";
 import {BASE_URL, SEOSchema, toJsonLdHtml} from "@/shared/lib/seo-schema";
 import {excerptFromRichText} from "@/shared/lib/rich-text";
 import {primaryImageUrl} from "@/shared/lib/image-asset";
+import {cn} from "@/shared/lib/utils";
 import {Sparkle} from "@phosphor-icons/react/dist/ssr";
 import Image from "next/image";
 import {notFound} from "next/navigation";
@@ -24,6 +24,13 @@ import {notFound} from "next/navigation";
 // Generate static parameters for high performance static pre-rendering
 
 const SITE_NAME = "Điện máy ELC";
+
+// The old GridSection component (dashed-line + diamond dividers between
+// sections) was removed entirely (2026-09-24) — sections are now separated
+// by plain spacing only. Every section below is a plain div pair sharing
+// this container class, plus its own py-* override.
+const SECTION_CONTAINER =
+  "mx-auto h-full w-full max-w-350 min-[112.5rem]:max-w-384 px-4 md:px-6 lg:px-12 relative";
 
 interface ProjectDetailPageProps {
   params: Promise<{ slug: string }>;
@@ -174,12 +181,8 @@ async function ProjectDetailView({
         dangerouslySetInnerHTML={{ __html: toJsonLdHtml({ "@context": "https://schema.org", ...projectSchema }) }}
       />
       {/* ===== KHỐI 1: NỘI DUNG BÀI VIẾT ===== */}
-      <GridSection
-        id="project-detail-content"
-        isFirst={true}
-        showDiamond={true}
-        contentClassName="py-6 md:py-8 lg:py-10"
-      >
+      <div id="project-detail-content" className="w-full relative">
+        <div className={cn(SECTION_CONTAINER, "py-6 md:py-8 lg:py-10")}>
         {/* max-w-2xl, not max-w-3xl — see tin-tuc/[slug]/page.tsx's
             identical comment: measured against Linear's ~624px blog column
             for readability, 2xl (672px) is the closest Tailwind step. */}
@@ -246,68 +249,57 @@ async function ProjectDetailView({
             )}
           </article>
         </div>
-      </GridSection>
+        </div>
+      </div>
 
       {/* ===== KHỐI 2: ĐIỀU HƯỚNG DỰ ÁN TRƯỚC / SAU ===== */}
       {(prev || next) && (
-        <GridSection
-          id="project-detail-pager"
-          isFirst={false}
-          showDiamond={true}
-          contentClassName="py-6 md:py-8 lg:py-10"
-        >
-          <DetailPager
-            prevLabel="Dự án trước"
-            nextLabel="Dự án tiếp theo"
-            prev={
-              prev ? { title: prev.title, href: `/du-an/${prev.slug}` } : null
-            }
-            next={
-              next ? { title: next.title, href: `/du-an/${next.slug}` } : null
-            }
-          />
-        </GridSection>
+        <div id="project-detail-pager" className="w-full relative">
+          <div className={cn(SECTION_CONTAINER, "py-6 md:py-8 lg:py-10")}>
+            <DetailPager
+              prevLabel="Dự án trước"
+              nextLabel="Dự án tiếp theo"
+              prev={
+                prev ? { title: prev.title, href: `/du-an/${prev.slug}` } : null
+              }
+              next={
+                next ? { title: next.title, href: `/du-an/${next.slug}` } : null
+              }
+            />
+          </div>
+        </div>
       )}
 
       {/* ===== KHỐI 3: DỰ ÁN LIÊN QUAN ===== */}
-      <GridSection
-        id="project-detail-related"
-        isFirst={false}
-        showDiamond={true}
-        contentClassName="py-6 md:py-8 lg:py-10"
-      >
-        <RelatedProjects
-          projectTypeId={project.projectTypeId}
-          currentProjectId={project.id}
-        />
-      </GridSection>
+      <div id="project-detail-related" className="w-full relative">
+        <div className={cn(SECTION_CONTAINER, "py-6 md:py-8 lg:py-10")}>
+          <RelatedProjects
+            projectTypeId={project.projectTypeId}
+            currentProjectId={project.id}
+          />
+        </div>
+      </div>
 
       {/* ===== KHỐI 4: FOOTER BẢN QUYỀN ===== */}
-      <GridSection
-        id="project-detail-footer"
-        isFirst={false}
-        showDiamond={true}
-        contentClassName="py-6 md:py-8 lg:py-10"
-      >
-        <footer className="w-full flex flex-col md:flex-row justify-between items-center gap-6 text-muted-foreground">
-          <TypographySmall>&copy; {currentYear} Điện máy ELC.</TypographySmall>
-          <ScrollToTop className="flex items-center gap-2 cursor-pointer hover:text-foreground transition-colors">
-            <TypographySmall>Quay lại đầu trang</TypographySmall>
-          </ScrollToTop>
-        </footer>
-      </GridSection>
+      <div id="project-detail-footer" className="w-full relative">
+        <div className={cn(SECTION_CONTAINER, "py-6 md:py-8 lg:py-10")}>
+          <footer className="w-full flex flex-col md:flex-row justify-between items-center gap-6 text-muted-foreground">
+            <TypographySmall>&copy; {currentYear} Điện máy ELC.</TypographySmall>
+            <ScrollToTop className="flex items-center gap-2 cursor-pointer hover:text-foreground transition-colors">
+              <TypographySmall>Quay lại đầu trang</TypographySmall>
+            </ScrollToTop>
+          </footer>
+        </div>
+      </div>
 
       {/* ===== KHỐI 5: BREADCRUMBS ===== */}
-      <GridSection
-        id="project-detail-breadcrumbs"
-        isFirst={false}
-        showDiamond={false}
-        contentClassName="py-1"
-      >
-        <div className="w-full">
-          <Breadcrumbs items={breadcrumbItems} />
+      <div id="project-detail-breadcrumbs" className="w-full relative">
+        <div className={cn(SECTION_CONTAINER, "py-1")}>
+          <div className="w-full">
+            <Breadcrumbs items={breadcrumbItems} />
+          </div>
         </div>
-      </GridSection>
+      </div>
     </main>
   );
 }

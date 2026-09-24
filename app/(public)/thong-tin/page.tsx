@@ -3,7 +3,6 @@ import { BranchList } from "@/modules/branch";
 import { getBranchesAction } from "@/modules/branch/presentation/actions";
 import { getPagesAction } from "@/modules/page/presentation/actions";
 import { ScrollToTop } from "@/shared/components/organisms/layout/user/scroll-to-top";
-import { GridSection } from "@/shared/components/organisms/sections/grid-section";
 import { PageHero } from "@/shared/components/organisms/sections/page-hero";
 import {
   TypographyH2,
@@ -27,6 +26,13 @@ export const metadata: Metadata = {
 };
 
 const STYLES = {
+  // The old GridSection component (dashed-line + diamond dividers between
+  // sections) was removed entirely (2026-09-24) — sections are now
+  // separated by plain spacing only. Every section below is a plain div
+  // pair sharing this container class, plus its own py-* override.
+  sectionContainer: cn(
+    "mx-auto h-full w-full max-w-350 min-[112.5rem]:max-w-384 px-4 md:px-6 lg:px-12 relative",
+  ),
   header: cn(
     "flex flex-col gap-6 max-w-2xl w-full mx-auto items-center text-center",
   ),
@@ -80,76 +86,67 @@ export default async function InformationHub({
     <main className="w-full bg-background min-h-screen">
       <ScrollToActiveBranch slug={slug} />
       {/* Section 1: Thong tin ve ELC */}
-      <GridSection
-        id="info-section"
-        isFirst={true}
-        showDiamond={true}
-        contentClassName="py-12 md:py-16 lg:py-20 flex flex-col gap-12"
-      >
-        <PageHero
-          title="Thông tin về ELC"
-          description="Các chính sách thương mại và dịch vụ công ty cam kết luôn luôn theo đuổi cam kết thực hiện"
-        />
+      <div id="info-section" className="w-full relative">
+        <div className={cn(STYLES.sectionContainer, "py-12 md:py-16 lg:py-20 flex flex-col gap-12")}>
+          <PageHero
+            title="Thông tin về ELC"
+            description="Các chính sách thương mại và dịch vụ công ty cam kết luôn luôn theo đuổi cam kết thực hiện"
+          />
 
-        {allPages.length === 0 ? (
-          <div className="text-center py-10 min-h-50 flex items-center justify-center border border-dashed rounded-lg bg-background/50 backdrop-blur-sm">
-            <TypographyP className="text-muted-foreground">
-              Chưa có thông tin nào được cập nhật.
-            </TypographyP>
-          </div>
-        ) : (
-          <div className={STYLES.list}>
-            {allPages.map((page) => (
-              <Link
-                key={page.id}
-                href={`/${page.slug}`}
-                className={STYLES.article}
-                prefetch={false}
-              >
-                <div className={STYLES.articleHeader}>
-                  <TypographyH2 className="text-lg font-semibold md:text-xl">
-                    {page.title}
-                  </TypographyH2>
-                  <ArrowUpRight className={STYLES.articleIcon} />
-                </div>
-              </Link>
-            ))}
-          </div>
-        )}
-      </GridSection>
+          {allPages.length === 0 ? (
+            <div className="text-center py-10 min-h-50 flex items-center justify-center border border-dashed rounded-lg bg-background/50 backdrop-blur-sm">
+              <TypographyP className="text-muted-foreground">
+                Chưa có thông tin nào được cập nhật.
+              </TypographyP>
+            </div>
+          ) : (
+            <div className={STYLES.list}>
+              {allPages.map((page) => (
+                <Link
+                  key={page.id}
+                  href={`/${page.slug}`}
+                  className={STYLES.article}
+                  prefetch={false}
+                >
+                  <div className={STYLES.articleHeader}>
+                    <TypographyH2 className="text-lg font-semibold md:text-xl">
+                      {page.title}
+                    </TypographyH2>
+                    <ArrowUpRight className={STYLES.articleIcon} />
+                  </div>
+                </Link>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
 
       {/* Section 2: Co so ha tang cua ELC */}
-      <GridSection
-        id="branches-section"
-        isFirst={false}
-        showDiamond={true}
-        contentClassName="py-12 md:py-16 lg:py-20 flex flex-col gap-12"
-      >
-        <header className={STYLES.header}>
-          <TypographyH2>Cơ sở hạ tầng</TypographyH2>
-          <TypographyLead>
-            Hệ thống không gian trưng bày và trạm dịch vụ của ELC được mở rộng
-            trên toàn quốc với triết lý kiến tạo giá trị đồng nhất
-          </TypographyLead>
-        </header>
+      <div id="branches-section" className="w-full relative">
+        <div className={cn(STYLES.sectionContainer, "py-12 md:py-16 lg:py-20 flex flex-col gap-12")}>
+          <header className={STYLES.header}>
+            <TypographyH2>Cơ sở hạ tầng</TypographyH2>
+            <TypographyLead>
+              Hệ thống không gian trưng bày và trạm dịch vụ của ELC được mở rộng
+              trên toàn quốc với triết lý kiến tạo giá trị đồng nhất
+            </TypographyLead>
+          </header>
 
-        <BranchList branches={allBranches} />
-      </GridSection>
+          <BranchList branches={allBranches} />
+        </div>
+      </div>
 
       {/* Footer Section */}
-      <GridSection
-        id="info-footer"
-        isFirst={false}
-        showDiamond={true}
-        contentClassName="py-8"
-      >
-        <footer className={STYLES.footer}>
-          <TypographySmall>&copy; {currentYear} Điện máy ELC.</TypographySmall>
-          <ScrollToTop className={STYLES.scrollToTop}>
-            <TypographySmall>Quay lại đầu trang</TypographySmall>
-          </ScrollToTop>
-        </footer>
-      </GridSection>
+      <div id="info-footer" className="w-full relative">
+        <div className={cn(STYLES.sectionContainer, "py-8")}>
+          <footer className={STYLES.footer}>
+            <TypographySmall>&copy; {currentYear} Điện máy ELC.</TypographySmall>
+            <ScrollToTop className={STYLES.scrollToTop}>
+              <TypographySmall>Quay lại đầu trang</TypographySmall>
+            </ScrollToTop>
+          </footer>
+        </div>
+      </div>
     </main>
   );
 }

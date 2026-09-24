@@ -7,7 +7,6 @@ import { getPublishedServicesGroupedAction } from "@/modules/service/presentatio
 import { mapServiceToCardData } from "@/modules/service/domain/mappers";
 import { Breadcrumbs } from "@/shared/components/organisms/layout/user/breadcrumbs";
 import { ScrollToTop } from "@/shared/components/organisms/layout/user/scroll-to-top";
-import { GridSection } from "@/shared/components/organisms/sections/grid-section";
 import { PageHero } from "@/shared/components/organisms/sections/page-hero";
 import { TypographySmall } from "@/shared/components/ui/typography";
 import { BASE_URL } from "@/shared/lib/seo-schema";
@@ -22,6 +21,13 @@ export const metadata: Metadata = {
 
 const STYLES = {
   main: cn("w-full bg-background flex flex-col flex-1"),
+  // The old GridSection component (dashed-line + diamond dividers between
+  // sections) was removed entirely (2026-09-24) — sections are now
+  // separated by plain spacing only. Every section below is a plain div
+  // pair sharing this container class, plus its own py-* override.
+  sectionContainer: cn(
+    "mx-auto h-full w-full max-w-350 min-[112.5rem]:max-w-384 px-4 md:px-6 lg:px-12 relative",
+  ),
   footer: cn(
     "w-full flex flex-col md:flex-row justify-between items-center gap-8 text-muted-foreground",
   ),
@@ -48,73 +54,58 @@ export default async function ServicesHub() {
   if (services.length === 0) {
     return (
       <main className={STYLES.main}>
-        <GridSection
-          id="services-header-empty"
-          isFirst={true}
-          showDiamond={true}
-          contentClassName="py-6 md:py-8 lg:py-10"
-        >
-          <PageHero
-            title="Dịch vụ"
-            description="Hiện tại chưa có dịch vụ nào được đăng tải."
-          />
-        </GridSection>
+        <div id="services-header-empty" className="w-full relative">
+          <div className={cn(STYLES.sectionContainer, "py-6 md:py-8 lg:py-10")}>
+            <PageHero
+              title="Dịch vụ"
+              description="Hiện tại chưa có dịch vụ nào được đăng tải."
+            />
+          </div>
+        </div>
       </main>
     );
   }
 
   return (
     <main className={STYLES.main}>
-      <GridSection
-        id="services-header"
-        isFirst={true}
-        showDiamond={true}
-        contentClassName="py-6 md:py-8 lg:py-10"
-      >
-        <PageHero
-          title="Dịch vụ"
-          description="Giải pháp chuyên nghiệp dành cho hệ thống lạnh công nghiệp, điều hòa trung tâm và bảo trì hệ thống"
-        />
-      </GridSection>
-
-      <GridSection
-        id="services-content"
-        isFirst={false}
-        showDiamond={true}
-        contentClassName="py-6 md:py-8 lg:py-10"
-      >
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-          {services.map((service) => {
-            const cardProps = mapServiceToCardData(service);
-            return <CardService key={service.id} {...cardProps} />;
-          })}
+      <div id="services-header" className="w-full relative">
+        <div className={cn(STYLES.sectionContainer, "py-6 md:py-8 lg:py-10")}>
+          <PageHero
+            title="Dịch vụ"
+            description="Giải pháp chuyên nghiệp dành cho hệ thống lạnh công nghiệp, điều hòa trung tâm và bảo trì hệ thống"
+          />
         </div>
-      </GridSection>
+      </div>
 
-      <GridSection
-        id="services-footer"
-        isFirst={false}
-        showDiamond={true}
-        contentClassName="py-6 md:py-8 lg:py-10"
-      >
-        <footer className={STYLES.footer}>
-          <TypographySmall>&copy; {currentYear} Điện máy ELC.</TypographySmall>
-          <ScrollToTop className={STYLES.scrollToTop}>
-            <TypographySmall>Quay lại đầu trang</TypographySmall>
-          </ScrollToTop>
-        </footer>
-      </GridSection>
-
-      <GridSection
-        id="services-breadcrumbs"
-        isFirst={false}
-        showDiamond={false}
-        contentClassName="py-1"
-      >
-        <div className="w-full">
-          <Breadcrumbs items={[{ label: "Dịch vụ", active: true }]} />
+      <div id="services-content" className="w-full relative">
+        <div className={cn(STYLES.sectionContainer, "py-6 md:py-8 lg:py-10")}>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+            {services.map((service) => {
+              const cardProps = mapServiceToCardData(service);
+              return <CardService key={service.id} {...cardProps} />;
+            })}
+          </div>
         </div>
-      </GridSection>
+      </div>
+
+      <div id="services-footer" className="w-full relative">
+        <div className={cn(STYLES.sectionContainer, "py-6 md:py-8 lg:py-10")}>
+          <footer className={STYLES.footer}>
+            <TypographySmall>&copy; {currentYear} Điện máy ELC.</TypographySmall>
+            <ScrollToTop className={STYLES.scrollToTop}>
+              <TypographySmall>Quay lại đầu trang</TypographySmall>
+            </ScrollToTop>
+          </footer>
+        </div>
+      </div>
+
+      <div id="services-breadcrumbs" className="w-full relative">
+        <div className={cn(STYLES.sectionContainer, "py-1")}>
+          <div className="w-full">
+            <Breadcrumbs items={[{ label: "Dịch vụ", active: true }]} />
+          </div>
+        </div>
+      </div>
     </main>
   );
 }

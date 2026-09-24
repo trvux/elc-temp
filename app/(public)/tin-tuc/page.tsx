@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { getNewsAction } from "@/modules/news/presentation/actions";
 import { Breadcrumbs } from "@/shared/components/organisms/layout/user/breadcrumbs";
 import { ScrollToTop } from "@/shared/components/organisms/layout/user/scroll-to-top";
-import { GridSection } from "@/shared/components/organisms/sections/grid-section";
 import { PageHero } from "@/shared/components/organisms/sections/page-hero";
 import Image from "next/image";
 import { primaryImageUrl } from "@/shared/lib/image-asset";
@@ -14,6 +13,7 @@ import Link from "next/link";
 import { unwrapActionResult } from "@/shared/lib/action-result";
 import { getExcerptFromContent } from "@/shared/lib/rich-text";
 import { BASE_URL } from "@/shared/lib/seo-schema";
+import { cn } from "@/shared/lib/utils";
 
 export const metadata: Metadata = {
   title: "Tin tức & kiến thức điện lạnh | Điện máy ELC",
@@ -24,6 +24,12 @@ export const metadata: Metadata = {
 
 const STYLES = {
   main: "w-full bg-background min-h-screen",
+  // The old GridSection component (dashed-line + diamond dividers between
+  // sections) was removed entirely (2026-09-24) — sections are now
+  // separated by plain spacing only. Every section below is a plain div
+  // pair sharing this container class, plus its own py-* override.
+  sectionContainer:
+    "mx-auto h-full w-full max-w-350 min-[112.5rem]:max-w-384 px-4 md:px-6 lg:px-12 relative",
   list: "flex flex-col w-full min-h-[400px] animate-fade-in-up",
   article:
     "group flex flex-row justify-between items-center gap-4 sm:gap-6 md:gap-8 py-8 border-b border-border/60 last:border-b-0 no-underline transition-all duration-300 w-full",
@@ -62,12 +68,14 @@ export default async function NewsHub() {
   if (!allNews || allNews.length === 0) {
     return (
       <main className={STYLES.main}>
-        <GridSection id="news-header-empty" isFirst={true} showDiamond={true}>
-          <PageHero
-            title="Tin tức"
-            description="Hiện tại chưa có tin tức nào được đăng tải."
-          />
-        </GridSection>
+        <div id="news-header-empty" className="w-full relative">
+          <div className={cn(STYLES.sectionContainer, "py-12 md:py-20 lg:py-32")}>
+            <PageHero
+              title="Tin tức"
+              description="Hiện tại chưa có tin tức nào được đăng tải."
+            />
+          </div>
+        </div>
       </main>
     );
   }
@@ -75,25 +83,18 @@ export default async function NewsHub() {
   return (
     <main className={STYLES.main}>
       {/* Khối 1: Tiêu đề trang */}
-      <GridSection
-        id="news-header"
-        isFirst={true}
-        showDiamond={true}
-        contentClassName="py-6 md:py-8 lg:py-10"
-      >
-        <PageHero
-          title="Tin tức"
-          description="Cập nhật những giải pháp kỹ thuật mới nhất và các tin tức chuyên sâu từ đội ngũ kỹ sư ELC"
-        />
-      </GridSection>
+      <div id="news-header" className="w-full relative">
+        <div className={cn(STYLES.sectionContainer, "py-6 md:py-8 lg:py-10")}>
+          <PageHero
+            title="Tin tức"
+            description="Cập nhật những giải pháp kỹ thuật mới nhất và các tin tức chuyên sâu từ đội ngũ kỹ sư ELC"
+          />
+        </div>
+      </div>
 
       {/* Khối 2: Danh sách bài viết */}
-      <GridSection
-        id="news-content"
-        isFirst={false}
-        showDiamond={true}
-        contentClassName="py-6 md:py-8 lg:py-10"
-      >
+      <div id="news-content" className="w-full relative">
+        <div className={cn(STYLES.sectionContainer, "py-6 md:py-8 lg:py-10")}>
         <div className="max-w-3xl mx-auto w-full">
           <div className={STYLES.list}>
             {allNews.map((news, index) => {
@@ -146,34 +147,29 @@ export default async function NewsHub() {
             })}
           </div>
         </div>
-      </GridSection>
+        </div>
+      </div>
 
       {/* Khối 3: Footer */}
-      <GridSection
-        id="news-footer"
-        isFirst={false}
-        showDiamond={true}
-        contentClassName="py-6 md:py-8 lg:py-10"
-      >
-        <footer className={STYLES.footer}>
-          <TypographySmall>&copy; {currentYear} Điện máy ELC.</TypographySmall>
-          <ScrollToTop className={STYLES.scrollToTop}>
-            <TypographySmall>Quay lại đầu trang</TypographySmall>
-          </ScrollToTop>
-        </footer>
-      </GridSection>
+      <div id="news-footer" className="w-full relative">
+        <div className={cn(STYLES.sectionContainer, "py-6 md:py-8 lg:py-10")}>
+          <footer className={STYLES.footer}>
+            <TypographySmall>&copy; {currentYear} Điện máy ELC.</TypographySmall>
+            <ScrollToTop className={STYLES.scrollToTop}>
+              <TypographySmall>Quay lại đầu trang</TypographySmall>
+            </ScrollToTop>
+          </footer>
+        </div>
+      </div>
 
       {/* Khối 4: Breadcrumbs */}
-      <GridSection
-        id="news-breadcrumbs"
-        isFirst={false}
-        showDiamond={false}
-        contentClassName="py-1"
-      >
-        <div className="w-full">
-          <Breadcrumbs items={[{ label: "Tin tức", active: true }]} />
+      <div id="news-breadcrumbs" className="w-full relative">
+        <div className={cn(STYLES.sectionContainer, "py-1")}>
+          <div className="w-full">
+            <Breadcrumbs items={[{ label: "Tin tức", active: true }]} />
+          </div>
         </div>
-      </GridSection>
+      </div>
     </main>
   );
 }

@@ -23,7 +23,6 @@ import Link from "next/link";
 import { getPublicLayoutData } from "@/modules/settings";
 import { primaryImageUrl } from "@/shared/lib/image-asset";
 import { excerptFromRichText } from "@/shared/lib/rich-text";
-import { GridSection } from "@/shared/components/organisms/sections/grid-section";
 import { unwrapActionResult } from "@/shared/lib/action-result";
 import { BASE_URL } from "@/shared/lib/seo-schema";
 
@@ -34,6 +33,13 @@ const getZoomedUrl = (url: string, zoomLevel = "15") => {
 
 // Design System / Style Constants
 const STYLES = {
+  // The old GridSection component (dashed-line + diamond dividers between
+  // sections) was removed entirely (2026-09-24) — sections are now
+  // separated by plain spacing only. Every section below is a plain div
+  // pair sharing this container class, plus its own py-* override.
+  sectionContainer: cn(
+    "mx-auto h-full w-full max-w-350 min-[112.5rem]:max-w-384 px-4 md:px-6 lg:px-12 relative",
+  ),
   title: cn("w-full max-w-none! text-wrap!"),
   section: cn("w-full"),
   accordion: cn("w-full"),
@@ -157,12 +163,8 @@ export default async function BranchDetail({ params }: Props) {
   return (
     <main className="w-full bg-background min-h-screen flex flex-col">
       {/* ===== KHỐI 1: CHI TIẾT CƠ SỞ ===== */}
-      <GridSection
-        id="branch-detail-content"
-        isFirst={true}
-        showDiamond={true}
-        contentClassName="py-10 md:py-16"
-      >
+      <div id="branch-detail-content" className="w-full relative">
+        <div className={cn(STYLES.sectionContainer, "py-10 md:py-16")}>
         {/* max-w-2xl, not max-w-3xl — see tin-tuc/[slug]/page.tsx's
             identical comment: measured against Linear's ~624px blog column
             for readability, 2xl (672px) is the closest Tailwind step. */}
@@ -227,39 +229,34 @@ export default async function BranchDetail({ params }: Props) {
             />
           </article>
         </div>
-      </GridSection>
+        </div>
+      </div>
 
       {/* ===== KHỐI 3: FOOTER BẢN QUYỀN ===== */}
-      <GridSection
-        id="branch-detail-footer"
-        isFirst={false}
-        showDiamond={true}
-        contentClassName="py-6 md:py-8 lg:py-10"
-      >
-        <footer className="w-full flex flex-col md:flex-row justify-between items-center gap-6 text-muted-foreground">
-          <TypographySmall>&copy; {currentYear} Điện máy ELC.</TypographySmall>
-          <ScrollToTop className="flex items-center gap-2 cursor-pointer hover:text-foreground transition-colors">
-            <TypographySmall>Quay lại đầu trang</TypographySmall>
-          </ScrollToTop>
-        </footer>
-      </GridSection>
+      <div id="branch-detail-footer" className="w-full relative">
+        <div className={cn(STYLES.sectionContainer, "py-6 md:py-8 lg:py-10")}>
+          <footer className="w-full flex flex-col md:flex-row justify-between items-center gap-6 text-muted-foreground">
+            <TypographySmall>&copy; {currentYear} Điện máy ELC.</TypographySmall>
+            <ScrollToTop className="flex items-center gap-2 cursor-pointer hover:text-foreground transition-colors">
+              <TypographySmall>Quay lại đầu trang</TypographySmall>
+            </ScrollToTop>
+          </footer>
+        </div>
+      </div>
 
       {/* ===== KHỐI 4: BREADCRUMBS ===== */}
-      <GridSection
-        id="branch-detail-breadcrumbs"
-        isFirst={false}
-        showDiamond={false}
-        contentClassName="py-1"
-      >
-        <div className="w-full">
-          <Breadcrumbs
-            items={[
-              { label: "Thông tin", href: "/thong-tin" },
-              { label: branch.name, active: true },
-            ]}
-          />
+      <div id="branch-detail-breadcrumbs" className="w-full relative">
+        <div className={cn(STYLES.sectionContainer, "py-1")}>
+          <div className="w-full">
+            <Breadcrumbs
+              items={[
+                { label: "Thông tin", href: "/thong-tin" },
+                { label: branch.name, active: true },
+              ]}
+            />
+          </div>
         </div>
-      </GridSection>
+      </div>
     </main>
   );
 }

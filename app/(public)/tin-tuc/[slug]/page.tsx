@@ -9,7 +9,6 @@ import { Breadcrumbs } from "@/shared/components/organisms/layout/user/breadcrum
 import { DetailPager } from "@/shared/components/organisms/layout/user/detail-pager";
 import { PreviewContent } from "@/shared/components/organisms/layout/user/preview-content";
 import { ScrollToTop } from "@/shared/components/organisms/layout/user/scroll-to-top";
-import { GridSection } from "@/shared/components/organisms/sections/grid-section";
 import Image from "next/image";
 import { primaryImageUrl } from "@/shared/lib/image-asset";
 import {
@@ -32,6 +31,12 @@ import { cn } from "@/shared/lib/utils";
 // Design System / Style Constants
 const STYLES = {
   main: "w-full bg-background min-h-screen",
+  // The old GridSection component (dashed-line + diamond dividers between
+  // sections) was removed entirely (2026-09-24) — sections are now
+  // separated by plain spacing only. Every section below is a plain div
+  // pair sharing this container class, plus its own py-* override.
+  sectionContainer:
+    "mx-auto h-full w-full max-w-350 min-[112.5rem]:max-w-384 px-4 md:px-6 lg:px-12 relative",
   title: "w-full max-w-none! text-wrap! font-heading leading-tight",
   footer:
     "w-full flex flex-col md:flex-row justify-between items-center gap-6 text-muted-foreground",
@@ -222,12 +227,8 @@ export default async function NewsDetailPage({ params }: PageProps) {
   return (
     <main className={STYLES.main}>
       {/* Khối 1: Chi tiết bài viết */}
-      <GridSection
-        id="news-detail-content"
-        isFirst={true}
-        showDiamond={true}
-        contentClassName="py-10 md:py-16"
-      >
+      <div id="news-detail-content" className="w-full relative">
+        <div className={cn(STYLES.sectionContainer, "py-10 md:py-16")}>
         {/* max-w-2xl (672px), not max-w-3xl (768px) — measured against
             Linear's own blog column (624px) for comparison (2026-09-24): a
             768px line at body text size runs past the ~50-75
@@ -264,16 +265,13 @@ export default async function NewsDetailPage({ params }: PageProps) {
             />
           </article>
         </div>
-      </GridSection>
+        </div>
+      </div>
 
       {/* Khối 2b: Sản phẩm liên quan */}
       {relatedProducts.length > 0 && (
-        <GridSection
-          id="news-related-products"
-          isFirst={false}
-          showDiamond={true}
-          contentClassName="py-10 md:py-16"
-        >
+        <div id="news-related-products" className="w-full relative">
+          <div className={cn(STYLES.sectionContainer, "py-10 md:py-16")}>
           <div className="max-w-4xl mx-auto w-full">
             <div className="flex items-center justify-between gap-4 mb-6">
               <TypographyH2 className="text-xl md:text-2xl font-bold tracking-tight font-heading">
@@ -297,17 +295,14 @@ export default async function NewsDetailPage({ params }: PageProps) {
               ))}
             </div>
           </div>
-        </GridSection>
+          </div>
+        </div>
       )}
 
       {/* Khối 3: Bài viết liên quan */}
       {relatedNews.length > 0 && (
-        <GridSection
-          id="news-related"
-          isFirst={false}
-          showDiamond={true}
-          contentClassName="py-10 md:py-16"
-        >
+        <div id="news-related" className="w-full relative">
+          <div className={cn(STYLES.sectionContainer, "py-10 md:py-16")}>
           <div className="max-w-3xl mx-auto w-full">
             <h3 className="text-xl md:text-2xl font-bold tracking-tight text-foreground mb-8 font-heading text-center md:text-left">
               Bài viết liên quan
@@ -354,16 +349,13 @@ export default async function NewsDetailPage({ params }: PageProps) {
               })}
             </div>
           </div>
-        </GridSection>
+          </div>
+        </div>
       )}
 
       {/* Khối 4: Điều hướng Pager (Trước / Sau) */}
-      <GridSection
-        id="news-detail-nav"
-        isFirst={false}
-        showDiamond={true}
-        contentClassName="py-8"
-      >
+      <div id="news-detail-nav" className="w-full relative">
+        <div className={cn(STYLES.sectionContainer, "py-8")}>
         <DetailPager
           prev={
             prevNews
@@ -378,30 +370,24 @@ export default async function NewsDetailPage({ params }: PageProps) {
           prevLabel="Bài viết trước"
           nextLabel="Bài viết sau"
         />
-      </GridSection>
+        </div>
+      </div>
 
       {/* Khối 5: Footer bản quyền */}
-      <GridSection
-        id="news-detail-footer"
-        isFirst={false}
-        showDiamond={true}
-        contentClassName="py-6 md:py-8 lg:py-10"
-      >
+      <div id="news-detail-footer" className="w-full relative">
+        <div className={cn(STYLES.sectionContainer, "py-6 md:py-8 lg:py-10")}>
         <footer className={STYLES.footer}>
           <TypographySmall>&copy; {currentYear} Điện máy ELC.</TypographySmall>
           <ScrollToTop className="flex items-center gap-2 cursor-pointer hover:text-foreground transition-colors">
             <TypographySmall>Quay lại đầu trang</TypographySmall>
           </ScrollToTop>
         </footer>
-      </GridSection>
+        </div>
+      </div>
 
       {/* Khối 6: Breadcrumbs */}
-      <GridSection
-        id="news-detail-breadcrumbs"
-        isFirst={false}
-        showDiamond={false}
-        contentClassName="py-1"
-      >
+      <div id="news-detail-breadcrumbs" className="w-full relative">
+        <div className={cn(STYLES.sectionContainer, "py-1")}>
         <div className="w-full">
           <Breadcrumbs
             items={[
@@ -410,7 +396,8 @@ export default async function NewsDetailPage({ params }: PageProps) {
             ]}
           />
         </div>
-      </GridSection>
+        </div>
+      </div>
     </main>
   );
 }

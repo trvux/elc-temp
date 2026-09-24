@@ -82,18 +82,6 @@ interface FooterProps {
   currentYear?: number;
 }
 
-const borderColor = "border-muted-foreground/35";
-
-function DashedDivider() {
-  return (
-    <div className="absolute top-0 left-0 w-full h-px z-10 pointer-events-none">
-      <div className="absolute left-1/2 h-px w-screen -translate-x-1/2">
-        <hr className={`-mt-px w-full border-dashed ${borderColor}`} />
-      </div>
-    </div>
-  );
-}
-
 export function Footer({
   branches = [],
   projects = [],
@@ -125,24 +113,12 @@ export function Footer({
 
   return (
     <footer className="w-full relative bg-background">
-      {/* Top divider with diamonds matching GridSection */}
-      <div className="absolute top-0 left-0 w-full h-px z-10 pointer-events-none">
-        <div className="absolute left-1/2 h-px w-screen -translate-x-1/2">
-          <hr className={`-mt-px w-full border-dashed ${borderColor}`} />
-          <div className="relative mx-auto h-px w-full max-w-350 min-[112.5rem]:max-w-384 px-4 md:px-6 lg:px-8">
-            <span
-              className={`border ${borderColor} bg-background absolute top-1/2 left-0 z-20 w-2.5 h-2.5 -translate-x-1/2 -translate-y-1/2 rotate-45 rounded-[1px] hidden lg:block`}
-            />
-            <span
-              className={`border ${borderColor} bg-background absolute top-1/2 right-0 z-20 w-2.5 h-2.5 translate-x-1/2 -translate-y-1/2 rotate-45 rounded-[1px] hidden lg:block`}
-            />
-          </div>
-        </div>
-      </div>
-
-      <div
-        className={`mx-auto h-full w-full max-w-350 border-dashed min-[87.5rem]:border-x min-[112.5rem]:max-w-384 px-4 md:px-6 lg:px-8 relative ${borderColor} py-10 md:py-16 lg:py-20`}
-      >
+      {/* No divider line/diamond here anymore — see grid-section.tsx's own
+          removal comment (2026-09-24) for why. Footer separates from the
+          page above it, and its own internal subsections, by spacing alone
+          (this wrapper's own py-10/16/20 plus each subsection's pt-12
+          pb-16 below). */}
+      <div className="mx-auto h-full w-full max-w-350 min-[112.5rem]:max-w-384 px-4 md:px-6 lg:px-12 relative py-10 md:py-16 lg:py-20">
         {/* ===== SECTION 1: Logo + Navigation ===== */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-y-12 gap-x-8 pb-16">
           {/* Logo & Description */}
@@ -237,8 +213,6 @@ export function Footer({
         {/* ===== BRAND SECTION: Thương hiệu đối tác ===== */}
         {brands.length > 0 && (
           <div className="relative pt-12 pb-16">
-            <DashedDivider />
-
             <div className="flex flex-col gap-8">
               <div className="flex items-center justify-between">
                 <TypographyH2 className="text-lg md:text-xl font-bold tracking-tight text-foreground font-heading">
@@ -300,8 +274,6 @@ export function Footer({
         {/* ===== SECTION 2: Danh mục Sản phẩm (dynamic from DB groups) ===== */}
         {productColumns.length > 0 && (
           <div className="relative pt-12 pb-16">
-            <DashedDivider />
-
             <div className="flex flex-col gap-8">
               <div className="flex items-center justify-between">
                 <TypographyH2 className="text-lg md:text-xl font-bold tracking-tight text-foreground font-heading">
@@ -361,8 +333,6 @@ export function Footer({
         {/* ===== SECTION 3: Dự án nổi bật (grouped by service type) ===== */}
         {projects.length > 0 && (
           <div className="relative pt-12 pb-16">
-            <DashedDivider />
-
             <div className="flex flex-col gap-8">
               <div className="flex items-center justify-between">
                 <TypographyH2 className="text-lg md:text-xl font-bold tracking-tight text-foreground font-heading">
@@ -467,8 +437,6 @@ export function Footer({
 
         {/* ===== SECTION 4: Copyright bar ===== */}
         <div className="relative pt-10">
-          <DashedDivider />
-
           {/* Sử dụng grid-cols-1 cho mobile (xếp chồng) và grid-cols-10 cho màn hình lớn */}
           <div className="grid grid-cols-1 lg:grid-cols-10 gap-6 items-start">
             {/* Cột 1: Chiếm 4 phần (4/10) */}

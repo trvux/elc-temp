@@ -8,7 +8,6 @@ import { unwrapActionResult } from "@/shared/lib/action-result";
 import { Breadcrumbs } from "@/shared/components/organisms/layout/user/breadcrumbs";
 import { FilteredGridWrapper } from "@/shared/components/organisms/layout/user/filtered-grid-wrapper";
 import { ScrollToTop } from "@/shared/components/organisms/layout/user/scroll-to-top";
-import { GridSection } from "@/shared/components/organisms/sections/grid-section";
 import { PageHero } from "@/shared/components/organisms/sections/page-hero";
 import { ProductDescription } from "@/shared/components/organisms/layout/user/product-description";
 import { PreviewContent } from "@/shared/components/organisms/layout/user/preview-content";
@@ -16,6 +15,7 @@ import { Button } from "@/shared/components/ui/button";
 import { TypographySmall } from "@/shared/components/ui/typography";
 import { getQueryTokens } from "@/shared/lib/search-utils";
 import { BASE_URL, toJsonLdHtml } from "@/shared/lib/seo-schema";
+import { cn } from "@/shared/lib/utils";
 import Image from "next/image";
 import Link from "next/link";
 import { Suspense } from "react";
@@ -31,6 +31,12 @@ interface ProjectListModuleProps {
 
 const STYLES = {
   main: "w-full bg-background min-h-screen",
+  // The old GridSection component (dashed-line + diamond dividers between
+  // sections) was removed entirely (2026-09-24) — sections are now
+  // separated by plain spacing only. Every section below is a plain div
+  // pair sharing this container class, plus its own py-* override.
+  sectionContainer:
+    "mx-auto h-full w-full max-w-350 min-[112.5rem]:max-w-384 px-4 md:px-6 lg:px-12 relative",
   container: "mx-auto w-full max-w-350 flex flex-col",
   header: "flex flex-col items-center text-center gap-4 max-w-4xl mx-auto",
   badgeWrapper: "flex items-center gap-2 mt-2",
@@ -308,41 +314,34 @@ export async function ProjectListModule({
 
   return (
     <main className={STYLES.main}>
-      <GridSection
-        id="projects-header"
-        isFirst={true}
-        showDiamond={true}
-        contentClassName="py-6 md:py-8 lg:py-10"
-      >
-        <PageHero
-          className={STYLES.header}
-          title={pageTitle}
-          description={pageSubtitle}
-        >
-          {/* Project Type Representative Image - Hidden if null */}
-          {projectType && projectType.image && (
-            <div className="w-full max-w-4xl mt-6 overflow-hidden rounded-md border border-border/40 shadow-sm animate-fade-in-up">
-              <AspectRatio ratio={21 / 9}>
-                <Image
-                  src={projectType.image}
-                  alt={projectType.name}
-                  fill
-                  className="object-cover"
-                  priority
-                  sizes="(max-width: 1024px) 100vw, 1024px"
-                />
-              </AspectRatio>
-            </div>
-          )}
-        </PageHero>
-      </GridSection>
+      <div id="projects-header" className="w-full relative">
+        <div className={cn(STYLES.sectionContainer, "py-6 md:py-8 lg:py-10")}>
+          <PageHero
+            className={STYLES.header}
+            title={pageTitle}
+            description={pageSubtitle}
+          >
+            {/* Project Type Representative Image - Hidden if null */}
+            {projectType && projectType.image && (
+              <div className="w-full max-w-4xl mt-6 overflow-hidden rounded-md border border-border/40 shadow-sm animate-fade-in-up">
+                <AspectRatio ratio={21 / 9}>
+                  <Image
+                    src={projectType.image}
+                    alt={projectType.name}
+                    fill
+                    className="object-cover"
+                    priority
+                    sizes="(max-width: 1024px) 100vw, 1024px"
+                  />
+                </AspectRatio>
+              </div>
+            )}
+          </PageHero>
+        </div>
+      </div>
 
-      <GridSection
-        id="projects-content"
-        isFirst={false}
-        showDiamond={true}
-        contentClassName="py-6 md:py-8 lg:py-10"
-      >
+      <div id="projects-content" className="w-full relative">
+        <div className={cn(STYLES.sectionContainer, "py-6 md:py-8 lg:py-10")}>
         <div className="flex flex-col lg:flex-row gap-12">
           {/* Desktop filter sidebar */}
           <aside className="hidden lg:block w-64 shrink-0 sticky top-28 self-start">
@@ -407,50 +406,42 @@ export async function ProjectListModule({
             </FilteredGridWrapper>
           </div>
         </div>
-      </GridSection>
+        </div>
+      </div>
 
       {/* Đặt sau lưới dự án, không phải trước — người xem trang phân khúc
           cần thấy dự án trước tiên; nội dung mô tả chỉ dành cho ai muốn tìm
           hiểu thêm, nên không nên chắn đường xem dự án trước lưới, cùng
           convention ProductListModule.tsx dùng cho heroContent. */}
       {heroContent ? (
-        <GridSection
-          id="projects-hero-content"
-          isFirst={false}
-          showDiamond={true}
-          contentClassName="py-6 md:py-8 lg:py-10"
-        >
-          <ProductDescription variant="hero">
-            <PreviewContent content={heroContent} fallbackAlt={projectType?.name} size="sm" className="typeset-hero" />
-          </ProductDescription>
-        </GridSection>
+        <div id="projects-hero-content" className="w-full relative">
+          <div className={cn(STYLES.sectionContainer, "py-6 md:py-8 lg:py-10")}>
+            <ProductDescription variant="hero">
+              <PreviewContent content={heroContent} fallbackAlt={projectType?.name} size="sm" className="typeset-hero" />
+            </ProductDescription>
+          </div>
+        </div>
       ) : null}
 
-      <GridSection
-        id="products-footer"
-        isFirst={false}
-        showDiamond={true}
-        contentClassName="py-6 md:py-8 lg:py-10"
-      >
-        <footer className={STYLES.footer}>
-          <TypographySmall className="text-xs text-muted-foreground/75">
-            &copy; {currentYear} Điện máy ELC.
-          </TypographySmall>
-          <ScrollToTop className={STYLES.scrollToTop}>
-            <TypographySmall>Quay lại đầu trang</TypographySmall>
-          </ScrollToTop>
-        </footer>
-      </GridSection>
+      <div id="products-footer" className="w-full relative">
+        <div className={cn(STYLES.sectionContainer, "py-6 md:py-8 lg:py-10")}>
+          <footer className={STYLES.footer}>
+            <TypographySmall className="text-xs text-muted-foreground/75">
+              &copy; {currentYear} Điện máy ELC.
+            </TypographySmall>
+            <ScrollToTop className={STYLES.scrollToTop}>
+              <TypographySmall>Quay lại đầu trang</TypographySmall>
+            </ScrollToTop>
+          </footer>
+        </div>
+      </div>
 
-      <GridSection
-        id="projects-breadcrumbs"
-        isFirst={false}
-        showDiamond={false}
-        contentClassName="py-1"
-      >
-        {/* Breadcrumbs */}
-        <Breadcrumbs items={breadcrumbItems} />
-      </GridSection>
+      <div id="projects-breadcrumbs" className="w-full relative">
+        <div className={cn(STYLES.sectionContainer, "py-1")}>
+          {/* Breadcrumbs */}
+          <Breadcrumbs items={breadcrumbItems} />
+        </div>
+      </div>
 
       {/* JSON-LD Schema markup for Google Rich Snippets */}
       {(() => {

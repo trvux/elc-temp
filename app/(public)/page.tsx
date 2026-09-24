@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 
 import { CTASection } from "@/shared/components/organisms/sections/cta";
 import { FeaturesSection } from "@/shared/components/organisms/sections/features";
-import { GridSection } from "@/shared/components/organisms/sections/grid-section";
 import { HeroSection } from "@/shared/components/organisms/sections/hero";
 import { ProjectBounceCardsSection } from "@/shared/components/organisms/sections/project-bounce-cards";
 
@@ -81,12 +80,6 @@ export default async function Home() {
 
   const categorySections = (categoriesWithProducts || []).map((catData, idx) => ({
     id: `category-${catData.category.slug}`,
-    className: "",
-    // The first category section sits directly under HeroSection (not a
-    // GridSection itself, so its own boundary line has no diamond markers
-    // to begin with) — showing them only on this one junction read as a
-    // stray leftover rather than a deliberate divider.
-    showDiamond: idx !== 0,
     component: (
       <FeaturesSection
         title={catData.category.name}
@@ -103,8 +96,6 @@ export default async function Home() {
     ...categorySections,
     {
       id: "project-marquee",
-      className: "",
-      showDiamond: true,
       component: (
         <ProjectBounceCardsSection
           projects={(projects || []).filter((p) => p.isFeatured)}
@@ -114,8 +105,6 @@ export default async function Home() {
     },
     {
       id: "cta",
-      className: "", // bg-background text-foreground dark
-      showDiamond: true,
       component: <CTASection settings={settings} contacts={contacts || []} />,
     },
   ];
@@ -130,16 +119,14 @@ export default async function Home() {
         <div id="hero-chat-region">
           <HeroSection brands={brands || []} />
         </div>
+        {/* Section separation is now pure spacing, no divider/diamond — see
+            grid-section.tsx's own removal comment (2026-09-24) for why. */}
         {sections.map((section) => (
-          <GridSection
-            key={section.id}
-            id={section.id}
-            className={section.className}
-            isFirst={false}
-            showDiamond={section.showDiamond}
-          >
-            {section.component}
-          </GridSection>
+          <div key={section.id} id={section.id} className="w-full relative">
+            <div className="mx-auto h-full w-full max-w-350 min-[112.5rem]:max-w-384 px-4 md:px-6 lg:px-12 relative py-12 md:py-20 lg:py-32">
+              {section.component}
+            </div>
+          </div>
         ))}
       </main>
     </>

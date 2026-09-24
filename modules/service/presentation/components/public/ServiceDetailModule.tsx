@@ -10,7 +10,6 @@ import { ProductDescription } from "@/shared/components/organisms/layout/user/pr
 import { PreviewContent } from "@/shared/components/organisms/layout/user/preview-content";
 import RelatedServices from "@/shared/components/organisms/layout/user/related-services";
 import { ScrollToTop } from "@/shared/components/organisms/layout/user/scroll-to-top";
-import { GridSection } from "@/shared/components/organisms/sections/grid-section";
 import { AspectRatio } from "@/shared/components/ui/aspect-ratio";
 import { Badge } from "@/shared/components/ui/badge";
 import {
@@ -41,6 +40,13 @@ interface ServiceDetailModuleProps {
 
 const STYLES = {
   main: cn("w-full bg-background min-h-screen flex flex-col"),
+  // The old GridSection component (dashed-line + diamond dividers between
+  // sections) was removed entirely (2026-09-24) — sections are now
+  // separated by plain spacing only. Every section below is a plain div
+  // pair sharing this container class, plus its own py-* override.
+  sectionContainer: cn(
+    "mx-auto h-full w-full max-w-350 min-[112.5rem]:max-w-384 px-4 md:px-6 lg:px-12 relative",
+  ),
   topSection: cn(
     "grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-start",
   ),
@@ -114,12 +120,8 @@ export async function ServiceDetailModule({
         />
       )}
       {/* ===== SECTION 1: IMAGE + SERVICE INFO ===== */}
-      <GridSection
-        id="service-detail-top"
-        isFirst={true}
-        showDiamond={true}
-        contentClassName="py-6 md:py-8 lg:py-10"
-      >
+      <div id="service-detail-top" className="w-full relative">
+        <div className={cn(STYLES.sectionContainer, "py-6 md:py-8 lg:py-10")}>
         <div className="w-full animate-fade-in-up">
           <div className={STYLES.topSection}>
             <div className={STYLES.imageArea}>
@@ -216,16 +218,13 @@ export async function ServiceDetailModule({
             </div>
           </div>
         </div>
-      </GridSection>
+        </div>
+      </div>
 
       {/* ===== SECTION 2: SERVICE DESCRIPTION TABS ===== */}
       {service.content && (
-        <GridSection
-          id="service-detail-tabs"
-          isFirst={false}
-          showDiamond={true}
-          contentClassName="py-6 md:py-8 lg:py-10"
-        >
+        <div id="service-detail-tabs" className="w-full relative">
+          <div className={cn(STYLES.sectionContainer, "py-6 md:py-8 lg:py-10")}>
           <div className="w-full">
             <Tabs defaultValue="description" className="w-full">
               <TabsList className={STYLES.tabsListWrapper}>
@@ -241,90 +240,76 @@ export async function ServiceDetailModule({
               </TabsContent>
             </Tabs>
           </div>
-        </GridSection>
+          </div>
+        </div>
       )}
 
       {/* ===== SECTION 2.5: FAQ ===== */}
       {faqs.length > 0 && (
-        <GridSection
-          id="service-detail-faq"
-          isFirst={false}
-          showDiamond={true}
-          contentClassName="py-6 md:py-8 lg:py-10"
-        >
-          <FAQAccordion faqs={faqs} />
-        </GridSection>
+        <div id="service-detail-faq" className="w-full relative">
+          <div className={cn(STYLES.sectionContainer, "py-6 md:py-8 lg:py-10")}>
+            <FAQAccordion faqs={faqs} />
+          </div>
+        </div>
       )}
 
       {/* ===== SECTION 3: SERVICE PAGER ===== */}
       {(prev || next) && (
-        <GridSection
-          id="service-detail-pager"
-          isFirst={false}
-          showDiamond={true}
-          contentClassName="py-6 md:py-8 lg:py-10"
-        >
-          <DetailPager
-            prevLabel="Dịch vụ trước"
-            nextLabel="Dịch vụ tiếp theo"
-            prev={
-              prev ? { title: prev.title, href: `/dich-vu/${prev.slug}` } : null
-            }
-            next={
-              next ? { title: next.title, href: `/dich-vu/${next.slug}` } : null
-            }
-          />
-        </GridSection>
+        <div id="service-detail-pager" className="w-full relative">
+          <div className={cn(STYLES.sectionContainer, "py-6 md:py-8 lg:py-10")}>
+            <DetailPager
+              prevLabel="Dịch vụ trước"
+              nextLabel="Dịch vụ tiếp theo"
+              prev={
+                prev ? { title: prev.title, href: `/dich-vu/${prev.slug}` } : null
+              }
+              next={
+                next ? { title: next.title, href: `/dich-vu/${next.slug}` } : null
+              }
+            />
+          </div>
+        </div>
       )}
 
       {/* ===== SECTION 4: RELATED SERVICES ===== */}
       {service.groupId && (
-        <GridSection
-          id="service-detail-related"
-          isFirst={false}
-          showDiamond={true}
-          contentClassName="py-6 md:py-8 lg:py-10"
-        >
-          <div className="w-full">
-            <RelatedServices
-              groupId={service.groupId}
-              currentServiceId={service.id}
-            />
+        <div id="service-detail-related" className="w-full relative">
+          <div className={cn(STYLES.sectionContainer, "py-6 md:py-8 lg:py-10")}>
+            <div className="w-full">
+              <RelatedServices
+                groupId={service.groupId}
+                currentServiceId={service.id}
+              />
+            </div>
           </div>
-        </GridSection>
+        </div>
       )}
 
       {/* ===== SECTION 5: FOOTER ===== */}
-      <GridSection
-        id="service-detail-footer"
-        isFirst={false}
-        showDiamond={true}
-        contentClassName="py-6 md:py-8 lg:py-10"
-      >
-        <footer className={STYLES.footer}>
-          <TypographySmall>&copy; {currentYear} Điện máy ELC.</TypographySmall>
-          <ScrollToTop className={STYLES.scrollToTop}>
-            <TypographySmall>Quay lại đầu trang</TypographySmall>
-          </ScrollToTop>
-        </footer>
-      </GridSection>
+      <div id="service-detail-footer" className="w-full relative">
+        <div className={cn(STYLES.sectionContainer, "py-6 md:py-8 lg:py-10")}>
+          <footer className={STYLES.footer}>
+            <TypographySmall>&copy; {currentYear} Điện máy ELC.</TypographySmall>
+            <ScrollToTop className={STYLES.scrollToTop}>
+              <TypographySmall>Quay lại đầu trang</TypographySmall>
+            </ScrollToTop>
+          </footer>
+        </div>
+      </div>
 
       {/* ===== SECTION 6: BREADCRUMBS ===== */}
-      <GridSection
-        id="service-detail-breadcrumbs"
-        isFirst={false}
-        showDiamond={false}
-        contentClassName="py-1"
-      >
-        <div className="w-full">
-          <Breadcrumbs
-            items={[
-              { label: "Dịch vụ", href: "/dich-vu" },
-              { label: service.title, active: true },
-            ]}
-          />
+      <div id="service-detail-breadcrumbs" className="w-full relative">
+        <div className={cn(STYLES.sectionContainer, "py-1")}>
+          <div className="w-full">
+            <Breadcrumbs
+              items={[
+                { label: "Dịch vụ", href: "/dich-vu" },
+                { label: service.title, active: true },
+              ]}
+            />
+          </div>
         </div>
-      </GridSection>
+      </div>
     </main>
   );
 }
