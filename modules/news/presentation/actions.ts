@@ -1,7 +1,14 @@
 "use server";
 
 import { revalidatePath, revalidateTag } from "next/cache";
-import { News, CreateNewsInput, UpdateNewsInput, NewsFilter, ImageAsset } from "../domain";
+import { News, CreateNewsInput, UpdateNewsInput, NewsFilter, ImageAsset, TitleAlign } from "../domain";
+
+const TITLE_ALIGN_VALUES: readonly TitleAlign[] = ["left", "center", "right"];
+function normalizeTitleAlign(value: string): TitleAlign {
+  return (TITLE_ALIGN_VALUES as readonly string[]).includes(value)
+    ? (value as TitleAlign)
+    : "left";
+}
 import { authHeaders, toSnakeCaseBody } from "@/shared/lib/go-api";
 import { submitToIndexNow } from "@/shared/lib/indexnow";
 import { warmCache } from "@/shared/lib/cache-warm";
@@ -12,6 +19,7 @@ const GO_API_URL = process.env.GO_API_URL;
 interface GoNewsResponse {
   id: string;
   title: string;
+  title_align: string;
   slug: string;
   images: ImageAsset[];
   content: unknown;
@@ -38,6 +46,7 @@ function mapGoNews(row: GoNewsResponse): News {
   return {
     id: row.id,
     title: row.title,
+    titleAlign: normalizeTitleAlign(row.title_align),
     slug: row.slug,
     images: row.images || [],
     content: row.content as News["content"],

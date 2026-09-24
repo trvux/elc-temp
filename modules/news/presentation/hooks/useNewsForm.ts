@@ -8,11 +8,12 @@ import { toast } from "sonner";
 import { convertToWebP } from "@/shared/lib/image";
 import { uploadImageFile } from "@/shared/lib/upload-image";
 
-import { News, createNewsSchema, Json, ImageAsset } from "../../domain";
+import { News, createNewsSchema, Json, ImageAsset, TitleAlign } from "../../domain";
 import { createNewsAction, updateNewsAction } from "../actions";
 
 export type NewsFormValues = {
   title: string;
+  titleAlign: TitleAlign;
   slug: string;
   images: ImageAsset[];
   content: unknown;
@@ -37,6 +38,7 @@ export function useNewsForm(
     resolver: standardSchemaResolver(createNewsSchema) as unknown as Resolver<NewsFormValues>,
     defaultValues: {
       title: "",
+      titleAlign: "left",
       slug: "",
       images: [],
       content: "",

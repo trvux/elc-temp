@@ -27,6 +27,7 @@ import { BASE_URL } from "@/shared/lib/seo-schema";
 import { ArrowLeft, ArrowRightIcon } from "@phosphor-icons/react/dist/ssr";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { cn } from "@/shared/lib/utils";
 
 // Design System / Style Constants
 const STYLES = {
@@ -246,7 +247,15 @@ export default async function NewsDetailPage({ params }: PageProps) {
                 {formattedDate}
               </TypographySmall>
             )}
-            <TypographyH1 className={STYLES.title}>{title}</TypographyH1>
+            <TypographyH1
+              className={cn(
+                STYLES.title,
+                newsItem.titleAlign === "center" && "text-center",
+                newsItem.titleAlign === "right" && "text-right",
+              )}
+            >
+              {title}
+            </TypographyH1>
           </div>
           <article>
             <PreviewContent

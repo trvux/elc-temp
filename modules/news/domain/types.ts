@@ -9,9 +9,12 @@ export type Json =
   | { [key: string]: Json | undefined }
   | Json[];
 
+export type TitleAlign = "left" | "center" | "right";
+
 export interface News {
   id: string;
   title: string;
+  titleAlign: TitleAlign;
   slug: string;
   images: ImageAsset[];
   content: Json;
@@ -30,6 +33,7 @@ export interface News {
 
 export interface CreateNewsInput {
   title: string;
+  titleAlign?: TitleAlign;
   slug: string;
   images?: ImageAsset[];
   content?: Json;

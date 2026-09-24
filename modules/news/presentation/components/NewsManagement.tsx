@@ -1,7 +1,7 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Plus, Upload, X } from "@phosphor-icons/react";
+import { Plus, TextAlignCenter, TextAlignLeft, TextAlignRight, Upload, X } from "@phosphor-icons/react";
 import Image from "next/image";
 import { useMemo, useState } from "react";
 import { Controller } from "react-hook-form";
@@ -29,6 +29,7 @@ import {
 } from "@/shared/components/ui/select";
 import { Switch } from "@/shared/components/ui/switch";
 import { TiptapEditor } from "@/shared/components/ui/tiptap-editor";
+import { ToggleGroup, ToggleGroupItem } from "@/shared/components/ui/toggle-group";
 
 import { News } from "../../domain";
 import {
@@ -125,6 +126,7 @@ export function NewsManagement() {
           setEditing(n);
           form.reset({
             title: n.title,
+            titleAlign: n.titleAlign,
             slug: n.slug,
             images: n.images || [],
             content: n.content as unknown,
@@ -148,6 +150,7 @@ export function NewsManagement() {
     setEditing(null);
     form.reset({
       title: "",
+      titleAlign: "left",
       slug: "",
       images: [],
       content: "",
@@ -393,7 +396,40 @@ export function NewsManagement() {
                     name="title"
                     render={({ field, fieldState }) => (
                       <Field>
-                        <FieldLabel>Tiêu đề bài viết *</FieldLabel>
+                        <div className="flex items-center justify-between gap-3">
+                          <FieldLabel>Tiêu đề bài viết *</FieldLabel>
+                          <Controller
+                            control={form.control}
+                            name="titleAlign"
+                            render={({ field: alignField }) => (
+                              <ToggleGroup
+                                type="single"
+                                variant="outline"
+                                size="sm"
+                                value={alignField.value}
+                                onValueChange={(value) => {
+                                  // Radix ToggleGroup type="single" fires
+                                  // onValueChange with "" when the already-
+                                  // selected item is clicked again (its
+                                  // "deselect" behavior) — ignore that so
+                                  // titleAlign can never end up empty/
+                                  // unselected in the form.
+                                  if (value) alignField.onChange(value);
+                                }}
+                              >
+                                <ToggleGroupItem value="left" aria-label="Căn trái" title="Căn trái">
+                                  <TextAlignLeft className="size-4" />
+                                </ToggleGroupItem>
+                                <ToggleGroupItem value="center" aria-label="Căn giữa" title="Căn giữa">
+                                  <TextAlignCenter className="size-4" />
+                                </ToggleGroupItem>
+                                <ToggleGroupItem value="right" aria-label="Căn phải" title="Căn phải">
+                                  <TextAlignRight className="size-4" />
+                                </ToggleGroupItem>
+                              </ToggleGroup>
+                            )}
+                          />
+                        </div>
                         <Input
                           {...field}
                           placeholder="VD: 5 mẹo tiết kiệm điện khi dùng máy lạnh"
