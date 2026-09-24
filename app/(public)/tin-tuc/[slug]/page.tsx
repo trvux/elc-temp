@@ -232,23 +232,28 @@ export default async function NewsDetailPage({ params }: PageProps) {
         {/* Body copy stays at max-w-2xl (672px, closest Tailwind step to
             Linear's measured 624px blog column) for readability, but the
             header block (back link/date/title) and article are allowed to
-            widen up to 56.25rem (900px) — Linear's h1 container measured
-            FLUID, not stepped: width = min(900px, 100% - 3rem) at every
-            viewport from 500px up to 1920px (dense sweep, ~20 widths),
-            never jumping the way a sm:/md:/lg: breakpoint would. A first
-            attempt using md:max-w-3xl lg:max-w-4xl/5xl looked right at the
-            3 checked breakpoints but visibly mismatched Linear at in-between
-            widths (confirmed: user screenshots at intermediate widths where
-            Linear had already wrapped to 2 lines and ours hadn't, or vice
-            versa) — because Tailwind's fixed steps can never track a
-            continuously-scaling target. A single max-w-[56.25rem] (no
-            breakpoint variants) reproduces the same fluid-then-capped
-            curve here, since this wrapper is already nested inside
-            sectionContainer's own padding, so "100%" here is already
-            viewport-relative. Body text's max-w-2xl doesn't need this
-            treatment — Linear's paragraph column is a flat 624px, no
-            fluid range below that cap. */}
-        <div className="max-w-[56.25rem] mx-auto w-full flex flex-col gap-6 animate-fade-in-up">
+            widen fluidly — matching Linear's own h1, which is NOT stepped:
+            width = min(900px, 100% - 3rem) at every viewport from 500px to
+            1920px (dense sweep, ~20 widths), never jumping the way a
+            sm:/md:/lg: breakpoint would (a first attempt using stepped
+            md:/lg: classes visibly mismatched Linear at in-between
+            widths). A single max-w-[Nrem] (no breakpoint variants)
+            reproduces that fluid-then-capped curve here, since this
+            wrapper already sits inside sectionContainer's own padding, so
+            "100%" is already viewport-relative.
+
+            The cap itself is 62.5rem (1000px), not Linear's exact 900px:
+            our font renders the same string measurably wider than theirs
+            even at identical size/weight/letter-spacing (confirmed via
+            DOM-clone measurement — Linear's self-hosted "Inter Variable"
+            vs our next/font/google "Inter" gave 834.7px vs 907.1px for the
+            same 43-char test title, a ~9% gap from font metrics, not a
+            CSS bug). Self-hosting Linear's exact font build was considered
+            and declined (2026-09-24) — 1000px gives enough headroom to
+            fit real titles at the ~9% gap without over-widening. Body
+            text's max-w-2xl doesn't need this — Linear's paragraph column
+            is a flat 624px, no fluid range below that cap. */}
+        <div className="max-w-[62.5rem] mx-auto w-full flex flex-col gap-6 animate-fade-in-up">
           <div>
             <Link
               href="/tin-tuc"
