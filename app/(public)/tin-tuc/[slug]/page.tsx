@@ -227,7 +227,12 @@ export default async function NewsDetailPage({ params }: PageProps) {
         showDiamond={true}
         contentClassName="py-10 md:py-16"
       >
-        <div className="max-w-3xl mx-auto w-full flex flex-col gap-6 animate-fade-in-up">
+        {/* max-w-2xl (672px), not max-w-3xl (768px) — measured against
+            Linear's own blog column (624px) for comparison (2026-09-24): a
+            768px line at body text size runs past the ~50-75
+            character-per-line readability guideline, tracked as the "hard
+            to follow" feeling. 2xl is the closest Tailwind scale step. */}
+        <div className="max-w-2xl mx-auto w-full flex flex-col gap-6 animate-fade-in-up">
           <div>
             <Link
               href="/tin-tuc"

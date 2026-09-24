@@ -180,7 +180,10 @@ async function ProjectDetailView({
         showDiamond={true}
         contentClassName="py-6 md:py-8 lg:py-10"
       >
-        <div className="max-w-3xl mx-auto flex flex-col gap-6 animate-fade-in-up">
+        {/* max-w-2xl, not max-w-3xl — see tin-tuc/[slug]/page.tsx's
+            identical comment: measured against Linear's ~624px blog column
+            for readability, 2xl (672px) is the closest Tailwind step. */}
+        <div className="max-w-2xl mx-auto flex flex-col gap-6 animate-fade-in-up">
           {/* Title */}
           <TypographyH1>{project.title}</TypographyH1>
 

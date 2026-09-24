@@ -270,7 +270,13 @@ export async function ProductDetailModule({
                 <TypographyH2 className="text-xl md:text-2xl font-bold tracking-tight text-center mb-8">
                   Mô tả sản phẩm
                 </TypographyH2>
-                <div className="max-w-4xl mx-auto">
+                {/* max-w-2xl, not max-w-4xl — was even wider than the
+                    other 4 pages rendering PreviewContent (all max-w-3xl,
+                    now also max-w-2xl), an inconsistency on top of the
+                    readability issue. See tin-tuc/[slug]/page.tsx's
+                    identical comment: measured against Linear's ~624px
+                    blog column, 2xl (672px) is the closest Tailwind step. */}
+                <div className="max-w-2xl mx-auto">
                   <ProductDescription>
                     <PreviewContent content={product.description} fallbackAlt={product.name} size="lg" />
                   </ProductDescription>

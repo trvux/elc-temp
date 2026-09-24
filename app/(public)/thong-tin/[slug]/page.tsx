@@ -163,7 +163,10 @@ export default async function BranchDetail({ params }: Props) {
         showDiamond={true}
         contentClassName="py-10 md:py-16"
       >
-        <div className="max-w-3xl mx-auto w-full flex flex-col gap-6 animate-fade-in-up">
+        {/* max-w-2xl, not max-w-3xl — see tin-tuc/[slug]/page.tsx's
+            identical comment: measured against Linear's ~624px blog column
+            for readability, 2xl (672px) is the closest Tailwind step. */}
+        <div className="max-w-2xl mx-auto w-full flex flex-col gap-6 animate-fade-in-up">
           <div>
             <Link
               href="/thong-tin"

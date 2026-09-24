@@ -4,12 +4,16 @@
 @import "./typeset.css";
 
 .typeset-docs {
-  /* --font-sans/--font-heading are already Inter/Merriweather (see
-     app/layout.tsx) — no separate --font-inter/--font-merriweather alias
-     needed. --font-geist-mono is the one font loaded specifically for
-     typeset's code blocks (the site's own --font-mono is JetBrains Mono). */
+  /* Heading uses the same sans (Inter) as body, not --font-heading
+     (Merriweather) — measured against Linear's own blog for comparison
+     (2026-09-24): Linear renders h1/h2/body all in one Inter family, which
+     reads as one cohesive voice. Mixing in a serif for headings only
+     created a visible seam between title and body that Linear's uniform
+     type doesn't have. --font-geist-mono is the one font loaded
+     specifically for typeset's code blocks (the site's own --font-mono is
+     JetBrains Mono). */
   --typeset-font-body: var(--font-sans);
-  --typeset-font-heading: var(--font-heading);
+  --typeset-font-heading: var(--font-sans);
   --typeset-font-mono: var(--font-geist-mono);
   --typeset-size: 16px;
   --typeset-leading: 1.6;
