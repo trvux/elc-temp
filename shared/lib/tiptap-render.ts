@@ -192,7 +192,19 @@ export function createImageExtension() {
           renderHTML: (attributes) => {
             const align = normalizeAlign(attributes.align);
             const classes = cn(
-              "my-8 block transition-all duration-300 ease-in-out rounded-sm",
+              "block transition-all duration-300 ease-in-out rounded-sm",
+              // Skip my-8 when this image has a caption — it'll be wrapped
+              // in a <figure> below, and typeset.css already gives figure
+              // its own margin-block-start plus figcaption its own
+              // margin-block-start. Keeping my-8 on the <img> itself here
+              // too stacked a second, unrelated margin on top of both
+              // (their adjacent-sibling margins don't collapse inside the
+              // figure the way two bare block siblings would), which is
+              // why a captioned image's gap to its caption showed up much
+              // wider on the public page than the admin NodeView's own
+              // preview (which never applied this class to the <img> at
+              // all — only to the NodeViewWrapper around the whole node).
+              !attributes.title && "my-8",
               align === "left" && "mr-auto ml-0",
               align === "center" && "mx-auto",
               align === "right" && "ml-auto mr-0",
