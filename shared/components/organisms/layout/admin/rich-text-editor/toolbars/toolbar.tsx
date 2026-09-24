@@ -45,26 +45,26 @@ export const RichTextToolbar = ({ editor }: RichTextToolbarProps) => {
           divider. */}
       <div
         className="flex items-start gap-2 overflow-x-auto rounded-t-2xl border-b border-border/50 bg-muted/40 p-1.5"
-        // The single most important line in this file. Clicking any
-        // toolbar button (all outside the ProseMirror contentEditable)
-        // blurs it — and that blur, before any onClick handler even runs,
-        // let the browser collapse the editor's live selection to the end
-        // of the document. Every command then ran against that wrong,
-        // collapsed-at-the-end selection instead of the user's actual
-        // cursor/selection: Link's new URL text kept landing appended at
-        // the very end no matter where the cursor was (confirmed with a
-        // debug log — selectionRef captured {from: 15, to: 15} on a
-        // 14-character document every time), and the exact same thing
-        // silently affected Bold/Italic/etc. too — just invisibly, since
-        // toggling a mark on a collapsed selection produces no visible
-        // artifact. preventDefault() on mousedown, the standard technique
+        // Clicking a plain toolbar BUTTON (Bold, Heading's trigger, etc.)
+        // blurs the ProseMirror contentEditable before any onClick even
+        // runs — preventDefault() on mousedown, the standard technique
         // every rich-text-editor toolbar uses (Slate, Draft.js, Quill),
-        // stops the blur/selection-collapse from ever happening. Safe to
-        // put on this whole row: Popover/DropdownMenu *content* (the Link
-        // URL input, Search & Replace, etc.) is portaled to document.body,
-        // entirely outside this element's DOM subtree, so those inputs
-        // are unaffected and still focus normally.
-        onMouseDown={(e) => e.preventDefault()}
+        // stops that blur so the editor's selection is never disturbed.
+        //
+        // Scoped to actual buttons, not the whole row: Popover/DropdownMenu
+        // *content* (Link's URL input, Search & Replace, etc.) is portaled
+        // to document.body in the DOM, but React's synthetic events still
+        // bubble along the REACT COMPONENT tree regardless of where a
+        // Portal renders its DOM — so an unconditional preventDefault here
+        // reached those portaled inputs too and blocked the browser's
+        // default "focus this input" behavior on click, making them
+        // impossible to type into at all. Only intercept when the mousedown
+        // actually landed on a <button>.
+        onMouseDown={(e) => {
+          if ((e.target as HTMLElement).closest("button")) {
+            e.preventDefault();
+          }
+        }}
       >
         <div className="flex flex-1 flex-col gap-1">
           {/* Row 1: history, heading, and core inline marks/lists — the
