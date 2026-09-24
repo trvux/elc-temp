@@ -21,6 +21,7 @@ import { Input } from "@/shared/components/ui/input";
 import { Switch } from "@/shared/components/ui/switch";
 import { Textarea } from "@/shared/components/ui/textarea";
 import { TiptapEditor } from "@/shared/components/ui/tiptap-editor";
+import { TitleAlignField } from "@/shared/components/ui/title-align-field";
 import { capitalize, generateSlug } from "@/shared/lib/helpers";
 import { uploadImageFile } from "@/shared/lib/upload-image";
 
@@ -101,6 +102,7 @@ export function BranchManagement() {
           }
           form.reset({
             name: b.name,
+            nameAlign: b.nameAlign,
             slug: b.slug,
             address: b.address || "",
             phone: b.phone || "",
@@ -129,6 +131,7 @@ export function BranchManagement() {
     setActiveBranch("new");
     form.reset({
       name: "",
+      nameAlign: "left",
       slug: "",
       address: "",
       phone: "",
@@ -192,7 +195,10 @@ export function BranchManagement() {
                     name="name"
                     render={({ field, fieldState }) => (
                       <Field>
-                        <FieldLabel>Tên chi nhánh *</FieldLabel>
+                        <div className="flex items-center justify-between gap-3">
+                          <FieldLabel>Tên chi nhánh *</FieldLabel>
+                          <TitleAlignField control={form.control} name="nameAlign" />
+                        </div>
                         <Input
                           {...field}
                           placeholder="Văn phòng Quận 1"

@@ -177,7 +177,13 @@ export default async function BranchDetail({ params }: Props) {
               <ArrowLeft className="w-3 h-3 transition-transform group-hover:-translate-x-0.5" />
               <span>Quay lại danh mục</span>
             </Link>
-            <TypographyH1 className="w-full max-w-none! text-wrap! font-heading leading-tight">
+            <TypographyH1
+              className={cn(
+                "w-full max-w-none! text-wrap! font-heading leading-tight",
+                branch.nameAlign === "center" && "text-center",
+                branch.nameAlign === "right" && "text-right",
+              )}
+            >
               {branch.name}
             </TypographyH1>
             {primaryImageUrl(branch.images) && (

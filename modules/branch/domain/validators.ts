@@ -12,6 +12,7 @@ const branchSchema = z.object({
         .string()
         .min(1, {message: "Tên chi nhánh không được để trống"})
         .max(100, {message: "Tên chi nhánh không được quá 100 ký tự"}),
+    nameAlign: z.enum(["left", "center", "right"]),
     slug: z
         .string()
         .min(1, {message: "Slug không được để trống"})

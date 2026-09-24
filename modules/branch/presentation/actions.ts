@@ -3,12 +3,14 @@
 import { revalidatePath, revalidateTag } from "next/cache";
 import { Branch, CreateBranchInput, UpdateBranchInput, BranchFilter, Json, ImageAsset } from "../domain";
 import { authHeaders, toSnakeCaseBody } from "@/shared/lib/go-api";
+import { normalizeTitleAlign } from "@/shared/lib/title-align";
 
 const GO_API_URL = process.env.GO_API_URL;
 
 interface GoBranchResponse {
   id: string;
   name: string;
+  name_align: string;
   slug: string;
   address: string;
   phone: string;
@@ -41,6 +43,7 @@ function mapGoBranch(row: GoBranchResponse): Branch {
   return {
     id: row.id,
     name: row.name,
+    nameAlign: normalizeTitleAlign(row.name_align),
     slug: row.slug,
     address: row.address,
     phone: row.phone,

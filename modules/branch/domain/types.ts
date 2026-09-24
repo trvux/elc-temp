@@ -8,10 +8,13 @@ export type Json =
 
 import type { ImageAsset } from "@/shared/lib/image-asset";
 export type { ImageAsset };
+import type { TitleAlign } from "@/shared/lib/title-align";
+export type { TitleAlign };
 
 export interface Branch {
   id: string;
   name: string;
+  nameAlign: TitleAlign;
   slug: string;
   address: string;
   phone: string;
@@ -36,6 +39,7 @@ export interface Branch {
 
 export interface CreateBranchInput {
   name: string;
+  nameAlign?: TitleAlign;
   slug: string;
   address: string;
   phone: string;
