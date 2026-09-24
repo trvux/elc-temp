@@ -14,7 +14,11 @@ export function TypographyH1({ children, className }: Typography) {
         // font-semibold, not font-extrabold — measured against Linear's
         // own blog H1 for comparison (2026-09-24): weight 590 there, far
         // closer to Tailwind's semibold (600) step than extrabold (800).
-        "scroll-m-20 font-heading text-3xl font-semibold tracking-tight md:text-4xl",
+        // md:text-5xl (48px), not md:text-4xl (36px) — that same
+        // comparison measured Linear's own H1 at a flat 48px on desktop,
+        // by far the single biggest gap of any heading level checked
+        // (H2/H3/body were all within ~15%, this was 25%).
+        "scroll-m-20 font-heading text-3xl font-semibold tracking-tight md:text-5xl",
         className,
       )}
     >

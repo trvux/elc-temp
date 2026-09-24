@@ -66,6 +66,21 @@
   letter-spacing: var(--tracking-tight);
 }
 
+/* typeset.css's own h2 (1.25em) and h3 (1.125em) ratios, at typeset-lg's
+   18px base, land at 22.5px and 20.25px — close to Linear's h2/h3 but not
+   exact, and notably Linear renders its h2 AND h3 at the identical flat
+   24px/weight-590 (verified directly against the real article DOM, not
+   assumed: both "Introducing a more cohesive..." (h2) and "1. Environment"
+   (h3) measure 24px — a deliberate design choice on their part, not felt
+   in the em-ratio system typeset defaults to, which always differentiates
+   h2 from h3). 24/18 = 4/3 — matching that exactly here means content
+   inside .typeset no longer visually distinguishes h2 from h3 by size
+   (only by whatever spacing/margin difference remains), same as Linear's
+   own article. */
+.typeset :where(h2, h3) {
+  font-size: calc(4 / 3 * 1em);
+}
+
 /* Quiet, reference-only reading material on category/brand listing pages
    (below the product grid) — must not compete with the page's real H1. */
 .typeset-docs.typeset-hero {
