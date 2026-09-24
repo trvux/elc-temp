@@ -13,7 +13,7 @@ import { BoldToolbar } from "./bold";
 import { BulletListToolbar } from "./bullet-list";
 import { CodeToolbar } from "./code";
 import { CodeBlockToolbar } from "./code-block";
-import { ColorHighlightToolbar } from "./color-and-highlight";
+import { HighlightToolbar, TextColorToolbar } from "./color-and-highlight";
 import { HardBreakToolbar } from "./hard-break";
 import { HeadingToolbar } from "./heading";
 import { HorizontalRuleToolbar } from "./horizontal-rule";
@@ -96,7 +96,8 @@ export const RichTextToolbar = ({ editor }: RichTextToolbarProps) => {
               beyond the demo. */}
           <div className="flex items-center gap-0.5">
             <AlignmentTooolbar />
-            <ColorHighlightToolbar />
+            <TextColorToolbar />
+            <HighlightToolbar />
 
             <Separator orientation="vertical" className="mx-1 h-6" />
 
