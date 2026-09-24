@@ -15,7 +15,7 @@
   --typeset-font-body: var(--font-sans);
   --typeset-font-heading: var(--font-sans);
   --typeset-font-mono: var(--font-geist-mono);
-  --typeset-size: 16px;
+  --typeset-size: var(--text-base);
   --typeset-leading: 1.6;
   --typeset-flow: 1.25em;
 }
@@ -28,8 +28,30 @@
   --typeset-size: var(--text-sm);
 }
 
+/* typeset-lg (PreviewContent's default size — every article/product/
+   project body uses this) is responsive, not flat, and grows toward
+   desktop rather than shrinking toward it. typeset.css's own base rule
+   multiplies --typeset-size by 1.125 below its 48rem breakpoint and uses
+   it flat at/above — a deliberate "boost small screens for readability"
+   design (their own docs say as much), but measured against Linear's own
+   blog for comparison (2026-09-24), Linear's body text does the opposite:
+   15px on mobile/tablet, 17px on desktop, growing toward desktop like most
+   sites' responsive type does. Rather than fight that built-in multiplier
+   with an arbitrary px input, feed it Tailwind scale tokens whose result
+   after typeset's own math lands close to Linear's numbers: --text-sm
+   (14px) below 48rem renders at 14×1.125=15.75px (~ Linear's 15px), and
+   --text-lg (18px) at/above 48rem renders flat at 18px (~ Linear's 17px).
+   48rem is typeset.css's own hardcoded breakpoint, which happens to equal
+   Tailwind's own --breakpoint-md — reusing it here, not introducing a new
+   one. */
 .typeset-docs.typeset-lg {
-  --typeset-size: var(--text-lg);
+  --typeset-size: var(--text-sm);
+}
+
+@media (min-width: 48rem) {
+  .typeset-docs.typeset-lg {
+    --typeset-size: var(--text-lg);
+  }
 }
 
 /* Quiet, reference-only reading material on category/brand listing pages
