@@ -63,10 +63,14 @@ export default async function StaticPage({ params }: PageProps) {
       {/* ===== KHỐI 1: CHI TIẾT TRANG ===== */}
       <div id="static-page-content" className="w-full relative">
         <div className={cn(SECTION_CONTAINER, "py-10 md:py-16")}>
-        {/* max-w-2xl, not max-w-3xl — see tin-tuc/[slug]/page.tsx's
-            identical comment: measured against Linear's ~624px blog column
-            for readability, 2xl (672px) is the closest Tailwind step. */}
-        <div className="max-w-2xl mx-auto w-full flex flex-col gap-6 animate-fade-in-up">
+        {/* Body copy stays at max-w-2xl (672px, closest Tailwind step to
+            Linear's measured 624px blog column) for readability, but the
+            header block (back link/date/title) and article are allowed to
+            widen at md/lg — matching Linear's own layout, where its h1's
+            own container is measurably wider than its body-paragraph
+            column (786px tablet / 900px desktop vs. a 624px-capped body),
+            not tied to the same max-width. */}
+        <div className="max-w-2xl md:max-w-3xl lg:max-w-4xl mx-auto w-full flex flex-col gap-6 animate-fade-in-up">
           <div>
             <Link
               href="/thong-tin"
@@ -94,7 +98,7 @@ export default async function StaticPage({ params }: PageProps) {
               {page.title}
             </TypographyH1>
           </div>
-          <article>
+          <article className="max-w-2xl mx-auto w-full">
             <PreviewContent
               content={page.content}
               fallbackAlt={page.title}

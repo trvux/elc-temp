@@ -229,12 +229,15 @@ export default async function NewsDetailPage({ params }: PageProps) {
       {/* Khối 1: Chi tiết bài viết */}
       <div id="news-detail-content" className="w-full relative">
         <div className={cn(STYLES.sectionContainer, "py-10 md:py-16")}>
-        {/* max-w-2xl (672px), not max-w-3xl (768px) — measured against
-            Linear's own blog column (624px) for comparison (2026-09-24): a
-            768px line at body text size runs past the ~50-75
-            character-per-line readability guideline, tracked as the "hard
-            to follow" feeling. 2xl is the closest Tailwind scale step. */}
-        <div className="max-w-2xl mx-auto w-full flex flex-col gap-6 animate-fade-in-up">
+        {/* Body copy stays at max-w-2xl (672px, closest Tailwind step to
+            Linear's measured 624px blog column) for readability, but the
+            header block (back link/date/title) and article are allowed to
+            widen at md/lg — matching Linear's own layout, where its h1's
+            own container is measurably wider than its body-paragraph
+            column (786px tablet / 900px desktop vs. a 624px-capped body),
+            not tied to the same max-width. See the "9. Kết thúc" session
+            notes (2026-09-24) for the measured numbers. */}
+        <div className="max-w-2xl md:max-w-3xl lg:max-w-4xl mx-auto w-full flex flex-col gap-6 animate-fade-in-up">
           <div>
             <Link
               href="/tin-tuc"
@@ -258,7 +261,7 @@ export default async function NewsDetailPage({ params }: PageProps) {
               {title}
             </TypographyH1>
           </div>
-          <article>
+          <article className="max-w-2xl mx-auto w-full">
             <PreviewContent
               content={newsItem.content}
               fallbackAlt={title}
