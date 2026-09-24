@@ -10,7 +10,7 @@
 // requirement entirely: each list is short enough to fit a plain popover
 // on its own, and each gets its own recognizable icon instead of both
 // hiding behind one ambiguous "A".
-import { Check, Palette, Highlighter as HighlighterIcon } from "@phosphor-icons/react";
+import { CaretDown, Check, Highlighter as HighlighterIcon } from "@phosphor-icons/react";
 
 import { Button } from "@/shared/components/ui/button";
 import {
@@ -73,12 +73,16 @@ const ColorSwatchButton = ({
     type="button"
   >
     <div className="flex items-center space-x-2">
-      <div
-        className="rounded-sm border px-1 py-px font-medium"
-        style={isHighlight ? { backgroundColor: color } : { color }}
-      >
-        A
-      </div>
+      {isHighlight ? (
+        // Plain filled swatch, no letter — matches Notion's "Background
+        // color" row (a solid color chip), as opposed to its "Text color"
+        // row (a colored "A" glyph) below.
+        <div className="h-5 w-5 rounded-sm border" style={{ backgroundColor: color }} />
+      ) : (
+        <div className="rounded-sm border px-1 py-px font-medium" style={{ color }}>
+          A
+        </div>
+      )}
       <span>{name}</span>
     </div>
     {isActive && <Check className="h-4 w-4" />}
@@ -104,13 +108,18 @@ export const TextColorToolbar = () => {
       <Tooltip>
         <TooltipTrigger asChild>
           <PopoverTrigger disabled={isDisabled} asChild>
+            {/* "A" + caret — the original combined-dropdown trigger's own
+                look, kept as-is per explicit request even after splitting
+                the dropdown into two buttons, rather than swapping it for
+                a generic palette icon. */}
             <Button
               variant="ghost"
-              size="icon"
+              size="sm"
               style={{ color: currentColor }}
-              className="h-8 w-8"
+              className="h-8 w-14 p-0 font-normal"
             >
-              <Palette className="h-4 w-4" />
+              <span className="text-md">A</span>
+              <CaretDown className="ml-1 h-4 w-4" />
             </Button>
           </PopoverTrigger>
         </TooltipTrigger>
