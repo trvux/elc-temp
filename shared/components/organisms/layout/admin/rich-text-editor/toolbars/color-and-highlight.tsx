@@ -127,15 +127,22 @@ export const TextColorToolbar = () => {
       </Tooltip>
 
       <PopoverContent align="start" className="w-44 p-1">
-        {TEXT_COLORS.map(({ name, color }) => (
-          <ColorSwatchButton
-            key={name}
-            name={name}
-            color={color}
-            isActive={currentColor === color}
-            onClick={() => handleSetColor(color)}
-          />
-        ))}
+        {/* A single wrapping div, not the mapped buttons directly — this
+            project's PopoverContent defaults to flex flex-col gap-4, which
+            has no effect on one child (the old combined dropdown's single
+            ScrollArea child) but put a 16px gap between every row once
+            each button became a direct child here after the split. */}
+        <div className="flex flex-col">
+          {TEXT_COLORS.map(({ name, color }) => (
+            <ColorSwatchButton
+              key={name}
+              name={name}
+              color={color}
+              isActive={currentColor === color}
+              onClick={() => handleSetColor(color)}
+            />
+          ))}
+        </div>
       </PopoverContent>
     </Popover>
   );
@@ -173,16 +180,19 @@ export const HighlightToolbar = () => {
       </Tooltip>
 
       <PopoverContent align="start" className="w-44 p-1">
-        {HIGHLIGHT_COLORS.map(({ name, color }) => (
-          <ColorSwatchButton
-            key={name}
-            name={name}
-            color={color}
-            isActive={currentHighlight === color}
-            onClick={() => handleSetHighlight(color)}
-            isHighlight
-          />
-        ))}
+        {/* Same reasoning as TextColorToolbar's wrapper above. */}
+        <div className="flex flex-col">
+          {HIGHLIGHT_COLORS.map(({ name, color }) => (
+            <ColorSwatchButton
+              key={name}
+              name={name}
+              color={color}
+              isActive={currentHighlight === color}
+              onClick={() => handleSetHighlight(color)}
+              isHighlight
+            />
+          ))}
+        </div>
       </PopoverContent>
     </Popover>
   );
