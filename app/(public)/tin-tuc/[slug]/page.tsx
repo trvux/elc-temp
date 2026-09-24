@@ -235,9 +235,13 @@ export default async function NewsDetailPage({ params }: PageProps) {
             widen at md/lg — matching Linear's own layout, where its h1's
             own container is measurably wider than its body-paragraph
             column (786px tablet / 900px desktop vs. a 624px-capped body),
-            not tied to the same max-width. See the "9. Kết thúc" session
-            notes (2026-09-24) for the measured numbers. */}
-        <div className="max-w-2xl md:max-w-3xl lg:max-w-4xl mx-auto w-full flex flex-col gap-6 animate-fade-in-up">
+            not tied to the same max-width. lg bumped from max-w-4xl (896px)
+            to max-w-5xl (1024px) after A/B testing with Linear's exact
+            title string side by side — 896px was only 11px short of the
+            text's natural single-line width (907px at 48px/weight 600),
+            just barely wrapping to 2 lines where Linear's fit on 1; 5xl
+            gives headroom instead of chasing that one string's exact px. */}
+        <div className="max-w-2xl md:max-w-3xl lg:max-w-5xl mx-auto w-full flex flex-col gap-6 animate-fade-in-up">
           <div>
             <Link
               href="/tin-tuc"
