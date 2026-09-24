@@ -22,6 +22,7 @@ import {
   TooltipTrigger,
 } from "@/shared/components/ui/tooltip";
 import { cn, getUrlFromString } from "@/shared/lib/utils";
+import { useReassertFocus } from "@/shared/hooks/use-reassert-focus";
 import { useToolbar } from "./toolbar-provider";
 
 const LinkToolbar = React.forwardRef<HTMLButtonElement, ButtonProps>(
@@ -29,14 +30,15 @@ const LinkToolbar = React.forwardRef<HTMLButtonElement, ButtonProps>(
     const { editor } = useToolbar();
     const [link, setLink] = React.useState("");
     const [open, setOpen] = React.useState(false);
-    const triggerButtonRef = React.useRef<HTMLButtonElement | null>(null);
+    const { ref: triggerButtonRef, reassertFocus: reassertFocusToTrigger } =
+      useReassertFocus<HTMLButtonElement>();
     const setTriggerRef = React.useCallback(
       (node: HTMLButtonElement | null) => {
         triggerButtonRef.current = node;
         if (typeof ref === "function") ref(node);
         else if (ref) ref.current = node;
       },
-      [ref],
+      [ref, triggerButtonRef],
     );
     // Tracked continuously via editor's own selectionUpdate event rather
     // than read fresh when the popover opens, so it's guaranteed correct
@@ -62,25 +64,40 @@ const LinkToolbar = React.forwardRef<HTMLButtonElement, ButtonProps>(
     const handleSubmit = (e: FormEvent) => {
       e.preventDefault();
       const url = getUrlFromString(link);
+      // Focus the trigger BEFORE touching the editor or closing the
+      // popover — not after, via onCloseAutoFocus. That fired too late:
+      // Radix's own close-related DOM work (removing the still-focused
+      // URL input) had already happened by then, and the admin Dialog's
+      // FocusScope had already reacted to focus escaping by snapping to
+      // its own first field — visibly, even though this fix's own final
+      // .focus() call then won the race a moment later (confirmed via a
+      // focusin/focusout trace: title field got focus, THEN this button
+      // did, both within ~30ms — a real, visible double-jump, not just a
+      // wrong end state). Moving focus here first means the popover's
+      // content never holds the active focus at the moment it unmounts,
+      // so that whole cascade has nothing to react to in the first place.
+      reassertFocusToTrigger();
       if (url && editor && selectionRef.current) {
         const { from, to } = selectionRef.current;
         // setLink on a COLLAPSED range (from === to — cursor placed on an
         // empty line, or just clicked inside an existing link without
         // dragging to select its text) can't mark zero characters, so
         // handle it explicitly instead of feeding setLink a range it has
-        // nothing to do with:
+        // nothing to do with. No .focus() in any of these chains — we
+        // just deliberately moved focus to the trigger button above, and
+        // these transactions apply to editor.state regardless of which
+        // element currently has DOM focus.
         if (from === to) {
           if (editor.isActive("link")) {
             // Cursor sits inside an existing link's text — expand to that
             // link's full range first (the standard Tiptap idiom for
             // "update the mark under a collapsed cursor"), then reapply.
-            editor.chain().focus().extendMarkRange("link").setLink({ href: url }).run();
+            editor.chain().extendMarkRange("link").setLink({ href: url }).run();
           } else {
             // Nothing there at all — insert the URL itself as new,
             // visible link text rather than trying to mark empty space.
             editor
               .chain()
-              .focus()
               .insertContentAt(from, {
                 type: "text",
                 text: url,
@@ -89,7 +106,7 @@ const LinkToolbar = React.forwardRef<HTMLButtonElement, ButtonProps>(
               .run();
           }
         } else {
-          editor.chain().focus().setTextSelection({ from, to }).setLink({ href: url }).run();
+          editor.chain().setTextSelection({ from, to }).setLink({ href: url }).run();
         }
       }
       setOpen(false);
@@ -144,7 +161,7 @@ const LinkToolbar = React.forwardRef<HTMLButtonElement, ButtonProps>(
           // earlier attempt had prevented — closes that gap.
           onCloseAutoFocus={(e) => {
             e.preventDefault();
-            triggerButtonRef.current?.focus();
+            reassertFocusToTrigger();
           }}
           asChild
           className="relative px-3 py-2.5"
@@ -175,12 +192,15 @@ const LinkToolbar = React.forwardRef<HTMLButtonElement, ButtonProps>(
                       className="h-8 text-muted-foreground"
                       variant="ghost"
                       onClick={() => {
+                        // Focus the trigger first — same reasoning as
+                        // handleSubmit above.
+                        reassertFocusToTrigger();
                         // Same collapsed-cursor idiom as handleSubmit's
                         // update path — without extendMarkRange, a bare
                         // cursor inside the link (not a drag-selection
                         // over its text) wouldn't reliably clear the mark
                         // across the whole link.
-                        editor?.chain().focus().extendMarkRange("link").unsetLink().run();
+                        editor?.chain().extendMarkRange("link").unsetLink().run();
                         setLink("");
                         setOpen(false);
                       }}

@@ -5,7 +5,6 @@
 // alignment.tsx, replicating the H2/H3 mark-stripping business logic that
 // previously lived in text-bubble-menu.tsx.
 import { CaretDown, Check, TextAa, TextHTwo, TextHThree } from "@phosphor-icons/react";
-import { useRef } from "react";
 
 import { Button } from "@/shared/components/ui/button";
 import {
@@ -20,11 +19,13 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/shared/components/ui/tooltip";
+import { useReassertFocus } from "@/shared/hooks/use-reassert-focus";
 import { useToolbar } from "./toolbar-provider";
 
 export const HeadingToolbar = () => {
   const { editor } = useToolbar();
-  const triggerRef = useRef<HTMLButtonElement | null>(null);
+  const { ref: triggerRef, reassertFocus: reassertFocusToTrigger } =
+    useReassertFocus<HTMLButtonElement>();
 
   const isH2 = editor?.isActive("heading", { level: 2 }) ?? false;
   const isH3 = editor?.isActive("heading", { level: 3 }) ?? false;
@@ -107,10 +108,13 @@ export const HeadingToolbar = () => {
         // Explicitly restores focus to this trigger — see link.tsx's
         // identical fix for why a bare preventDefault() caused this
         // Dialog-nested dropdown's close to jump focus elsewhere on the
-        // page instead.
+        // page instead. Multi-attempt reassertFocus (not a single
+        // .focus() call) because the Dialog's FocusScope can steal focus
+        // back a second time on a later async tick — see
+        // use-reassert-focus.ts.
         onCloseAutoFocus={(e) => {
           e.preventDefault();
-          triggerRef.current?.focus();
+          reassertFocusToTrigger();
         }}
       >
         <DropdownMenuGroup>

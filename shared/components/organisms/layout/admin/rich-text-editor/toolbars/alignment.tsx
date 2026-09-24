@@ -9,8 +9,6 @@ import {
   TextAlignLeft,
   TextAlignRight,
 } from "@phosphor-icons/react";
-import { useRef } from "react";
-
 import { Button } from "@/shared/components/ui/button";
 import {
   DropdownMenu,
@@ -24,11 +22,13 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/shared/components/ui/tooltip";
+import { useReassertFocus } from "@/shared/hooks/use-reassert-focus";
 import { useToolbar } from "./toolbar-provider";
 
 export const AlignmentTooolbar = () => {
   const { editor } = useToolbar();
-  const triggerRef = useRef<HTMLButtonElement | null>(null);
+  const { ref: triggerRef, reassertFocus: reassertFocusToTrigger } =
+    useReassertFocus<HTMLButtonElement>();
   const handleAlign = (value: string) => {
     editor?.chain().focus().setTextAlign(value).run();
   };
@@ -112,10 +112,13 @@ export const AlignmentTooolbar = () => {
         // Explicitly restores focus to this trigger — see link.tsx's
         // identical fix for why a bare preventDefault() caused this
         // Dialog-nested dropdown's close to jump focus elsewhere on the
-        // page instead.
+        // page instead. Multi-attempt reassertFocus (not a single
+        // .focus() call) because the Dialog's FocusScope can steal focus
+        // back a second time on a later async tick — see
+        // use-reassert-focus.ts.
         onCloseAutoFocus={(e) => {
           e.preventDefault();
-          triggerRef.current?.focus();
+          reassertFocusToTrigger();
         }}
       >
         <DropdownMenuGroup>

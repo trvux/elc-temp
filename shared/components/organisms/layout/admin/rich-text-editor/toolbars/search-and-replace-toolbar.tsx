@@ -2,7 +2,7 @@
 
 // From shadcn-tiptap (MIT) — icons swapped to @phosphor-icons/react.
 import { ArrowLeft, ArrowRight, Repeat, X } from "@phosphor-icons/react";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 
 import { Button } from "@/shared/components/ui/button";
 import { Checkbox } from "@/shared/components/ui/checkbox";
@@ -19,6 +19,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/shared/components/ui/tooltip";
+import { useReassertFocus } from "@/shared/hooks/use-reassert-focus";
 import { cn } from "@/shared/lib/utils";
 import type { SearchAndReplaceStorage } from "./search-and-replace";
 import { useToolbar } from "./toolbar-provider";
@@ -35,7 +36,8 @@ export function SearchAndReplaceToolbar({ className }: SearchAndReplaceToolbarPr
   const [searchText, setSearchText] = useState("");
   const [replaceText, setReplaceText] = useState("");
   const [checked, setChecked] = useState(false);
-  const triggerRef = useRef<HTMLButtonElement | null>(null);
+  const { ref: triggerRef, reassertFocus: reassertFocusToTrigger } =
+    useReassertFocus<HTMLButtonElement>();
 
   const results = editor?.storage?.searchAndReplace
     .results as SearchAndReplaceStorage["results"];
@@ -101,10 +103,13 @@ export function SearchAndReplaceToolbar({ className }: SearchAndReplaceToolbarPr
         // Explicitly restores focus to this trigger — see link.tsx's
         // identical fix and its comment for why a bare preventDefault()
         // here caused this Dialog-nested popover's close to jump focus to
-        // an unrelated field elsewhere on the page.
+        // an unrelated field elsewhere on the page. Multi-attempt
+        // reassertFocus (not a single .focus() call) because the Dialog's
+        // FocusScope can steal focus back a second time on a later async
+        // tick — see use-reassert-focus.ts.
         onCloseAutoFocus={(e) => {
           e.preventDefault();
-          triggerRef.current?.focus();
+          reassertFocusToTrigger();
         }}
         onEscapeKeyDown={() => {
           closeAndReset();

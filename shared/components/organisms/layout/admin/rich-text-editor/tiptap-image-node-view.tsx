@@ -33,6 +33,7 @@ import {
 } from "@/shared/components/ui/dropdown-menu";
 import { Input } from "@/shared/components/ui/input";
 import { Separator } from "@/shared/components/ui/separator";
+import { useReassertFocus } from "@/shared/hooks/use-reassert-focus";
 import { cn } from "@/shared/lib/utils";
 
 function duplicateContent(editor: Editor) {
@@ -64,7 +65,8 @@ export function TiptapImageNodeView(props: NodeViewProps) {
   const [openedMore, setOpenedMore] = useState(false);
   const [altFormOpen, setAltFormOpen] = useState(false);
   const [altDraft, setAltDraft] = useState("");
-  const moreButtonRef = useRef<HTMLButtonElement | null>(null);
+  const { ref: moreButtonRef, reassertFocus: reassertFocusToMoreButton } =
+    useReassertFocus<HTMLButtonElement>();
 
   function startResize(e: React.MouseEvent<HTMLDivElement>, position: "left" | "right") {
     e.preventDefault();
@@ -268,7 +270,7 @@ export function TiptapImageNodeView(props: NodeViewProps) {
                   // the Link toolbar's Confirm button.
                   onCloseAutoFocus={(e) => {
                     e.preventDefault();
-                    moreButtonRef.current?.focus();
+                    reassertFocusToMoreButton();
                   }}
                 >
                   {altFormOpen ? (
@@ -276,6 +278,16 @@ export function TiptapImageNodeView(props: NodeViewProps) {
                       className="flex flex-col gap-2 p-1"
                       onSubmit={(e) => {
                         e.preventDefault();
+                        // Focus the "..." trigger BEFORE closing — same
+                        // reasoning as link.tsx's identical fix: moving
+                        // focus off the still-mounted Input first means
+                        // this dropdown's content never holds active focus
+                        // at the moment it unmounts, so the admin Dialog's
+                        // focus-trap fallback (jump to its first field) has
+                        // nothing to react to, instead of just cleaning up
+                        // its result a moment later and leaving a visible
+                        // double-jump.
+                        reassertFocusToMoreButton();
                         // Plain updateAttributes() here let the
                         // NodeSelection get lost the moment the focused
                         // <Input> unmounts (dropdown closing) — ProseMirror

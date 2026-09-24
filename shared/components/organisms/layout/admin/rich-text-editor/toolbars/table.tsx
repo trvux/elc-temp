@@ -16,7 +16,7 @@ import {
   Trash,
 } from "@phosphor-icons/react";
 import { NodeSelection } from "@tiptap/pm/state";
-import React, { useRef } from "react";
+import React from "react";
 
 import { Button } from "@/shared/components/ui/button";
 import {
@@ -30,13 +30,15 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/shared/components/ui/tooltip";
+import { useReassertFocus } from "@/shared/hooks/use-reassert-focus";
 import { cn } from "@/shared/lib/utils";
 import { useToolbar } from "./toolbar-provider";
 
 export const TableToolbar = () => {
   const { editor } = useToolbar();
   const isInTable = editor?.isActive("table") ?? false;
-  const triggerRef = useRef<HTMLButtonElement | null>(null);
+  const { ref: triggerRef, reassertFocus: reassertFocusToTrigger } =
+    useReassertFocus<HTMLButtonElement>();
 
   const selectTable = () => {
     if (!editor) return;
@@ -90,10 +92,13 @@ export const TableToolbar = () => {
         // Explicitly restores focus to this trigger — see link.tsx's
         // identical fix for why a bare preventDefault() caused this
         // Dialog-nested popover's close to jump focus elsewhere on the
-        // page instead.
+        // page instead. Multi-attempt reassertFocus (not a single
+        // .focus() call) because the Dialog's FocusScope can steal focus
+        // back a second time on a later async tick — see
+        // use-reassert-focus.ts.
         onCloseAutoFocus={(e) => {
           e.preventDefault();
-          triggerRef.current?.focus();
+          reassertFocusToTrigger();
         }}
       >
         {!isInTable ? (
