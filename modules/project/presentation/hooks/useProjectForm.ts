@@ -9,11 +9,12 @@ import { convertToWebP } from "@/shared/lib/image";
 import { uploadImageFile } from "@/shared/lib/upload-image";
 
 
-import { createProjectSchema, ProjectWithCategory, Json, ImageAsset } from "../../domain";
+import { createProjectSchema, ProjectWithCategory, Json, ImageAsset, TitleAlign } from "../../domain";
 import { createProjectAction, updateProjectAction } from "../actions";
 
 export type ProjectFormValues = {
   title: string;
+  titleAlign: TitleAlign;
   slug: string;
   description: unknown;
   images: ImageAsset[];
@@ -45,6 +46,7 @@ export function useProjectForm(
     resolver: standardSchemaResolver(createProjectSchema) as unknown as Resolver<ProjectFormValues>,
     defaultValues: {
       title: "",
+      titleAlign: "left",
       slug: "",
       description: null,
       projectTypeId: "",

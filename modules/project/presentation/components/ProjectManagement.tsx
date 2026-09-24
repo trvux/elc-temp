@@ -1,6 +1,13 @@
 "use client";
 
-import { ArrowSquareOut, Plus, X } from "@phosphor-icons/react";
+import {
+  ArrowSquareOut,
+  Plus,
+  TextAlignCenter,
+  TextAlignLeft,
+  TextAlignRight,
+  X,
+} from "@phosphor-icons/react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import Image from "next/image";
 import { useMemo, useState } from "react";
@@ -46,6 +53,7 @@ import {
 } from "@/shared/components/ui/tabs";
 import { Textarea } from "@/shared/components/ui/textarea";
 import { TiptapEditor } from "@/shared/components/ui/tiptap-editor";
+import { ToggleGroup, ToggleGroupItem } from "@/shared/components/ui/toggle-group";
 import { generateSlug } from "@/shared/lib/helpers";
 
 import { getCategoriesAction } from "@/modules/category/presentation/actions";
@@ -259,6 +267,7 @@ export function ProjectManagement() {
           setActiveProject(p);
           form.reset({
             title: p.title,
+            titleAlign: p.titleAlign,
             slug: p.slug || "",
             description: p.description,
             projectTypeId: p.projectTypeId || "",
@@ -288,6 +297,7 @@ export function ProjectManagement() {
     setActiveProject("new");
     form.reset({
       title: "",
+      titleAlign: "left",
       slug: "",
       description: null,
       projectTypeId: "",
@@ -528,7 +538,40 @@ export function ProjectManagement() {
                         name="title"
                         render={({ field, fieldState }) => (
                           <Field>
-                            <FieldLabel>Tên dự án *</FieldLabel>
+                            <div className="flex items-center justify-between gap-3">
+                              <FieldLabel>Tên dự án *</FieldLabel>
+                              <Controller
+                                control={form.control}
+                                name="titleAlign"
+                                render={({ field: alignField }) => (
+                                  <ToggleGroup
+                                    type="single"
+                                    variant="outline"
+                                    size="sm"
+                                    value={alignField.value}
+                                    onValueChange={(value) => {
+                                      // Radix ToggleGroup type="single" fires
+                                      // onValueChange with "" when the already-
+                                      // selected item is clicked again (its
+                                      // "deselect" behavior) — ignore that so
+                                      // titleAlign can never end up empty/
+                                      // unselected in the form.
+                                      if (value) alignField.onChange(value);
+                                    }}
+                                  >
+                                    <ToggleGroupItem value="left" aria-label="Căn trái" title="Căn trái">
+                                      <TextAlignLeft className="size-4" />
+                                    </ToggleGroupItem>
+                                    <ToggleGroupItem value="center" aria-label="Căn giữa" title="Căn giữa">
+                                      <TextAlignCenter className="size-4" />
+                                    </ToggleGroupItem>
+                                    <ToggleGroupItem value="right" aria-label="Căn phải" title="Căn phải">
+                                      <TextAlignRight className="size-4" />
+                                    </ToggleGroupItem>
+                                  </ToggleGroup>
+                                )}
+                              />
+                            </div>
                             <Input
                               {...field}
                               placeholder="VD: Lắp máy lạnh nhà anh Tuấn"

@@ -6,6 +6,7 @@ import {
   UpdateProjectInput,
   ProjectFilter,
   ProjectWithCategory,
+  TitleAlign,
 } from "../domain/index";
 import { authHeaders, toSnakeCaseBody } from "@/shared/lib/go-api";
 import { submitToIndexNow } from "@/shared/lib/indexnow";
@@ -51,6 +52,7 @@ interface GoProjectServiceResponse {
 interface GoProjectResponse {
   id: string;
   title: string;
+  title_align: string;
   slug: string;
   description: unknown;
   images: ImageAsset[];
@@ -107,10 +109,18 @@ function toGoCategoryConditions(
   return (categories ?? []).map((c) => ({ category_id: c.id, condition: c.condition }));
 }
 
+const TITLE_ALIGN_VALUES: readonly TitleAlign[] = ["left", "center", "right"];
+function normalizeTitleAlign(value: string): TitleAlign {
+  return (TITLE_ALIGN_VALUES as readonly string[]).includes(value)
+    ? (value as TitleAlign)
+    : "left";
+}
+
 function mapGoProject(row: GoProjectResponse): ProjectWithCategory {
   return {
     id: row.id,
     title: row.title,
+    titleAlign: normalizeTitleAlign(row.title_align),
     slug: row.slug,
     description: row.description as ProjectWithCategory["description"],
     images: row.images ?? [],

@@ -188,7 +188,14 @@ async function ProjectDetailView({
             for readability, 2xl (672px) is the closest Tailwind step. */}
         <div className="max-w-2xl mx-auto flex flex-col gap-6 animate-fade-in-up">
           {/* Title */}
-          <TypographyH1>{project.title}</TypographyH1>
+          <TypographyH1
+            className={cn(
+              project.titleAlign === "center" && "text-center",
+              project.titleAlign === "right" && "text-right",
+            )}
+          >
+            {project.title}
+          </TypographyH1>
 
           {/* Badge */}
           <div className="flex items-center">

@@ -9,9 +9,12 @@ export type Json =
   | { [key: string]: Json | undefined }
   | Json[];
 
+export type TitleAlign = "left" | "center" | "right";
+
 interface Project {
   id: string;
   title: string;
+  titleAlign: TitleAlign;
   slug: string;
   description: Json;
   images: ImageAsset[];
@@ -62,6 +65,7 @@ export interface ProjectWithCategory extends Project {
 
 export interface CreateProjectInput {
   title: string;
+  titleAlign?: TitleAlign;
   slug: string;
   description?: Json;
   images?: ImageAsset[];
