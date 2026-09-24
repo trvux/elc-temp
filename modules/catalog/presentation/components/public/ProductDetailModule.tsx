@@ -167,7 +167,13 @@ export async function ProductDetailModule({
                 </div>
               )}
 
-              <TypographyH1 className="w-full max-w-none text-2xl md:text-3xl lg:text-4xl font-extrabold tracking-tight wrap-break-word leading-[1.15]">
+              <TypographyH1
+                className={cn(
+                  "w-full max-w-none text-2xl md:text-3xl lg:text-4xl font-extrabold tracking-tight wrap-break-word leading-[1.15]",
+                  product.nameAlign === "center" && "text-center",
+                  product.nameAlign === "right" && "text-right",
+                )}
+              >
                 {product.name}
               </TypographyH1>
 

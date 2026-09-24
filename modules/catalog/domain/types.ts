@@ -5,6 +5,8 @@ import type { AttributeDataType } from "../../attribute-definition/domain";
 export type { AttributeDataType };
 import { ProductStatus, VariantStockStatus } from "./constants";
 import type { ImageAsset } from "@/shared/lib/image-asset";
+import type { TitleAlign } from "@/shared/lib/title-align";
+export type { TitleAlign };
 
 export type Json =
     | string
@@ -24,6 +26,7 @@ export type Json =
 export interface Product {
     id: string;
     name: string;
+    nameAlign: TitleAlign;
     slug: string;
     metaTitle?: string | null;
     metaDescription?: string | null;
@@ -214,6 +217,7 @@ export interface ProductVariantInput {
 // through the dedicated submit/approve/reject/archive actions.
 export interface CreateProductInput {
     name: string;
+    nameAlign?: TitleAlign;
     slug: string;
     metaTitle?: string | null;
     metaDescription?: string | null;

@@ -229,7 +229,7 @@ export function PageManagement() {
                       <Field>
                         <div className="flex items-center justify-between gap-3">
                           <FieldLabel>Tiêu đề trang *</FieldLabel>
-                          <TitleAlignField control={form.control} />
+                          <TitleAlignField control={form.control} name="titleAlign" />
                         </div>
                         <Input
                           {...field}

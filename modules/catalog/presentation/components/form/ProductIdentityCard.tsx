@@ -12,6 +12,7 @@ import {
 } from "@/shared/components/ui/field";
 import { Input } from "@/shared/components/ui/input";
 import { Button } from "@/shared/components/ui/button";
+import { TitleAlignField } from "@/shared/components/ui/title-align-field";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -86,19 +87,22 @@ export function ProductIdentityCard({
         name="name"
         render={({ field, fieldState }) => (
           <Field className="md:col-span-2">
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between gap-3">
               <FieldLabel>Tên sản phẩm *</FieldLabel>
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                className="h-6 px-2 text-xs text-muted-foreground hover:text-primary"
-                disabled={!currentCategoryId && !currentBrandId}
-                onClick={() => (field.value?.trim() ? setConfirmComposeOpen(true) : composeFromFields())}
-              >
-                <MagicWand size={14} className="mr-1" />
-                Ghép tên từ Danh mục/Thương hiệu/Dòng
-              </Button>
+              <div className="flex items-center gap-2">
+                <TitleAlignField control={form.control} name="nameAlign" />
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  className="h-6 px-2 text-xs text-muted-foreground hover:text-primary"
+                  disabled={!currentCategoryId && !currentBrandId}
+                  onClick={() => (field.value?.trim() ? setConfirmComposeOpen(true) : composeFromFields())}
+                >
+                  <MagicWand size={14} className="mr-1" />
+                  Ghép tên từ Danh mục/Thương hiệu/Dòng
+                </Button>
+              </div>
             </div>
             <Input
               {...field}

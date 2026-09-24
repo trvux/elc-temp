@@ -41,6 +41,7 @@ const DEFAULT_VARIANT: ProductFormValues["variants"][number] = {
 
 const EMPTY_DEFAULTS: ProductFormValues = {
   name: "",
+  nameAlign: "left",
   slug: "",
   description: "",
   images: [],
@@ -107,6 +108,7 @@ function mapProductToFormValues(p: ProductWithRelations): ProductFormValues {
 
   return {
     name: p.name,
+    nameAlign: p.nameAlign,
     slug: p.slug,
     description: p.description || "",
     images: p.images || [],

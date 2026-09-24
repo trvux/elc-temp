@@ -354,7 +354,7 @@ export function ServiceManagement({
                             <Field>
                               <div className="flex items-center justify-between gap-3">
                                 <FieldLabel>Tên dịch vụ *</FieldLabel>
-                                <TitleAlignField control={form.control} />
+                                <TitleAlignField control={form.control} name="titleAlign" />
                               </div>
                               <Input
                                 {...field}

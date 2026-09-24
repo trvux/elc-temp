@@ -27,6 +27,7 @@ import { submitToIndexNow } from "@/shared/lib/indexnow";
 import { warmCache } from "@/shared/lib/cache-warm";
 import { BASE_URL } from "@/shared/lib/seo-schema";
 import type { ImageAsset } from "@/shared/lib/image-asset";
+import { normalizeTitleAlign } from "@/shared/lib/title-align";
 
 const GO_API_URL = process.env.GO_API_URL;
 
@@ -123,6 +124,7 @@ interface GoProductResponse {
   category_id: string;
   brand_id: string;
   name: string;
+  name_align: string;
   slug: string;
   description: Json;
   images: ImageAsset[] | null;
@@ -264,6 +266,7 @@ function mapGoProduct(row: GoProductResponse): ProductWithRelations {
   return {
     id: row.id,
     name: row.name,
+    nameAlign: normalizeTitleAlign(row.name_align),
     slug: row.slug || "",
     metaTitle: row.meta_title,
     metaDescription: row.meta_description,
