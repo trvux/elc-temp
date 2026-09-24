@@ -100,7 +100,7 @@ export default async function StaticPage({ params }: PageProps) {
             </TypographySmall>
             <TypographyH1
               className={cn(
-                "w-full max-w-none! text-wrap! font-heading leading-tight",
+                "w-full max-w-none! text-balance! font-heading leading-tight",
                 page.titleAlign === "center" && "text-center",
                 page.titleAlign === "right" && "text-right",
               )}

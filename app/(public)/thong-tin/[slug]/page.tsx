@@ -40,7 +40,7 @@ const STYLES = {
   sectionContainer: cn(
     "mx-auto h-full w-full max-w-350 min-[112.5rem]:max-w-384 px-4 md:px-6 lg:px-12 relative",
   ),
-  title: cn("w-full max-w-none! text-wrap!"),
+  title: cn("w-full max-w-none! text-balance!"),
   section: cn("w-full max-w-2xl mx-auto"),
   accordion: cn("w-full"),
   accordionItem: cn("flex flex-col gap-4 border-b last:border-b-0"),
@@ -193,7 +193,7 @@ export default async function BranchDetail({ params }: Props) {
             </Link>
             <TypographyH1
               className={cn(
-                "w-full max-w-none! text-wrap! font-heading leading-tight",
+                "w-full max-w-none! text-balance! font-heading leading-tight",
                 branch.nameAlign === "center" && "text-center",
                 branch.nameAlign === "right" && "text-right",
               )}

@@ -37,7 +37,7 @@ const STYLES = {
   // pair sharing this container class, plus its own py-* override.
   sectionContainer:
     "mx-auto h-full w-full max-w-350 min-[112.5rem]:max-w-384 px-4 md:px-6 lg:px-12 relative",
-  title: "w-full max-w-none! text-wrap! font-heading leading-tight",
+  title: "w-full max-w-none! text-balance! font-heading leading-tight",
   footer:
     "w-full flex flex-col md:flex-row justify-between items-center gap-6 text-muted-foreground",
 };

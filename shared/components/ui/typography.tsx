@@ -18,7 +18,13 @@ export function TypographyH1({ children, className }: Typography) {
         // comparison measured Linear's own H1 at a flat 48px on desktop,
         // by far the single biggest gap of any heading level checked
         // (H2/H3/body were all within ~15%, this was 25%).
-        "scroll-m-20 font-heading text-3xl font-semibold tracking-tight md:text-5xl",
+        // text-balance: Linear's own h1 computed style has
+        // text-wrap: balance (confirmed via getComputedStyle) — makes a
+        // multi-line heading break into visually even-length lines instead
+        // of greedy-filling line 1 and dumping the leftover on line 2 (the
+        // "(part II)" orphan-line look this was chasing pixel-width fixes
+        // for, when it was really a line-breaking-algorithm difference).
+        "scroll-m-20 font-heading text-3xl font-semibold tracking-tight md:text-5xl text-balance",
         className,
       )}
     >
