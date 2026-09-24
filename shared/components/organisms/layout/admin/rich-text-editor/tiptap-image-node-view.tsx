@@ -63,6 +63,9 @@ export function TiptapImageNodeView(props: NodeViewProps) {
   const [resizeInitialWidth, setResizeInitialWidth] = useState(0);
   const [resizeInitialMouseX, setResizeInitialMouseX] = useState(0);
   const [radiusResizing, setRadiusResizing] = useState(false);
+  const [radiusInitialValue, setRadiusInitialValue] = useState(0);
+  const [radiusInitialMouseX, setRadiusInitialMouseX] = useState(0);
+  const [radiusInitialMouseY, setRadiusInitialMouseY] = useState(0);
   const [openedMore, setOpenedMore] = useState(false);
   const [altFormOpen, setAltFormOpen] = useState(false);
   const [altDraft, setAltDraft] = useState("");
@@ -130,31 +133,44 @@ export function TiptapImageNodeView(props: NodeViewProps) {
   // Corner-radius handle: no fixed rounding baked in for every image
   // regardless of subject (a blueprint/diagram reads wrong with the same
   // rounding that suits a product photo), so this hands the choice to
-  // whoever placed the image instead. Radius tracks the straight-line
-  // distance from the image's own bottom-right corner to the pointer —
-  // drag toward the corner (distance shrinks) for sharp corners, toward
-  // the center (distance grows) for rounder ones, same handle-drag idiom
-  // as design tools' own corner-radius controls. min(dx, dy) rather than
-  // the diagonal distance so a mostly-horizontal or mostly-vertical drag
-  // still tracks intuitively instead of needing an exact 45° line.
-  function radiusFromPointer(clientX: number, clientY: number) {
-    if (!imageRef.current) return null;
-    const rect = imageRef.current.getBoundingClientRect();
-    const dx = rect.right - clientX;
-    const dy = rect.bottom - clientY;
-    const maxRadius = Math.min(rect.width, rect.height) / 2;
-    return Math.max(0, Math.min(Math.min(dx, dy), maxRadius));
-  }
-
+  // whoever placed the image instead. Delta-based, same idiom as the width
+  // handles above (radiusInitialValue/radiusInitialMouseX/Y captured once
+  // on mousedown, every subsequent move adds to that starting point) — NOT
+  // computed as an absolute distance from the image's corner to the
+  // pointer's current position, which was the first attempt here and had a
+  // real bug: since the handle's own on-screen position doesn't move as
+  // the radius changes, grabbing it mid-drag on a second attempt measured
+  // distance from wherever the pointer happened to land near that fixed
+  // handle, not from the radius already set — so every second drag
+  // visibly snapped back toward 0 before tracking the mouse again, instead
+  // of continuing from where the first drag left off.
   function startRadiusResize(e: React.MouseEvent<HTMLDivElement>) {
     e.preventDefault();
     e.stopPropagation();
     setRadiusResizing(true);
+    setRadiusInitialValue(node.attrs.borderRadius ?? 0);
+    setRadiusInitialMouseX(e.clientX);
+    setRadiusInitialMouseY(e.clientY);
+  }
+
+  function computeNewRadius(clientX: number, clientY: number) {
+    if (!imageRef.current) return null;
+    // Moving toward the image's center (up-left, away from the bottom-
+    // right corner the handle sits on) increases the radius; moving back
+    // toward the corner decreases it. Averaging the two axes means a purely
+    // horizontal or vertical drag still tracks intuitively instead of only
+    // responding to an exact diagonal.
+    const dx = radiusInitialMouseX - clientX;
+    const dy = radiusInitialMouseY - clientY;
+    const delta = (dx + dy) / 2;
+    const rect = imageRef.current.getBoundingClientRect();
+    const maxRadius = Math.min(rect.width, rect.height) / 2;
+    return Math.max(0, Math.min(radiusInitialValue + delta, maxRadius));
   }
 
   function resizeRadius(e: MouseEvent) {
     if (!radiusResizing) return;
-    const radius = radiusFromPointer(e.clientX, e.clientY);
+    const radius = computeNewRadius(e.clientX, e.clientY);
     if (radius !== null) updateAttributes({ borderRadius: Math.round(radius) });
   }
 
@@ -166,12 +182,15 @@ export function TiptapImageNodeView(props: NodeViewProps) {
     e.preventDefault();
     e.stopPropagation();
     setRadiusResizing(true);
+    setRadiusInitialValue(node.attrs.borderRadius ?? 0);
+    setRadiusInitialMouseX(e.touches[0].clientX);
+    setRadiusInitialMouseY(e.touches[0].clientY);
   }
 
   function handleRadiusTouchMove(e: TouchEvent) {
     if (!radiusResizing) return;
     const touch = e.touches[0];
-    const radius = radiusFromPointer(touch.clientX, touch.clientY);
+    const radius = computeNewRadius(touch.clientX, touch.clientY);
     if (radius !== null) updateAttributes({ borderRadius: Math.round(radius) });
   }
 
