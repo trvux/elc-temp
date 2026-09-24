@@ -3,212 +3,6 @@
 @import "shadcn/tailwind.css";
 @import "./typeset.css";
 
-@plugin "@tailwindcss/typography";
-
-/* Custom responsive typography for Tiptap and article content (.prose) */
-.prose h1, .prose.prose-lg h1 {
-  font-size: 1.875rem !important; /* text-3xl */
-  font-weight: 800 !important; /* font-extrabold */
-  letter-spacing: -0.025em !important; /* tracking-tight */
-  scroll-margin-top: 5rem !important; /* scroll-m-20 */
-}
-
-@media (min-width: 768px) {
-  .prose h1, .prose.prose-lg h1 {
-    font-size: 2.25rem !important; /* text-4xl */
-  }
-}
-
-@media (min-width: 1024px) {
-  .prose h1, .prose.prose-lg h1 {
-    font-size: 3rem !important; /* lg:text-5xl */
-  }
-}
-
-.prose h2, .prose.prose-lg h2 {
-  font-size: 1.5rem !important; /* text-2xl */
-  font-weight: 600 !important; /* font-semibold */
-  letter-spacing: -0.025em !important; /* tracking-tight */
-  scroll-margin-top: 5rem !important; /* scroll-m-20 */
-}
-
-.prose h2:first-child, .prose.prose-lg h2:first-child {
-  margin-top: 0 !important;
-}
-
-@media (min-width: 768px) {
-  .prose h2, .prose.prose-lg h2 {
-    font-size: 1.875rem !important; /* text-3xl */
-  }
-}
-
-.prose h3, .prose.prose-lg h3 {
-  font-size: 1.25rem !important; /* text-xl */
-  font-weight: 600 !important; /* font-semibold */
-  letter-spacing: -0.025em !important; /* tracking-tight */
-  scroll-margin-top: 5rem !important; /* scroll-m-20 */
-}
-
-@media (min-width: 768px) {
-  .prose h3, .prose.prose-lg h3 {
-    font-size: 1.5rem !important; /* text-2xl */
-  }
-}
-
-.prose h4, .prose.prose-lg h4 {
-  font-size: 1.125rem !important; /* text-lg */
-  font-weight: 600 !important; /* font-semibold */
-  letter-spacing: -0.025em !important; /* tracking-tight */
-  scroll-margin-top: 5rem !important; /* scroll-m-20 */
-}
-
-@media (min-width: 768px) {
-  .prose h4, .prose.prose-lg h4 {
-    font-size: 1.25rem !important; /* text-xl */
-  }
-}
-
-.prose p, .prose.prose-lg p {
-  line-height: 1.75rem !important; /* leading-7 */
-  font-size: 0.875rem !important; /* text-sm */
-}
-
-.prose p:not(:first-child), .prose.prose-lg p:not(:first-child) {
-  margin-top: 1.5rem !important; /* mt-6 */
-}
-
-@media (min-width: 768px) {
-  .prose p, .prose.prose-lg p {
-    font-size: 1rem !important; /* text-base */
-  }
-}
-
-.prose blockquote, .prose.prose-lg blockquote {
-  margin-top: 1.5rem !important; /* mt-6 */
-  border-left: 2px solid var(--border) !important; /* border-l-2 */
-  padding-left: 1.5rem !important; /* pl-6 */
-  font-style: italic !important;
-  font-size: 0.875rem !important;
-}
-
-@media (min-width: 768px) {
-  .prose blockquote, .prose.prose-lg blockquote {
-    font-size: 1rem !important;
-  }
-}
-
-.prose ul, .prose.prose-lg ul, .prose ol, .prose.prose-lg ol {
-  margin-top: 1.5rem !important;
-  margin-bottom: 1.5rem !important;
-  padding-left: 1.5rem !important;
-  font-size: 0.875rem !important;
-}
-
-.prose ul, .prose.prose-lg ul {
-  list-style-type: disc !important;
-}
-
-.prose ol, .prose.prose-lg ol {
-  list-style-type: decimal !important;
-}
-
-.prose li, .prose.prose-lg li {
-  margin-top: 0.5rem !important; /* [&>li]:mt-2 */
-}
-
-@media (min-width: 768px) {
-  .prose ul, .prose.prose-lg ul, .prose ol, .prose.prose-lg ol {
-    font-size: 1rem !important;
-  }
-}
-
-.prose code, .prose.prose-lg code {
-  position: relative !important;
-  border-radius: 0.25rem !important; /* rounded */
-  background-color: var(--muted) !important;
-  padding: 0.2rem 0.3rem !important; /* py-[0.2rem] px-[0.3rem] */
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace !important;
-  font-size: 0.75rem !important; /* text-xs */
-  font-weight: 600 !important; /* font-semibold */
-}
-
-.prose code::before, .prose.prose-lg code::before,
-.prose code::after, .prose.prose-lg code::after {
-  content: "" !important; /* Remove default backticks added by tailwind typography plugin */
-}
-
-@media (min-width: 768px) {
-  .prose code, .prose.prose-lg code {
-    font-size: 0.875rem !important; /* text-sm */
-  }
-}
-
-.prose table, .prose.prose-lg table {
-  width: 100% !important;
-  margin-top: 1.5rem !important;
-  margin-bottom: 1.5rem !important;
-  font-size: 0.875rem !important;
-}
-
-@media (min-width: 768px) {
-  .prose table, .prose.prose-lg table {
-    font-size: 1rem !important;
-  }
-}
-
-.prose th, .prose.prose-lg th {
-  border: 1px solid var(--border) !important;
-  padding: 0.5rem 1rem !important;
-  text-align: left !important;
-  font-weight: bold !important;
-  background-color: var(--muted) !important;
-}
-
-.prose td, .prose.prose-lg td {
-  border: 1px solid var(--border) !important;
-  padding: 0.5rem 1rem !important;
-  text-align: left !important;
-}
-
-.prose hr, .prose.prose-lg hr {
-  margin-top: 2rem !important;
-  margin-bottom: 2rem !important;
-  border: 0 !important;
-  border-top: 1px solid var(--border) !important;
-}
-
-/* .prose-hero: quiet, reference-only reading material on category/brand
-   listing pages (below the product grid) — must not compete with the
-   page's real H1. Needs its own !important overrides, not Tailwind
-   prose-headings:* utilities, because the base .prose h1-h4 rules above
-   are already !important and always win against a plain utility class
-   regardless of source order. The extra .prose class in the selector
-   keeps specificity equal to the base rules so normal cascade order
-   (this block comes later) decides the winner. */
-.prose.prose-hero h1, .prose.prose-hero h2 {
-  font-size: 0.875rem !important; /* text-sm */
-  font-weight: 600 !important;
-  letter-spacing: -0.025em !important;
-}
-
-@media (min-width: 768px) {
-  .prose.prose-hero h1, .prose.prose-hero h2 {
-    font-size: 1rem !important; /* text-base */
-  }
-}
-
-.prose.prose-hero h3, .prose.prose-hero h4 {
-  font-size: 0.8125rem !important;
-  font-weight: 600 !important;
-  letter-spacing: -0.025em !important;
-}
-
-@media (min-width: 768px) {
-  .prose.prose-hero h3, .prose.prose-hero h4 {
-    font-size: 0.875rem !important; /* text-sm */
-  }
-}
-
 .typeset-docs {
   /* --font-sans/--font-heading are already Inter/Merriweather (see
      app/layout.tsx) — no separate --font-inter/--font-merriweather alias
@@ -285,10 +79,16 @@
 
 .tiptap table td,
 .tiptap table th {
+  /* No border/padding/font-weight/background here — typeset.css already
+     owns those for every td/th (its own :is(tbody, tfoot) :is(td, th) and
+     thead th rules). This block used to duplicate them with different
+     values (8px/12px padding vs typeset's 0.75em/1em rhythm, bold vs 500
+     weight) and silently won by specificity, so tables in the editor and
+     public render never actually looked like the rest of typeset's
+     typography. min-width/box-sizing/position stay: they're structural —
+     position: relative is load-bearing for .selectedCell/.column-resize-
+     handle below, which position themselves against it. */
   min-width: 1em;
-  border: 1px solid var(--border);
-  padding: 8px 12px;
-  vertical-align: top;
   box-sizing: border-box;
   position: relative;
 }
@@ -296,12 +96,6 @@
 .tiptap table td > *,
 .tiptap table th > * {
   margin-bottom: 0;
-}
-
-.tiptap table th {
-  font-weight: bold;
-  text-align: left;
-  background-color: var(--muted);
 }
 
 .tiptap table .selectedCell:after {
@@ -611,70 +405,6 @@
   --sidebar-accent-foreground: oklch(0.985 0 0);
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.556 0 0);
-}
-
-/* Tiptap Bubble Menu Wrapper Inversion */
-.tiptap-menu-wrapper {
-  display: flex;
-  align-items: center;
-  border-radius: var(--radius-lg);
-  padding: 0.25rem;
-  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-  border: 1px solid var(--border);
-}
-
-/* Light mode site -> Dark bubble menu */
-:root:not(.dark) .tiptap-menu-wrapper {
-  background-color: oklch(0.145 0 0);
-  color: oklch(0.985 0 0);
-  border-color: oklch(1 0 0 / 10%);
-}
-
-/* Dark mode site -> Light bubble menu */
-.dark .tiptap-menu-wrapper {
-  background-color: oklch(1 0 0);
-  color: oklch(0.145 0 0);
-  border-color: oklch(0.922 0 0);
-}
-
-/* Button overrides inside the menu */
-.tiptap-menu-wrapper [data-slot="button"],
-.tiptap-menu-wrapper [data-slot="popover-trigger"] {
-  background-color: transparent !important;
-  color: inherit !important;
-  border-color: transparent !important;
-  box-shadow: none !important;
-}
-
-/* Hover style for buttons inside the menu */
-.tiptap-menu-wrapper [data-slot="button"]:hover:not(:disabled),
-.tiptap-menu-wrapper [data-slot="popover-trigger"]:hover:not(:disabled) {
-  background-color: color-mix(in srgb, currentColor 10%, transparent) !important;
-}
-
-/* Color adjustments for Tiptap Bubble Menu buttons */
-.tiptap-menu-wrapper .text-green-300 {
-  color: oklch(0.50 0.15 145) !important;
-}
-.dark .tiptap-menu-wrapper .text-green-300,
-:root:not(.dark) .tiptap-menu-wrapper .text-green-300 {
-  color: oklch(0.85 0.15 145) !important;
-}
-
-.tiptap-menu-wrapper .text-blue-300 {
-  color: oklch(0.50 0.15 250) !important;
-}
-.dark .tiptap-menu-wrapper .text-blue-300,
-:root:not(.dark) .tiptap-menu-wrapper .text-blue-300 {
-  color: oklch(0.85 0.10 250) !important;
-}
-
-.tiptap-menu-wrapper .text-red-400 {
-  color: oklch(0.55 0.20 27) !important;
-}
-.dark .tiptap-menu-wrapper .text-red-400,
-:root:not(.dark) .tiptap-menu-wrapper .text-red-400 {
-  color: oklch(0.75 0.15 27) !important;
 }
 
 /* Sticky sidebar on public product page */
