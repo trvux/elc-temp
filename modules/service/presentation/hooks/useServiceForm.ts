@@ -13,6 +13,7 @@ const imageAssetSchema = z.object({
 
 const serviceSchema = z.object({
   title: z.string().min(1, "Vui lòng nhập tên dịch vụ"),
+  titleAlign: z.enum(["left", "center", "right"]),
   slug: z.string().min(1, "Vui lòng nhập slug"),
   groupId: z.string().nullable().optional(),
   categoryId: z.string().nullable().optional(),
@@ -42,6 +43,7 @@ export function useServiceForm(initialData?: ServiceWithRelations | null) {
     resolver: zodResolver(serviceSchema),
     defaultValues: {
       title: "",
+      titleAlign: "left",
       slug: "",
       groupId: null,
       categoryId: null,
@@ -69,6 +71,7 @@ export function useServiceForm(initialData?: ServiceWithRelations | null) {
       const mode = initialData.priceDisplayText ? "text" : "price";
       form.reset({
         title: initialData.title,
+        titleAlign: initialData.titleAlign,
         slug: initialData.slug,
         groupId: initialData.groupId,
         categoryId: initialData.categoryId,
@@ -90,6 +93,7 @@ export function useServiceForm(initialData?: ServiceWithRelations | null) {
     } else {
       form.reset({
         title: "",
+        titleAlign: "left",
         slug: "",
         groupId: null,
         categoryId: null,
@@ -153,6 +157,7 @@ export function useServiceForm(initialData?: ServiceWithRelations | null) {
     
     return {
       title: values.title,
+      titleAlign: values.titleAlign,
       slug: values.slug,
       groupId: values.groupId,
       categoryId: values.categoryId,

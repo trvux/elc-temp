@@ -49,6 +49,7 @@ import { Textarea } from "@/shared/components/ui/textarea";
 import { Plus, X } from "@phosphor-icons/react";
 import { Controller } from "react-hook-form";
 import { TiptapEditor } from "@/shared/components/ui/tiptap-editor";
+import { TitleAlignField } from "@/shared/components/ui/title-align-field";
 import { uploadImageFile } from "@/shared/lib/upload-image";
 import { FAQManager } from "@/modules/faq";
 
@@ -351,7 +352,10 @@ export function ServiceManagement({
                           name="title"
                           render={({ field, fieldState }) => (
                             <Field>
-                              <FieldLabel>Tên dịch vụ *</FieldLabel>
+                              <div className="flex items-center justify-between gap-3">
+                                <FieldLabel>Tên dịch vụ *</FieldLabel>
+                                <TitleAlignField control={form.control} />
+                              </div>
                               <Input
                                 {...field}
                                 onChange={(e) =>

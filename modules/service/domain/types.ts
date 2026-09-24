@@ -2,6 +2,8 @@ import { ServiceGroup } from "@/modules/service-group/domain/types";
 import { CategoryWithGroup } from "@/modules/category/domain/types";
 import type { ImageAsset } from "@/shared/lib/image-asset";
 export type { ImageAsset };
+import type { TitleAlign } from "@/shared/lib/title-align";
+export type { TitleAlign };
 
 type Json =
   | string
@@ -14,6 +16,7 @@ type Json =
 export interface Service {
   id: string;
   title: string;
+  titleAlign: TitleAlign;
   slug: string;
   groupId: string | null;
   categoryId: string | null;
@@ -42,6 +45,7 @@ export interface ServiceWithRelations extends Service {
 
 export interface CreateServiceInput {
   title: string;
+  titleAlign?: TitleAlign;
   slug: string;
   groupId?: string | null;
   categoryId?: string | null;

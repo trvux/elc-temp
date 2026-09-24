@@ -8,6 +8,7 @@ import { warmCache } from "@/shared/lib/cache-warm";
 import { getServiceGroupsAction } from "@/modules/service-group/presentation/actions";
 import { unwrapActionResult } from "@/shared/lib/action-result";
 import { BASE_URL } from "@/shared/lib/seo-schema";
+import { normalizeTitleAlign } from "@/shared/lib/title-align";
 
 const GO_API_URL = process.env.GO_API_URL;
 
@@ -19,6 +20,7 @@ interface GoRefResponse {
 interface GoServiceResponse {
   id: string;
   title: string;
+  title_align: string;
   slug: string;
   group_id: string | null;
   category_id: string | null;
@@ -52,6 +54,7 @@ function mapGoService(row: GoServiceResponse): ServiceWithRelations {
   const service: Service = {
     id: row.id,
     title: row.title,
+    titleAlign: normalizeTitleAlign(row.title_align),
     slug: row.slug,
     groupId: row.group_id,
     categoryId: row.category_id,

@@ -167,7 +167,13 @@ export async function ServiceDetailModule({
                 )}
               </div>
 
-              <TypographyH1 className={STYLES.serviceName}>
+              <TypographyH1
+                className={cn(
+                  STYLES.serviceName,
+                  service.titleAlign === "center" && "text-center",
+                  service.titleAlign === "right" && "text-right",
+                )}
+              >
                 {service.title}
               </TypographyH1>
 
