@@ -1,7 +1,7 @@
 "use server";
 
 import { revalidatePath, revalidateTag } from "next/cache";
-import { CreatePageInput, Page, UpdatePageInput } from "../domain";
+import { CreatePageInput, Page, TitleAlign, UpdatePageInput } from "../domain";
 import { authHeaders } from "@/shared/lib/go-api";
 
 const GO_API_URL = process.env.GO_API_URL;
@@ -9,6 +9,7 @@ const GO_API_URL = process.env.GO_API_URL;
 interface GoPageResponse {
   id: string;
   title: string;
+  title_align: string;
   slug: string;
   content: unknown;
   is_published: boolean;
@@ -25,10 +26,18 @@ interface GoErrorResponse {
   message: string;
 }
 
+const TITLE_ALIGN_VALUES: readonly TitleAlign[] = ["left", "center", "right"];
+function normalizeTitleAlign(value: string): TitleAlign {
+  return (TITLE_ALIGN_VALUES as readonly string[]).includes(value)
+    ? (value as TitleAlign)
+    : "left";
+}
+
 function mapPageToDomain(row: GoPageResponse): Page {
   return {
     id: row.id,
     title: row.title,
+    titleAlign: normalizeTitleAlign(row.title_align),
     slug: row.slug,
     content: row.content as Page["content"],
     isPublished: row.is_published,
@@ -116,6 +125,7 @@ export async function createPageAction(input: CreatePageInput) {
       headers: { "Content-Type": "application/json", ...(await authHeaders()) },
       body: JSON.stringify({
         title: input.title,
+        title_align: input.titleAlign,
         slug: input.slug,
         content: input.content,
         is_published: input.isPublished ?? true,
@@ -154,6 +164,7 @@ export async function updatePageAction(input: UpdatePageInput) {
       headers: { "Content-Type": "application/json", ...(await authHeaders()) },
       body: JSON.stringify({
         title: input.title,
+        title_align: input.titleAlign,
         slug: input.slug,
         content: input.content,
         is_published: input.isPublished,

@@ -84,7 +84,13 @@ export default async function StaticPage({ params }: PageProps) {
                 year: "numeric",
               })}
             </TypographySmall>
-            <TypographyH1 className="w-full max-w-none! text-wrap! font-heading leading-tight">
+            <TypographyH1
+              className={cn(
+                "w-full max-w-none! text-wrap! font-heading leading-tight",
+                page.titleAlign === "center" && "text-center",
+                page.titleAlign === "right" && "text-right",
+              )}
+            >
               {page.title}
             </TypographyH1>
           </div>

@@ -6,9 +6,12 @@ export type Json =
   | { [key: string]: Json | undefined }
   | Json[];
 
+export type TitleAlign = "left" | "center" | "right";
+
 export interface Page {
   id: string;
   title: string;
+  titleAlign: TitleAlign;
   slug: string;
   content: Json;
   isPublished: boolean;
@@ -22,6 +25,7 @@ export interface Page {
 
 export interface CreatePageInput {
   title: string;
+  titleAlign?: TitleAlign;
   slug: string;
   content?: Json;
   isPublished?: boolean;

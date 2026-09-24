@@ -4,11 +4,12 @@ import { useForm } from "react-hook-form";
 import type { Resolver } from "react-hook-form";
 import { toast } from "sonner";
 
-import { Page, createPageSchema, Json } from "../../domain";
+import { Page, createPageSchema, Json, TitleAlign } from "../../domain";
 import { createPageAction, updatePageAction } from "../actions";
 
 export type PageFormValues = {
   title: string;
+  titleAlign: TitleAlign;
   slug: string;
   content: unknown;
   isPublished: boolean;
@@ -27,6 +28,7 @@ export function usePageForm(
     resolver: standardSchemaResolver(createPageSchema) as unknown as Resolver<PageFormValues>,
     defaultValues: {
       title: "",
+      titleAlign: "left",
       slug: "",
       content: "",
       isPublished: true,
