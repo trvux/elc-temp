@@ -107,8 +107,11 @@ export const AlignmentTooolbar = () => {
         loop
         // See heading.tsx's identical comment — this project's
         // DropdownMenuContent defaults to trigger-width, so the width
-        // override has to live here, not on the inner group.
-        className="w-40"
+        // override has to live here, not on the inner group. w-48, not
+        // w-40 — 160px fit "Justify Align" alone, but not with the
+        // checkmark that appears once it's selected, so the label wrapped
+        // onto two lines instead of staying on one.
+        className="w-48"
         // Explicitly restores focus to this trigger — see link.tsx's
         // identical fix for why a bare preventDefault() caused this
         // Dialog-nested dropdown's close to jump focus elsewhere on the
@@ -130,10 +133,10 @@ export const AlignmentTooolbar = () => {
               key={index}
             >
               <span className="mr-2">{option.icon}</span>
-              {option.name}
+              <span className="whitespace-nowrap">{option.name}</span>
 
               {option.value === currentTextAlign() && (
-                <Check className="ml-auto h-4 w-4" />
+                <Check className="ml-auto h-4 w-4 shrink-0" />
               )}
             </DropdownMenuItem>
           ))}

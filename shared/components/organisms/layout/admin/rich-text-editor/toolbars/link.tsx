@@ -2,7 +2,7 @@
 
 // From shadcn-tiptap (MIT) — icons swapped to @phosphor-icons/react,
 // PopoverClose adapted to this project's `radix-ui` unified package.
-import { Trash, X } from "@phosphor-icons/react";
+import { ArrowUpRight, Trash, X } from "@phosphor-icons/react";
 import { Popover as PopoverPrimitive } from "radix-ui";
 import React, { type FormEvent } from "react";
 
@@ -135,7 +135,7 @@ const LinkToolbar = React.forwardRef<HTMLButtonElement, ButtonProps>(
                 ref={setTriggerRef}
                 {...props}
               >
-                <p className="mr-2 text-base">↗</p>
+                <ArrowUpRight className="mr-2 h-4 w-4" />
                 <p className="underline decoration-muted-foreground underline-offset-4">
                   Link
                 </p>
