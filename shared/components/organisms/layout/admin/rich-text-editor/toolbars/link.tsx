@@ -29,11 +29,35 @@ const LinkToolbar = React.forwardRef<HTMLButtonElement, ButtonProps>(
     const { editor } = useToolbar();
     const [link, setLink] = React.useState("");
     const [open, setOpen] = React.useState(false);
-    // Captured when the popover opens, not read fresh in handleSubmit —
-    // typing in the Input doesn't touch the editor, but this stays
-    // explicit rather than trusting "whatever the current selection
-    // happens to be" by the time Confirm is clicked.
+    const triggerButtonRef = React.useRef<HTMLButtonElement | null>(null);
+    const setTriggerRef = React.useCallback(
+      (node: HTMLButtonElement | null) => {
+        triggerButtonRef.current = node;
+        if (typeof ref === "function") ref(node);
+        else if (ref) ref.current = node;
+      },
+      [ref],
+    );
+    // Tracked continuously via editor's own selectionUpdate event rather
+    // than read fresh when the popover opens, so it's guaranteed correct
+    // even if clicking this toolbar button ever blurs the editor before
+    // the click handler runs (mousedown is prevented at the toolbar level
+    // — see toolbar.tsx — specifically to stop that from happening, but
+    // this is a cheap, harmless second line of defense regardless).
     const selectionRef = React.useRef<{ from: number; to: number } | null>(null);
+
+    React.useEffect(() => {
+      if (!editor) return;
+      const handler = () => {
+        const { from, to } = editor.state.selection;
+        selectionRef.current = { from, to };
+      };
+      handler();
+      editor.on("selectionUpdate", handler);
+      return () => {
+        editor.off("selectionUpdate", handler);
+      };
+    }, [editor]);
 
     const handleSubmit = (e: FormEvent) => {
       e.preventDefault();
@@ -42,13 +66,9 @@ const LinkToolbar = React.forwardRef<HTMLButtonElement, ButtonProps>(
         const { from, to } = selectionRef.current;
         // setLink on a COLLAPSED range (from === to — cursor placed on an
         // empty line, or just clicked inside an existing link without
-        // dragging to select its text) is invalid: you can't mark zero
-        // characters. That made the whole chain fail silently, including
-        // .focus() never actually moving DOM focus to the editor — so
-        // when the popover then closed and unmounted the still-focused
-        // Input, the browser fell back to focusing the page's first
-        // focusable element instead. Handle the collapsed case explicitly
-        // instead of feeding setLink a range it can't do anything with:
+        // dragging to select its text) can't mark zero characters, so
+        // handle it explicitly instead of feeding setLink a range it has
+        // nothing to do with:
         if (from === to) {
           if (editor.isActive("link")) {
             // Cursor sits inside an existing link's text — expand to that
@@ -80,16 +100,7 @@ const LinkToolbar = React.forwardRef<HTMLButtonElement, ButtonProps>(
     }, [editor]);
 
     return (
-      <Popover
-        open={open}
-        onOpenChange={(next) => {
-          if (next && editor) {
-            const { from, to } = editor.state.selection;
-            selectionRef.current = { from, to };
-          }
-          setOpen(next);
-        }}
-      >
+      <Popover open={open} onOpenChange={setOpen}>
         <Tooltip>
           <TooltipTrigger asChild>
             <PopoverTrigger
@@ -104,7 +115,7 @@ const LinkToolbar = React.forwardRef<HTMLButtonElement, ButtonProps>(
                   editor?.isActive("link") && "bg-accent",
                   className,
                 )}
-                ref={ref}
+                ref={setTriggerRef}
                 {...props}
               >
                 <p className="mr-2 text-base">↗</p>
@@ -120,8 +131,20 @@ const LinkToolbar = React.forwardRef<HTMLButtonElement, ButtonProps>(
         </Tooltip>
 
         <PopoverContent
+          // This Popover is nested inside a Radix Dialog (the admin edit
+          // modal). Closing it without explicitly restoring focus
+          // somewhere Radix already recognizes as inside the Dialog's own
+          // FocusScope left a window where focus had nowhere safe to
+          // land — the Dialog's FocusScope filled that gap by jumping to
+          // its own first tabbable element (the title field), even
+          // stealing focus back a second time right after editor.focus()
+          // had already succeeded (confirmed via a focus-event trace).
+          // Explicitly returning focus to this exact trigger button —
+          // Radix's own default onCloseAutoFocus behavior, which an
+          // earlier attempt had prevented — closes that gap.
           onCloseAutoFocus={(e) => {
             e.preventDefault();
+            triggerButtonRef.current?.focus();
           }}
           asChild
           className="relative px-3 py-2.5"

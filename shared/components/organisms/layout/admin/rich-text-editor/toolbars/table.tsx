@@ -16,7 +16,7 @@ import {
   Trash,
 } from "@phosphor-icons/react";
 import { NodeSelection } from "@tiptap/pm/state";
-import React from "react";
+import React, { useRef } from "react";
 
 import { Button } from "@/shared/components/ui/button";
 import {
@@ -36,6 +36,7 @@ import { useToolbar } from "./toolbar-provider";
 export const TableToolbar = () => {
   const { editor } = useToolbar();
   const isInTable = editor?.isActive("table") ?? false;
+  const triggerRef = useRef<HTMLButtonElement | null>(null);
 
   const selectTable = () => {
     if (!editor) return;
@@ -69,6 +70,7 @@ export const TableToolbar = () => {
         <TooltipTrigger asChild>
           <PopoverTrigger disabled={!editor} asChild>
             <Button
+              ref={triggerRef}
               variant="ghost"
               size="icon"
               className={cn("h-8 w-8", isInTable && "bg-accent")}
@@ -85,7 +87,14 @@ export const TableToolbar = () => {
       <PopoverContent
         align="start"
         className="w-auto p-2"
-        onCloseAutoFocus={(e) => e.preventDefault()}
+        // Explicitly restores focus to this trigger — see link.tsx's
+        // identical fix for why a bare preventDefault() caused this
+        // Dialog-nested popover's close to jump focus elsewhere on the
+        // page instead.
+        onCloseAutoFocus={(e) => {
+          e.preventDefault();
+          triggerRef.current?.focus();
+        }}
       >
         {!isInTable ? (
           <Button variant="ghost" size="sm" onClick={insertTable} className="gap-2">

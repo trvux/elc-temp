@@ -9,6 +9,7 @@ import {
   TextAlignLeft,
   TextAlignRight,
 } from "@phosphor-icons/react";
+import { useRef } from "react";
 
 import { Button } from "@/shared/components/ui/button";
 import {
@@ -27,6 +28,7 @@ import { useToolbar } from "./toolbar-provider";
 
 export const AlignmentTooolbar = () => {
   const { editor } = useToolbar();
+  const triggerRef = useRef<HTMLButtonElement | null>(null);
   const handleAlign = (value: string) => {
     editor?.chain().focus().setTextAlign(value).run();
   };
@@ -88,7 +90,7 @@ export const AlignmentTooolbar = () => {
                 row each time the selected option changed. 172px, not
                 132px — 132 was still narrow enough to truncate "Left
                 Align"/"Justify Align" to "Left Ali…"/"Justify Ali…". */}
-            <Button variant="ghost" size="sm" className="h-8 w-[172px] justify-start font-normal">
+            <Button ref={triggerRef} variant="ghost" size="sm" className="h-8 w-[172px] justify-start font-normal">
               <span className="mr-2 shrink-0">
                 {alignmentOptions[findIndex(currentTextAlign())].icon}
               </span>
@@ -107,8 +109,13 @@ export const AlignmentTooolbar = () => {
         // DropdownMenuContent defaults to trigger-width, so the width
         // override has to live here, not on the inner group.
         className="w-40"
+        // Explicitly restores focus to this trigger — see link.tsx's
+        // identical fix for why a bare preventDefault() caused this
+        // Dialog-nested dropdown's close to jump focus elsewhere on the
+        // page instead.
         onCloseAutoFocus={(e) => {
           e.preventDefault();
+          triggerRef.current?.focus();
         }}
       >
         <DropdownMenuGroup>

@@ -5,6 +5,7 @@
 // alignment.tsx, replicating the H2/H3 mark-stripping business logic that
 // previously lived in text-bubble-menu.tsx.
 import { CaretDown, Check, TextAa, TextHTwo, TextHThree } from "@phosphor-icons/react";
+import { useRef } from "react";
 
 import { Button } from "@/shared/components/ui/button";
 import {
@@ -23,6 +24,7 @@ import { useToolbar } from "./toolbar-provider";
 
 export const HeadingToolbar = () => {
   const { editor } = useToolbar();
+  const triggerRef = useRef<HTMLButtonElement | null>(null);
 
   const isH2 = editor?.isActive("heading", { level: 2 }) ?? false;
   const isH3 = editor?.isActive("heading", { level: 3 }) ?? false;
@@ -85,7 +87,7 @@ export const HeadingToolbar = () => {
                 enough to shift every button after this one when switched.
                 150px, not 120px — 120 was still narrow enough to truncate
                 "Normal text" and "Left Align" to "Norm…"/"Left Ali…". */}
-            <Button variant="ghost" size="sm" className="h-8 w-[150px] justify-start font-normal">
+            <Button ref={triggerRef} variant="ghost" size="sm" className="h-8 w-[150px] justify-start font-normal">
               <span className="mr-2 shrink-0">{current.icon}</span>
               <span className="truncate">{current.name}</span>
               <CaretDown className="ml-auto h-4 w-4 shrink-0" />
@@ -102,8 +104,13 @@ export const HeadingToolbar = () => {
         // inner group) so the checkmark has room instead of getting
         // clipped by the content's own overflow-x-hidden.
         className="w-40"
+        // Explicitly restores focus to this trigger — see link.tsx's
+        // identical fix for why a bare preventDefault() caused this
+        // Dialog-nested dropdown's close to jump focus elsewhere on the
+        // page instead.
         onCloseAutoFocus={(e) => {
           e.preventDefault();
+          triggerRef.current?.focus();
         }}
       >
         <DropdownMenuGroup>

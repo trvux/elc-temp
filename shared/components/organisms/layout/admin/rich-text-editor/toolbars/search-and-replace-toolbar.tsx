@@ -2,7 +2,7 @@
 
 // From shadcn-tiptap (MIT) — icons swapped to @phosphor-icons/react.
 import { ArrowLeft, ArrowRight, Repeat, X } from "@phosphor-icons/react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import { Button } from "@/shared/components/ui/button";
 import { Checkbox } from "@/shared/components/ui/checkbox";
@@ -35,6 +35,7 @@ export function SearchAndReplaceToolbar({ className }: SearchAndReplaceToolbarPr
   const [searchText, setSearchText] = useState("");
   const [replaceText, setReplaceText] = useState("");
   const [checked, setChecked] = useState(false);
+  const triggerRef = useRef<HTMLButtonElement | null>(null);
 
   const results = editor?.storage?.searchAndReplace
     .results as SearchAndReplaceStorage["results"];
@@ -80,6 +81,7 @@ export function SearchAndReplaceToolbar({ className }: SearchAndReplaceToolbarPr
         <TooltipTrigger asChild>
           <PopoverTrigger disabled={!editor} asChild>
             <Button
+              ref={triggerRef}
               variant="ghost"
               size="sm"
               className={cn("h-8 w-max px-3 font-normal", className)}
@@ -96,8 +98,13 @@ export function SearchAndReplaceToolbar({ className }: SearchAndReplaceToolbarPr
 
       <PopoverContent
         align="end"
+        // Explicitly restores focus to this trigger — see link.tsx's
+        // identical fix and its comment for why a bare preventDefault()
+        // here caused this Dialog-nested popover's close to jump focus to
+        // an unrelated field elsewhere on the page.
         onCloseAutoFocus={(e) => {
           e.preventDefault();
+          triggerRef.current?.focus();
         }}
         onEscapeKeyDown={() => {
           closeAndReset();

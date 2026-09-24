@@ -42,6 +42,18 @@ export const getTiptapExtensions = (options?: {
   StarterKit.configure({
     horizontalRule: false,
     link: false,
+    // @tiptap/starter-kit started bundling Underline itself as of some
+    // version between 3.22.4 and 3.31.3 (confirmed by reading its own
+    // dist/index.d.ts — UnderlineOptions/underline are new there). Left
+    // undisabled, this duplicated the Underline from sharedMarkExtensions()
+    // below — Tiptap's own console warning ("Duplicate extension names
+    // found: ['underline', 'image']") was the real clue behind an
+    // otherwise-unexplainable editor selection/focus corruption bug (the
+    // Link toolbar's Confirm button jumping focus to an unrelated page
+    // input). 'image' is ALSO in that warning, but that one's intentional
+    // (AdminImage overriding the plain Image — see its own comment above);
+    // 'underline' was the accidental one.
+    underline: false,
     heading: {
       levels: [...HEADING_LEVELS],
     },

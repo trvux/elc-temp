@@ -64,6 +64,7 @@ export function TiptapImageNodeView(props: NodeViewProps) {
   const [openedMore, setOpenedMore] = useState(false);
   const [altFormOpen, setAltFormOpen] = useState(false);
   const [altDraft, setAltDraft] = useState("");
+  const moreButtonRef = useRef<HTMLButtonElement | null>(null);
 
   function startResize(e: React.MouseEvent<HTMLDivElement>, position: "left" | "right") {
     e.preventDefault();
@@ -241,7 +242,7 @@ export function TiptapImageNodeView(props: NodeViewProps) {
                 }}
               >
                 <DropdownMenuTrigger asChild>
-                  <Button size="icon" variant="ghost" className="size-8">
+                  <Button ref={moreButtonRef} size="icon" variant="ghost" className="size-8">
                     <DotsThreeVertical className="size-4" />
                   </Button>
                 </DropdownMenuTrigger>
@@ -256,14 +257,19 @@ export function TiptapImageNodeView(props: NodeViewProps) {
                   sideOffset={8}
                   align="end"
                   className="w-44"
-                  // Always prevent, not just while altFormOpen — that
-                  // state is already false by the time this fires (it's
-                  // set in the very same handler that triggers the
-                  // close), so the condition never actually held: Radix's
-                  // default was returning focus to the "..." trigger on
-                  // every close, including right after Confirm, which
-                  // visibly jerked the whole page's scroll position.
-                  onCloseAutoFocus={(e) => e.preventDefault()}
+                  // Explicitly returning focus to the "..." trigger here
+                  // (Radix's own default, which a bare preventDefault()
+                  // discarded) matters more than it looks: this dropdown
+                  // sits inside the admin edit Dialog, and leaving focus
+                  // with nowhere safe to land after a close let the
+                  // Dialog's own FocusScope fall back to jumping focus to
+                  // its first tabbable field elsewhere on the page — the
+                  // same root cause diagnosed (and fixed the same way) for
+                  // the Link toolbar's Confirm button.
+                  onCloseAutoFocus={(e) => {
+                    e.preventDefault();
+                    moreButtonRef.current?.focus();
+                  }}
                 >
                   {altFormOpen ? (
                     <form
