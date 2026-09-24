@@ -168,17 +168,21 @@ export default async function BranchDetail({ params }: Props) {
         {/* Body copy stays at max-w-2xl (672px, closest Tailwind step to
             Linear's measured 624px blog column) for readability, but the
             header block (back link/title/image) and the accordion/article
-            below are allowed to widen at md/lg — matching Linear's own
-            layout, where its h1's own container is measurably wider than
-            its body-paragraph column (786px tablet / 900px desktop vs. a
-            624px-capped body), not tied to the same max-width. lg bumped
-            from max-w-4xl (896px) to max-w-5xl (1024px) after A/B testing
-            with Linear's exact title string side by side — 896px was only
-            11px short of the text's natural single-line width (907px at
-            48px/weight 600), just barely wrapping to 2 lines where
-            Linear's fit on 1; 5xl gives headroom instead of chasing that
-            one string's exact px. */}
-        <div className="max-w-2xl md:max-w-3xl lg:max-w-5xl mx-auto w-full flex flex-col gap-6 animate-fade-in-up">
+            below are allowed to widen up to 56.25rem (900px) — Linear's h1
+            container measured FLUID, not stepped: width = min(900px, 100% -
+            3rem) at every viewport from 500px up to 1920px (dense sweep,
+            ~20 widths), never jumping the way a sm:/md:/lg: breakpoint
+            would. A first attempt using md:max-w-3xl lg:max-w-4xl/5xl
+            looked right at the 3 checked breakpoints but visibly mismatched
+            Linear at in-between widths — because Tailwind's fixed steps can
+            never track a continuously-scaling target. A single
+            max-w-[56.25rem] (no breakpoint variants) reproduces the same
+            fluid-then-capped curve here, since this wrapper is already
+            nested inside sectionContainer's own padding, so "100%" here is
+            already viewport-relative. Body text's max-w-2xl doesn't need
+            this treatment — Linear's paragraph column is a flat 624px, no
+            fluid range below that cap. */}
+        <div className="max-w-[56.25rem] mx-auto w-full flex flex-col gap-6 animate-fade-in-up">
           <div>
             <Link
               href="/thong-tin"
