@@ -1,3 +1,4 @@
+import { mergeAttributes } from "@tiptap/core";
 import Image from "@tiptap/extension-image";
 import HorizontalRule from "@tiptap/extension-horizontal-rule";
 import { Table } from "@tiptap/extension-table";
@@ -166,6 +167,23 @@ function normalizeAlign(value: unknown): ImageAlign {
 
 export function createImageExtension() {
   return Image.extend({
+    // Base Image only ever renders a plain <img title="...">, which puts
+    // the title on the native browser tooltip (hover-only, invisible by
+    // default) — never a visible caption, regardless of what the admin
+    // NodeView's own React preview shows underneath the image live. That
+    // preview was cosmetic only: PreviewContent's generateHTML() call
+    // (the actual public-page render) went through this same base
+    // behavior, so a caption typed in the editor never actually reached
+    // real visitors. Wrap in <figure>/<figcaption> when a title is set —
+    // typeset.css already styles both (muted, centered, small type) for
+    // exactly this structure.
+    renderHTML({ HTMLAttributes, node }) {
+      const img = ["img", mergeAttributes(this.options.HTMLAttributes, HTMLAttributes)] as const;
+      if (node.attrs.title) {
+        return ["figure", {}, img, ["figcaption", {}, node.attrs.title]];
+      }
+      return img;
+    },
     addAttributes() {
       return {
         ...this.parent?.(),

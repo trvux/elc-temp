@@ -21,7 +21,7 @@ import {
   LinkSimple,
   UploadSimple,
 } from "@phosphor-icons/react";
-import { type FormEvent, useState } from "react";
+import { useState } from "react";
 
 import { Button } from "@/shared/components/ui/button";
 import { Input } from "@/shared/components/ui/input";
@@ -176,8 +176,7 @@ function ImagePlaceholderComponent(props: NodeViewProps) {
     handleAcceptedFiles(files);
   };
 
-  const handleInsertEmbed = (e: FormEvent) => {
-    e.preventDefault();
+  const handleInsertEmbed = () => {
     if (!isValidUrl(url)) {
       setUrlError(true);
       return;
@@ -242,7 +241,21 @@ function ImagePlaceholderComponent(props: NodeViewProps) {
             </TabsContent>
 
             <TabsContent value="url">
-              <form onSubmit={handleInsertEmbed}>
+              {/* Not a <form> — same reasoning as tiptap-image-node-view.tsx's
+                  alt-text/caption mini-forms: a real <form> here (even with
+                  an already-type="button" Embed button) still lets Enter in
+                  the Input trigger a submit event that a nested-form-in-
+                  portal situation can hand off to the OUTER article-edit
+                  form instead of just this one. Plain div + onKeyDown has no
+                  form-submission semantics to inherit at all. */}
+              <div
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    handleInsertEmbed();
+                  }
+                }}
+              >
                 <Input
                   value={url}
                   onChange={(e) => {
@@ -267,7 +280,7 @@ function ImagePlaceholderComponent(props: NodeViewProps) {
                 <p className="text-center text-xs text-muted-foreground">
                   Works with any image from the web
                 </p>
-              </form>
+              </div>
             </TabsContent>
           </Tabs>
         </PopoverContent>

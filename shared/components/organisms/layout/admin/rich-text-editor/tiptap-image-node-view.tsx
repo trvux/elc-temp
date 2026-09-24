@@ -15,6 +15,7 @@ import {
   ArrowsOut,
   Copy,
   DotsThreeVertical,
+  Quotes,
   TextAa,
   TextAlignCenter,
   TextAlignLeft,
@@ -69,6 +70,8 @@ export function TiptapImageNodeView(props: NodeViewProps) {
   const [openedMore, setOpenedMore] = useState(false);
   const [altFormOpen, setAltFormOpen] = useState(false);
   const [altDraft, setAltDraft] = useState("");
+  const [captionFormOpen, setCaptionFormOpen] = useState(false);
+  const [captionDraft, setCaptionDraft] = useState("");
   const { ref: moreButtonRef, reassertFocus: reassertFocusToMoreButton } =
     useReassertFocus<HTMLButtonElement>();
 
@@ -196,6 +199,42 @@ export function TiptapImageNodeView(props: NodeViewProps) {
 
   function handleRadiusTouchEnd() {
     setRadiusResizing(false);
+  }
+
+  // Shared by the alt-text and caption mini-forms below. Focus the "..."
+  // trigger BEFORE closing — same reasoning as link.tsx's identical fix:
+  // moving focus off the still-mounted Input first means this dropdown's
+  // content never holds active focus at the moment it unmounts, so the
+  // admin Dialog's focus-trap fallback (jump to its first field) has
+  // nothing to react to, instead of just cleaning up its result a moment
+  // later and leaving a visible double-jump. Plain updateAttributes() let
+  // the NodeSelection get lost the moment the focused <Input> unmounts
+  // (dropdown closing) — ProseMirror fell back to a selection near the
+  // document start, and the browser then scrolled the page there once
+  // focus returned. Explicitly re-select this exact node by its own
+  // position first so the update can't land anywhere else.
+  function confirmAlt() {
+    reassertFocusToMoreButton();
+    const pos = getPos();
+    if (typeof pos === "number") {
+      editor.chain().setNodeSelection(pos).updateAttributes("image", { alt: altDraft }).run();
+    } else {
+      updateAttributes({ alt: altDraft });
+    }
+    setAltFormOpen(false);
+    setOpenedMore(false);
+  }
+
+  function confirmCaption() {
+    reassertFocusToMoreButton();
+    const pos = getPos();
+    if (typeof pos === "number") {
+      editor.chain().setNodeSelection(pos).updateAttributes("image", { title: captionDraft }).run();
+    } else {
+      updateAttributes({ title: captionDraft });
+    }
+    setCaptionFormOpen(false);
+    setOpenedMore(false);
   }
 
   useEffect(() => {
@@ -361,7 +400,10 @@ export function TiptapImageNodeView(props: NodeViewProps) {
                 open={openedMore}
                 onOpenChange={(next) => {
                   setOpenedMore(next);
-                  if (!next) setAltFormOpen(false);
+                  if (!next) {
+                    setAltFormOpen(false);
+                    setCaptionFormOpen(false);
+                  }
                 }}
               >
                 <DropdownMenuTrigger asChild>
@@ -395,36 +437,26 @@ export function TiptapImageNodeView(props: NodeViewProps) {
                   }}
                 >
                   {altFormOpen ? (
-                    <form
+                    // Not a <form>/type="submit" — reported bug: clicking
+                    // Confirm here submitted the OUTER article-edit form
+                    // too (its own "Cập nhật bài viết" fired, saving the
+                    // whole post immediately). Radix's DropdownMenuContent
+                    // portals this out of the React tree's DOM position,
+                    // but apparently not always out from under whatever
+                    // <form> actually encloses the portal target in the
+                    // real DOM — a nested-form situation the browser
+                    // doesn't handle in any one predictable way. A plain
+                    // div with its own Enter-key handling and a type=
+                    // "button" Confirm has no form-submission semantics
+                    // to inherit at all, so there's nothing left to
+                    // accidentally trigger.
+                    <div
                       className="flex flex-col gap-2 p-1"
-                      onSubmit={(e) => {
-                        e.preventDefault();
-                        // Focus the "..." trigger BEFORE closing — same
-                        // reasoning as link.tsx's identical fix: moving
-                        // focus off the still-mounted Input first means
-                        // this dropdown's content never holds active focus
-                        // at the moment it unmounts, so the admin Dialog's
-                        // focus-trap fallback (jump to its first field) has
-                        // nothing to react to, instead of just cleaning up
-                        // its result a moment later and leaving a visible
-                        // double-jump.
-                        reassertFocusToMoreButton();
-                        // Plain updateAttributes() here let the
-                        // NodeSelection get lost the moment the focused
-                        // <Input> unmounts (dropdown closing) — ProseMirror
-                        // fell back to a selection near the document
-                        // start, and the browser then scrolled the page
-                        // there once focus returned. Explicitly re-select
-                        // this exact node by its own position first so the
-                        // update can't land anywhere else.
-                        const pos = getPos();
-                        if (typeof pos === "number") {
-                          editor.chain().setNodeSelection(pos).updateAttributes("image", { alt: altDraft }).run();
-                        } else {
-                          updateAttributes({ alt: altDraft });
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                          e.preventDefault();
+                          confirmAlt();
                         }
-                        setAltFormOpen(false);
-                        setOpenedMore(false);
                       }}
                     >
                       <span className="text-xs font-medium text-muted-foreground">
@@ -437,10 +469,34 @@ export function TiptapImageNodeView(props: NodeViewProps) {
                         placeholder="What's in this image?"
                         className="h-9 text-sm"
                       />
-                      <Button type="submit" size="sm" className="mt-1">
+                      <Button type="button" size="sm" className="mt-1" onClick={confirmAlt}>
                         Confirm
                       </Button>
-                    </form>
+                    </div>
+                  ) : captionFormOpen ? (
+                    <div
+                      className="flex flex-col gap-2 p-1"
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                          e.preventDefault();
+                          confirmCaption();
+                        }
+                      }}
+                    >
+                      <span className="text-xs font-medium text-muted-foreground">
+                        Caption
+                      </span>
+                      <Input
+                        autoFocus
+                        value={captionDraft}
+                        onChange={(e) => setCaptionDraft(e.target.value)}
+                        placeholder="Caption shown under the image"
+                        className="h-9 text-sm"
+                      />
+                      <Button type="button" size="sm" className="mt-1" onClick={confirmCaption}>
+                        Confirm
+                      </Button>
+                    </div>
                   ) : (
                     <>
                       <DropdownMenuItem
@@ -451,6 +507,15 @@ export function TiptapImageNodeView(props: NodeViewProps) {
                         }}
                       >
                         <TextAa className="mr-2 size-4" /> Add alt
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        onSelect={(e) => {
+                          e.preventDefault();
+                          setCaptionDraft(node.attrs.title || "");
+                          setCaptionFormOpen(true);
+                        }}
+                      >
+                        <Quotes className="mr-2 size-4" /> Add caption
                       </DropdownMenuItem>
                       <DropdownMenuItem onClick={() => duplicateContent(editor)}>
                         <Copy className="mr-2 size-4" /> Duplicate

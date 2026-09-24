@@ -4,7 +4,7 @@
 // PopoverClose adapted to this project's `radix-ui` unified package.
 import { ArrowUpRight, Trash, X } from "@phosphor-icons/react";
 import { Popover as PopoverPrimitive } from "radix-ui";
-import React, { type FormEvent } from "react";
+import React from "react";
 
 import { Button } from "@/shared/components/ui/button";
 
@@ -61,8 +61,7 @@ const LinkToolbar = React.forwardRef<HTMLButtonElement, ButtonProps>(
       };
     }, [editor]);
 
-    const handleSubmit = (e: FormEvent) => {
-      e.preventDefault();
+    const handleSubmit = () => {
       const url = getUrlFromString(link);
       // Focus the trigger BEFORE touching the editor or closing the
       // popover — not after, via onCloseAutoFocus. That fired too late:
@@ -170,7 +169,22 @@ const LinkToolbar = React.forwardRef<HTMLButtonElement, ButtonProps>(
             <PopoverPrimitive.Close className="absolute right-3 top-3">
               <X className="h-4 w-4" />
             </PopoverPrimitive.Close>
-            <form onSubmit={handleSubmit}>
+            {/* Not a <form> — reported bug: clicking Confirm/Update here
+                submitted the OUTER article-edit form too (its own "Cập
+                nhật bài viết" fired, saving the whole post immediately),
+                the exact same failure mode found and fixed in
+                tiptap-image-node-view.tsx's alt-text/caption mini-forms —
+                see that file's comment for the full explanation. Plain div
+                + onKeyDown has no form-submission semantics to inherit at
+                all. */}
+            <div
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  e.preventDefault();
+                  handleSubmit();
+                }
+              }}
+            >
               <Label>Link</Label>
               <p className="text-sm text-muted-foreground">
                 Attach a link to the selected text
@@ -187,7 +201,7 @@ const LinkToolbar = React.forwardRef<HTMLButtonElement, ButtonProps>(
                 <div className="flex items-center gap-3">
                   {editor?.getAttributes("link").href && (
                     <Button
-                      type="reset"
+                      type="button"
                       size="sm"
                       className="h-8 text-muted-foreground"
                       variant="ghost"
@@ -209,12 +223,12 @@ const LinkToolbar = React.forwardRef<HTMLButtonElement, ButtonProps>(
                       Remove
                     </Button>
                   )}
-                  <Button type="submit" size="sm" className="h-8">
+                  <Button type="button" size="sm" className="h-8" onClick={handleSubmit}>
                     {editor?.getAttributes("link").href ? "Update" : "Confirm"}
                   </Button>
                 </div>
               </div>
-            </form>
+            </div>
           </div>
         </PopoverContent>
       </Popover>
