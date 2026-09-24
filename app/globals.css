@@ -54,6 +54,18 @@
   }
 }
 
+/* typeset.css doesn't expose a tracking/letter-spacing variable, so
+   headings render at the browser default (0). Measured against Linear's
+   own blog for comparison (2026-09-24): their h2 carries -0.288px tracking
+   (roughly half of Tailwind's tracking-tight at that size) instead of 0.
+   Using tracking-tight outright rather than hand-computing a one-off value
+   also matches TypographyH1-H4 (shared/components/ui/typography.tsx),
+   which already use tracking-tight uniformly — so every heading on the
+   site, inside or outside typeset content, now carries the same tracking. */
+.typeset :where(h1, h2, h3, h4, h5, h6) {
+  letter-spacing: var(--tracking-tight);
+}
+
 /* Quiet, reference-only reading material on category/brand listing pages
    (below the product grid) — must not compete with the page's real H1. */
 .typeset-docs.typeset-hero {

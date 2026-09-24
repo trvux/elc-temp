@@ -11,7 +11,10 @@ export function TypographyH1({ children, className }: Typography) {
   return (
     <h1
       className={cn(
-        "scroll-m-20 font-heading text-3xl font-extrabold tracking-tight md:text-4xl",
+        // font-semibold, not font-extrabold — measured against Linear's
+        // own blog H1 for comparison (2026-09-24): weight 590 there, far
+        // closer to Tailwind's semibold (600) step than extrabold (800).
+        "scroll-m-20 font-heading text-3xl font-semibold tracking-tight md:text-4xl",
         className,
       )}
     >
