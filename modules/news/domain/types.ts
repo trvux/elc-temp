@@ -1,5 +1,7 @@
 import type { ImageAsset } from "@/shared/lib/image-asset";
 export type { ImageAsset };
+import type { TitleAlign } from "@/shared/lib/title-align";
+export type { TitleAlign };
 
 export type Json =
   | string
@@ -8,8 +10,6 @@ export type Json =
   | null
   | { [key: string]: Json | undefined }
   | Json[];
-
-export type TitleAlign = "left" | "center" | "right";
 
 export interface News {
   id: string;

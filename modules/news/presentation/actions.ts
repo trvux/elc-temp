@@ -1,18 +1,12 @@
 "use server";
 
 import { revalidatePath, revalidateTag } from "next/cache";
-import { News, CreateNewsInput, UpdateNewsInput, NewsFilter, ImageAsset, TitleAlign } from "../domain";
-
-const TITLE_ALIGN_VALUES: readonly TitleAlign[] = ["left", "center", "right"];
-function normalizeTitleAlign(value: string): TitleAlign {
-  return (TITLE_ALIGN_VALUES as readonly string[]).includes(value)
-    ? (value as TitleAlign)
-    : "left";
-}
+import { News, CreateNewsInput, UpdateNewsInput, NewsFilter, ImageAsset } from "../domain";
 import { authHeaders, toSnakeCaseBody } from "@/shared/lib/go-api";
 import { submitToIndexNow } from "@/shared/lib/indexnow";
 import { warmCache } from "@/shared/lib/cache-warm";
 import { BASE_URL } from "@/shared/lib/seo-schema";
+import { normalizeTitleAlign } from "@/shared/lib/title-align";
 
 const GO_API_URL = process.env.GO_API_URL;
 

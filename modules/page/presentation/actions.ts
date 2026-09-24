@@ -1,8 +1,9 @@
 "use server";
 
 import { revalidatePath, revalidateTag } from "next/cache";
-import { CreatePageInput, Page, TitleAlign, UpdatePageInput } from "../domain";
+import { CreatePageInput, Page, UpdatePageInput } from "../domain";
 import { authHeaders } from "@/shared/lib/go-api";
+import { normalizeTitleAlign } from "@/shared/lib/title-align";
 
 const GO_API_URL = process.env.GO_API_URL;
 
@@ -24,13 +25,6 @@ interface GoPageResponse {
 interface GoErrorResponse {
   code: string;
   message: string;
-}
-
-const TITLE_ALIGN_VALUES: readonly TitleAlign[] = ["left", "center", "right"];
-function normalizeTitleAlign(value: string): TitleAlign {
-  return (TITLE_ALIGN_VALUES as readonly string[]).includes(value)
-    ? (value as TitleAlign)
-    : "left";
 }
 
 function mapPageToDomain(row: GoPageResponse): Page {
