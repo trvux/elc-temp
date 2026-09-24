@@ -62,6 +62,7 @@ export function TiptapImageNodeView(props: NodeViewProps) {
   const [resizingPosition, setResizingPosition] = useState<"left" | "right">("left");
   const [resizeInitialWidth, setResizeInitialWidth] = useState(0);
   const [resizeInitialMouseX, setResizeInitialMouseX] = useState(0);
+  const [radiusResizing, setRadiusResizing] = useState(false);
   const [openedMore, setOpenedMore] = useState(false);
   const [altFormOpen, setAltFormOpen] = useState(false);
   const [altDraft, setAltDraft] = useState("");
@@ -126,6 +127,58 @@ export function TiptapImageNodeView(props: NodeViewProps) {
     setResizeInitialWidth(0);
   }
 
+  // Corner-radius handle: no fixed rounding baked in for every image
+  // regardless of subject (a blueprint/diagram reads wrong with the same
+  // rounding that suits a product photo), so this hands the choice to
+  // whoever placed the image instead. Radius tracks the straight-line
+  // distance from the image's own bottom-right corner to the pointer —
+  // drag toward the corner (distance shrinks) for sharp corners, toward
+  // the center (distance grows) for rounder ones, same handle-drag idiom
+  // as design tools' own corner-radius controls. min(dx, dy) rather than
+  // the diagonal distance so a mostly-horizontal or mostly-vertical drag
+  // still tracks intuitively instead of needing an exact 45° line.
+  function radiusFromPointer(clientX: number, clientY: number) {
+    if (!imageRef.current) return null;
+    const rect = imageRef.current.getBoundingClientRect();
+    const dx = rect.right - clientX;
+    const dy = rect.bottom - clientY;
+    const maxRadius = Math.min(rect.width, rect.height) / 2;
+    return Math.max(0, Math.min(Math.min(dx, dy), maxRadius));
+  }
+
+  function startRadiusResize(e: React.MouseEvent<HTMLDivElement>) {
+    e.preventDefault();
+    e.stopPropagation();
+    setRadiusResizing(true);
+  }
+
+  function resizeRadius(e: MouseEvent) {
+    if (!radiusResizing) return;
+    const radius = radiusFromPointer(e.clientX, e.clientY);
+    if (radius !== null) updateAttributes({ borderRadius: Math.round(radius) });
+  }
+
+  function endRadiusResize() {
+    setRadiusResizing(false);
+  }
+
+  function handleRadiusTouchStart(e: React.TouchEvent) {
+    e.preventDefault();
+    e.stopPropagation();
+    setRadiusResizing(true);
+  }
+
+  function handleRadiusTouchMove(e: TouchEvent) {
+    if (!radiusResizing) return;
+    const touch = e.touches[0];
+    const radius = radiusFromPointer(touch.clientX, touch.clientY);
+    if (radius !== null) updateAttributes({ borderRadius: Math.round(radius) });
+  }
+
+  function handleRadiusTouchEnd() {
+    setRadiusResizing(false);
+  }
+
   useEffect(() => {
     window.addEventListener("mousemove", resize);
     window.addEventListener("mouseup", endResize);
@@ -139,6 +192,20 @@ export function TiptapImageNodeView(props: NodeViewProps) {
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [resizing, resizeInitialMouseX, resizeInitialWidth]);
+
+  useEffect(() => {
+    window.addEventListener("mousemove", resizeRadius);
+    window.addEventListener("mouseup", endRadiusResize);
+    window.addEventListener("touchmove", handleRadiusTouchMove);
+    window.addEventListener("touchend", handleRadiusTouchEnd);
+    return () => {
+      window.removeEventListener("mousemove", resizeRadius);
+      window.removeEventListener("mouseup", endRadiusResize);
+      window.removeEventListener("touchmove", handleRadiusTouchMove);
+      window.removeEventListener("touchend", handleRadiusTouchEnd);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [radiusResizing]);
 
   // Legacy content may still carry the old "wide"/"full" values — treat
   // them as "center" here too so the toolbar highlights something sane
@@ -165,7 +232,16 @@ export function TiptapImageNodeView(props: NodeViewProps) {
           src={node.attrs.src}
           alt={node.attrs.alt}
           title={node.attrs.title}
-          style={ratio ? { aspectRatio: ratio, objectFit: "cover", width: "100%" } : { width: "100%" }}
+          style={{
+            ...(ratio ? { aspectRatio: ratio, objectFit: "cover" as const } : {}),
+            width: "100%",
+            // Explicit borderRadius (once the corner handle has been
+            // dragged) overrides the className's default rounded-sm —
+            // undefined here just lets that default keep applying.
+            ...(node.attrs.borderRadius !== null && node.attrs.borderRadius !== undefined
+              ? { borderRadius: `${node.attrs.borderRadius}px` }
+              : {}),
+          }}
           className="rounded-sm"
         />
         {node.attrs.title && (
@@ -190,6 +266,32 @@ export function TiptapImageNodeView(props: NodeViewProps) {
             >
               <div className="z-20 h-[70px] w-1 rounded-xl border bg-foreground/60 opacity-0 transition-opacity group-hover:opacity-100" />
             </div>
+
+            {/* Corner-radius handle — a free-drag control instead of a
+                fixed rounding baked into every image, since a blueprint/
+                diagram reads wrong with the same corners that suit a
+                product photo. Bottom-right only (matches the single-handle
+                convention most design tools use for uniform corner
+                rounding); shows the live px value while dragging so the
+                exact number is never a guess. */}
+            <div
+              className="absolute bottom-0 right-0 z-20 flex size-6 cursor-nwse-resize items-end justify-end p-1.5"
+              onMouseDown={startRadiusResize}
+              onTouchStart={handleRadiusTouchStart}
+            >
+              <div
+                className={cn(
+                  "z-20 size-2.5 rounded-full border bg-foreground/60 opacity-0 transition-opacity",
+                  !resizing && "group-hover:opacity-100",
+                  radiusResizing && "opacity-100",
+                )}
+              />
+            </div>
+            {radiusResizing && (
+              <div className="pointer-events-none absolute bottom-8 right-3 z-20 rounded-md bg-background px-2 py-1 text-xs font-medium shadow-xs">
+                {Math.round(node.attrs.borderRadius ?? 0)}px
+              </div>
+            )}
 
             {/* Hover-only, matching the actual reference behavior — a
                 previous attempt also showed this on `selected` (assumed

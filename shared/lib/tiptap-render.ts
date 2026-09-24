@@ -214,6 +214,23 @@ export function createImageExtension() {
           },
           parseHTML: (element) => element.style.width || null,
         },
+        // Free-drag corner handle (admin NodeView only) — no fixed rounding
+        // for every image regardless of subject. A blueprint/diagram reads
+        // wrong with the same rounded corners that suit a product photo, so
+        // this is left to whoever placed the image rather than baked into
+        // the className. Undefined by default: renders nothing extra, so
+        // existing content keeps the plain className's own rounded-sm.
+        borderRadius: {
+          default: null,
+          renderHTML: (attributes) => {
+            if (attributes.borderRadius === null || attributes.borderRadius === undefined) return {};
+            return { style: `border-radius: ${attributes.borderRadius}px;` };
+          },
+          parseHTML: (element) => {
+            const value = element.style.borderRadius;
+            return value ? parseFloat(value) : null;
+          },
+        },
       };
     },
   });
