@@ -65,11 +65,14 @@ jobs:
         env:
           GOOGLE_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}
           NEXT_SERVER_ACTIONS_ENCRYPTION_KEY: ${{ secrets.NEXT_SERVER_ACTIONS_ENCRYPTION_KEY }}
+          # Runtime-only (used inside Route Handlers/Server Actions per
+          # request, never at build time) — see shared/lib/geocode.ts.
+          GEOCODING_API_KEY: ${{ secrets.GEOCODING_API_KEY }}
         with:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_SSH_KEY }}
-          envs: GOOGLE_SERVICE_ACCOUNT_JSON,NEXT_SERVER_ACTIONS_ENCRYPTION_KEY
+          envs: GOOGLE_SERVICE_ACCOUNT_JSON,NEXT_SERVER_ACTIONS_ENCRYPTION_KEY,GEOCODING_API_KEY
           script: |
             cd /var/www/elc-tem
             # Ghi runtime env vars vao ecosystem.config.js (nam trong thu muc project)
@@ -81,7 +84,7 @@ jobs:
             # NEXT_SERVER_ACTIONS_ENCRYPTION_KEY phai giong het gia tri dung luc
             # build (xem buoc "Build project") -- key lech giua build va runtime
             # gay loi "Failed to find Server Action" y het nhu khong set gi ca.
-            python3 -c 'import os,json; cfg={"apps":[{"name":"elc-tem","script":"server.js","instances":2,"exec_mode":"cluster","listen_timeout":10000,"kill_timeout":5000,"env":{"PORT":"3000","NODE_ENV":"production","GOOGLE_SERVICE_ACCOUNT_JSON":os.environ.get("GOOGLE_SERVICE_ACCOUNT_JSON",""),"GO_API_URL":"http://localhost:8090","NEXT_SERVER_ACTIONS_ENCRYPTION_KEY":os.environ.get("NEXT_SERVER_ACTIONS_ENCRYPTION_KEY","")}}]}; open("ecosystem.config.js","w").write("module.exports = "+json.dumps(cfg)+";\n")'
+            python3 -c 'import os,json; cfg={"apps":[{"name":"elc-tem","script":"server.js","instances":2,"exec_mode":"cluster","listen_timeout":10000,"kill_timeout":5000,"env":{"PORT":"3000","NODE_ENV":"production","GOOGLE_SERVICE_ACCOUNT_JSON":os.environ.get("GOOGLE_SERVICE_ACCOUNT_JSON",""),"GO_API_URL":"http://localhost:8090","NEXT_SERVER_ACTIONS_ENCRYPTION_KEY":os.environ.get("NEXT_SERVER_ACTIONS_ENCRYPTION_KEY",""),"GEOCODING_API_KEY":os.environ.get("GEOCODING_API_KEY","")}}]}; open("ecosystem.config.js","w").write("module.exports = "+json.dumps(cfg)+";\n")'
             # Doi Go API san sang truoc khi start Next.js (chi can thiet cho lan
             # deploy dau tien / VPS moi khoi dong lai tu dau, khi chua co PM2 process
             # nao dang chay ca)

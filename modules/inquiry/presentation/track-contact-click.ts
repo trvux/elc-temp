@@ -2,6 +2,7 @@
 
 import * as gtag from "@/shared/lib/gtag";
 import { logEventAction } from "@/modules/event";
+import { peekLocation, primeLocation } from "@/shared/lib/geolocation";
 import type { ContactChannel, LeadType } from "../domain";
 
 interface TrackContactClickInput {
@@ -27,6 +28,14 @@ const CONTACT_CLICK_ENDPOINT = "/api/contact-click";
 export function trackContactClick({ channel, leadType, entityId, entityName }: TrackContactClickInput) {
   if (typeof window === "undefined") return;
 
+  // Fire-and-forget prime for whichever future click benefits from it —
+  // this exact click almost never gets a resolved position in time (async,
+  // and the page is about to navigate away), but callers with a natural
+  // delay before this fires (ZaloContactModal's copy-message step) already
+  // primed on open, so peekLocation() below is often already resolved.
+  primeLocation();
+  const coords = peekLocation();
+
   const pagePath = window.location.pathname;
   const payload = {
     channel,
@@ -36,6 +45,8 @@ export function trackContactClick({ channel, leadType, entityId, entityName }: T
     serviceId: leadType === "service" ? entityId : undefined,
     entityName,
     pagePath,
+    lat: coords?.lat,
+    lng: coords?.lng,
   };
 
   // navigator.sendBeacon, not fetch — must survive the page navigating away

@@ -6,6 +6,7 @@ import { Contact } from "../../domain";
 import { ContactIcon } from "../utils";
 import { trackContactClick } from "@/modules/inquiry";
 import type { ContactChannel } from "@/modules/inquiry/domain";
+import { primeLocation } from "@/shared/lib/geolocation";
 
 // Maps Contact.type (this module's own taxonomy — phone/zalo/messenger/
 // facebook/email/...) to ContactChannel (internal/inquiry's narrower lead-
@@ -62,6 +63,7 @@ export const ContactLink = React.forwardRef<HTMLAnchorElement, ContactLinkProps>
         rel={contact.isExternal ? "noopener noreferrer" : undefined}
         className={cn("flex items-center gap-2.5 cursor-pointer", className)}
         onClick={handleClick}
+        onPointerDown={channel ? () => primeLocation() : undefined}
         {...props}
       >
         <ContactIcon

@@ -211,6 +211,10 @@ export const QUALIFY_STEP_LABELS: Record<string, string> = {
   // project the lead was about without going into the DB by hand.
   entityName: "Quan tâm cụ thể",
   pagePath: "Trang đang xem lúc bấm",
+  // Reverse-geocoded từ Geolocation API trình duyệt (shared/lib/geolocation.ts
+  // + geocode.ts) — vắng mặt bất cứ khi nào khách từ chối/bỏ qua quyền vị
+  // trí hoặc lookup lỗi, không phải field bắt buộc.
+  location: "Khu vực",
   // "scale" holds an HP segment (may-lanh, e.g. "2.5 HP" — already
   // human-readable as-is) or an airflow band (may-loc-khong-khi, decoded
   // below) or a diện tích bucket (project/legacy fallback) depending on
