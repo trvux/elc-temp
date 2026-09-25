@@ -109,8 +109,11 @@ export function ConsentBanner({ initialConsent }: ConsentBannerProps) {
           <CardDescription className="text-sm leading-relaxed">
             Bọn mình dùng cookie để website hoạt động ổn định, đo lường lượt truy cập và cải
             thiện trải nghiệm mua sắm. Xem chi tiết tại{" "}
-            <Link href="/thong-tin" className="underline underline-offset-2 hover:text-foreground">
-              trang thông tin công ty
+            <Link
+              href="/chinh-sach-thu-thap-va-xu-ly-du-lieu-ca-nhan"
+              className="underline underline-offset-2 hover:text-foreground"
+            >
+              chính sách thu thập và xử lý dữ liệu cá nhân
             </Link>
             .
           </CardDescription>
