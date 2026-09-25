@@ -134,7 +134,6 @@ function ImagePlaceholderComponent(props: NodeViewProps) {
         try {
           srcs.push(await resolveUploadedUrl(file, uploadImage));
         } catch (error) {
-          console.error("Lỗi tải ảnh lên:", error);
           // A stale tab open across a deploy calls a Server Action ID the
           // new server build no longer recognizes — silently swallowing
           // this (the old behavior) just reverted the button back to
