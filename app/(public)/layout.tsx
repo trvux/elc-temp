@@ -12,6 +12,9 @@ import { WishlistDialog } from "@/shared/components/organisms/layout/user/wishli
 import { TopProgressBar } from "@/shared/components/organisms/layout/user/top-progress-bar";
 import { StickyContactActions } from "@/shared/components/organisms/sections/sticky-contact-actions";
 import { SEOSchema, toJsonLdHtml } from "@/shared/lib/seo-schema";
+import { ConsentBanner } from "@/shared/components/organisms/layout/user/consent-banner";
+import { DEFAULT_CONSENT, toGtagConsentPayload } from "@/shared/lib/consent";
+import { getStoredConsent } from "@/shared/lib/consent-server";
 import Script from "next/script";
 
 // No caching anywhere in this tree anymore (see cacheComponents removal in
@@ -39,6 +42,12 @@ export default async function PublicLayout({ children }: PublicLayoutProps) {
     currentYear,
   } = await getPublicLayoutData();
 
+  // Đọc lựa chọn cookie đã lưu (nếu có) để set đúng default ngay từ đầu —
+  // tránh trường hợp khách đã đồng ý trước đó vẫn bị coi là "denied" cho
+  // tới lúc banner client mount xong mới update lại.
+  const storedConsent = await getStoredConsent();
+  const initialConsentPayload = toGtagConsentPayload(storedConsent ?? DEFAULT_CONSENT);
+
   return (
     <ContactProvider contacts={contacts || []}>
     <WishlistProvider>
@@ -62,12 +71,21 @@ export default async function PublicLayout({ children }: PublicLayoutProps) {
           3.5s timeout — the old interaction-gated version silently dropped
           every visit that left before any of those fired (e.g. a fast ad-click
           bounce), so GA4/Google Ads conversion tags never saw those sessions
-          at all. */}
+          at all.
+
+          Consent Mode v2 default is set in THIS SAME script, before the GTM
+          loader IIFE runs — required so gtm.js sees the consent state before
+          any tag fires (see shared/lib/consent.ts). Two separate <Script>
+          tags would not guarantee this ordering; one inline block does. */}
       <Script
         id="gtm-script"
         strategy="afterInteractive"
         dangerouslySetInnerHTML={{
           __html: `
+            window.dataLayer = window.dataLayer || [];
+            window.gtag = window.gtag || function(){ window.dataLayer.push(arguments); };
+            window.gtag('consent', 'default', ${JSON.stringify(initialConsentPayload)});
+
             (function(w,d,s,l,i){
               w[l]=w[l]||[];
               w[l].push({'gtm.start': new Date().getTime(),event:'gtm.js'});
@@ -118,6 +136,7 @@ export default async function PublicLayout({ children }: PublicLayoutProps) {
         <CompareTray />
         <WishlistDialog />
       </div>
+      <ConsentBanner initialConsent={storedConsent} />
     </FilterTransitionProvider>
     </ProductFloatingProvider>
     </CompareProvider>

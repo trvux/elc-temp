@@ -444,6 +444,13 @@ export function Footer({
               <p className="text-sm font-medium text-foreground">
                 © {currentYear} {settings?.company_name || "Điện máy ELC"}
               </p>
+              <button
+                type="button"
+                onClick={() => window.dispatchEvent(new Event("elc:open-consent-banner"))}
+                className="text-xs text-muted-foreground hover:text-foreground underline underline-offset-2 transition-colors"
+              >
+                Cài đặt cookie
+              </button>
             </div>
 
             {/* Cột 2: Chiếm 6 phần (6/10) */}
