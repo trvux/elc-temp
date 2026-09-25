@@ -105,8 +105,8 @@ export function ConsentBanner({ initialConsent }: ConsentBannerProps) {
         </CardHeader>
         <CardContent className="flex flex-col gap-3">
           <CardDescription className="text-sm leading-relaxed">
-            Bọn mình dùng cookie để website chạy mượt và để hiểu bạn đang quan tâm sản phẩm/dịch
-            vụ nào, từ đó tư vấn đúng hơn. Xem chi tiết tại{" "}
+            Cookie được sử dụng để website hoạt động ổn định và ghi nhận sản phẩm/dịch vụ bạn
+            đang quan tâm, hỗ trợ tư vấn phù hợp hơn. Xem chi tiết tại{" "}
             <Link
               href="/chinh-sach-thu-thap-va-xu-ly-du-lieu-ca-nhan"
               className="underline underline-offset-2 hover:text-foreground"
