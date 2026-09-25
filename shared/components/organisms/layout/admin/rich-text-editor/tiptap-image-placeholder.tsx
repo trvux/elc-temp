@@ -22,6 +22,7 @@ import {
   UploadSimple,
 } from "@phosphor-icons/react";
 import { useState } from "react";
+import { toast } from "sonner";
 
 import { Button } from "@/shared/components/ui/button";
 import { Input } from "@/shared/components/ui/input";
@@ -134,6 +135,18 @@ function ImagePlaceholderComponent(props: NodeViewProps) {
           srcs.push(await resolveUploadedUrl(file, uploadImage));
         } catch (error) {
           console.error("Lỗi tải ảnh lên:", error);
+          // A stale tab open across a deploy calls a Server Action ID the
+          // new server build no longer recognizes — silently swallowing
+          // this (the old behavior) just reverted the button back to
+          // "Drag & drop" with zero indication anything went wrong. Telling
+          // the admin to reload is the actual fix for THIS error specifically,
+          // not a generic "try again" (retrying without reloading fails the
+          // same way every time).
+          const message =
+            error instanceof Error && error.message.includes("Failed to find Server Action")
+              ? "Trang đã cũ do có bản cập nhật mới — vui lòng tải lại trang rồi upload lại."
+              : `Tải ảnh lên thất bại${files.length > 1 ? ` (${file.name})` : ""}.`;
+          toast.error(message);
         }
       }
       if (srcs.length > 0) {

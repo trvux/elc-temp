@@ -32,6 +32,18 @@ jobs:
           # Can thiet vi cac trang public duoc prerender tinh (static) luc build,
           # nen can goi duoc Go API ngay trong buoc build nay.
           GO_API_URL: ${{ secrets.GO_API_URL }}
+          # Pins Server Actions' encrypted IDs across deploys. Without this,
+          # Next.js generates a random key on every build (GitHub Actions
+          # runners are ephemeral, so nothing carries it over) — any admin
+          # tab still open from before a deploy then gets "Failed to find
+          # Server Action" on its next submit (image upload, form save,
+          # anything), silently, since the server no longer recognizes the
+          # ID the stale page is calling. Confirmed in production logs
+          # 2026-09-25: ~24k occurrences of that exact error. Must also be
+          # set at RUNTIME (see the ecosystem.config.js env below) — same
+          # value in both places, or the build-time and run-time keys
+          # mismatch just as badly as having none at all.
+          NEXT_SERVER_ACTIONS_ENCRYPTION_KEY: ${{ secrets.NEXT_SERVER_ACTIONS_ENCRYPTION_KEY }}
 
       - name: Prepare standalone files
         run: |
@@ -52,11 +64,12 @@ jobs:
         uses: appleboy/ssh-action@v1.0.3
         env:
           GOOGLE_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}
+          NEXT_SERVER_ACTIONS_ENCRYPTION_KEY: ${{ secrets.NEXT_SERVER_ACTIONS_ENCRYPTION_KEY }}
         with:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_SSH_KEY }}
-          envs: GOOGLE_SERVICE_ACCOUNT_JSON
+          envs: GOOGLE_SERVICE_ACCOUNT_JSON,NEXT_SERVER_ACTIONS_ENCRYPTION_KEY
           script: |
             cd /var/www/elc-tem
             # Ghi runtime env vars vao ecosystem.config.js (nam trong thu muc project)
@@ -65,7 +78,10 @@ jobs:
             # roi moi tat worker cu, luon co it nhat 1 worker phuc vu request. Ca 2
             # worker dung chung .next/cache tren dia (Next.js build-cache, khong
             # phai data cache -- app da force-dynamic toan bo, khong con ISR/data cache).
-            python3 -c 'import os,json; cfg={"apps":[{"name":"elc-tem","script":"server.js","instances":2,"exec_mode":"cluster","listen_timeout":10000,"kill_timeout":5000,"env":{"PORT":"3000","NODE_ENV":"production","GOOGLE_SERVICE_ACCOUNT_JSON":os.environ.get("GOOGLE_SERVICE_ACCOUNT_JSON",""),"GO_API_URL":"http://localhost:8090"}}]}; open("ecosystem.config.js","w").write("module.exports = "+json.dumps(cfg)+";\n")'
+            # NEXT_SERVER_ACTIONS_ENCRYPTION_KEY phai giong het gia tri dung luc
+            # build (xem buoc "Build project") -- key lech giua build va runtime
+            # gay loi "Failed to find Server Action" y het nhu khong set gi ca.
+            python3 -c 'import os,json; cfg={"apps":[{"name":"elc-tem","script":"server.js","instances":2,"exec_mode":"cluster","listen_timeout":10000,"kill_timeout":5000,"env":{"PORT":"3000","NODE_ENV":"production","GOOGLE_SERVICE_ACCOUNT_JSON":os.environ.get("GOOGLE_SERVICE_ACCOUNT_JSON",""),"GO_API_URL":"http://localhost:8090","NEXT_SERVER_ACTIONS_ENCRYPTION_KEY":os.environ.get("NEXT_SERVER_ACTIONS_ENCRYPTION_KEY","")}}]}; open("ecosystem.config.js","w").write("module.exports = "+json.dumps(cfg)+";\n")'
             # Doi Go API san sang truoc khi start Next.js (chi can thiet cho lan
             # deploy dau tien / VPS moi khoi dong lai tu dau, khi chua co PM2 process
             # nao dang chay ca)
