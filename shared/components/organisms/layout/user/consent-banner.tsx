@@ -60,9 +60,11 @@ export function ConsentBanner({ initialConsent }: ConsentBannerProps) {
   // vì bật thẳng full opacity ngay khung hình đầu (SSR/hydration-safe, không
   // đổi kết quả animate dựa trên state server không biết được).
   const [entered, setEntered] = useState(false);
-  const [customizing, setCustomizing] = useState(false);
+  // Switch mặc định TẮT (khác CellphoneS để mặc định BẬT cả 3) — đúng
+  // chuẩn opt-in của Luật Bảo vệ dữ liệu cá nhân 91/2025/QH15, chỉ bật khi
+  // khách tự tay bật.
   const [draft, setDraft] = useState<ConsentState>(
-    initialConsent ?? { analytics: "granted", ads: "granted" },
+    initialConsent ?? { analytics: "denied", ads: "denied" },
   );
 
   useEffect(() => {
@@ -73,8 +75,7 @@ export function ConsentBanner({ initialConsent }: ConsentBannerProps) {
 
   useEffect(() => {
     const reopen = () => {
-      setDraft(readConsentCookie() ?? { analytics: "granted", ads: "granted" });
-      setCustomizing(false);
+      setDraft(readConsentCookie() ?? { analytics: "denied", ads: "denied" });
       setEntered(false);
       setVisible(true);
     };
@@ -86,10 +87,7 @@ export function ConsentBanner({ initialConsent }: ConsentBannerProps) {
     writeConsentCookie(state);
     pushConsentUpdate(state);
     setEntered(false);
-    setTimeout(() => {
-      setVisible(false);
-      setCustomizing(false);
-    }, 300);
+    setTimeout(() => setVisible(false), 300);
   };
 
   if (!visible) return null;
@@ -107,8 +105,8 @@ export function ConsentBanner({ initialConsent }: ConsentBannerProps) {
         </CardHeader>
         <CardContent className="flex flex-col gap-3">
           <CardDescription className="text-sm leading-relaxed">
-            Bọn mình dùng cookie để website hoạt động ổn định, đo lường lượt truy cập và cải
-            thiện trải nghiệm mua sắm. Xem chi tiết tại{" "}
+            Bọn mình dùng cookie để website chạy mượt và để hiểu bạn đang quan tâm sản phẩm/dịch
+            vụ nào, từ đó tư vấn đúng hơn. Xem chi tiết tại{" "}
             <Link
               href="/chinh-sach-thu-thap-va-xu-ly-du-lieu-ca-nhan"
               className="underline underline-offset-2 hover:text-foreground"
@@ -118,57 +116,38 @@ export function ConsentBanner({ initialConsent }: ConsentBannerProps) {
             .
           </CardDescription>
 
-          {customizing && (
-            <div className="flex flex-col gap-3 rounded-md border bg-muted/40 p-3">
-              <label className="flex items-center justify-between gap-3">
-                <span className="text-sm">Phân tích &amp; đo lường (GA4)</span>
-                <Switch
-                  checked={draft.analytics === "granted"}
-                  onCheckedChange={(checked) =>
-                    setDraft((d) => ({ ...d, analytics: checked ? "granted" : "denied" }))
-                  }
-                />
-              </label>
-              <label className="flex items-center justify-between gap-3">
-                <span className="text-sm">Quảng cáo (Google Ads)</span>
-                <Switch
-                  checked={draft.ads === "granted"}
-                  onCheckedChange={(checked) =>
-                    setDraft((d) => ({ ...d, ads: checked ? "granted" : "denied" }))
-                  }
-                />
-              </label>
-            </div>
-          )}
-        </CardContent>
-        <CardFooter className="flex flex-col gap-2">
-          {customizing ? (
-            <Button className="w-full" onClick={() => commit(draft)}>
-              Lưu lựa chọn
-            </Button>
-          ) : (
-            <Button className="w-full" onClick={() => commit({ analytics: "granted", ads: "granted" })}>
-              Đồng ý tất cả
-            </Button>
-          )}
-          <div className="flex w-full gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              className="flex-1"
-              onClick={() => commit({ analytics: "denied", ads: "denied" })}
-            >
-              Từ chối
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              className="flex-1"
-              onClick={() => setCustomizing((v) => !v)}
-            >
-              {customizing ? "Ẩn tuỳ chỉnh" : "Tuỳ chỉnh"}
-            </Button>
+          <div className="flex flex-col gap-3 rounded-md border bg-muted/40 p-3">
+            <label className="flex items-center justify-between gap-3">
+              <span className="text-sm">Phân tích &amp; đo lường lượt truy cập</span>
+              <Switch
+                checked={draft.analytics === "granted"}
+                onCheckedChange={(checked) =>
+                  setDraft((d) => ({ ...d, analytics: checked ? "granted" : "denied" }))
+                }
+              />
+            </label>
+            <label className="flex items-center justify-between gap-3">
+              <span className="text-sm">Quảng cáo phù hợp với bạn</span>
+              <Switch
+                checked={draft.ads === "granted"}
+                onCheckedChange={(checked) =>
+                  setDraft((d) => ({ ...d, ads: checked ? "granted" : "denied" }))
+                }
+              />
+            </label>
           </div>
+        </CardContent>
+        <CardFooter className="flex gap-2">
+          <Button
+            variant="outline"
+            className="flex-1"
+            onClick={() => commit({ analytics: "denied", ads: "denied" })}
+          >
+            Từ chối
+          </Button>
+          <Button className="flex-1" onClick={() => commit(draft)}>
+            Lưu lựa chọn
+          </Button>
         </CardFooter>
       </Card>
     </div>
