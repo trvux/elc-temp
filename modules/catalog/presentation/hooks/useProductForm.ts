@@ -41,7 +41,7 @@ const DEFAULT_VARIANT: ProductFormValues["variants"][number] = {
 
 const EMPTY_DEFAULTS: ProductFormValues = {
   name: "",
-  nameAlign: "center",
+  nameAlign: "left",
   slug: "",
   description: "",
   images: [],

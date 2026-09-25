@@ -43,7 +43,7 @@ export function useServiceForm(initialData?: ServiceWithRelations | null) {
     resolver: zodResolver(serviceSchema),
     defaultValues: {
       title: "",
-      titleAlign: "center",
+      titleAlign: "left",
       slug: "",
       groupId: null,
       categoryId: null,
@@ -93,7 +93,7 @@ export function useServiceForm(initialData?: ServiceWithRelations | null) {
     } else {
       form.reset({
         title: "",
-        titleAlign: "center",
+        titleAlign: "left",
         slug: "",
         groupId: null,
         categoryId: null,

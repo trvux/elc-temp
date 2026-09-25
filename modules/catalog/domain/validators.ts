@@ -66,7 +66,7 @@ export const productSchema = z.object({
     .string()
     .min(1, { message: "Tên sản phẩm không được để trống" })
     .max(200, { message: "Tên sản phẩm không được quá 200 ký tự" }),
-  nameAlign: z.enum(["left", "center", "right"]).default("center"),
+  nameAlign: z.enum(["left", "center", "right"]).default("left"),
   slug: z
     .string()
     .min(1, { message: "Slug không được để trống" })
