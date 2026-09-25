@@ -76,18 +76,22 @@ export default async function StaticPage({ params }: PageProps) {
             wrapper already sits inside sectionContainer's own padding, so
             "100%" is already viewport-relative.
 
-            The cap itself is 62.5rem (1000px), not Linear's exact 900px:
-            our font renders the same string measurably wider than theirs
-            even at identical size/weight/letter-spacing (confirmed via
-            DOM-clone measurement — Linear's self-hosted "Inter Variable"
-            vs our next/font/google "Inter" gave 834.7px vs 907.1px for the
-            same 43-char test title, a ~9% gap from font metrics, not a
-            CSS bug). Self-hosting Linear's exact font build was considered
-            and declined (2026-09-24) — 1000px gives enough headroom to
-            fit real titles at the ~9% gap without over-widening. Body
-            text's max-w-2xl doesn't need this — Linear's paragraph column
-            is a flat 624px, no fluid range below that cap. */}
-        <div className="max-w-[62.5rem] mx-auto w-full flex flex-col gap-6 animate-fade-in-up">
+            The cap is 56.25rem (900px) — Linear's own exact number.
+            Font metrics were the real blocker for a while: Google Fonts'
+            "Inter" rendered this test string at 907px unwrapped (weight
+            600), 9% over the cap. Self-hosting the true "Inter Variable"
+            (fontsource, matching Linear's own font-family + exact 590
+            weight — see shared/components/ui/typography.tsx and
+            app/layout.tsx, 2026-09-25) brought that down to 892px, under
+            the 900px cap. A small residual gap remains (892 vs Linear's
+            own 834.7 for the identical string) — fontsource's "Inter
+            Variable" build isn't byte-identical to whatever exact version
+            Linear serves, so a ~50px-wide viewport band (900-949px) still
+            wraps one line later than Linear's — the practical limit short
+            of extracting Linear's exact served font file. Body text's
+            max-w-2xl doesn't need this — Linear's paragraph column is a
+            flat 624px, no fluid range below that cap. */}
+        <div className="max-w-[56.25rem] mx-auto w-full flex flex-col gap-6 animate-fade-in-up">
           <div>
             <Link
               href="/thong-tin"

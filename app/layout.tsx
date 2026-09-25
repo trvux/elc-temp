@@ -6,12 +6,23 @@ import { cn } from "@/shared/lib/utils";
 import { QueryProvider } from "@/shared/providers/query-provider";
 import { BASE_URL } from "@/shared/lib/seo-schema";
 import type { Metadata, Viewport } from "next";
-import { Geist_Mono, Inter, JetBrains_Mono, Merriweather } from "next/font/google";
+import { Geist_Mono, JetBrains_Mono, Merriweather } from "next/font/google";
+// Self-hosted "Inter Variable" (fontsource's build, same file Linear itself
+// serves) — replaces next/font/google's Inter (2026-09-25). Measured via
+// Playwright DOM-clone comparison: Google Fonts' "Inter" rendered an
+// identical string ~9% wider than Linear's self-hosted "Inter Variable" at
+// the same size/weight/letter-spacing, purely from a different font
+// build/version — not fixable by any CSS tuning. wght.css covers every
+// script subset (vietnamese/latin/latin-ext/cyrillic/greek) in one variable
+// font-family via unicode-range — browsers only fetch the subset file(s)
+// actually needed for the rendered text, so this costs nothing extra for
+// this site's Vietnamese+Latin content. wght-italic.css is the italic
+// counterpart (Tiptap content supports italic, needs the same coverage).
+import "@fontsource-variable/inter/wght.css";
+import "@fontsource-variable/inter/wght-italic.css";
 import "./globals.css";
 
 const merriweatherHeading = Merriweather({subsets:['latin'],variable:'--font-heading'});
-
-const inter = Inter({subsets:['latin'],variable:'--font-sans'});
 
 const jetbrainsMono = JetBrains_Mono({subsets:['latin'],variable:'--font-mono'});
 
@@ -78,7 +89,7 @@ export default function RootLayout({
     <html
       lang="vi"
       suppressHydrationWarning
-      className={cn("h-full antialiased font-sans", "font-sans", inter.variable, merriweatherHeading.variable, jetbrainsMono.variable, geistMono.variable)}
+      className={cn("h-full antialiased font-sans", "font-sans", merriweatherHeading.variable, jetbrainsMono.variable, geistMono.variable)}
     >
       <head>
         <link

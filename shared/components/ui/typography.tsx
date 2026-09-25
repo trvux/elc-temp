@@ -11,20 +11,27 @@ export function TypographyH1({ children, className }: Typography) {
   return (
     <h1
       className={cn(
-        // font-semibold, not font-extrabold — measured against Linear's
-        // own blog H1 for comparison (2026-09-24): weight 590 there, far
-        // closer to Tailwind's semibold (600) step than extrabold (800).
-        // md:text-5xl (48px), not md:text-4xl (36px) — that same
-        // comparison measured Linear's own H1 at a flat 48px on desktop,
-        // by far the single biggest gap of any heading level checked
-        // (H2/H3/body were all within ~15%, this was 25%).
+        // font-[590], not font-semibold (600) — Linear's own H1 computed
+        // weight is exactly 590 (getComputedStyle, 2026-09-24), only
+        // reachable as an arbitrary value on a true variable font. Was
+        // font-semibold until app/layout.tsx switched --font-sans to
+        // self-hosted "Inter Variable" (2026-09-25) specifically to make
+        // this reachable — next/font/google's "Inter" technically also
+        // exposed the full weight axis, but rendered ~9% wider than
+        // Linear's self-hosted build for identical text/weight/spacing
+        // (DOM-clone measurement), a font-file/version difference no
+        // weight or CSS tuning could close.
+        // md:text-5xl (48px), not md:text-4xl (36px) — measured against
+        // Linear's own H1 at a flat 48px on desktop, by far the single
+        // biggest gap of any heading level checked (H2/H3/body were all
+        // within ~15%, this was 25%).
         // text-balance: Linear's own h1 computed style has
         // text-wrap: balance (confirmed via getComputedStyle) — makes a
         // multi-line heading break into visually even-length lines instead
         // of greedy-filling line 1 and dumping the leftover on line 2 (the
         // "(part II)" orphan-line look this was chasing pixel-width fixes
         // for, when it was really a line-breaking-algorithm difference).
-        "scroll-m-20 font-heading text-3xl font-semibold tracking-tight md:text-5xl text-balance",
+        "scroll-m-20 font-heading text-3xl font-[590] tracking-tight md:text-5xl text-balance",
         className,
       )}
     >

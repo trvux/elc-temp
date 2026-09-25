@@ -387,6 +387,13 @@
 }
 
 :root {
+  /* Self-hosted via @fontsource-variable/inter (see app/layout.tsx) — value
+     and fallback chain copied verbatim from Linear's own computed
+     font-family (getComputedStyle on linear.app's h1, 2026-09-25), since we
+     now serve the same font file they do. */
+  --font-sans: "Inter Variable", "SF Pro Display", -apple-system, "system-ui",
+    "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans",
+    "Helvetica Neue", sans-serif;
   --background: oklch(1 0 0);
   --foreground: oklch(0.145 0 0);
   --card: oklch(1 0 0);
