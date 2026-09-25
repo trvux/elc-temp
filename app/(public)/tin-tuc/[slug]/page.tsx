@@ -22,7 +22,7 @@ import {
 } from "@/shared/lib/content-relevance";
 import { unwrapActionResult } from "@/shared/lib/action-result";
 import { getExcerptFromContent } from "@/shared/lib/rich-text";
-import { BASE_URL } from "@/shared/lib/seo-schema";
+import { BASE_URL, SEOSchema, toJsonLdHtml } from "@/shared/lib/seo-schema";
 import { ArrowLeft, ArrowRightIcon } from "@phosphor-icons/react/dist/ssr";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -224,8 +224,22 @@ export default async function NewsDetailPage({ params }: PageProps) {
       })
     : "";
 
+  const articleSchema = SEOSchema.getArticle({
+    title,
+    slug,
+    description:
+      newsItem.metaDescription || newsItem.excerpt || getExcerptFromContent(newsItem.content, undefined),
+    images: newsItem.images,
+    datePublished: newsItem.createdAt,
+    dateModified: newsItem.updatedAt,
+  });
+
   return (
     <main className={STYLES.main}>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: toJsonLdHtml({ "@context": "https://schema.org", ...articleSchema }) }}
+      />
       {/* Khối 1: Chi tiết bài viết */}
       <div id="news-detail-content" className="w-full relative">
         <div className={cn(STYLES.sectionContainer, "py-10 md:py-16")}>

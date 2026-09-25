@@ -96,6 +96,23 @@ export const metadata: Metadata = {
     description:
       "Cung cấp máy lạnh, hệ thống cấp khí tươi thu hồi nhiệt Menred, lọc nước chính hãng. Nhận thi công công trình, sửa chữa, bảo trì, vệ sinh máy lạnh.",
   },
+  // Site-wide default: without max-image-preview:large, Google falls back
+  // to "standard" preview size — which also caps the image size Google
+  // Discover is willing to show for blog/tin-tuc articles, regardless of
+  // how large the source image actually is. Pages that need noindex (form,
+  // so-sanh, hidden products) already set their own `robots` and fully
+  // override this, so this default only reaches indexable pages.
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+      "max-video-preview": -1,
+    },
+  },
 };
 
 export const viewport: Viewport = {

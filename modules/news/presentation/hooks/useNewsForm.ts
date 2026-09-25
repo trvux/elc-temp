@@ -5,11 +5,22 @@ import type { Resolver } from "react-hook-form";
 import { useState } from "react";
 import { toast } from "sonner";
 
-import { convertToWebP } from "@/shared/lib/image";
+import { convertToWebP, getImageDimensions } from "@/shared/lib/image";
 import { uploadImageFile } from "@/shared/lib/upload-image";
 
 import { News, createNewsSchema, Json, ImageAsset, TitleAlign } from "../../domain";
 import { createNewsAction, updateNewsAction } from "../actions";
+
+// Mirrors shared/components/ui/image-upload.tsx's default — news doesn't
+// use that component (its cover image lives inline in the form, not a
+// generic ImageUpload slot), so the same limit is duplicated here.
+const MAX_IMAGE_SIZE_MB = 5;
+
+// Google Discover's large-image card format needs a wide-enough source
+// image; below this it still shows in Discover, just not in that format.
+// Non-technical editors often have no resize tool on hand, so this is a
+// warning, not a block.
+const RECOMMENDED_MIN_WIDTH = 1200;
 
 export type NewsFormValues = {
   title: string;
@@ -56,9 +67,23 @@ export function useNewsForm(
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+
+    if (file.size > MAX_IMAGE_SIZE_MB * 1024 * 1024) {
+      toast.error(`Dung lượng ảnh vượt quá giới hạn ${MAX_IMAGE_SIZE_MB}MB`);
+      e.target.value = "";
+      return;
+    }
+
     setUploading(true);
 
     try {
+      const { width } = await getImageDimensions(file);
+      if (width < RECOMMENDED_MIN_WIDTH) {
+        toast.warning(
+          `Ảnh rộng ${width}px, nên dùng ảnh rộng từ ${RECOMMENDED_MIN_WIDTH}px trở lên để hiển thị đẹp trên Google Discover`
+        );
+      }
+
       const webpFile = await convertToWebP(file);
       const url = await uploadImageFile(webpFile, "news", webpFile.name);
       form.setValue("images", [{ url }], { shouldDirty: true, shouldValidate: true });

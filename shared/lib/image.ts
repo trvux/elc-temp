@@ -60,3 +60,27 @@ export async function convertToWebP(file: File, quality = 0.85, maxDimension?: n
     img.src = objectUrl;
   });
 }
+
+/**
+ * Reads a File's pixel dimensions without decoding/re-encoding it — used to
+ * warn (not block) editors uploading undersized cover images, e.g. below
+ * Google Discover's ~1200px large-image threshold.
+ */
+export async function getImageDimensions(file: File): Promise<{ width: number; height: number }> {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    const objectUrl = URL.createObjectURL(file);
+
+    img.onload = () => {
+      URL.revokeObjectURL(objectUrl);
+      resolve({ width: img.naturalWidth, height: img.naturalHeight });
+    };
+
+    img.onerror = () => {
+      URL.revokeObjectURL(objectUrl);
+      reject(new Error("Image load failed"));
+    };
+
+    img.src = objectUrl;
+  });
+}

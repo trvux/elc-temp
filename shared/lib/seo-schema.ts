@@ -54,6 +54,19 @@ export interface ProjectInput {
   clientName?: string;
 }
 
+export interface ArticleInput {
+  title: string;
+  slug: string;
+  description?: string;
+  images?: { url: string }[];
+  datePublished: string; // ISO 8601
+  dateModified?: string; // ISO 8601
+  // Only set once a real byline (Author entity) is wired end-to-end;
+  // until then "author" falls back to the Organization, which Google's
+  // Article schema explicitly allows.
+  authorName?: string;
+}
+
 export interface BranchInput {
   name: string;
   slug: string;
@@ -306,6 +319,35 @@ export const SEOSchema = {
           },
         },
       } : {}),
+    };
+  },
+
+  // Article schema (Discover/Top Stories eligibility) — Google's Discover
+  // guidelines call for Article/NewsArticle/BlogPosting structured data plus
+  // a large hero image; without this, Google has no explicit signal that a
+  // /tin-tuc page is an article rather than a generic page. "Article" (not
+  // "NewsArticle") since this is a company blog, not a registered news
+  // publisher — Google's own docs list Article as the umbrella type BlogPosting/
+  // NewsArticle both specialize, and it's valid on its own for Discover.
+  getArticle(article: ArticleInput) {
+    const images = (article.images || []).map((img) => img.url).filter(Boolean);
+    return {
+      "@type": "Article",
+      "@id": `${BASE_URL}/tin-tuc/${article.slug}#article`,
+      "headline": article.title,
+      "description": article.description || undefined,
+      "image": images.length > 0 ? images : undefined,
+      "url": `${BASE_URL}/tin-tuc/${article.slug}`,
+      "datePublished": article.datePublished,
+      "dateModified": article.dateModified || article.datePublished,
+      "author": article.authorName
+        ? { "@type": "Person", "name": article.authorName }
+        : { "@id": `${BASE_URL}/#organization` },
+      "publisher": { "@id": `${BASE_URL}/#organization` },
+      "mainEntityOfPage": {
+        "@type": "WebPage",
+        "@id": `${BASE_URL}/tin-tuc/${article.slug}`,
+      },
     };
   },
 
