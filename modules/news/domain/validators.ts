@@ -13,7 +13,7 @@ export const newsSchema = z.object({
         .string()
         .min(1, {message: "Tiêu đề tin tức không được để trống"})
         .max(200, {message: "Tiêu đề tin tức không được quá 200 ký tự"}),
-    titleAlign: z.enum(["left", "center", "right"]).default("left"),
+    titleAlign: z.enum(["left", "center", "right"]).default("center"),
     slug: z
         .string()
         .min(1, {message: "Slug không được để trống"})

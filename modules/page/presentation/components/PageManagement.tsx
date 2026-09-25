@@ -115,7 +115,7 @@ export function PageManagement() {
     setEditing(null);
     form.reset({
       title: "",
-      titleAlign: "left",
+      titleAlign: "center",
       slug: "",
       content: "",
       isPublished: true,

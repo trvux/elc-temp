@@ -290,7 +290,7 @@ export function ProjectManagement() {
     setActiveProject("new");
     form.reset({
       title: "",
-      titleAlign: "left",
+      titleAlign: "center",
       slug: "",
       description: null,
       projectTypeId: "",

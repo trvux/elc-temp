@@ -131,7 +131,7 @@ export function BranchManagement() {
     setActiveBranch("new");
     form.reset({
       name: "",
-      nameAlign: "left",
+      nameAlign: "center",
       slug: "",
       address: "",
       phone: "",

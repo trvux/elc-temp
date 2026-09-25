@@ -150,7 +150,7 @@ export function NewsManagement() {
     setEditing(null);
     form.reset({
       title: "",
-      titleAlign: "left",
+      titleAlign: "center",
       slug: "",
       images: [],
       content: "",

@@ -46,7 +46,7 @@ export function useProjectForm(
     resolver: standardSchemaResolver(createProjectSchema) as unknown as Resolver<ProjectFormValues>,
     defaultValues: {
       title: "",
-      titleAlign: "left",
+      titleAlign: "center",
       slug: "",
       description: null,
       projectTypeId: "",

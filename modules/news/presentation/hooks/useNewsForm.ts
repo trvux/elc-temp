@@ -38,7 +38,7 @@ export function useNewsForm(
     resolver: standardSchemaResolver(createNewsSchema) as unknown as Resolver<NewsFormValues>,
     defaultValues: {
       title: "",
-      titleAlign: "left",
+      titleAlign: "center",
       slug: "",
       images: [],
       content: "",

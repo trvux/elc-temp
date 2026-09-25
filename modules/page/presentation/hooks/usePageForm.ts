@@ -28,7 +28,7 @@ export function usePageForm(
     resolver: standardSchemaResolver(createPageSchema) as unknown as Resolver<PageFormValues>,
     defaultValues: {
       title: "",
-      titleAlign: "left",
+      titleAlign: "center",
       slug: "",
       content: "",
       isPublished: true,

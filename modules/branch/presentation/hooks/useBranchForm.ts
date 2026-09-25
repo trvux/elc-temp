@@ -19,7 +19,7 @@ export function useBranchForm(
     resolver: standardSchemaResolver(createBranchSchema),
     defaultValues: {
       name: "",
-      nameAlign: "left",
+      nameAlign: "center",
       slug: "",
       address: "",
       phone: "",
