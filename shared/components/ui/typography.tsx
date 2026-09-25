@@ -15,12 +15,16 @@ export function TypographyH1({ children, className }: Typography) {
         // weight is exactly 590 (getComputedStyle, 2026-09-24), only
         // reachable as an arbitrary value on a true variable font. Was
         // font-semibold until app/layout.tsx switched --font-sans to
-        // self-hosted "Inter Variable" (2026-09-25) specifically to make
-        // this reachable — next/font/google's "Inter" technically also
-        // exposed the full weight axis, but rendered ~9% wider than
-        // Linear's self-hosted build for identical text/weight/spacing
-        // (DOM-clone measurement), a font-file/version difference no
-        // weight or CSS tuning could close.
+        // self-hosted Inter Variable (2026-09-25) to make this reachable.
+        // Getting the font itself byte-identical to Linear's took 3
+        // attempts: next/font/google's "Inter" rendered ~9% wider than
+        // Linear's for the same text/weight/spacing; a same-named
+        // "Inter Variable" package from a different vendor/build (fontsource)
+        // closed most but not all of that gap; self-hosting Linear's own
+        // served .woff2 file directly (fetched from static.linear.app,
+        // Inter is SIL OFL-licensed and freely self-hostable regardless of
+        // which CDN happened to serve the copy) finally matched within
+        // measurement noise.
         // md:text-5xl (48px), not md:text-4xl (36px) — measured against
         // Linear's own H1 at a flat 48px on desktop, by far the single
         // biggest gap of any heading level checked (H2/H3/body were all

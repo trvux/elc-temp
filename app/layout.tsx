@@ -7,20 +7,50 @@ import { QueryProvider } from "@/shared/providers/query-provider";
 import { BASE_URL } from "@/shared/lib/seo-schema";
 import type { Metadata, Viewport } from "next";
 import { Geist_Mono, JetBrains_Mono, Merriweather } from "next/font/google";
-// Self-hosted "Inter Variable" (fontsource's build, same file Linear itself
-// serves) — replaces next/font/google's Inter (2026-09-25). Measured via
-// Playwright DOM-clone comparison: Google Fonts' "Inter" rendered an
-// identical string ~9% wider than Linear's self-hosted "Inter Variable" at
-// the same size/weight/letter-spacing, purely from a different font
-// build/version — not fixable by any CSS tuning. wght.css covers every
-// script subset (vietnamese/latin/latin-ext/cyrillic/greek) in one variable
-// font-family via unicode-range — browsers only fetch the subset file(s)
-// actually needed for the rendered text, so this costs nothing extra for
-// this site's Vietnamese+Latin content. wght-italic.css is the italic
-// counterpart (Tiptap content supports italic, needs the same coverage).
-import "@fontsource-variable/inter/wght.css";
-import "@fontsource-variable/inter/wght-italic.css";
+import localFont from "next/font/local";
 import "./globals.css";
+
+// Self-hosted "Inter Variable" — the LITERAL font file Linear itself serves
+// (fetched from https://static.linear.app/fonts/InterVariable.woff2?v=4.1,
+// 2026-09-25), not just a same-named package from a different vendor/build.
+// Replaces next/font/google's `Inter`: Google Fonts' "Inter" rendered a
+// test string measurably wider than Linear's (DOM-clone measurement,
+// ~9% gap) purely from being a different font build/version, not
+// CSS-fixable. An intermediate attempt self-hosting @fontsource-variable/
+// inter's own "Inter Variable" build closed most of that gap (907px ->
+// 892px) but not all of it (Linear's own render: 834.7px) — fontsource's
+// build still isn't byte-identical to whatever exact version Linear
+// serves. Downloading Linear's own served .woff2 directly (Inter is SIL
+// OFL-licensed, freely self-hostable regardless of which CDN happened to
+// serve the copy) removes that remaining ambiguity entirely — this is now
+// the exact same bytes, so any residual difference from here on is a
+// text-length/content difference, not a font one.
+// One variable file covers the full weight axis (100-900) and full Unicode
+// range Inter ships (including Vietnamese) — no per-subset splitting
+// needed, unlike Google Fonts' subsetted delivery.
+const interVariable = localFont({
+  src: [
+    { path: "./fonts/InterVariable.woff2", style: "normal" },
+    { path: "./fonts/InterVariable-Italic.woff2", style: "italic" },
+  ],
+  variable: "--font-sans",
+  display: "swap",
+  // Matches Linear's own computed font-family fallback chain exactly
+  // (getComputedStyle on linear.app's h1, 2026-09-24).
+  fallback: [
+    "SF Pro Display",
+    "-apple-system",
+    "system-ui",
+    "Segoe UI",
+    "Roboto",
+    "Oxygen",
+    "Ubuntu",
+    "Cantarell",
+    "Open Sans",
+    "Helvetica Neue",
+    "sans-serif",
+  ],
+});
 
 const merriweatherHeading = Merriweather({subsets:['latin'],variable:'--font-heading'});
 
@@ -89,7 +119,7 @@ export default function RootLayout({
     <html
       lang="vi"
       suppressHydrationWarning
-      className={cn("h-full antialiased font-sans", "font-sans", merriweatherHeading.variable, jetbrainsMono.variable, geistMono.variable)}
+      className={cn("h-full antialiased font-sans", "font-sans", interVariable.variable, merriweatherHeading.variable, jetbrainsMono.variable, geistMono.variable)}
     >
       <head>
         <link

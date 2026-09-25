@@ -179,20 +179,18 @@ export default async function BranchDetail({ params }: Props) {
             padding, so "100%" is already viewport-relative.
 
             The cap is 56.25rem (900px) — Linear's own exact number.
-            Font metrics were the real blocker for a while: Google Fonts'
-            "Inter" rendered this test string at 907px unwrapped (weight
-            600), 9% over the cap. Self-hosting the true "Inter Variable"
-            (fontsource, matching Linear's own font-family + exact 590
-            weight — see shared/components/ui/typography.tsx and
-            app/layout.tsx, 2026-09-25) brought that down to 892px, under
-            the 900px cap. A small residual gap remains (892 vs Linear's
-            own 834.7 for the identical string) — fontsource's "Inter
-            Variable" build isn't byte-identical to whatever exact version
-            Linear serves, so a ~50px-wide viewport band (900-949px) still
-            wraps one line later than Linear's — the practical limit short
-            of extracting Linear's exact served font file. Body text's
-            max-w-2xl doesn't need this — Linear's paragraph column is a
-            flat 624px, no fluid range below that cap. */}
+            Getting here took 3 attempts: Google Fonts' "Inter" rendered the
+            A/B test string at 907px unwrapped (9% over cap). Self-hosting
+            fontsource's "Inter Variable" build brought that to 892px
+            (still over). Self-hosting Linear's OWN served font file
+            directly — fetched from static.linear.app's actual network
+            request, not a same-named package from a different vendor/
+            build (see app/layout.tsx, 2026-09-25) — brought it to 828.9px,
+            matching Linear's own 834.7px within measurement noise. Full
+            viewport sweep (500-1920px) now matches Linear's wrap points at
+            every checked width. Body text's max-w-2xl doesn't need this —
+            Linear's paragraph column is a flat 624px, no fluid range below
+            that cap. */}
         <div className="max-w-[56.25rem] mx-auto w-full flex flex-col gap-6 animate-fade-in-up">
           <div>
             <Link
