@@ -30,6 +30,7 @@ export const getNewsColumns = ({
               src={imageUrl}
               alt={row.original.title}
               fill
+              sizes="64px"
               className="object-cover"
             />
           ) : (
