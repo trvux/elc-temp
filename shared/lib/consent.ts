@@ -19,10 +19,13 @@ export interface ConsentState {
   ads: ConsentChoice;
 }
 
-// Mặc định TỪ CHỐI cho tới khi khách tự chọn — bắt buộc theo Nghị định
-// 13/2023/NĐ-CP (phải có sự đồng ý TRƯỚC khi thu thập dữ liệu cá nhân),
-// không phải opt-out sau.
-export const DEFAULT_CONSENT: ConsentState = { analytics: "denied", ads: "denied" };
+// Mặc định ĐỒNG Ý cả 2 switch (khớp cách cellphones.com.vn làm) — quyết
+// định có chủ đích 2026-09-25, chấp nhận đánh đổi lệch tinh thần opt-in
+// của Luật Bảo vệ dữ liệu cá nhân 91/2025/QH15 (luật muốn đồng ý TRƯỚC
+// khi thu thập, không phải mặc định đồng ý rồi cho từ chối sau) để đổi
+// lấy tỷ lệ đồng ý cao hơn. Đừng tự ý đổi lại "denied" nếu không có yêu
+// cầu mới — hỏi lại trước khi đổi giá trị này theo hướng nào.
+export const DEFAULT_CONSENT: ConsentState = { analytics: "granted", ads: "granted" };
 
 export function parseConsentCookie(raw: string | undefined): ConsentState | null {
   if (!raw) return null;

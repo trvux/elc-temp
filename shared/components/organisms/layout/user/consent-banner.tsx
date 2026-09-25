@@ -17,6 +17,7 @@ import {
   CONSENT_COOKIE_NAME,
   CONSENT_COOKIE_MAX_AGE,
   ConsentState,
+  DEFAULT_CONSENT,
   parseConsentCookie,
   serializeConsentCookie,
   toGtagConsentPayload,
@@ -60,12 +61,7 @@ export function ConsentBanner({ initialConsent }: ConsentBannerProps) {
   // vì bật thẳng full opacity ngay khung hình đầu (SSR/hydration-safe, không
   // đổi kết quả animate dựa trên state server không biết được).
   const [entered, setEntered] = useState(false);
-  // Switch mặc định TẮT (khác CellphoneS để mặc định BẬT cả 3) — đúng
-  // chuẩn opt-in của Luật Bảo vệ dữ liệu cá nhân 91/2025/QH15, chỉ bật khi
-  // khách tự tay bật.
-  const [draft, setDraft] = useState<ConsentState>(
-    initialConsent ?? { analytics: "denied", ads: "denied" },
-  );
+  const [draft, setDraft] = useState<ConsentState>(initialConsent ?? DEFAULT_CONSENT);
 
   useEffect(() => {
     if (!visible) return;
@@ -75,7 +71,7 @@ export function ConsentBanner({ initialConsent }: ConsentBannerProps) {
 
   useEffect(() => {
     const reopen = () => {
-      setDraft(readConsentCookie() ?? { analytics: "denied", ads: "denied" });
+      setDraft(readConsentCookie() ?? DEFAULT_CONSENT);
       setEntered(false);
       setVisible(true);
     };
@@ -111,7 +107,7 @@ export function ConsentBanner({ initialConsent }: ConsentBannerProps) {
               href="/chinh-sach-thu-thap-va-xu-ly-du-lieu-ca-nhan"
               className="underline underline-offset-2 hover:text-foreground"
             >
-              chính sách thu thập và xử lý dữ liệu cá nhân
+              Chính sách thu thập và xử lý dữ liệu cá nhân
             </Link>
             .
           </CardDescription>
