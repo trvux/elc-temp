@@ -53,6 +53,15 @@ export async function generateMetadata(): Promise<Metadata> {
       title,
       description,
       url: PAGE_URL,
+      // Every other route inherits app/opengraph-image.png automatically
+      // via Next.js's file-convention — but that only applies when a route
+      // does NOT declare its own `openGraph` object. This page always has,
+      // since title/description are dynamic (from `catalogPage`), which
+      // silently dropped the image with no fallback. Confirmed in
+      // production (2026-09-25): /san-pham — the single most-linked page
+      // on the site per this file's own comment above — had zero og:image,
+      // so sharing it on Facebook/Zalo/Messenger showed no preview image.
+      images: [`${BASE_URL}/opengraph-image.png`],
     },
   };
 }

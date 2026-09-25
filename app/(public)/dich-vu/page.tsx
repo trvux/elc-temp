@@ -9,7 +9,8 @@ import { Breadcrumbs } from "@/shared/components/organisms/layout/user/breadcrum
 import { ScrollToTop } from "@/shared/components/organisms/layout/user/scroll-to-top";
 import { PageHero } from "@/shared/components/organisms/sections/page-hero";
 import { TypographySmall } from "@/shared/components/ui/typography";
-import { BASE_URL } from "@/shared/lib/seo-schema";
+import { BASE_URL, toJsonLdHtml } from "@/shared/lib/seo-schema";
+import { primaryImageUrl } from "@/shared/lib/image-asset";
 import { cn } from "@/shared/lib/utils";
 
 export const metadata: Metadata = {
@@ -66,8 +67,33 @@ export default async function ServicesHub() {
     );
   }
 
+  // ItemList schema — same gap dienmayelc's other listing hubs had before
+  // this pass: /san-pham and /du-an already declared one for their listed
+  // items, /dich-vu never did, so Google had no structured signal for
+  // "what does this hub actually list."
+  const itemListSchema = {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    name: "Dịch vụ",
+    description:
+      "Giải pháp chuyên nghiệp dành cho hệ thống lạnh công nghiệp, điều hòa trung tâm và bảo trì hệ thống",
+    url: `${BASE_URL}/dich-vu`,
+    numberOfItems: services.length,
+    itemListElement: services.map((service, idx) => ({
+      "@type": "ListItem",
+      position: idx + 1,
+      url: `${BASE_URL}/dich-vu/${service.slug}`,
+      name: service.title,
+      image: primaryImageUrl(service.images) || undefined,
+    })),
+  };
+
   return (
     <main className={STYLES.main}>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: toJsonLdHtml(itemListSchema) }}
+      />
       <div id="services-header" className="w-full relative">
         <div className={cn(STYLES.sectionContainer, "py-6 md:py-8 lg:py-10")}>
           <PageHero

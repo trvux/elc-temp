@@ -24,7 +24,7 @@ import { getPublicLayoutData } from "@/modules/settings";
 import { primaryImageUrl } from "@/shared/lib/image-asset";
 import { excerptFromRichText } from "@/shared/lib/rich-text";
 import { unwrapActionResult } from "@/shared/lib/action-result";
-import { BASE_URL } from "@/shared/lib/seo-schema";
+import { BASE_URL, SEOSchema, toJsonLdHtml } from "@/shared/lib/seo-schema";
 
 // Helper to control Google Maps zoom level
 const getZoomedUrl = (url: string, zoomLevel = "15") => {
@@ -160,8 +160,30 @@ export default async function BranchDetail({ params }: Props) {
     },
   ].filter((item) => item.isVisible);
 
+  // Organization schema (every page, via layout) already links to this
+  // branch as subOrganization[{"@id": ".../thong-tin/<slug>#localbusiness"}]
+  // — but SEOSchema.getLocalBusiness(), which is the ONLY place that @id
+  // is meant to be declared as an actual LocalBusiness object, had zero
+  // call sites anywhere in the repo. Every branch page shipped with a
+  // dangling schema reference: Google could see the pointer but never the
+  // entity it pointed to. Wiring it here is what makes those references
+  // resolve to something real.
+  const localBusinessSchema = SEOSchema.getLocalBusiness({
+    name: branch.name,
+    slug: branch.slug,
+    phone: branch.phone,
+    email: branch.email,
+    address: branch.address,
+    images: branch.images,
+    mapsUrl: branch.mapsUrl,
+  });
+
   return (
     <main className="w-full bg-background min-h-screen flex flex-col">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: toJsonLdHtml({ "@context": "https://schema.org", ...localBusinessSchema }) }}
+      />
       {/* ===== KHỐI 1: CHI TIẾT CƠ SỞ ===== */}
       <div id="branch-detail-content" className="w-full relative">
         <div className={cn(STYLES.sectionContainer, "py-10 md:py-16")}>

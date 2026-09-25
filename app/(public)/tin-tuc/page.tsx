@@ -12,7 +12,7 @@ import {
 import Link from "next/link";
 import { unwrapActionResult } from "@/shared/lib/action-result";
 import { getExcerptFromContent } from "@/shared/lib/rich-text";
-import { BASE_URL } from "@/shared/lib/seo-schema";
+import { BASE_URL, toJsonLdHtml } from "@/shared/lib/seo-schema";
 import { cn } from "@/shared/lib/utils";
 
 export const metadata: Metadata = {
@@ -80,8 +80,31 @@ export default async function NewsHub() {
     );
   }
 
+  // ItemList schema — same gap /dich-vu had before this pass: /san-pham and
+  // /du-an already declared one for their listed items, /tin-tuc never did.
+  const itemListSchema = {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    name: "Tin tức",
+    description:
+      "Cập nhật những giải pháp kỹ thuật mới nhất và các tin tức chuyên sâu từ đội ngũ kỹ sư ELC",
+    url: `${BASE_URL}/tin-tuc`,
+    numberOfItems: allNews.length,
+    itemListElement: allNews.map((news, idx) => ({
+      "@type": "ListItem",
+      position: idx + 1,
+      url: `${BASE_URL}/tin-tuc/${news.slug}`,
+      name: news.title,
+      image: primaryImageUrl(news.images) || undefined,
+    })),
+  };
+
   return (
     <main className={STYLES.main}>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: toJsonLdHtml(itemListSchema) }}
+      />
       {/* Khối 1: Tiêu đề trang */}
       <div id="news-header" className="w-full relative">
         <div className={cn(STYLES.sectionContainer, "py-6 md:py-8 lg:py-10")}>
