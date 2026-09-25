@@ -77,10 +77,18 @@ function metadataForEntity(entity: ResolvedEntity, slug: string): Metadata {
   // đang cập nhật" cho người tìm kiếm. Route này force-dynamic (không
   // cache/ISR) nên `new Date()` luôn đúng thời điểm request thật, không bị
   // đóng băng theo lúc build.
+  //
+  // KHÔNG nối "| SITE_NAME" ở đây (khác trang sản phẩm lẻ phía trên) — quan
+  // sát thật trên Google (2026-09-25): khi title có "| Điện máy ELC" mà
+  // dòng site-name phía trên kết quả tìm kiếm đã tự hiển thị "Điện máy ELC"
+  // rồi, Google coi đó là trùng lặp và tự cắt cụm này khi render — tức phần
+  // đó gần như luôn vô nghĩa để giữ. Bỏ hẳn nó, giữ freshness sát ngay sau
+  // tên danh mục, để phần Google có khả năng giữ nguyên là phần có giá trị
+  // thật (ngày tháng), không lãng phí ký tự cho thứ Google tự xoá.
   const now = new Date();
   const freshness = `${String(now.getMonth() + 1).padStart(2, "0")}/${now.getFullYear()}`;
   return {
-    title: `${title} - ${freshness} | ${SITE_NAME}`,
+    title: `${title} - ${freshness}`,
     description,
     alternates,
     ...(isHidden ? { robots: { index: false, follow: true } } : {}),
