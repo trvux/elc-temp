@@ -6,7 +6,6 @@ import { getCategoriesAction } from "@/modules/category/presentation/actions";
 import { getGroupsAction } from "@/modules/group/presentation/actions";
 import { getNewsAction, getNewsBySlugAction } from "@/modules/news/presentation/actions";
 import { Breadcrumbs } from "@/shared/components/organisms/layout/user/breadcrumbs";
-import { DetailPager } from "@/shared/components/organisms/layout/user/detail-pager";
 import { PreviewContent } from "@/shared/components/organisms/layout/user/preview-content";
 import { ScrollToTop } from "@/shared/components/organisms/layout/user/scroll-to-top";
 import Image from "next/image";
@@ -89,8 +88,6 @@ async function getCachedNewsDetailData(slug: string) {
     const newsItem = await getNewsBySlugAction(slug).then(unwrapActionResult);
     return {
       newsItem,
-      prevNews: null,
-      nextNews: null,
       relatedNews: [],
       relatedProducts: [],
       relatedProductsEntity: null,
@@ -100,9 +97,6 @@ async function getCachedNewsDetailData(slug: string) {
   }
 
   const newsItem = allNews[newsItemIndex];
-  const prevNews = newsItemIndex > 0 ? allNews[newsItemIndex - 1] : null;
-  const nextNews =
-    newsItemIndex < allNews.length - 1 ? allNews[newsItemIndex + 1] : null;
 
   // Lấy tin tức liên quan theo category_id (nếu có), loại trừ bài hiện tại.
   // Bổ sung các bài viết khác nếu không đủ 3 bài.
@@ -111,8 +105,13 @@ async function getCachedNewsDetailData(slug: string) {
         (n) => n.categoryId === newsItem.categoryId && n.slug !== slug,
       )
     : [];
+  // Khi newsItem không có categoryId (hiện tại 0/117 bài có), so sánh
+  // "n.categoryId !== newsItem.categoryId" là null !== null -> luôn false,
+  // nên fallback từng bị loại sạch, relatedNews luôn rỗng cho MỌI bài. Chỉ
+  // loại theo category khi bài hiện tại THẬT SỰ có category để tránh trùng
+  // với sameCategoryNews ở trên; không có category thì lấy mọi bài khác.
   const fallbackNews = allNews.filter(
-    (n) => n.slug !== slug && n.categoryId !== newsItem.categoryId,
+    (n) => n.slug !== slug && (!newsItem.categoryId || n.categoryId !== newsItem.categoryId),
   );
   const relatedNews = [...sameCategoryNews, ...fallbackNews].slice(0, 3);
 
@@ -184,8 +183,6 @@ async function getCachedNewsDetailData(slug: string) {
 
   return {
     newsItem,
-    prevNews,
-    nextNews,
     relatedNews,
     relatedProducts,
     relatedProductsEntity,
@@ -200,8 +197,6 @@ export default async function NewsDetailPage({ params }: PageProps) {
   // Fetch current news detail using the cached helper
   const {
     newsItem,
-    prevNews,
-    nextNews,
     relatedNews,
     relatedProducts,
     relatedProductsEntity,
@@ -387,26 +382,6 @@ export default async function NewsDetailPage({ params }: PageProps) {
           </div>
         </div>
       )}
-
-      {/* Khối 4: Điều hướng Pager (Trước / Sau) */}
-      <div id="news-detail-nav" className="w-full relative">
-        <div className={cn(STYLES.sectionContainer, "py-8")}>
-        <DetailPager
-          prev={
-            prevNews
-              ? { title: prevNews.title, href: `/tin-tuc/${prevNews.slug}` }
-              : null
-          }
-          next={
-            nextNews
-              ? { title: nextNews.title, href: `/tin-tuc/${nextNews.slug}` }
-              : null
-          }
-          prevLabel="Bài viết trước"
-          nextLabel="Bài viết sau"
-        />
-        </div>
-      </div>
 
       {/* Khối 5: Footer bản quyền */}
       <div id="news-detail-footer" className="w-full relative">

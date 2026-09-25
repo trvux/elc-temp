@@ -70,8 +70,17 @@ function metadataForEntity(entity: ResolvedEntity, slug: string): Metadata {
   // product's breadcrumb) but not meant to be found/promoted via search —
   // same intent as is_hidden already hiding it from listing sub-nav.
   const isHidden = (entity.type === "category" || entity.type === "group") && entity.data.isHidden;
+  // Tháng/năm hiện tại nhét vào title trang danh mục/hãng (không phải trang
+  // sản phẩm lẻ — sản phẩm là evergreen, danh mục mới đại diện "thị trường
+  // hiện tại") — mô phỏng đúng pattern quan sát được trên dienmayxanh.com
+  // (vd "Mua máy lạnh Daikin giá rẻ... - 09/2026"), tín hiệu "giá/tồn kho
+  // đang cập nhật" cho người tìm kiếm. Route này force-dynamic (không
+  // cache/ISR) nên `new Date()` luôn đúng thời điểm request thật, không bị
+  // đóng băng theo lúc build.
+  const now = new Date();
+  const freshness = `${String(now.getMonth() + 1).padStart(2, "0")}/${now.getFullYear()}`;
   return {
-    title: `${title} | ${SITE_NAME}`,
+    title: `${title} - ${freshness} | ${SITE_NAME}`,
     description,
     alternates,
     ...(isHidden ? { robots: { index: false, follow: true } } : {}),
