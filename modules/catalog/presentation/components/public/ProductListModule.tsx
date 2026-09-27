@@ -177,13 +177,17 @@ async function getCachedListModuleData(entity: ResolvedEntity, sp: SearchParams)
       // is a select attribute with only 1–5.5 HP actually used; 6/10 HP
       // were hp_pages created with no matching product ever tagged).
       // facets.attributes[].options carries the real per-value count for
-      // exactly this reason. Applied at "group" (/san-pham/may-lanh) AND
-      // "brand" (/san-pham/lg) level — GSC confirmed real search volume for
-      // "<brand> <HP>" queries — but not on every narrower subcategory
-      // (e.g. "treo tường"), which would otherwise link out to HP values
-      // that don't actually fit that subcategory.
+      // exactly this reason — which is also what makes it safe to apply at
+      // "category" level too (e.g. /san-pham/may-lanh-treo-tuong): the
+      // per-value count check means it only ever shows HP values that
+      // actually have wall-mount products, not just any HP value valid
+      // somewhere in the wider "Máy lạnh" group. Before this fix (see the
+      // comment above), category was deliberately excluded here because
+      // matching by attribute CODE alone would have linked out to HP values
+      // that don't fit that subcategory — that risk is gone now that the
+      // match is per-value, not per-code (2026-09-27).
       const listingAttributeValues =
-        entity.type === "group" || entity.type === "brand"
+        entity.type === "group" || entity.type === "brand" || entity.type === "category"
           ? new Map(
               facets.attributes.map((a) => [
                 a.code,
@@ -287,10 +291,12 @@ async function getCachedListModuleData(entity: ResolvedEntity, sp: SearchParams)
   // URLs splitting ranking signal for one thing. facets.brands already
   // reflects this listing's own category scope with real counts, so this
   // avoids that class of duplicate entirely instead of re-creating it.
-  // Group level only (mirrors the HP attribute-only chips above) — a
-  // narrower subcategory would show brands that don't actually carry that
-  // specific sub-type.
-  if (entity.type === "group") {
+  // Group AND category level (mirrors the HP attribute-only chips above) —
+  // facets.brands is already scoped to exactly this listing's own
+  // categoryIds, so a narrower category correctly shows only the brands
+  // that actually carry that specific sub-type, not every brand in the
+  // wider group.
+  if (entity.type === "group" || entity.type === "category") {
     const brandItems = facets.brands
       .filter((b) => b.count > 0)
       .map((b) => ({ id: b.id, slug: b.slug, name: b.name, label: b.name }));
