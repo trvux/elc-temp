@@ -24,7 +24,6 @@ import { PreviewContent } from "@/shared/components/organisms/layout/user/previe
 import { WishlistDialogButton } from "@/shared/components/organisms/layout/user/wishlist-dialog-button";
 import { RecentlyViewedSection } from "@/shared/components/organisms/layout/user/recently-viewed-section";
 import { ScrollToTop } from "@/shared/components/organisms/layout/user/scroll-to-top";
-import { ScrollArea } from "@/shared/components/ui/scroll-area";
 import { TypographyH1, TypographyH3, TypographySmall } from "@/shared/components/ui/typography";
 import { unwrapActionResult } from "@/shared/lib/action-result";
 import { BASE_URL, toJsonLdHtml } from "@/shared/lib/seo-schema";
@@ -170,25 +169,39 @@ async function getCachedListModuleData(entity: ResolvedEntity, sp: SearchParams)
     } else {
       // Attribute-only hp_pages (no categoryIds/brandIds — e.g. the 12
       // "máy lạnh Nhp" pages) aren't explicitly scoped to a category, so
-      // infer relevance from whether that attribute actually appears on
-      // products in THIS listing (facets already reflect this listing's own
-      // categoryIds/brandIds scope). Applied at "group" (/san-pham/may-lanh)
-      // AND "brand" (/san-pham/lg) level — GSC confirmed real search volume
-      // for "<brand> <HP>" queries (2026-09-27) — but not on every narrower
-      // subcategory (e.g. "treo tường"), which would otherwise link out to
-      // HP values that don't actually fit that subcategory.
-      const listingAttributeCodes =
-        entity.type === "group" || entity.type === "brand" ? new Set(facets.attributes.map((a) => a.code)) : null;
+      // infer relevance from whether that EXACT value actually has products
+      // in THIS listing — not just whether the attribute code appears at
+      // all. Checking the code alone let dead values slip through: "máy
+      // lạnh 6hp"/"máy lạnh 10hp" got linked despite the DB having zero
+      // products at those two HP values (found 2026-09-27 — "phan_khuc_hp"
+      // is a select attribute with only 1–5.5 HP actually used; 6/10 HP
+      // were hp_pages created with no matching product ever tagged).
+      // facets.attributes[].options carries the real per-value count for
+      // exactly this reason. Applied at "group" (/san-pham/may-lanh) AND
+      // "brand" (/san-pham/lg) level — GSC confirmed real search volume for
+      // "<brand> <HP>" queries — but not on every narrower subcategory
+      // (e.g. "treo tường"), which would otherwise link out to HP values
+      // that don't actually fit that subcategory.
+      const listingAttributeValues =
+        entity.type === "group" || entity.type === "brand"
+          ? new Map(
+              facets.attributes.map((a) => [
+                a.code,
+                new Set(a.options.filter((o) => o.count > 0).map((o) => o.value)),
+              ]),
+            )
+          : null;
 
       relatedHpPages = allHpPages.filter((p) => {
         const scopedByCategory = p.categoryIds.some((id) => entityCategoryIds.includes(id));
         const scopedByBrand = p.brandIds.some((id) => entityBrandIds.includes(id));
+        const validValuesForCode = p.attributeCode ? listingAttributeValues?.get(p.attributeCode) : undefined;
         const scopedByAttributeOnly =
-          listingAttributeCodes !== null &&
+          validValuesForCode !== undefined &&
           p.categoryIds.length === 0 &&
           p.brandIds.length === 0 &&
-          p.attributeCode !== null &&
-          listingAttributeCodes.has(p.attributeCode);
+          p.attributeValues.length > 0 &&
+          p.attributeValues.every((v) => validValuesForCode.has(v));
         return scopedByCategory || scopedByBrand || scopedByAttributeOnly;
       });
     }
@@ -427,12 +440,15 @@ export async function ProductListModule({
                   {/* Horizontal scroll instead of wrap — a group like "Phân
                       khúc công suất (HP)" has 12 items, and wrapping them
                       pushed the whole page taller on mobile before a user
-                      even reaches the product grid. No <ScrollBar> — Radix
-                      already hides the native scrollbar on the viewport
-                      unconditionally (its own injected CSS), so dropping the
-                      custom thumb just removes the visible bar; swipe/drag
-                      scrolling still works via native overflow. */}
-                  <ScrollArea className="w-full whitespace-nowrap">
+                      even reaches the product grid. Plain native overflow
+                      instead of Radix's ScrollArea — that component's scroll
+                      handling turned out to depend on its own <ScrollBar>
+                      being mounted (removing it broke drag-scroll entirely,
+                      found 2026-09-27), where a bare `overflow-x-auto` div
+                      always scrolls via native touch/wheel/drag regardless
+                      of whether the bar itself is visible; the 3 classes
+                      below just hide that native bar cross-browser. */}
+                  <div className="w-full overflow-x-auto [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
                     <div className="flex w-max gap-2 pb-1">
                       {group.items.map((item) => (
                         <Link
@@ -445,7 +461,7 @@ export async function ProductListModule({
                         </Link>
                       ))}
                     </div>
-                  </ScrollArea>
+                  </div>
                 </div>
               ))}
             </nav>
