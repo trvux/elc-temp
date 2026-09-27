@@ -137,7 +137,7 @@ export default async function ProductsPage() {
 
   return (
     <main className={STYLES.main}>
-      <div className="flex flex-col gap-6 p-4 md:p-6 lg:p-8 w-full max-w-400 mx-auto">
+      <div className="flex flex-col gap-6 p-4 md:p-6 lg:p-8 w-full max-w-350 mx-auto">
         <Breadcrumbs items={[{ label: "Sản phẩm", href: "/san-pham", active: true }]} />
 
         {/* Recently Viewed Products */}
