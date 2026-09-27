@@ -24,6 +24,16 @@ function metadataForEntity(entity: ResolvedEntity, slug: string): Metadata {
 
   if (!entity) return {};
 
+  // Shared by both branches below — group/category/brand/hp_page already
+  // appended this to the <title> tag (not to og/twitter, see the comment
+  // further down on why). Product pages never got it: a real competitor
+  // check (dienmayxanh.com, dienmaycholon.com, maylanh24h.com.vn — all 3,
+  // same Daikin FTKB25ZVMV-class SKU, 2026-09-28) shows every one of them
+  // carries a freshness/model-year cue on the PRODUCT title too, not just
+  // category pages — ELC was the only one missing it at this level.
+  const now = new Date();
+  const freshness = `${String(now.getMonth() + 1).padStart(2, "0")}/${now.getFullYear()}`;
+
   if (entity.type === "product") {
     const product = entity.data;
     // Archived products 404 (see the page component below) — no metadata
@@ -37,7 +47,7 @@ function metadataForEntity(entity: ResolvedEntity, slug: string): Metadata {
     const description = product.metaDescription || excerptFromRichText(product.description);
     const image = primaryImageUrl(product.images);
     return {
-      title,
+      title: `${title} - ${freshness}`,
       description,
       alternates,
       openGraph: {
@@ -70,23 +80,21 @@ function metadataForEntity(entity: ResolvedEntity, slug: string): Metadata {
   // product's breadcrumb) but not meant to be found/promoted via search —
   // same intent as is_hidden already hiding it from listing sub-nav.
   const isHidden = (entity.type === "category" || entity.type === "group") && entity.data.isHidden;
-  // Tháng/năm hiện tại nhét vào title trang danh mục/hãng (không phải trang
-  // sản phẩm lẻ — sản phẩm là evergreen, danh mục mới đại diện "thị trường
-  // hiện tại") — mô phỏng đúng pattern quan sát được trên dienmayxanh.com
-  // (vd "Mua máy lạnh Daikin giá rẻ... - 09/2026"), tín hiệu "giá/tồn kho
-  // đang cập nhật" cho người tìm kiếm. Route này force-dynamic (không
-  // cache/ISR) nên `new Date()` luôn đúng thời điểm request thật, không bị
-  // đóng băng theo lúc build.
+  // Tháng/năm hiện tại nhét vào title (freshness computed once, above —
+  // 2026-09-28: giờ áp dụng luôn cho product, trước đây chỉ category/group/
+  // brand/hp_page) — mô phỏng đúng pattern quan sát được trên
+  // dienmayxanh.com (vd "Mua máy lạnh Daikin giá rẻ... - 09/2026"), tín
+  // hiệu "giá/tồn kho đang cập nhật" cho người tìm kiếm. Route này
+  // force-dynamic (không cache/ISR) nên `new Date()` luôn đúng thời điểm
+  // request thật, không bị đóng băng theo lúc build.
   //
-  // KHÔNG nối "| SITE_NAME" ở đây (khác trang sản phẩm lẻ phía trên) — quan
-  // sát thật trên Google (2026-09-25): khi title có "| Điện máy ELC" mà
-  // dòng site-name phía trên kết quả tìm kiếm đã tự hiển thị "Điện máy ELC"
-  // rồi, Google coi đó là trùng lặp và tự cắt cụm này khi render — tức phần
-  // đó gần như luôn vô nghĩa để giữ. Bỏ hẳn nó, giữ freshness sát ngay sau
-  // tên danh mục, để phần Google có khả năng giữ nguyên là phần có giá trị
-  // thật (ngày tháng), không lãng phí ký tự cho thứ Google tự xoá.
-  const now = new Date();
-  const freshness = `${String(now.getMonth() + 1).padStart(2, "0")}/${now.getFullYear()}`;
+  // KHÔNG nối "| SITE_NAME" ở đây — quan sát thật trên Google (2026-09-25):
+  // khi title có "| Điện máy ELC" mà dòng site-name phía trên kết quả tìm
+  // kiếm đã tự hiển thị "Điện máy ELC" rồi, Google coi đó là trùng lặp và
+  // tự cắt cụm này khi render — tức phần đó gần như luôn vô nghĩa để giữ.
+  // Bỏ hẳn nó, giữ freshness sát ngay sau tên trang, để phần Google có khả
+  // năng giữ nguyên là phần có giá trị thật (ngày tháng), không lãng phí
+  // ký tự cho thứ Google tự xoá.
   return {
     title: `${title} - ${freshness}`,
     description,
