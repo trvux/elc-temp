@@ -89,10 +89,14 @@ const nextConfig: NextConfig = {
         destination: "/",
         permanent: true,
       },
-      // 2026-09-06: group "Máy lọc không khí" bị đặt tên/slug sai — nhóm này
-      // thực chất chỉ chứa máy cấp khí tươi thu hồi nhiệt Menred (không có
-      // sản phẩm lọc không khí gia dụng nào), gây lệch search intent. Đổi
-      // tên + slug sang đúng nội dung thật; giữ redirect này cho URL cũ.
+      // 2026-09-27: group "Máy lọc không khí" (slug may-loc-khong-khi) đổi
+      // tên+slug thành "Cấp khí tươi thu hồi nhiệt" — tên/slug cũ gây lệch
+      // search intent (group này chỉ chứa máy cấp khí tươi thu hồi nhiệt
+      // Menred, không có sản phẩm lọc không khí gia dụng nào). Một redirect
+      // y hệt việc này đã được thêm 2026-09-06 nhưng trỏ sai đích (thiếu
+      // "may-" ở category con) và DB rename khi đó chưa từng thực hiện —
+      // gây 404 cho URL group thật đang sống. Lần này đã rename DB trước,
+      // verify slug mới render đúng, rồi mới thêm redirect.
       {
         source: "/san-pham/may-loc-khong-khi",
         destination: "/san-pham/cap-khi-tuoi-thu-hoi-nhiet",
