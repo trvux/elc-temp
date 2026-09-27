@@ -102,6 +102,97 @@ const nextConfig: NextConfig = {
         destination: "/san-pham/cap-khi-tuoi-thu-hoi-nhiet",
         permanent: true,
       },
+      // 2026-09-28: 17/18 sản phẩm trong category "may-cap-khi-tuoi-thu-hoi-
+      // nhiet" vẫn mang tên/slug cũ "máy lọc không khí" dù group cha đã đổi
+      // tên 2026-09-27 — lệch intent cha/con ngay trong chính cây vừa sửa.
+      // Đổi slug + meta_title cho khớp category thật, giữ redirect cho URL
+      // cũ. (Sản phẩm thứ 18, module-tao-am-hum35-menred, chỉ sai meta_title,
+      // slug vốn đã đúng nên không cần redirect.)
+      {
+        source: "/san-pham/may-cap-khi-tuoi-loc-khong-khi-smart-o2-s1-menred",
+        destination: "/san-pham/may-cap-khi-tuoi-thu-hoi-nhiet-smart-o2-s1-menred",
+        permanent: true,
+      },
+      {
+        source: "/san-pham/may-loc-khong-khi-cap-khi-tuoi-new5350-menred",
+        destination: "/san-pham/may-cap-khi-tuoi-thu-hoi-nhiet-new5350-menred",
+        permanent: true,
+      },
+      {
+        source: "/san-pham/may-loc-khong-khi-va-cap-khi-tuoi-khu-nom-thu-hoi-nhiet-q6-menred",
+        destination: "/san-pham/may-cap-khi-tuoi-thu-hoi-nhiet-khu-nom-q6-menred",
+        permanent: true,
+      },
+      {
+        source: "/san-pham/may-loc-va-cap-khi-tuoi-thu-hoi-nhiet-g5-ban-full-menred",
+        destination: "/san-pham/may-cap-khi-tuoi-thu-hoi-nhiet-g5-ban-full-menred",
+        permanent: true,
+      },
+      {
+        source: "/san-pham/may-loc-va-cap-khi-tuoi-thu-hoi-nhiet-g7-menred",
+        destination: "/san-pham/may-cap-khi-tuoi-thu-hoi-nhiet-g7-menred",
+        permanent: true,
+      },
+      {
+        source: "/san-pham/may-loc-va-cap-khi-tuoi-thu-hoi-nhiet-n5150a-ebmpapst-menred",
+        destination: "/san-pham/may-cap-khi-tuoi-thu-hoi-nhiet-n5150a-ebmpapst-menred",
+        permanent: true,
+      },
+      {
+        source: "/san-pham/may-loc-va-cap-khi-tuoi-thu-hoi-nhiet-n5250a-ebmpapst-menred",
+        destination: "/san-pham/may-cap-khi-tuoi-thu-hoi-nhiet-n5250a-ebmpapst-menred",
+        permanent: true,
+      },
+      {
+        source: "/san-pham/may-loc-va-cap-khi-tuoi-thu-hoi-nhiet-net-1500-menred",
+        destination: "/san-pham/may-cap-khi-tuoi-thu-hoi-nhiet-net-1500-menred",
+        permanent: true,
+      },
+      {
+        source: "/san-pham/may-loc-va-cap-khi-tuoi-thu-hoi-nhiet-net-2000-menred",
+        destination: "/san-pham/may-cap-khi-tuoi-thu-hoi-nhiet-net-2000-menred",
+        permanent: true,
+      },
+      {
+        source: "/san-pham/may-loc-va-cap-khi-tuoi-thu-hoi-nhiet-net1000-menred",
+        destination: "/san-pham/may-cap-khi-tuoi-thu-hoi-nhiet-net1000-menred",
+        permanent: true,
+      },
+      {
+        source: "/san-pham/may-loc-va-cap-khi-tuoi-thu-hoi-nhiet-net2500-menred",
+        destination: "/san-pham/may-cap-khi-tuoi-thu-hoi-nhiet-net2500-menred",
+        permanent: true,
+      },
+      {
+        source: "/san-pham/may-loc-va-cap-khi-tuoi-thu-hoi-nhiet-net3000-menred",
+        destination: "/san-pham/may-cap-khi-tuoi-thu-hoi-nhiet-net3000-menred",
+        permanent: true,
+      },
+      {
+        source: "/san-pham/may-loc-va-cap-khi-tuoi-thu-hoi-nhiet-net5000-menred",
+        destination: "/san-pham/may-cap-khi-tuoi-thu-hoi-nhiet-net5000-menred",
+        permanent: true,
+      },
+      {
+        source: "/san-pham/may-loc-va-cap-khi-tuoi-thu-hoi-nhiet-net800-menred",
+        destination: "/san-pham/may-cap-khi-tuoi-thu-hoi-nhiet-net800-menred",
+        permanent: true,
+      },
+      {
+        source: "/san-pham/may-loc-va-cap-khi-tuoi-thu-hoi-nhiet-net8000-menred",
+        destination: "/san-pham/may-cap-khi-tuoi-thu-hoi-nhiet-net8000-menred",
+        permanent: true,
+      },
+      {
+        source: "/san-pham/may-loc-va-cap-khi-tuoi-thu-hoi-nhiet-s5-cls40e-menred",
+        destination: "/san-pham/may-cap-khi-tuoi-thu-hoi-nhiet-s5-cls40e-menred",
+        permanent: true,
+      },
+      {
+        source: "/san-pham/may-loc-va-cap-khi-tuoi-thu-hoi-nhiet-smart-o2-g3-ban-full-menred",
+        destination: "/san-pham/may-cap-khi-tuoi-thu-hoi-nhiet-smart-o2-g3-ban-full-menred",
+        permanent: true,
+      },
       // 2026-09-27: hp_page "Máy lạnh Daikin" (categoryIds = 5 category con
       // của group Máy lạnh + brandIds = Daikin) trùng nội dung 100% với
       // brand page /san-pham/daikin đã có sẵn — Daikin trong catalog này chỉ
