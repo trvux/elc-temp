@@ -165,6 +165,24 @@ async function getCachedListModuleData(entity: ResolvedEntity, sp: SearchParams)
     childCategories = Array.from(seen.values()).sort((a, b) => (a.orderIndex ?? 0) - (b.orderIndex ?? 0));
   }
 
+  // Group's "Loại lắp đặt" was every child category with !isHidden, with no
+  // check for whether it actually has any published products — unlike
+  // every other quick-nav chip (HP, Thương hiệu), which all got fixed to
+  // check real counts after the "máy lạnh 6hp"/"10hp" dead-page bug. Every
+  // category happens to have products today (verified 2026-09-28: lowest
+  // is 2), so this hadn't actually broken anything yet — fixed anyway for
+  // the same reason, before a category going briefly empty recreates that
+  // exact bug. `products` is already scoped to categoryIds = this group's
+  // children, so the same category-derivation as the brand branch above
+  // works here too, just filtering the existing list instead of building
+  // a fresh one.
+  if (entity.type === "group" && childCategories.length > 0) {
+    const categoryIdsWithProducts = new Set(
+      products.map((p) => p.category?.id).filter((id): id is string => !!id),
+    );
+    childCategories = childCategories.filter((c) => categoryIdsWithProducts.has(c.id));
+  }
+
   // Related hp_pages (curated attribute/category/brand landing pages, e.g.
   // "Máy lạnh 1HP", "Máy lạnh Daikin") for THIS category/group/brand/
   // hp_page — rendered as real <Link>s on the page below. Before this,
