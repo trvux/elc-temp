@@ -110,6 +110,9 @@ async function getCachedCategorySections(): Promise<CategorySectionData[]> {
         categoryId: cat.id,
         categoryName: cat.name,
         categorySlug: cat.slug,
+        groupId: cat.group?.id ?? null,
+        groupName: cat.group?.name ?? null,
+        groupSlug: cat.group?.slug ?? null,
         initialProducts: products,
         totalCount,
       };

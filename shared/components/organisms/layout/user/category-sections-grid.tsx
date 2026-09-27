@@ -5,6 +5,7 @@ import { ProductGrid } from "@/modules/catalog/presentation/components/ProductGr
 import type { ZoneLookupResult } from "@/modules/shipping-zone";
 import { Button } from "@/shared/components/ui/button";
 import { Separator } from "@/shared/components/ui/separator";
+import { TypographyH2, TypographyH3 } from "@/shared/components/ui/typography";
 import { ArrowRight, Spinner } from "@phosphor-icons/react";
 import Link from "next/link";
 import { useRef, useState } from "react";
@@ -13,6 +14,9 @@ export type CategorySectionData = {
   categoryId: string;
   categoryName: string;
   categorySlug: string;
+  groupId: string | null;
+  groupName: string | null;
+  groupSlug: string | null;
   initialProducts: ProductWithRelations[];
   totalCount: number;
 };
@@ -66,9 +70,12 @@ function CategorySection({
   return (
     <div className="flex flex-col gap-4">
       <div className="flex items-center justify-between gap-4">
-        <h2 className="text-lg md:text-xl font-bold tracking-tight text-foreground font-heading">
+        {/* h3, not h2 — the new group heading in CategorySectionsGrid below
+            is the h2 for this section of the page; a category sits one
+            level under its group. */}
+        <TypographyH3 className="text-lg md:text-xl font-bold">
           {categoryName}
-        </h2>
+        </TypographyH3>
         <Link
           href={`/san-pham/${categorySlug}`}
           prefetch={false}
@@ -128,12 +135,36 @@ export function CategorySectionsGrid({
 
   return (
     <div className="flex flex-col gap-6">
-      {sections.map((section, i) => (
-        <div key={section.categoryId} className="flex flex-col gap-6">
-          <CategorySection {...section} shippingZone={shippingZone} />
-          {i < sections.length - 1 && <Separator />}
-        </div>
-      ))}
+      {sections.map((section, i) => {
+        // Sections are already sorted group-then-category (see
+        // getCachedCategorySections' catOrder), so a group heading right
+        // before that group's first section is enough to divide the whole
+        // list — no need to group them into a nested structure. Without
+        // this, the hub page never linked to the group pages themselves
+        // (/san-pham/may-lanh etc.) anywhere in its main content, only from
+        // the site-wide footer nav — found 2026-09-27 while auditing it as
+        // the parent of those group pages.
+        const isNewGroup = section.groupId !== sections[i - 1]?.groupId;
+
+        return (
+          <div key={section.categoryId} className="flex flex-col gap-6">
+            {isNewGroup && section.groupName && section.groupSlug && (
+              <TypographyH2 className="font-bold">
+                <Link
+                  href={`/san-pham/${section.groupSlug}`}
+                  prefetch={false}
+                  className="group inline-flex items-center gap-1.5 hover:text-primary transition-colors"
+                >
+                  {section.groupName}
+                  <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />
+                </Link>
+              </TypographyH2>
+            )}
+            <CategorySection {...section} shippingZone={shippingZone} />
+            {i < sections.length - 1 && <Separator />}
+          </div>
+        );
+      })}
     </div>
   );
 }
