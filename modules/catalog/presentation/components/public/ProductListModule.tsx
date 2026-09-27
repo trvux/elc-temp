@@ -24,7 +24,7 @@ import { PreviewContent } from "@/shared/components/organisms/layout/user/previe
 import { WishlistDialogButton } from "@/shared/components/organisms/layout/user/wishlist-dialog-button";
 import { RecentlyViewedSection } from "@/shared/components/organisms/layout/user/recently-viewed-section";
 import { ScrollToTop } from "@/shared/components/organisms/layout/user/scroll-to-top";
-import { ScrollArea, ScrollBar } from "@/shared/components/ui/scroll-area";
+import { ScrollArea } from "@/shared/components/ui/scroll-area";
 import { TypographyH1, TypographyH3, TypographySmall } from "@/shared/components/ui/typography";
 import { unwrapActionResult } from "@/shared/lib/action-result";
 import { BASE_URL, toJsonLdHtml } from "@/shared/lib/seo-schema";
@@ -427,9 +427,13 @@ export async function ProductListModule({
                   {/* Horizontal scroll instead of wrap — a group like "Phân
                       khúc công suất (HP)" has 12 items, and wrapping them
                       pushed the whole page taller on mobile before a user
-                      even reaches the product grid. */}
+                      even reaches the product grid. No <ScrollBar> — Radix
+                      already hides the native scrollbar on the viewport
+                      unconditionally (its own injected CSS), so dropping the
+                      custom thumb just removes the visible bar; swipe/drag
+                      scrolling still works via native overflow. */}
                   <ScrollArea className="w-full whitespace-nowrap">
-                    <div className="flex w-max gap-2 pb-2.5">
+                    <div className="flex w-max gap-2 pb-1">
                       {group.items.map((item) => (
                         <Link
                           key={item.id}
@@ -441,7 +445,6 @@ export async function ProductListModule({
                         </Link>
                       ))}
                     </div>
-                    <ScrollBar orientation="horizontal" />
                   </ScrollArea>
                 </div>
               ))}
