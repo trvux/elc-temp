@@ -145,6 +145,26 @@ async function getCachedListModuleData(entity: ResolvedEntity, sp: SearchParams)
     attributeRanges: Object.keys(attributeRanges).length > 0 ? attributeRanges : undefined,
   });
 
+  // Brand pages don't have a fixed set of child categories the way a group
+  // does (a brand can span any category) — derive "Loại lắp đặt" from
+  // what its own products actually fall into, instead of leaving it empty
+  // (found 2026-09-27: /san-pham/daikin and /san-pham/lg had no "Loại lắp
+  // đặt" chip at all). `products` here is the brand's full catalog
+  // (LIST_LIMIT, no pagination), so every category it touches is already
+  // in hand — no extra query needed. Looked up in `allCategories` (not the
+  // product's own embedded category, which lacks orderIndex) so sorting
+  // matches every other "Loại lắp đặt" list on the site.
+  if (entity.type === "brand" && childCategories.length === 0) {
+    const seen = new Map<string, CategoryWithGroup>();
+    for (const p of products) {
+      if (p.category && !seen.has(p.category.id)) {
+        const full = allCategories.find((c) => c.id === p.category!.id);
+        if (full) seen.set(p.category.id, full);
+      }
+    }
+    childCategories = Array.from(seen.values()).sort((a, b) => (a.orderIndex ?? 0) - (b.orderIndex ?? 0));
+  }
+
   // Related hp_pages (curated attribute/category/brand landing pages, e.g.
   // "Máy lạnh 1HP", "Máy lạnh Daikin") for THIS category/group/brand/
   // hp_page — rendered as real <Link>s on the page below. Before this,
