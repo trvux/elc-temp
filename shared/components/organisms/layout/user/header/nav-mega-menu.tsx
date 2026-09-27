@@ -185,19 +185,27 @@ export function ProductMegaMenuItem({
                 </Link>
               ))}
               {featuredBrands.length > 0 && (
-                <Link
-                  href="/san-pham"
+                // Not a Link — "Thương hiệu" isn't a real page (no single
+                // entity/slug covers "all brands"), it's a rail entry that
+                // switches the right-hand panel to the brand grid, same as
+                // hovering already does. It used to be `<Link href="/san-pham">`,
+                // so a click (not just a hover) sent visitors to the generic
+                // "Tất cả sản phẩm" listing instead of just switching panels —
+                // found 2026-09-27 from a real click landing there.
+                <button
+                  type="button"
+                  onClick={() => setActiveRailId(BRANDS_RAIL_ID)}
                   onMouseEnter={() => setActiveRailId(BRANDS_RAIL_ID)}
                   onFocus={() => setActiveRailId(BRANDS_RAIL_ID)}
                   className={cn(
-                    "rounded-md px-3 py-2 text-sm font-medium transition-colors",
+                    "rounded-md px-3 py-2 text-left text-sm font-medium transition-colors",
                     isBrandsActive
                       ? "bg-accent text-accent-foreground"
                       : "text-foreground hover:bg-accent/60",
                   )}
                 >
                   Thương hiệu
-                </Link>
+                </button>
               )}
             </div>
 

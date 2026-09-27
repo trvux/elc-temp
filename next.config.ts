@@ -102,6 +102,20 @@ const nextConfig: NextConfig = {
         destination: "/san-pham/cap-khi-tuoi-thu-hoi-nhiet",
         permanent: true,
       },
+      // 2026-09-27: hp_page "Máy lạnh Daikin" (categoryIds = 5 category con
+      // của group Máy lạnh + brandIds = Daikin) trùng nội dung 100% với
+      // brand page /san-pham/daikin đã có sẵn — Daikin trong catalog này chỉ
+      // bán máy lạnh nên phần khoanh vùng category của hp_page vô tình phủ
+      // đúng luôn toàn bộ catalog Daikin (117/117 sản phẩm giống hệt, verify
+      // qua ItemList numberOfItems). 2 URL tự canonical riêng, chia loãng
+      // tín hiệu thay vì dồn 1 trang — 1 case cụ thể của audit
+      // cannibalization 2026-09-21. Đã soft-delete hp_page này, gộp về brand
+      // page (cũ hơn, chuẩn hơn).
+      {
+        source: "/san-pham/may-lanh-daikin",
+        destination: "/san-pham/daikin",
+        permanent: true,
+      },
       // WP pagination URL cũ
       {
         source: "/thiet-ke-cung-cap-thi-cong-lap-dat/:path*",

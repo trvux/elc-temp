@@ -172,12 +172,13 @@ async function getCachedListModuleData(entity: ResolvedEntity, sp: SearchParams)
       // "máy lạnh Nhp" pages) aren't explicitly scoped to a category, so
       // infer relevance from whether that attribute actually appears on
       // products in THIS listing (facets already reflect this listing's own
-      // categoryIds/brandIds scope). Only applied at the "group" level
-      // (/san-pham/may-lanh itself), matching where competitors surface
-      // this kind of segment picker — not on every narrower subcategory
-      // (e.g. "treo tường"), which would otherwise link out to HP values
-      // that don't actually fit that subcategory.
-      const listingAttributeCodes = entity.type === "group" ? new Set(facets.attributes.map((a) => a.code)) : null;
+      // categoryIds/brandIds scope). Applied at "group" (/san-pham/may-lanh)
+      // AND "brand" (/san-pham/lg) level — GSC confirmed real search volume
+      // for "<brand> <HP>" queries (2026-09-27) — but not on every narrower
+      // subcategory (e.g. "treo tường"), which would otherwise link out to
+      // HP values that don't actually fit that subcategory.
+      const listingAttributeCodes =
+        entity.type === "group" || entity.type === "brand" ? new Set(facets.attributes.map((a) => a.code)) : null;
 
       relatedHpPages = allHpPages.filter((p) => {
         const scopedByCategory = p.categoryIds.some((id) => entityCategoryIds.includes(id));
