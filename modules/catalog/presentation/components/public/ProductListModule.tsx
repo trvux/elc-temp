@@ -233,15 +233,20 @@ async function getCachedListModuleData(entity: ResolvedEntity, sp: SearchParams)
   if (relatedHpPages.length > 0) {
     const attributeNameByCode = new Map(facets.attributes.map((a) => [a.code, a.name]));
     const byAttributeCode = new Map<string, HpPage[]>();
-    const brandComboPages: HpPage[] = [];
+    // Category/brand-combo hp_pages (attributeCode null) — not used to build
+    // the "Thương hiệu" section below anymore (see why right above it);
+    // kept as a fallback only for the case that isn't a plain brand combo
+    // (categoryIds set, brandIds empty — no such page exists today, but the
+    // domain model allows it), so it doesn't just silently disappear.
+    const nonBrandComboPages: HpPage[] = [];
 
     for (const p of relatedHpPages) {
       if (p.attributeCode) {
         const list = byAttributeCode.get(p.attributeCode) ?? [];
         list.push(p);
         byAttributeCode.set(p.attributeCode, list);
-      } else {
-        brandComboPages.push(p);
+      } else if (p.brandIds.length === 0) {
+        nonBrandComboPages.push(p);
       }
     }
 
@@ -252,11 +257,32 @@ async function getCachedListModuleData(entity: ResolvedEntity, sp: SearchParams)
       });
     }
 
-    if (brandComboPages.length > 0) {
+    if (nonBrandComboPages.length > 0) {
       quickNavGroups.push({
-        label: "Thương hiệu",
-        items: brandComboPages.map((p) => ({ id: p.id, slug: p.slug, name: p.name, label: p.name })),
+        label: "Danh mục khác",
+        items: nonBrandComboPages.map((p) => ({ id: p.id, slug: p.slug, name: p.name, label: p.name })),
       });
+    }
+  }
+
+  // "Thương hiệu" — which brands actually have products in THIS listing,
+  // each linking to its own real brand page (/san-pham/<slug>), not a
+  // category+brand combo hp_page. A combo hp_page for a brand that sells
+  // only within one category (true of every brand in this catalog today)
+  // ends up listing the exact same products as the brand page itself —
+  // confirmed 2026-09-27 for Daikin (117/117 identical), two self-canonical
+  // URLs splitting ranking signal for one thing. facets.brands already
+  // reflects this listing's own category scope with real counts, so this
+  // avoids that class of duplicate entirely instead of re-creating it.
+  // Group level only (mirrors the HP attribute-only chips above) — a
+  // narrower subcategory would show brands that don't actually carry that
+  // specific sub-type.
+  if (entity.type === "group") {
+    const brandItems = facets.brands
+      .filter((b) => b.count > 0)
+      .map((b) => ({ id: b.id, slug: b.slug, name: b.name, label: b.name }));
+    if (brandItems.length > 0) {
+      quickNavGroups.push({ label: "Thương hiệu", items: brandItems });
     }
   }
 
