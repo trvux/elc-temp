@@ -384,12 +384,13 @@ async function getCachedListModuleData(entity: ResolvedEntity, sp: SearchParams)
     }
   }
 
-  // FAQ + FAQPage schema — brand only for now (e.g. /san-pham/lg), same
-  // infra product/service already use (modules/faq, SEOSchema.getFAQPage).
-  // "brand" only just became a valid FAQ owner_type (elc-go migration
-  // 2026-09-28, internal/faq) — category/group aren't wired yet, add the
-  // same way here if/when they get real FAQ content too.
-  const faqs = entity.type === "brand" ? await getFAQsAction("brand", entity.data.id).then(unwrapActionResult) : [];
+  // FAQ + FAQPage schema — brand/group/category, same infra product/service
+  // already use (modules/faq, SEOSchema.getFAQPage). All 3 only just became
+  // valid FAQ owner_types (elc-go migrations 2026-09-28, internal/faq).
+  const faqs =
+    entity.type === "brand" || entity.type === "group" || entity.type === "category"
+      ? await getFAQsAction(entity.type, entity.data.id).then(unwrapActionResult)
+      : [];
 
   return {
     products,

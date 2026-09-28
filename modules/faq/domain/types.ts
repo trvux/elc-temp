@@ -9,7 +9,9 @@ export type FAQOwnerType =
   | "news"
   | "branch"
   | "page"
-  | "brand";
+  | "brand"
+  | "group"
+  | "category";
 
 export interface FAQ {
   id: string;
