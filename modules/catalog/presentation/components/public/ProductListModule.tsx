@@ -16,6 +16,7 @@ import { getCategoriesAction } from "@/modules/category/presentation/actions";
 import { CategoryWithGroup } from "@/modules/category/domain/types";
 import { HpPage } from "@/modules/hp-page/domain/types";
 import { getHpPagesAction } from "@/modules/hp-page/presentation/actions";
+import { FAQAccordion, getFAQsAction } from "@/modules/faq";
 import { getPersonalizedShippingZoneAction } from "@/modules/shipping-zone";
 import { Breadcrumbs } from "@/shared/components/organisms/layout/user/breadcrumbs";
 import { CompareLinkButton } from "@/shared/components/organisms/layout/user/compare-link-button";
@@ -26,7 +27,7 @@ import { RecentlyViewedSection } from "@/shared/components/organisms/layout/user
 import { ScrollToTop } from "@/shared/components/organisms/layout/user/scroll-to-top";
 import { TypographyH1, TypographyH3, TypographySmall } from "@/shared/components/ui/typography";
 import { unwrapActionResult } from "@/shared/lib/action-result";
-import { BASE_URL, toJsonLdHtml } from "@/shared/lib/seo-schema";
+import { BASE_URL, SEOSchema, toJsonLdHtml } from "@/shared/lib/seo-schema";
 
 // No pagination/infinite-scroll — renders the full matching catalog for the
 // category/brand/group in one shot (small catalog, largest single category
@@ -383,11 +384,19 @@ async function getCachedListModuleData(entity: ResolvedEntity, sp: SearchParams)
     }
   }
 
+  // FAQ + FAQPage schema — brand only for now (e.g. /san-pham/lg), same
+  // infra product/service already use (modules/faq, SEOSchema.getFAQPage).
+  // "brand" only just became a valid FAQ owner_type (elc-go migration
+  // 2026-09-28, internal/faq) — category/group aren't wired yet, add the
+  // same way here if/when they get real FAQ content too.
+  const faqs = entity.type === "brand" ? await getFAQsAction("brand", entity.data.id).then(unwrapActionResult) : [];
+
   return {
     products,
     totalCount,
     facets,
     quickNavGroups,
+    faqs,
     showBrandFacet,
     currentBrandIds: brandFacetIds ?? [],
     currentMinPrice: minPriceRaw ?? "",
@@ -420,6 +429,7 @@ export async function ProductListModule({
     totalCount,
     facets,
     quickNavGroups,
+    faqs,
     showBrandFacet,
     currentBrandIds,
     currentMinPrice,
@@ -568,6 +578,12 @@ export async function ProductListModule({
             <PreviewContent content={heroContent} fallbackAlt={pageTitle} size="sm" className="typeset-hero" />
           </ProductDescription>
         ) : null}
+
+        {faqs.length > 0 && (
+          <section className="border-t border-dashed border-border/40 pt-6">
+            <FAQAccordion faqs={faqs} />
+          </section>
+        )}
       </div>
 
       <div className="w-full max-w-350 mx-auto px-4 md:px-6 lg:px-8 py-6 border-t border-dashed border-border/40">
@@ -603,10 +619,20 @@ export async function ProductListModule({
         };
 
         return (
-          <script
-            type="application/ld+json"
-            dangerouslySetInnerHTML={{ __html: toJsonLdHtml(collectionPageSchema) }}
-          />
+          <>
+            <script
+              type="application/ld+json"
+              dangerouslySetInnerHTML={{ __html: toJsonLdHtml(collectionPageSchema) }}
+            />
+            {faqs.length > 0 && (
+              <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{
+                  __html: toJsonLdHtml({ "@context": "https://schema.org", ...SEOSchema.getFAQPage(faqs) }),
+                }}
+              />
+            )}
+          </>
         );
       })()}
     </main>
