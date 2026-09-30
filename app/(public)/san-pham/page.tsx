@@ -98,7 +98,7 @@ async function getCachedCategories() {
 // change needed. Checked with real Điện Máy Xanh's own /may-lanh listing
 // (894KB total) for a sanity floor — they bound their own initial grid
 // too (a client-side "Xem thêm" button), just like this page already has.
-const INITIAL_PER_SECTION = 8;
+const INITIAL_PER_SECTION = 5;
 
 async function getCachedCategorySections(): Promise<CategorySectionData[]> {
   const allCategories = await getCachedCategories();
