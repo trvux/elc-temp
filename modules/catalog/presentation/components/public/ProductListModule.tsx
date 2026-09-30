@@ -7,6 +7,7 @@ import { ShieldCheck } from "@phosphor-icons/react/dist/ssr";
 
 import { getProductsAction } from "@/modules/catalog/presentation/actions";
 import { PRODUCT_STATUS, ProductSortBy } from "@/modules/catalog/domain";
+import { resolveProductDisplayPrice } from "@/modules/catalog/domain/price";
 import { ProductGrid } from "@/modules/catalog/presentation/components/ProductGrid";
 import { ProductFilterDialogButton } from "@/modules/catalog/presentation/components/public/ProductFilterDialogButton";
 import { ProductSearchBox } from "@/modules/catalog/presentation/components/public/ProductSearchBox";
@@ -27,7 +28,7 @@ import { RecentlyViewedSection } from "@/shared/components/organisms/layout/user
 import { ScrollToTop } from "@/shared/components/organisms/layout/user/scroll-to-top";
 import { TypographyH1, TypographyH3, TypographySmall } from "@/shared/components/ui/typography";
 import { unwrapActionResult } from "@/shared/lib/action-result";
-import { BASE_URL, SEOSchema, toJsonLdHtml } from "@/shared/lib/seo-schema";
+import { AVAILABILITY_SCHEMA, BASE_URL, SEOSchema, toJsonLdHtml } from "@/shared/lib/seo-schema";
 
 // No pagination/infinite-scroll — renders the full matching catalog for the
 // category/brand/group in one shot (small catalog, largest single category
@@ -601,6 +602,14 @@ export async function ProductListModule({
       {(() => {
         const pageUrl = `${BASE_URL}/san-pham/${entity.data.slug}`;
 
+        // Nesting a full Product (with offers) under each ListItem, not just
+        // name/url/image, is what Google's own Product-snippet docs call for
+        // on a listing page — "Product properties should be nested under
+        // itemListElement.item, including a nested Offer" — and is almost
+        // certainly what drives the price-range line competitors (DMX,
+        // CellphoneS) show under their own /may-lanh category result.
+        // Confirmed live 2026-09-30 after the plain ListItem version here
+        // (no nested Product/Offer at all) shipped no such line for ELC.
         const collectionPageSchema = {
           "@context": "https://schema.org",
           "@type": "CollectionPage",
@@ -609,13 +618,32 @@ export async function ProductListModule({
           mainEntity: {
             "@type": "ItemList",
             numberOfItems: totalCount,
-            itemListElement: products.map((p, idx) => ({
-              "@type": "ListItem",
-              position: idx + 1,
-              url: `${BASE_URL}/san-pham/${p.slug}`,
-              name: p.name,
-              image: primaryImageUrl(p.images) || undefined,
-            })),
+            itemListElement: products.map((p, idx) => {
+              const itemUrl = `${BASE_URL}/san-pham/${p.slug}`;
+              const price = resolveProductDisplayPrice(p);
+              return {
+                "@type": "ListItem",
+                position: idx + 1,
+                item: {
+                  "@type": "Product",
+                  name: p.name,
+                  url: itemUrl,
+                  image: primaryImageUrl(p.images) || undefined,
+                  brand: p.brand?.name ? { "@type": "Brand", name: p.brand.name } : undefined,
+                  ...(price > 0
+                    ? {
+                        offers: {
+                          "@type": "Offer",
+                          url: itemUrl,
+                          priceCurrency: "VND",
+                          price,
+                          availability: AVAILABILITY_SCHEMA[p.displayStockStatus || ""] || "https://schema.org/InStock",
+                        },
+                      }
+                    : {}),
+                },
+              };
+            }),
           },
         };
 

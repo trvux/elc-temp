@@ -3,6 +3,16 @@ import { primaryImageUrl } from "./image-asset";
 
 export const BASE_URL = process.env.NEXT_PUBLIC_APP_URL || "https://dienmayelc.com.vn";
 
+// Shared by ProductDetailModule's own Offer and ProductListModule's nested
+// per-item Offer (mã 8823-listing-schema) — one source of truth so the two
+// never drift on how a stock status string maps to a schema.org availability
+// URL.
+export const AVAILABILITY_SCHEMA: Record<string, string> = {
+  in_stock: "https://schema.org/InStock",
+  order_from_supplier: "https://schema.org/PreOrder",
+  discontinued: "https://schema.org/Discontinued",
+};
+
 // Next.js's own JSON-LD guide (docs/01-app/02-guides/json-ld.mdx) escapes
 // "<" before dangerouslySetInnerHTML — admin-entered text (product/category
 // name, description, review body...) ending up verbatim in a <script> tag

@@ -30,16 +30,10 @@ import {
   TypographySmall,
 } from "@/shared/components/ui/typography";
 import { primaryImageUrl } from "@/shared/lib/image-asset";
-import { BASE_URL, SEOSchema, toJsonLdHtml } from "@/shared/lib/seo-schema";
+import { AVAILABILITY_SCHEMA, BASE_URL, SEOSchema, toJsonLdHtml } from "@/shared/lib/seo-schema";
 import { FAQAccordion, getFAQsAction } from "@/modules/faq";
 import { cn } from "@/shared/lib/utils";
 import { notFound } from "next/navigation";
-
-const AVAILABILITY_SCHEMA: Record<string, string> = {
-  in_stock: "https://schema.org/InStock",
-  order_from_supplier: "https://schema.org/PreOrder",
-  discontinued: "https://schema.org/Discontinued",
-};
 
 const CONDITION_SCHEMA: Record<string, string> = {
   "Mới": "https://schema.org/NewCondition",
