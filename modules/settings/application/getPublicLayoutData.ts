@@ -120,8 +120,6 @@ export async function getPublicLayoutData() {
     settings[item.key] = item.value || "";
   });
 
-  const priceRange = "10.000.000đ - 100.000.000đ";
-
   const mappedProjects = (projects || []).map((p) => ({
     id: p.id,
     title: p.title,
@@ -149,7 +147,6 @@ export async function getPublicLayoutData() {
     groupCategories: groupCategories || [],
     categoriesList: categoriesList || [],
     projectTypes,
-    priceRange,
     currentYear: new Date().getFullYear(),
   };
 }
