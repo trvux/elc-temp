@@ -3,14 +3,18 @@ import type { Metadata } from "next";
 import { CTASection } from "@/shared/components/organisms/sections/cta";
 import { FeaturesSection } from "@/shared/components/organisms/sections/features";
 import { HeroSection } from "@/shared/components/organisms/sections/hero";
+import { NewsTeaserSection } from "@/shared/components/organisms/sections/news-teaser";
 import { ProjectBounceCardsSection } from "@/shared/components/organisms/sections/project-bounce-cards";
+import { ServicesTeaserSection } from "@/shared/components/organisms/sections/services-teaser";
 
 import { getBrandsAction } from "@/modules/brand/presentation/actions";
 import { getProductsAction } from "@/modules/catalog/presentation/actions";
 import { PRODUCT_STATUS } from "@/modules/catalog/domain";
 import { getCategoriesAction } from "@/modules/category/presentation/actions";
 import { getContactsAction } from "@/modules/contact/presentation/actions";
+import { getNewsAction } from "@/modules/news/presentation/actions";
 import { getProjectsAction } from "@/modules/project/presentation/actions";
+import { getPublishedServicesGroupedAction } from "@/modules/service/presentation/actions";
 import { getSiteSettingsAction } from "@/modules/settings/presentation/actions";
 
 import { unwrapActionResult } from "@/shared/lib/action-result";
@@ -53,8 +57,19 @@ export const metadata: Metadata = {
   alternates: { canonical: BASE_URL },
 };
 
+// How many items each of the 4 vertical teasers (sản phẩm/category, dịch
+// vụ, tin tức) shows on the homepage — deliberately small. The homepage's
+// job is to be the hub that sends visitors INTO /san-pham, /dich-vu,
+// /tin-tuc, /du-an, not to mirror each one's full listing here. Before
+// this, the product section alone rendered every category's full first
+// page (limit 12) with its own infinite "load more", making the homepage a
+// near-duplicate of /san-pham in both signal (see the metadata comment
+// above) and actual on-page content — this keeps the flywheel (each
+// vertical reinforcing the others via links) without the duplication.
+const TEASER_ITEM_LIMIT = 6;
+
 async function getCachedHomeData() {
-  const [settingsData, projects, categories, contacts, brands] =
+  const [settingsData, projects, categories, contacts, brands, groupedServices, news] =
     await Promise.all([
       getSiteSettingsAction().then(unwrapActionResult),
       getProjectsAction({
@@ -64,6 +79,13 @@ async function getCachedHomeData() {
       getCategoriesAction().then(unwrapActionResult),
       getContactsAction().then(unwrapActionResult),
       getBrandsAction({ limit: 100 }).then(unwrapActionResult),
+      getPublishedServicesGroupedAction(),
+      getNewsAction({
+        isPublished: true,
+        limit: TEASER_ITEM_LIMIT / 2,
+        sortBy: "created_at",
+        sortOrder: "desc",
+      }).then(unwrapActionResult),
     ]);
 
   // Convert settings array to a more usable object
@@ -72,14 +94,14 @@ async function getCachedHomeData() {
     settings[item.key] = item.value || "";
   });
 
-  // Fetch products for each category in parallel
-  // limit: 12 = highly divisible for responsive grids (2, 3, 4, 6 columns)
+  // Fetch a small teaser batch per category in parallel — see
+  // TEASER_ITEM_LIMIT above for why this is no longer the full first page.
   const categoriesWithProducts = await Promise.all(
     (categories || []).map(async (category) => {
       const { data: products, totalCount } = await getProductsAction({
         status: PRODUCT_STATUS.PUBLISHED,
         categoryId: category.id,
-        limit: 12,
+        limit: TEASER_ITEM_LIMIT,
         offset: 0,
       });
       return {
@@ -95,19 +117,28 @@ async function getCachedHomeData() {
     (item) => item.products && item.products.length > 0
   );
 
+  const services = (groupedServices || [])
+    .flatMap((group) => group.items)
+    .slice(0, 3);
+
   return {
     settings,
     projects,
     categoriesWithProducts: activeCategoriesWithProducts,
     contacts,
     brands,
+    services,
+    news: news || [],
   };
 }
 
 export default async function Home() {
-  const { settings, projects, categoriesWithProducts, contacts, brands } =
+  const { settings, projects, categoriesWithProducts, contacts, brands, services, news } =
     await getCachedHomeData();
 
+  // No `categoryId` prop here (unlike /san-pham's own sections) — that's
+  // what lets FeaturesSection's "load more" stay off, so this section is a
+  // bounded teaser instead of growing into a full duplicate listing.
   const categorySections = (categoriesWithProducts || []).map((catData, idx) => ({
     id: `category-${catData.category.slug}`,
     component: (
@@ -115,7 +146,6 @@ export default async function Home() {
         title={catData.category.name}
         slug={catData.category.slug}
         products={catData.products || []}
-        categoryId={catData.category.id}
         totalCount={catData.totalCount}
         priorityCount={idx === 0 ? 4 : 0}
       />
@@ -132,6 +162,14 @@ export default async function Home() {
           title="Dự án tiêu biểu nổi bật"
         />
       ),
+    },
+    {
+      id: "services-teaser",
+      component: <ServicesTeaserSection services={services} />,
+    },
+    {
+      id: "news-teaser",
+      component: <NewsTeaserSection news={news} />,
     },
     {
       id: "cta",
