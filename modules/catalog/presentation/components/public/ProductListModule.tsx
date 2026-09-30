@@ -617,70 +617,92 @@ export async function ProductListModule({
         // CellphoneS) show under their own /may-lanh category result.
         // Confirmed live 2026-09-30 after the plain ListItem version here
         // (no nested Product/Offer at all) shipped no such line for ELC.
+        //
+        // Every product repeated its brand's {name, sameAs} as two near-
+        // identical full objects (brand + manufacturer) inline. Fine at
+        // category scale (treo tường: 59 items, 19.8KB) but the "Máy lạnh"
+        // GROUP page unions every category's products (130 items, 113.8KB)
+        // — confirmed live via GSC URL Inspection API 2026-10-01 that this
+        // size makes Google's rich-result parser give up entirely (only
+        // BreadcrumbList detected, zero Product/Merchant listings) even
+        // though the JSON itself is valid. User explicitly wants every
+        // product kept (not truncated, unlike the /san-pham root hub's
+        // 24-per-section cap) — the fix is de-duplicating the *inline*
+        // repetition instead: each unique brand is declared ONCE as its own
+        // node (@type as an array — a node can honestly be both a Brand and
+        // an Organization, this catalog's brands are both), referenced by
+        // every one of its products via @id instead of re-embedding
+        // {name, sameAs} per product. Cuts the brand/manufacturer share of
+        // the payload without dropping a single item from the list.
+        const uniqueBrandNames = Array.from(
+          new Set(products.map((p) => p.brand?.name).filter((n): n is string => Boolean(n))),
+        );
+        const brandId = (name: string) => `${BASE_URL}/#brand-${name.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`;
+        const brandNodes = uniqueBrandNames.map((name) => ({
+          "@type": ["Brand", "Organization"],
+          "@id": brandId(name),
+          name,
+          ...(BRAND_SAME_AS[name] ? { sameAs: BRAND_SAME_AS[name] } : {}),
+        }));
+
         const collectionPageSchema = {
           "@context": "https://schema.org",
-          "@type": "CollectionPage",
-          name: pageTitle,
-          url: pageUrl,
-          mainEntity: {
-            "@type": "ItemList",
-            numberOfItems: totalCount,
-            itemListElement: products.map((p, idx) => {
-              const itemUrl = `${BASE_URL}/san-pham/${p.slug}`;
-              const price = resolveProductDisplayPrice(p);
-              return {
-                "@type": "ListItem",
-                position: idx + 1,
-                item: {
-                  "@type": "Product",
-                  // Same #product @id the product's own detail page uses
-                  // for its full Product schema — lets Google/AI crawlers
-                  // resolve this listing stub and that page's full record
-                  // as one graph entity instead of two separate Products
-                  // that merely happen to share a url.
-                  "@id": `${itemUrl}#product`,
-                  name: p.name,
-                  url: itemUrl,
-                  image: primaryImageUrl(p.images) || undefined,
-                  brand: p.brand?.name
-                    ? {
-                        "@type": "Brand",
-                        name: p.brand.name,
-                        ...(BRAND_SAME_AS[p.brand.name] ? { sameAs: BRAND_SAME_AS[p.brand.name] } : {}),
-                      }
-                    : undefined,
-                  // Same as ProductDetailModule's own Product.manufacturer —
-                  // distinct schema.org property from brand, real fact for
-                  // every brand this catalog carries (each both brands AND
-                  // manufactures its own products here).
-                  manufacturer: p.brand?.name
-                    ? {
-                        "@type": "Organization",
-                        name: p.brand.name,
-                        ...(BRAND_SAME_AS[p.brand.name] ? { sameAs: BRAND_SAME_AS[p.brand.name] } : {}),
-                      }
-                    : undefined,
-                  ...(price > 0
-                    ? {
-                        offers: {
-                          "@type": "Offer",
-                          url: itemUrl,
-                          priceCurrency: "VND",
-                          price,
-                          availability: AVAILABILITY_SCHEMA[p.displayStockStatus || ""] || "https://schema.org/InStock",
-                          priceValidUntil,
-                          // Same Organization @id as the detail page's own
-                          // Offer (ProductDetailModule) — keeps "who's
-                          // selling this" consistent everywhere the Offer
-                          // shows up, not just on the product's own page.
-                          seller: { "@id": `${BASE_URL}/#organization` },
-                        },
-                      }
-                    : {}),
-                },
-              };
-            }),
-          },
+          "@graph": [
+            ...brandNodes,
+            {
+              "@type": "CollectionPage",
+              name: pageTitle,
+              url: pageUrl,
+              mainEntity: {
+                "@type": "ItemList",
+                numberOfItems: totalCount,
+                itemListElement: products.map((p, idx) => {
+                  const itemUrl = `${BASE_URL}/san-pham/${p.slug}`;
+                  const price = resolveProductDisplayPrice(p);
+                  return {
+                    "@type": "ListItem",
+                    position: idx + 1,
+                    item: {
+                      "@type": "Product",
+                      // Same #product @id the product's own detail page uses
+                      // for its full Product schema — lets Google/AI crawlers
+                      // resolve this listing stub and that page's full record
+                      // as one graph entity instead of two separate Products
+                      // that merely happen to share a url.
+                      "@id": `${itemUrl}#product`,
+                      name: p.name,
+                      url: itemUrl,
+                      image: primaryImageUrl(p.images) || undefined,
+                      brand: p.brand?.name ? { "@id": brandId(p.brand.name) } : undefined,
+                      // Same as ProductDetailModule's own Product.manufacturer
+                      // — distinct schema.org property from brand, real fact
+                      // for every brand this catalog carries (each both
+                      // brands AND manufactures its own products here) — now
+                      // pointing at the same shared brand node above.
+                      manufacturer: p.brand?.name ? { "@id": brandId(p.brand.name) } : undefined,
+                      ...(price > 0
+                        ? {
+                            offers: {
+                              "@type": "Offer",
+                              url: itemUrl,
+                              priceCurrency: "VND",
+                              price,
+                              availability: AVAILABILITY_SCHEMA[p.displayStockStatus || ""] || "https://schema.org/InStock",
+                              priceValidUntil,
+                              // Same Organization @id as the detail page's own
+                              // Offer (ProductDetailModule) — keeps "who's
+                              // selling this" consistent everywhere the Offer
+                              // shows up, not just on the product's own page.
+                              seller: { "@id": `${BASE_URL}/#organization` },
+                            },
+                          }
+                        : {}),
+                    },
+                  };
+                }),
+              },
+            },
+          ],
         };
 
         return (
