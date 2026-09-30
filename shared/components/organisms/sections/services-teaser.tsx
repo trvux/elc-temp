@@ -11,10 +11,10 @@ interface ServicesTeaserSectionProps {
 }
 
 // Homepage hub teaser into the /dich-vu vertical — same "title links to the
-// hub, grid previews a few real items" shape as FeaturesSection uses for
-// /san-pham, so all 4 verticals (sản phẩm, dự án, dịch vụ, tin tức) read as
-// one consistent flywheel pattern on the homepage instead of sản phẩm being
-// the only one with real estate here.
+// hub, then a small real preview" shape the other 3 homepage teasers use
+// (category banners, project marquee, news), so all 4 verticals read as one
+// consistent flywheel pattern instead of sản phẩm being the only one with
+// real estate here.
 export function ServicesTeaserSection({ services }: ServicesTeaserSectionProps) {
   if (services.length === 0) return null;
 
