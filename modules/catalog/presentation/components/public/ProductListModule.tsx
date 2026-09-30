@@ -626,6 +626,12 @@ export async function ProductListModule({
                 position: idx + 1,
                 item: {
                   "@type": "Product",
+                  // Same #product @id the product's own detail page uses
+                  // for its full Product schema — lets Google/AI crawlers
+                  // resolve this listing stub and that page's full record
+                  // as one graph entity instead of two separate Products
+                  // that merely happen to share a url.
+                  "@id": `${itemUrl}#product`,
                   name: p.name,
                   url: itemUrl,
                   image: primaryImageUrl(p.images) || undefined,

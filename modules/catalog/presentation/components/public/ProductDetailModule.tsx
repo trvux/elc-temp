@@ -452,6 +452,11 @@ export async function ProductDetailModule({
         const productSchema = {
           "@context": "https://schema.org",
           "@type": "Product",
+          // Explicit @id (not just a matching url) so a listing page's
+          // nested Product stub for this same SKU (ProductListModule's
+          // ItemList) resolves as the SAME graph entity, not two separate
+          // near-duplicate Products Google has to infer are one thing.
+          "@id": `${pageUrl}#product`,
           name: product.name,
           url: pageUrl,
           // Google's Merchant Listing guidance recommends multiple aspect
