@@ -40,6 +40,27 @@ const CONDITION_SCHEMA: Record<string, string> = {
   "Cũ": "https://schema.org/UsedCondition",
 };
 
+// additionalType — Wikidata entity link, language-independent disambiguation
+// of what a product fundamentally IS (not a Google rich-result requirement,
+// an entity-SEO/AI-understanding technique). Every QID below verified real
+// 2026-09-30 by reading its actual wikidata.org description against this
+// catalog's real products — never guessed. Checked category name first
+// (more specific — needed for "Nhà thông minh", whose 4 categories are
+// genuinely different device concepts, not sub-types of one thing), group
+// name as fallback (fits "Máy lạnh" — every product in it really is the
+// same concept, an air conditioner).
+const ADDITIONAL_TYPE_BY_CATEGORY: Record<string, string> = {
+  "Bảng điều khiển": "https://www.wikidata.org/wiki/Q107894145", // smart hub — "control center for a smart home"
+  "Công tắc thông minh": "https://www.wikidata.org/wiki/Q962420", // light switch — "operate electric lights, permanently connected equipment, or electrical outlets"
+  "Cảm biến thông minh": "https://www.wikidata.org/wiki/Q167676", // sensor — general enough to cover both real products (presence + door sensor)
+  "Remote cầm tay": "https://www.wikidata.org/wiki/Q185091", // remote control — "handheld device... to control another device remotely"
+};
+const ADDITIONAL_TYPE_BY_GROUP: Record<string, string> = {
+  "Máy lạnh": "https://www.wikidata.org/wiki/Q1265533", // air conditioner
+  "Cấp khí tươi thu hồi nhiệt": "https://www.wikidata.org/wiki/Q1601523", // energy recovery ventilator — "fan-driven unit with a heat exchanger"
+  "Máy lọc nước": "https://www.wikidata.org/wiki/Q116798568", // point of use water filter — "domestic drinking water filter"
+};
+
 // ELC: no returns accepted, free shipping nationwide — reflect the real
 // business policy here (Google penalizes inaccurate return/shipping markup),
 // not a guessed/default value.
@@ -506,19 +527,12 @@ export async function ProductDetailModule({
           category: categoryWithGroup?.group?.name
             ? `${categoryWithGroup.group.name} > ${category.name}`
             : category.name,
-          // Wikidata entity link — language-independent disambiguation of
-          // WHAT this product fundamentally IS (not a Google rich-result
-          // requirement, an entity-SEO/AI-understanding technique). Only
-          // wired for "Máy lạnh" group: QID verified for real 2026-09-30
-          // (Q1265533 = "air conditioner", wikidata.org description
-          // confirmed matching). The other 3 groups (Cấp khí tươi/Máy lọc
-          // nước/Nhà thông minh) have real but AMBIGUOUS candidate QIDs —
-          // e.g. energy recovery ventilator has 3 close Wikidata entries
-          // (device vs system vs general concept) — left unset rather than
-          // guess which one is exactly right.
-          ...(categoryWithGroup?.group?.name === "Máy lạnh"
-            ? { additionalType: "https://www.wikidata.org/wiki/Q1265533" }
-            : {}),
+          ...(() => {
+            const wikidataUrl =
+              ADDITIONAL_TYPE_BY_CATEGORY[category.name] ||
+              (categoryWithGroup?.group?.name ? ADDITIONAL_TYPE_BY_GROUP[categoryWithGroup.group.name] : undefined);
+            return wikidataUrl ? { additionalType: wikidataUrl } : {};
+          })(),
           sku: defaultVariant?.sku ? indoorSku(defaultVariant.sku) : undefined,
           mpn: defaultVariant?.mpn || undefined,
           gtin: defaultVariant?.gtin || undefined,
