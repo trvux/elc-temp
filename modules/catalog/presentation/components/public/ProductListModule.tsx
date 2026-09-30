@@ -2,6 +2,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { primaryImageUrl } from "@/shared/lib/image-asset";
+import { resolveContentVariablesInDoc } from "@/shared/lib/content-variables";
+import { resolveContentVariablesAction } from "@/shared/lib/content-variables-actions";
 
 import { ShieldCheck } from "@phosphor-icons/react/dist/ssr";
 
@@ -445,7 +447,11 @@ export async function ProductListModule({
 
   const pageTitle = entity.data.name;
   const heroImageUrl = entity.type === "brand" ? entity.data.logoUrl : entity.data.imageUrl;
-  const heroContent = entity.data.content;
+  // Resolves any contentVariable nodes (product count / price range for
+  // this group/category/brand) against the live catalog before render —
+  // see content-variables.ts's doc comment for why this can't happen
+  // inside PreviewContent itself.
+  const heroContent = await resolveContentVariablesInDoc(entity.data.content, resolveContentVariablesAction);
   const warrantyPolicy = entity.type === "brand" ? entity.data.warrantyPolicy : null;
 
   const {

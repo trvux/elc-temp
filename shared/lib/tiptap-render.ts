@@ -26,6 +26,7 @@ import HardBreak from "@tiptap/extension-hard-break";
 import Heading from "@tiptap/extension-heading";
 import { BulletList, OrderedList, ListItem } from "@tiptap/extension-list";
 import { cn } from "@/shared/lib/utils";
+import { ContentVariable } from "@/shared/lib/tiptap-content-variable";
 
 // This file MUST NOT import "@tiptap/starter-kit" (directly or transitively)
 // — that was the whole point of splitting it out of tiptap-shared.ts. A
@@ -305,6 +306,7 @@ export const sharedNodeExtensions = () => [
   TableRow,
   TableHeader,
   TableCell,
+  ContentVariable,
 ];
 
 // Pure marks/attributes (no ProseMirror view-plugin dependencies) shared by

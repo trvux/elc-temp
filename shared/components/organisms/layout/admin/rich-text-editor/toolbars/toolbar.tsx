@@ -13,6 +13,7 @@ import { BoldToolbar } from "./bold";
 import { BulletListToolbar } from "./bullet-list";
 import { CodeToolbar } from "./code";
 import { CodeBlockToolbar } from "./code-block";
+import { ContentVariableToolbar } from "./content-variable-toolbar";
 import { HighlightToolbar, TextColorToolbar } from "./color-and-highlight";
 import { HardBreakToolbar } from "./hard-break";
 import { HeadingToolbar } from "./heading";
@@ -104,6 +105,7 @@ export const RichTextToolbar = ({ editor }: RichTextToolbarProps) => {
             <ImagePlaceholderToolbar />
             <TableToolbar />
             <HorizontalRuleToolbar />
+            <ContentVariableToolbar />
 
             <Separator orientation="vertical" className="mx-1 h-6" />
 

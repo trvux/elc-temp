@@ -1,9 +1,11 @@
 import StarterKit from "@tiptap/starter-kit";
 import { ReactNodeViewRenderer } from "@tiptap/react";
 import { HEADING_LEVELS, createImageExtension, sharedMarkExtensions, sharedNodeExtensions } from "@/shared/lib/tiptap-render";
+import { ContentVariable } from "@/shared/lib/tiptap-content-variable";
 import { SearchAndReplace } from "@/shared/components/organisms/layout/admin/rich-text-editor/toolbars/search-and-replace";
 import { TiptapImageNodeView } from "@/shared/components/organisms/layout/admin/rich-text-editor/tiptap-image-node-view";
 import { ImagePlaceholder } from "@/shared/components/organisms/layout/admin/rich-text-editor/tiptap-image-placeholder";
+import { TiptapContentVariableNodeView } from "@/shared/components/organisms/layout/admin/rich-text-editor/tiptap-content-variable-node-view";
 
 // Same align/ratio/width attrs as the public Image (createImageExtension),
 // plus an interactive NodeView (resize handles + on-image overlay) that
@@ -22,6 +24,15 @@ const AdminImage = createImageExtension()
       class: "h-auto transition-all duration-500 ease-in-out rounded-sm",
     },
   });
+
+// Same node ContentVariable renders with in getTiptapExtensionsForRender,
+// plus the chip/popover NodeView — same "last one wins" override as
+// AdminImage above.
+const AdminContentVariable = ContentVariable.extend({
+  addNodeView() {
+    return ReactNodeViewRenderer(TiptapContentVariableNodeView);
+  },
+});
 
 // Re-exported so rich-text-editor.tsx (the only importer of this file) has
 // one import line for both — this file is intentionally the ONLY place
@@ -69,4 +80,5 @@ export const getTiptapExtensions = (options?: {
   ...sharedNodeExtensions(),
   ...sharedMarkExtensions(),
   AdminImage,
+  AdminContentVariable,
 ];
