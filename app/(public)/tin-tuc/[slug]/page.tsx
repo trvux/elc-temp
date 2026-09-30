@@ -8,6 +8,7 @@ import { getNewsAction, getNewsBySlugAction } from "@/modules/news/presentation/
 import { Breadcrumbs } from "@/shared/components/organisms/layout/user/breadcrumbs";
 import { PreviewContent } from "@/shared/components/organisms/layout/user/preview-content";
 import { ScrollToTop } from "@/shared/components/organisms/layout/user/scroll-to-top";
+import { ShareButton } from "@/shared/components/organisms/layout/user/share-button";
 import Image from "next/image";
 import { primaryImageUrl } from "@/shared/lib/image-asset";
 import {
@@ -273,11 +274,16 @@ export default async function NewsDetailPage({ params }: PageProps) {
               <ArrowLeft className="w-3 h-3 transition-transform group-hover:-translate-x-0.5" />
               <span>Quay lại danh sách tin tức</span>
             </Link>
-            {formattedDate && (
-              <TypographySmall className="text-muted-foreground/60 mb-2 block font-medium font-sans">
-                {formattedDate}
-              </TypographySmall>
-            )}
+            <div className="flex items-center justify-between gap-3 mb-2">
+              {formattedDate ? (
+                <TypographySmall className="text-muted-foreground/60 font-medium font-sans">
+                  {formattedDate}
+                </TypographySmall>
+              ) : (
+                <span />
+              )}
+              <ShareButton url={`${BASE_URL}/tin-tuc/${slug}`} title={title} />
+            </div>
             <TypographyH1
               className={cn(
                 STYLES.title,

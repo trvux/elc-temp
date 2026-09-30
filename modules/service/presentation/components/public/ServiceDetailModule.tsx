@@ -10,6 +10,7 @@ import { ProductDescription } from "@/shared/components/organisms/layout/user/pr
 import { PreviewContent } from "@/shared/components/organisms/layout/user/preview-content";
 import RelatedServices from "@/shared/components/organisms/layout/user/related-services";
 import { ScrollToTop } from "@/shared/components/organisms/layout/user/scroll-to-top";
+import { ShareButton } from "@/shared/components/organisms/layout/user/share-button";
 import { AspectRatio } from "@/shared/components/ui/aspect-ratio";
 import { Badge } from "@/shared/components/ui/badge";
 import {
@@ -31,7 +32,7 @@ import {
 } from "@/shared/components/ui/typography";
 import { cn } from "@/shared/lib/utils";
 import { formatCurrency } from "@/shared/lib/format";
-import { SEOSchema, toJsonLdHtml } from "@/shared/lib/seo-schema";
+import { BASE_URL, SEOSchema, toJsonLdHtml } from "@/shared/lib/seo-schema";
 import { FAQAccordion, getFAQsAction } from "@/modules/faq";
 
 interface ServiceDetailModuleProps {
@@ -125,7 +126,14 @@ export async function ServiceDetailModule({
         <div className="w-full animate-fade-in-up">
           <div className={STYLES.topSection}>
             <div className={STYLES.imageArea}>
-              <div className={STYLES.carouselWrapper}>
+              <div className={cn(STYLES.carouselWrapper, "relative")}>
+                <div className="absolute top-3 right-3 z-40">
+                  <ShareButton
+                    url={`${BASE_URL}/dich-vu/${service.slug}`}
+                    title={service.title}
+                    size="icon"
+                  />
+                </div>
                 <Carousel className="w-full">
                   <CarouselContent>
                     {images.length > 0 ? (

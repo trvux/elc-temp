@@ -189,6 +189,8 @@ export async function ProductDetailModule({
               productId={product.id}
               images={images}
               fallbackAlt={`${product.name} ${defaultVariant?.sku ? `(${defaultVariant.sku})` : ""} - ${product.brand?.name || "ELC"} - Điện máy ELC`}
+              shareUrl={`${BASE_URL}/san-pham/${product.slug}`}
+              shareTitle={product.name}
             />
 
             <div className="flex flex-col gap-4">

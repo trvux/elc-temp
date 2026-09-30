@@ -10,6 +10,7 @@ import {Breadcrumbs} from "@/shared/components/organisms/layout/user/breadcrumbs
 import {DetailPager} from "@/shared/components/organisms/layout/user/detail-pager";
 import {PreviewContent} from "@/shared/components/organisms/layout/user/preview-content";
 import {ScrollToTop} from "@/shared/components/organisms/layout/user/scroll-to-top";
+import {ShareButton} from "@/shared/components/organisms/layout/user/share-button";
 import {AspectRatio} from "@/shared/components/ui/aspect-ratio";
 import {Badge} from "@/shared/components/ui/badge";
 import {TypographyH1, TypographySmall} from "@/shared/components/ui/typography";
@@ -219,7 +220,7 @@ async function ProjectDetailView({
           </TypographyH1>
 
           {/* Badge */}
-          <div className="flex items-center">
+          <div className="flex items-center justify-between gap-3">
             <Badge
               variant="outline"
               className="h-8 rounded-md flex items-center gap-1.5 px-3 border-border bg-muted/20"
@@ -229,6 +230,7 @@ async function ProjectDetailView({
                 Danh mục: {displayCategory}
               </span>
             </Badge>
+            <ShareButton url={`${BASE_URL}/du-an/${project.slug}`} title={project.title} />
           </div>
 
           {/* Cover Image */}
