@@ -17,7 +17,7 @@ import { Node, mergeAttributes } from "@tiptap/core";
  * `.extend()` in tiptap-shared.ts, same pattern as AdminImage overriding
  * the plain Image extension.
  */
-export type ContentVariableMetric = "count" | "priceMin" | "priceMax";
+export type ContentVariableMetric = "count" | "priceMin" | "priceMax" | "brandCount" | "categoryCount";
 
 declare module "@tiptap/core" {
   interface Commands<ReturnType> {

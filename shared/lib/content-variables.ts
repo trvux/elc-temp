@@ -10,7 +10,8 @@
  * stored doc in the DB never carries a resolved value, only the scope.
  */
 
-export type ContentVariableMetric = "count" | "priceMin" | "priceMax";
+import type { ContentVariableMetric } from "@/shared/lib/tiptap-content-variable";
+export type { ContentVariableMetric };
 
 export interface ContentVariableFilter {
   groupSlug?: string;

@@ -35,6 +35,8 @@ const METRIC_LABELS: Record<ContentVariableMetric, string> = {
   count: "Số lượng sản phẩm",
   priceMin: "Giá thấp nhất",
   priceMax: "Giá cao nhất",
+  brandCount: "Số thương hiệu",
+  categoryCount: "Số loại lắp đặt / danh mục (chỉ dùng với phạm vi Nhóm)",
 };
 
 const NO_BRAND = "__none__";
