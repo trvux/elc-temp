@@ -13,6 +13,7 @@ import { ProductFilterDialogButton } from "@/modules/catalog/presentation/compon
 import { ProductSearchBox } from "@/modules/catalog/presentation/components/public/ProductSearchBox";
 import { ProductSortSelect } from "@/modules/catalog/presentation/components/public/ProductSortSelect";
 import { ResolvedEntity } from "@/modules/catalog/presentation/resolveProductPath";
+import { MERCHANT_RETURN_POLICY } from "@/modules/catalog/presentation/components/public/ProductDetailModule";
 import { getCategoriesAction } from "@/modules/category/presentation/actions";
 import { CategoryWithGroup } from "@/modules/category/domain/types";
 import { HpPage } from "@/modules/hp-page/domain/types";
@@ -685,15 +686,47 @@ export async function ProductListModule({
                             offers: {
                               "@type": "Offer",
                               url: itemUrl,
+                              // Same 4 fields ProductDetailModule's own Offer
+                              // already carries — Google's Merchant Listing
+                              // check flagged these as missing here
+                              // specifically (confirmed live 2026-10-01),
+                              // since this listing page's Offer is a
+                              // separate node from the product's own page.
+                              description: p.metaDescription || undefined,
                               priceCurrency: "VND",
                               price,
                               availability: AVAILABILITY_SCHEMA[p.displayStockStatus || ""] || "https://schema.org/InStock",
                               priceValidUntil,
+                              validFrom: p.createdAt,
                               // Same Organization @id as the detail page's own
                               // Offer (ProductDetailModule) — keeps "who's
                               // selling this" consistent everywhere the Offer
                               // shows up, not just on the product's own page.
                               seller: { "@id": `${BASE_URL}/#organization` },
+                              hasMerchantReturnPolicy: MERCHANT_RETURN_POLICY,
+                              ...(shippingZone
+                                ? {
+                                    shippingDetails: {
+                                      "@type": "OfferShippingDetails",
+                                      shippingRate: {
+                                        "@type": "MonetaryAmount",
+                                        value: String(shippingZone.feeVnd),
+                                        currency: "VND",
+                                      },
+                                      shippingDestination: { "@type": "DefinedRegion", addressCountry: "VN" },
+                                      deliveryTime: {
+                                        "@type": "ShippingDeliveryTime",
+                                        handlingTime: { "@type": "QuantitativeValue", minValue: 0, maxValue: 1, unitCode: "DAY" },
+                                        transitTime: {
+                                          "@type": "QuantitativeValue",
+                                          minValue: shippingZone.minDays,
+                                          maxValue: shippingZone.maxDays,
+                                          unitCode: "DAY",
+                                        },
+                                      },
+                                    },
+                                  }
+                                : {}),
                             },
                           }
                         : {}),

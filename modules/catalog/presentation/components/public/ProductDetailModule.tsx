@@ -61,13 +61,21 @@ const ADDITIONAL_TYPE_BY_GROUP: Record<string, string> = {
   "Máy lọc nước": "https://www.wikidata.org/wiki/Q116798568", // point of use water filter — "domestic drinking water filter"
 };
 
-// ELC: no returns accepted, free shipping nationwide — reflect the real
-// business policy here (Google penalizes inaccurate return/shipping markup),
-// not a guessed/default value.
-const MERCHANT_RETURN_POLICY = {
+// Real policy per /chinh-sach-doi-tra-va-hoan-tien (verified 2026-10-01,
+// corrected from an earlier "no returns accepted" value that contradicted
+// this published page): 3 ngày kể từ khi nhận hàng, đổi khi ELC giao sai
+// (màu/size/mã hàng nội địa, sai hàng với hàng nhập khẩu), hoàn tiền khi
+// lỗi NSX hoặc hư hỏng do vận chuyển — not an unconditional "any reason"
+// window, but schema.org's MerchantReturnPolicy has no finer-grained
+// category than FiniteReturnWindow for that; returnPolicyUrl carries
+// shoppers to the real conditions. Google penalizes inaccurate return/
+// shipping markup, so this must track the live page, not a guessed value.
+export const MERCHANT_RETURN_POLICY = {
   "@type": "MerchantReturnPolicy",
   applicableCountry: "VN",
-  returnPolicyCategory: "https://schema.org/MerchantReturnNotPermitted",
+  returnPolicyCategory: "https://schema.org/MerchantReturnFiniteReturnWindow",
+  merchantReturnDays: 3,
+  returnPolicyUrl: `${BASE_URL}/chinh-sach-doi-tra-va-hoan-tien`,
 };
 
 async function getCachedProductDetailData() {
@@ -479,11 +487,21 @@ export async function ProductDetailModule({
           ? {
               "@type": "Offer",
               url: pageUrl,
+              // Google's Merchant Listing check wants a description on the
+              // Offer itself, not only on the parent Product — reusing the
+              // real per-product meta description already written for this
+              // page rather than a generic filler.
+              description: product.metaDescription || undefined,
               priceCurrency: "VND",
               price: finalPrice,
               sku: defaultVariant?.sku ? indoorSku(defaultVariant.sku) : undefined,
               availability: AVAILABILITY_SCHEMA[product.displayStockStatus || ""] || "https://schema.org/InStock",
               priceValidUntil,
+              // Real date this offer became valid — the product's own
+              // creation date, not today's date re-computed on every
+              // render (which would silently "restart" every offer's
+              // validFrom on every deploy).
+              validFrom: product.createdAt,
               // References the same Organization @id every page already
               // shares (getOrganization in seo-schema.ts, emitted site-wide
               // via layout.tsx's @graph) — without this, nothing on the
