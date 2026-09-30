@@ -87,8 +87,59 @@ export interface BranchInput {
   mapsUrl?: string | null;
 }
 
+export interface CatalogGroupInput {
+  id: string;
+  name: string;
+  slug: string;
+}
+
+export interface CatalogCategoryInput {
+  id: string;
+  name: string;
+  slug: string;
+  groupId?: string | null;
+}
+
 export const SEOSchema = {
-  getOrganization(branches?: Branch[], contacts?: Array<{ type: string; value: string; isActive: boolean }>) {
+  // hasOfferCatalog is what actually answers "does Google understand my
+  // business as a whole, not just N disconnected product pages" — every
+  // other entity here (LocalBusiness, Product, Offer...) says who ELC IS or
+  // describes one single thing; this is the only one that says, from the
+  // Organization itself, WHAT ELC sells, structured group -> category, real
+  // names/slugs straight from the same groups/categories already fetched
+  // for the header nav (getPublicLayoutData) — no extra query, no
+  // fabrication risk (nothing here is text a model could get wrong, it's
+  // literally the same rows nav-mega-menu renders).
+  getOfferCatalog(groups?: CatalogGroupInput[], categories?: CatalogCategoryInput[]) {
+    return {
+      "@type": "OfferCatalog",
+      "name": "Danh mục sản phẩm Điện máy ELC",
+      "itemListElement": (groups || []).map((g) => {
+        const childCategories = (categories || []).filter((c) => c.groupId === g.id);
+        return {
+          "@type": "OfferCatalog",
+          "name": g.name,
+          "url": `${BASE_URL}/san-pham/${g.slug}`,
+          ...(childCategories.length > 0
+            ? {
+                itemListElement: childCategories.map((c) => ({
+                  "@type": "OfferCatalog",
+                  "name": c.name,
+                  "url": `${BASE_URL}/san-pham/${c.slug}`,
+                })),
+              }
+            : {}),
+        };
+      }),
+    };
+  },
+
+  getOrganization(
+    branches?: Branch[],
+    contacts?: Array<{ type: string; value: string; isActive: boolean }>,
+    groups?: CatalogGroupInput[],
+    categories?: CatalogCategoryInput[],
+  ) {
     const sameAsLinks = this.getSameAs(contacts, branches);
 
     const phoneVal = contacts?.find((c) => c.type === "phone" && c.isActive)?.value || "0789978898";
@@ -168,7 +219,8 @@ export const SEOSchema = {
       },
       "sameAs": sameAsLinks,
       "areaServed": companyBranchCoverage,
-      ...(subOrganizations.length > 0 ? { "subOrganization": subOrganizations } : {})
+      ...(subOrganizations.length > 0 ? { "subOrganization": subOrganizations } : {}),
+      ...(groups && groups.length > 0 ? { "hasOfferCatalog": this.getOfferCatalog(groups, categories) } : {}),
     };
   },
 

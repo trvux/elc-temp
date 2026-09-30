@@ -61,7 +61,7 @@ export default async function PublicLayout({ children }: PublicLayoutProps) {
         dangerouslySetInnerHTML={{
           __html: toJsonLdHtml({
             "@context": "https://schema.org",
-            "@graph": [SEOSchema.getOrganization(branches, contacts), SEOSchema.getWebSite()],
+            "@graph": [SEOSchema.getOrganization(branches, contacts, groupCategories, categoriesList), SEOSchema.getWebSite()],
           }),
         }}
       />
