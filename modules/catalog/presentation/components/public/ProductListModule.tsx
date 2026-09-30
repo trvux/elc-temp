@@ -412,6 +412,11 @@ async function getCachedListModuleData(entity: ResolvedEntity, sp: SearchParams)
     ),
     breadcrumbParent,
     currentYear: new Date().getFullYear(),
+    // Same rolling-window rationale as ProductDetailModule's own Offer —
+    // no real promo-end date exists anywhere to source. Computed here (not
+    // inline in JSX) since Date.now() during render trips the
+    // react-hooks/purity rule; recomputed fresh every request.
+    priceValidUntil: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10),
   };
 }
 
@@ -440,6 +445,7 @@ export async function ProductListModule({
     currentAttrRanges,
     breadcrumbParent,
     currentYear,
+    priceValidUntil,
   } = await getCachedListModuleData(entity, searchParams);
   const { data: shippingZone } = await getPersonalizedShippingZoneAction();
 
@@ -644,6 +650,7 @@ export async function ProductListModule({
                           priceCurrency: "VND",
                           price,
                           availability: AVAILABILITY_SCHEMA[p.displayStockStatus || ""] || "https://schema.org/InStock",
+                          priceValidUntil,
                           // Same Organization @id as the detail page's own
                           // Offer (ProductDetailModule) — keeps "who's
                           // selling this" consistent everywhere the Offer

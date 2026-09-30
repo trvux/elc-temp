@@ -56,6 +56,16 @@ async function getCachedProductDetailData() {
   return {
     contacts,
     currentYear: new Date().getFullYear(),
+    // No admin-configured promotion end-date exists anywhere in the catalog
+    // to source a real one from (checked: product_variants has no
+    // expiry/sale-end column) — Google's own guidance is this is
+    // "recommended, not required" on Offer (GSC shows it as a warning, not
+    // an error, when absent), and a rolling near-future window is standard
+    // practice for a price with no fixed promo end. Computed here (not
+    // inline in JSX) since Date.now() during render trips the
+    // react-hooks/purity rule; route is force-dynamic (no ISR) so this is
+    // never stale by the time Google actually re-crawls.
+    priceValidUntil: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10),
   };
 }
 
@@ -64,7 +74,7 @@ export async function ProductDetailModule({
 }: {
   product: ProductWithRelations;
 }) {
-  const { contacts, currentYear } = await getCachedProductDetailData();
+  const { contacts, currentYear, priceValidUntil } = await getCachedProductDetailData();
   const [relatedProducts, { data: reviews, aggregate }, { data: productLine }, { data: categoryWithGroup }, { data: defaultShippingZone }, savedProvinceCode, savedWardCode, { data: personalizedShippingZone }, { data: faqs }] = await Promise.all([
     getRelatedProducts(product),
     getReviewsAction("product", product.id),
@@ -435,6 +445,7 @@ export async function ProductDetailModule({
               price: finalPrice,
               sku: defaultVariant?.sku ? indoorSku(defaultVariant.sku) : undefined,
               availability: AVAILABILITY_SCHEMA[product.displayStockStatus || ""] || "https://schema.org/InStock",
+              priceValidUntil,
               // References the same Organization @id every page already
               // shares (getOrganization in seo-schema.ts, emitted site-wide
               // via layout.tsx's @graph) — without this, nothing on the
