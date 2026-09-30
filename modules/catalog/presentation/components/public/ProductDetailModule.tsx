@@ -435,6 +435,12 @@ export async function ProductDetailModule({
               price: finalPrice,
               sku: defaultVariant?.sku ? indoorSku(defaultVariant.sku) : undefined,
               availability: AVAILABILITY_SCHEMA[product.displayStockStatus || ""] || "https://schema.org/InStock",
+              // References the same Organization @id every page already
+              // shares (getOrganization in seo-schema.ts, emitted site-wide
+              // via layout.tsx's @graph) — without this, nothing on the
+              // Offer itself says ELC is who's actually selling it; Google
+              // was left to infer that purely from page domain.
+              seller: { "@id": `${BASE_URL}/#organization` },
               itemCondition,
               hasMerchantReturnPolicy: MERCHANT_RETURN_POLICY,
               shippingDetails,

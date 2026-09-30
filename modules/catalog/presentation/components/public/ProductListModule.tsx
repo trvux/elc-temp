@@ -644,6 +644,11 @@ export async function ProductListModule({
                           priceCurrency: "VND",
                           price,
                           availability: AVAILABILITY_SCHEMA[p.displayStockStatus || ""] || "https://schema.org/InStock",
+                          // Same Organization @id as the detail page's own
+                          // Offer (ProductDetailModule) — keeps "who's
+                          // selling this" consistent everywhere the Offer
+                          // shows up, not just on the product's own page.
+                          seller: { "@id": `${BASE_URL}/#organization` },
                         },
                       }
                     : {}),
