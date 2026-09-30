@@ -86,7 +86,19 @@ async function getCachedCategories() {
 // `/san-pham/{slug}` page is the authoritative, fully crawlable listing. Keeping
 // this bounded (rather than growing with the catalog) is what makes it scale;
 // the "Xem tất cả" link on each section is the crawl path into the rest.
-const INITIAL_PER_SECTION = 24;
+//
+// 24/section × ~12 real categories still rendered the whole hub at 3.79MB —
+// confirmed live via GSC URL Inspection (2026-10-01) that this alone pushed
+// the page past Google's documented 2MB per-page indexing cutoff, same
+// failure mode found and fixed on the group/brand listing pages the same
+// day (PREVIEW_LIMIT in ProductListModule.tsx). Unlike those pages, this
+// hub's own JSON-LD was always tiny (1.8KB, just category links) — the
+// weight here is almost entirely the rendered product cards themselves, so
+// cutting the per-section count is the whole fix, no separate schema
+// change needed. Checked with real Điện Máy Xanh's own /may-lanh listing
+// (894KB total) for a sanity floor — they bound their own initial grid
+// too (a client-side "Xem thêm" button), just like this page already has.
+const INITIAL_PER_SECTION = 8;
 
 async function getCachedCategorySections(): Promise<CategorySectionData[]> {
   const allCategories = await getCachedCategories();
