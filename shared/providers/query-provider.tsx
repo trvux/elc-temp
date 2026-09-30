@@ -1,9 +1,19 @@
 "use client";
 
 import { MutationCache, QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { LazyMotion, domAnimation } from "motion/react";
+import { LazyMotion } from "motion/react";
 import { useState } from "react";
 import { toast } from "sonner";
+
+// Loader, not a static import — this is what actually makes LazyMotion lazy.
+// A static `import { domAnimation } from "motion/react"` here would bundle
+// the whole animation feature set into whatever chunk this provider (root
+// layout wraps every page in it) lands in, defeating the point of
+// LazyMotion entirely. Confirmed via PSI mobile audit 2026-10-01: this was
+// a prime suspect for the ~794ms single-chunk main-thread scripting cost
+// found on the homepage.
+const loadFeatures = () =>
+  import("./motion-features").then((mod) => mod.default);
 
 export function QueryProvider({ children }: { children: React.ReactNode }) {
   const [queryClient] = useState(() => new QueryClient({
@@ -30,7 +40,7 @@ export function QueryProvider({ children }: { children: React.ReactNode }) {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <LazyMotion features={domAnimation} strict>
+      <LazyMotion features={loadFeatures} strict>
         {children}
       </LazyMotion>
     </QueryClientProvider>
