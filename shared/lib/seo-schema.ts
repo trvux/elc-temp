@@ -307,11 +307,15 @@ export const SEOSchema = {
       links.push(zaloVal.startsWith("http") ? zaloVal : `https://zalo.me/${zaloVal}`);
     }
 
-    // Google Business Profile — sourced from the headquarters branch's verified
-    // Maps listing (the only branch record with a claimed/reviewed GBP entity).
-    const hqBranch = branches?.find((b) => b.slug === "tru-so-van-phong");
-    if (hqBranch?.mapsUrl) {
-      links.push(hqBranch.mapsUrl);
+    // Google Business Profile — sourced from the Showroom branch's verified
+    // Maps listing (the only branch record with a claimed/reviewed GBP
+    // entity; its address, 06 Dương Quảng Hàm, matches the live GBP
+    // listing checked 2026-09-30 — "tru-so-van-phong" is a different
+    // physical address and never actually held this link, that was a
+    // data entry mistake fixed in the DB the same day).
+    const gbpBranch = branches?.find((b) => b.slug === "van-phong");
+    if (gbpBranch?.mapsUrl) {
+      links.push(gbpBranch.mapsUrl);
     }
 
     return links;
@@ -323,6 +327,13 @@ export const SEOSchema = {
     const parsedAddress = parseAddress(branch.address);
     const companyEmail = "elc.jointstock@gmail.com";
     const mapsUrl = branch.mapsUrl;
+    // Real regularHours, read directly off the verified GBP listing
+    // (business.google.com, checked 2026-09-30) — same 8:00-20:00 every day
+    // of the week. GBP's address (06 Dương Quảng Hàm) matches branch
+    // "van-phong" (Showroom), not "tru-so-van-phong" — only this branch's
+    // GBP entity has been checked, so this stays scoped to it until other
+    // branches' hours are confirmed too.
+    const isGbpVerifiedBranch = branch.slug === "van-phong";
     return {
       "@type": "HVACBusiness",
       "@id": `${BASE_URL}/thong-tin/${branch.slug}#localbusiness`,
@@ -339,6 +350,16 @@ export const SEOSchema = {
       },
       "url": `${BASE_URL}/thong-tin/${branch.slug}`,
       ...(mapsUrl ? { "hasMap": mapsUrl, "sameAs": [mapsUrl] } : {}),
+      ...(isGbpVerifiedBranch ? {
+        "openingHoursSpecification": {
+          "@type": "OpeningHoursSpecification",
+          "dayOfWeek": [
+            "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday",
+          ],
+          "opens": "08:00",
+          "closes": "20:00",
+        },
+      } : {}),
       "branchOf": {
         "@id": `${BASE_URL}/#organization`,
       },
