@@ -373,6 +373,23 @@ export async function ProductDetailModule({
           ...(av.unit ? { unitText: av.unit } : {}),
         }));
 
+        // Google's own guidance: apps expecting weight/width/height want the
+        // dedicated Product property, not the generic PropertyValue bag —
+        // additionalProperty alone is weaker signal for these. Split-system
+        // AC units (the bulk of the catalog) carry indoor+outdoor as two
+        // separate attribute rows (trong_luong_dan_lanh/trong_luong_dan_nong)
+        // — sum both for the real total shipped weight; single-unit products
+        // (water filters, smarthome devices) just use trong_luong alone.
+        // Omit entirely rather than guess when neither is present.
+        const allAv = attributeGroups.flatMap((g) => g.rows);
+        const indoorWeight = allAv.find((av) => av.code === "trong_luong_dan_lanh")?.valueNumber;
+        const outdoorWeight = allAv.find((av) => av.code === "trong_luong_dan_nong")?.valueNumber;
+        const singleWeight = allAv.find((av) => av.code === "trong_luong")?.valueNumber;
+        const totalWeightKg =
+          indoorWeight != null && outdoorWeight != null
+            ? indoorWeight + outdoorWeight
+            : (indoorWeight ?? outdoorWeight ?? singleWeight ?? undefined);
+
         const conditionAv = (product.attributeValues || []).find((av) => av.code === "tinh_trang_san_pham");
         const conditionValue = conditionAv ? formatAttributeValue(conditionAv) : undefined;
         const itemCondition = CONDITION_SCHEMA[conditionValue || ""] || CONDITION_SCHEMA["Mới"];
@@ -500,6 +517,20 @@ export async function ProductDetailModule({
                 ...(BRAND_SAME_AS[product.brand.name] ? { sameAs: BRAND_SAME_AS[product.brand.name] } : {}),
               }
             : undefined,
+          // Distinct schema.org property from brand (Daikin/LG/Menred/Acis
+          // both brand AND manufacture their own products here — real fact,
+          // not an assumption) — two separate typed signals confirming the
+          // same thing outweighs relying on brand alone.
+          manufacturer: product.brand?.name
+            ? {
+                "@type": "Organization",
+                name: product.brand.name,
+                ...(BRAND_SAME_AS[product.brand.name] ? { sameAs: BRAND_SAME_AS[product.brand.name] } : {}),
+              }
+            : undefined,
+          ...(totalWeightKg != null && totalWeightKg > 0
+            ? { weight: { "@type": "QuantitativeValue", value: totalWeightKg, unitText: "kg" } }
+            : {}),
           ...(additionalProperty.length > 0 ? { additionalProperty } : {}),
           // aggregateRating requires ratingCount >= 1 per Google's guidelines
           // — omit entirely rather than emit a hollow 0/0 for a product with

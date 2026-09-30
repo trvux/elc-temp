@@ -648,6 +648,17 @@ export async function ProductListModule({
                         ...(BRAND_SAME_AS[p.brand.name] ? { sameAs: BRAND_SAME_AS[p.brand.name] } : {}),
                       }
                     : undefined,
+                  // Same as ProductDetailModule's own Product.manufacturer —
+                  // distinct schema.org property from brand, real fact for
+                  // every brand this catalog carries (each both brands AND
+                  // manufactures its own products here).
+                  manufacturer: p.brand?.name
+                    ? {
+                        "@type": "Organization",
+                        name: p.brand.name,
+                        ...(BRAND_SAME_AS[p.brand.name] ? { sameAs: BRAND_SAME_AS[p.brand.name] } : {}),
+                      }
+                    : undefined,
                   ...(price > 0
                     ? {
                         offers: {
