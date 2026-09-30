@@ -1,5 +1,3 @@
-import { formatCurrency } from "@/shared/lib/format";
-
 /**
  * Content variables stand in for a number that would otherwise get
  * hardcoded into SEO copy (product count, price range for a
@@ -104,9 +102,14 @@ export function applyContentVariableValues(
   return walk(doc);
 }
 
-export function formatContentVariableValue(metric: ContentVariableMetric, value: number | undefined): string {
+// Plain thousands-separated number for every metric — no currency symbol
+// of its own. A price range like "6.550.000 - 41.354.545 đ" needs exactly
+// ONE trailing unit for the whole range, not one per number, so the unit
+// stays author-written static text around the node instead of being baked
+// into this formatter (which would double it up in a min/max pair).
+export function formatContentVariableValue(_metric: ContentVariableMetric, value: number | undefined): string {
   if (value === undefined) return "";
-  return metric === "count" ? value.toLocaleString("vi-VN") : formatCurrency(value);
+  return value.toLocaleString("vi-VN");
 }
 
 /**
