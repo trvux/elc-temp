@@ -35,19 +35,23 @@ export const ContentVariable = Node.create({
   selectable: true,
 
   addAttributes() {
+    // `rendered: false` on every attr: the custom renderHTML below builds
+    // its own data-* attributes straight from node.attrs, so none of
+    // these should ALSO go through Tiptap's default attrs-to-HTML
+    // auto-serialization (which otherwise dumps every attr as its own
+    // lowercase HTML attribute — metric="count" groupslug="..." etc. —
+    // duplicating/cluttering the data-* ones renderHTML already emits).
     return {
-      metric: { default: "count" as ContentVariableMetric },
-      groupSlug: { default: null },
-      categorySlug: { default: null },
-      brandSlug: { default: null },
+      metric: { default: "count" as ContentVariableMetric, rendered: false },
+      groupSlug: { default: null, rendered: false },
+      categorySlug: { default: null, rendered: false },
+      brandSlug: { default: null, rendered: false },
       // Whatever the value was the moment this node was last inserted/
       // edited — shown if resolution fails (API down, slug no longer
       // exists) instead of rendering blank.
-      fallbackText: { default: "" },
+      fallbackText: { default: "", rendered: false },
       // Set only at render time, on a throwaway doc copy — see this
-      // node's doc comment above. `rendered: false` keeps it out of
-      // Tiptap's own attrs-to-HTML auto-serialization (harmless here since
-      // renderHTML below is custom anyway, but documents the intent).
+      // node's doc comment above.
       resolvedText: { default: null, rendered: false },
     };
   },
