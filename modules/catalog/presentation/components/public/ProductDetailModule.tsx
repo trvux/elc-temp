@@ -506,6 +506,19 @@ export async function ProductDetailModule({
           category: categoryWithGroup?.group?.name
             ? `${categoryWithGroup.group.name} > ${category.name}`
             : category.name,
+          // Wikidata entity link — language-independent disambiguation of
+          // WHAT this product fundamentally IS (not a Google rich-result
+          // requirement, an entity-SEO/AI-understanding technique). Only
+          // wired for "Máy lạnh" group: QID verified for real 2026-09-30
+          // (Q1265533 = "air conditioner", wikidata.org description
+          // confirmed matching). The other 3 groups (Cấp khí tươi/Máy lọc
+          // nước/Nhà thông minh) have real but AMBIGUOUS candidate QIDs —
+          // e.g. energy recovery ventilator has 3 close Wikidata entries
+          // (device vs system vs general concept) — left unset rather than
+          // guess which one is exactly right.
+          ...(categoryWithGroup?.group?.name === "Máy lạnh"
+            ? { additionalType: "https://www.wikidata.org/wiki/Q1265533" }
+            : {}),
           sku: defaultVariant?.sku ? indoorSku(defaultVariant.sku) : undefined,
           mpn: defaultVariant?.mpn || undefined,
           gtin: defaultVariant?.gtin || undefined,
