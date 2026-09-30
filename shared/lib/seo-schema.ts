@@ -131,7 +131,12 @@ export const SEOSchema = {
   // real count) — passing the raw brand list back in would repeat the exact
   // "claims a brand ELC doesn't actually carry" bug found and fixed
   // elsewhere this same audit (isFeatured does NOT track this reliably).
-  getOfferCatalog(groups?: CatalogGroupInput[], categories?: CatalogCategoryInput[], brands?: CatalogGroupInput[]) {
+  getOfferCatalog(
+    groups?: CatalogGroupInput[],
+    categories?: CatalogCategoryInput[],
+    brands?: CatalogGroupInput[],
+    hpPages?: CatalogGroupInput[],
+  ) {
     const groupBranches = (groups || []).map((g) => {
       const childCategories = (categories || []).filter((c) => c.groupId === g.id);
       return {
@@ -165,10 +170,28 @@ export const SEOSchema = {
           ]
         : [];
 
+    // Same top-level cross-cutting treatment as brand — "máy lạnh 1hp",
+    // "máy lạnh Daikin 2hp" is real, distinct search intent (by capacity,
+    // not by install type or brand), not a redundant view of category.
+    const hpBranch =
+      hpPages && hpPages.length > 0
+        ? [
+            {
+              "@type": "OfferCatalog",
+              "name": "Phân khúc công suất (HP)",
+              "itemListElement": hpPages.map((hp) => ({
+                "@type": "OfferCatalog",
+                "name": hp.name,
+                "url": `${BASE_URL}/san-pham/${hp.slug}`,
+              })),
+            },
+          ]
+        : [];
+
     return {
       "@type": "OfferCatalog",
       "name": "Danh mục sản phẩm Điện máy ELC",
-      "itemListElement": [...groupBranches, ...brandBranch],
+      "itemListElement": [...groupBranches, ...brandBranch, ...hpBranch],
     };
   },
 
@@ -178,6 +201,7 @@ export const SEOSchema = {
     groups?: CatalogGroupInput[],
     categories?: CatalogCategoryInput[],
     catalogBrands?: CatalogGroupInput[],
+    catalogHpPages?: CatalogGroupInput[],
   ) {
     const sameAsLinks = this.getSameAs(contacts, branches);
 
@@ -259,7 +283,7 @@ export const SEOSchema = {
       "sameAs": sameAsLinks,
       "areaServed": companyBranchCoverage,
       ...(subOrganizations.length > 0 ? { "subOrganization": subOrganizations } : {}),
-      ...(groups && groups.length > 0 ? { "hasOfferCatalog": this.getOfferCatalog(groups, categories, catalogBrands) } : {}),
+      ...(groups && groups.length > 0 ? { "hasOfferCatalog": this.getOfferCatalog(groups, categories, catalogBrands, catalogHpPages) } : {}),
     };
   },
 

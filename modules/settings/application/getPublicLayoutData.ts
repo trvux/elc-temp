@@ -9,6 +9,7 @@ import { getBrandsAction } from "@/modules/brand/presentation/actions";
 import { getProjectTypesAction } from "@/modules/project-type/presentation/actions";
 import { getProductsAction } from "@/modules/catalog/presentation/actions";
 import { PRODUCT_STATUS } from "@/modules/catalog/domain";
+import { getHpPagesAction } from "@/modules/hp-page/presentation/actions";
 
 export async function getPublicLayoutData() {
   const [
@@ -22,6 +23,7 @@ export async function getPublicLayoutData() {
     brandsResult,
     projectTypesResult,
     productFacetsResult,
+    hpPagesResult,
   ] = await Promise.allSettled([
     getSiteSettingsAction(),
     getContactsAction(),
@@ -38,6 +40,11 @@ export async function getPublicLayoutData() {
     // have something for sale, the same "0 products -> excluded" rule
     // already applied to brand pages going noindex and to sitemap.
     getProductsAction({ status: PRODUCT_STATUS.PUBLISHED, limit: 1 }),
+    // No options -> Go API's default already excludes soft-deleted rows
+    // (includeDeleted only set via include_deleted=true, never passed here)
+    // — the dead 6HP/10HP hp_pages from earlier this session are already
+    // gone at this layer, no extra per-page product-count check needed.
+    getHpPagesAction(),
   ]);
 
   const settingsData = settingsResult.status === "fulfilled" && !settingsResult.value.error
@@ -101,6 +108,21 @@ export async function getPublicLayoutData() {
   // only a real product count does.
   const brandsWithProducts = brands.filter((b) => brandIdsWithProducts.has(b.id));
 
+  // HP-tier landing pages are a real, distinct search-intent cross-cut ("máy
+  // lạnh 1hp", "máy lạnh Daikin 2hp") — same class of thing as brand, not a
+  // redundant view of category. getHpPagesAction() with no options already
+  // excludes soft-deleted rows (see call site), so this list is real by
+  // construction — no separate product-count check needed here the way
+  // brand needed one.
+  const hpPagesData = hpPagesResult.status === "fulfilled" && !hpPagesResult.value.error
+    ? hpPagesResult.value.data
+    : null;
+  const hpPagesForCatalog = (hpPagesData || []).map((hp) => ({
+    id: hp.id,
+    name: hp.name,
+    slug: hp.slug || "",
+  }));
+
   const groupCategories = (groupsData || [])
     .filter((g) => !g.isHidden)
     .map((g) => ({ id: g.id, name: g.name, slug: g.slug || "" }));
@@ -144,6 +166,7 @@ export async function getPublicLayoutData() {
     categories: categories || [],
     brands: brands || [],
     brandsWithProducts,
+    hpPagesForCatalog,
     groupCategories: groupCategories || [],
     categoriesList: categoriesList || [],
     projectTypes,
