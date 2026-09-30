@@ -551,6 +551,41 @@ export async function ProductDetailModule({
                 })),
               }
             : {}),
+          // Both relatedProducts and capacitySiblings already render as real
+          // <a> links on this page (ProductGrid / CapacitySelector below) —
+          // Google follows those regardless — but neither was ever declared
+          // structurally, so a crawler reading ONLY this page's JSON-LD had
+          // no signal these exist. isSimilarTo: same product line, different
+          // HP/capacity (the precise, curated set the capacity switcher
+          // uses) — schema.org's fit for "directly comparable alternative,
+          // same family". isRelatedTo: the broader cross-sell set (same
+          // line -> same category -> same brand fallback chain, see
+          // getRelatedProducts) — schema.org's fit for "connected but not
+          // a direct swap". @id matches each sibling/related product's own
+          // detail-page @id so these resolve as the same graph entities,
+          // not floating duplicate stubs.
+          ...((product.capacitySiblings ?? []).length > 0
+            ? {
+                isSimilarTo: (product.capacitySiblings ?? [])
+                  .filter((cs) => !cs.isCurrent)
+                  .map((cs) => ({
+                    "@type": "Product",
+                    "@id": `${BASE_URL}/san-pham/${cs.slug}#product`,
+                    name: cs.name,
+                    url: `${BASE_URL}/san-pham/${cs.slug}`,
+                  })),
+              }
+            : {}),
+          ...(relatedProducts.length > 0
+            ? {
+                isRelatedTo: relatedProducts.map((rp) => ({
+                  "@type": "Product",
+                  "@id": `${BASE_URL}/san-pham/${rp.slug}#product`,
+                  name: rp.name,
+                  url: `${BASE_URL}/san-pham/${rp.slug}`,
+                })),
+              }
+            : {}),
           offers,
         };
 
