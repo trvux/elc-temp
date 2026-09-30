@@ -3,6 +3,8 @@ import { getCatalogPageAction, getProductsAction } from "@/modules/catalog/prese
 import { PRODUCT_STATUS } from "@/modules/catalog/domain";
 import { getCategoriesAction } from "@/modules/category/presentation/actions";
 import { getPersonalizedShippingZoneAction } from "@/modules/shipping-zone";
+import { getSystemPageBySlugAction } from "@/modules/system-page/presentation/actions";
+import { FAQAccordion, getFAQsAction } from "@/modules/faq";
 import {
   CategorySectionsGrid,
   type CategorySectionData,
@@ -16,7 +18,7 @@ import { ScrollToTop } from "@/shared/components/organisms/layout/user/scroll-to
 import { RecentlyViewedSection } from "@/shared/components/organisms/layout/user/recently-viewed-section";
 import { unwrapActionResult } from "@/shared/lib/action-result";
 import { excerptFromRichText } from "@/shared/lib/rich-text";
-import { BASE_URL, toJsonLdHtml } from "@/shared/lib/seo-schema";
+import { BASE_URL, SEOSchema, toJsonLdHtml } from "@/shared/lib/seo-schema";
 import { cn } from "@/shared/lib/utils";
 import {
   TypographyH1,
@@ -129,11 +131,20 @@ async function getCachedCategorySections(): Promise<CategorySectionData[]> {
 }
 
 export default async function ProductsPage() {
-  const [sections, { data: catalogPage }, { data: shippingZone }] = await Promise.all([
+  const [sections, { data: catalogPage }, { data: shippingZone }, { data: systemPage }] = await Promise.all([
     getCachedCategorySections(),
     getCatalogPageAction(),
     getPersonalizedShippingZoneAction(),
+    getSystemPageBySlugAction("san-pham"),
   ]);
+
+  // FAQ + FAQPage schema — same infra brand/group/category/hp_page pages
+  // already use (modules/faq, SEOSchema.getFAQPage), attached here via the
+  // "Trang sản phẩm" system_pages row rather than a brand/group/category/
+  // hp_page id, since this hub has no such id of its own.
+  const faqs = systemPage
+    ? await getFAQsAction("system_page", systemPage.id).then(unwrapActionResult)
+    : [];
 
   return (
     <main className={STYLES.main}>
@@ -162,6 +173,12 @@ export default async function ProductsPage() {
             <PreviewContent content={catalogPage.content} fallbackAlt="Tất cả sản phẩm" size="sm" className="typeset-hero" />
           </ProductDescription>
         ) : null}
+
+        {faqs.length > 0 && (
+          <section className="border-t border-dashed border-border/40 pt-6">
+            <FAQAccordion faqs={faqs} />
+          </section>
+        )}
 
         {/* Footer rights & Back to top */}
         <div className="w-full pt-8 border-t border-border/40 flex flex-col md:flex-row justify-between items-center gap-6 text-muted-foreground">
@@ -198,10 +215,20 @@ export default async function ProductsPage() {
         };
 
         return (
-          <script
-            type="application/ld+json"
-            dangerouslySetInnerHTML={{ __html: toJsonLdHtml(collectionPageSchema) }}
-          />
+          <>
+            <script
+              type="application/ld+json"
+              dangerouslySetInnerHTML={{ __html: toJsonLdHtml(collectionPageSchema) }}
+            />
+            {faqs.length > 0 && (
+              <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{
+                  __html: toJsonLdHtml({ "@context": "https://schema.org", ...SEOSchema.getFAQPage(faqs) }),
+                }}
+              />
+            )}
+          </>
         );
       })()}
     </main>
