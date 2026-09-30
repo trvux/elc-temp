@@ -385,11 +385,12 @@ async function getCachedListModuleData(entity: ResolvedEntity, sp: SearchParams)
     }
   }
 
-  // FAQ + FAQPage schema — brand/group/category, same infra product/service
-  // already use (modules/faq, SEOSchema.getFAQPage). All 3 only just became
-  // valid FAQ owner_types (elc-go migrations 2026-09-28, internal/faq).
+  // FAQ + FAQPage schema — brand/group/category/hp_page, same infra
+  // product/service already use (modules/faq, SEOSchema.getFAQPage).
+  // hp_page became a valid FAQ owner_type in elc-go migration 000004
+  // (2026-09-30), same day as the hasOfferCatalog hp_page branch.
   const faqs =
-    entity.type === "brand" || entity.type === "group" || entity.type === "category"
+    entity.type === "brand" || entity.type === "group" || entity.type === "category" || entity.type === "hp_page"
       ? await getFAQsAction(entity.type, entity.data.id).then(unwrapActionResult)
       : [];
 

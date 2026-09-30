@@ -11,7 +11,8 @@ export type FAQOwnerType =
   | "page"
   | "brand"
   | "group"
-  | "category";
+  | "category"
+  | "hp_page";
 
 export interface FAQ {
   id: string;
