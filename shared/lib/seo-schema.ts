@@ -123,27 +123,52 @@ export const SEOSchema = {
   // for the header nav (getPublicLayoutData) — no extra query, no
   // fabrication risk (nothing here is text a model could get wrong, it's
   // literally the same rows nav-mega-menu renders).
-  getOfferCatalog(groups?: CatalogGroupInput[], categories?: CatalogCategoryInput[]) {
+  //
+  // `brands` is a SEPARATE top-level branch (not nested under any group)
+  // since brand is a cross-cutting facet, not a child of one product line —
+  // caller MUST pre-filter this to brands with real published products
+  // (getPublicLayoutData's brandsWithProducts, derived from facets.brands'
+  // real count) — passing the raw brand list back in would repeat the exact
+  // "claims a brand ELC doesn't actually carry" bug found and fixed
+  // elsewhere this same audit (isFeatured does NOT track this reliably).
+  getOfferCatalog(groups?: CatalogGroupInput[], categories?: CatalogCategoryInput[], brands?: CatalogGroupInput[]) {
+    const groupBranches = (groups || []).map((g) => {
+      const childCategories = (categories || []).filter((c) => c.groupId === g.id);
+      return {
+        "@type": "OfferCatalog",
+        "name": g.name,
+        "url": `${BASE_URL}/san-pham/${g.slug}`,
+        ...(childCategories.length > 0
+          ? {
+              itemListElement: childCategories.map((c) => ({
+                "@type": "OfferCatalog",
+                "name": c.name,
+                "url": `${BASE_URL}/san-pham/${c.slug}`,
+              })),
+            }
+          : {}),
+      };
+    });
+
+    const brandBranch =
+      brands && brands.length > 0
+        ? [
+            {
+              "@type": "OfferCatalog",
+              "name": "Thương hiệu",
+              "itemListElement": brands.map((b) => ({
+                "@type": "OfferCatalog",
+                "name": b.name,
+                "url": `${BASE_URL}/san-pham/${b.slug}`,
+              })),
+            },
+          ]
+        : [];
+
     return {
       "@type": "OfferCatalog",
       "name": "Danh mục sản phẩm Điện máy ELC",
-      "itemListElement": (groups || []).map((g) => {
-        const childCategories = (categories || []).filter((c) => c.groupId === g.id);
-        return {
-          "@type": "OfferCatalog",
-          "name": g.name,
-          "url": `${BASE_URL}/san-pham/${g.slug}`,
-          ...(childCategories.length > 0
-            ? {
-                itemListElement: childCategories.map((c) => ({
-                  "@type": "OfferCatalog",
-                  "name": c.name,
-                  "url": `${BASE_URL}/san-pham/${c.slug}`,
-                })),
-              }
-            : {}),
-        };
-      }),
+      "itemListElement": [...groupBranches, ...brandBranch],
     };
   },
 
@@ -152,6 +177,7 @@ export const SEOSchema = {
     contacts?: Array<{ type: string; value: string; isActive: boolean }>,
     groups?: CatalogGroupInput[],
     categories?: CatalogCategoryInput[],
+    catalogBrands?: CatalogGroupInput[],
   ) {
     const sameAsLinks = this.getSameAs(contacts, branches);
 
@@ -233,7 +259,7 @@ export const SEOSchema = {
       "sameAs": sameAsLinks,
       "areaServed": companyBranchCoverage,
       ...(subOrganizations.length > 0 ? { "subOrganization": subOrganizations } : {}),
-      ...(groups && groups.length > 0 ? { "hasOfferCatalog": this.getOfferCatalog(groups, categories) } : {}),
+      ...(groups && groups.length > 0 ? { "hasOfferCatalog": this.getOfferCatalog(groups, categories, catalogBrands) } : {}),
     };
   },
 

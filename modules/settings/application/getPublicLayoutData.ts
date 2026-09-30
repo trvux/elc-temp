@@ -7,6 +7,8 @@ import { getGroupsAction } from "@/modules/group/presentation/actions";
 import { getCategoriesAction } from "@/modules/category/presentation/actions";
 import { getBrandsAction } from "@/modules/brand/presentation/actions";
 import { getProjectTypesAction } from "@/modules/project-type/presentation/actions";
+import { getProductsAction } from "@/modules/catalog/presentation/actions";
+import { PRODUCT_STATUS } from "@/modules/catalog/domain";
 
 export async function getPublicLayoutData() {
   const [
@@ -19,6 +21,7 @@ export async function getPublicLayoutData() {
     catsResult,
     brandsResult,
     projectTypesResult,
+    productFacetsResult,
   ] = await Promise.allSettled([
     getSiteSettingsAction(),
     getContactsAction(),
@@ -29,6 +32,12 @@ export async function getPublicLayoutData() {
     getCategoriesAction(),
     getBrandsAction(),
     getProjectTypesAction(),
+    // limit: 1 — only here for facets.brands (per-brand published-product
+    // counts, computed server-side in one query), not the products array
+    // itself. Lets hasOfferCatalog (below) list only brands that actually
+    // have something for sale, the same "0 products -> excluded" rule
+    // already applied to brand pages going noindex and to sitemap.
+    getProductsAction({ status: PRODUCT_STATUS.PUBLISHED, limit: 1 }),
   ]);
 
   const settingsData = settingsResult.status === "fulfilled" && !settingsResult.value.error
@@ -55,6 +64,10 @@ export async function getPublicLayoutData() {
   const brandsData = brandsResult.status === "fulfilled" && !brandsResult.value.error
     ? brandsResult.value.data
     : null;
+  const brandFacets = productFacetsResult.status === "fulfilled" && !productFacetsResult.value.error
+    ? productFacetsResult.value.facets.brands
+    : [];
+  const brandIdsWithProducts = new Set(brandFacets.filter((b) => b.count > 0).map((b) => b.id));
   const projectTypesData = projectTypesResult.status === "fulfilled" && !projectTypesResult.value.error
     ? projectTypesResult.value.data
     : null;
@@ -78,6 +91,15 @@ export async function getPublicLayoutData() {
       isFeatured: b.isFeatured ?? false,
       orderIndex: b.orderIndex ?? 0,
     }));
+
+  // Separate from `brands` above (which the header nav uses as-is) — this
+  // is specifically for hasOfferCatalog, where listing a brand with zero
+  // real products would repeat the exact "claims a brand ELC doesn't
+  // actually carry" bug found and fixed across meta_description/content
+  // this same audit. isFeatured does NOT reliably track this (checked:
+  // Panasonic/Mitsubishi/Hagisu are all isFeatured=true with 0 products) —
+  // only a real product count does.
+  const brandsWithProducts = brands.filter((b) => brandIdsWithProducts.has(b.id));
 
   const groupCategories = (groupsData || [])
     .filter((g) => !g.isHidden)
@@ -123,6 +145,7 @@ export async function getPublicLayoutData() {
     pages: pages || [],
     categories: categories || [],
     brands: brands || [],
+    brandsWithProducts,
     groupCategories: groupCategories || [],
     categoriesList: categoriesList || [],
     projectTypes,

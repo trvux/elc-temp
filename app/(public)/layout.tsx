@@ -36,6 +36,7 @@ export default async function PublicLayout({ children }: PublicLayoutProps) {
     pages,
     categories,
     brands,
+    brandsWithProducts,
     groupCategories,
     categoriesList,
     projectTypes,
@@ -61,7 +62,7 @@ export default async function PublicLayout({ children }: PublicLayoutProps) {
         dangerouslySetInnerHTML={{
           __html: toJsonLdHtml({
             "@context": "https://schema.org",
-            "@graph": [SEOSchema.getOrganization(branches, contacts, groupCategories, categoriesList), SEOSchema.getWebSite()],
+            "@graph": [SEOSchema.getOrganization(branches, contacts, groupCategories, categoriesList, brandsWithProducts), SEOSchema.getWebSite()],
           }),
         }}
       />
