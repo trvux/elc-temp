@@ -30,7 +30,7 @@ import {
   TypographySmall,
 } from "@/shared/components/ui/typography";
 import { primaryImageUrl } from "@/shared/lib/image-asset";
-import { AVAILABILITY_SCHEMA, BASE_URL, SEOSchema, toJsonLdHtml } from "@/shared/lib/seo-schema";
+import { AVAILABILITY_SCHEMA, BASE_URL, BRAND_SAME_AS, SEOSchema, toJsonLdHtml } from "@/shared/lib/seo-schema";
 import { FAQAccordion, getFAQsAction } from "@/modules/faq";
 import { cn } from "@/shared/lib/utils";
 import { notFound } from "next/navigation";
@@ -493,7 +493,13 @@ export async function ProductDetailModule({
           mpn: defaultVariant?.mpn || undefined,
           gtin: defaultVariant?.gtin || undefined,
           model: productLine?.name || undefined,
-          brand: product.brand?.name ? { "@type": "Brand", name: product.brand.name } : undefined,
+          brand: product.brand?.name
+            ? {
+                "@type": "Brand",
+                name: product.brand.name,
+                ...(BRAND_SAME_AS[product.brand.name] ? { sameAs: BRAND_SAME_AS[product.brand.name] } : {}),
+              }
+            : undefined,
           ...(additionalProperty.length > 0 ? { additionalProperty } : {}),
           // aggregateRating requires ratingCount >= 1 per Google's guidelines
           // — omit entirely rather than emit a hollow 0/0 for a product with

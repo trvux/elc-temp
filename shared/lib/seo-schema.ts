@@ -3,6 +3,19 @@ import { primaryImageUrl } from "./image-asset";
 
 export const BASE_URL = process.env.NEXT_PUBLIC_APP_URL || "https://dienmayelc.com.vn";
 
+// sameAs is pure entity disambiguation ("this Brand named X is the same
+// entity as the one described at this URL") — NOT an authorized-dealer or
+// distributor claim, schema.org has no property for that. Each URL is the
+// brand's own real official site (verified 2026-09-30), not a generic
+// mention of the brand — Google's own sameAs guidance is explicit that a
+// page merely mentioning the entity doesn't qualify.
+export const BRAND_SAME_AS: Record<string, string> = {
+  "Daikin": "https://www.daikin.com.vn/",
+  "LG": "https://www.lg.com/vn/",
+  "Menred": "https://www.menred.com/",
+  "Acis": "https://acis.com.vn/",
+};
+
 // Shared by ProductDetailModule's own Offer and ProductListModule's nested
 // per-item Offer (mã 8823-listing-schema) — one source of truth so the two
 // never drift on how a stock status string maps to a schema.org availability

@@ -28,7 +28,7 @@ import { RecentlyViewedSection } from "@/shared/components/organisms/layout/user
 import { ScrollToTop } from "@/shared/components/organisms/layout/user/scroll-to-top";
 import { TypographyH1, TypographyH3, TypographySmall } from "@/shared/components/ui/typography";
 import { unwrapActionResult } from "@/shared/lib/action-result";
-import { AVAILABILITY_SCHEMA, BASE_URL, SEOSchema, toJsonLdHtml } from "@/shared/lib/seo-schema";
+import { AVAILABILITY_SCHEMA, BASE_URL, BRAND_SAME_AS, SEOSchema, toJsonLdHtml } from "@/shared/lib/seo-schema";
 
 // No pagination/infinite-scroll — renders the full matching catalog for the
 // category/brand/group in one shot (small catalog, largest single category
@@ -641,7 +641,13 @@ export async function ProductListModule({
                   name: p.name,
                   url: itemUrl,
                   image: primaryImageUrl(p.images) || undefined,
-                  brand: p.brand?.name ? { "@type": "Brand", name: p.brand.name } : undefined,
+                  brand: p.brand?.name
+                    ? {
+                        "@type": "Brand",
+                        name: p.brand.name,
+                        ...(BRAND_SAME_AS[p.brand.name] ? { sameAs: BRAND_SAME_AS[p.brand.name] } : {}),
+                      }
+                    : undefined,
                   ...(price > 0
                     ? {
                         offers: {
