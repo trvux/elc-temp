@@ -635,9 +635,29 @@ export async function ProductListModule({
         // every one of its products via @id instead of re-embedding
         // {name, sameAs} per product. Cuts the brand/manufacturer share of
         // the payload without dropping a single item from the list.
-        const uniqueBrandNames = Array.from(
-          new Set(products.map((p) => p.brand?.name).filter((n): n is string => Boolean(n))),
-        );
+        // Group pages union every child category's products (up to 130+ for
+        // "Máy lạnh" across its 6 categories) — the full nested Product+
+        // Offer version below pushed that page well past Google's 2MB
+        // per-page indexing cutoff (confirmed live via GSC URL Inspection
+        // API 2026-10-01: zero Product/Merchant rich results detected,
+        // only Breadcrumbs survived, even after deduping brand nodes).
+        // Category pages don't have this problem (treo tường: 59 products,
+        // confirmed PASS under 2MB), so they keep the full version — which
+        // is also where Google's own guidance says Product/Offer belongs
+        // in the first place ("ItemList and BreadcrumbList schema belong
+        // on category pages; Product schema should stay on individual
+        // product pages"). Group pages fall back to the same lightweight
+        // {url, name} stub the /san-pham root hub already uses for its own
+        // ItemList — full price/return/shipping data stays reachable via
+        // the category pages themselves (which this group page already
+        // links to via its own quick-nav) and via each product's own page,
+        // not dropped, just not re-embedded a third time on a page too
+        // large for Google to read it anyway.
+        const isGroupAggregate = entity.type === "group";
+
+        const uniqueBrandNames = isGroupAggregate
+          ? []
+          : Array.from(new Set(products.map((p) => p.brand?.name).filter((n): n is string => Boolean(n))));
         const brandId = (name: string) => `${BASE_URL}/#brand-${name.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`;
         const brandNodes = uniqueBrandNames.map((name) => ({
           "@type": ["Brand", "Organization"],
@@ -660,6 +680,16 @@ export async function ProductListModule({
                 itemListElement: products.map((p, idx) => {
                   const itemUrl = `${BASE_URL}/san-pham/${p.slug}`;
                   const price = resolveProductDisplayPrice(p);
+
+                  if (isGroupAggregate) {
+                    return {
+                      "@type": "ListItem",
+                      position: idx + 1,
+                      url: itemUrl,
+                      name: p.name,
+                    };
+                  }
+
                   return {
                     "@type": "ListItem",
                     position: idx + 1,
