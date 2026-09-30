@@ -36,6 +36,21 @@ import { AVAILABILITY_SCHEMA, BASE_URL, BRAND_SAME_AS, SEOSchema, toJsonLdHtml }
 // ~59 products).
 const LIST_LIMIT = 1000;
 
+// group/brand pages can aggregate well beyond any single category's real
+// scale (the "Máy lạnh" group: 130 products across 6 categories; Daikin
+// brand: 134) — confirmed live via GSC URL Inspection API 2026-10-01 that
+// rendering every one of them as a full product card pushes total page
+// weight (not the JSON-LD, which is comparatively tiny) past Google's
+// documented 2MB per-page indexing cutoff, losing ALL structured data on
+// that page (only Breadcrumbs survives truncation). Categories never hit
+// this on their own (treo tường, the single biggest: 59 products, 1.48MB,
+// confirmed PASS) — this cap only kicks in for group/brand, and stays
+// close to that already-proven-safe scale. Nothing drops out of Google's
+// reach: group/brand pages already link to every real child category
+// (`childCategories` quick-nav below), which list their full products with
+// full schema, and sitemap.xml lists every product URL directly regardless.
+const PREVIEW_LIMIT = 48;
+
 type SearchParams = Record<string, string | string[] | undefined>;
 
 function firstParam(sp: SearchParams, key: string): string | undefined {
@@ -451,6 +466,16 @@ export async function ProductListModule({
   } = await getCachedListModuleData(entity, searchParams);
   const { data: shippingZone } = await getPersonalizedShippingZoneAction();
 
+  // See PREVIEW_LIMIT's own comment — only group/brand pages get bounded,
+  // and only when they actually exceed it (most brands/all categories
+  // never do). `products` (full, unbounded) stays the source for facets/
+  // childCategories/totalCount above; `displayProducts` is what actually
+  // renders as cards and goes into this page's own JSON-LD.
+  const displayProducts =
+    (entity.type === "group" || entity.type === "brand") && products.length > PREVIEW_LIMIT
+      ? products.slice(0, PREVIEW_LIMIT)
+      : products;
+
   // Hide the facet the page itself is already locked to — same reasoning
   // as showBrandFacet=false for brand pages, just for one attribute code
   // instead of the whole brand block.
@@ -570,8 +595,8 @@ export async function ProductListModule({
           </div>
         </div>
 
-        {products.length > 0 ? (
-          <ProductGrid products={products} shippingZone={shippingZone} />
+        {displayProducts.length > 0 ? (
+          <ProductGrid products={displayProducts} shippingZone={shippingZone} />
         ) : (
           <div className="py-24 text-center min-h-75 w-full">
             <p className="text-muted-foreground/60 italic text-sm">
@@ -620,44 +645,22 @@ export async function ProductListModule({
         // (no nested Product/Offer at all) shipped no such line for ELC.
         //
         // Every product repeated its brand's {name, sameAs} as two near-
-        // identical full objects (brand + manufacturer) inline. Fine at
-        // category scale (treo tường: 59 items, 19.8KB) but the "Máy lạnh"
-        // GROUP page unions every category's products (130 items, 113.8KB)
-        // — confirmed live via GSC URL Inspection API 2026-10-01 that this
-        // size makes Google's rich-result parser give up entirely (only
-        // BreadcrumbList detected, zero Product/Merchant listings) even
-        // though the JSON itself is valid. User explicitly wants every
-        // product kept (not truncated, unlike the /san-pham root hub's
-        // 24-per-section cap) — the fix is de-duplicating the *inline*
-        // repetition instead: each unique brand is declared ONCE as its own
-        // node (@type as an array — a node can honestly be both a Brand and
-        // an Organization, this catalog's brands are both), referenced by
-        // every one of its products via @id instead of re-embedding
-        // {name, sameAs} per product. Cuts the brand/manufacturer share of
-        // the payload without dropping a single item from the list.
-        // Group pages union every child category's products (up to 130+ for
-        // "Máy lạnh" across its 6 categories) — the full nested Product+
-        // Offer version below pushed that page well past Google's 2MB
-        // per-page indexing cutoff (confirmed live via GSC URL Inspection
-        // API 2026-10-01: zero Product/Merchant rich results detected,
-        // only Breadcrumbs survived, even after deduping brand nodes).
-        // Category pages don't have this problem (treo tường: 59 products,
-        // confirmed PASS under 2MB), so they keep the full version — which
-        // is also where Google's own guidance says Product/Offer belongs
-        // in the first place ("ItemList and BreadcrumbList schema belong
-        // on category pages; Product schema should stay on individual
-        // product pages"). Group pages fall back to the same lightweight
-        // {url, name} stub the /san-pham root hub already uses for its own
-        // ItemList — full price/return/shipping data stays reachable via
-        // the category pages themselves (which this group page already
-        // links to via its own quick-nav) and via each product's own page,
-        // not dropped, just not re-embedded a third time on a page too
-        // large for Google to read it anyway.
-        const isGroupAggregate = entity.type === "group";
-
-        const uniqueBrandNames = isGroupAggregate
-          ? []
-          : Array.from(new Set(products.map((p) => p.brand?.name).filter((n): n is string => Boolean(n))));
+        // identical full objects (brand + manufacturer) inline — deduped
+        // below (each unique brand declared once, referenced via @id).
+        //
+        // This block now always runs off `displayProducts` (bounded for
+        // group/brand, see PREVIEW_LIMIT), not the raw `products` array —
+        // the real fix for the 2MB truncation problem found 2026-10-01
+        // turned out to be total page weight from rendering 100+ full
+        // product cards, not the JSON-LD size (deduping brand nodes alone,
+        // tried first, cut the schema from 113.8KB to 107.6KB but the page
+        // was still ~2.7MB and still failed live). With the count bounded
+        // to a category-like scale, the full nested Product+Offer schema
+        // is safe again for every entity type — no more lightweight-stub
+        // special case needed.
+        const uniqueBrandNames = Array.from(
+          new Set(displayProducts.map((p) => p.brand?.name).filter((n): n is string => Boolean(n))),
+        );
         const brandId = (name: string) => `${BASE_URL}/#brand-${name.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`;
         const brandNodes = uniqueBrandNames.map((name) => ({
           "@type": ["Brand", "Organization"],
@@ -676,19 +679,15 @@ export async function ProductListModule({
               url: pageUrl,
               mainEntity: {
                 "@type": "ItemList",
+                // Real total even when itemListElement below only lists the
+                // bounded preview (group/brand) — a partial ItemList with
+                // an honest numberOfItems is standard practice for "this is
+                // a preview of a larger list", not a duplicate-position or
+                // duplicate-URL error the way a *wrong* count would be.
                 numberOfItems: totalCount,
-                itemListElement: products.map((p, idx) => {
+                itemListElement: displayProducts.map((p, idx) => {
                   const itemUrl = `${BASE_URL}/san-pham/${p.slug}`;
                   const price = resolveProductDisplayPrice(p);
-
-                  if (isGroupAggregate) {
-                    return {
-                      "@type": "ListItem",
-                      position: idx + 1,
-                      url: itemUrl,
-                      name: p.name,
-                    };
-                  }
 
                   return {
                     "@type": "ListItem",
