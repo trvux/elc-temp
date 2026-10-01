@@ -27,6 +27,7 @@ import {
 import { getGroupsAction } from "@/modules/group/presentation/actions";
 import { getCategoriesAction } from "@/modules/category/presentation/actions";
 import { getBrandsAction } from "@/modules/brand/presentation/actions";
+import { getAttributeDefinitionsAction } from "@/modules/attribute-definition/presentation/actions";
 import { resolveContentVariablesAction } from "@/shared/lib/content-variables-actions";
 import { formatContentVariableValue, type ContentVariableMetric } from "@/shared/lib/content-variables";
 import { cn } from "@/shared/lib/utils";
@@ -40,10 +41,17 @@ const METRIC_LABELS: Record<ContentVariableMetric, string> = {
 };
 
 const NO_BRAND = "__none__";
+const NO_ATTRIBUTE = "__none__";
 
 interface Option {
   slug: string;
   name: string;
+}
+
+interface AttributeOption {
+  code: string;
+  name: string;
+  values: string[];
 }
 
 export function TiptapContentVariableNodeView({ node, updateAttributes, deleteNode, selected }: NodeViewProps) {
@@ -51,12 +59,15 @@ export function TiptapContentVariableNodeView({ node, updateAttributes, deleteNo
   const [groups, setGroups] = useState<Option[]>([]);
   const [categories, setCategories] = useState<Option[]>([]);
   const [brands, setBrands] = useState<Option[]>([]);
+  const [attributes, setAttributes] = useState<AttributeOption[]>([]);
   const [loadingPreview, setLoadingPreview] = useState(false);
 
   const metric = (node.attrs.metric as ContentVariableMetric) || "count";
   const groupSlug = (node.attrs.groupSlug as string | null) || "";
   const categorySlug = (node.attrs.categorySlug as string | null) || "";
   const brandSlug = (node.attrs.brandSlug as string | null) || "";
+  const attributeCode = (node.attrs.attributeCode as string | null) || "";
+  const attributeValue = (node.attrs.attributeValue as string | null) || "";
   const fallbackText = (node.attrs.fallbackText as string | null) || "";
   const scopeType: "group" | "category" = categorySlug ? "category" : "group";
 
@@ -65,6 +76,15 @@ export function TiptapContentVariableNodeView({ node, updateAttributes, deleteNo
     getGroupsAction().then(({ data }) => setGroups((data ?? []).map((g) => ({ slug: g.slug, name: g.name }))));
     getCategoriesAction().then(({ data }) => setCategories((data ?? []).map((c) => ({ slug: c.slug, name: c.name }))));
     getBrandsAction().then(({ data }) => setBrands((data ?? []).map((b) => ({ slug: b.slug, name: b.name }))));
+    // select/multiselect only — boolean/number attributes aren't
+    // token-facetable the same way (see domain.ProductFilter.AttributeTokens).
+    getAttributeDefinitionsAction({ includeGlobal: true }).then(({ data }) =>
+      setAttributes(
+        (data ?? [])
+          .filter((a) => a.dataType === "select" || a.dataType === "multiselect")
+          .map((a) => ({ code: a.code, name: a.name, values: a.options })),
+      ),
+    );
   }, [open]);
 
   // Best-effort live preview of the current scope, saved as fallbackText —
@@ -77,6 +97,8 @@ export function TiptapContentVariableNodeView({ node, updateAttributes, deleteNo
     groupSlug: string;
     categorySlug: string;
     brandSlug: string;
+    attributeCode: string;
+    attributeValue: string;
   }) {
     if (!nextAttrs.groupSlug && !nextAttrs.categorySlug) return;
     setLoadingPreview(true);
@@ -89,6 +111,8 @@ export function TiptapContentVariableNodeView({ node, updateAttributes, deleteNo
             groupSlug: nextAttrs.groupSlug || undefined,
             categorySlug: nextAttrs.categorySlug || undefined,
             brandSlug: nextAttrs.brandSlug || undefined,
+            attributeCode: nextAttrs.attributeCode || undefined,
+            attributeValue: nextAttrs.attributeValue || undefined,
           },
         },
       ]);
@@ -99,14 +123,32 @@ export function TiptapContentVariableNodeView({ node, updateAttributes, deleteNo
     }
   }
 
-  function setAttrs(partial: Partial<{ metric: ContentVariableMetric; groupSlug: string; categorySlug: string; brandSlug: string }>) {
+  function setAttrs(
+    partial: Partial<{
+      metric: ContentVariableMetric;
+      groupSlug: string;
+      categorySlug: string;
+      brandSlug: string;
+      attributeCode: string;
+      attributeValue: string;
+    }>,
+  ) {
     const next = {
       metric,
       groupSlug,
       categorySlug,
       brandSlug,
+      attributeCode,
+      attributeValue,
       ...partial,
     };
+    // Attribute filter only applies to metric "count" — clear it when
+    // switching to any other metric so a stale attribute scope can't
+    // silently keep narrowing a priceMin/brandCount/categoryCount result.
+    if (next.metric !== "count") {
+      next.attributeCode = "";
+      next.attributeValue = "";
+    }
     updateAttributes(next);
     void refreshPreview(next);
   }
@@ -115,6 +157,7 @@ export function TiptapContentVariableNodeView({ node, updateAttributes, deleteNo
     ? categories.find((c) => c.slug === categorySlug)?.name || categorySlug
     : groups.find((g) => g.slug === groupSlug)?.name || groupSlug || "Chưa chọn phạm vi";
   const brandLabel = brandSlug ? brands.find((b) => b.slug === brandSlug)?.name || brandSlug : null;
+  const selectedAttribute = attributes.find((a) => a.code === attributeCode) || null;
 
   return (
     <NodeViewWrapper as="span" className="inline-block">
@@ -213,6 +256,43 @@ export function TiptapContentVariableNodeView({ node, updateAttributes, deleteNo
               </SelectContent>
             </Select>
           </div>
+
+          {metric === "count" && (
+            <div className="space-y-1.5 border-t pt-3">
+              <p className="text-xs text-muted-foreground">Lọc thêm theo thuộc tính (không bắt buộc)</p>
+              <Select
+                value={attributeCode || NO_ATTRIBUTE}
+                onValueChange={(v) => setAttrs({ attributeCode: v === NO_ATTRIBUTE ? "" : v, attributeValue: "" })}
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Không lọc">{selectedAttribute?.name ?? "Không lọc"}</SelectValue>
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value={NO_ATTRIBUTE}>Không lọc</SelectItem>
+                  {attributes.map((attr) => (
+                    <SelectItem key={attr.code} value={attr.code}>
+                      {attr.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+
+              {selectedAttribute && (
+                <Select value={attributeValue} onValueChange={(v) => setAttrs({ attributeValue: v })}>
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Chọn giá trị...">{attributeValue || "Chọn giá trị..."}</SelectValue>
+                  </SelectTrigger>
+                  <SelectContent>
+                    {selectedAttribute.values.map((v) => (
+                      <SelectItem key={v} value={v}>
+                        {v}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
+            </div>
+          )}
 
           <p className="text-xs text-muted-foreground">
             {loadingPreview ? "Đang tính số liệu..." : fallbackText ? `Hiện tại: ${fallbackText}` : "Chưa có số liệu"}

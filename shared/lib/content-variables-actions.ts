@@ -29,6 +29,8 @@ export async function resolveContentVariablesAction(
             groupSlug: req.filter.groupSlug ?? "",
             categorySlug: req.filter.categorySlug ?? "",
             brandSlug: req.filter.brandSlug ?? "",
+            attributeCode: req.filter.attributeCode ?? "",
+            attributeValue: req.filter.attributeValue ?? "",
           },
         })),
       }),

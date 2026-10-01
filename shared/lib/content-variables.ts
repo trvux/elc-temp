@@ -17,6 +17,8 @@ export interface ContentVariableFilter {
   groupSlug?: string;
   categorySlug?: string;
   brandSlug?: string;
+  attributeCode?: string;
+  attributeValue?: string;
 }
 
 export interface ContentVariableRequest {
@@ -56,6 +58,8 @@ export function collectContentVariables(doc: unknown): ContentVariableRequest[] 
           groupSlug: (attrs.groupSlug as string | null) || undefined,
           categorySlug: (attrs.categorySlug as string | null) || undefined,
           brandSlug: (attrs.brandSlug as string | null) || undefined,
+          attributeCode: (attrs.attributeCode as string | null) || undefined,
+          attributeValue: (attrs.attributeValue as string | null) || undefined,
         },
       });
     }

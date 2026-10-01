@@ -46,6 +46,11 @@ export const ContentVariable = Node.create({
       groupSlug: { default: null, rendered: false },
       categorySlug: { default: null, rendered: false },
       brandSlug: { default: null, rendered: false },
+      // Only meaningful with metric "count" — narrows to products whose
+      // select/multiselect/boolean attribute (e.g. "xuat_xu") equals this
+      // value (e.g. "Thái Lan"). Both set together or both left empty.
+      attributeCode: { default: null, rendered: false },
+      attributeValue: { default: null, rendered: false },
       // Whatever the value was the moment this node was last inserted/
       // edited — shown if resolution fails (API down, slug no longer
       // exists) instead of rendering blank.
@@ -78,6 +83,8 @@ export const ContentVariable = Node.create({
         "data-group-slug": node.attrs.groupSlug || undefined,
         "data-category-slug": node.attrs.categorySlug || undefined,
         "data-brand-slug": node.attrs.brandSlug || undefined,
+        "data-attribute-code": node.attrs.attributeCode || undefined,
+        "data-attribute-value": node.attrs.attributeValue || undefined,
       }),
       text,
     ];
