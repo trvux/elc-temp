@@ -16,40 +16,10 @@ import { getSiteSettingsAction } from "@/modules/settings/presentation/actions";
 import { unwrapActionResult } from "@/shared/lib/action-result";
 import { BASE_URL } from "@/shared/lib/seo-schema";
 
-// Homepage used to only set canonical here and inherit title/description
-// straight from app/layout.tsx's site-wide default — "Mua Bán, Thi Công,
-// Dịch Vụ Máy Lạnh & Khí Tươi | Điện Máy ELC". That string is near-identical
-// to /san-pham's own title ("Máy lạnh, hệ thống khí tươi, máy lọc nước
-// chính hãng..."), so Google saw two pages both claiming the same "máy
-// lạnh / khí tươi / lọc nước" topic. Confirmed via GSC cannibalization
-// audit (seo-audit/data/cannibalization_audit_2026-09-21.md): for broad
-// product queries ("máy lạnh", "vệ sinh máy lạnh"...) Google picked the
-// homepage as the "default answer" over /san-pham for ~90% of affected
-// impressions, at a much worse position — classic symptom of two pages
-// with duplicate title/description signals, where the higher-authority
-// one (homepage) wins by default instead of the actually-relevant one.
-// /dich-vu and /du-an don't have this problem because each already
-// declares its own distinct, keyword-specific metadata instead of
-// inheriting the root layout's. This gives the homepage the same
-// treatment: brand/positioning-led (matches the real on-page H1 below,
-// "Đối Tác Điện Lạnh Trọn Gói"), deliberately NOT repeating the
-// "máy lạnh / khí tươi / lọc nước" keyword triad so /san-pham (and
-// /dich-vu, /du-an) keep sole ownership of their own commercial keywords.
+// Every other page in the app sets its own alternates.canonical — the
+// homepage was the one exception (root layout.tsx's metadata has none),
+// so it had no canonical tag at all.
 export const metadata: Metadata = {
-  title: "Điện Máy ELC - Đối Tác Điện Lạnh Trọn Gói Tại Việt Nam",
-  description:
-    "Điện Máy ELC là đối tác điện lạnh trọn gói: phân phối sản phẩm chính hãng, thi công công trình A-Z và dịch vụ bảo trì chuyên nghiệp cho khách hàng dân dụng & doanh nghiệp.",
-  openGraph: {
-    title: "Điện Máy ELC - Đối Tác Điện Lạnh Trọn Gói Tại Việt Nam",
-    description:
-      "Điện Máy ELC là đối tác điện lạnh trọn gói: phân phối sản phẩm chính hãng, thi công công trình A-Z và dịch vụ bảo trì chuyên nghiệp cho khách hàng dân dụng & doanh nghiệp.",
-    url: BASE_URL,
-  },
-  twitter: {
-    title: "Điện Máy ELC - Đối Tác Điện Lạnh Trọn Gói Tại Việt Nam",
-    description:
-      "Điện Máy ELC là đối tác điện lạnh trọn gói: phân phối sản phẩm chính hãng, thi công công trình A-Z và dịch vụ bảo trì chuyên nghiệp cho khách hàng dân dụng & doanh nghiệp.",
-  },
   alternates: { canonical: BASE_URL },
 };
 
