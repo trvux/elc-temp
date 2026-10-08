@@ -1,6 +1,6 @@
 import { cookies } from "next/headers";
 
-import { authHeaders, toSnakeCaseBody } from "@/shared/lib/go-api";
+import { authHeaders, clientIpHeaders, toSnakeCaseBody } from "@/shared/lib/go-api";
 import {
   ACCESS_TOKEN_COOKIE,
   REFRESH_TOKEN_COOKIE,
@@ -90,7 +90,7 @@ class GoAuthRepository implements AuthRepository {
     try {
       const res = await fetch(`${GO_API_URL}/auth/google/login`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", ...(await clientIpHeaders()) },
         body: JSON.stringify(toSnakeCaseBody({ code })),
         signal: AbortSignal.timeout(GO_API_TIMEOUT_MS),
       });
@@ -114,7 +114,7 @@ class GoAuthRepository implements AuthRepository {
     try {
       const res = await fetch(`${GO_API_URL}/auth/magic-link`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", ...(await clientIpHeaders()) },
         body: JSON.stringify(toSnakeCaseBody(input)),
         signal: AbortSignal.timeout(GO_API_TIMEOUT_MS),
       });

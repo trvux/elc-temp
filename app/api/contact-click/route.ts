@@ -1,6 +1,6 @@
 import { cookies } from "next/headers";
 import type { NextRequest } from "next/server";
-import { toSnakeCaseBody } from "@/shared/lib/go-api";
+import { clientIpHeaders, toSnakeCaseBody } from "@/shared/lib/go-api";
 import { readAttribution, readGAClientID } from "@/shared/lib/attribution";
 import { reverseGeocode } from "@/shared/lib/geocode";
 
@@ -64,7 +64,7 @@ export async function POST(request: NextRequest) {
   try {
     await fetch(`${GO_API_URL}/inquiries/clicks`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: { "Content-Type": "application/json", ...(await clientIpHeaders()) },
       body: JSON.stringify(payload),
     });
   } catch (error) {

@@ -1,7 +1,7 @@
 "use server";
 
 import { cookies } from "next/headers";
-import { toSnakeCaseBody } from "@/shared/lib/go-api";
+import { clientIpHeaders, toSnakeCaseBody } from "@/shared/lib/go-api";
 import { CreateEventInput, EntityType } from "../domain";
 
 const GO_API_URL = process.env.GO_API_URL;
@@ -37,7 +37,7 @@ export async function logEventAction(input: CreateEventInput): Promise<void> {
     const sessionId = await getOrCreateSessionId();
     await fetch(`${GO_API_URL}/events`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: { "Content-Type": "application/json", ...(await clientIpHeaders()) },
       body: JSON.stringify(toSnakeCaseBody({ ...input, sessionId })),
     });
   } catch (error) {

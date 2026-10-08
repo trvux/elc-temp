@@ -1,7 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { authHeaders, toSnakeCaseBody } from "@/shared/lib/go-api";
+import { authHeaders, clientIpHeaders, toSnakeCaseBody } from "@/shared/lib/go-api";
 import { readAttribution, readGAClientID } from "@/shared/lib/attribution";
 import { reverseGeocode } from "@/shared/lib/geocode";
 import { logEventAction } from "@/modules/event";
@@ -136,7 +136,7 @@ export async function createInquiryAction(
 
     const res = await fetch(`${GO_API_URL}/inquiries`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: { "Content-Type": "application/json", ...(await clientIpHeaders()) },
       body: JSON.stringify(toSnakeCaseBody(payload)),
     });
     if (!res.ok) {
@@ -180,6 +180,7 @@ export async function uploadInquiryAttachmentAction(
   try {
     const res = await fetch(`${GO_API_URL}/inquiries/uploads`, {
       method: "POST",
+      headers: await clientIpHeaders(),
       body: formData,
     });
     if (!res.ok) {

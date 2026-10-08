@@ -1,4 +1,5 @@
-import { cookies } from "next/headers";
+import { isIP } from "node:net";
+import { cookies, headers } from "next/headers";
 
 import { ACCESS_TOKEN_COOKIE } from "@/shared/lib/auth/cookies";
 
@@ -31,6 +32,29 @@ export function toSnakeCaseBody<T extends object>(input: T): Record<string, unkn
 export async function authHeaders(): Promise<Record<string, string>> {
   const token = (await cookies()).get(ACCESS_TOKEN_COOKIE)?.value;
   return token ? { Authorization: `Bearer ${token}` } : {};
+}
+
+/**
+ * The visitor's real IP, for Go's per-IP rate limits and the source_ip stored
+ * on inquiries/reviews. nginx resolves it (Cloudflare's CF-Connecting-IP,
+ * trusted only from Cloudflare's ranges) and OVERWRITES X-Forwarded-For with
+ * that single address; this relays it on server-side calls to Go. Without it
+ * every visitor looked like the Docker gateway to Go — one shared rate-limit
+ * bucket for everyone (elc-go docs/rfc/2026-10-08-vps-observability-hardening.md, G7).
+ *
+ * Only a value that parses as an IP is forwarded. Returns {} outside a request
+ * scope (build time, tests) and when nginx didn't set the header (local dev),
+ * in which case Go falls back to the connecting peer, as before. Spread into
+ * the headers of any call to a Go endpoint that rate-limits by IP.
+ */
+export async function clientIpHeaders(): Promise<Record<string, string>> {
+  try {
+    const raw = (await headers()).get("x-forwarded-for");
+    const last = raw?.split(",").pop()?.trim() ?? "";
+    return isIP(last) ? { "X-Forwarded-For": last } : {};
+  } catch {
+    return {};
+  }
 }
 
 export interface SlugRegistryEntry {

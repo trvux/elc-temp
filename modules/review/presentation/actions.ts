@@ -1,6 +1,6 @@
 "use server";
 
-import { authHeaders } from "@/shared/lib/go-api";
+import { authHeaders, clientIpHeaders } from "@/shared/lib/go-api";
 import { AdminReview, AdminReviewFilter, CreateReviewInput, Review, ReviewAggregate, ReviewEntityType } from "../domain";
 
 const GO_API_URL = process.env.GO_API_URL;
@@ -108,7 +108,7 @@ export async function createReviewAction(input: CreateReviewInput) {
   try {
     const res = await fetch(`${GO_API_URL}/reviews/${input.entityType}/${encodeURIComponent(input.entityId)}`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: { "Content-Type": "application/json", ...(await clientIpHeaders()) },
       body: JSON.stringify({
         rating: input.rating,
         reviewer_name: input.reviewerName,
