@@ -20,6 +20,7 @@ const routeLabels: Record<string, string> = {
   "/admin/branches": "Chi nhánh",
   "/admin/settings": "Cài đặt",
   "/admin/account": "Tài khoản của tôi",
+  "/admin/metrics": "Tình trạng hệ thống",
 };
 
 export default function AdminBreadcrumb() {

@@ -29,7 +29,7 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/shared/components/ui/sidebar";
-import { Medal, CaretUpDown, FileText, Kanban, Gauge, SignOut, MapPin, Package, Phone, ChatCircleText, Gear, ShieldCheck, GridFour, List, Stack, Briefcase, SquaresFour, Newspaper, Globe, UsersThree, MagnifyingGlass, PenNib, TagSimple, UserCircle, Sliders, Notepad, Star, Truck, Fan } from "@phosphor-icons/react";
+import { Medal, CaretUpDown, FileText, Kanban, Gauge, SignOut, MapPin, Package, Phone, ChatCircleText, Gear, ShieldCheck, GridFour, List, Stack, Briefcase, SquaresFour, Newspaper, Globe, UsersThree, MagnifyingGlass, PenNib, TagSimple, UserCircle, Sliders, Notepad, Star, Truck, Fan, Heartbeat } from "@phosphor-icons/react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
@@ -99,6 +99,10 @@ const navGroups: { label: string; items: NavItemDef[] }[] = [
 // hiding the link avoids a dead-end click for them. Lives in "Hệ thống"
 // alongside the other admin-facing config screens.
 const usersNavItem: NavItemDef = { href: "/admin/users", label: "Quản lý người dùng", icon: UsersThree };
+
+// Same audience as the users link above (the page itself redirects "user"
+// accounts away; this just avoids a dead-end click).
+const metricsNavItem: NavItemDef = { href: "/admin/metrics", label: "Tình trạng hệ thống", icon: Heartbeat };
 
 function NavItemRow({
   item,
@@ -226,7 +230,7 @@ export default function AdminSidebar({ user }: { user: UserInfo }) {
       ? navGroups
       : navGroups.map((group, index) =>
           index === navGroups.length - 1
-            ? { ...group, items: [...group.items, usersNavItem] }
+            ? { ...group, items: [...group.items, usersNavItem, metricsNavItem] }
             : group,
         );
 
