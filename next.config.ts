@@ -57,7 +57,19 @@ const nextConfig: NextConfig = {
     root: __dirname,
   },
   async redirects() {
+    // NOTE: production nginx answers 410 for any URL that is not live, BEFORE Next sees it, so a
+    // redirect added here only works once it is also in nginx's static redirect map:
+    //   python3 scripts/nginx-live/redirects.py deploy/nginx/elc-live.conf.json <gsc pages_all.csv> deploy/nginx/elc-redirects.conf
+    // then scp it to the VPS and run deploy/nginx/install.sh (see docs/rfc-crawl-budget-410-allowlist.md).
     return [
+      // 2026-10-10: "thanh lý" and "thu cũ đổi mới" are one intent (both empty
+      // template pages) - merged into the trade-in page. Also in nginx's static
+      // map (scripts/nginx-live/redirects.py).
+      {
+        source: "/dich-vu/thanh-ly-cac-dong-may-lanh",
+        destination: "/dich-vu/thu-cu-doi-moi-cac-dong-may-lanh",
+        permanent: true,
+      },
       {
         source: "/co-so-ha-tang",
         destination: "/thong-tin#branches-section",
