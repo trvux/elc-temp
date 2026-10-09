@@ -57,6 +57,10 @@ const nextConfig: NextConfig = {
     root: __dirname,
   },
   async redirects() {
+    // NOTE: production nginx answers 410 for any URL that is not live, BEFORE Next sees it, so a
+    // redirect added here only works once it is also in nginx's static redirect map:
+    //   python3 scripts/nginx-live/redirects.py deploy/nginx/elc-live.conf.json <gsc pages_all.csv> deploy/nginx/elc-redirects.conf
+    // then scp it to the VPS and run deploy/nginx/install.sh (see docs/rfc-crawl-budget-410-allowlist.md).
     return [
       {
         source: "/co-so-ha-tang",
