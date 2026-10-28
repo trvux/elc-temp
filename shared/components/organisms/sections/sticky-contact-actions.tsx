@@ -8,22 +8,24 @@ import { useProductFloating } from "@/shared/providers/product-floating-provider
 import { cn } from "@/shared/lib/utils";
 import { AnimatePresence, m, Variants } from "motion/react";
 import {
-  IconBrandFacebook,
-  IconBrandMessenger,
+  IconBrandFacebookFilled,
+  IconBrandMessengerFilled,
   IconLetterZ,
-  IconPhone,
+  IconPhoneFilled,
   IconPlus,
 } from "@tabler/icons-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 
-// Cả bộ icon FAB cùng một họ (Tabler outline), cùng cỡ + cùng nét để đều nhau.
+// Cả bộ icon FAB cùng họ Tabler, cùng cỡ. Phone/Messenger/Facebook dùng bản
+// Filled; chữ Z và dấu "+" là glyph nét (không có bản fill) nên dùng nét dày
+// ICON_STROKE cho độ đậm ngang các icon đặc.
 const ICON_SIZE = 24;
-const ICON_STROKE = 2;
+const ICON_STROKE = 3;
 const CHANNEL: Record<string, { label: string; icon: React.ElementType }> = {
-  phone: { label: "Gọi ngay", icon: IconPhone },
+  phone: { label: "Gọi ngay", icon: IconPhoneFilled },
   zalo: { label: "Nhắn Zalo", icon: IconLetterZ },
-  messenger: { label: "Nhắn Messenger", icon: IconBrandMessenger },
-  facebook: { label: "Facebook", icon: IconBrandFacebook },
+  messenger: { label: "Nhắn Messenger", icon: IconBrandMessengerFilled },
+  facebook: { label: "Facebook", icon: IconBrandFacebookFilled },
 };
 
 // Nền đen (token primary) dùng chung cho nút "+" và 4 nút kênh.
