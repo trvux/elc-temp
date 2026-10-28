@@ -49,7 +49,7 @@ export function ServiceGroupModule({ group, services }: ServiceGroupModuleProps)
           <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
             {services.map((service) => (
               <li key={service.id} className="flex flex-col">
-                <CardService {...mapServiceToCardData(service)} headingAs="h2" />
+                <CardService {...mapServiceToCardData(service)} />
               </li>
             ))}
           </ul>
