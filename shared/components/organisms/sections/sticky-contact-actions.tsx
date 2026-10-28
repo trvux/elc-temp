@@ -81,15 +81,16 @@ export function StickyContactActions({ contacts }: StickyContactActionsProps) {
               <Button
                 key={contact.id}
                 asChild
-                variant={contact.type === "zalo" ? "default" : "ghost"}
+                variant="default"
                 size="icon"
                 className={cn(
-                  "size-12 sm:size-14 p-0 rounded-full transition-all active:scale-95",
-                  // #242424/#f5efe6 + shadow nhiều lớp = mô phỏng đúng nút Zalo OA
-                  // chính thức, cố ý không dùng token app (xem docs/design-system.md §4)
+                  "size-12 sm:size-14 p-0 rounded-full border-none text-white transition-all active:scale-95 shadow-lg",
+                  // Xanh Zalo (#0068ff) + xanh lá "gọi điện" (#16a34a, green-600 để
+                  // icon trắng đạt tương phản ≥3:1) = màu nhận diện kênh liên hệ,
+                  // cố ý không dùng token app (xem docs/design-system.md §4)
                   contact.type === "zalo"
-                    ? "bg-[#242424] text-[#f5efe6] hover:bg-[#242424]/90 shadow-[0_0.84px_0.84px_-0.31px_rgba(36,36,36,0.15),0_1.99px_1.99px_-0.625px_rgba(36,36,36,0.15),0_3.63px_3.63px_-0.9375px_rgba(36,36,36,0.15),0_6.04px_6.04px_-1.25px_rgba(36,36,36,0.15),0_9.75px_9.75px_-1.56px_rgba(36,36,36,0.15),0_15.96px_15.96px_-1.875px_rgba(36,36,36,0.15),0_27.48px_27.48px_-2.19px_rgba(36,36,36,0.15),0_50px_50px_-2.5px_rgba(36,36,36,0.15)] border-none"
-                    : "bg-background/95 backdrop-blur-md border border-border/55 shadow-2xl hover:bg-background",
+                    ? "bg-[#0068ff] hover:bg-[#0068ff]/90"
+                    : "bg-[#16a34a] hover:bg-[#16a34a]/90",
                 )}
               >
                 <ContactLink
@@ -103,10 +104,7 @@ export function StickyContactActions({ contacts }: StickyContactActionsProps) {
                     } as React.ComponentProps<typeof ContactLink>["iconProps"]
                   }
                   showLabel={false}
-                  iconClassName={cn(
-                    "flex items-center justify-center shrink-0",
-                    contact.type === "zalo" ? "text-[#f5efe6]" : "",
-                  )}
+                  iconClassName="flex items-center justify-center shrink-0 text-white"
                 />
               </Button>
             ))}
