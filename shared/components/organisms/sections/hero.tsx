@@ -32,13 +32,11 @@ const NOISE_BG_IMAGE = `url("data:image/svg+xml,${encodeURIComponent(NOISE_SVG)}
 export function HeroSection({ brands = [] }: HeroSectionProps) {
   return (
     <section
-      // -mt cancels the (public) layout's fixed-header clearance so this
-      // full-bleed section reaches the very top, matching the reference:
-      // the header sits transparently over the hero, not above it. Content
-      // is top-anchored (pt-*, items-start) rather than true-centered so it
-      // sits in the clear sky area of the bg photo instead of getting
+      // The header is sticky and in flow, so the hero starts right below it.
+      // Content is top-anchored (pt-*, items-start) rather than true-centered
+      // so it sits in the clear sky area of the bg photo instead of getting
       // covered by the clouds lower down.
-      className="relative -mt-16 flex h-screen min-h-163 w-full items-start justify-center overflow-hidden bg-[#173b84] pt-28 sm:pt-32 lg:pt-40"
+      className="relative flex h-screen min-h-163 w-full items-start justify-center overflow-hidden bg-[#173b84] pt-28 sm:pt-32 lg:pt-40"
     >
       <Image
         src={heroBg}

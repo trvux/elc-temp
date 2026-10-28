@@ -40,6 +40,7 @@ export default async function PublicLayout({ children }: PublicLayoutProps) {
     groupCategories,
     categoriesList,
     projectTypes,
+    services,
     currentYear,
     hpPagesForCatalog,
   } = await getPublicLayoutData();
@@ -112,15 +113,13 @@ export default async function PublicLayout({ children }: PublicLayoutProps) {
       <div className="flex flex-col min-h-screen">
         <ChunkErrorListener />
         <Header
-          contacts={contacts}
           groupCategories={groupCategories}
           categoriesList={categoriesList}
           brands={brands}
+          services={services}
+          projectTypes={projectTypes}
         />
-        {/* pt clears the fixed header (h-16); pages with a full-bleed hero
-            cancel it with -mt-16 on their own root section so the header
-            can sit transparently over them. */}
-        <div className="flex-1 pt-16">{children}</div>
+        <div className="flex-1">{children}</div>
         <Footer
           branches={branches}
           projects={projects}

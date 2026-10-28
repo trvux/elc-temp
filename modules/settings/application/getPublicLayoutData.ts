@@ -9,6 +9,8 @@ import { getBrandsAction } from "@/modules/brand/presentation/actions";
 import { getProjectTypesAction } from "@/modules/project-type/presentation/actions";
 import { getProductsAction } from "@/modules/catalog/presentation/actions";
 import { PRODUCT_STATUS } from "@/modules/catalog/domain";
+import { getServicesAction } from "@/modules/service/presentation/actions";
+import { getServiceGroupsAction } from "@/modules/service-group/presentation/actions";
 import { getHpPagesAction } from "@/modules/hp-page/presentation/actions";
 
 export async function getPublicLayoutData() {
@@ -24,6 +26,8 @@ export async function getPublicLayoutData() {
     projectTypesResult,
     productFacetsResult,
     hpPagesResult,
+    servicesResult,
+    serviceGroupsResult,
   ] = await Promise.allSettled([
     getSiteSettingsAction(),
     getContactsAction(),
@@ -45,6 +49,8 @@ export async function getPublicLayoutData() {
     // — the dead 6HP/10HP hp_pages from earlier this session are already
     // gone at this layer, no extra per-page product-count check needed.
     getHpPagesAction(),
+    getServicesAction({ isPublished: true }),
+    getServiceGroupsAction(),
   ]);
 
   const settingsData = settingsResult.status === "fulfilled" && !settingsResult.value.error
@@ -137,6 +143,29 @@ export async function getPublicLayoutData() {
       imageUrl: c.imageUrl,
     }));
 
+  const servicesData = servicesResult.status === "fulfilled" && !servicesResult.value.error
+    ? servicesResult.value.data
+    : null;
+  const serviceGroupsData = serviceGroupsResult.status === "fulfilled" && !serviceGroupsResult.value.error
+    ? serviceGroupsResult.value.data
+    : null;
+  // One nav entry per service group (short name, like apple.com's flyouts).
+  // A group with a single published service links straight to it; a group
+  // with several links to its own landing page (/dich-vu/{group.slug}, see
+  // getServiceGroupPageAction). Groups with no published service are dropped.
+  const services = (serviceGroupsData || [])
+    .slice()
+    .sort((a, b) => a.orderIndex - b.orderIndex)
+    .flatMap((g) => {
+      const inGroup = (servicesData || []).filter((s) => s.groupId === g.id);
+      if (inGroup.length === 0) return [];
+      return [{
+        id: g.id,
+        name: g.name.replace(/\s+/g, " ").trim(),
+        href: inGroup.length === 1 ? `/dich-vu/${inGroup[0].slug}` : `/dich-vu/${g.slug}`,
+      }];
+    });
+
   const settings: Record<string, string> = {};
   settingsData?.forEach((item) => {
     settings[item.key] = item.value || "";
@@ -170,6 +199,7 @@ export async function getPublicLayoutData() {
     groupCategories: groupCategories || [],
     categoriesList: categoriesList || [],
     projectTypes,
+    services,
     currentYear: new Date().getFullYear(),
   };
 }

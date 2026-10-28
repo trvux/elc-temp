@@ -344,7 +344,7 @@ export async function ProjectListModule({
         <div className={cn(STYLES.sectionContainer, "py-6 md:py-8 lg:py-10")}>
         <div className="flex flex-col lg:flex-row gap-12">
           {/* Desktop filter sidebar */}
-          <aside className="hidden lg:block w-64 shrink-0 sticky top-28 self-start">
+          <aside className="hidden lg:block w-64 shrink-0 sticky top-[calc(var(--header-height)+1.5rem)] self-start">
             <Suspense fallback={null}>
               <ProjectFilters
                 projectTypes={projectTypeItems}

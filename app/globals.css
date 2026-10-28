@@ -455,6 +455,17 @@
   --sidebar-ring: oklch(0.556 0 0);
 }
 
+/* Height of the sticky site header (shared/components/organisms/layout/user/header):
+   h-12 on mobile, h-11 from 834px — keep in sync with it. */
+:root {
+  --header-height: 3rem;
+}
+@media (min-width: 834px) {
+  :root {
+    --header-height: 2.75rem;
+  }
+}
+
 /* Sticky sidebar on public product page */
 .public-catalog-page [data-slot=sidebar] {
   position: sticky !important;
@@ -467,4 +478,24 @@
 [data-slot=sidebar][data-mobile=true] {
   top: var(--header-height, 64px) !important;
   height: calc(100dvh - var(--header-height, 64px)) !important;
+}
+
+/* Header flyout items (see header/desktop-menu.tsx). Timings follow
+   apple.com's globalheader: 4px up + transparent, .32s, delay = item * 20ms
+   + (column + 1) * 80ms; closing has no delay. */
+@utility flyout-item {
+  transition:
+    opacity 0.32s cubic-bezier(0.4, 0, 0.6, 1),
+    translate 0.32s cubic-bezier(0.4, 0, 0.6, 1);
+  transition-delay: calc(var(--i) * 20ms + (var(--g) + 1) * 80ms);
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
+  }
+  :is([data-starting-style], [data-ending-style]) & {
+    opacity: 0;
+    translate: 0 -4px;
+  }
+  [data-ending-style] & {
+    transition-delay: 0s;
+  }
 }

@@ -373,3 +373,17 @@ export async function deleteServiceAction(id: string) {
     };
   }
 }
+
+// A service group has its own page (/dich-vu/{group.slug}) only when it
+// lists 2+ published services — with a single service the page would just
+// duplicate that service's own page, so such groups return null (404).
+export async function getServiceGroupPageAction(slug: string) {
+  const [servicesResult, groupsResult] = await Promise.all([
+    getServicesAction({ isPublished: true }),
+    getServiceGroupsAction(),
+  ]);
+  const group = unwrapActionResult(groupsResult).find((g) => g.slug === slug);
+  if (!group) return null;
+  const services = unwrapActionResult(servicesResult).filter((s) => s.groupId === group.id);
+  return services.length >= 2 ? { group, services } : null;
+}
