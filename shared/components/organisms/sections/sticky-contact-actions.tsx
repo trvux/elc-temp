@@ -95,7 +95,7 @@ export function StickyContactActions({ contacts }: StickyContactActionsProps) {
                 <ContactLink
                   contact={contact}
                   aria-label={contact.type === "phone" ? "Gọi ngay" : "Nhắn Zalo"}
-                  className="size-full justify-center gap-0"
+                  className="justify-center gap-0"
                   iconProps={
                     {
                       size: contact.type === "zalo" ? 22 : 24,
