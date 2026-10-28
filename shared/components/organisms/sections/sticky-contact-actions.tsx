@@ -126,9 +126,19 @@ export function StickyContactActions({ contacts }: StickyContactActionsProps) {
                       opacity: 1,
                       y: 0,
                       scale: 1,
-                      transition: { delay: i * 0.05, duration: 0.25 },
+                      // Nút sát "+" (cuối mảng) bung trước, rồi lần lượt đẩy lên trên.
+                      transition: {
+                        delay: (displayContacts.length - 1 - i) * 0.05,
+                        duration: 0.25,
+                      },
                     }}
-                    exit={{ opacity: 0, y: 12, scale: 0.8, transition: { duration: 0.15 } }}
+                    // Đóng thì ngược lại: nút trên cùng biến mất trước, nút sát "+" cuối cùng.
+                    exit={{
+                      opacity: 0,
+                      y: 12,
+                      scale: 0.8,
+                      transition: { delay: i * 0.03, duration: 0.15 },
+                    }}
                   >
                     <Button
                       asChild
