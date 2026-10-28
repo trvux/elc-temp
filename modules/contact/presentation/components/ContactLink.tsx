@@ -22,8 +22,6 @@ const TRACKABLE_CHANNEL: Partial<Record<string, ContactChannel>> = {
 interface ContactLinkProps extends React.AnchorHTMLAttributes<HTMLAnchorElement> {
   contact: Contact;
   iconProps?: IconProps;
-  icon?: React.ElementType;
-  iconStroke?: number;
   showLabel?: boolean;
   showValue?: boolean;
   iconClassName?: string;
@@ -36,8 +34,6 @@ export const ContactLink = React.forwardRef<HTMLAnchorElement, ContactLinkProps>
     {
       contact,
       iconProps = { size: 14, weight: "regular" },
-      icon,
-      iconStroke,
       showLabel = true,
       showValue = false,
       className,
@@ -72,8 +68,6 @@ export const ContactLink = React.forwardRef<HTMLAnchorElement, ContactLinkProps>
       >
         <ContactIcon
           type={contact.type}
-          icon={icon}
-          stroke={iconStroke?.toString()}
           className={iconClassName}
           {...iconProps}
         />

@@ -34,22 +34,19 @@ export const getContactIcon = (type: string) => {
 
 interface ContactIconProps extends IconProps {
   type: string;
-  // Tabler icon thay cho icon mặc định của `type` (chỉ dùng ở chỗ cần glyph
-  // khác, vd FAB). Tabler dùng `stroke` thay vì `weight`.
-  icon?: React.ElementType;
   className?: string;
 }
 
-export function ContactIcon({ type, icon, stroke, className, ...props }: ContactIconProps) {
-  const iconComponent = icon ?? getContactIcon(type);
+export function ContactIcon({ type, className, ...props }: ContactIconProps) {
+  const iconComponent = getContactIcon(type);
 
   // Safeguard props to avoid passing incompatible props (like weight) to Tabler icons
   const finalProps: Record<string, unknown> = {};
   if (props.size !== undefined) finalProps.size = props.size;
   if (props.color !== undefined) finalProps.color = props.color;
 
-  if (type === "zalo" || icon) {
-    finalProps.stroke = stroke ?? 3;
+  if (type === "zalo") {
+    finalProps.stroke = 3;
   } else {
     if (props.weight !== undefined) finalProps.weight = props.weight;
     if (props.mirrored !== undefined) finalProps.mirrored = props.mirrored ? "true" : undefined;
