@@ -74,29 +74,31 @@ export function StickyContactActions({ contacts }: StickyContactActionsProps) {
           initial="hidden"
           animate="show"
           exit="exit"
-          className="fixed bottom-2 right-4 md:right-6 lg:right-8 z-[100]"
+          className="fixed bottom-4 right-4 md:right-6 lg:right-8 z-[100]"
         >
-          <div className="flex items-center gap-2 px-2 py-2 bg-background/95 backdrop-blur-md rounded-full border border-border/55 shadow-2xl w-auto">
-            {/* <span className="text-sm font-bold">Liên hệ</span> */}
+          <div className="flex flex-col items-center gap-3">
             {displayContacts.map((contact) => (
               <Button
                 key={contact.id}
                 asChild
                 variant={contact.type === "zalo" ? "default" : "ghost"}
+                size="icon"
                 className={cn(
-                  "h-9 sm:h-10 px-4 rounded-full transition-all active:scale-95 text-xs sm:text-sm flex items-center gap-1.5 font-semibold",
+                  "size-12 sm:size-14 p-0 rounded-full transition-all active:scale-95",
                   // #242424/#f5efe6 + shadow nhiều lớp = mô phỏng đúng nút Zalo OA
                   // chính thức, cố ý không dùng token app (xem docs/design-system.md §4)
                   contact.type === "zalo"
                     ? "bg-[#242424] text-[#f5efe6] hover:bg-[#242424]/90 shadow-[0_0.84px_0.84px_-0.31px_rgba(36,36,36,0.15),0_1.99px_1.99px_-0.625px_rgba(36,36,36,0.15),0_3.63px_3.63px_-0.9375px_rgba(36,36,36,0.15),0_6.04px_6.04px_-1.25px_rgba(36,36,36,0.15),0_9.75px_9.75px_-1.56px_rgba(36,36,36,0.15),0_15.96px_15.96px_-1.875px_rgba(36,36,36,0.15),0_27.48px_27.48px_-2.19px_rgba(36,36,36,0.15),0_50px_50px_-2.5px_rgba(36,36,36,0.15)] border-none"
-                    : "",
+                    : "bg-background/95 backdrop-blur-md border border-border/55 shadow-2xl hover:bg-background",
                 )}
               >
                 <ContactLink
                   contact={contact}
+                  aria-label={contact.type === "phone" ? "Gọi ngay" : "Nhắn Zalo"}
+                  className="size-full justify-center gap-0"
                   iconProps={
                     {
-                      size: contact.type === "zalo" ? 15 : 18,
+                      size: contact.type === "zalo" ? 22 : 24,
                       weight: "fill",
                     } as React.ComponentProps<typeof ContactLink>["iconProps"]
                   }
@@ -105,13 +107,7 @@ export function StickyContactActions({ contacts }: StickyContactActionsProps) {
                     "flex items-center justify-center shrink-0",
                     contact.type === "zalo" ? "text-[#f5efe6]" : "",
                   )}
-                >
-                  <span
-                    className={contact.type === "zalo" ? "text-[#f5efe6]" : ""}
-                  >
-                    {contact.type === "phone" ? "Gọi ngay" : "Nhắn Zalo"}
-                  </span>
-                </ContactLink>
+                />
               </Button>
             ))}
           </div>
