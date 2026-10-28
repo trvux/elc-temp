@@ -8,6 +8,7 @@ import { useProductFloating } from "@/shared/providers/product-floating-provider
 import { cn } from "@/shared/lib/utils";
 import { AnimatePresence, m, Variants } from "motion/react";
 import { Plus } from "@phosphor-icons/react";
+import { IconBrandFacebookFilled } from "@tabler/icons-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 
 const CHANNEL_STYLE: Record<string, { label: string; icon: number }> = {
@@ -136,6 +137,7 @@ export function StickyContactActions({ contacts }: StickyContactActionsProps) {
                       <ContactLink
                         contact={contact}
                         aria-label={CHANNEL_STYLE[contact.type]?.label}
+                        icon={contact.type === "facebook" ? IconBrandFacebookFilled : undefined}
                         className="justify-center gap-0"
                         onClick={() => setIsOpen(false)}
                         iconProps={
