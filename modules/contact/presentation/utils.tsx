@@ -40,7 +40,7 @@ interface ContactIconProps extends IconProps {
   className?: string;
 }
 
-export function ContactIcon({ type, icon, className, ...props }: ContactIconProps) {
+export function ContactIcon({ type, icon, stroke, className, ...props }: ContactIconProps) {
   const iconComponent = icon ?? getContactIcon(type);
 
   // Safeguard props to avoid passing incompatible props (like weight) to Tabler icons
@@ -49,7 +49,7 @@ export function ContactIcon({ type, icon, className, ...props }: ContactIconProp
   if (props.color !== undefined) finalProps.color = props.color;
 
   if (type === "zalo" || icon) {
-    finalProps.stroke = 3;
+    finalProps.stroke = stroke ?? 3;
   } else {
     if (props.weight !== undefined) finalProps.weight = props.weight;
     if (props.mirrored !== undefined) finalProps.mirrored = props.mirrored ? "true" : undefined;

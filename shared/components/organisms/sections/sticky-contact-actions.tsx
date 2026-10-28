@@ -7,15 +7,23 @@ import { useIsOverHero } from "@/shared/hooks/use-is-over-hero";
 import { useProductFloating } from "@/shared/providers/product-floating-provider";
 import { cn } from "@/shared/lib/utils";
 import { AnimatePresence, m, Variants } from "motion/react";
-import { Plus } from "@phosphor-icons/react";
-import { IconBrandFacebookFilled } from "@tabler/icons-react";
+import {
+  IconBrandFacebook,
+  IconBrandMessenger,
+  IconLetterZ,
+  IconPhone,
+  IconPlus,
+} from "@tabler/icons-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 
-const CHANNEL_STYLE: Record<string, { label: string; icon: number }> = {
-  phone: { label: "Gọi ngay", icon: 24 },
-  zalo: { label: "Nhắn Zalo", icon: 24 },
-  messenger: { label: "Nhắn Messenger", icon: 26 },
-  facebook: { label: "Facebook", icon: 26 },
+// Cả bộ icon FAB cùng một họ (Tabler outline), cùng cỡ + cùng nét để đều nhau.
+const ICON_SIZE = 24;
+const ICON_STROKE = 2;
+const CHANNEL: Record<string, { label: string; icon: React.ElementType }> = {
+  phone: { label: "Gọi ngay", icon: IconPhone },
+  zalo: { label: "Nhắn Zalo", icon: IconLetterZ },
+  messenger: { label: "Nhắn Messenger", icon: IconBrandMessenger },
+  facebook: { label: "Facebook", icon: IconBrandFacebook },
 };
 
 // Nền đen (token primary) dùng chung cho nút "+" và 4 nút kênh.
@@ -136,14 +144,14 @@ export function StickyContactActions({ contacts }: StickyContactActionsProps) {
                     >
                       <ContactLink
                         contact={contact}
-                        aria-label={CHANNEL_STYLE[contact.type]?.label}
-                        icon={contact.type === "facebook" ? IconBrandFacebookFilled : undefined}
+                        aria-label={CHANNEL[contact.type]?.label}
+                        icon={CHANNEL[contact.type]?.icon}
+                        iconStroke={ICON_STROKE}
                         className="justify-center gap-0"
                         onClick={() => setIsOpen(false)}
                         iconProps={
                           {
-                            size: CHANNEL_STYLE[contact.type]?.icon ?? 24,
-                            weight: "fill",
+                            size: ICON_SIZE,
                           } as React.ComponentProps<typeof ContactLink>["iconProps"]
                         }
                         showLabel={false}
@@ -167,7 +175,7 @@ export function StickyContactActions({ contacts }: StickyContactActionsProps) {
                 transition={{ duration: 0.25, ease: [0.23, 1, 0.32, 1] }}
                 className="flex items-center justify-center"
               >
-                <Plus size={28} weight="bold" stroke="currentColor" strokeWidth={10} />
+                <IconPlus size={ICON_SIZE} stroke={ICON_STROKE} />
               </m.span>
             </Button>
           </div>
