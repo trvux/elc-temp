@@ -19,25 +19,27 @@ interface ProductGridProps {
   // render trips Next's "Server Functions cannot be called during initial
   // render" guard. Every ProductCard gets the same zone as a plain prop.
   shippingZone?: ZoneLookupResult | null;
+  headingAs?: "h2" | "h3" | "h4";
 }
 
 // Shared by ProductListModule, ProductDetailModule's related-products
 // section, and the /san-pham hub's category-sections-grid — previously each
 // of the three hand-copied the same GRID_CLASS string. Every card fades/
 // slides in on scroll via InView.
-export function ProductGrid({ products, className, shippingZone }: ProductGridProps) {
+export function ProductGrid({ products, className, shippingZone, headingAs }: ProductGridProps) {
   return (
-    <div className={cn(GRID_CLASS, className)}>
+    <ul className={cn(GRID_CLASS, className)}>
       {products.map((product, i) => (
         <InView
           key={product.id}
+          as="li"
           viewOptions={{ once: true, margin: "0px 0px -80px 0px" }}
           variants={REVEAL_VARIANTS}
           transition={{ duration: 0.4, delay: Math.min(i, 5) * 0.05, ease: "easeOut" }}
         >
-          <ProductCard product={product} priority={i < 8} defaultShippingZone={shippingZone} />
+          <ProductCard product={product} priority={i < 8} headingAs={headingAs} defaultShippingZone={shippingZone} />
         </InView>
       ))}
-    </div>
+    </ul>
   );
 }

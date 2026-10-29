@@ -12,13 +12,8 @@ import {
   CardContent,
   CardFooter,
   CardHeader,
-  CardTitle,
 } from "@/shared/components/ui/card";
 import { StockBadge } from "@/shared/components/ui/stock-badge";
-import {
-  TypographyLarge,
-  TypographySmall,
-} from "@/shared/components/ui/typography";
 import { primaryImageUrl } from "@/shared/lib/image-asset";
 import { ZoneLookupResult } from "@/modules/shipping-zone";
 import { BuyNowButton } from "@/shared/components/organisms/layout/user/buy-now-button";
@@ -31,6 +26,9 @@ import Link from "next/link";
 interface ProductCardProps {
   product: ProductWithRelations;
   priority?: boolean;
+  // Heading level follows where the card sits in the page outline (h2 right
+  // under the page h1, h3 under an h2, h4 under an h3), not how it looks.
+  headingAs?: "h2" | "h3" | "h4";
   // Fetched once by the parent ProductGrid, not per-card — see its comment.
   defaultShippingZone?: ZoneLookupResult | null;
 }
@@ -38,6 +36,7 @@ interface ProductCardProps {
 export function ProductCard({
   product,
   priority = false,
+  headingAs: Heading = "h3",
   defaultShippingZone,
 }: ProductCardProps) {
   const productUrl = `/san-pham/${product.slug}`;
@@ -68,7 +67,6 @@ export function ProductCard({
             <Image
               src={imageUrl}
               alt={product.images[0]?.alt || `${product.name} - Chính hãng giá tốt tại Điện máy ELC`}
-              title={`${product.name} - Điện máy ELC`}
               fill
               sizes="(max-width: 640px) calc(50vw - 12px), (max-width: 1024px) calc(33vw - 16px), 25vw"
               className="object-contain p-4 transition-transform duration-300 group-hover:scale-105"
@@ -93,28 +91,28 @@ export function ProductCard({
 
         <CardHeader className="gap-1 px-3 pt-3">
           {product.brand?.name && (
-            <TypographySmall className="text-muted-foreground uppercase tracking-wide">
+            <span className="type-caption text-muted-foreground uppercase">
               {product.brand.name.toLowerCase()}
-            </TypographySmall>
+            </span>
           )}
-          <CardTitle className="line-clamp-2 h-10 text-sm leading-snug font-semibold">
+          <Heading className="type-label line-clamp-2 h-10">
             {product.name}
-          </CardTitle>
+          </Heading>
         </CardHeader>
 
         <CardContent className="flex flex-col gap-1.5 px-3 pt-2">
           <div className="flex items-baseline gap-2 flex-wrap">
-            <TypographyLarge className="text-lg text-foreground">
+            <span className="type-price text-foreground">
               <FormattedPrice price={currentPrice} />
-            </TypographyLarge>
+            </span>
             {hasDiscount && (
               <>
-                <TypographySmall className="text-muted-foreground">
+                <span className="type-caption text-muted-foreground">
                   <FormattedPrice price={defaultVariant?.originalPrice ?? 0} strikethrough />
-                </TypographySmall>
-                <TypographySmall className="text-destructive font-medium">
+                </span>
+                <span className="type-caption text-destructive">
                   -{defaultVariant?.discountPercent}%
-                </TypographySmall>
+                </span>
               </>
             )}
           </div>
@@ -122,7 +120,7 @@ export function ProductCard({
           {deliveryLabel && (
             <div className="flex items-center gap-1.5 text-muted-foreground">
               <Truck className="size-3.5 shrink-0" />
-              <TypographySmall className="text-muted-foreground">{deliveryLabel}</TypographySmall>
+              <span className="type-caption text-muted-foreground">{deliveryLabel}</span>
             </div>
           )}
         </CardContent>

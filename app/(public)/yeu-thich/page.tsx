@@ -7,7 +7,6 @@ import Link from "next/link";
 import { formatPrice } from "@/modules/catalog/domain";
 import { WishlistButton } from "@/shared/components/organisms/layout/user/wishlist-button";
 import { Empty, EmptyHeader, EmptyMedia, EmptyTitle, EmptyDescription } from "@/shared/components/ui/empty";
-import { TypographyH1 } from "@/shared/components/ui/typography";
 import { Heart } from "@phosphor-icons/react";
 
 interface WishlistItem {
@@ -42,13 +41,13 @@ export default function WishlistPage() {
   return (
     <main className="w-full bg-background min-h-screen">
       <div className="flex flex-col gap-6 p-4 md:p-6 lg:p-8 w-full max-w-400 mx-auto">
-        <TypographyH1>Sản phẩm yêu thích</TypographyH1>
+        <h1 className="type-headline">Sản phẩm yêu thích</h1>
 
         {!isLoading && validItems.length === 0 && (
           <Empty>
             <EmptyHeader>
               <EmptyMedia variant="icon">
-                <Heart />
+                <Heart aria-hidden="true" />
               </EmptyMedia>
               <EmptyTitle>Chưa có sản phẩm yêu thích</EmptyTitle>
               <EmptyDescription>
@@ -58,9 +57,9 @@ export default function WishlistPage() {
           </Empty>
         )}
 
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-6">
+        <ul className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-6">
           {validItems.map((item) => (
-            <div key={item.id} className="relative flex flex-col gap-2 rounded-lg border border-border/40 p-3">
+            <li key={item.id} className="relative flex flex-col gap-2 rounded-lg border border-border/40 p-3">
               <div className="absolute top-2 right-2 z-10">
                 <WishlistButton productId={item.product_id} />
               </div>
@@ -69,21 +68,21 @@ export default function WishlistPage() {
                   {item.product!.image_url && (
                     <Image
                       src={item.product!.image_url}
-                      alt={item.product!.name}
+                      alt=""
                       width={200}
                       height={112}
                       className="w-full h-full object-contain"
                     />
                   )}
                 </div>
-                <span className="text-sm font-medium line-clamp-2">{item.product!.name}</span>
-                <span className="text-sm font-bold text-destructive">
+                <h2 className="type-caption line-clamp-2">{item.product!.name}</h2>
+                <span className="type-label text-destructive">
                   {item.product!.display_price ? formatPrice(item.product!.display_price) : "Liên hệ"}
                 </span>
               </Link>
-            </div>
+            </li>
           ))}
-        </div>
+        </ul>
       </div>
     </main>
   );

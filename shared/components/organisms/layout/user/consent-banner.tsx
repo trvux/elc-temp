@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { CookieIcon } from "@phosphor-icons/react";
 import { Button } from "@/shared/components/ui/button";
@@ -8,7 +8,6 @@ import { Switch } from "@/shared/components/ui/switch";
 import {
   Card,
   CardHeader,
-  CardTitle,
   CardDescription,
   CardContent,
   CardFooter,
@@ -62,15 +61,26 @@ export function ConsentBanner({ initialConsent }: ConsentBannerProps) {
   // đổi kết quả animate dựa trên state server không biết được).
   const [entered, setEntered] = useState(false);
   const [draft, setDraft] = useState<ConsentState>(initialConsent ?? DEFAULT_CONSENT);
+  const rootRef = useRef<HTMLDivElement>(null);
+  // Only a deliberate re-open (footer "Cài đặt cookie") moves focus into the
+  // banner; on first visit it must not steal focus from the page.
+  const focusOnOpen = useRef(false);
 
   useEffect(() => {
     if (!visible) return;
-    const raf = requestAnimationFrame(() => setEntered(true));
+    const raf = requestAnimationFrame(() => {
+      setEntered(true);
+      if (focusOnOpen.current) {
+        focusOnOpen.current = false;
+        rootRef.current?.focus();
+      }
+    });
     return () => cancelAnimationFrame(raf);
   }, [visible]);
 
   useEffect(() => {
     const reopen = () => {
+      focusOnOpen.current = true;
       setDraft(readConsentCookie() ?? DEFAULT_CONSENT);
       setEntered(false);
       setVisible(true);
@@ -90,17 +100,23 @@ export function ConsentBanner({ initialConsent }: ConsentBannerProps) {
 
   return (
     <div
-      className={`fixed inset-x-0 bottom-0 z-50 w-full transition-all duration-300 ease-out sm:inset-x-auto sm:bottom-4 sm:left-4 sm:max-w-sm ${
+      ref={rootRef}
+      role="dialog"
+      aria-modal="false"
+      aria-labelledby="consent-title"
+      aria-describedby="consent-description"
+      tabIndex={-1}
+      className={`outline-none fixed inset-x-0 bottom-0 z-50 w-full transition-all duration-300 ease-out sm:inset-x-auto sm:bottom-4 sm:left-4 sm:max-w-sm ${
         entered ? "translate-y-0 opacity-100" : "translate-y-full opacity-0 sm:translate-y-4"
       }`}
     >
       <Card className="rounded-b-none border-b-0 shadow-xl sm:rounded-b-xl sm:border-b">
         <CardHeader className="flex-row items-center gap-2.5 space-y-0">
-          <CookieIcon size={22} weight="duotone" className="shrink-0 text-primary" />
-          <CardTitle className="text-base">Website dùng cookie</CardTitle>
+          <CookieIcon aria-hidden="true" size={22} weight="duotone" className="shrink-0 text-primary" />
+          <h2 id="consent-title" className="type-body-strong">Website dùng cookie</h2>
         </CardHeader>
         <CardContent className="flex flex-col gap-3">
-          <CardDescription className="text-sm leading-relaxed">
+          <CardDescription id="consent-description" className="type-body-sm">
             Cookie được sử dụng để website hoạt động ổn định và ghi nhận sản phẩm/dịch vụ bạn
             đang quan tâm, hỗ trợ tư vấn phù hợp hơn. Xem chi tiết tại{" "}
             <Link
@@ -114,7 +130,7 @@ export function ConsentBanner({ initialConsent }: ConsentBannerProps) {
 
           <div className="flex flex-col gap-3 rounded-md border bg-muted/40 p-3">
             <label className="flex items-center justify-between gap-3">
-              <span className="text-sm">Phân tích &amp; đo lường lượt truy cập</span>
+              <span className="type-body-sm">Phân tích &amp; đo lường lượt truy cập</span>
               <Switch
                 checked={draft.analytics === "granted"}
                 onCheckedChange={(checked) =>
@@ -123,7 +139,7 @@ export function ConsentBanner({ initialConsent }: ConsentBannerProps) {
               />
             </label>
             <label className="flex items-center justify-between gap-3">
-              <span className="text-sm">Quảng cáo phù hợp với bạn</span>
+              <span className="type-body-sm">Quảng cáo phù hợp với bạn</span>
               <Switch
                 checked={draft.ads === "granted"}
                 onCheckedChange={(checked) =>

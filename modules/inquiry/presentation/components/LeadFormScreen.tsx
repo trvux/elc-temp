@@ -1077,7 +1077,7 @@ export function LeadFormScreen({
 
   if (submitted) {
     return (
-      <div className="relative z-0 flex h-[100dvh] w-full flex-col items-center justify-center overflow-hidden bg-[#3c70b0]">
+      <main className="relative z-0 flex h-[100dvh] w-full flex-col items-center justify-center overflow-hidden bg-[#3c70b0]">
         <Image src={typeformBg} alt="" fill priority placeholder="blur" sizes="100vw" className="object-cover -z-20" />
         <div className="absolute inset-0 -z-10 bg-blue-950/25" />
 
@@ -1087,11 +1087,11 @@ export function LeadFormScreen({
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
           >
-            <Check size={56} weight="bold" className="text-white drop-shadow-md" />
+            <Check aria-hidden="true" size={56} weight="bold" className="text-white drop-shadow-md" />
           </m.div>
-          <div className="space-y-2 max-w-md">
-            <h1 className="text-2xl font-semibold text-white drop-shadow-sm">Đã gửi yêu cầu tư vấn!</h1>
-            <p className="text-white/80 drop-shadow-sm">
+          <div role="status" className="space-y-2 max-w-md">
+            <h1 className="type-headline text-white drop-shadow-sm">Đã gửi yêu cầu tư vấn!</h1>
+            <p className="type-body text-white/80 drop-shadow-sm">
               Điện máy ELC sẽ liên hệ với bạn trong thời gian sớm nhất.
             </p>
           </div>
@@ -1108,7 +1108,7 @@ export function LeadFormScreen({
             )}
           </div>
         </div>
-      </div>
+      </main>
     );
   }
 
@@ -1121,7 +1121,7 @@ export function LeadFormScreen({
     currentStep.kind === "project-category-picker";
 
   return (
-    <div className="relative z-0 h-[100dvh] flex flex-col overflow-hidden bg-[#3c70b0]">
+    <main className="relative z-0 h-[100dvh] flex flex-col overflow-hidden bg-[#3c70b0]">
       {/* User-supplied background (2026-09-07). Text/buttons throughout this
           form are now explicitly light (text-white etc., matching
           HeroSection's own approach) so a darkening overlay only helps
@@ -1142,7 +1142,15 @@ export function LeadFormScreen({
           controls (the outline-variant back button, the dark avatar
           circle) already read fine as opaque shapes on the photo and are
           intentionally left alone. */}
-      <div className="h-1 w-full shrink-0 bg-white/30">
+      <div
+        role="progressbar"
+        aria-label="Tiến độ điền form"
+        aria-valuemin={1}
+        aria-valuemax={steps.length}
+        aria-valuenow={stepIndex + 1}
+        aria-valuetext={`Bước ${stepIndex + 1} trên ${steps.length}`}
+        className="h-1 w-full shrink-0 bg-white/30"
+      >
         <div
           className="h-full bg-white transition-[width] duration-300 ease-out"
           style={{ width: `${((stepIndex + 1) / steps.length) * 100}%` }}
@@ -1156,9 +1164,9 @@ export function LeadFormScreen({
           className="text-white/70 drop-shadow-sm hover:text-white transition-colors"
           aria-label="Đóng"
         >
-          <X size={22} />
+          <X aria-hidden="true" size={22} />
         </button>
-        <span className="text-sm text-white/70 drop-shadow-sm">
+        <span aria-live="polite" className="type-body-sm text-white/70 drop-shadow-sm">
           {stepIndex + 1} / {steps.length}
         </span>
       </div>
@@ -1242,18 +1250,20 @@ export function LeadFormScreen({
 
               {currentStep.kind === "free-text" && (
                 <div>
-                  <h1 className="text-2xl sm:text-3xl md:text-4xl font-semibold leading-tight text-balance text-white drop-shadow-sm">
+                  <h1 id="step-question" className="type-headline text-white drop-shadow-sm">
                     {currentStep.question}
                   </h1>
-                  {currentStep.description && <p className="mt-3 text-white/80 drop-shadow-sm">{currentStep.description}</p>}
+                  {currentStep.description && <p id="step-description" className="type-body mt-3 text-white/80 drop-shadow-sm">{currentStep.description}</p>}
                   <div className="mt-8">
                     <Input
                       autoFocus
+                      aria-labelledby="step-question"
+                      aria-describedby={currentStep.description ? "step-description" : undefined}
                       defaultValue={qualify[currentStep.id] ?? ""}
                       onChange={(e) => setQualify((q) => ({ ...q, [currentStep.id]: e.target.value }))}
                       onKeyDown={handleKeyDown}
                       placeholder={currentStep.placeholder}
-                      className="!text-xl sm:!text-2xl h-auto border-0 border-b-2 border-white/40 rounded-none px-0 py-2 shadow-none text-white placeholder:text-white/50 focus-visible:ring-0 focus-visible:border-white bg-transparent"
+                      className="!type-subhead h-auto border-0 border-b-2 border-white/40 rounded-none px-0 py-2 shadow-none text-white placeholder:text-white/50 focus-visible:ring-0 focus-visible:border-white bg-transparent"
                     />
                   </div>
                 </div>
@@ -1270,10 +1280,10 @@ export function LeadFormScreen({
 
               {(currentStep.kind === "rhf-text" || currentStep.kind === "rhf-textarea") && (
                 <div>
-                  <h1 className="text-2xl sm:text-3xl md:text-4xl font-semibold leading-tight text-balance text-white drop-shadow-sm">
+                  <h1 id="step-question" className="type-headline text-white drop-shadow-sm">
                     {currentStep.question}
                   </h1>
-                  {currentStep.description && <p className="mt-3 text-white/80 drop-shadow-sm">{currentStep.description}</p>}
+                  {currentStep.description && <p id="step-description" className="type-body mt-3 text-white/80 drop-shadow-sm">{currentStep.description}</p>}
                   <div className="mt-8">
                     <Controller
                       control={form.control}
@@ -1282,6 +1292,9 @@ export function LeadFormScreen({
                         currentStep.kind === "rhf-textarea" ? (
                           <Textarea
                             {...field}
+                            aria-labelledby="step-question"
+                            aria-describedby={currentStep.description ? "step-description" : undefined}
+                            aria-invalid={!!form.formState.errors[currentStep.id]}
                             ref={(el) => {
                               field.ref(el);
                               focusField(el);
@@ -1289,11 +1302,14 @@ export function LeadFormScreen({
                             onKeyDown={handleKeyDown}
                             rows={3}
                             placeholder={currentStep.placeholder}
-                            className="!text-xl sm:!text-2xl border-0 border-b-2 border-white/40 rounded-none px-0 shadow-none text-white placeholder:text-white/50 focus-visible:ring-0 focus-visible:border-white bg-transparent resize-none"
+                            className="!type-subhead border-0 border-b-2 border-white/40 rounded-none px-0 shadow-none text-white placeholder:text-white/50 focus-visible:ring-0 focus-visible:border-white bg-transparent resize-none"
                           />
                         ) : (
                           <Input
                             {...field}
+                            aria-labelledby="step-question"
+                            aria-describedby={currentStep.description ? "step-description" : undefined}
+                            aria-invalid={!!form.formState.errors[currentStep.id]}
                             ref={(el) => {
                               field.ref(el);
                               focusField(el);
@@ -1307,7 +1323,7 @@ export function LeadFormScreen({
                                 : field.onChange
                             }
                             placeholder={currentStep.placeholder}
-                            className="!text-xl sm:!text-2xl h-auto border-0 border-b-2 border-white/40 rounded-none px-0 py-2 shadow-none text-white placeholder:text-white/50 focus-visible:ring-0 focus-visible:border-white bg-transparent"
+                            className="!type-subhead h-auto border-0 border-b-2 border-white/40 rounded-none px-0 py-2 shadow-none text-white placeholder:text-white/50 focus-visible:ring-0 focus-visible:border-white bg-transparent"
                           />
                         )
                       }
@@ -1344,26 +1360,26 @@ export function LeadFormScreen({
           multi-step form's persistent nav bar. */}
       <div className="flex shrink-0 items-center justify-between gap-4 px-6 sm:px-12 pb-6 pt-2">
         <Button type="button" variant="outline" onClick={goPrev}>
-          <ArrowLeft size={18} />
+          <ArrowLeft aria-hidden="true" size={18} />
           Quay lại
         </Button>
 
         {showOkButton && (
           <div className="flex items-center gap-4">
-            <span className="hidden sm:inline text-sm text-white/70 drop-shadow-sm">nhấn Enter ↵</span>
+            <span aria-hidden="true" className="hidden sm:inline type-body-sm text-white/70 drop-shadow-sm">nhấn Enter ↵</span>
             <Button type="button" size="lg" onClick={goNext} disabled={submitMutation.isLoading}>
               {isLastStep ? (
                 submitMutation.isLoading ? "Đang gửi..." : "Gửi yêu cầu"
               ) : (
                 <>
                   Tiếp tục
-                  <ArrowRight size={18} className="ml-1" />
+                  <ArrowRight aria-hidden="true" size={18} className="ml-1" />
                 </>
               )}
             </Button>
           </div>
         )}
       </div>
-    </div>
+    </main>
   );
 }

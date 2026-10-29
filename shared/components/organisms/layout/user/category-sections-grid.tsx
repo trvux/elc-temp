@@ -5,7 +5,6 @@ import { ProductGrid } from "@/modules/catalog/presentation/components/ProductGr
 import type { ZoneLookupResult } from "@/modules/shipping-zone";
 import { Button } from "@/shared/components/ui/button";
 import { Separator } from "@/shared/components/ui/separator";
-import { TypographyH2, TypographyH3 } from "@/shared/components/ui/typography";
 import { ArrowRight, Spinner } from "@phosphor-icons/react";
 import Link from "next/link";
 import { useRef, useState } from "react";
@@ -68,24 +67,24 @@ function CategorySection({
   };
 
   return (
-    <div className="flex flex-col gap-4">
+    <section aria-labelledby={`category-${categoryId}`} className="flex flex-col gap-4">
       <div className="flex items-center justify-between gap-4">
         {/* h3, not h2 — the new group heading in CategorySectionsGrid below
             is the h2 for this section of the page; a category sits one
             level under its group. */}
-        <TypographyH3 className="text-lg md:text-xl font-bold">
+        <h3 id={`category-${categoryId}`} className="type-heading">
           {categoryName}
-        </TypographyH3>
+        </h3>
         <Link
           href={`/san-pham/${categorySlug}`}
           prefetch={false}
-          className="group inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors shrink-0"
+          className="group inline-flex items-center gap-1.5 type-body-sm text-muted-foreground hover:text-foreground transition-colors shrink-0"
         >
           Xem tất cả {totalCount} sản phẩm
           <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5" />
         </Link>
       </div>
-      <ProductGrid products={products} shippingZone={shippingZone} />
+      <ProductGrid products={products} shippingZone={shippingZone} headingAs="h4" />
 
       {hasMore && (
         <div className="flex justify-center pt-1">
@@ -107,7 +106,7 @@ function CategorySection({
           </Button>
         </div>
       )}
-    </div>
+    </section>
   );
 }
 
@@ -126,7 +125,7 @@ export function CategorySectionsGrid({
   if (sections.length === 0) {
     return (
       <div className="py-24 text-center min-h-75 w-full">
-        <p className="text-muted-foreground/60 italic text-sm">
+        <p className="text-muted-foreground/60 italic type-body-sm">
           Không tìm thấy sản phẩm nào.
         </p>
       </div>
@@ -149,7 +148,7 @@ export function CategorySectionsGrid({
         return (
           <div key={section.categoryId} className="flex flex-col gap-6">
             {isNewGroup && section.groupName && section.groupSlug && (
-              <TypographyH2 className="font-bold">
+              <h2 className="type-title">
                 <Link
                   href={`/san-pham/${section.groupSlug}`}
                   prefetch={false}
@@ -158,7 +157,7 @@ export function CategorySectionsGrid({
                   {section.groupName}
                   <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />
                 </Link>
-              </TypographyH2>
+              </h2>
             )}
             <CategorySection {...section} shippingZone={shippingZone} />
             {i < sections.length - 1 && <Separator />}

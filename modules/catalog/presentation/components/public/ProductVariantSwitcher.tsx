@@ -17,7 +17,6 @@ import { Button } from "@/shared/components/ui/button";
 import { OrderButton } from "@/shared/components/organisms/layout/user/order-button";
 import { CompareToggleButton } from "@/shared/components/organisms/layout/user/compare-toggle-button";
 import { StockBadge } from "@/shared/components/ui/stock-badge";
-import { TypographyLarge, TypographySmall } from "@/shared/components/ui/typography";
 import type { CompareItem } from "@/shared/providers/compare-provider";
 import { ZaloProductInfo } from "@/shared/lib/zalo-message";
 import { ShieldCheck } from "@phosphor-icons/react";
@@ -49,15 +48,15 @@ export function ProductVariantSwitcher({ product, variants, options, contacts, c
 
   return (
     <div className="flex flex-col gap-4">
-      {selected?.sku && <TypographySmall className="text-muted-foreground">Model: {selected.sku}</TypographySmall>}
+      {selected?.sku && <p className="type-caption text-muted-foreground">Model: {selected.sku}</p>}
 
       <CapacitySelector siblings={product.capacitySiblings ?? []} />
 
       {sellableVariants.length > 1 && (
         <div className="flex flex-col gap-4">
           {options.map((opt) => (
-            <div key={opt.id} className="flex flex-col gap-2">
-              <TypographySmall className="text-muted-foreground">{opt.name}</TypographySmall>
+            <div key={opt.id} role="group" aria-labelledby={`option-${opt.id}`} className="flex flex-col gap-2">
+              <p id={`option-${opt.id}`} className="type-caption text-muted-foreground">{opt.name}</p>
               <div className="flex flex-wrap gap-2">
                 {opt.values.map((val) => {
                   const matchingVariant = sellableVariants.find((v) => v.optionValueIds.includes(val.id));
@@ -68,6 +67,7 @@ export function ProductVariantSwitcher({ product, variants, options, contacts, c
                       type="button"
                       variant={isSelectedValue ? "default" : "outline"}
                       size="sm"
+                      aria-pressed={isSelectedValue}
                       disabled={!matchingVariant}
                       onClick={() => matchingVariant && setSelectedId(matchingVariant.id)}
                     >
@@ -81,7 +81,7 @@ export function ProductVariantSwitcher({ product, variants, options, contacts, c
         </div>
       )}
 
-      <div className="h-px bg-border" />
+      <hr className="border-border" />
 
       <DeliveryEstimate initialProvinceCode={savedProvinceCode} initialWardCode={savedWardCode} />
 
@@ -102,16 +102,18 @@ function CapacitySelector({ siblings }: { siblings: CapacitySibling[] }) {
   if (siblings.length < 2) return null;
 
   return (
-    <div className="flex flex-col gap-2">
-      <TypographySmall className="text-muted-foreground">Công suất</TypographySmall>
-      <div className="flex flex-wrap gap-2">
+    <nav aria-labelledby="capacity-label" className="flex flex-col gap-2">
+      <p id="capacity-label" className="type-caption text-muted-foreground">Công suất</p>
+      <ul className="flex flex-wrap gap-2">
         {siblings.map((s) => (
-          <Button key={s.id} asChild variant={s.isCurrent ? "default" : "outline"} size="sm">
-            <Link href={`/san-pham/${s.slug}`}>{s.capacityLabel}</Link>
-          </Button>
+          <li key={s.id}>
+            <Button asChild variant={s.isCurrent ? "default" : "outline"} size="sm">
+              <Link href={`/san-pham/${s.slug}`} aria-current={s.isCurrent ? "page" : undefined}>{s.capacityLabel}</Link>
+            </Button>
+          </li>
         ))}
-      </div>
-    </div>
+      </ul>
+    </nav>
   );
 }
 
@@ -135,28 +137,28 @@ function BuyBox({
     <div className="flex flex-col gap-3">
       <div className="flex flex-col gap-1">
         <div className="flex items-center gap-3 flex-wrap">
-          <TypographyLarge className="text-4xl md:text-5xl font-bold text-foreground tracking-tight">
+          <p className="type-price-lg text-foreground">
             <FormattedPrice price={price} />
-          </TypographyLarge>
+          </p>
           {variant && variant.stockStatus !== VARIANT_STOCK_STATUS.IN_STOCK && (
-            <StockBadge status={toLegacyStockStatusForBadge(variant.stockStatus)} className="text-sm" />
+            <StockBadge status={toLegacyStockStatusForBadge(variant.stockStatus)} className="type-caption" />
           )}
         </div>
 
         {discountPercent > 0 && (
           <div className="flex items-center gap-2">
-            <TypographySmall className="text-muted-foreground">
+            <span className="type-caption text-muted-foreground">
               <FormattedPrice price={originalPrice} strikethrough />
-            </TypographySmall>
-            <TypographySmall className="text-destructive">- {discountPercent}%</TypographySmall>
+            </span>
+            <span className="type-caption text-destructive">- {discountPercent}%</span>
           </div>
         )}
       </div>
 
       {warrantyPolicy && (
-        <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-sm text-muted-foreground">
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 type-body-sm text-muted-foreground">
           <span className="flex items-center gap-1.5 max-w-full">
-            <ShieldCheck className="size-4 shrink-0" />
+            <ShieldCheck aria-hidden="true" className="size-4 shrink-0" />
             <span className="line-clamp-1">{warrantyPolicy}</span>
           </span>
         </div>

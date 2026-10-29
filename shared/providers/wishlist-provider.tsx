@@ -184,7 +184,7 @@ function WishlistToast({
           : "border-red-600/30 bg-red-50 text-red-900 dark:border-red-500/30 dark:bg-red-950/40 dark:text-red-300"
       )}
     >
-      <div className="flex items-center gap-2 text-sm font-medium">
+      <div className="flex items-center gap-2 type-caption">
         {icon}
         {message}
       </div>

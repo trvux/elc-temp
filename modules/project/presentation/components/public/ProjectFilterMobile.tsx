@@ -127,6 +127,7 @@ export function ProjectFilterMobile({
               services={services}
               currentServiceSlugs={currentServiceSlugs}
               currentCondition={currentCondition}
+              showTitle={false}
             />
           </div>
         </SheetContent>

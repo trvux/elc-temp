@@ -5,7 +5,6 @@ import {
   Card,
   CardContent,
   CardHeader,
-  CardTitle,
 } from "@/shared/components/ui/card";
 import { useRecentlyViewed } from "@/shared/hooks/use-recently-viewed";
 import Image from "next/image";
@@ -21,26 +20,27 @@ export function RecentlyViewedSection() {
   if (isLoading || items.length === 0) return null;
 
   return (
+    <section aria-labelledby="recently-viewed-heading">
     <Card className="w-full rounded-md gap-0 py-0 overflow-hidden">
       <CardHeader className="px-4 py-3">
-        <CardTitle className="text-base font-semibold text-foreground">
+        <h2 id="recently-viewed-heading" className="type-body-strong text-foreground">
           Sản phẩm đã xem
-        </CardTitle>
+        </h2>
       </CardHeader>
       <CardContent className="px-4 py-3">
-        <div className="flex gap-3 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+        <ul className="flex gap-3 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           {items.map((product) => (
+            <li key={product.id} className="shrink-0">
             <Link
-              key={product.id}
               href={`/san-pham/${product.slug}`}
               prefetch={false}
-              className="flex items-center gap-3 shrink-0 w-55 p-2.5 rounded-lg border border-border/40 hover:border-primary/40 hover:bg-muted/30 transition-all"
+              className="flex items-center gap-3 w-55 p-2.5 rounded-lg border border-border/40 hover:border-primary/40 hover:bg-muted/30 transition-all"
             >
               <div className="w-14 h-14 shrink-0 rounded-md overflow-hidden bg-white">
                 {product.image ? (
                   <Image
                     src={product.image}
-                    alt={product.name}
+                    alt=""
                     width={56}
                     height={56}
                     className="w-full h-full object-contain"
@@ -51,17 +51,19 @@ export function RecentlyViewedSection() {
               </div>
 
               <div className="flex flex-col gap-0.5 min-w-0 flex-1 pr-4">
-                <span className="text-xs font-medium text-foreground line-clamp-2 leading-tight">
+                <span className="type-legal text-foreground line-clamp-2">
                   {product.name}
                 </span>
-                <span className="text-xs font-bold text-destructive">
+                <span className="type-tag text-destructive">
                   {product.displayPrice ? formatPrice(product.displayPrice) : "Liên hệ"}
                 </span>
               </div>
             </Link>
+            </li>
           ))}
-        </div>
+        </ul>
       </CardContent>
     </Card>
+    </section>
   );
 }

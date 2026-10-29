@@ -22,13 +22,6 @@ import { TrackProductView } from "@/shared/components/organisms/layout/user/trac
 import { InView } from "@/shared/components/molecules/motion-primitives/in-view";
 import { Badge } from "@/shared/components/ui/badge";
 import { CheckCircle } from "@phosphor-icons/react/dist/ssr";
-import { Item, ItemActions, ItemContent, ItemGroup, ItemSeparator, ItemTitle } from "@/shared/components/ui/item";
-import {
-  TypographyH1,
-  TypographyH2,
-  TypographyH3,
-  TypographySmall,
-} from "@/shared/components/ui/typography";
 import { primaryImageUrl } from "@/shared/lib/image-asset";
 import { AVAILABILITY_SCHEMA, BASE_URL, BRAND_SAME_AS, SEOSchema, toJsonLdHtml } from "@/shared/lib/seo-schema";
 import { FAQAccordion, getFAQsAction } from "@/modules/faq";
@@ -202,15 +195,15 @@ export async function ProductDetailModule({
                 </div>
               )}
 
-              <TypographyH1
+              <h1
                 className={cn(
-                  "w-full max-w-none text-2xl md:text-3xl lg:text-4xl font-extrabold tracking-tight wrap-break-word leading-[1.15]",
+                  "type-headline w-full wrap-break-word",
                   product.nameAlign === "center" && "text-center",
                   product.nameAlign === "right" && "text-right",
                 )}
               >
                 {product.name}
-              </TypographyH1>
+              </h1>
 
               <ProductVariantSwitcher
                 product={product}
@@ -243,51 +236,49 @@ export async function ProductDetailModule({
 
           <div className="flex flex-col gap-12 md:gap-16">
             {hasHighlights && (
-              <div>
-                <TypographyH2 className="text-xl md:text-2xl font-bold tracking-tight text-center mb-8">
+              <section aria-labelledby="product-highlights-heading">
+                <h2 id="product-highlights-heading" className="type-title text-center mb-8">
                   Đặc điểm nổi bật
-                </TypographyH2>
+                </h2>
                 <ul className="max-w-3xl mx-auto flex flex-col gap-3">
                   {highlights.map((item, i) => (
                     <li key={i} className="flex items-start gap-3">
-                      <CheckCircle weight="fill" className="mt-0.5 size-5 shrink-0 text-primary" />
-                      <span className="text-sm md:text-base">{item}</span>
+                      <CheckCircle aria-hidden="true" weight="fill" className="mt-0.5 size-5 shrink-0 text-primary" />
+                      <span className="type-body-sm md:type-body">{item}</span>
                     </li>
                   ))}
                 </ul>
-              </div>
+              </section>
             )}
 
             {hasSpecs && (
-              <div
+              <section
+                aria-labelledby="product-specs-heading"
                 className={cn(hasHighlights && "pt-12 md:pt-16 border-t border-dashed border-border/40")}
               >
-                <TypographyH2 className="text-xl md:text-2xl font-bold tracking-tight text-center mb-8">
+                <h2 id="product-specs-heading" className="type-title text-center mb-8">
                   Thông số kỹ thuật
-                </TypographyH2>
+                </h2>
                 {(() => {
                   const specList = (
                     <div className="max-w-3xl mx-auto flex flex-col gap-6">
                       {attributeGroups.map((group) => (
                         <div key={group.label ?? "__chung__"} className="flex flex-col gap-2">
                           {group.label && (
-                            <TypographyH3 className="text-base font-semibold">{group.label}</TypographyH3>
+                            <h3 className="type-body-strong">{group.label}</h3>
                           )}
-                          <ItemGroup className="rounded-xl border border-border/50 overflow-hidden bg-white/50">
-                            {group.rows.map((av, i) => (
-                              <div key={av.id}>
-                                <Item size="sm">
-                                  <ItemContent>
-                                    <ItemTitle className="text-muted-foreground font-normal">{av.name}</ItemTitle>
-                                  </ItemContent>
-                                  <ItemActions>
-                                    <span className="text-sm font-medium">{formatAttributeValue(av)}</span>
-                                  </ItemActions>
-                                </Item>
-                                {i < group.rows.length - 1 && <ItemSeparator className="my-0" />}
+                          {/* name/value pairs are a description list, not a list of items */}
+                          <dl className="flex w-full flex-col rounded-xl border border-border/50 overflow-hidden bg-white/50">
+                            {group.rows.map((av) => (
+                              <div
+                                key={av.id}
+                                className="flex flex-wrap items-center gap-2.5 px-3 py-3 border-t border-border/50 first:border-t-0"
+                              >
+                                <dt className="flex-1 type-body-sm text-muted-foreground">{av.name}</dt>
+                                <dd className="type-caption">{formatAttributeValue(av)}</dd>
                               </div>
                             ))}
-                          </ItemGroup>
+                          </dl>
                         </div>
                       ))}
                     </div>
@@ -299,18 +290,19 @@ export async function ProductDetailModule({
                     specList
                   );
                 })()}
-              </div>
+              </section>
             )}
 
             {product.description && (
-              <div
+              <section
+                aria-labelledby="product-description-heading"
                 className={cn(
                   (hasHighlights || hasSpecs) && "pt-12 md:pt-16 border-t border-dashed border-border/40",
                 )}
               >
-                <TypographyH2 className="text-xl md:text-2xl font-bold tracking-tight text-center mb-8">
+                <h2 id="product-description-heading" className="type-title text-center mb-8">
                   Mô tả sản phẩm
-                </TypographyH2>
+                </h2>
                 {/* max-w-2xl, not max-w-4xl — was even wider than the
                     other 4 pages rendering PreviewContent (all max-w-3xl,
                     now also max-w-2xl), an inconsistency on top of the
@@ -322,7 +314,7 @@ export async function ProductDetailModule({
                     <PreviewContent content={product.description} fallbackAlt={product.name} size="lg" />
                   </ProductDescription>
                 </div>
-              </div>
+              </section>
             )}
           </div>
         </section>
@@ -359,11 +351,11 @@ export async function ProductDetailModule({
       {/* ===== SẢN PHẨM LIÊN QUAN ===== */}
       {relatedProducts.length > 0 && (
         <section className="w-full max-w-350 mx-auto px-4 md:px-6 lg:px-8 py-6 md:py-10 border-t border-dashed border-border/40">
-          <div className="w-full flex flex-col gap-6">
-            <TypographyH2 className="text-xl md:text-2xl font-bold tracking-tight">
+          <div role="region" aria-labelledby="related-products-heading" className="w-full flex flex-col gap-6">
+            <h2 id="related-products-heading" className="type-title">
               Sản phẩm liên quan
-            </TypographyH2>
-            <ProductGrid products={relatedProducts} shippingZone={personalizedShippingZone} />
+            </h2>
+            <ProductGrid products={relatedProducts} shippingZone={personalizedShippingZone} headingAs="h3" />
           </div>
         </section>
       )}
@@ -371,9 +363,9 @@ export async function ProductDetailModule({
       {/* ===== FOOTER BẢN QUYỀN ===== */}
       <section className="w-full max-w-350 mx-auto px-4 md:px-6 lg:px-8 py-6 border-t border-dashed border-border/40">
         <footer className={cn("w-full flex flex-col md:flex-row justify-between items-center gap-6 text-muted-foreground")}>
-          <TypographySmall>&copy; {currentYear} Điện máy ELC.</TypographySmall>
+          <small className="type-caption">&copy; {currentYear} Điện máy ELC.</small>
           <ScrollToTop className="flex items-center gap-2 cursor-pointer hover:text-foreground transition-colors">
-            <TypographySmall>Quay lại đầu trang</TypographySmall>
+            <small className="type-caption">Quay lại đầu trang</small>
           </ScrollToTop>
         </footer>
       </section>

@@ -96,7 +96,7 @@ export function ShareButton({ url, title, variant = "icon", size = "icon-sm", cl
             href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center gap-2.5 rounded-md px-2 py-1.5 text-sm hover:bg-accent transition-colors"
+            className="flex items-center gap-2.5 rounded-md px-2 py-1.5 type-body-sm hover:bg-accent transition-colors"
           >
             <ContactIcon type="facebook" size={16} weight="fill" className="text-[#1877F2]" />
             Facebook
@@ -105,7 +105,7 @@ export function ShareButton({ url, title, variant = "icon", size = "icon-sm", cl
             href={`https://zalo.me/share?u=${encodeURIComponent(url)}&d=${encodeURIComponent(title)}`}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center gap-2.5 rounded-md px-2 py-1.5 text-sm hover:bg-accent transition-colors"
+            className="flex items-center gap-2.5 rounded-md px-2 py-1.5 type-body-sm hover:bg-accent transition-colors"
           >
             <ContactIcon type="zalo" size={16} className="text-[#0068FF]" />
             Zalo
@@ -113,7 +113,7 @@ export function ShareButton({ url, title, variant = "icon", size = "icon-sm", cl
           <button
             type="button"
             onClick={handleCopy}
-            className="flex items-center gap-2.5 rounded-md px-2 py-1.5 text-sm hover:bg-accent transition-colors text-left"
+            className="flex items-center gap-2.5 rounded-md px-2 py-1.5 type-body-sm hover:bg-accent transition-colors text-left"
           >
             {copied ? (
               <CheckIcon size={16} className="text-green-600" />

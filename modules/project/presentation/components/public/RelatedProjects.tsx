@@ -1,6 +1,5 @@
 import { getProjectsAction } from "@/modules/project/presentation/actions";
 import { ProjectCard } from "@/modules/project/presentation/components/ProjectCard";
-import { TypographyH2 } from "@/shared/components/ui/typography";
 import { cn } from "@/shared/lib/utils";
 
 interface RelatedProjectsProps {
@@ -49,12 +48,14 @@ export async function RelatedProjects({
 
   return (
     <section className={STYLES.section}>
-      <TypographyH2 className={STYLES.title}>Dự án liên quan</TypographyH2>
-      <div className={STYLES.grid}>
+      <h2 className={cn("type-title", STYLES.title)}>Dự án liên quan</h2>
+      <ul className={STYLES.grid}>
         {related.map((project) => (
-          <ProjectCard key={project.id} project={project} />
+          <li key={project.id} className="flex flex-col">
+            <ProjectCard project={project} />
+          </li>
         ))}
-      </div>
+      </ul>
     </section>
   );
 }

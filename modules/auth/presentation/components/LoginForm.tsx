@@ -8,7 +8,6 @@ import { GoogleIcon } from "@/shared/components/molecules/auth/google-icon";
 import { Button } from "@/shared/components/ui/button";
 import { Card, CardContent } from "@/shared/components/ui/card";
 import { Input } from "@/shared/components/ui/input";
-import { Label } from "@/shared/components/ui/label";
 import { Separator } from "@/shared/components/ui/separator";
 
 import { useGoogleLogin } from "../hooks/useGoogleLogin";
@@ -48,10 +47,10 @@ export function LoginForm() {
       <Script src="https://accounts.google.com/gsi/client" strategy="afterInteractive" />
 
       <div className="flex flex-col items-center gap-2 text-center">
-        <h1 className="font-heading text-2xl font-medium tracking-tight text-balance sm:text-4xl sm:whitespace-nowrap">
+        <h1 className="type-headline sm:whitespace-nowrap">
           Mát lành mọi không gian
         </h1>
-        <p className="text-sm text-muted-foreground">
+        <p className="type-body-sm text-muted-foreground">
           Máy lạnh, khí tươi & dự án trọn gói cho ngôi nhà của bạn
         </p>
       </div>
@@ -65,44 +64,53 @@ export function LoginForm() {
             disabled={!googleLogin.ready || googleLogin.isPending || !!googleLogin.configError}
             onClick={googleLogin.signIn}
           >
-            <GoogleIcon className="size-4" />
+            <GoogleIcon aria-hidden="true" className="size-4" />
             {googleLogin.isPending ? "Đang đăng nhập..." : "Tiếp tục với Google"}
           </Button>
           {googleLogin.configError && (
-            <p className="text-xs text-destructive">{googleLogin.configError}</p>
+            <p role="alert" className="type-legal text-destructive">{googleLogin.configError}</p>
           )}
 
           <div className="flex items-center gap-3">
             <Separator className="flex-1" />
-            <span className="text-xs text-muted-foreground">HOẶC</span>
+            <span className="type-legal text-muted-foreground">HOẶC</span>
             <Separator className="flex-1" />
           </div>
 
-          <div className="flex flex-col gap-2">
-            <Label htmlFor="email" className="sr-only">
-              Email
-            </Label>
+          <form
+            noValidate
+            className="flex flex-col gap-4"
+            onSubmit={(e) => {
+              e.preventDefault();
+              if (email && !requestMagicLinkMutation.isPending) handleContinueWithEmail();
+            }}
+          >
             <Input
               id="email"
+              name="email"
               type="email"
+              autoComplete="email"
+              aria-label="Email"
+              aria-invalid={!!(error || googleError)}
+              aria-describedby={error || googleError ? "login-error" : undefined}
               placeholder="Nhập email của bạn"
               className="h-10"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
             />
-          </div>
 
-          <Button
-            size="lg"
-            className="w-full shadow-md"
-            disabled={!email || requestMagicLinkMutation.isPending}
-            onClick={handleContinueWithEmail}
-          >
-            {requestMagicLinkMutation.isPending ? "Đang gửi..." : "Tiếp tục với email"}
-          </Button>
+            <Button
+              type="submit"
+              size="lg"
+              className="w-full shadow-md"
+              disabled={!email || requestMagicLinkMutation.isPending}
+            >
+              {requestMagicLinkMutation.isPending ? "Đang gửi..." : "Tiếp tục với email"}
+            </Button>
+          </form>
 
           {(error || googleError) && (
-            <p className="text-xs text-destructive">{error || googleError}</p>
+            <p id="login-error" role="alert" className="type-legal text-destructive">{error || googleError}</p>
           )}
         </CardContent>
       </Card>

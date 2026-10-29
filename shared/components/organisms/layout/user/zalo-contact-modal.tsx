@@ -109,13 +109,13 @@ export function ZaloContactModal({
           <div className="flex items-center gap-3">
             {/* #0068ff = đúng xanh brand Zalo, cố ý không dùng token app (xem docs/design-system.md §4) */}
             <div className="w-9 h-9 rounded-full bg-[#0068ff] flex items-center justify-center shrink-0">
-              <ZaloIcon size={16} className="text-white" />
+              <ZaloIcon aria-hidden="true" size={16} className="text-white" />
             </div>
             <div>
-              <DialogTitle className="text-sm font-bold leading-tight">
+              <DialogTitle className="type-label">
                 Liên hệ tư vấn qua Zalo
               </DialogTitle>
-              <DialogDescription className="text-xs text-muted-foreground mt-0.5 line-clamp-1">
+              <DialogDescription className="type-legal text-muted-foreground mt-0.5 line-clamp-1">
                 {subtitle ?? (products.length > 1 ? `${products.length} sản phẩm đã gợi ý` : products[0]?.productName)}
               </DialogDescription>
             </div>
@@ -124,7 +124,7 @@ export function ZaloContactModal({
 
         <div className="px-5 py-4 space-y-4">
           {/* Message preview */}
-          <div className="bg-muted/40 rounded-xl px-4 py-3 text-xs leading-relaxed whitespace-pre-line border border-border/40 text-muted-foreground">
+          <div role="group" aria-label="Nội dung tin nhắn sẽ gửi" className="bg-muted/40 rounded-xl px-4 py-3 type-legal whitespace-pre-line border border-border/40 text-muted-foreground">
             {message}
           </div>
 
@@ -138,9 +138,9 @@ export function ZaloContactModal({
             {copied ? "Đã sao chép" : "Sao chép tin nhắn"}
           </Button>
 
-          <p className="text-xs text-muted-foreground text-center">
+          <p className="type-legal text-muted-foreground text-center">
             Mở Zalo, tìm số{" "}
-            <span className="font-medium text-foreground">{zaloPhone}</span>
+            <span className="type-tag text-foreground">{zaloPhone}</span>
             {" "}và dán tin nhắn
           </p>
 
@@ -149,13 +149,13 @@ export function ZaloContactModal({
             <>
               <div className="flex items-center gap-3 text-muted-foreground">
                 <div className="flex-1 h-px bg-border" />
-                <span className="text-xs">hoặc</span>
+                <span className="type-legal">hoặc</span>
                 <div className="flex-1 h-px bg-border" />
               </div>
               <a
                 href={phoneHref}
                 onClick={handlePhoneClick}
-                className="flex items-center justify-center rounded-lg border border-border/60 bg-background hover:bg-muted/50 transition-colors px-4 py-2.5 text-sm font-semibold text-foreground w-full"
+                className="flex items-center justify-center rounded-lg border border-border/60 bg-background hover:bg-muted/50 transition-colors px-4 py-2.5 type-label text-foreground w-full"
               >
                 Gọi {phoneNumber}
               </a>
@@ -165,7 +165,8 @@ export function ZaloContactModal({
           {/* Fallback: open zalo web */}
           <button
             onClick={handleOpenZaloWeb}
-            className="w-full text-xs text-muted-foreground hover:text-foreground transition-colors underline underline-offset-2 text-center"
+            type="button"
+            className="w-full type-legal text-muted-foreground hover:text-foreground transition-colors underline underline-offset-2 text-center"
           >
             Mở Zalo Web
           </button>

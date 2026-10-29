@@ -8,10 +8,6 @@ import {
   StaggerContainer,
   StaggerItem,
 } from "@/shared/components/ui/animate-in";
-import {
-  TypographyH2,
-  TypographyMuted,
-} from "@/shared/components/ui/typography";
 import { Spinner } from "@phosphor-icons/react";
 import Link from "next/link";
 import { useRef, useState } from "react";
@@ -77,7 +73,7 @@ export function FeaturesSection({
   const isShowingProducts = products.length > 0;
 
   return (
-    <div className="w-full flex flex-col items-center justify-center gap-8">
+    <section aria-labelledby={`features-${slug}`} className="w-full flex flex-col items-center justify-center gap-8">
       <StaggerContainer className="w-full" immediate>
         <div className="flex flex-col items-center gap-3">
           <StaggerItem>
@@ -86,7 +82,7 @@ export function FeaturesSection({
                 href={`/san-pham/${slug}`}
                 className="group relative inline-flex items-center justify-center transition-colors p-2"
               >
-                <TypographyH2>{title}</TypographyH2>
+                <h2 id={`features-${slug}`} className="type-title">{title}</h2>
               </Link>
             </Button>
           </StaggerItem>
@@ -95,13 +91,13 @@ export function FeaturesSection({
 
       {isShowingProducts ? (
         <div className="w-full flex flex-col gap-4">
-          <div className={GRID_CLASS}>
+          <ul className={GRID_CLASS}>
             {products.map((product, i) => (
-              <div key={product.id} className="text-foreground h-full">
+              <li key={product.id} className="text-foreground h-full">
                 <ProductCard product={product} priority={i < priorityCount} />
-              </div>
+              </li>
             ))}
-          </div>
+          </ul>
 
           {hasMore && (
             <div className="flex justify-center pt-1">
@@ -114,7 +110,7 @@ export function FeaturesSection({
               >
                 {isLoadingMore ? (
                   <>
-                    <Spinner className="size-3.5 animate-spin" />
+                    <Spinner aria-hidden="true" className="size-3.5 animate-spin" />
                     Đang tải...
                   </>
                 ) : (
@@ -126,9 +122,9 @@ export function FeaturesSection({
         </div>
       ) : (
         <AnimateIn className="flex flex-col items-center justify-center py-20 gap-4 text-muted-foreground border border-dashed rounded-xl bg-muted/30 w-full">
-          <TypographyMuted>Đang tải sản phẩm...</TypographyMuted>
+          <p role="status" className="type-body-sm text-muted-foreground">Đang tải sản phẩm...</p>
         </AnimateIn>
       )}
-    </div>
+    </section>
   );
 }

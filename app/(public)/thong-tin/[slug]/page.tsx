@@ -10,10 +10,6 @@ import {
 } from "@/shared/components/ui/accordion";
 import { AspectRatio } from "@/shared/components/ui/aspect-ratio";
 import { Card, CardContent } from "@/shared/components/ui/card";
-import {
-  TypographyH1,
-  TypographySmall,
-} from "@/shared/components/ui/typography";
 import { cn } from "@/shared/lib/utils";
 import Image from "next/image";
 import { notFound } from "next/navigation";
@@ -44,7 +40,7 @@ const STYLES = {
   section: cn("w-full max-w-2xl mx-auto"),
   accordion: cn("w-full"),
   accordionItem: cn("flex flex-col gap-4 border-b last:border-b-0"),
-  accordionContent: cn("text-lg"),
+  accordionContent: cn("type-body"),
   mapCard: cn("m-1 overflow-hidden p-2 shadow-sm bg-background/60"),
   mapIframe: cn(
     "w-full h-full rounded-lg transition-all duration-2000 ease-in-out ",
@@ -117,6 +113,7 @@ export default async function BranchDetail({ params }: Props) {
               <CardContent className="p-0">
                 <AspectRatio ratio={16 / 9}>
                   <iframe
+                    title={`Bản đồ ${branch.name}`}
                     src={getZoomedUrl(
                       branch.mapsEmbed.match(/src="([^"]+)"/)?.[1] ||
                         branch.mapsEmbed,
@@ -217,20 +214,20 @@ export default async function BranchDetail({ params }: Props) {
           <div>
             <Link
               href="/thong-tin"
-              className="group inline-flex items-center gap-2 text-xs text-muted-foreground hover:text-foreground transition-colors mb-4"
+              className="group inline-flex items-center gap-2 type-legal text-muted-foreground hover:text-foreground transition-colors mb-4"
             >
               <ArrowLeft className="w-3 h-3 transition-transform group-hover:-translate-x-0.5" />
               <span>Quay lại danh mục</span>
             </Link>
-            <TypographyH1
+            <h1
               className={cn(
-                "w-full max-w-none! text-balance! font-heading leading-tight",
+                "type-headline w-full",
                 branch.nameAlign === "center" && "text-center",
                 branch.nameAlign === "right" && "text-right",
               )}
             >
               {branch.name}
-            </TypographyH1>
+            </h1>
             {primaryImageUrl(branch.images) && (
               <div className="w-full mt-6 overflow-hidden rounded-sm border border-border/40">
                 <AspectRatio ratio={16 / 9}>
@@ -248,7 +245,10 @@ export default async function BranchDetail({ params }: Props) {
           </div>
 
           {items.length > 0 && (
-            <section className={STYLES.section}>
+            <section aria-labelledby="branch-contact-heading" className={STYLES.section}>
+              <h2 id="branch-contact-heading" className="type-title mb-4">
+                Thông tin liên hệ
+              </h2>
               <Accordion
                 type="single"
                 collapsible
@@ -261,7 +261,7 @@ export default async function BranchDetail({ params }: Props) {
                     value={item.value}
                     className={STYLES.accordionItem}
                   >
-                    <AccordionTrigger className="text-lg font-semibold">
+                    <AccordionTrigger className="type-body-strong">
                       {item.trigger}
                     </AccordionTrigger>
                     <AccordionContent>
@@ -287,9 +287,9 @@ export default async function BranchDetail({ params }: Props) {
       <div id="branch-detail-footer" className="w-full relative">
         <div className={cn(STYLES.sectionContainer, "py-6 md:py-8 lg:py-10")}>
           <footer className="w-full flex flex-col md:flex-row justify-between items-center gap-6 text-muted-foreground">
-            <TypographySmall>&copy; {currentYear} Điện máy ELC.</TypographySmall>
+            <small className="type-caption">&copy; {currentYear} Điện máy ELC.</small>
             <ScrollToTop className="flex items-center gap-2 cursor-pointer hover:text-foreground transition-colors">
-              <TypographySmall>Quay lại đầu trang</TypographySmall>
+              <small className="type-caption">Quay lại đầu trang</small>
             </ScrollToTop>
           </footer>
         </div>

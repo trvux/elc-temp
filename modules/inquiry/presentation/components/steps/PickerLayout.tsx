@@ -28,14 +28,14 @@ export function PickerLayout({
 }: PickerLayoutProps) {
   return (
     <div>
-      <h1 className="text-2xl sm:text-3xl md:text-4xl font-semibold leading-tight text-balance text-white drop-shadow-sm">
+      <h1 id="step-question" className="type-headline text-white drop-shadow-sm">
         {question}
       </h1>
-      {description && <p className="mt-3 text-white/80 drop-shadow-sm">{description}</p>}
+      {description && <p id="step-description" className="type-body mt-3 text-white/80 drop-shadow-sm">{description}</p>}
 
       {filters && <div className="mt-6">{filters}</div>}
 
-      <div className="mt-6">
+      <div role="group" aria-labelledby="step-question" aria-busy={loading || undefined} className="mt-6">
         {loading ? (
           <div className="grid grid-cols-2 gap-3">
             {Array.from({ length: 4 }).map((_, i) => (
@@ -50,7 +50,7 @@ export function PickerLayout({
       <button
         type="button"
         onClick={onSkip}
-        className="mt-6 text-sm text-white/70 underline underline-offset-4 drop-shadow-sm hover:text-white"
+        className="mt-6 type-body-sm text-white/70 underline underline-offset-4 drop-shadow-sm hover:text-white"
       >
         {skipLabel}
       </button>

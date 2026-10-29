@@ -16,9 +16,10 @@ export function EntityPickerCard({ title, selected, onClick }: EntityPickerCardP
   return (
     <button
       type="button"
+      aria-pressed={selected}
       onClick={onClick}
       className={cn(
-        "w-full rounded-lg border-2 px-4 py-3 text-left text-sm font-medium transition-colors sm:text-base drop-shadow-sm",
+        "w-full rounded-lg border-2 px-4 py-3 text-left type-caption transition-colors sm:type-body drop-shadow-sm",
         selected
           ? "border-primary bg-primary text-primary-foreground"
           : "border-white/40 text-white hover:border-white",

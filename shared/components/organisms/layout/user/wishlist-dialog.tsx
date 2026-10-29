@@ -80,7 +80,7 @@ export function WishlistDialog() {
         <Empty>
           <EmptyHeader>
             <EmptyMedia variant="icon">
-              <Heart />
+              <Heart aria-hidden="true" />
             </EmptyMedia>
             <EmptyTitle>Chưa có sản phẩm yêu thích</EmptyTitle>
             <EmptyDescription>
@@ -91,7 +91,7 @@ export function WishlistDialog() {
       )}
 
       {validItems.length > 0 && (
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+        <ul className="grid grid-cols-2 sm:grid-cols-3 gap-4">
           {validItems.map((item) => (
             <WishlistItemCard
               key={item.id}
@@ -99,7 +99,7 @@ export function WishlistDialog() {
               onNavigate={() => setDialogOpen(false)}
             />
           ))}
-        </div>
+        </ul>
       )}
     </>
   );
@@ -183,7 +183,7 @@ function WishlistItemCard({
   };
 
   return (
-    <div className="relative flex flex-col gap-2 rounded-lg border border-border/40 p-3">
+    <li className="relative flex flex-col gap-2 rounded-lg border border-border/40 p-3">
       <div className="absolute top-2 right-2 z-10">
         <WishlistButton productId={item.product_id} />
       </div>
@@ -197,7 +197,7 @@ function WishlistItemCard({
             <Image
               key={retryCount}
               src={product.image_url}
-              alt={product.name}
+              alt=""
               width={200}
               height={112}
               className="w-full h-full object-contain"
@@ -207,13 +207,13 @@ function WishlistItemCard({
             <ImageBroken className="size-8 text-muted-foreground/40" />
           )}
         </div>
-        <span className="text-sm font-medium line-clamp-2">{product.name}</span>
-        <span className="text-sm font-bold text-destructive">
+        <span className="type-caption line-clamp-2">{product.name}</span>
+        <span className="type-label text-destructive">
           {product.display_price
             ? formatPrice(product.display_price)
             : "Liên hệ"}
         </span>
       </Link>
-    </div>
+    </li>
   );
 }

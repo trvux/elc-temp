@@ -8,14 +8,14 @@ export function AuthLayout({ children }: { children: React.ReactNode }) {
         <Link href="/" className="flex shrink-0 items-center gap-2 transition-opacity hover:opacity-80">
           <Image
             src="/logo/logo.svg"
-            alt="Điện máy ELC"
+            alt=""
             width={32}
             height={32}
             style={{ width: "auto" }}
             className="h-8 w-auto"
             priority
           />
-          <span className="font-heading text-lg font-semibold tracking-tight">Điện máy ELC</span>
+          <span className="type-body-strong">Điện máy ELC</span>
         </Link>
       </header>
 
@@ -23,7 +23,7 @@ export function AuthLayout({ children }: { children: React.ReactNode }) {
         {children}
       </main>
 
-      <footer className="px-4 py-6 text-center text-xs text-muted-foreground sm:px-6">
+      <footer className="px-4 py-6 text-center type-legal text-muted-foreground sm:px-6">
         © {new Date().getFullYear()} Điện máy ELC. Đã đăng ký bản quyền.
       </footer>
     </div>

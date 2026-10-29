@@ -20,6 +20,8 @@ interface LocationFieldProps {
   value: string;
   onValueChange: (code: string) => void;
   placeholder?: string;
+  // What the field is (e.g. "Tỉnh/thành phố"); joins the current value to form the accessible name.
+  label?: string;
   disabled?: boolean;
   emptyText?: string;
   className?: string;
@@ -48,6 +50,7 @@ export function LocationField({
   value,
   onValueChange,
   placeholder,
+  label,
   disabled,
   emptyText = "Không tìm thấy.",
   className,
@@ -64,6 +67,7 @@ export function LocationField({
         value={value}
         onValueChange={onValueChange}
         placeholder={placeholder}
+        label={label}
         disabled={disabled}
         emptyText={emptyText}
         variant="ghost"
@@ -80,6 +84,7 @@ export function LocationField({
           variant="ghost"
           role="combobox"
           aria-expanded={open}
+          aria-label={label ? `${label}: ${selected?.name || placeholder || "chưa chọn"}` : undefined}
           disabled={disabled}
           className={cn(
             "justify-between font-normal hover:bg-transparent aria-expanded:bg-transparent aria-expanded:text-foreground",
@@ -95,7 +100,7 @@ export function LocationField({
           <DrawerTitle>{drawerTitle}</DrawerTitle>
         </DrawerHeader>
         <Command className="flex-1 overflow-hidden">
-          <CommandInput placeholder="Tìm kiếm..." />
+          <CommandInput aria-label={label ? `Tìm ${label.toLowerCase()}` : "Tìm kiếm"} placeholder="Tìm kiếm..." />
           <CommandList className="max-h-none overflow-y-auto px-2 pb-6">
             <CommandEmpty className="px-2 py-3">{emptyText}</CommandEmpty>
             <CommandGroup>

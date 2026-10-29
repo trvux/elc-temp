@@ -7,7 +7,6 @@ import { Truck } from "@phosphor-icons/react";
 import { getProvincesAction, getWardsAction, lookupShippingZoneAction, ZoneLookupResult } from "@/modules/shipping-zone";
 import { LocationCombobox } from "@/modules/shipping-zone/presentation/components/LocationCombobox";
 import { useLocationPicker } from "@/shared/providers/location-picker-provider";
-import { TypographySmall } from "@/shared/components/ui/typography";
 
 function formatVnd(value: number): string {
   return value === 0 ? "Miễn phí" : `${value.toLocaleString("vi-VN")}đ`;
@@ -67,11 +66,11 @@ export function DeliveryEstimate({ initialProvinceCode, initialWardCode }: Deliv
   }, [provinceCode, wardCode]);
 
   return (
-    <div className="flex flex-col gap-2 rounded-xl border p-4 bg-muted/10">
-      <span className="flex items-center gap-1.5 text-sm font-medium text-foreground">
-        <Truck className="size-4 shrink-0" />
+    <div role="group" aria-labelledby="delivery-estimate-label" className="flex flex-col gap-2 rounded-xl border p-4 bg-muted/10">
+      <p id="delivery-estimate-label" className="flex items-center gap-1.5 type-caption text-foreground">
+        <Truck aria-hidden="true" className="size-4 shrink-0" />
         Kiểm tra phí và thời gian giao hàng
-      </span>
+      </p>
 
       <div className="flex flex-wrap gap-2">
         <LocationCombobox
@@ -82,6 +81,7 @@ export function DeliveryEstimate({ initialProvinceCode, initialWardCode }: Deliv
             setWardCode("");
           }}
           placeholder="Chọn tỉnh/thành"
+          label="Tỉnh/thành"
           emptyText="Không tìm thấy tỉnh/thành."
         />
         <LocationCombobox
@@ -89,22 +89,23 @@ export function DeliveryEstimate({ initialProvinceCode, initialWardCode }: Deliv
           value={wardCode}
           onValueChange={setWardCode}
           placeholder="Chọn phường/xã (tùy chọn)"
+          label="Phường/xã"
           disabled={!provinceCode}
           emptyText="Không tìm thấy phường/xã."
         />
       </div>
 
       {result && (
-        <TypographySmall className="text-muted-foreground">
+        <p role="status" className="type-caption text-muted-foreground">
           {result.zoneName}: {formatVnd(result.feeVnd)} — Giao trong {result.minDays}-{result.maxDays} ngày
-        </TypographySmall>
+        </p>
       )}
 
       {initialProvinceCode && (
         <button
           type="button"
           onClick={openLocationPicker}
-          className="self-start text-xs text-muted-foreground underline underline-offset-2 hover:text-foreground"
+          className="self-start type-legal text-muted-foreground underline underline-offset-2 hover:text-foreground"
         >
           Đổi khu vực đã lưu
         </button>

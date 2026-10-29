@@ -126,7 +126,7 @@ export function ProductFloatingBar({
                     <div className="shrink-0 w-11 h-11 overflow-hidden">
                       <Image
                         src={productImage}
-                        alt={productName}
+                        alt=""
                         width={44}
                         height={44}
                         className="w-full h-full object-contain"
@@ -134,16 +134,16 @@ export function ProductFloatingBar({
                     </div>
                   )}
                   <div className="flex flex-1 items-center justify-between gap-2 min-w-0 h-full">
-                    <span className="text-sm font-bold leading-tight flex-1">
+                    <span className="type-label flex-1">
                       {productName}
                     </span>
                     <div className="text-right shrink-0">
-                      <div className="text-sm font-bold text-destructive leading-tight">
+                      <div className="type-label text-destructive">
                         <FormattedPrice price={salePrice} />
                       </div>
                       {hasDiscount && (
-                        <div className="text-sm text-muted-foreground line-through leading-tight">
-                          <FormattedPrice price={originalPrice} />
+                        <div className="type-caption text-muted-foreground">
+                          <FormattedPrice price={originalPrice} strikethrough />
                         </div>
                       )}
                     </div>
@@ -174,23 +174,23 @@ export function ProductFloatingBar({
                   <div className="shrink-0 w-20 h-20 overflow-hidden">
                     <Image
                       src={productImage}
-                      alt={productName}
+                      alt=""
                       width={80}
                       height={80}
                       className="w-full h-full object-contain"
                     />
                   </div>
                 )}
-                <span className="flex-1 text-md font-bold leading-snug line-clamp-2">
+                <span className="flex-1 type-body-strong line-clamp-2">
                   {productName}
                 </span>
                 <div className="shrink-0 text-right">
-                  <div className="text-md font-bold text-destructive leading-tight">
+                  <div className="type-body-strong text-destructive">
                     <FormattedPrice price={salePrice} />
                   </div>
                   {hasDiscount && (
-                    <div className="text-sm text-muted-foreground line-through leading-tight">
-                      <FormattedPrice price={originalPrice} />
+                    <div className="type-caption text-muted-foreground">
+                      <FormattedPrice price={originalPrice} strikethrough />
                     </div>
                   )}
                 </div>

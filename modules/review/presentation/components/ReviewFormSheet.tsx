@@ -121,19 +121,19 @@ export function ReviewFormSheet({
       <div className="flex items-center gap-3">
         <div className="relative size-16 shrink-0 overflow-hidden rounded-lg bg-white">
           {entityImage ? (
-            <Image src={entityImage} alt={entityName} fill className="object-contain p-1.5" />
+            <Image src={entityImage} alt="" fill className="object-contain p-1.5" />
           ) : null}
         </div>
         <div className="flex flex-col gap-1 min-w-0">
-          <span className="text-sm font-semibold line-clamp-2">{entityName}</span>
+          <span className="type-label line-clamp-2">{entityName}</span>
           {ratingCount > 0 ? (
             <div className="flex items-center gap-1.5">
               <StarRating value={ratingAverage} size="sm" />
-              <span className="text-xs font-medium text-foreground">{ratingAverage.toFixed(1)}</span>
-              <span className="text-xs text-muted-foreground">({ratingCount} đánh giá)</span>
+              <span className="type-tag text-foreground">{ratingAverage.toFixed(1)}</span>
+              <span className="type-legal text-muted-foreground">({ratingCount} đánh giá)</span>
             </div>
           ) : (
-            <span className="text-xs text-muted-foreground">Chưa có đánh giá nào</span>
+            <span className="type-legal text-muted-foreground">Chưa có đánh giá nào</span>
           )}
         </div>
       </div>

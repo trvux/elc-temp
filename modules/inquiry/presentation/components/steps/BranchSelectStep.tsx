@@ -35,12 +35,12 @@ interface BranchSelectStepProps {
 export function BranchSelectStep({ onSelect }: BranchSelectStepProps) {
   return (
     <div>
-      <h1 className="text-2xl sm:text-3xl md:text-4xl font-semibold leading-tight text-balance text-white drop-shadow-sm">
+      <h1 id="step-question" className="type-headline text-white drop-shadow-sm">
         Bạn đang cần gì hôm nay?
       </h1>
-      <p className="mt-3 text-white/80 drop-shadow-sm">Chọn một mục để bắt đầu.</p>
+      <p id="step-description" className="type-body mt-3 text-white/80 drop-shadow-sm">Chọn một mục để bắt đầu.</p>
 
-      <div className="mt-8 flex flex-col gap-3">
+      <div role="group" aria-labelledby="step-question" aria-describedby="step-description" className="mt-8 flex flex-col gap-3">
         {BRANCH_OPTIONS.map((option) => (
           <button
             key={option.value}
@@ -51,8 +51,8 @@ export function BranchSelectStep({ onSelect }: BranchSelectStepProps) {
               "border-white/40 hover:border-white",
             )}
           >
-            <p className="font-semibold text-white drop-shadow-sm">{option.label}</p>
-            <p className="mt-0.5 text-sm text-white/70 drop-shadow-sm">{option.description}</p>
+            <span className="block type-body-strong text-white drop-shadow-sm">{option.label}</span>
+            <span className="mt-0.5 block type-body-sm text-white/70 drop-shadow-sm">{option.description}</span>
           </button>
         ))}
       </div>

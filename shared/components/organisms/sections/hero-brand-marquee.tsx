@@ -22,46 +22,54 @@ export function HeroBrandMarquee({ brands, caption, className }: HeroBrandMarque
   return (
     <div className={cn("w-full", className)}>
       {caption && (
-        <p className="mb-3 text-center text-sm text-white/50">{caption}</p>
+        <p id="brand-marquee-caption" className="mb-3 text-center type-body-sm text-white/50">{caption}</p>
       )}
       <div
         className={cn(
           "relative mx-auto w-full max-w-screen-xl overflow-hidden",
-          "hover:pause-marquee mask-[linear-gradient(to_right,transparent,black_15%,black_85%,transparent)]",
+          "hover:pause-marquee focus-within:pause-marquee mask-[linear-gradient(to_right,transparent,black_15%,black_85%,transparent)]",
         )}
       >
-        <div className="flex w-fit items-center gap-8 py-2 animate-marquee md:gap-16 lg:gap-20">
-          {/* Render twice for a seamless loop */}
+        <ul
+          aria-labelledby={caption ? "brand-marquee-caption" : undefined}
+          className="flex w-fit items-center gap-8 py-2 animate-marquee motion-reduce:animate-none md:gap-16 lg:gap-20"
+        >
+          {/* Rendered twice for a seamless loop. The second pass is a visual
+              duplicate only: hidden from assistive tech and out of the Tab
+              order, so every brand is announced and focusable once. */}
           {[...brands, ...brands].map((brand, i) => {
             const url = `/san-pham?brands=${brand.slug}`;
+            const isDuplicate = i >= brands.length;
             return (
-              <Link
-                key={`${brand.id}-${i}`}
-                href={url}
-                prefetch={false}
-                className="group flex h-10 shrink-0 select-none items-center justify-center px-6 transition-all duration-300 md:h-12"
-                title={`Xem sản phẩm từ thương hiệu ${brand.name}`}
-              >
-                {brand.logoUrl ? (
-                  <div className="relative h-7 w-20 md:h-8 md:w-24">
-                    <Image
-                      src={brand.logoUrl}
-                      alt={brand.name}
-                      fill
-                      loading="lazy"
-                      sizes="(max-width: 768px) 80px, 96px"
-                      className="object-contain opacity-60 grayscale invert brightness-0 transition-all duration-300 group-hover:opacity-100 group-hover:grayscale-0 group-hover:invert-0 group-hover:brightness-100"
-                    />
-                  </div>
-                ) : (
-                  <span className="text-sm font-semibold text-white/50 transition-colors duration-300 group-hover:text-white">
-                    {brand.name}
-                  </span>
-                )}
-              </Link>
+              <li key={`${brand.id}-${i}`} aria-hidden={isDuplicate || undefined}>
+                <Link
+                  href={url}
+                  prefetch={false}
+                  tabIndex={isDuplicate ? -1 : undefined}
+                  className="group flex h-10 shrink-0 select-none items-center justify-center px-6 transition-all duration-300 md:h-12"
+                  title={`Xem sản phẩm từ thương hiệu ${brand.name}`}
+                >
+                  {brand.logoUrl ? (
+                    <div className="relative h-7 w-20 md:h-8 md:w-24">
+                      <Image
+                        src={brand.logoUrl}
+                        alt={brand.name}
+                        fill
+                        loading="lazy"
+                        sizes="(max-width: 768px) 80px, 96px"
+                        className="object-contain opacity-60 grayscale invert brightness-0 transition-all duration-300 group-hover:opacity-100 group-hover:grayscale-0 group-hover:invert-0 group-hover:brightness-100"
+                      />
+                    </div>
+                  ) : (
+                    <span className="type-label text-white/50 transition-colors duration-300 group-hover:text-white">
+                      {brand.name}
+                    </span>
+                  )}
+                </Link>
+              </li>
             );
           })}
-        </div>
+        </ul>
       </div>
     </div>
   );

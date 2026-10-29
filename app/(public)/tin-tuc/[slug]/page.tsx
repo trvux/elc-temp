@@ -12,11 +12,6 @@ import { ShareButton } from "@/shared/components/organisms/layout/user/share-but
 import Image from "next/image";
 import { primaryImageUrl } from "@/shared/lib/image-asset";
 import {
-  TypographyH1,
-  TypographyH2,
-  TypographySmall,
-} from "@/shared/components/ui/typography";
-import {
   matchLinksByName,
   type NamedLink,
 } from "@/shared/lib/content-relevance";
@@ -37,7 +32,6 @@ const STYLES = {
   // pair sharing this container class, plus its own py-* override.
   sectionContainer:
     "mx-auto h-full w-full max-w-350 min-[112.5rem]:max-w-384 px-4 md:px-6 lg:px-12 relative",
-  title: "w-full max-w-none! text-balance! font-heading leading-tight",
   footer:
     "w-full flex flex-col md:flex-row justify-between items-center gap-6 text-muted-foreground",
 };
@@ -265,42 +259,45 @@ export default async function NewsDetailPage({ params }: PageProps) {
             every checked width. Body text's max-w-2xl doesn't need this —
             Linear's paragraph column is a flat 624px, no fluid range below
             that cap. */}
-        <div className="max-w-[56.25rem] mx-auto w-full flex flex-col gap-6 animate-fade-in-up">
-          <div>
+        <article className="max-w-[56.25rem] mx-auto w-full flex flex-col gap-6 animate-fade-in-up">
+          <header>
             <Link
               href="/tin-tuc"
-              className="group inline-flex items-center gap-2 text-xs text-muted-foreground hover:text-foreground transition-colors mb-4"
+              className="group inline-flex items-center gap-2 type-legal text-muted-foreground hover:text-foreground transition-colors mb-4"
             >
               <ArrowLeft className="w-3 h-3 transition-transform group-hover:-translate-x-0.5" />
               <span>Quay lại danh sách tin tức</span>
             </Link>
             <div className="flex items-center justify-between gap-3 mb-2">
               {formattedDate ? (
-                <TypographySmall className="text-muted-foreground/60 font-medium font-sans">
+                <time
+                  dateTime={createdAt}
+                  className="type-caption text-muted-foreground/60"
+                >
                   {formattedDate}
-                </TypographySmall>
+                </time>
               ) : (
                 <span />
               )}
               <ShareButton url={`${BASE_URL}/tin-tuc/${slug}`} title={title} />
             </div>
-            <TypographyH1
+            <h1
               className={cn(
-                STYLES.title,
+                "type-headline w-full",
                 newsItem.titleAlign === "center" && "text-center",
                 newsItem.titleAlign === "right" && "text-right",
               )}
             >
               {title}
-            </TypographyH1>
-          </div>
-          <article className="max-w-2xl mx-auto w-full">
+            </h1>
+          </header>
+          <div className="max-w-2xl mx-auto w-full">
             <PreviewContent
               content={newsItem.content}
               fallbackAlt={title}
             />
-          </article>
-        </div>
+          </div>
+        </article>
         </div>
       </div>
 
@@ -310,26 +307,26 @@ export default async function NewsDetailPage({ params }: PageProps) {
           <div className={cn(STYLES.sectionContainer, "py-10 md:py-16")}>
           <div className="max-w-4xl mx-auto w-full">
             <div className="flex items-center justify-between gap-4 mb-6">
-              <TypographyH2 className="text-xl md:text-2xl font-bold tracking-tight font-heading">
-                Sản phẩm liên quan
-              </TypographyH2>
+<h2 className="type-title">Sản phẩm liên quan</h2>
               {relatedProductsEntity &&
                 relatedProductsTotal > relatedProducts.length && (
                   <Link
                     href={`/san-pham/${relatedProductsEntity.slug}`}
                     prefetch={false}
-                    className="group inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors shrink-0"
+                    className="group inline-flex items-center gap-1.5 type-body-sm text-muted-foreground hover:text-foreground transition-colors shrink-0"
                   >
                     Xem tất cả {relatedProductsTotal} sản phẩm
                     <ArrowRightIcon className="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5" />
                   </Link>
                 )}
             </div>
-            <div className="grid gap-x-4 gap-y-6 grid-cols-[repeat(auto-fill,minmax(160px,1fr))]">
+            <ul className="grid gap-x-4 gap-y-6 grid-cols-[repeat(auto-fill,minmax(160px,1fr))]">
               {relatedProducts.map((p) => (
-                <ProductCard key={p.id} product={p} />
+                <li key={p.id}>
+                  <ProductCard product={p} />
+                </li>
               ))}
-            </div>
+            </ul>
           </div>
           </div>
         </div>
@@ -340,10 +337,10 @@ export default async function NewsDetailPage({ params }: PageProps) {
         <div id="news-related" className="w-full relative">
           <div className={cn(STYLES.sectionContainer, "py-10 md:py-16")}>
           <div className="max-w-3xl mx-auto w-full">
-            <h3 className="text-xl md:text-2xl font-bold tracking-tight text-foreground mb-8 font-heading text-center md:text-left">
+            <h2 className="type-title text-foreground mb-8 text-center md:text-left">
               Bài viết liên quan
-            </h3>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+            </h2>
+            <ul className="grid grid-cols-1 sm:grid-cols-3 gap-6">
               {relatedNews.map((item) => {
                 const itemDate = item.createdAt
                   ? new Date(item.createdAt).toLocaleDateString("vi-VN", {
@@ -354,8 +351,8 @@ export default async function NewsDetailPage({ params }: PageProps) {
                   : "";
 
                 return (
+                  <li key={item.id}>
                   <Link
-                    key={item.id}
                     href={`/tin-tuc/${item.slug}`}
                     className="group flex flex-col gap-3 no-underline"
                   >
@@ -372,18 +369,22 @@ export default async function NewsDetailPage({ params }: PageProps) {
                     )}
                     <div className="flex flex-col gap-1.5">
                       {itemDate && (
-                        <span className="text-xs text-muted-foreground/60 font-medium font-sans">
+                        <time
+                          dateTime={item.createdAt}
+                          className="type-legal text-muted-foreground/60"
+                        >
                           {itemDate}
-                        </span>
+                        </time>
                       )}
-                      <h4 className="font-heading text-sm font-semibold tracking-tight text-foreground group-hover:text-foreground/70 transition-colors line-clamp-2 leading-snug">
+                      <h3 className="type-label text-foreground group-hover:text-foreground/70 transition-colors line-clamp-2">
                         {item.title}
-                      </h4>
+                      </h3>
                     </div>
                   </Link>
+                  </li>
                 );
               })}
-            </div>
+            </ul>
           </div>
           </div>
         </div>
@@ -393,9 +394,9 @@ export default async function NewsDetailPage({ params }: PageProps) {
       <div id="news-detail-footer" className="w-full relative">
         <div className={cn(STYLES.sectionContainer, "py-6 md:py-8 lg:py-10")}>
         <footer className={STYLES.footer}>
-          <TypographySmall>&copy; {currentYear} Điện máy ELC.</TypographySmall>
+          <small className="type-caption">&copy; {currentYear} Điện máy ELC.</small>
           <ScrollToTop className="flex items-center gap-2 cursor-pointer hover:text-foreground transition-colors">
-            <TypographySmall>Quay lại đầu trang</TypographySmall>
+            <small className="type-caption">Quay lại đầu trang</small>
           </ScrollToTop>
         </footer>
         </div>

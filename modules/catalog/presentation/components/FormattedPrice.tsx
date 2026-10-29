@@ -13,14 +13,14 @@ export function FormattedPrice({ price, strikethrough = false }: FormattedPriceP
   }
 
   const numberPart = formatted.replace(/\s?₫$/, "").trim();
-  const dong = <span className="text-sm font-semibold relative -top-0.5 ml-0.5">đ</span>;
+  const dong = <span className="type-label relative -top-0.5 ml-0.5">đ</span>;
 
   if (strikethrough) {
     return (
-      <span className="line-through">
+      <s>
         {numberPart}
         {dong}
-      </span>
+      </s>
     );
   }
 

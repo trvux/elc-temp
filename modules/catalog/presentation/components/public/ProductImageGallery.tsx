@@ -54,11 +54,11 @@ export function ProductImageGallery({ productId, images, fallbackAlt, shareUrl, 
           <ShareButton url={shareUrl} title={shareTitle} size="icon" />
           <WishlistButton productId={productId} size="icon" />
         </div>
-        <Carousel className="w-full" setApi={setApi}>
+        <Carousel className="w-full" setApi={setApi} aria-label="Ảnh sản phẩm">
           <CarouselContent>
             {images.length > 0 ? (
               images.map((img, i) => (
-                <CarouselItem key={i}>
+                <CarouselItem key={i} aria-label={`Ảnh ${i + 1} trên ${images.length}`}>
                   <AspectRatio ratio={16 / 9}>
                     <Image
                       src={img.url}
@@ -76,7 +76,7 @@ export function ProductImageGallery({ productId, images, fallbackAlt, shareUrl, 
             ) : (
               <CarouselItem>
                 <AspectRatio ratio={4 / 3}>
-                  <div className="w-full h-full flex items-center justify-center text-muted-foreground text-xs tracking-widest">
+                  <div className="w-full h-full flex items-center justify-center text-muted-foreground type-legal">
                     Chưa có ảnh
                   </div>
                 </AspectRatio>
@@ -87,13 +87,14 @@ export function ProductImageGallery({ productId, images, fallbackAlt, shareUrl, 
       </div>
 
       {images.length > 1 && (
-        <div className="flex justify-center gap-2 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+        <div role="group" aria-label="Chọn ảnh sản phẩm" className="flex justify-center gap-2 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           {images.map((img, i) => (
             <button
               key={i}
               type="button"
               onClick={() => api?.scrollTo(i)}
               aria-label={`Xem ảnh ${i + 1}`}
+              aria-current={i === selectedIndex ? "true" : undefined}
               className={cn(
                 "relative shrink-0 size-16 md:size-18 rounded-lg border overflow-hidden bg-white transition-colors",
                 i === selectedIndex ? "border-border" : "border-border/50 hover:border-border",
@@ -101,7 +102,7 @@ export function ProductImageGallery({ productId, images, fallbackAlt, shareUrl, 
             >
               <Image
                 src={img.url}
-                alt={img.alt || `${fallbackAlt} - ảnh ${i + 1}`}
+                alt=""
                 fill
                 className="object-contain p-1"
                 sizes="72px"

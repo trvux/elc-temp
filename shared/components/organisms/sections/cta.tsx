@@ -6,12 +6,6 @@ import {
 } from "@/shared/components/ui/animate-in";
 import { Button } from "@/shared/components/ui/button";
 import { Separator } from "@/shared/components/ui/separator";
-import {
-  TypographyH2,
-  TypographyLarge,
-  TypographyMuted,
-  TypographyP,
-} from "@/shared/components/ui/typography";
 import Link from "next/link";
 import { useMemo } from "react";
 
@@ -40,19 +34,19 @@ export function CTASection({ settings, contacts }: CTASectionProps) {
   );
 
   return (
-    <div className="w-full flex flex-col items-center justify-center gap-6">
+    <section aria-labelledby="cta-heading" className="w-full flex flex-col items-center justify-center gap-6">
       <StaggerContainer
         className="flex flex-col items-center text-center max-w-3xl mx-auto gap-10 md:gap-12 w-full"
         immediate
       >
         <div className="space-y-4">
           <StaggerItem>
-            <TypographyH2>{title}</TypographyH2>
+            <h2 id="cta-heading" className="type-title">{title}</h2>
           </StaggerItem>
           <StaggerItem>
-            <TypographyP className="text-muted-foreground max-w-2xl mx-auto">
+            <p className="type-body text-muted-foreground max-w-2xl mx-auto">
               {description}
-            </TypographyP>
+            </p>
           </StaggerItem>
         </div>
 
@@ -90,19 +84,19 @@ export function CTASection({ settings, contacts }: CTASectionProps) {
 
         <StaggerItem>
           <div className="flex flex-col items-center gap-3">
-            <TypographyMuted>
+            <p className="type-body-sm text-muted-foreground">
               Hoặc kết nối trực tiếp qua hotline
-            </TypographyMuted>
+            </p>
             <Link
               href={phoneHref}
               className="hover:opacity-80 transition-opacity"
               onClick={() => trackContactClick({ channel: "hotline" })}
             >
-              <TypographyLarge>{phone}</TypographyLarge>
+              <span className="type-body-strong">{phone}</span>
             </Link>
           </div>
         </StaggerItem>
       </StaggerContainer>
-    </div>
+    </section>
   );
 }

@@ -8,7 +8,6 @@ import { mapServiceToCardData } from "@/modules/service/domain/mappers";
 import { Breadcrumbs } from "@/shared/components/organisms/layout/user/breadcrumbs";
 import { ScrollToTop } from "@/shared/components/organisms/layout/user/scroll-to-top";
 import { PageHero } from "@/shared/components/organisms/sections/page-hero";
-import { TypographySmall } from "@/shared/components/ui/typography";
 import { BASE_URL, toJsonLdHtml } from "@/shared/lib/seo-schema";
 import { primaryImageUrl } from "@/shared/lib/image-asset";
 import { cn } from "@/shared/lib/utils";
@@ -105,21 +104,25 @@ export default async function ServicesHub() {
 
       <div id="services-content" className="w-full relative">
         <div className={cn(STYLES.sectionContainer, "py-6 md:py-8 lg:py-10")}>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+          <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
             {services.map((service) => {
               const cardProps = mapServiceToCardData(service);
-              return <CardService key={service.id} {...cardProps} />;
+              return (
+                <li key={service.id} className="flex flex-col">
+                  <CardService {...cardProps} headingAs="h2" />
+                </li>
+              );
             })}
-          </div>
+          </ul>
         </div>
       </div>
 
       <div id="services-footer" className="w-full relative">
         <div className={cn(STYLES.sectionContainer, "py-6 md:py-8 lg:py-10")}>
           <footer className={STYLES.footer}>
-            <TypographySmall>&copy; {currentYear} Điện máy ELC.</TypographySmall>
+            <small className="type-caption">&copy; {currentYear} Điện máy ELC.</small>
             <ScrollToTop className={STYLES.scrollToTop}>
-              <TypographySmall>Quay lại đầu trang</TypographySmall>
+              <small className="type-caption">Quay lại đầu trang</small>
             </ScrollToTop>
           </footer>
         </div>

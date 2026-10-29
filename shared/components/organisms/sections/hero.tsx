@@ -2,7 +2,6 @@ import Image from "next/image";
 import heroBg from "@/public/images/hero-section-bg.jpg";
 import { Brand } from "@/modules/brand/domain";
 import { LeadForm } from "@/modules/inquiry/presentation/components/LeadForm";
-import { TypographyP } from "@/shared/components/ui/typography";
 import { HeroBrandMarquee } from "./hero-brand-marquee";
 
 interface HeroSectionProps {
@@ -32,6 +31,7 @@ const NOISE_BG_IMAGE = `url("data:image/svg+xml,${encodeURIComponent(NOISE_SVG)}
 export function HeroSection({ brands = [] }: HeroSectionProps) {
   return (
     <section
+      aria-labelledby="hero-heading"
       // The header is sticky and in flow, so the hero starts right below it.
       // Content is top-anchored (pt-*, items-start) rather than true-centered
       // so it sits in the clear sky area of the bg photo instead of getting
@@ -83,19 +83,19 @@ export function HeroSection({ brands = [] }: HeroSectionProps) {
       />
 
       <div className="relative z-10 mx-auto flex max-w-3xl flex-col items-center gap-4 px-6 text-center select-none sm:gap-6">
-        <span className="text-sm font-semibold text-white/70">
+        <p className="type-label text-white/70">
           Điện máy ELC
-        </span>
+        </p>
 
-        <h1 className="font-heading text-3xl font-bold leading-tight tracking-tight text-white drop-shadow-sm sm:text-4xl lg:text-5xl">
+        <h1 id="hero-heading" className="type-display text-white drop-shadow-sm">
           Đối Tác Điện Lạnh Trọn Gói
         </h1>
 
-        <TypographyP className="max-w-md text-base leading-relaxed font-medium text-white/80 drop-shadow-sm sm:text-lg">
+        <p className="type-body max-w-md text-white/80 drop-shadow-sm">
           Phân phối chính hãng máy lạnh và hệ thống cấp khí tươi thu hồi
           nhiệt Menred, thi công công trình trọn gói từ dân dụng đến công
           nghiệp, cùng dịch vụ bảo trì, vệ sinh, sửa chữa chuyên nghiệp.
-        </TypographyP>
+        </p>
 
         {/* Single CTA into the full-screen consultation form at /form
             (see LeadForm) — replaces the previous "Gọi ngay" / "Tư vấn

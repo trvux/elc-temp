@@ -20,6 +20,9 @@ export interface CardServiceProps {
   badges?: string[];
   slug?: string;
   locationSlug?: string;
+  // Heading level is decided by where the card sits in the page outline:
+  // h2 directly under the page h1 (hub), h3 under an h2 (related services).
+  headingAs?: "h2" | "h3";
 }
 
 // Tạm thời tắt việc click vào card để vào trang chi tiết dịch vụ —
@@ -36,6 +39,7 @@ export function CardService({
   badges,
   slug,
   locationSlug,
+  headingAs: Heading = "h3",
 }: CardServiceProps) {
   const imageSrc = image || "/placeholder.png";
   const href = slug
@@ -94,7 +98,7 @@ export function CardService({
         <div className="flex flex-1 flex-col gap-2 p-3">
           {/* Tên dịch vụ (trái) + mũi tên truy cập (phải, chỉ hiện khi bật lại trang chi tiết) */}
           <div className="flex items-center justify-between gap-3">
-            <h3 className="font-heading text-lg font-semibold leading-tight line-clamp-1 min-w-0">
+            <Heading className="type-body-strong line-clamp-1 min-w-0">
               {isLinked ? (
                 <Link href={href!} className="hover:text-primary transition-colors">
                   {title}
@@ -102,7 +106,7 @@ export function CardService({
               ) : (
                 title
               )}
-            </h3>
+            </Heading>
             {isLinked && (
               <Link
                 href={href!}
@@ -115,13 +119,13 @@ export function CardService({
           </div>
 
           {price && (
-            <p className="truncate text-base font-medium text-muted-foreground" title={price}>
+            <p className="truncate type-price text-muted-foreground" title={price}>
               {price}
             </p>
           )}
 
           {description && (
-            <p className="text-sm text-muted-foreground line-clamp-2">
+            <p className="type-body-sm text-muted-foreground line-clamp-2">
               {description}
             </p>
           )}

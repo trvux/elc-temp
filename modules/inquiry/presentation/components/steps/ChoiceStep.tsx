@@ -20,19 +20,20 @@ interface ChoiceStepProps {
 export function ChoiceStep({ question, description, options, value, onSelect }: ChoiceStepProps) {
   return (
     <div>
-      <h1 className="text-2xl sm:text-3xl md:text-4xl font-semibold leading-tight text-balance text-white drop-shadow-sm">
+      <h1 id="step-question" className="type-headline text-white drop-shadow-sm">
         {question}
       </h1>
-      {description && <p className="mt-3 text-white/80 drop-shadow-sm">{description}</p>}
+      {description && <p id="step-description" className="type-body mt-3 text-white/80 drop-shadow-sm">{description}</p>}
 
-      <div className="mt-8 flex flex-wrap gap-3">
+      <div role="group" aria-labelledby="step-question" aria-describedby={description ? "step-description" : undefined} className="mt-8 flex flex-wrap gap-3">
         {options.map((option) => (
           <button
             key={option.value}
             type="button"
+            aria-pressed={value === option.value}
             onClick={() => onSelect(option.value)}
             className={cn(
-              "rounded-lg border-2 px-5 py-2.5 text-sm sm:text-base font-medium transition-colors drop-shadow-sm",
+              "rounded-lg border-2 px-5 py-2.5 type-caption sm:type-body transition-colors drop-shadow-sm",
               value === option.value
                 ? "border-primary bg-primary text-primary-foreground"
                 : "border-white/40 text-white hover:border-white",

@@ -13,7 +13,6 @@ import {ScrollToTop} from "@/shared/components/organisms/layout/user/scroll-to-t
 import {ShareButton} from "@/shared/components/organisms/layout/user/share-button";
 import {AspectRatio} from "@/shared/components/ui/aspect-ratio";
 import {Badge} from "@/shared/components/ui/badge";
-import {TypographyH1, TypographySmall} from "@/shared/components/ui/typography";
 import {BASE_URL, SEOSchema, toJsonLdHtml} from "@/shared/lib/seo-schema";
 import {excerptFromRichText} from "@/shared/lib/rich-text";
 import {primaryImageUrl} from "@/shared/lib/image-asset";
@@ -208,16 +207,18 @@ async function ProjectDetailView({
             every checked width. Body text's max-w-2xl doesn't need this —
             Linear's paragraph column is a flat 624px, no fluid range below
             that cap. */}
-        <div className="max-w-[56.25rem] mx-auto flex flex-col gap-6 animate-fade-in-up">
+        <article className="max-w-[56.25rem] mx-auto flex flex-col gap-6 animate-fade-in-up">
+          <header className="flex flex-col gap-6">
           {/* Title */}
-          <TypographyH1
+          <h1
             className={cn(
+              "type-headline",
               project.titleAlign === "center" && "text-center",
               project.titleAlign === "right" && "text-right",
             )}
           >
             {project.title}
-          </TypographyH1>
+          </h1>
 
           {/* Badge */}
           <div className="flex items-center justify-between gap-3">
@@ -226,7 +227,7 @@ async function ProjectDetailView({
               className="h-8 rounded-md flex items-center gap-1.5 px-3 border-border bg-muted/20"
             >
               <Sparkle className="w-3.5 h-3.5 text-amber-500 fill-amber-500" />
-              <span className="text-xs font-medium text-muted-foreground">
+              <span className="type-tag text-muted-foreground">
                 Danh mục: {displayCategory}
               </span>
             </Badge>
@@ -249,8 +250,10 @@ async function ProjectDetailView({
             </div>
           )}
 
+          </header>
+
           {/* Article content */}
-          <article className="mt-4 max-w-2xl mx-auto w-full">
+          <div className="mt-4 max-w-2xl mx-auto w-full">
             <PreviewContent
               content={project.description}
               fallbackAlt={project.title}
@@ -277,8 +280,8 @@ async function ProjectDetailView({
                 ))}
               </div>
             )}
-          </article>
-        </div>
+          </div>
+        </article>
         </div>
       </div>
 
@@ -314,9 +317,9 @@ async function ProjectDetailView({
       <div id="project-detail-footer" className="w-full relative">
         <div className={cn(SECTION_CONTAINER, "py-6 md:py-8 lg:py-10")}>
           <footer className="w-full flex flex-col md:flex-row justify-between items-center gap-6 text-muted-foreground">
-            <TypographySmall>&copy; {currentYear} Điện máy ELC.</TypographySmall>
+            <small className="type-caption">&copy; {currentYear} Điện máy ELC.</small>
             <ScrollToTop className="flex items-center gap-2 cursor-pointer hover:text-foreground transition-colors">
-              <TypographySmall>Quay lại đầu trang</TypographySmall>
+              <small className="type-caption">Quay lại đầu trang</small>
             </ScrollToTop>
           </footer>
         </div>

@@ -1,8 +1,4 @@
 import { Card } from "@/shared/components/ui/card";
-import {
-  TypographyMuted,
-  TypographySmall,
-} from "@/shared/components/ui/typography";
 import { cn } from "@/shared/lib/utils";
 import { ArrowLeft, ArrowRight } from "@phosphor-icons/react/dist/ssr";
 import Link from "next/link";
@@ -51,14 +47,14 @@ export function DetailPager({
       aria-label="Điều hướng giữa các trang"
     >
       {prev ? (
-        <Link href={prev.href} className="min-w-0">
+        <Link href={prev.href} rel="prev" className="min-w-0">
           <Card className={cardBase}>
-            <ArrowLeft className={iconBase} />
+            <ArrowLeft aria-hidden="true" className={iconBase} />
             <div className="flex min-w-0 flex-col gap-0.5 text-left">
-              <TypographyMuted>{prevLabel}</TypographyMuted>
-              <TypographySmall className="block truncate font-semibold text-foreground">
+              <span className="type-body-sm text-muted-foreground">{prevLabel}</span>
+              <span className="block truncate type-label text-foreground">
                 {prev.title}
-              </TypographySmall>
+              </span>
             </div>
           </Card>
         </Link>
@@ -67,15 +63,15 @@ export function DetailPager({
       )}
 
       {next ? (
-        <Link href={next.href} className="min-w-0">
+        <Link href={next.href} rel="next" className="min-w-0">
           <Card className={cn(cardBase, "justify-end text-right")}>
             <div className="flex min-w-0 flex-col gap-0.5 text-right">
-              <TypographyMuted>{nextLabel}</TypographyMuted>
-              <TypographySmall className="block truncate font-semibold text-foreground">
+              <span className="type-body-sm text-muted-foreground">{nextLabel}</span>
+              <span className="block truncate type-label text-foreground">
                 {next.title}
-              </TypographySmall>
+              </span>
             </div>
-            <ArrowRight className={iconBase} />
+            <ArrowRight aria-hidden="true" className={iconBase} />
           </Card>
         </Link>
       ) : (

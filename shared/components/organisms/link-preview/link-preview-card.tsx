@@ -84,7 +84,7 @@ export function LinkPreviewCard({ href }: { href: string }) {
   if (!data || data.error || (!data.title && !data.description && !data.image)) {
     return (
       <CardShell href={href}>
-        <div className="rounded-lg bg-background p-3 text-sm shadow-sm">
+        <div className="rounded-lg bg-background p-3 type-body-sm shadow-sm">
           <span className="text-muted-foreground">{hostname}</span>
         </div>
       </CardShell>
@@ -101,12 +101,12 @@ export function LinkPreviewCard({ href }: { href: string }) {
           <img src={data.image} alt="" className="h-32 w-full rounded-md object-cover" />
         )}
         <div className="flex flex-col gap-1 px-1 pb-1">
-          <span className="line-clamp-1 text-xs text-muted-foreground">
+          <span className="line-clamp-1 type-legal text-muted-foreground">
             {data.siteName || hostname}
           </span>
-          {data.title && <span className="line-clamp-2 text-sm font-medium">{data.title}</span>}
+          {data.title && <span className="line-clamp-2 type-caption">{data.title}</span>}
           {data.description && (
-            <span className="line-clamp-2 text-xs text-muted-foreground">{data.description}</span>
+            <span className="line-clamp-2 type-legal text-muted-foreground">{data.description}</span>
           )}
         </div>
       </div>

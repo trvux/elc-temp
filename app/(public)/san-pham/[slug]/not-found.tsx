@@ -6,14 +6,15 @@ export default function ProductNotFound() {
   return (
     <div className="flex flex-col items-center justify-center min-h-[70vh] bg-background px-6 text-center">
       <div className="space-y-6 max-w-md">
-        <h1 className="font-heading text-8xl font-bold text-primary/10 tracking-tighter">
+        {/* Decorative numeral, not a heading: the page's one <h1> is the title below. */}
+        <p aria-hidden="true" className="type-display text-primary/10">
           404
-        </h1>
+        </p>
         <div className="space-y-2">
-          <h2 className="font-heading text-2xl font-bold tracking-tight text-primary">
+          <h1 className="type-headline text-primary">
             Sản phẩm không còn kinh doanh
-          </h2>
-          <p className="text-muted-foreground">
+          </h1>
+          <p className="type-body text-muted-foreground">
             Xin lỗi, sản phẩm hoặc nội dung này đã được ELC ngưng cung cấp vĩnh
             viễn. Mời bạn tham khảo những sản phẩm mới nhất của chúng tôi bên
             dưới.

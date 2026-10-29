@@ -40,6 +40,7 @@ export function ProductSortSelect() {
   return (
     <Select value={current} onValueChange={handleChange}>
       <SelectTrigger
+        aria-label="Sắp xếp sản phẩm"
         size="sm"
         className="w-25 gap-1 pr-1.5 pl-2 sm:w-37.5 sm:gap-1.5 sm:pr-2 sm:pl-2.5"
       >

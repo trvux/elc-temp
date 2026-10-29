@@ -5,10 +5,6 @@ import { ScrollToTop } from "@/shared/components/organisms/layout/user/scroll-to
 import { PageHero } from "@/shared/components/organisms/sections/page-hero";
 import Image from "next/image";
 import { primaryImageUrl } from "@/shared/lib/image-asset";
-import {
-  TypographyH2,
-  TypographySmall,
-} from "@/shared/components/ui/typography";
 import Link from "next/link";
 import { unwrapActionResult } from "@/shared/lib/action-result";
 import { getExcerptFromContent } from "@/shared/lib/rich-text";
@@ -31,14 +27,15 @@ const STYLES = {
   sectionContainer:
     "mx-auto h-full w-full max-w-350 min-[112.5rem]:max-w-384 px-4 md:px-6 lg:px-12 relative",
   list: "flex flex-col w-full min-h-[400px] animate-fade-in-up",
+  item: "border-b border-border/60 last:border-b-0",
   article:
-    "group flex flex-row justify-between items-center gap-4 sm:gap-6 md:gap-8 py-8 border-b border-border/60 last:border-b-0 no-underline transition-all duration-300 w-full",
+    "group flex flex-row justify-between items-center gap-4 sm:gap-6 md:gap-8 py-8 no-underline transition-all duration-300 w-full",
   textWrapper: "flex-1 min-w-0 flex flex-col gap-1.5 md:gap-2",
-  date: "text-xs text-muted-foreground font-sans",
+  date: "type-legal text-muted-foreground",
   articleTitle:
-    "text-base sm:text-lg md:text-xl font-bold tracking-tight text-foreground group-hover:text-foreground/70 transition-colors line-clamp-2 leading-snug font-heading",
+    "type-heading text-foreground group-hover:text-foreground/70 transition-colors line-clamp-2",
   articleDescription:
-    "text-xs sm:text-sm md:text-base text-muted-foreground line-clamp-2 md:line-clamp-3 leading-relaxed",
+    "type-body-sm md:type-body text-muted-foreground line-clamp-2 md:line-clamp-3",
   imageWrapper:
     "shrink-0 relative w-36 aspect-video sm:w-48 md:w-64 rounded-lg overflow-hidden",
   image: "object-cover",
@@ -119,7 +116,7 @@ export default async function NewsHub() {
       <div id="news-content" className="w-full relative">
         <div className={cn(STYLES.sectionContainer, "py-6 md:py-8 lg:py-10")}>
         <div className="max-w-3xl mx-auto w-full">
-          <div className={STYLES.list}>
+          <ul className={STYLES.list}>
             {allNews.map((news, index) => {
               const formattedDate = news.createdAt
                 ? new Date(news.createdAt).toLocaleDateString("vi-VN", {
@@ -135,19 +132,19 @@ export default async function NewsHub() {
               );
 
               return (
+                <li key={news.id} className={STYLES.item}>
                 <Link
-                  key={news.id}
                   href={`/tin-tuc/${news.slug}`}
                   className={STYLES.article}
                   prefetch={false}
                 >
                   <div className={STYLES.textWrapper}>
                     {formattedDate && (
-                      <span className={STYLES.date}>{formattedDate}</span>
+                      <time dateTime={news.createdAt} className={STYLES.date}>
+                        {formattedDate}
+                      </time>
                     )}
-                    <TypographyH2 className={STYLES.articleTitle}>
-                      {news.title}
-                    </TypographyH2>
+                    <h2 className={STYLES.articleTitle}>{news.title}</h2>
                     {excerpt && (
                       <p className={STYLES.articleDescription}>{excerpt}</p>
                     )}
@@ -166,9 +163,10 @@ export default async function NewsHub() {
                     </div>
                   )}
                 </Link>
+                </li>
               );
             })}
-          </div>
+          </ul>
         </div>
         </div>
       </div>
@@ -177,9 +175,9 @@ export default async function NewsHub() {
       <div id="news-footer" className="w-full relative">
         <div className={cn(STYLES.sectionContainer, "py-6 md:py-8 lg:py-10")}>
           <footer className={STYLES.footer}>
-            <TypographySmall>&copy; {currentYear} Điện máy ELC.</TypographySmall>
+            <small className="type-caption">&copy; {currentYear} Điện máy ELC.</small>
             <ScrollToTop className={STYLES.scrollToTop}>
-              <TypographySmall>Quay lại đầu trang</TypographySmall>
+              <small className="type-caption">Quay lại đầu trang</small>
             </ScrollToTop>
           </footer>
         </div>

@@ -1,4 +1,3 @@
-import { Fragment } from "react";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -17,7 +16,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/shared/components/ui/table";
-import { TypographyH2 } from "@/shared/components/ui/typography";
 import { primaryImageUrl } from "@/shared/lib/image-asset";
 
 // Extracted out of the standalone /san-pham/so-sanh page so a fix/change
@@ -25,28 +23,28 @@ import { primaryImageUrl } from "@/shared/lib/image-asset";
 export function ComparisonTable({ products }: { products: ProductWithRelations[] }) {
   return (
     <div className="overflow-x-auto rounded-md border">
-      <Table>
+      <Table aria-label="So sánh thông số kỹ thuật các sản phẩm đã chọn">
         <TableHeader>
           <TableRow>
-            <TableHead className="w-48">Sản phẩm</TableHead>
+            <TableHead scope="col" className="w-48 type-label">Sản phẩm</TableHead>
             {products.map((product) => (
-              <TableHead key={product.id} className="min-w-56">
+              <TableHead key={product.id} scope="col" className="min-w-56">
                 <Link href={`/san-pham/${product.slug}`} className="flex flex-col items-center gap-2 py-2 hover:opacity-80">
                   <div className="w-24 h-24 bg-white rounded-md overflow-hidden">
                     {primaryImageUrl(product.images) && (
                       <Image
                         src={primaryImageUrl(product.images)}
-                        alt={product.name}
+                        alt=""
                         width={96}
                         height={96}
                         className="w-full h-full object-contain"
                       />
                     )}
                   </div>
-                  <span className="text-sm font-semibold text-center text-foreground line-clamp-2">
+                  <span className="type-label text-center text-foreground line-clamp-2">
                     {product.name}
                   </span>
-                  <span className="text-sm font-bold text-destructive">
+                  <span className="type-label text-destructive">
                     <FormattedPrice price={resolveProductDisplayPrice(product)} />
                   </span>
                 </Link>
@@ -54,20 +52,19 @@ export function ComparisonTable({ products }: { products: ProductWithRelations[]
             ))}
           </TableRow>
         </TableHeader>
-        <TableBody>
           {buildComparisonRows(products).map((group) => (
-            <Fragment key={group.label ?? "__chung__"}>
+            <TableBody key={group.label ?? "__chung__"}>
               {group.label && (
                 <TableRow className="bg-muted/40 hover:bg-muted/40">
-                  <TableCell colSpan={products.length + 1}>
-                    <TypographyH2 className="text-sm font-semibold">{group.label}</TypographyH2>
-                  </TableCell>
+                  <TableHead scope="rowgroup" colSpan={products.length + 1} className="type-label">
+                    {group.label}
+                  </TableHead>
                 </TableRow>
               )}
               {group.rows.map((row) => {
                 const values = products.map((product) => {
                   const av = (product.attributeValues || []).find((v) => v.code === row.code);
-                  return av ? formatAttributeValue(av) : "—";
+                  return av ? formatAttributeValue(av) : null;
                 });
 
                 // No "bigger number = highlighted" heuristic here: a
@@ -77,18 +74,21 @@ export function ComparisonTable({ products }: { products: ProductWithRelations[]
                 // that call correctly — so every value renders plain.
                 return (
                   <TableRow key={row.code}>
-                    <TableCell className="text-muted-foreground font-medium">{row.name}</TableCell>
+                    <TableHead scope="row" className="type-caption text-muted-foreground">{row.name}</TableHead>
                     {values.map((value, i) => (
                       <TableCell key={products[i].id} className="text-center">
-                        {value}
+                        {value ?? (
+                          <span role="img" aria-label="Không có thông tin">
+                            —
+                          </span>
+                        )}
                       </TableCell>
                     ))}
                   </TableRow>
                 );
               })}
-            </Fragment>
+            </TableBody>
           ))}
-        </TableBody>
       </Table>
     </div>
   );

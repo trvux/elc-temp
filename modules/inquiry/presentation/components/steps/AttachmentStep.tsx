@@ -93,28 +93,28 @@ export function AttachmentStep({ question, urls, onChange }: AttachmentStepProps
 
   return (
     <div>
-      <h1 className="text-2xl sm:text-3xl md:text-4xl font-semibold leading-tight text-balance text-white drop-shadow-sm">
+      <h1 id="step-question" className="type-headline text-white drop-shadow-sm">
         {question}
       </h1>
-      <p className="mt-3 text-white/80 drop-shadow-sm">Không bắt buộc — tối đa {MAX_ATTACHMENTS} ảnh.</p>
+      <p id="step-description" className="type-body mt-3 text-white/80 drop-shadow-sm">Không bắt buộc — tối đa {MAX_ATTACHMENTS} ảnh.</p>
 
-      <div className="mt-8 flex flex-wrap gap-3">
-        {items.map((item) => (
+      <div role="group" aria-labelledby="step-question" aria-describedby="step-description" className="mt-8 flex flex-wrap gap-3">
+        {items.map((item, index) => (
           <div key={item.localId} className="relative size-24 overflow-hidden rounded-lg border border-white/40">
             {/* eslint-disable-next-line @next/next/no-img-element -- uploading previews are blob: object URLs, incompatible with next/image's optimizer */}
             <img src={item.previewUrl} alt="" className="size-full object-cover" />
             {item.status === "uploading" ? (
-              <div className="absolute inset-0 flex items-center justify-center bg-background/70">
-                <CircleNotch size={20} className="animate-spin" />
+              <div role="status" aria-label="Đang tải ảnh lên" className="absolute inset-0 flex items-center justify-center bg-background/70">
+                <CircleNotch aria-hidden="true" size={20} className="animate-spin" />
               </div>
             ) : (
               <button
                 type="button"
                 onClick={() => setItems((current) => current.filter((i) => i.localId !== item.localId))}
                 className="absolute right-1 top-1 flex size-5 items-center justify-center rounded-full bg-background/80 text-foreground"
-                aria-label="Xóa ảnh"
+                aria-label={`Xóa ảnh ${index + 1}`}
               >
-                <X size={12} />
+                <X aria-hidden="true" size={12} />
               </button>
             )}
           </div>
@@ -126,8 +126,8 @@ export function AttachmentStep({ question, urls, onChange }: AttachmentStepProps
             onClick={() => inputRef.current?.click()}
             className="flex size-24 flex-col items-center justify-center gap-1 rounded-lg border-2 border-dashed border-white/40 text-white/80 drop-shadow-sm hover:border-white"
           >
-            <Plus size={20} />
-            <span className="text-xs">Thêm ảnh</span>
+            <Plus aria-hidden="true" size={20} />
+            <span className="type-legal">Thêm ảnh</span>
           </button>
         )}
       </div>

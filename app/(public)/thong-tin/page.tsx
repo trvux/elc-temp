@@ -4,12 +4,6 @@ import { getBranchesAction } from "@/modules/branch/presentation/actions";
 import { getPagesAction } from "@/modules/page/presentation/actions";
 import { ScrollToTop } from "@/shared/components/organisms/layout/user/scroll-to-top";
 import { PageHero } from "@/shared/components/organisms/sections/page-hero";
-import {
-  TypographyH2,
-  TypographyLead,
-  TypographyP,
-  TypographySmall,
-} from "@/shared/components/ui/typography";
 import { sortByOrderIndex } from "@/shared/lib/helpers";
 import { cn } from "@/shared/lib/utils";
 import { ArrowUpRight } from "@phosphor-icons/react/dist/ssr";
@@ -41,8 +35,9 @@ const STYLES = {
   list: cn(
     "flex flex-col justify-center gap-4 min-h-50 animate-fade-in-up max-w-3xl w-full mx-auto",
   ),
+  item: cn("border-b border-border last:border-b-0"),
   article: cn(
-    "group flex flex-col gap-6 no-underline transition-all duration-300 p-6 border-b border-border last:border-b-0",
+    "group flex flex-col gap-6 no-underline transition-all duration-300 p-6",
   ),
   articleHeader: cn("flex justify-between items-start gap-4"),
 
@@ -95,54 +90,58 @@ export default async function InformationHub({
 
           {allPages.length === 0 ? (
             <div className="text-center py-10 min-h-50 flex items-center justify-center border border-dashed rounded-lg bg-background/50 backdrop-blur-sm">
-              <TypographyP className="text-muted-foreground">
+              <p className="type-body text-muted-foreground">
                 Chưa có thông tin nào được cập nhật.
-              </TypographyP>
+              </p>
             </div>
           ) : (
-            <div className={STYLES.list}>
-              {allPages.map((page) => (
-                <Link
-                  key={page.id}
-                  href={`/${page.slug}`}
-                  className={STYLES.article}
-                  prefetch={false}
-                >
-                  <div className={STYLES.articleHeader}>
-                    <TypographyH2 className="text-lg font-semibold md:text-xl">
-                      {page.title}
-                    </TypographyH2>
-                    <ArrowUpRight className={STYLES.articleIcon} />
-                  </div>
-                </Link>
-              ))}
-            </div>
+            <section aria-labelledby="policies-heading" className="flex flex-col gap-8">
+              <h2 id="policies-heading" className="type-title text-center">
+                Giới thiệu và chính sách
+              </h2>
+              <ul className={STYLES.list}>
+                {allPages.map((page) => (
+                  <li key={page.id} className={STYLES.item}>
+                    <Link
+                      href={`/${page.slug}`}
+                      className={STYLES.article}
+                      prefetch={false}
+                    >
+                      <div className={STYLES.articleHeader}>
+                        <span className="type-heading">{page.title}</span>
+                        <ArrowUpRight className={STYLES.articleIcon} />
+                      </div>
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </section>
           )}
         </div>
       </div>
 
       {/* Section 2: Co so ha tang cua ELC */}
-      <div id="branches-section" className="w-full relative">
+      <section id="branches-section" aria-labelledby="branches-heading" className="w-full relative">
         <div className={cn(STYLES.sectionContainer, "py-12 md:py-16 lg:py-20 flex flex-col gap-12")}>
           <header className={STYLES.header}>
-            <TypographyH2>Cơ sở hạ tầng</TypographyH2>
-            <TypographyLead>
+            <h2 id="branches-heading" className="type-title">Cơ sở hạ tầng</h2>
+            <p className="type-body text-muted-foreground">
               Hệ thống không gian trưng bày và trạm dịch vụ của ELC được mở rộng
               trên toàn quốc với triết lý kiến tạo giá trị đồng nhất
-            </TypographyLead>
+            </p>
           </header>
 
           <BranchList branches={allBranches} />
         </div>
-      </div>
+      </section>
 
       {/* Footer Section */}
       <div id="info-footer" className="w-full relative">
         <div className={cn(STYLES.sectionContainer, "py-8")}>
           <footer className={STYLES.footer}>
-            <TypographySmall>&copy; {currentYear} Điện máy ELC.</TypographySmall>
+            <small className="type-caption">&copy; {currentYear} Điện máy ELC.</small>
             <ScrollToTop className={STYLES.scrollToTop}>
-              <TypographySmall>Quay lại đầu trang</TypographySmall>
+              <small className="type-caption">Quay lại đầu trang</small>
             </ScrollToTop>
           </footer>
         </div>

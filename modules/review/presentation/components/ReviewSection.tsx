@@ -8,7 +8,6 @@ import {
   EmptyMedia,
   EmptyTitle,
 } from "@/shared/components/ui/empty";
-import { TypographyH2, TypographySmall } from "@/shared/components/ui/typography";
 import { Star } from "@phosphor-icons/react/dist/ssr";
 
 interface ReviewSectionProps {
@@ -25,19 +24,19 @@ interface ReviewSectionProps {
 // trigger up top, published reviews listed below.
 export function ReviewSection({ entityType, entityId, entityName, entityImage, reviews, aggregate }: ReviewSectionProps) {
   return (
-    <div className="w-full flex flex-col gap-6">
+    <section aria-labelledby="reviews-heading" className="w-full flex flex-col gap-6">
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div className="flex flex-col gap-2">
-          <TypographyH2 className="text-xl md:text-2xl font-bold tracking-tight">
+          <h2 id="reviews-heading" className="type-title">
             Đánh giá {entityName}
-          </TypographyH2>
+          </h2>
           {aggregate.count > 0 && (
             <div className="flex items-center gap-2">
               <StarRating value={aggregate.average} size="lg" />
-              <span className="text-lg font-semibold">{aggregate.average.toFixed(1)}</span>
-              <TypographySmall className="text-muted-foreground">
+              <span className="type-body-strong">{aggregate.average.toFixed(1)}</span>
+              <span className="type-caption text-muted-foreground">
                 ({aggregate.count} đánh giá)
-              </TypographySmall>
+              </span>
             </div>
           )}
         </div>
@@ -55,7 +54,7 @@ export function ReviewSection({ entityType, entityId, entityName, entityImage, r
         <Empty>
           <EmptyHeader>
             <EmptyMedia variant="icon">
-              <Star />
+              <Star aria-hidden="true" />
             </EmptyMedia>
             <EmptyTitle>Chưa có đánh giá nào</EmptyTitle>
             <EmptyDescription>
@@ -64,21 +63,21 @@ export function ReviewSection({ entityType, entityId, entityName, entityImage, r
           </EmptyHeader>
         </Empty>
       ) : (
-        <div className="flex flex-col divide-y divide-border/50 rounded-xl border border-border/50 bg-white/50">
+        <ul className="flex flex-col divide-y divide-border/50 rounded-xl border border-border/50 bg-white/50">
           {reviews.map((r) => (
-            <div key={r.id} className="flex flex-col gap-1.5 p-4">
+            <li key={r.id} className="flex flex-col gap-1.5 p-4">
               <div className="flex items-center justify-between gap-2">
-                <span className="text-sm font-medium">{r.reviewerName}</span>
-                <TypographySmall className="text-muted-foreground">
+                <span className="type-caption">{r.reviewerName}</span>
+                <time dateTime={r.createdAt} className="type-caption text-muted-foreground">
                   {new Date(r.createdAt).toLocaleDateString("vi-VN")}
-                </TypographySmall>
+                </time>
               </div>
               <StarRating value={r.rating} size="sm" />
-              <p className="text-sm text-muted-foreground whitespace-pre-line">{r.comment}</p>
-            </div>
+              <p className="type-body-sm text-muted-foreground whitespace-pre-line">{r.comment}</p>
+            </li>
           ))}
-        </div>
+        </ul>
       )}
-    </div>
+    </section>
   );
 }

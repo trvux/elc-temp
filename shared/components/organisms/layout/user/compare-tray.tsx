@@ -69,7 +69,7 @@ export function CompareTray() {
               {items.map((item) => (
                 <span
                   key={item.id}
-                  className="flex items-center gap-1 shrink-0 rounded-full bg-muted px-2.5 py-1 text-xs font-medium"
+                  className="flex items-center gap-1 shrink-0 rounded-full bg-muted px-2.5 py-1 type-tag"
                 >
                   <span className="max-w-32 truncate">{item.name}</span>
                   <button

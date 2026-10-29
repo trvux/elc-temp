@@ -35,18 +35,27 @@ export function ProductSearchBox() {
   const handleSearch = () => push(value);
 
   return (
-    <ButtonGroup className="w-full sm:max-w-sm">
-      <Input
-        placeholder="Tìm sản phẩm trong danh mục này..."
-        value={value}
-        onChange={(e) => setValue(e.target.value)}
-        onKeyDown={(e) => {
-          if (e.key === "Enter") handleSearch();
-        }}
-      />
-      <Button type="button" variant="outline" aria-label="Tìm kiếm" onClick={handleSearch}>
-        <MagnifyingGlass />
-      </Button>
-    </ButtonGroup>
+    <form
+      role="search"
+      aria-label="Tìm sản phẩm"
+      className="w-full sm:max-w-sm"
+      onSubmit={(e) => {
+        e.preventDefault();
+        handleSearch();
+      }}
+    >
+      <ButtonGroup className="w-full">
+        <Input
+          name="search"
+          aria-label="Tìm sản phẩm trong danh mục này"
+          placeholder="Tìm sản phẩm trong danh mục này..."
+          value={value}
+          onChange={(e) => setValue(e.target.value)}
+        />
+        <Button type="submit" variant="outline" aria-label="Tìm kiếm">
+          <MagnifyingGlass aria-hidden="true" />
+        </Button>
+      </ButtonGroup>
+    </form>
   );
 }

@@ -25,11 +25,6 @@ import {
   TabsList,
   TabsTrigger,
 } from "@/shared/components/ui/tabs";
-import {
-  TypographyH1,
-  TypographyLarge,
-  TypographySmall,
-} from "@/shared/components/ui/typography";
 import { cn } from "@/shared/lib/utils";
 import { formatCurrency } from "@/shared/lib/format";
 import { BASE_URL, SEOSchema, toJsonLdHtml } from "@/shared/lib/seo-schema";
@@ -57,17 +52,17 @@ const STYLES = {
   ),
   carouselImage: cn("object-contain p-4"),
   noImage: cn(
-    "w-full h-full flex items-center justify-center text-muted-foreground text-xs tracking-widest",
+    "w-full h-full flex items-center justify-center text-muted-foreground type-legal",
   ),
   infoArea: cn("flex flex-col gap-4 h-full justify-center"),
   serviceName: cn(
-    "w-full max-w-none text-2xl md:text-3xl lg:text-4xl font-extrabold tracking-tight wrap-break-word leading-[1.15]",
+    "type-headline w-full wrap-break-word",
   ),
   subInfo: cn("flex flex-col gap-3"),
   priceArea: cn("space-y-2"),
-  price: cn("text-3xl md:text-4xl font-bold text-foreground tracking-tight"),
+  price: cn("type-price-lg text-foreground"),
   originalPriceWrapper: cn("flex items-center gap-2"),
-  originalPrice: cn("text-md text-muted-foreground line-through"),
+  originalPrice: cn("type-body-sm text-muted-foreground"),
 
   tabsListWrapper: cn("mx-auto w-fit"),
   tabsContent: cn("pt-10 focus-visible:outline-none"),
@@ -169,13 +164,13 @@ export async function ServiceDetailModule({
                   <Badge variant="secondary">{service.group.name}</Badge>
                 )}
                 {service.category?.name && (
-                  <TypographySmall className="text-muted-foreground">
+                  <span className="type-caption text-muted-foreground">
                     {service.category.name}
-                  </TypographySmall>
+                  </span>
                 )}
               </div>
 
-              <TypographyH1
+              <h1
                 className={cn(
                   STYLES.serviceName,
                   service.titleAlign === "center" && "text-center",
@@ -183,7 +178,7 @@ export async function ServiceDetailModule({
                 )}
               >
                 {service.title}
-              </TypographyH1>
+              </h1>
 
               {service.labels && service.labels.length > 0 && (
                 <div className="flex flex-wrap gap-1.5">
@@ -196,26 +191,22 @@ export async function ServiceDetailModule({
               )}
 
               {service.description && (
-                <TypographySmall className="text-muted-foreground leading-relaxed">
+                <p className="type-body-sm text-muted-foreground">
                   {service.description}
-                </TypographySmall>
+                </p>
               )}
 
               <div className={STYLES.priceArea}>
                 {service.priceDisplayText ? (
-                  <TypographyLarge className={STYLES.price}>
-                    {service.priceDisplayText}
-                  </TypographyLarge>
+                  <p className={STYLES.price}>{service.priceDisplayText}</p>
                 ) : (
                   <>
-                    <TypographyLarge className={STYLES.price}>
-                      {formatCurrency(finalPrice)}
-                    </TypographyLarge>
+                    <p className={STYLES.price}>{formatCurrency(finalPrice)}</p>
                     {(service.discountPercent || 0) > 0 && (
                       <div className={STYLES.originalPriceWrapper}>
-                        <TypographySmall className={STYLES.originalPrice}>
+                        <s className={STYLES.originalPrice}>
                           {formatCurrency(service.originalPrice)}
-                        </TypographySmall>
+                        </s>
                         <Badge variant="destructive">
                           Giảm giá: {service.discountPercent}%
                         </Badge>
@@ -303,9 +294,9 @@ export async function ServiceDetailModule({
       <div id="service-detail-footer" className="w-full relative">
         <div className={cn(STYLES.sectionContainer, "py-6 md:py-8 lg:py-10")}>
           <footer className={STYLES.footer}>
-            <TypographySmall>&copy; {currentYear} Điện máy ELC.</TypographySmall>
+            <small className="type-caption">&copy; {currentYear} Điện máy ELC.</small>
             <ScrollToTop className={STYLES.scrollToTop}>
-              <TypographySmall>Quay lại đầu trang</TypographySmall>
+              <small className="type-caption">Quay lại đầu trang</small>
             </ScrollToTop>
           </footer>
         </div>

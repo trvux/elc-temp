@@ -114,7 +114,7 @@ export const PreviewContent = ({
           className,
         )}
         dangerouslySetInnerHTML={{
-          __html: html.replace(/<table/g, '<div class="table-wrapper"><table').replace(/<\/table>/g, '</table></div>')
+          __html: html.replace(/<table/g, '<div class="table-wrapper" tabindex="0" role="region" aria-label="Bảng dữ liệu"><table').replace(/<\/table>/g, '</table></div>')
         }}
       />
     </WithLinkPreview>

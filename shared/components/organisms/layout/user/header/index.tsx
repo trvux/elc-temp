@@ -41,7 +41,7 @@ interface HeaderProps {
 // come from buildNavGroups (real categories/brands/services/project types),
 // links are next/link. Rendered dark like the v2 apple page; no hotline/search icon.
 const navItem =
-  "h-11 rounded-none px-2 text-xs leading-none font-normal tracking-[-0.01em] text-foreground/80 hover:bg-transparent hover:text-foreground focus:bg-transparent data-popup-open:bg-transparent data-popup-open:text-foreground data-popup-open:hover:bg-transparent data-open:bg-transparent data-open:hover:bg-transparent data-open:focus:bg-transparent";
+  "h-11 rounded-none px-2 type-legal text-foreground/80 hover:bg-transparent hover:text-foreground focus:bg-transparent data-popup-open:bg-transparent data-popup-open:text-foreground data-popup-open:hover:bg-transparent data-open:bg-transparent data-open:hover:bg-transparent data-open:focus:bg-transparent";
 const ease = "ease-[cubic-bezier(0.4,0,0.6,1)]";
 
 export function Header({
@@ -119,6 +119,7 @@ export function Header({
           </Link>
 
           <NavigationMenu
+            aria-label="Menu chính"
             anchor={headerRef}
             positionerClassName="dark"
             onValueChange={setOpenValue}
@@ -130,7 +131,7 @@ export function Header({
                   <Image src="/logo/logo.svg" alt="Điện máy ELC" width={28} height={28} priority className="size-7" />
                 </Link>
               </li>
-              {groups.map((g) => (
+              {groups.map((g, gi) => (
                 <NavigationMenuItem key={g.label}>
                   {g.columns ? (
                     <>
@@ -139,10 +140,10 @@ export function Header({
                         <div className="mx-auto flex max-w-[1024px] px-[22px] pt-10 pb-[84px]">
                           {g.columns.map((c, ci) => (
                             <div key={c.heading} className={c.big ? "max-w-md pr-22" : "pr-11"}>
-                              <p className="text-xs leading-[1.3334] tracking-[-0.01em] text-muted-foreground">
+                              <p id={`nav-col-${gi}-${ci}`} className="type-legal text-muted-foreground">
                                 {c.heading}
                               </p>
-                              <ul className={c.big ? "mt-[7px]" : "mt-2.5"}>
+                              <ul aria-labelledby={`nav-col-${gi}-${ci}`} className={c.big ? "mt-[7px]" : "mt-2.5"}>
                                 {c.links.map((l, li) => (
                                   <li
                                     key={`${l.label}|${l.href}`}
@@ -152,11 +153,11 @@ export function Header({
                                     <NavigationMenuLink
                                       render={<Link href={l.href} />}
                                       className={cn(
-                                        "-mb-1.5 flex w-fit rounded-none px-[11px] font-semibold text-foreground/90 transition-colors duration-320 hover:bg-transparent hover:text-foreground focus:bg-transparent focus-visible:ring-0 focus-visible:outline-2 focus-visible:-outline-offset-7 focus-visible:outline-primary",
+                                        "-mb-1.5 flex w-fit rounded-none px-[11px] text-foreground/90 transition-colors duration-320 hover:bg-transparent hover:text-foreground focus:bg-transparent focus-visible:ring-0 focus-visible:outline-2 focus-visible:-outline-offset-7 focus-visible:outline-primary",
                                         ease,
                                         c.big
-                                          ? "pt-[9px] pb-[7px] text-2xl leading-[1.1667] tracking-[0.009em]"
-                                          : "pt-2 pb-[7px] text-xs leading-[1.3334] tracking-[-0.01em]",
+                                          ? "pt-[9px] pb-[7px] type-title"
+                                          : "pt-2 pb-[7px] type-tag",
                                       )}
                                     >
                                       {l.label}
@@ -192,7 +193,7 @@ export function Header({
               aria-label="Menu"
               className="-mr-2 grid size-11 place-items-center rounded-full min-[834px]:hidden"
             >
-              <ListIcon className="size-5" />
+              <ListIcon aria-hidden="true" className="size-5" />
             </Dialog.Trigger>
             <Dialog.Portal>
               <Dialog.Backdrop className="fixed inset-0 z-300 bg-black/80 transition-opacity duration-150 data-ending-style:opacity-0 data-starting-style:opacity-0" />
@@ -207,35 +208,35 @@ export function Header({
                   {current ? (
                     <button
                       type="button"
-                      aria-label="Back"
+                      aria-label="Quay lại"
                       onClick={() => {
                         setFrom("left");
                         setView(null);
                       }}
                       className="-ml-2 grid size-11 animate-in place-items-center rounded-full fade-in slide-in-from-left-1 fill-mode-both delay-150 duration-240 motion-reduce:animate-none"
                     >
-                      <CaretLeftIcon className="size-5" />
+                      <CaretLeftIcon aria-hidden="true" className="size-5" />
                     </button>
                   ) : (
                     <span />
                   )}
                   <Dialog.Close
-                    aria-label="Close menu"
+                    aria-label="Đóng menu"
                     className="-mr-2 grid size-11 place-items-center rounded-full"
                   >
-                    <XIcon className="size-5" />
+                    <XIcon aria-hidden="true" className="size-5" />
                   </Dialog.Close>
                 </div>
 
-                <div className="min-h-0 flex-1 overflow-y-auto pb-12">
+                <nav aria-label="Menu chính" className="min-h-0 flex-1 overflow-y-auto pb-12">
                   {current?.columns ? (
                     <div key={current.label} className="px-12">
                       {current.columns.map((c, ci) => (
                         <div key={c.heading} className={ci ? "mt-10" : ""}>
                           {ci > 0 && (
-                            <p className="mb-3 text-[1.0625rem] leading-6 text-muted-foreground">{c.heading}</p>
+                            <p className="mb-3 type-callout text-muted-foreground">{c.heading}</p>
                           )}
-                          <ul>
+                          <ul aria-label={ci === 0 ? current.label : c.heading}>
                             {c.links.map((l, li) => (
                               <li
                                 key={`${l.label}|${l.href}`}
@@ -250,8 +251,8 @@ export function Header({
                                   href={l.href}
                                   onClick={closeSheet}
                                   className={cn(
-                                    "block font-semibold",
-                                    c.big ? "py-[7.5px] text-[1.75rem] leading-8" : "py-1.5 text-[1.0625rem] leading-6",
+                                    "block",
+                                    c.big ? "py-[7.5px] type-headline" : "py-1.5 type-body-strong",
                                   )}
                                 >
                                   {l.label}
@@ -281,7 +282,7 @@ export function Header({
                                 setFrom("right");
                                 setView(g.label);
                               }}
-                              className="group flex w-full items-center justify-between py-[7.5px] text-left text-[1.75rem] leading-8 font-semibold"
+                              className="group flex w-full items-center justify-between py-[7.5px] text-left type-headline"
                             >
                               {g.label}
                               <CaretRightIcon
@@ -296,7 +297,7 @@ export function Header({
                             <Link
                               href={g.href}
                               onClick={closeSheet}
-                              className="block py-[7.5px] text-[1.75rem] leading-8 font-semibold"
+                              className="block py-[7.5px] type-headline"
                             >
                               {g.label}
                             </Link>
@@ -305,7 +306,7 @@ export function Header({
                       ))}
                     </ul>
                   )}
-                </div>
+                </nav>
               </Dialog.Popup>
             </Dialog.Portal>
           </Dialog.Root>

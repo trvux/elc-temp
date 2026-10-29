@@ -1,6 +1,5 @@
 import type { ReactNode } from "react";
 
-import { TypographyH1, TypographyLead } from "@/shared/components/ui/typography";
 import { cn } from "@/shared/lib/utils";
 
 interface PageHeroProps {
@@ -35,13 +34,13 @@ export function PageHero({
       )}
     >
       {eyebrow && (
-        <span className="text-xs font-semibold uppercase tracking-[0.25em] text-muted-foreground">
+        <span className="type-tag uppercase text-muted-foreground">
           {eyebrow}
         </span>
       )}
-      <TypographyH1 className={titleClassName}>{title}</TypographyH1>
+      <h1 className={cn("type-headline", titleClassName)}>{title}</h1>
       {description && (
-        <TypographyLead className={descriptionClassName}>{description}</TypographyLead>
+        <p className={cn("type-subhead text-muted-foreground", descriptionClassName)}>{description}</p>
       )}
       {children}
     </header>

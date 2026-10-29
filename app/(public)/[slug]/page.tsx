@@ -2,10 +2,6 @@ import type { Metadata } from "next";
 import { getPageBySlugAction } from "@/modules/page/presentation/actions";
 import { PreviewContent } from "@/shared/components/organisms/layout/user/preview-content";
 import { ScrollToTop } from "@/shared/components/organisms/layout/user/scroll-to-top";
-import {
-  TypographyH1,
-  TypographySmall,
-} from "@/shared/components/ui/typography";
 import { ArrowLeft } from "@phosphor-icons/react/dist/ssr";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -57,6 +53,7 @@ export default async function StaticPage({ params }: PageProps) {
   }
 
   const currentYear = new Date().getFullYear();
+  const publishedAt = new Date(page.createdAt || "2026-06-10T00:00:00.000Z");
 
   return (
     <main className="w-full bg-background min-h-screen flex flex-col">
@@ -93,29 +90,30 @@ export default async function StaticPage({ params }: PageProps) {
           <div>
             <Link
               href="/thong-tin"
-              className="group inline-flex items-center gap-2 text-xs text-muted-foreground hover:text-foreground transition-colors mb-4"
+              className="group inline-flex items-center gap-2 type-legal text-muted-foreground hover:text-foreground transition-colors mb-4"
             >
               <ArrowLeft className="w-3 h-3 transition-transform group-hover:-translate-x-0.5" />
               <span>Quay lại danh mục</span>
             </Link>
-            <TypographySmall className="text-muted-foreground/60 mb-2 block font-medium font-sans">
-              {new Date(
-                page.createdAt || "2026-06-10T00:00:00.000Z",
-              ).toLocaleDateString("vi-VN", {
+            <time
+              dateTime={publishedAt.toISOString()}
+              className="type-caption text-muted-foreground/60 mb-2 block"
+            >
+              {publishedAt.toLocaleDateString("vi-VN", {
                 day: "numeric",
                 month: "long",
                 year: "numeric",
               })}
-            </TypographySmall>
-            <TypographyH1
+            </time>
+            <h1
               className={cn(
-                "w-full max-w-none! text-balance! font-heading leading-tight",
+                "type-headline w-full",
                 page.titleAlign === "center" && "text-center",
                 page.titleAlign === "right" && "text-right",
               )}
             >
               {page.title}
-            </TypographyH1>
+            </h1>
           </div>
           <article className="max-w-2xl mx-auto w-full">
             <PreviewContent
@@ -131,9 +129,9 @@ export default async function StaticPage({ params }: PageProps) {
       <div id="static-page-footer" className="w-full relative">
         <div className={cn(SECTION_CONTAINER, "py-6 md:py-8 lg:py-10")}>
           <footer className="w-full flex flex-col md:flex-row justify-between items-center gap-6 text-muted-foreground">
-            <TypographySmall>&copy; {currentYear} Điện máy ELC.</TypographySmall>
+            <small className="type-caption">&copy; {currentYear} Điện máy ELC.</small>
             <ScrollToTop className="flex items-center gap-2 cursor-pointer hover:text-foreground transition-colors">
-              <TypographySmall>Quay lại đầu trang</TypographySmall>
+              <small className="type-caption">Quay lại đầu trang</small>
             </ScrollToTop>
           </footer>
         </div>

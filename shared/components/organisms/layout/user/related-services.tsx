@@ -1,4 +1,3 @@
-import { TypographyH2 } from "@/shared/components/ui/typography";
 import { cn } from "@/shared/lib/utils";
 import { CardService } from "@/modules/service/presentation/components/CardService";
 import { mapServiceToCardData } from "@/modules/service/domain/mappers";
@@ -30,13 +29,17 @@ export default async function RelatedServices({
 
   return (
     <section className={STYLES.section}>
-      <TypographyH2 className={STYLES.title}>Dịch vụ liên quan</TypographyH2>
-      <div className={STYLES.grid}>
+      <h2 className={cn("type-title", STYLES.title)}>Dịch vụ liên quan</h2>
+      <ul className={STYLES.grid}>
         {services.map((service) => {
           const cardProps = mapServiceToCardData(service);
-          return <CardService key={service.id} {...cardProps} />;
+          return (
+            <li key={service.id} className="flex flex-col">
+              <CardService {...cardProps} headingAs="h3" />
+            </li>
+          );
         })}
-      </div>
+      </ul>
     </section>
   );
 }

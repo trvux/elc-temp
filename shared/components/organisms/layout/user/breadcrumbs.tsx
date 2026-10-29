@@ -38,9 +38,9 @@ export function Breadcrumbs({ items, className }: BreadcrumbsProps) {
   };
 
   return (
-    <nav aria-label="Breadcrumb" className={className}>
-      <Breadcrumb>
-        <BreadcrumbList className="flex-nowrap overflow-hidden gap-2 p-3 text-sm">
+    <div className={className}>
+      <Breadcrumb aria-label="Đường dẫn trang">
+        <BreadcrumbList className="flex-nowrap overflow-hidden gap-2 p-3 type-body-sm">
           <BreadcrumbItem className="shrink-0">
             <BreadcrumbLink href="/">Trang chủ</BreadcrumbLink>
           </BreadcrumbItem>
@@ -64,7 +64,7 @@ export function Breadcrumbs({ items, className }: BreadcrumbsProps) {
                   ) : (
                     <BreadcrumbPage
                       title={item.label}
-                      className="truncate block font-semibold"
+                      className="truncate block type-label"
                     >
                       {item.label}
                     </BreadcrumbPage>
@@ -80,6 +80,6 @@ export function Breadcrumbs({ items, className }: BreadcrumbsProps) {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: toJsonLdHtml(breadcrumbSchema) }}
       />
-    </nav>
+    </div>
   );
 }

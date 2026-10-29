@@ -12,7 +12,6 @@ import { PageHero } from "@/shared/components/organisms/sections/page-hero";
 import { ProductDescription } from "@/shared/components/organisms/layout/user/product-description";
 import { PreviewContent } from "@/shared/components/organisms/layout/user/preview-content";
 import { Button } from "@/shared/components/ui/button";
-import { TypographySmall } from "@/shared/components/ui/typography";
 import { getQueryTokens } from "@/shared/lib/search-utils";
 import { BASE_URL, toJsonLdHtml } from "@/shared/lib/seo-schema";
 import { cn } from "@/shared/lib/utils";
@@ -43,7 +42,7 @@ const STYLES = {
   grid: "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8 min-h-[450px] content-start animate-fade-in-up",
   emptyState:
     "py-24 text-center border border-dashed border-border rounded-xl bg-muted/20 flex flex-col items-center justify-center gap-4 max-w-lg mx-auto w-full min-h-[300px] animate-fade-in-up",
-  emptyText: "text-muted-foreground italic text-sm",
+  emptyText: "text-muted-foreground italic type-body-sm",
   footer:
     "w-full flex flex-col md:flex-row justify-between items-center gap-6 text-muted-foreground",
   scrollToTop:
@@ -344,7 +343,7 @@ export async function ProjectListModule({
         <div className={cn(STYLES.sectionContainer, "py-6 md:py-8 lg:py-10")}>
         <div className="flex flex-col lg:flex-row gap-12">
           {/* Desktop filter sidebar */}
-          <aside className="hidden lg:block w-64 shrink-0 sticky top-[calc(var(--header-height)+1.5rem)] self-start">
+          <aside aria-label="Bộ lọc dự án" className="hidden lg:block w-64 shrink-0 sticky top-[calc(var(--header-height)+1.5rem)] self-start">
             <Suspense fallback={null}>
               <ProjectFilters
                 projectTypes={projectTypeItems}
@@ -375,16 +374,17 @@ export async function ProjectListModule({
             </div>
             <FilteredGridWrapper fallback={null}>
               {sortedProjects.length > 0 ? (
-                <div className={STYLES.grid}>
+                <ul className={STYLES.grid}>
                   {sortedProjects.map((project, index) => (
-                    <ProjectCard
-                      key={project.id}
-                      project={project}
-                      queryTokens={queryTokens}
-                      priority={index < 6}
-                    />
+                    <li key={project.id} className="flex flex-col">
+                      <ProjectCard
+                        project={project}
+                        queryTokens={queryTokens}
+                        priority={index < 6}
+                      />
+                    </li>
                   ))}
-                </div>
+                </ul>
               ) : (
                 /* Empty State */
                 <div className={STYLES.emptyState}>
@@ -426,11 +426,11 @@ export async function ProjectListModule({
       <div id="products-footer" className="w-full relative">
         <div className={cn(STYLES.sectionContainer, "py-6 md:py-8 lg:py-10")}>
           <footer className={STYLES.footer}>
-            <TypographySmall className="text-xs text-muted-foreground/75">
+            <small className="type-legal text-muted-foreground/75">
               &copy; {currentYear} Điện máy ELC.
-            </TypographySmall>
+            </small>
             <ScrollToTop className={STYLES.scrollToTop}>
-              <TypographySmall>Quay lại đầu trang</TypographySmall>
+              <small className="type-caption">Quay lại đầu trang</small>
             </ScrollToTop>
           </footer>
         </div>

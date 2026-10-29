@@ -29,7 +29,6 @@ import { PreviewContent } from "@/shared/components/organisms/layout/user/previe
 import { WishlistDialogButton } from "@/shared/components/organisms/layout/user/wishlist-dialog-button";
 import { RecentlyViewedSection } from "@/shared/components/organisms/layout/user/recently-viewed-section";
 import { ScrollToTop } from "@/shared/components/organisms/layout/user/scroll-to-top";
-import { TypographyH1, TypographyH3, TypographySmall } from "@/shared/components/ui/typography";
 import { unwrapActionResult } from "@/shared/lib/action-result";
 import { AVAILABILITY_SCHEMA, BASE_URL, BRAND_SAME_AS, SEOSchema, toJsonLdHtml } from "@/shared/lib/seo-schema";
 
@@ -514,14 +513,14 @@ export async function ProductListModule({
                 />
               </div>
             )}
-            <TypographyH1>{pageTitle}</TypographyH1>
+            <h1 className="type-headline">{pageTitle}</h1>
           </div>
 
           {warrantyPolicy && (
-            <div className="flex items-start gap-2.5 rounded-lg border border-border bg-card px-4 py-3 text-sm">
+            <div className="flex items-start gap-2.5 rounded-lg border border-border bg-card px-4 py-3 type-body-sm">
               <ShieldCheck className="shrink-0 translate-y-0.5" />
               <div className="flex flex-col gap-0.5">
-                <span className="font-medium">Chính sách bảo hành</span>
+                <span className="type-label">Chính sách bảo hành</span>
                 <span className="text-muted-foreground text-balance">{warrantyPolicy}</span>
               </div>
             </div>
@@ -529,9 +528,12 @@ export async function ProductListModule({
 
           {quickNavGroups.length > 0 && (
             <nav aria-label="Xem nhanh theo phân khúc" className="flex flex-col gap-3">
-              {quickNavGroups.map((group) => (
+              {quickNavGroups.map((group, groupIndex) => (
                 <div key={group.label} className="flex flex-col gap-1.5">
-                  <TypographyH3 className="text-sm font-medium text-muted-foreground">{group.label}</TypographyH3>
+                  {/* A label for the list below, not a heading: the nav is
+                      already a labelled landmark, and an h3 here jumped from
+                      the page h1 straight to h3. */}
+                  <p id={`quick-nav-${groupIndex}`} className="type-caption text-muted-foreground">{group.label}</p>
                   {/* Horizontal scroll instead of wrap — a group like "Phân
                       khúc công suất (HP)" has 12 items, and wrapping them
                       pushed the whole page taller on mobile before a user
@@ -544,18 +546,19 @@ export async function ProductListModule({
                       of whether the bar itself is visible; the 3 classes
                       below just hide that native bar cross-browser. */}
                   <div className="w-full overflow-x-auto [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-                    <div className="flex w-max gap-2 pb-1">
+                    <ul aria-labelledby={`quick-nav-${groupIndex}`} className="flex w-max gap-2 pb-1">
                       {group.items.map((item) => (
-                        <Link
-                          key={item.id}
-                          href={`/san-pham/${item.slug}`}
-                          aria-label={item.name}
-                          className="shrink-0 rounded-md border border-border px-2.5 py-1.5 text-sm hover:bg-muted/50 transition-colors"
-                        >
-                          {item.label}
-                        </Link>
+                        <li key={item.id} className="shrink-0">
+                          <Link
+                            href={`/san-pham/${item.slug}`}
+                            aria-label={item.name}
+                            className="block rounded-md border border-border px-2.5 py-1.5 type-body-sm hover:bg-muted/50 transition-colors"
+                          >
+                            {item.label}
+                          </Link>
+                        </li>
                       ))}
-                    </div>
+                    </ul>
                   </div>
                 </div>
               ))}
@@ -565,6 +568,7 @@ export async function ProductListModule({
 
         <RecentlyViewedSection />
 
+        <section aria-label="Danh sách sản phẩm" className="flex flex-col gap-6">
         <div className="flex flex-wrap items-center gap-2">
           <div className="flex-1 min-w-0">
             <ProductSearchBox />
@@ -602,14 +606,15 @@ export async function ProductListModule({
         </div>
 
         {displayProducts.length > 0 ? (
-          <ProductGrid products={displayProducts} shippingZone={shippingZone} />
+          <ProductGrid products={displayProducts} shippingZone={shippingZone} headingAs="h2" />
         ) : (
           <div className="py-24 text-center min-h-75 w-full">
-            <p className="text-muted-foreground/60 italic text-sm">
+            <p className="text-muted-foreground/60 italic type-body-sm">
               Không tìm thấy sản phẩm nào.
             </p>
           </div>
         )}
+        </section>
 
         {/* Đặt sau lưới sản phẩm, không phải trước — người xem trang danh
             mục cần thấy sản phẩm trước tiên; nội dung mô tả chỉ dành cho ai
@@ -629,9 +634,9 @@ export async function ProductListModule({
 
       <div className="w-full max-w-350 mx-auto px-4 md:px-6 lg:px-8 py-6 border-t border-dashed border-border/40">
         <div className="flex flex-col md:flex-row justify-between items-center gap-6 text-muted-foreground">
-          <TypographySmall>&copy; {currentYear} Điện máy ELC.</TypographySmall>
+          <small className="type-caption">&copy; {currentYear} Điện máy ELC.</small>
           <ScrollToTop className="flex items-center gap-2 cursor-pointer hover:text-foreground transition-colors">
-            <TypographySmall>Quay lại đầu trang</TypographySmall>
+            <small className="type-caption">Quay lại đầu trang</small>
           </ScrollToTop>
         </div>
       </div>

@@ -18,8 +18,8 @@ export function FAQAccordion({ faqs, title = "Câu hỏi thường gặp" }: FAQ
   if (faqs.length === 0) return null;
 
   return (
-    <div className="w-full max-w-4xl mx-auto space-y-4">
-      <h2 className="text-xl md:text-2xl font-bold tracking-tight">{title}</h2>
+    <section aria-labelledby="faq-heading" className="w-full max-w-4xl mx-auto space-y-4">
+      <h2 id="faq-heading" className="type-title">{title}</h2>
       <Accordion type="single" collapsible>
         {faqs.map((faq) => (
           <AccordionItem key={faq.id} value={faq.id}>
@@ -30,6 +30,6 @@ export function FAQAccordion({ faqs, title = "Câu hỏi thường gặp" }: FAQ
           </AccordionItem>
         ))}
       </Accordion>
-    </div>
+    </section>
   );
 }

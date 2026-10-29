@@ -214,7 +214,7 @@ export function ProductFilterDialogButton({
 
   const renderAttributeField = (attr: AttributeFacet) => (
     <Field key={attr.code} className="gap-2">
-      <FieldLabel className="font-normal">
+      <FieldLabel className="type-body-sm">
         {attr.name}
         {attr.unit ? ` (${attr.unit})` : ""}
       </FieldLabel>
@@ -228,14 +228,15 @@ export function ProductFilterDialogButton({
                 <button
                   type="button"
                   key={`${bucket.min}-${bucket.max}`}
+                  aria-pressed={isActive}
                   onClick={() => setRange(attr.code, isActive ? "" : String(bucket.min), isActive ? "" : String(bucket.max))}
                   className={cn(
-                    "flex items-center gap-1.5 rounded-md border px-2.5 py-1.5 text-sm cursor-pointer transition-colors",
-                    isActive ? "border-primary bg-primary/5 font-medium" : "border-border hover:bg-muted/50",
+                    "flex items-center gap-1.5 rounded-md border px-2.5 py-1.5 type-body-sm cursor-pointer transition-colors",
+                    isActive ? "border-primary bg-primary/5 type-caption" : "border-border hover:bg-muted/50",
                   )}
                 >
                   {bucketLabel(bucket, i, all.length, attr.unit)}
-                  <span className="text-xs text-muted-foreground">{bucket.count}</span>
+                  <span className="type-legal text-muted-foreground">{bucket.count}</span>
                 </button>
               );
             })}
@@ -258,12 +259,12 @@ export function ProductFilterDialogButton({
                   aria-pressed={isActive}
                   onClick={() => toggleToken(attr.code, opt.value)}
                   className={cn(
-                    "flex items-center gap-1.5 rounded-md border px-2.5 py-1.5 text-sm cursor-pointer transition-colors",
-                    isActive ? "border-primary bg-primary/5 font-medium" : "border-border hover:bg-muted/50",
+                    "flex items-center gap-1.5 rounded-md border px-2.5 py-1.5 type-body-sm cursor-pointer transition-colors",
+                    isActive ? "border-primary bg-primary/5 type-caption" : "border-border hover:bg-muted/50",
                   )}
                 >
                   {opt.label}
-                  <span className="text-xs text-muted-foreground">{opt.count}</span>
+                  <span className="type-legal text-muted-foreground">{opt.count}</span>
                 </button>
               );
             })}
@@ -285,17 +286,18 @@ export function ProductFilterDialogButton({
                 <button
                   type="button"
                   key={`${bucket.min}-${bucket.max}`}
+                  aria-pressed={isActive}
                   onClick={() => {
                     setDraftMinPrice(isActive ? "" : String(bucket.min));
                     setDraftMaxPrice(isActive ? "" : String(bucket.max));
                   }}
                   className={cn(
-                    "flex items-center gap-1.5 rounded-md border px-2.5 py-1.5 text-sm cursor-pointer transition-colors",
-                    isActive ? "border-primary bg-primary/5 font-medium" : "border-border hover:bg-muted/50",
+                    "flex items-center gap-1.5 rounded-md border px-2.5 py-1.5 type-body-sm cursor-pointer transition-colors",
+                    isActive ? "border-primary bg-primary/5 type-caption" : "border-border hover:bg-muted/50",
                   )}
                 >
                   {bucketLabel(bucket, i, all.length, null, true)}
-                  <span className="text-xs text-muted-foreground">{bucket.count}</span>
+                  <span className="type-legal text-muted-foreground">{bucket.count}</span>
                 </button>
               );
             })}
@@ -314,16 +316,17 @@ export function ProductFilterDialogButton({
                 <Button
                   key={b.id}
                   type="button"
+                  aria-pressed={isActive}
                   variant={isActive ? "secondary" : "ghost"}
                   size="sm"
                   onClick={() => toggleBrand(b.id)}
                   className={cn("gap-1.5 border", isActive ? "border-primary" : "border-border")}
                 >
                   {b.logoUrl && (
-                    <Image src={b.logoUrl} alt={b.name} width={20} height={20} className="size-5 object-contain" />
+                    <Image src={b.logoUrl} alt="" width={20} height={20} className="size-5 object-contain" />
                   )}
                   {b.name}
-                  <span className="text-xs text-muted-foreground">{b.count}</span>
+                  <span className="type-legal text-muted-foreground">{b.count}</span>
                 </Button>
               );
             })}
@@ -335,7 +338,7 @@ export function ProductFilterDialogButton({
         <Accordion type="multiple" defaultValue={attributeGroups.map((g) => g.label)} className="w-full">
           {attributeGroups.map((group) => (
             <AccordionItem key={group.label} value={group.label}>
-              <AccordionTrigger className="hover:no-underline text-base font-medium">{group.label}</AccordionTrigger>
+              <AccordionTrigger className="hover:no-underline type-body-strong">{group.label}</AccordionTrigger>
               <AccordionContent className="px-1 h-auto!">
                 <FieldGroup className="gap-4">
                   {group.attrs.map(renderAttributeField)}

@@ -42,7 +42,7 @@ export default function MagicLinkPage() {
   if (parsed && !token) {
     return (
       <main className="flex-1 flex items-center justify-center px-4 py-16">
-        <p className="text-sm text-muted-foreground">Liên kết không hợp lệ.</p>
+        <p className="type-body-sm text-muted-foreground">Liên kết không hợp lệ.</p>
       </main>
     );
   }
@@ -50,7 +50,7 @@ export default function MagicLinkPage() {
   if (isError || data?.error) {
     return (
       <main className="flex-1 flex items-center justify-center px-4 py-16">
-        <p className="text-sm text-muted-foreground">
+        <p className="type-body-sm text-muted-foreground">
           Đăng nhập thất bại: {data?.error ?? (error as Error)?.message}. Quay lại{" "}
           <Link href="/" className="underline">
             trang chủ
@@ -63,7 +63,7 @@ export default function MagicLinkPage() {
 
   return (
     <main className="flex-1 flex items-center justify-center px-4 py-16">
-      <p className="text-sm text-muted-foreground">Đang đăng nhập...</p>
+      <p className="type-body-sm text-muted-foreground">Đang đăng nhập...</p>
     </main>
   );
 }

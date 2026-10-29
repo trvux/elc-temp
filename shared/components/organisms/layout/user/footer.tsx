@@ -15,10 +15,6 @@ import { Contact, getDisplayContacts } from "@/modules/contact/domain";
 import { ContactLink } from "@/modules/contact/presentation/components/ContactLink";
 import { sortByOrderIndex } from "@/shared/lib/helpers";
 import { groupCategoriesByGroup } from "@/shared/lib/group-categories";
-import {
-  TypographyH2,
-  TypographyH3,
-} from "@/shared/components/ui/typography";
 
 interface BrandFooter {
   id: string;
@@ -113,11 +109,11 @@ export function Footer({
 
   return (
     <footer className="w-full relative bg-background">
-      {/* No divider line/diamond here anymore — see grid-section.tsx's own
-          removal comment (2026-09-24) for why. Footer separates from the
-          page above it, and its own internal subsections, by spacing alone
-          (this wrapper's own py-10/16/20 plus each subsection's pt-12
-          pb-16 below). */}
+      {/* Footer is repeated on every page, so its link groups are labelled
+          <nav>s with plain <p> titles instead of h2/h3: headings here would
+          sit in every page's outline right after the real content. No
+          divider line/diamond (see grid-section.tsx's removal comment,
+          2026-09-24): sections separate by spacing alone. */}
       <div className="mx-auto h-full w-full max-w-350 min-[112.5rem]:max-w-384 px-4 md:px-6 lg:px-12 relative py-10 md:py-16 lg:py-20">
         {/* ===== SECTION 1: Logo + Navigation ===== */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-y-12 gap-x-8 pb-16">
@@ -138,153 +134,162 @@ export function Footer({
               />
             </Link>
             {settings?.company_short_desc && (
-              <p className="text-sm leading-relaxed text-muted-foreground max-w-sm">
+              <p className="type-body-sm text-muted-foreground max-w-sm">
                 {settings.company_short_desc}
               </p>
             )}
 
             {displayContacts.length > 0 && (
-              <div className="flex flex-wrap items-center gap-1.5 mt-2">
+              <ul aria-label="Liên hệ nhanh" className="flex flex-wrap items-center gap-1.5 mt-2">
                 {displayContacts.map((contact) => (
-                  <ContactLink
-                    key={contact.id}
-                    contact={contact}
-                    showLabel={false}
-                    showValue={false}
-                    iconProps={{ size: 20, weight: "bold" }}
-                    className="h-9 w-9 text-muted-foreground hover:text-foreground hover:bg-muted/40 transition-colors flex items-center justify-center p-0 gap-0 cursor-pointer rounded-md bg-transparent"
-                    iconClassName="size-4.5 flex items-center justify-center"
-                    title={contact.label || contact.type}
-                  />
+                  <li key={contact.id}>
+                    <ContactLink
+                      contact={contact}
+                      showLabel={false}
+                      showValue={false}
+                      iconProps={{ size: 20, weight: "bold" }}
+                      className="h-9 w-9 text-muted-foreground hover:text-foreground hover:bg-muted/40 transition-colors flex items-center justify-center p-0 gap-0 cursor-pointer rounded-md bg-transparent"
+                      iconClassName="size-4.5 flex items-center justify-center"
+                      aria-label={contact.label || contact.type}
+                      title={contact.label || contact.type}
+                    />
+                  </li>
                 ))}
-              </div>
+              </ul>
             )}
           </div>
 
           {/* Cơ sở hạ tầng */}
-          <div className="flex flex-col gap-4">
-            <TypographyH2 className="text-sm md:text-sm font-semibold text-foreground tracking-tight">
+          <nav aria-labelledby="footer-infra-title" className="flex flex-col gap-4">
+            <p id="footer-infra-title" className="type-label text-foreground">
               Cơ sở hạ tầng
-            </TypographyH2>
-            <nav className="flex flex-col gap-2.5">
+            </p>
+            <ul className="flex flex-col gap-2.5">
               {branches.length ? (
                 sortByOrderIndex(branches).map((b) => (
-                  <Link
-                    key={b.slug}
-                    href={`/thong-tin/${b.slug}`}
-                    className="text-sm text-muted-foreground hover:text-foreground transition-colors duration-200"
-                  >
-                    {b.name}
-                  </Link>
+                  <li key={b.slug}>
+                    <Link
+                      href={`/thong-tin/${b.slug}`}
+                      className="type-body-sm text-muted-foreground hover:text-foreground transition-colors duration-200"
+                    >
+                      {b.name}
+                    </Link>
+                  </li>
                 ))
               ) : (
-                <span className="text-xs italic text-muted-foreground/50">
-                  Đang cập nhật
-                </span>
+                <li>
+                  <span className="type-legal italic text-muted-foreground/50">
+                    Đang cập nhật
+                  </span>
+                </li>
               )}
-            </nav>
-          </div>
+            </ul>
+          </nav>
 
           {/* Thông tin */}
-          <div className="flex flex-col gap-4">
-            <TypographyH2 className="text-sm md:text-sm font-semibold text-foreground tracking-tight">
+          <nav aria-labelledby="footer-info-title" className="flex flex-col gap-4">
+            <p id="footer-info-title" className="type-label text-foreground">
               Thông tin
-            </TypographyH2>
-            <nav className="flex flex-col gap-2.5">
+            </p>
+            <ul className="flex flex-col gap-2.5">
               {pages.length ? (
                 sortByOrderIndex(pages).slice(0, 8).map((p) => (
-                  <Link
-                    key={p.slug}
-                    href={`/${p.slug}`}
-                    className="text-sm text-muted-foreground hover:text-foreground transition-colors duration-200"
-                  >
-                    {p.title}
-                  </Link>
+                  <li key={p.slug}>
+                    <Link
+                      href={`/${p.slug}`}
+                      className="type-body-sm text-muted-foreground hover:text-foreground transition-colors duration-200"
+                    >
+                      {p.title}
+                    </Link>
+                  </li>
                 ))
               ) : (
-                <span className="text-xs italic text-muted-foreground/50">
-                  Đang cập nhật
-                </span>
+                <li>
+                  <span className="type-legal italic text-muted-foreground/50">
+                    Đang cập nhật
+                  </span>
+                </li>
               )}
-            </nav>
-          </div>
+            </ul>
+          </nav>
         </div>
 
         {/* ===== BRAND SECTION: Thương hiệu đối tác ===== */}
         {brands.length > 0 && (
-          <div className="relative pt-12 pb-16">
+          <nav aria-labelledby="footer-brands-title" className="relative pt-12 pb-16">
             <div className="flex flex-col gap-8">
               <div className="flex items-center justify-between">
-                <TypographyH2 className="text-lg md:text-xl font-bold tracking-tight text-foreground font-heading">
+                <p id="footer-brands-title" className="type-heading text-foreground">
                   Thương hiệu đối tác
-                </TypographyH2>
+                </p>
                 <Link
                   href="/san-pham"
-                  className="text-sm font-medium text-muted-foreground hover:text-foreground transition-all flex items-center gap-1 group"
+                  className="type-caption text-muted-foreground hover:text-foreground transition-all flex items-center gap-1 group"
                 >
                   <span className="hidden lg:block">
                     Xem tất cả sản phẩm thuộc thương hiệu
                   </span>
-                  <span className="hidden lg:block transition-transform group-hover:translate-x-0.5">
+                  <span aria-hidden="true" className="hidden lg:block transition-transform group-hover:translate-x-0.5">
                     <ArrowRightIcon />
                   </span>
                   <span className="lg:hidden">Xem tất cả</span>
-                  <span className="lg:hidden transition-transform group-hover:translate-x-0.5">
+                  <span aria-hidden="true" className="lg:hidden transition-transform group-hover:translate-x-0.5">
                     <ArrowRightIcon />
                   </span>
                 </Link>
               </div>
 
               {/* Grid of brand logos */}
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-4">
+              <ul className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-4">
                 {brands.map((brand) => {
                   const url = `/san-pham?brands=${brand.slug.toLowerCase().trim()}`;
 
                   return (
-                    <Link
-                      key={brand.id}
-                      href={url}
-                      className="group relative flex items-center justify-center p-4 rounded-xl transition-all duration-300 h-16 w-full overflow-hidden"
-                      title={`Xem sản phẩm từ thương hiệu ${brand.name}`}
-                    >
-                      {brand.logoUrl ? (
-                        <div className="relative h-8 w-full max-w-[85%]">
-                          <Image
-                            src={brand.logoUrl}
-                            alt={brand.name}
-                            fill
-                            loading="lazy"
-                            sizes="120px"
-                            className="object-contain opacity-90"
-                          />
-                        </div>
-                      ) : (
-                        <span className="text-sm font-semibold text-muted-foreground group-hover:text-foreground transition-colors duration-300">
-                          {brand.name}
-                        </span>
-                      )}
-                    </Link>
+                    <li key={brand.id}>
+                      <Link
+                        href={url}
+                        className="group relative flex items-center justify-center p-4 rounded-xl transition-all duration-300 h-16 w-full overflow-hidden"
+                        title={`Xem sản phẩm từ thương hiệu ${brand.name}`}
+                      >
+                        {brand.logoUrl ? (
+                          <div className="relative h-8 w-full max-w-[85%]">
+                            <Image
+                              src={brand.logoUrl}
+                              alt={brand.name}
+                              fill
+                              loading="lazy"
+                              sizes="120px"
+                              className="object-contain opacity-90"
+                            />
+                          </div>
+                        ) : (
+                          <span className="type-label text-muted-foreground group-hover:text-foreground transition-colors duration-300">
+                            {brand.name}
+                          </span>
+                        )}
+                      </Link>
+                    </li>
                   );
                 })}
-              </div>
+              </ul>
             </div>
-          </div>
+          </nav>
         )}
 
         {/* ===== SECTION 2: Danh mục Sản phẩm (dynamic from DB groups) ===== */}
         {productColumns.length > 0 && (
-          <div className="relative pt-12 pb-16">
+          <nav aria-labelledby="footer-products-title" className="relative pt-12 pb-16">
             <div className="flex flex-col gap-8">
               <div className="flex items-center justify-between">
-                <TypographyH2 className="text-lg md:text-xl font-bold tracking-tight text-foreground font-heading">
+                <p id="footer-products-title" className="type-heading text-foreground">
                   Danh mục Sản phẩm
-                </TypographyH2>
+                </p>
                 <Link
                   href="/san-pham"
-                  className="text-sm font-medium text-muted-foreground hover:text-foreground transition-all flex items-center gap-1 group"
+                  className="type-caption text-muted-foreground hover:text-foreground transition-all flex items-center gap-1 group"
                 >
                   <span>Xem tất cả</span>
-                  <span className="transition-transform group-hover:translate-x-0.5">
+                  <span aria-hidden="true" className="transition-transform group-hover:translate-x-0.5">
                     <ArrowRightIcon />
                   </span>
                 </Link>
@@ -296,69 +301,67 @@ export function Footer({
                 {productColumns.map(({ group, categories: children }) => (
                   <div key={group.id} className="flex flex-col gap-3">
                     <Link
+                      id={`footer-group-${group.id}`}
                       href={`/san-pham/${group.slug}`}
-                      className="text-xs font-bold text-foreground tracking-wider hover:text-primary transition-colors"
+                      className="type-label text-foreground hover:text-primary transition-colors"
                     >
-                      <TypographyH3 className="text-sm md:text-sm font-semibold text-foreground tracking-tight">
-                        {group.name}
-                      </TypographyH3>
+                      {group.name}
                     </Link>
-                    <nav className="flex flex-col gap-2">
+                    <ul aria-labelledby={`footer-group-${group.id}`} className="flex flex-col gap-2">
                       {children.length ? (
                         children.map((cat) => (
-                          <Link
-                            key={cat.slug}
-                            href={`/san-pham/${cat.slug}`}
-                            className="text-sm text-muted-foreground hover:text-foreground transition-colors duration-200"
-                          >
-                            {cat.name}
-                          </Link>
+                          <li key={cat.slug}>
+                            <Link
+                              href={`/san-pham/${cat.slug}`}
+                              className="type-body-sm text-muted-foreground hover:text-foreground transition-colors duration-200"
+                            >
+                              {cat.name}
+                            </Link>
+                          </li>
                         ))
                       ) : (
-                        <Link
-                          href={`/san-pham/${group.slug}`}
-                          className="text-sm text-muted-foreground hover:text-foreground transition-colors duration-200"
-                        >
-                          Xem sản phẩm
-                        </Link>
+                        <li>
+                          <Link
+                            href={`/san-pham/${group.slug}`}
+                            className="type-body-sm text-muted-foreground hover:text-foreground transition-colors duration-200"
+                          >
+                            Xem sản phẩm
+                          </Link>
+                        </li>
                       )}
-                    </nav>
+                    </ul>
                   </div>
                 ))}
               </div>
             </div>
-          </div>
+          </nav>
         )}
 
         {/* ===== SECTION 3: Dự án nổi bật (grouped by service type) ===== */}
         {projects.length > 0 && (
-          <div className="relative pt-12 pb-16">
+          <nav aria-labelledby="footer-projects-title" className="relative pt-12 pb-16">
             <div className="flex flex-col gap-8">
               <div className="flex items-center justify-between">
-                <TypographyH2 className="text-lg md:text-xl font-bold tracking-tight text-foreground font-heading">
+                <p id="footer-projects-title" className="type-heading text-foreground">
                   Dự án nổi bật
-                </TypographyH2>
+                </p>
                 <Link
                   href="/du-an"
-                  className="text-sm font-medium text-muted-foreground hover:text-foreground transition-all flex items-center gap-1 group"
+                  className="type-caption text-muted-foreground hover:text-foreground transition-all flex items-center gap-1 group"
                 >
                   <span>Xem tất cả</span>
-                  <span className="transition-transform group-hover:translate-x-0.5">
+                  <span aria-hidden="true" className="transition-transform group-hover:translate-x-0.5">
                     <ArrowRightIcon />
                   </span>
                 </Link>
               </div>
 
               {(() => {
-                // Build columns: one per service type that has projects.
-                // Service types order comes from projectTypes prop (ordered by order_index).
-                // Projects without a service type fall into a "Khác" column.
                 const grouped = new Map<
                   string,
                   { name: string; slug: string; items: ProjectFooter[] }
                 >();
 
-                // Initialise buckets in order
                 projectTypes.forEach((st) => {
                   grouped.set(st.id, {
                     name: st.name,
@@ -395,16 +398,14 @@ export function Footer({
                     {columns.map((col) => (
                       <div key={col.slug} className="flex flex-col gap-3">
                         <Link
+                          id={`footer-project-${col.slug}`}
                           href={`/du-an/${col.slug}`}
-                          className="text-xs font-bold text-foreground tracking-wider hover:text-primary transition-colors"
+                          className="type-label text-foreground hover:text-primary transition-colors"
                         >
-                          <TypographyH3 className="text-sm md:text-sm font-semibold text-foreground tracking-tight">
-                            {col.name}
-                          </TypographyH3>
+                          {col.name}
                         </Link>
-                        <nav className="flex flex-col gap-2">
+                        <ul aria-labelledby={`footer-project-${col.slug}`} className="flex flex-col gap-2">
                           {col.items.map((p) => {
-                            // Mirror ProjectCard displayTitle logic
                             const match =
                               p.title.match(/(?:tại|Tại|cho|Cho)\s+(.+)$/) ||
                               p.title.match(/-\s+([^-]+)$/);
@@ -415,81 +416,85 @@ export function Footer({
                                 : p.title;
 
                             return (
-                              <Link
-                                key={p.id}
-                                href={`/du-an/${p.slug}`}
-                                className="text-sm text-muted-foreground hover:text-foreground transition-colors duration-200 truncate block py-0.5"
-                                title={p.title}
-                              >
-                                {displayTitle}
-                              </Link>
+                              <li key={p.id}>
+                                <Link
+                                  href={`/du-an/${p.slug}`}
+                                  className="type-body-sm text-muted-foreground hover:text-foreground transition-colors duration-200 truncate block py-0.5"
+                                  title={p.title}
+                                >
+                                  {displayTitle}
+                                </Link>
+                              </li>
                             );
                           })}
-                        </nav>
+                        </ul>
                       </div>
                     ))}
                   </div>
                 );
               })()}
             </div>
-          </div>
+          </nav>
         )}
 
         {/* ===== SECTION 4: Copyright bar ===== */}
         <div className="relative pt-10">
-          {/* Sử dụng grid-cols-1 cho mobile (xếp chồng) và grid-cols-10 cho màn hình lớn */}
           <div className="grid grid-cols-1 lg:grid-cols-10 gap-6 items-start">
-            {/* Cột 1: Chiếm 4 phần (4/10) */}
             <div className="lg:col-span-4 flex flex-col gap-2 text-center lg:text-left items-center lg:items-start">
-              <p className="text-sm font-medium text-foreground">
+              <p className="type-caption text-foreground">
                 © {currentYear} {settings?.company_name || "Điện máy ELC"}
               </p>
               <button
                 type="button"
                 onClick={() => window.dispatchEvent(new Event("elc:open-consent-banner"))}
-                className="text-xs text-muted-foreground hover:text-foreground underline underline-offset-2 transition-colors"
+                className="type-legal text-muted-foreground hover:text-foreground underline underline-offset-2 transition-colors"
               >
                 Cài đặt cookie
               </button>
             </div>
 
-            {/* Cột 2: Chiếm 6 phần (6/10) */}
-            <div className="lg:col-span-6 flex flex-wrap items-center justify-center lg:justify-start gap-x-6 gap-y-2">
+            <ul className="lg:col-span-6 flex flex-wrap items-center justify-center lg:justify-start gap-x-6 gap-y-2">
               <TooltipProvider>
                 {displayContacts.map((contact) => (
-                  <Tooltip key={contact.id}>
-                    <TooltipTrigger asChild>
-                      <ContactLink
-                        contact={contact}
-                        showLabel={true}
-                        showValue={true}
-                        iconProps={{ size: 14, weight: "bold" }}
-                        iconClassName="shrink-0 text-muted-foreground"
-                        className="text-xs text-muted-foreground hover:text-foreground transition-colors py-1 flex items-center gap-1.5 cursor-pointer"
-                      />
-                    </TooltipTrigger>
-                    <TooltipContent side="top">
-                      <p>{contact.label || contact.type}</p>
-                    </TooltipContent>
-                  </Tooltip>
+                  <li key={contact.id}>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <ContactLink
+                          contact={contact}
+                          showLabel={true}
+                          showValue={true}
+                          iconProps={{ size: 14, weight: "bold" }}
+                          iconClassName="shrink-0 text-muted-foreground"
+                          className="type-legal text-muted-foreground hover:text-foreground transition-colors py-1 flex items-center gap-1.5 cursor-pointer"
+                        />
+                      </TooltipTrigger>
+                      <TooltipContent side="top">
+                        <p>{contact.label || contact.type}</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </li>
                 ))}
 
                 {address && (
-                  <Link
-                    href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`}
-                    target="_blank"
-                    className="text-xs text-muted-foreground hover:text-foreground leading-relaxed flex items-start gap-1.5 transition-colors"
-                  >
-                    <MapPinIcon
-                      size={14}
-                      weight="bold"
-                      className="shrink-0 text-muted-foreground mt-0.5"
-                    />
-                    <span>Văn phòng: {address}</span>
-                  </Link>
+                  <li>
+                    <Link
+                      href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="type-legal text-muted-foreground hover:text-foreground flex items-start gap-1.5 transition-colors"
+                    >
+                      <MapPinIcon
+                        aria-hidden="true"
+                        size={14}
+                        weight="bold"
+                        className="shrink-0 text-muted-foreground mt-0.5"
+                      />
+                      <span>Văn phòng: {address}</span>
+                    </Link>
+                  </li>
                 )}
               </TooltipProvider>
-            </div>
+            </ul>
           </div>
         </div>
       </div>

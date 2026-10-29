@@ -20,10 +20,6 @@ import { unwrapActionResult } from "@/shared/lib/action-result";
 import { excerptFromRichText } from "@/shared/lib/rich-text";
 import { BASE_URL, SEOSchema, toJsonLdHtml } from "@/shared/lib/seo-schema";
 import { cn } from "@/shared/lib/utils";
-import {
-  TypographyH1,
-  TypographySmall,
-} from "@/shared/components/ui/typography";
 
 const PAGE_URL = `${BASE_URL}/san-pham`;
 // Fallback copy for when admin hasn't filled in catalog-page SEO fields yet
@@ -168,7 +164,7 @@ export default async function ProductsPage() {
         <RecentlyViewedSection />
 
         <div className="flex items-start justify-between gap-4 pb-4 border-b border-border/40">
-          <TypographyH1>Tất cả sản phẩm</TypographyH1>
+          <h1 className="type-headline">Tất cả sản phẩm</h1>
           <div className="flex items-center gap-2 shrink-0">
             <WishlistDialogButton />
             <CompareLinkButton />
@@ -195,11 +191,11 @@ export default async function ProductsPage() {
 
         {/* Footer rights & Back to top */}
         <div className="w-full pt-8 border-t border-border/40 flex flex-col md:flex-row justify-between items-center gap-6 text-muted-foreground">
-          <TypographySmall>
+          <small className="type-caption">
             &copy; {new Date().getFullYear()} Điện máy ELC.
-          </TypographySmall>
+          </small>
           <ScrollToTop className={STYLES.scrollToTop}>
-            <TypographySmall>Quay lại đầu trang</TypographySmall>
+            <small className="type-caption">Quay lại đầu trang</small>
           </ScrollToTop>
         </div>
       </div>

@@ -10,7 +10,6 @@ import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
 import { Checkbox } from "@/shared/components/ui/checkbox";
 import { Separator } from "@/shared/components/ui/separator";
-import { TypographyLarge } from "@/shared/components/ui/typography";
 import { cn } from "@/shared/lib/utils";
 import { useFilterTransition } from "@/shared/providers/filter-transition-provider";
 import { Check, X } from "@phosphor-icons/react";
@@ -47,6 +46,9 @@ interface ProjectFiltersProps {
   currentServiceSlugs?: string[];
   currentCondition?: string;
   onFilterChange?: () => void;
+  // The mobile sheet already has its own SheetTitle; it passes false so the
+  // sheet does not end up with two identical titles.
+  showTitle?: boolean;
 }
 
 export function ProjectFilters({
@@ -58,6 +60,7 @@ export function ProjectFilters({
   currentServiceSlugs = [],
   currentCondition = "",
   onFilterChange,
+  showTitle = true,
 }: ProjectFiltersProps) {
   const router = useRouter();
   const pathname = usePathname();
@@ -248,7 +251,7 @@ export function ProjectFilters({
   return (
     <div className="flex flex-col gap-2">
       <div className="flex items-center justify-between h-10">
-        <TypographyLarge>Bộ lọc dự án</TypographyLarge>
+        {showTitle ? <h2 className="type-body-strong">Bộ lọc dự án</h2> : <span />}
         {hasAnyFilter && (
           <Button
             variant="secondary"
@@ -310,8 +313,8 @@ export function ProjectFilters({
                       />
                       <span
                         className={cn(
-                          "text-sm font-medium leading-snug group-hover:text-foreground transition-colors",
-                          isActive && "text-foreground font-semibold",
+                          "type-caption group-hover:text-foreground transition-colors",
+                          isActive && "type-label text-foreground",
                         )}
                       >
                         {st.name}
@@ -362,8 +365,8 @@ export function ProjectFilters({
                       />
                       <span
                         className={cn(
-                          "text-sm font-medium leading-snug group-hover:text-foreground transition-colors",
-                          isActive && "text-foreground font-semibold",
+                          "type-caption group-hover:text-foreground transition-colors",
+                          isActive && "type-label text-foreground",
                         )}
                       >
                         {svc.name}
@@ -414,8 +417,8 @@ export function ProjectFilters({
                       />
                       <span
                         className={cn(
-                          "text-sm font-medium leading-snug group-hover:text-foreground transition-colors",
-                          isActive && "text-foreground font-semibold",
+                          "type-caption group-hover:text-foreground transition-colors",
+                          isActive && "type-label text-foreground",
                         )}
                       >
                         {cat.name}
@@ -461,8 +464,8 @@ export function ProjectFilters({
                 />
                 <span
                   className={cn(
-                    "text-sm font-medium leading-snug group-hover:text-foreground transition-colors",
-                    localCondition === "new" && "text-foreground font-semibold",
+                    "type-caption group-hover:text-foreground transition-colors",
+                    localCondition === "new" && "type-label text-foreground",
                   )}
                 >
                   Mới
@@ -483,9 +486,9 @@ export function ProjectFilters({
                 />
                 <span
                   className={cn(
-                    "text-sm font-medium leading-snug group-hover:text-foreground transition-colors",
+                    "type-caption group-hover:text-foreground transition-colors",
                     localCondition === "used" &&
-                      "text-foreground font-semibold",
+                      "type-label text-foreground",
                   )}
                 >
                   Cũ

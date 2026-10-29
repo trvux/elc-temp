@@ -15,7 +15,7 @@ import { cn } from "@/shared/lib/utils";
 // (user feedback, 2026-09-07). variant="ghost" strips the Button's own
 // border/background so this can fully own the look via className instead.
 const UNDERLINE_FIELD_CLASS =
-  "!text-xl sm:!text-2xl h-auto border-0 border-b-2 border-white/40 rounded-none px-0 py-2 shadow-none text-white placeholder:text-white/50 focus-visible:ring-0 focus-visible:border-white bg-transparent";
+  "!type-subhead h-auto border-0 border-b-2 border-white/40 rounded-none px-0 py-2 shadow-none text-white placeholder:text-white/50 focus-visible:ring-0 focus-visible:border-white bg-transparent";
 
 // LocationCombobox's "ghost" variant still carries buttonVariants' own
 // hover:bg-muted / aria-expanded:bg-muted (built for an admin dropdown,
@@ -103,10 +103,10 @@ export function AddressStep({ question, description, onChange, onKeyDown }: Addr
 
   return (
     <div>
-      <h1 className="text-2xl sm:text-3xl md:text-4xl font-semibold leading-tight text-balance text-white drop-shadow-sm">{question}</h1>
-      {description && <p className="mt-3 text-white/80 drop-shadow-sm">{description}</p>}
+      <h1 id="step-question" className="type-headline text-white drop-shadow-sm">{question}</h1>
+      {description && <p id="step-description" className="type-body mt-3 text-white/80 drop-shadow-sm">{description}</p>}
 
-      <div className="mt-8 flex flex-col gap-6">
+      <div role="group" aria-labelledby="step-question" aria-describedby={description ? "step-description" : undefined} className="mt-8 flex flex-col gap-6">
         <LocationField
           items={provinces}
           value={provinceCode}
@@ -115,6 +115,7 @@ export function AddressStep({ question, description, onChange, onKeyDown }: Addr
             setWardCode("");
           }}
           placeholder="Tỉnh/thành phố"
+          label="Tỉnh/thành phố"
           emptyText="Không tìm thấy tỉnh/thành."
           drawerTitle="Chọn tỉnh/thành phố"
           className={cn("w-full", UNDERLINE_COMBOBOX_CLASS)}
@@ -124,6 +125,7 @@ export function AddressStep({ question, description, onChange, onKeyDown }: Addr
           value={wardCode}
           onValueChange={setWardCode}
           placeholder="Phường/xã (tùy chọn)"
+          label="Phường/xã"
           disabled={!provinceCode}
           emptyText="Không tìm thấy phường/xã."
           drawerTitle="Chọn phường/xã"
@@ -133,6 +135,7 @@ export function AddressStep({ question, description, onChange, onKeyDown }: Addr
           value={detail}
           onChange={(e) => setDetail(e.target.value)}
           onKeyDown={onKeyDown}
+          aria-label="Số nhà, tên đường, hẻm"
           placeholder="Số nhà, tên đường, hẻm..."
           className={UNDERLINE_FIELD_CLASS}
         />
