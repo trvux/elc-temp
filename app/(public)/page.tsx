@@ -8,6 +8,7 @@ import { ProjectBounceCardsSection } from "@/shared/components/organisms/section
 import { getBrandsAction } from "@/modules/brand/presentation/actions";
 import { getProductsAction } from "@/modules/catalog/presentation/actions";
 import { PRODUCT_STATUS } from "@/modules/catalog/domain";
+import { slimProductForCard } from "@/modules/catalog/presentation/lib/slim-product-card";
 import { getCategoriesAction } from "@/modules/category/presentation/actions";
 import { getContactsAction } from "@/modules/contact/presentation/actions";
 import { getProjectsAction } from "@/modules/project/presentation/actions";
@@ -54,7 +55,7 @@ async function getCachedHomeData() {
       });
       return {
         category,
-        products,
+        products: products.map(slimProductForCard),
         totalCount,
       };
     })
@@ -98,7 +99,14 @@ export default async function Home() {
       id: "project-marquee",
       component: (
         <ProjectBounceCardsSection
-          projects={(projects || []).filter((p) => p.isFeatured)}
+          projects={(projects || [])
+            .filter((p) => p.isFeatured)
+            .map(({ id, slug, title, images }) => ({
+              id,
+              slug,
+              title,
+              images: images.slice(0, 1),
+            }))}
           title="Dự án tiêu biểu nổi bật"
         />
       ),

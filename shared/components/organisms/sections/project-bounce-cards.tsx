@@ -5,17 +5,20 @@ import { m } from "motion/react";
 import Image from "next/image";
 import Link from "next/link";
 
-import { ProjectWithCategory } from "@/modules/project/domain/types";
+import type { ProjectWithCategory } from "@/modules/project/domain/types";
 import { Button } from "@/shared/components/ui/button";
-import { TypographyH2, TypographyP } from "@/shared/components/ui/typography";
 import { primaryImageUrl } from "@/shared/lib/image-asset";
 import { useIsMobile } from "@/shared/hooks/use-mobile";
 import { ArrowRight } from "@phosphor-icons/react/dist/ssr";
 
+// Only what the card renders — callers slim projects before crossing the
+// server/client boundary so full project content isn't serialized into the page.
+export type ProjectBounceCard = Pick<ProjectWithCategory, "id" | "slug" | "title" | "images">;
+
 interface ProjectBounceCardsSectionProps {
   title?: string;
   description?: string;
-  projects?: ProjectWithCategory[];
+  projects?: ProjectBounceCard[];
 }
 
 // Generated fan positions — a small sine jitter on top of the linear
@@ -58,15 +61,15 @@ export function ProjectBounceCardsSection({
   if (cards.length === 0) return null;
 
   return (
-    <div className="w-full max-w-7xl mx-auto px-4 md:px-0">
+    <section aria-labelledby="featured-projects-heading" className="w-full max-w-7xl mx-auto px-4 md:px-0">
       <div className="flex flex-col items-center text-center gap-3 mb-14 md:mb-20">
-        <TypographyH2>{title}</TypographyH2>
+        <h2 id="featured-projects-heading" className="type-title">{title}</h2>
         {description && (
-          <TypographyP className="text-muted-foreground max-w-2xl">{description}</TypographyP>
+          <p className="type-body text-muted-foreground max-w-2xl">{description}</p>
         )}
       </div>
 
-      <div className="relative mx-auto flex items-center justify-center h-[170px] sm:h-[230px]">
+      <ul className="relative mx-auto flex items-center justify-center h-[170px] sm:h-[230px]">
         {cards.map((project, idx) => {
           const base = fan[idx] ?? { rotate: 0, x: 0 };
           const isHovered = hovered === idx;
@@ -78,12 +81,15 @@ export function ProjectBounceCardsSection({
           const scaleDown = hovered !== null && !isHovered ? 0.94 : 1;
 
           return (
-            <Link
+            <li
               key={project.id}
-              href={`/du-an/${project.slug}`}
-              aria-label={`Xem dự án ${project.title}`}
               className="absolute"
               style={{ zIndex: isHovered ? 20 : Math.round(10 - Math.abs(idx - center)) }}
+            >
+            <Link
+              href={`/du-an/${project.slug}`}
+              aria-label={`Xem dự án ${project.title}`}
+              className="block"
             >
               <m.div
                 className="relative w-[86px] h-[86px] sm:w-[150px] sm:h-[150px] rounded-2xl sm:rounded-3xl overflow-hidden border-2 sm:border-4 border-background shadow-xl bg-muted cursor-pointer"
@@ -111,7 +117,7 @@ export function ProjectBounceCardsSection({
               >
                 <Image
                   src={primaryImageUrl(project.images) || "/placeholder.png"}
-                  alt={project.title}
+                  alt=""
                   fill
                   sizes="150px"
                   className="object-cover"
@@ -121,15 +127,16 @@ export function ProjectBounceCardsSection({
                   className="absolute inset-x-0 bottom-0 px-3 py-2.5 bg-gradient-to-t from-black/80 to-transparent transition-opacity duration-300"
                   style={{ opacity: isHovered ? 1 : 0 }}
                 >
-                  <p className="text-[11px] sm:text-xs font-medium text-white leading-snug line-clamp-2">
+                  <p className="type-legal text-white line-clamp-2">
                     {project.title}
                   </p>
                 </div>
               </m.div>
             </Link>
+            </li>
           );
         })}
-      </div>
+      </ul>
 
       <div className="flex justify-center mt-14 md:mt-20">
         <Button asChild variant="outline">
@@ -139,6 +146,6 @@ export function ProjectBounceCardsSection({
           </Link>
         </Button>
       </div>
-    </div>
+    </section>
   );
 }
