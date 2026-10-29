@@ -200,7 +200,7 @@ function ImagePlaceholderComponent(props: NodeViewProps) {
     <NodeViewWrapper className="w-full">
       <Popover modal open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild className="w-full">
-          <div className="flex cursor-pointer items-center gap-3 rounded-md bg-accent p-2 py-3 text-sm text-accent-foreground transition-colors hover:bg-secondary">
+          <div className="flex cursor-pointer items-center gap-3 rounded-md bg-accent p-2 py-3 type-body-sm text-accent-foreground transition-colors hover:bg-secondary">
             <ImageIcon className="h-5 w-5" />
             Add an image
           </div>
@@ -229,7 +229,7 @@ function ImagePlaceholderComponent(props: NodeViewProps) {
                 onDragOver={handleDragOver}
                 onDrop={handleDrop}
                 className={cn(
-                  "my-2 rounded-md border border-dashed text-sm transition-colors hover:bg-secondary",
+                  "my-2 rounded-md border border-dashed type-body-sm transition-colors hover:bg-secondary",
                   isDragActive && "border-primary bg-secondary",
                 )}
               >
@@ -277,7 +277,7 @@ function ImagePlaceholderComponent(props: NodeViewProps) {
                   placeholder="Paste the image link..."
                 />
                 {urlError && (
-                  <p className="py-1.5 text-xs text-destructive">
+                  <p className="py-1.5 type-legal text-destructive">
                     Please enter a valid URL
                   </p>
                 )}
@@ -285,11 +285,11 @@ function ImagePlaceholderComponent(props: NodeViewProps) {
                   onClick={handleInsertEmbed}
                   type="button"
                   size="sm"
-                  className="my-2 h-8 w-full p-2 text-xs"
+                  className="my-2 h-8 w-full p-2 type-legal"
                 >
                   Embed Image
                 </Button>
-                <p className="text-center text-xs text-muted-foreground">
+                <p className="text-center type-legal text-muted-foreground">
                   Works with any image from the web
                 </p>
               </div>

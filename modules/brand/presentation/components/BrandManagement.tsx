@@ -105,8 +105,8 @@ export function BrandManagement() {
     <div>
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 mb-8">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">Thương hiệu</h1>
-          <p className="text-sm text-muted-foreground">
+          <h1 className="type-title">Thương hiệu</h1>
+          <p className="type-body-sm text-muted-foreground">
             Quản lý các hãng sản xuất và cung cấp sản phẩm.
           </p>
         </div>
@@ -175,7 +175,7 @@ export function BrandManagement() {
                           <Field>
                             <FieldLabel>Slug / Đường dẫn (Tự động)</FieldLabel>
                             <Input {...field} placeholder="vd: daikin" />
-                            <FieldDescription className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                            <FieldDescription className="flex items-center gap-1.5 type-legal text-muted-foreground">
                               <ArrowSquareOut size={12} />
                               /san-pham/all/{field.value || "..."}
                             </FieldDescription>
@@ -208,8 +208,8 @@ export function BrandManagement() {
                             <Field className="flex flex-col justify-between h-21 border p-4 rounded-xl bg-muted/10">
                               <div className="flex items-center justify-between">
                                 <div className="space-y-0.5">
-                                  <FieldLabel className="text-sm font-medium">Nổi bật</FieldLabel>
-                                  <FieldDescription className="text-xs leading-tight">Hiển thị ở trang chủ</FieldDescription>
+                                  <FieldLabel className="type-caption">Nổi bật</FieldLabel>
+                                  <FieldDescription className="type-legal">Hiển thị ở trang chủ</FieldDescription>
                                 </div>
                                 <Switch
                                   checked={field.value}
@@ -310,10 +310,10 @@ export function BrandManagement() {
                   <div className="space-y-4">
                     <div className="flex items-center justify-between border-b pb-2">
                       <div>
-                        <h3 className="text-sm font-semibold tracking-tight">Bài viết chi tiết SEO</h3>
-                        <p className="text-xs text-muted-foreground">Nội dung bài viết hiển thị ở cuối danh sách sản phẩm.</p>
+                        <h3 className="type-label">Bài viết chi tiết SEO</h3>
+                        <p className="type-legal text-muted-foreground">Nội dung bài viết hiển thị ở cuối danh sách sản phẩm.</p>
                       </div>
-                      <span className="text-xs text-muted-foreground uppercase tracking-widest">Tiptap Editor</span>
+                      <span className="type-legal text-muted-foreground uppercase">Tiptap Editor</span>
                     </div>
                     <Controller
                       control={form.control}

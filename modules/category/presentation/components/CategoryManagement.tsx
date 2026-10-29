@@ -136,8 +136,8 @@ export function CategoryManagement() {
     <div>
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 mb-8">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">Danh mục</h1>
-          <p className="text-sm text-muted-foreground">
+          <h1 className="type-title">Danh mục</h1>
+          <p className="type-body-sm text-muted-foreground">
             Quản lý danh mục sản phẩm lắp đặt chi tiết (Dòng sản phẩm thực tế).
           </p>
         </div>
@@ -224,7 +224,7 @@ export function CategoryManagement() {
                       <Field>
                         <FieldLabel>Slug / URL Preview</FieldLabel>
                         <Input {...field} placeholder="Tự động tạo nếu để trống" />
-                        <FieldDescription className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                        <FieldDescription className="flex items-center gap-1.5 type-legal text-muted-foreground">
                           <ArrowSquareOut size={12} />
                           /{field.value || "..."}
                         </FieldDescription>
@@ -254,7 +254,7 @@ export function CategoryManagement() {
                       name="isFeatured"
                       render={({ field }) => (
                         <Field orientation="horizontal" className="justify-between items-center border px-3 py-2 rounded-xl self-end h-11 gap-2">
-                          <FieldLabel className="font-normal text-xs whitespace-nowrap mb-0">Nổi bật</FieldLabel>
+                          <FieldLabel className="type-legal whitespace-nowrap mb-0">Nổi bật</FieldLabel>
                           <Switch checked={field.value} onCheckedChange={field.onChange} />
                         </Field>
                       )}
@@ -265,7 +265,7 @@ export function CategoryManagement() {
                       name="isHidden"
                       render={({ field }) => (
                         <Field orientation="horizontal" className="justify-between items-center border px-3 py-2 rounded-xl self-end h-11 gap-2">
-                          <FieldLabel className="font-normal text-xs whitespace-nowrap mb-0">Ẩn khỏi hiển thị công khai</FieldLabel>
+                          <FieldLabel className="type-legal whitespace-nowrap mb-0">Ẩn khỏi hiển thị công khai</FieldLabel>
                           <Switch checked={field.value} onCheckedChange={field.onChange} />
                         </Field>
                       )}
@@ -296,8 +296,8 @@ export function CategoryManagement() {
               {/* SEO Section */}
               <div className="space-y-6 border p-6 rounded-2xl bg-muted/10">
                 <div className="border-b pb-2">
-                  <h3 className="text-sm font-semibold tracking-tight">Cấu hình SEO</h3>
-                  <p className="text-xs text-muted-foreground">Tối ưu hóa hiển thị trên các công cụ tìm kiếm (Google, Bing,...).</p>
+                  <h3 className="type-label">Cấu hình SEO</h3>
+                  <p className="type-legal text-muted-foreground">Tối ưu hóa hiển thị trên các công cụ tìm kiếm (Google, Bing,...).</p>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <Controller
@@ -305,7 +305,7 @@ export function CategoryManagement() {
                     name="metaTitle"
                     render={({ field, fieldState }) => (
                       <Field>
-                        <FieldLabel className="text-xs">Tiêu đề SEO</FieldLabel>
+                        <FieldLabel className="type-legal">Tiêu đề SEO</FieldLabel>
                         <Input {...field} value={field.value || ""} placeholder="Để trống sẽ dùng tên danh mục..." />
                         <FieldError errors={[fieldState.error]} />
                       </Field>
@@ -317,7 +317,7 @@ export function CategoryManagement() {
                     name="metaDescription"
                     render={({ field, fieldState }) => (
                       <Field>
-                        <FieldLabel className="text-xs">Mô tả SEO</FieldLabel>
+                        <FieldLabel className="type-legal">Mô tả SEO</FieldLabel>
                         <Textarea {...field} value={field.value || ""} placeholder="Nhập mô tả tóm tắt..." className="min-h-20" />
                         <FieldError errors={[fieldState.error]} />
                       </Field>
@@ -330,10 +330,10 @@ export function CategoryManagement() {
               <div className="space-y-4">
                 <div className="flex items-center justify-between border-b pb-2">
                   <div>
-                    <h3 className="text-sm font-semibold tracking-tight">Bài viết chi tiết SEO</h3>
-                    <p className="text-xs text-muted-foreground">Nội dung bài viết hiển thị ở cuối danh sách sản phẩm.</p>
+                    <h3 className="type-label">Bài viết chi tiết SEO</h3>
+                    <p className="type-legal text-muted-foreground">Nội dung bài viết hiển thị ở cuối danh sách sản phẩm.</p>
                   </div>
-                  <span className="text-xs text-muted-foreground uppercase tracking-widest">Tiptap Editor</span>
+                  <span className="type-legal text-muted-foreground uppercase">Tiptap Editor</span>
                 </div>
                 <Controller
                   control={form.control}

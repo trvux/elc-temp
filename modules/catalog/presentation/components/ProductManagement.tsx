@@ -112,8 +112,8 @@ export function ProductManagement() {
     <div>
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 mb-8">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">Sản phẩm</h1>
-          <p className="text-sm text-muted-foreground">
+          <h1 className="type-title">Sản phẩm</h1>
+          <p className="type-body-sm text-muted-foreground">
             Quản lý danh sách sản phẩm, giá bán và thông số kỹ thuật.
           </p>
         </div>

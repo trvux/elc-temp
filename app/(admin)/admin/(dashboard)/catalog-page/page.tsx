@@ -65,7 +65,7 @@ export default function CatalogPagePage() {
     return (
       <div className="flex flex-col items-center justify-center py-20 text-muted-foreground gap-4">
         <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
-        <p className="text-sm font-medium">Đang tải cấu hình...</p>
+        <p className="type-caption">Đang tải cấu hình...</p>
       </div>
     );
 
@@ -73,8 +73,8 @@ export default function CatalogPagePage() {
     <div className="max-w-4xl pb-20">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">Trang &quot;Tất cả sản phẩm&quot;</h1>
-          <p className="text-sm text-muted-foreground">
+          <h1 className="type-title">Trang &quot;Tất cả sản phẩm&quot;</h1>
+          <p className="type-body-sm text-muted-foreground">
             Nội dung giới thiệu + SEO riêng cho trang catch-all liệt kê toàn bộ sản phẩm — chỉ có 1 trang duy nhất.
           </p>
         </div>
@@ -82,8 +82,8 @@ export default function CatalogPagePage() {
 
       <Card className="overflow-hidden border-border/40 shadow-sm rounded-2xl">
         <CardHeader className="bg-muted/30">
-          <CardTitle className="text-lg font-bold tracking-tight">SEO</CardTitle>
-          <CardDescription className="text-sm">Tiêu đề/mô tả hiển thị trên kết quả tìm kiếm Google.</CardDescription>
+          <CardTitle className="type-heading">SEO</CardTitle>
+          <CardDescription className="type-body-sm">Tiêu đề/mô tả hiển thị trên kết quả tìm kiếm Google.</CardDescription>
         </CardHeader>
         <Separator />
         <CardContent className="p-6 space-y-6">
@@ -112,8 +112,8 @@ export default function CatalogPagePage() {
 
       <Card className="overflow-hidden border-border/40 shadow-sm rounded-2xl mt-8">
         <CardHeader className="bg-muted/30">
-          <CardTitle className="text-lg font-bold tracking-tight">Nội dung giới thiệu</CardTitle>
-          <CardDescription className="text-sm">
+          <CardTitle className="type-heading">Nội dung giới thiệu</CardTitle>
+          <CardDescription className="type-body-sm">
             Đoạn giới thiệu hiển thị đầu trang &quot;Tất cả sản phẩm&quot;, phía trên danh sách danh mục.
           </CardDescription>
         </CardHeader>

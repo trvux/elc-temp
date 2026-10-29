@@ -69,7 +69,7 @@ const ColorSwatchButton = ({
 }: ColorSwatchButtonProps) => (
   <button
     onClick={onClick}
-    className="flex w-full items-center justify-between rounded-sm px-2 py-1 text-sm hover:bg-accent"
+    className="flex w-full items-center justify-between rounded-sm px-2 py-1 type-body-sm hover:bg-accent"
     type="button"
   >
     <div className="flex items-center space-x-2">

@@ -17,7 +17,6 @@ import {
   SelectValue,
 } from "@/shared/components/ui/select";
 import { Textarea } from "@/shared/components/ui/textarea";
-import { TypographySmall } from "@/shared/components/ui/typography";
 
 import {
   CHANNEL_LABEL,
@@ -110,10 +109,10 @@ export function InquiryManagement() {
     <div>
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 mb-8">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-foreground">
+          <h1 className="type-title text-foreground">
             Yêu cầu tư vấn
           </h1>
-          <p className="text-sm text-muted-foreground">
+          <p className="type-body-sm text-muted-foreground">
             Danh sách khách hàng gửi yêu cầu tư vấn/báo giá từ website.
           </p>
         </div>
@@ -192,26 +191,26 @@ export function InquiryManagement() {
 
             {activeInquiry.email && (
               <div>
-                <TypographySmall className="text-muted-foreground">Email</TypographySmall>
-                <p className="text-sm">{activeInquiry.email}</p>
+                <span className="type-caption text-muted-foreground">Email</span>
+                <p className="type-body-sm">{activeInquiry.email}</p>
               </div>
             )}
 
             {activeInquiry.message && (
               <div>
-                <TypographySmall className="text-muted-foreground">
+                <span className="type-caption text-muted-foreground">
                   Nội dung khách gửi
-                </TypographySmall>
-                <p className="text-sm whitespace-pre-wrap">{activeInquiry.message}</p>
+                </span>
+                <p className="type-body-sm whitespace-pre-wrap">{activeInquiry.message}</p>
               </div>
             )}
 
             {Object.keys(activeInquiry.qualifyData).length > 0 && (
               <div>
-                <TypographySmall className="text-muted-foreground">
+                <span className="type-caption text-muted-foreground">
                   Thông tin khảo sát
-                </TypographySmall>
-                <dl className="mt-1 grid grid-cols-2 gap-x-4 gap-y-1 text-sm">
+                </span>
+                <dl className="mt-1 grid grid-cols-2 gap-x-4 gap-y-1 type-body-sm">
                   {Object.entries(activeInquiry.qualifyData).map(([key, value]) => (
                     <div key={key} className="contents">
                       <dt className="text-muted-foreground">{QUALIFY_STEP_LABELS[key] ?? key}</dt>
@@ -224,13 +223,13 @@ export function InquiryManagement() {
 
             {activeInquiry.interestHistory.length > 0 && (
               <div>
-                <TypographySmall className="text-muted-foreground">
+                <span className="type-caption text-muted-foreground">
                   Lịch sử quan tâm ({activeInquiry.interestHistory.length})
-                </TypographySmall>
-                <ol className="mt-1.5 space-y-1 text-sm">
+                </span>
+                <ol className="mt-1.5 space-y-1 type-body-sm">
                   {activeInquiry.interestHistory.map((touch, idx) => (
                     <li key={idx} className="flex items-baseline gap-2">
-                      <span className="text-xs text-muted-foreground whitespace-nowrap tabular-nums">
+                      <span className="type-legal text-muted-foreground whitespace-nowrap tabular-nums">
                         {new Date(touch.at).toLocaleString("vi-VN")}
                       </span>
                       <span>{touch.entityName || "Liên hệ chung (không gắn sản phẩm/dịch vụ)"}</span>
@@ -242,9 +241,9 @@ export function InquiryManagement() {
 
             {activeInquiry.attachments.length > 0 && (
               <div>
-                <TypographySmall className="text-muted-foreground">
+                <span className="type-caption text-muted-foreground">
                   Ảnh khách gửi
-                </TypographySmall>
+                </span>
                 <div className="mt-2 flex flex-wrap gap-2">
                   {activeInquiry.attachments.map((url) => (
                     <a key={url} href={url} target="_blank" rel="noopener noreferrer">
@@ -286,7 +285,7 @@ export function InquiryManagement() {
                     onChange={(e) => setDraftConversionValue(e.target.value)}
                     placeholder="VD: 15000000"
                   />
-                  <p className="mt-1.5 text-xs text-muted-foreground">
+                  <p className="mt-1.5 type-legal text-muted-foreground">
                     {activeInquiry.adsConversionSyncedAt
                       ? `Đã đồng bộ Google Ads lúc ${new Date(activeInquiry.adsConversionSyncedAt).toLocaleString("vi-VN")}`
                       : "Chưa đồng bộ Google Ads."}

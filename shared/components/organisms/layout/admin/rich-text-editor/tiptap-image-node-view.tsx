@@ -303,7 +303,7 @@ export function TiptapImageNodeView(props: NodeViewProps) {
           className="rounded-sm"
         />
         {node.attrs.title && (
-          <figcaption className="text-center text-sm text-muted-foreground">
+          <figcaption className="text-center type-body-sm text-muted-foreground">
             {node.attrs.title}
           </figcaption>
         )}
@@ -346,7 +346,7 @@ export function TiptapImageNodeView(props: NodeViewProps) {
               />
             </div>
             {radiusResizing && (
-              <div className="pointer-events-none absolute bottom-8 right-3 z-20 rounded-md bg-background px-2 py-1 text-xs font-medium shadow-xs">
+              <div className="pointer-events-none absolute bottom-8 right-3 z-20 rounded-md bg-background px-2 py-1 type-tag shadow-xs">
                 {Math.round(node.attrs.borderRadius ?? 0)}px
               </div>
             )}
@@ -459,7 +459,7 @@ export function TiptapImageNodeView(props: NodeViewProps) {
                         }
                       }}
                     >
-                      <span className="text-xs font-medium text-muted-foreground">
+                      <span className="type-tag text-muted-foreground">
                         Alt text
                       </span>
                       <Input
@@ -467,7 +467,7 @@ export function TiptapImageNodeView(props: NodeViewProps) {
                         value={altDraft}
                         onChange={(e) => setAltDraft(e.target.value)}
                         placeholder="What's in this image?"
-                        className="h-9 text-sm"
+                        className="h-9 type-body-sm"
                       />
                       <Button type="button" size="sm" className="mt-1" onClick={confirmAlt}>
                         Confirm
@@ -483,7 +483,7 @@ export function TiptapImageNodeView(props: NodeViewProps) {
                         }
                       }}
                     >
-                      <span className="text-xs font-medium text-muted-foreground">
+                      <span className="type-tag text-muted-foreground">
                         Caption
                       </span>
                       <Input
@@ -491,7 +491,7 @@ export function TiptapImageNodeView(props: NodeViewProps) {
                         value={captionDraft}
                         onChange={(e) => setCaptionDraft(e.target.value)}
                         placeholder="Caption shown under the image"
-                        className="h-9 text-sm"
+                        className="h-9 type-body-sm"
                       />
                       <Button type="button" size="sm" className="mt-1" onClick={confirmCaption}>
                         Confirm

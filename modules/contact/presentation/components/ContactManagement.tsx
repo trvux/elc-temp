@@ -170,8 +170,8 @@ export function ContactManagement() {
     <div>
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 mb-8">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-foreground">Liên hệ</h1>
-          <p className="text-sm text-muted-foreground">
+          <h1 className="type-title text-foreground">Liên hệ</h1>
+          <p className="type-body-sm text-muted-foreground">
             Cấu hình các kênh liên lạc hiển thị trên website.
           </p>
         </div>
@@ -292,7 +292,7 @@ export function ContactManagement() {
                           checked={field.value}
                           onCheckedChange={field.onChange}
                         />
-                        <span className="text-sm text-muted-foreground">
+                        <span className="type-body-sm text-muted-foreground">
                           {field.value ? "Đang bật" : "Đang tắt"}
                         </span>
                       </div>
@@ -316,7 +316,7 @@ export function ContactManagement() {
                     />
                   )}
                 />
-                <FieldDescription className="text-xs italic">
+                <FieldDescription className="type-legal italic">
                   Tên ngắn gọn mô tả thông tin liên hệ.
                 </FieldDescription>
               </FieldContent>

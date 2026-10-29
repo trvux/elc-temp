@@ -316,8 +316,8 @@ export function ProjectManagement() {
     <div>
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 mb-8">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">Dự án</h1>
-          <p className="text-sm text-muted-foreground">
+          <h1 className="type-title">Dự án</h1>
+          <p className="type-body-sm text-muted-foreground">
             Quản lý danh sách các dự án đã thực hiện.
           </p>
         </div>
@@ -690,7 +690,7 @@ export function ProjectManagement() {
                                             field.onChange(next);
                                           }}
                                           placeholder="Mô tả ảnh (alt text)"
-                                          className="rounded-none border-0 border-t text-xs h-8"
+                                          className="rounded-none border-0 border-t type-legal h-8"
                                         />
                                       </div>
                                     ))}
@@ -721,8 +721,8 @@ export function ProjectManagement() {
                   {/* Portfolio / Case-study Section */}
                   <div className="space-y-6 border p-6 rounded-2xl bg-muted/10">
                     <div className="border-b pb-2">
-                      <h3 className="text-sm font-semibold tracking-tight">Thông tin công trình</h3>
-                      <p className="text-xs text-muted-foreground">
+                      <h3 className="type-label">Thông tin công trình</h3>
+                      <p className="type-legal text-muted-foreground">
                         Tăng độ tin cậy khi hiển thị công khai — theo chuẩn portfolio các nhà thầu lớn.
                       </p>
                     </div>
@@ -789,10 +789,10 @@ export function ProjectManagement() {
                   {/* SEO Section */}
                   <div className="space-y-6 border p-6 rounded-2xl bg-muted/10">
                     <div className="border-b pb-2">
-                      <h3 className="text-sm font-semibold tracking-tight">
+                      <h3 className="type-label">
                         Cấu hình SEO
                       </h3>
-                      <p className="text-xs text-muted-foreground">
+                      <p className="type-legal text-muted-foreground">
                         Tối ưu hóa hiển thị trên các công cụ tìm kiếm (Google,
                         Bing,...).
                       </p>
@@ -805,7 +805,7 @@ export function ProjectManagement() {
                           <Field>
                             <div className="flex items-center justify-between">
                               <FieldLabel>Tiêu đề SEO</FieldLabel>
-                              <span className="text-xs text-muted-foreground">{(field.value || "").length}/70</span>
+                              <span className="type-legal text-muted-foreground">{(field.value || "").length}/70</span>
                             </div>
                             <Input
                               {...field}
@@ -824,7 +824,7 @@ export function ProjectManagement() {
                           <Field>
                             <div className="flex items-center justify-between">
                               <FieldLabel>Mô tả SEO</FieldLabel>
-                              <span className="text-xs text-muted-foreground">{(field.value || "").length}/160</span>
+                              <span className="type-legal text-muted-foreground">{(field.value || "").length}/160</span>
                             </div>
                             <Textarea
                               {...field}
@@ -914,10 +914,10 @@ export function ProjectManagement() {
                         <CardHeader className="pb-4">
                           <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
                             <div className="space-y-1">
-                              <CardTitle className="text-sm font-semibold tracking-tight text-foreground">
+                              <CardTitle className="type-label text-foreground">
                                 Dòng sản phẩm thực tế
                               </CardTitle>
-                              <CardDescription className="text-xs text-muted-foreground">
+                              <CardDescription className="type-legal text-muted-foreground">
                                 Tích chọn các dòng sản phẩm lắp đặt thực tế cho dự
                                 án này (Tự động điền theo loại hình công trình ở
                                 trên, bạn có thể tự chỉnh thêm).
@@ -928,7 +928,7 @@ export function ProjectManagement() {
                                 type="button"
                                 variant="ghost"
                                 size="sm"
-                                className="h-8 text-xs px-3 hover:bg-muted"
+                                className="h-8 type-legal px-3 hover:bg-muted"
                                 onClick={() => {
                                   const allSelections = categories.map((c) => ({
                                     id: c.id,
@@ -943,7 +943,7 @@ export function ProjectManagement() {
                                 type="button"
                                 variant="ghost"
                                 size="sm"
-                                className="h-8 text-xs px-3 text-destructive hover:bg-destructive/10 hover:text-destructive"
+                                className="h-8 type-legal px-3 text-destructive hover:bg-destructive/10 hover:text-destructive"
                                 onClick={() => {
                                   form.setValue("categories", []);
                                 }}
@@ -994,7 +994,7 @@ export function ProjectManagement() {
                                           <div className="flex items-center gap-2">
                                             <button
                                               type="button"
-                                              className="text-xs text-muted-foreground hover:text-primary transition-colors cursor-pointer"
+                                              className="type-legal text-muted-foreground hover:text-primary transition-colors cursor-pointer"
                                               onClick={() => {
                                                 const groupItemIds = items.map(
                                                   (cat) => cat.id,
@@ -1019,12 +1019,12 @@ export function ProjectManagement() {
                                             >
                                               Chọn tất cả
                                             </button>
-                                            <span className="text-sm text-muted-foreground/30">
+                                            <span className="type-body-sm text-muted-foreground/30">
                                               |
                                             </span>
                                             <button
                                               type="button"
-                                              className="text-xs text-muted-foreground hover:text-destructive transition-colors cursor-pointer"
+                                              className="type-legal text-muted-foreground hover:text-destructive transition-colors cursor-pointer"
                                               onClick={() => {
                                                 const groupItemIds = items.map(
                                                   (cat) => cat.id,
@@ -1062,11 +1062,11 @@ export function ProjectManagement() {
                                                 key={cat.id}
                                                 className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-2.5 rounded-lg border bg-muted/10 hover:bg-muted/30 transition-colors"
                                               >
-                                                <span className="text-xs font-semibold text-foreground/85 select-none">
+                                                <span className="type-tag text-foreground/85 select-none">
                                                   {cat.name}
                                                 </span>
                                                 <div className="flex items-center gap-4 shrink-0">
-                                                  <label className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-primary cursor-pointer select-none">
+                                                  <label className="flex items-center gap-1.5 type-legal text-muted-foreground hover:text-primary cursor-pointer select-none">
                                                     <input
                                                       type="checkbox"
                                                       className="h-4 w-4 border-input text-primary cursor-pointer accent-primary shrink-0"
@@ -1081,7 +1081,7 @@ export function ProjectManagement() {
                                                     />
                                                     <span>Mới</span>
                                                   </label>
-                                                  <label className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-primary cursor-pointer select-none">
+                                                  <label className="flex items-center gap-1.5 type-legal text-muted-foreground hover:text-primary cursor-pointer select-none">
                                                     <input
                                                       type="checkbox"
                                                       className="h-4 w-4 border-input text-primary cursor-pointer accent-primary shrink-0"
@@ -1204,17 +1204,17 @@ export function ProjectManagement() {
                         return (
                           <Card>
                             <CardHeader className="pb-4">
-                              <CardTitle className="text-sm font-semibold tracking-tight text-foreground">
+                              <CardTitle className="type-label text-foreground">
                                 Dịch vụ thực hiện
                               </CardTitle>
-                              <CardDescription className="text-xs text-muted-foreground">
+                              <CardDescription className="type-legal text-muted-foreground">
                                 Tích chọn các dịch vụ liên quan đến dự án này.
                               </CardDescription>
                             </CardHeader>
                             <CardContent className="pt-0">
                               {!selectedGroupId ||
                               selectedGroupId === "none" ? (
-                                <div className="text-sm text-muted-foreground italic py-4 text-center bg-muted/30 rounded-md mt-2 border border-dashed">
+                                <div className="type-body-sm text-muted-foreground italic py-4 text-center bg-muted/30 rounded-md mt-2 border border-dashed">
                                   Vui lòng chọn Nhóm dịch vụ phía trên để hiển
                                   thị danh sách dịch vụ thực hiện.
                                 </div>
@@ -1225,7 +1225,7 @@ export function ProjectManagement() {
                                     return (
                                       <label
                                         key={s.id}
-                                        className="flex items-center gap-3 text-xs font-medium text-foreground/80 cursor-pointer hover:text-primary transition-colors select-none hover:bg-muted/30"
+                                        className="flex items-center gap-3 type-tag text-foreground/80 cursor-pointer hover:text-primary transition-colors select-none hover:bg-muted/30"
                                       >
                                         <input
                                           type="checkbox"
@@ -1258,10 +1258,10 @@ export function ProjectManagement() {
                 >
                   <div className="space-y-4">
                     <div className="flex items-center justify-between border-b pb-2">
-                      <h3 className="text-sm font-semibold tracking-tight">
+                      <h3 className="type-label">
                         Nội dung chi tiết dự án
                       </h3>
-                      <span className="text-xs text-muted-foreground uppercase tracking-widest">
+                      <span className="type-legal text-muted-foreground uppercase">
                         Tiptap Editor
                       </span>
                     </div>

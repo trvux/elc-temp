@@ -139,14 +139,14 @@ export function SeoAuditPanel() {
         {issues.length === 0 ? (
           <>
             <CheckCircle size={20} className="text-green-600" weight="fill" />
-            <p className="text-sm text-muted-foreground">
+            <p className="type-body-sm text-muted-foreground">
               Không tìm thấy vấn đề SEO nào trong {rows.length} trang đã publish.
             </p>
           </>
         ) : (
           <>
             <WarningCircle size={20} className="text-amber-500" weight="fill" />
-            <p className="text-sm text-muted-foreground">
+            <p className="type-body-sm text-muted-foreground">
               Tìm thấy {issues.length}/{rows.length} trang có vấn đề SEO cần xem lại.
             </p>
           </>
@@ -171,14 +171,14 @@ export function SeoAuditPanel() {
                 <TableCell>
                   <div className="flex flex-wrap gap-1.5">
                     {row.problems.map((p, j) => (
-                      <Badge key={j} variant="outline" className="text-xs font-normal">
+                      <Badge key={j} variant="outline" className="type-legal">
                         {p}
                       </Badge>
                     ))}
                   </div>
                 </TableCell>
                 <TableCell className="text-right">
-                  <Link href={row.editHref} className="text-primary text-sm hover:underline">
+                  <Link href={row.editHref} className="text-primary type-body-sm hover:underline">
                     Đi tới
                   </Link>
                 </TableCell>

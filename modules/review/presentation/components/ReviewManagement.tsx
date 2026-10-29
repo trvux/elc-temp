@@ -8,7 +8,6 @@ import { AdminDialog } from "@/shared/components/organisms/layout/admin/admin-di
 import { Badge } from "@/shared/components/ui/badge";
 import { DataTable } from "@/shared/components/ui/data-table";
 import { StarRating } from "@/shared/components/ui/star-rating";
-import { TypographySmall } from "@/shared/components/ui/typography";
 
 import { AdminReview } from "../../domain";
 import { getAdminReviewsAction } from "../actions";
@@ -32,10 +31,10 @@ export function ReviewManagement() {
     <div>
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 mb-8">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-foreground">
+          <h1 className="type-title text-foreground">
             Đánh giá sản phẩm
           </h1>
-          <p className="text-sm text-muted-foreground">
+          <p className="type-body-sm text-muted-foreground">
             Danh sách đánh giá khách hàng gửi từ website, kèm số điện thoại để liên hệ khi cần.
           </p>
         </div>
@@ -65,34 +64,34 @@ export function ReviewManagement() {
           <div className="space-y-6">
             {activeReview.productName && (
               <div>
-                <TypographySmall className="text-muted-foreground">
+                <span className="type-caption text-muted-foreground">
                   Sản phẩm được đánh giá
-                </TypographySmall>
+                </span>
                 {activeReview.productId ? (
                   <Link
                     href={`/admin/products/${activeReview.productId}`}
-                    className="mt-1 block text-sm text-primary hover:underline"
+                    className="mt-1 block type-body-sm text-primary hover:underline"
                   >
                     {activeReview.productName}
                   </Link>
                 ) : (
-                  <p className="mt-1 text-sm">{activeReview.productName}</p>
+                  <p className="mt-1 type-body-sm">{activeReview.productName}</p>
                 )}
               </div>
             )}
 
             <div>
-              <TypographySmall className="text-muted-foreground">Đánh giá</TypographySmall>
+              <span className="type-caption text-muted-foreground">Đánh giá</span>
               <StarRating value={activeReview.rating} size="lg" className="mt-1" />
             </div>
 
             <div>
-              <TypographySmall className="text-muted-foreground">Nội dung</TypographySmall>
-              <p className="text-sm whitespace-pre-wrap">{activeReview.comment}</p>
+              <span className="type-caption text-muted-foreground">Nội dung</span>
+              <p className="type-body-sm whitespace-pre-wrap">{activeReview.comment}</p>
             </div>
 
             <div>
-              <TypographySmall className="text-muted-foreground">Trạng thái</TypographySmall>
+              <span className="type-caption text-muted-foreground">Trạng thái</span>
               <div className="mt-1">
                 <Badge variant={activeReview.isPublished ? "default" : "secondary"}>
                   {activeReview.isPublished ? "Hiển thị công khai" : "Đã ẩn"}

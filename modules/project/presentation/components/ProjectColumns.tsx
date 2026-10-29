@@ -46,7 +46,7 @@ export const getColumns = ({
           </AspectRatio>
         </div>
       ) : (
-        <div className="w-10 h-10 bg-muted/50 rounded-md flex items-center justify-center text-muted-foreground/40 text-xs font-bold leading-none text-center px-1 capitalize tracking-tighter">
+        <div className="w-10 h-10 bg-muted/50 rounded-md flex items-center justify-center text-muted-foreground/40 type-tag text-center px-1 capitalize">
           N/A
         </div>
       );
@@ -64,7 +64,7 @@ export const getColumns = ({
           href={`/du-an/${row.original.slug}`}
           target="_blank"
           rel="noopener noreferrer"
-          className="text-xs text-foreground/75 hover:text-foreground hover:underline flex items-center gap-1 w-fit"
+          className="type-legal text-foreground/75 hover:text-foreground hover:underline flex items-center gap-1 w-fit"
         >
           /du-an/{row.original.slug}
           <ArrowSquareOut size={12} />
@@ -82,7 +82,7 @@ export const getColumns = ({
       if (!sType) return <span className="text-muted-foreground">—</span>;
       return (
         <div className="flex flex-col gap-1.5 max-w-70">
-          <span className="font-semibold text-xs text-foreground  w-fit px-2 py-0.5">
+          <span className="type-tag text-foreground w-fit px-2 py-0.5">
             {sType.name}
           </span>
           {cats.length > 0 ? (
@@ -90,7 +90,7 @@ export const getColumns = ({
               {cats.map((c) => (
                 <span
                   key={`${c.id}-${c.condition}`}
-                  className="text-xs bg-muted text-muted-foreground px-1.5 py-0.5 rounded"
+                  className="type-legal bg-muted text-muted-foreground px-1.5 py-0.5 rounded"
                 >
                   <span
                     className={
@@ -106,7 +106,7 @@ export const getColumns = ({
               ))}
             </div>
           ) : (
-            <span className="text-xs text-muted-foreground italic">
+            <span className="type-legal text-muted-foreground italic">
               Chưa chọn sản phẩm
             </span>
           )}
@@ -121,7 +121,7 @@ export const getColumns = ({
       const services = row.original.services || [];
       if (services.length === 0)
         return (
-          <span className="text-xs text-muted-foreground italic">
+          <span className="type-legal text-muted-foreground italic">
             Không có
           </span>
         );
@@ -143,14 +143,14 @@ export const getColumns = ({
         <div className="flex flex-col gap-3 max-w-70">
           {Object.entries(groups).map(([groupName, groupServices]) => (
             <div key={groupName} className="flex flex-col gap-1.5">
-              <span className="font-semibold text-xs text-foreground w-fit px-2 py-0.5">
+              <span className="type-tag text-foreground w-fit px-2 py-0.5">
                 {groupName}
               </span>
               <div className="flex flex-wrap gap-1">
                 {groupServices.map((service) => (
                   <span
                     key={service.id}
-                    className="text-xs bg-muted text-muted-foreground px-1.5 py-0.5 rounded"
+                    className="type-legal bg-muted text-muted-foreground px-1.5 py-0.5 rounded"
                   >
                     {service.title}
                   </span>

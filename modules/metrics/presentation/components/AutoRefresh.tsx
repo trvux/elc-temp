@@ -31,7 +31,7 @@ export function AutoRefresh({ updatedAtIso, updatedAtLabel, intervalSeconds = 30
 
   return (
     <div className="flex flex-wrap items-center gap-3">
-      <p className="text-sm text-muted-foreground">
+      <p className="type-body-sm text-muted-foreground">
         Cập nhật lúc <time dateTime={updatedAtIso}>{updatedAtLabel}</time>
         {auto ? ` (tự làm mới mỗi ${intervalSeconds} giây)` : " (đã tạm dừng tự làm mới)"}
       </p>

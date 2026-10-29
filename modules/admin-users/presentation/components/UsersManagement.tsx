@@ -74,8 +74,8 @@ export function UsersManagement({ currentUserId }: { currentUserId: string }) {
   return (
     <div>
       <div className="mb-8">
-        <h1 className="text-2xl font-bold tracking-tight">Quản lý người dùng</h1>
-        <p className="text-sm text-muted-foreground">
+        <h1 className="type-title">Quản lý người dùng</h1>
+        <p className="type-body-sm text-muted-foreground">
           Mọi người tự tạo tài khoản bằng cách đăng nhập ở /login — đổi vai trò tại đây để cấp quyền vào
           trang quản trị, khoá/mở tài khoản.
         </p>

@@ -129,8 +129,8 @@ export function ProductLineManagement() {
     <div>
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 mb-8">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">Dòng sản phẩm</h1>
-          <p className="text-sm text-muted-foreground">
+          <h1 className="type-title">Dòng sản phẩm</h1>
+          <p className="type-body-sm text-muted-foreground">
             Quản lý các dòng/tier sản phẩm theo thương hiệu (VD: Daikin FTKB, FTKZ...).
           </p>
         </div>
@@ -147,12 +147,12 @@ export function ProductLineManagement() {
       />
 
       {isLoading ? (
-        <div className="flex items-center justify-center gap-2 h-24 text-sm text-muted-foreground">
+        <div className="flex items-center justify-center gap-2 h-24 type-body-sm text-muted-foreground">
           <div className="w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin" />
           Đang tải dữ liệu...
         </div>
       ) : brandGroups.length === 0 ? (
-        <div className="flex items-center justify-center h-24 text-sm text-muted-foreground border rounded-md">
+        <div className="flex items-center justify-center h-24 type-body-sm text-muted-foreground border rounded-md">
           Không có dữ liệu.
         </div>
       ) : (
@@ -167,7 +167,7 @@ export function ProductLineManagement() {
               </AccordionTrigger>
               <AccordionContent>
                 <div className="rounded-md border overflow-hidden overflow-x-auto">
-                  <table className="w-full min-w-180 text-sm table-fixed">
+                  <table className="w-full min-w-180 type-body-sm table-fixed">
                     <colgroup>
                       <col className="w-72" />
                       <col />
@@ -188,7 +188,7 @@ export function ProductLineManagement() {
                           <td className="p-3 align-middle">
                             <div className="flex flex-wrap gap-1">
                               {line.mpnPrefixes.length === 0 && (
-                                <span className="text-xs text-muted-foreground">—</span>
+                                <span className="type-legal text-muted-foreground">—</span>
                               )}
                               {line.mpnPrefixes.map((prefix) => (
                                 <Badge key={prefix} variant="outline" className="font-mono">
@@ -200,7 +200,7 @@ export function ProductLineManagement() {
                           <td className="p-3 align-middle">
                             <div className="flex flex-col gap-0.5">
                               <span className="font-semibold text-foreground">{line.name}</span>
-                              <span className="text-xs text-muted-foreground font-mono">{line.code}</span>
+                              <span className="type-mono text-muted-foreground">{line.code}</span>
                             </div>
                           </td>
                           <td className="p-3 align-middle">{line.tierRank}</td>

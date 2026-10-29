@@ -20,10 +20,10 @@ export function StatusBanner({ overall }: { overall: MetricsSnapshot["overall"] 
       </h2>
       <div role="status" className="flex flex-col gap-2">
         <div className="flex flex-wrap items-center gap-3">
-          <p className="text-2xl font-bold tracking-tight">{overall.headline}</p>
+          <p className="type-title">{overall.headline}</p>
           <StatusBadge status={overall.status} />
         </div>
-        <p className="text-sm leading-relaxed text-muted-foreground">{overall.detail}</p>
+        <p className="type-body-sm text-muted-foreground">{overall.detail}</p>
       </div>
     </section>
   );

@@ -74,7 +74,7 @@ function StatCard({ label, value, icon: Icon, accent = false }: StatCardProps) {
     >
       <div className="flex items-center justify-between">
         <p
-          className={`text-xs font-bold uppercase tracking-widest ${
+          className={`type-tag uppercase ${
             accent ? "text-orange-600 dark:text-orange-400" : "text-muted-foreground"
           }`}
         >
@@ -86,7 +86,7 @@ function StatCard({ label, value, icon: Icon, accent = false }: StatCardProps) {
         />
       </div>
       <p
-        className={`text-2xl font-bold tracking-tight ${
+        className={`type-title ${
           accent ? "text-orange-600 dark:text-orange-400" : ""
         }`}
       >
@@ -204,7 +204,7 @@ export function DashboardOverview() {
     <div className="space-y-8 pb-10">
       {/* ── Header ──────────────────────────────────────────────────────── */}
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">Tổng quan</h1>
+        <h1 className="type-headline">Tổng quan</h1>
         <p className="text-muted-foreground mt-1">
           Dashboard dành cho admin quản lí
         </p>
@@ -219,13 +219,13 @@ export function DashboardOverview() {
               <ChatCircleText size={22} className="text-orange-500" />
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-xs font-bold uppercase tracking-widest text-orange-600 dark:text-orange-400">
+              <p className="type-tag uppercase text-orange-600 dark:text-orange-400">
                 Yêu cầu tư vấn mới
               </p>
-              <p className="text-3xl font-bold tracking-tight text-orange-600 dark:text-orange-400">
+              <p className="type-headline text-orange-600 dark:text-orange-400">
                 {stats?.inquiries ?? 0}
               </p>
-              <p className="text-xs text-muted-foreground mt-0.5">
+              <p className="type-legal text-muted-foreground mt-0.5">
                 Yêu cầu chưa xử lý — cần phản hồi sớm
               </p>
             </div>
@@ -253,8 +253,8 @@ export function DashboardOverview() {
         {/* Category bar — takes 3 / 5 columns */}
         <Card className="lg:col-span-3 p-6 flex flex-col">
           <div className="mb-5">
-            <h3 className="text-base font-bold">Top 10 danh mục nhiều sản phẩm nhất</h3>
-            <p className="text-sm text-muted-foreground">
+            <h3 className="type-body-strong">Top 10 danh mục nhiều sản phẩm nhất</h3>
+            <p className="type-body-sm text-muted-foreground">
               Phân bổ sản phẩm theo danh mục, màu đậm = xếp hạng cao hơn.
             </p>
           </div>
@@ -292,7 +292,7 @@ export function DashboardOverview() {
                     <LabelList
                       dataKey="count"
                       position="right"
-                      className="fill-foreground text-xs font-semibold"
+                      className="fill-foreground type-tag"
                       formatter={(v: string | number | boolean | null | undefined) => {
                         if (typeof v === "number") {
                           return v.toLocaleString();
@@ -304,7 +304,7 @@ export function DashboardOverview() {
                 </BarChart>
               </ChartContainer>
             ) : (
-              <div className="flex items-center justify-center h-full text-muted-foreground text-sm italic">
+              <div className="flex items-center justify-center h-full text-muted-foreground type-body-sm italic">
                 Không có dữ liệu phân bổ.
               </div>
             )}
@@ -314,8 +314,8 @@ export function DashboardOverview() {
         {/* Brand donut — takes 2 / 5 columns */}
         <Card className="lg:col-span-2 p-6 flex flex-col">
           <div className="mb-5">
-            <h3 className="text-base font-bold">Phân bổ thương hiệu</h3>
-            <p className="text-sm text-muted-foreground">
+            <h3 className="type-body-strong">Phân bổ thương hiệu</h3>
+            <p className="type-body-sm text-muted-foreground">
               Tỉ lệ sản phẩm theo từng thương hiệu (top 5).
             </p>
           </div>
@@ -333,7 +333,7 @@ export function DashboardOverview() {
                             <span className="font-mono font-semibold">
                               {Number(value).toLocaleString()}
                             </span>
-                            <span className="text-muted-foreground text-xs">
+                            <span className="text-muted-foreground type-legal">
                               ({brandTotal > 0 ? ((Number(value) / brandTotal) * 100).toFixed(1) : 0}%)
                             </span>
                           </div>
@@ -360,12 +360,12 @@ export function DashboardOverview() {
                 </PieChart>
               </ChartContainer>
             ) : (
-              <div className="flex items-center justify-center h-full text-muted-foreground text-sm italic">
+              <div className="flex items-center justify-center h-full text-muted-foreground type-body-sm italic">
                 Không có dữ liệu thương hiệu.
               </div>
             )}
             {!isLoading && brandTotal > 0 && (
-              <p className="text-xs text-muted-foreground text-center -mt-1">
+              <p className="type-legal text-muted-foreground text-center -mt-1">
                 Tổng{" "}
                 <span className="font-semibold text-foreground">
                   {brandTotal.toLocaleString()}
@@ -381,8 +381,8 @@ export function DashboardOverview() {
       <Card className="p-6 flex flex-col">
         <div className="mb-5 flex items-start justify-between">
           <div>
-            <h3 className="text-base font-bold">Top 5 sản phẩm được xem nhiều nhất</h3>
-            <p className="text-sm text-muted-foreground">
+            <h3 className="type-body-strong">Top 5 sản phẩm được xem nhiều nhất</h3>
+            <p className="type-body-sm text-muted-foreground">
               30 ngày gần nhất — dựa trên lượt xem trang chi tiết sản phẩm.
             </p>
           </div>
@@ -421,7 +421,7 @@ export function DashboardOverview() {
                   <LabelList
                     dataKey="count"
                     position="right"
-                    className="fill-foreground text-xs font-semibold"
+                    className="fill-foreground type-tag"
                     formatter={(v: string | number | boolean | null | undefined) => {
                       if (typeof v === "number") {
                         return `${v.toLocaleString()} lượt${v === topViewedData[0]?.count ? " 🔥" : ""}`;
@@ -433,7 +433,7 @@ export function DashboardOverview() {
               </BarChart>
             </ChartContainer>
           ) : (
-            <div className="flex items-center justify-center h-full text-muted-foreground text-sm italic">
+            <div className="flex items-center justify-center h-full text-muted-foreground type-body-sm italic">
               Chưa có dữ liệu lượt xem.
             </div>
           )}
@@ -445,8 +445,8 @@ export function DashboardOverview() {
         {/* Content mix donut */}
         <Card className="p-6 flex flex-col">
           <div className="mb-4">
-            <h3 className="text-base font-bold">Tỉ lệ nội dung</h3>
-            <p className="text-sm text-muted-foreground">
+            <h3 className="type-body-strong">Tỉ lệ nội dung</h3>
+            <p className="type-body-sm text-muted-foreground">
               Phân bổ giữa sản phẩm, dự án và tin tức.
             </p>
           </div>
@@ -464,7 +464,7 @@ export function DashboardOverview() {
                             <span className="font-mono font-semibold">
                               {Number(value).toLocaleString()}
                             </span>
-                            <span className="text-muted-foreground text-xs">
+                            <span className="text-muted-foreground type-legal">
                               ({contentTotal > 0 ? ((Number(value) / contentTotal) * 100).toFixed(1) : 0}%)
                             </span>
                           </div>
@@ -489,7 +489,7 @@ export function DashboardOverview() {
                 </PieChart>
               </ChartContainer>
             ) : (
-              <div className="flex items-center justify-center h-full text-muted-foreground text-sm italic">
+              <div className="flex items-center justify-center h-full text-muted-foreground type-body-sm italic">
                 Chưa có dữ liệu.
               </div>
             )}
@@ -499,8 +499,8 @@ export function DashboardOverview() {
         {/* Featured products */}
         <Card className="p-6 flex flex-col">
           <div className="mb-4">
-            <h3 className="text-base font-bold">Sản phẩm nổi bật</h3>
-            <p className="text-sm text-muted-foreground">
+            <h3 className="type-body-strong">Sản phẩm nổi bật</h3>
+            <p className="type-body-sm text-muted-foreground">
               Đang được hiển thị nổi bật trên website.
             </p>
           </div>
@@ -511,19 +511,19 @@ export function DashboardOverview() {
                   key={item.id + i}
                   className="flex items-center gap-3 py-2.5 border-b border-muted/50 last:border-0"
                 >
-                  <span className="text-xs font-bold text-muted-foreground/60 w-4 tabular-nums shrink-0">
+                  <span className="type-tag text-muted-foreground/60 w-4 tabular-nums shrink-0">
                     {i + 1}
                   </span>
-                  <p className="font-medium text-sm leading-tight line-clamp-1 flex-1">
+                  <p className="type-caption line-clamp-1 flex-1">
                     {item.title}
                   </p>
-                  <span className="text-xs font-bold uppercase tracking-wide bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300 px-1.5 py-0.5 rounded shrink-0">
+                  <span className="type-tag uppercase bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300 px-1.5 py-0.5 rounded shrink-0">
                     SP
                   </span>
                 </div>
               ))
             ) : (
-              <div className="flex items-center justify-center h-32 text-muted-foreground italic text-xs">
+              <div className="flex items-center justify-center h-32 text-muted-foreground italic type-legal">
                 Không có sản phẩm nổi bật.
               </div>
             )}
@@ -533,8 +533,8 @@ export function DashboardOverview() {
         {/* Featured projects */}
         <Card className="p-6 flex flex-col">
           <div className="mb-4">
-            <h3 className="text-base font-bold">Dự án nổi bật</h3>
-            <p className="text-sm text-muted-foreground">
+            <h3 className="type-body-strong">Dự án nổi bật</h3>
+            <p className="type-body-sm text-muted-foreground">
               Các dự án tiêu biểu của công ty.
             </p>
           </div>
@@ -545,19 +545,19 @@ export function DashboardOverview() {
                   key={item.id + i}
                   className="flex items-center gap-3 py-2.5 border-b border-muted/50 last:border-0"
                 >
-                  <span className="text-xs font-bold text-muted-foreground/60 w-4 tabular-nums shrink-0">
+                  <span className="type-tag text-muted-foreground/60 w-4 tabular-nums shrink-0">
                     {i + 1}
                   </span>
-                  <p className="font-medium text-sm leading-tight line-clamp-1 flex-1">
+                  <p className="type-caption line-clamp-1 flex-1">
                     {item.title}
                   </p>
-                  <span className="text-xs font-bold uppercase tracking-wide bg-violet-100 text-violet-700 dark:bg-violet-900/40 dark:text-violet-300 px-1.5 py-0.5 rounded shrink-0">
+                  <span className="type-tag uppercase bg-violet-100 text-violet-700 dark:bg-violet-900/40 dark:text-violet-300 px-1.5 py-0.5 rounded shrink-0">
                     DA
                   </span>
                 </div>
               ))
             ) : (
-              <div className="flex items-center justify-center h-32 text-muted-foreground italic text-xs">
+              <div className="flex items-center justify-center h-32 text-muted-foreground italic type-legal">
                 Không có dự án nổi bật.
               </div>
             )}
@@ -568,8 +568,8 @@ export function DashboardOverview() {
       {/* ── Section 5: Recent activities ─────────────────────────────────── */}
       <Card className="p-6 flex flex-col">
         <div className="mb-5">
-          <h3 className="text-base font-bold">Hoạt động mới nhất</h3>
-          <p className="text-sm text-muted-foreground">
+          <h3 className="type-body-strong">Hoạt động mới nhất</h3>
+          <p className="type-body-sm text-muted-foreground">
             Tổng hợp các cập nhật gần đây từ toàn bộ hệ thống.
           </p>
         </div>
@@ -584,16 +584,16 @@ export function DashboardOverview() {
                   className="flex items-start gap-3 p-3 rounded-lg border border-muted/50 hover:border-muted transition-colors"
                 >
                   <div className="mt-0.5 flex-1 min-w-0 space-y-1">
-                    <p className="font-medium text-sm leading-tight line-clamp-2">
+                    <p className="type-caption line-clamp-2">
                       {activity.title}
                     </p>
                     <div className="flex items-center gap-2">
                       <span
-                        className={`text-xs font-bold uppercase tracking-wide px-1.5 py-0.5 rounded ${badgeCls}`}
+                        className={`type-tag uppercase px-1.5 py-0.5 rounded ${badgeCls}`}
                       >
                         {label}
                       </span>
-                      <span className="text-xs text-muted-foreground">
+                      <span className="type-legal text-muted-foreground">
                         {new Date(activity.date).toLocaleDateString("vi-VN")}
                       </span>
                     </div>
@@ -602,7 +602,7 @@ export function DashboardOverview() {
               );
             })
           ) : (
-            <div className="col-span-4 flex items-center justify-center h-40 text-muted-foreground italic text-sm">
+            <div className="col-span-4 flex items-center justify-center h-40 text-muted-foreground italic type-body-sm">
               Chưa có hoạt động nào.
             </div>
           )}

@@ -20,8 +20,8 @@ export const getTagColumns = ({
     header: "Tên thẻ",
     cell: ({ row }) => (
       <div className="flex flex-col gap-0.5">
-        <span className="font-semibold text-sm text-foreground">{row.original.name}</span>
-        <span className="text-xs text-foreground/75">/{row.original.slug}</span>
+        <span className="type-label text-foreground">{row.original.name}</span>
+        <span className="type-legal text-foreground/75">/{row.original.slug}</span>
       </div>
     ),
   },

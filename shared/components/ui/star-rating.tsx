@@ -97,7 +97,7 @@ export function StarRatingInput({ value, onChange, className }: StarRatingInputP
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 4 }}
               transition={{ duration: 0.15 }}
-              className="text-sm font-medium text-amber-500"
+              className="type-caption text-amber-500"
             >
               {RATING_LABELS[displayed]}
             </m.span>

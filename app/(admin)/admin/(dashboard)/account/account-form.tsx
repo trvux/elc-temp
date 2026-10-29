@@ -83,16 +83,16 @@ export default function AccountForm({ user }: { user: AuthUser }) {
   return (
     <div className="max-w-2xl pb-20 space-y-8">
       <div>
-        <h1 className="text-2xl font-bold tracking-tight">Tài khoản của tôi</h1>
-        <p className="text-sm text-muted-foreground">
+        <h1 className="type-title">Tài khoản của tôi</h1>
+        <p className="type-body-sm text-muted-foreground">
           Quản lý thông tin cá nhân của bạn.
         </p>
       </div>
 
       <Card className="overflow-hidden border-border/40 shadow-sm rounded-2xl">
         <CardHeader className="bg-muted/30">
-          <CardTitle className="text-lg font-bold tracking-tight">Thông tin cá nhân</CardTitle>
-          <CardDescription className="text-sm">
+          <CardTitle className="type-heading">Thông tin cá nhân</CardTitle>
+          <CardDescription className="type-body-sm">
             Tên hiển thị, email và ảnh đại diện của bạn.
           </CardDescription>
         </CardHeader>
@@ -103,7 +103,7 @@ export default function AccountForm({ user }: { user: AuthUser }) {
               <div className="relative w-fit">
                 <Avatar className="h-20 w-20 rounded-full border">
                   <AvatarImage src={avatarUrl} alt={displayName} />
-                  <AvatarFallback className="rounded-full text-lg">
+                  <AvatarFallback className="rounded-full type-body">
                     {displayName.slice(0, 2).toUpperCase()}
                   </AvatarFallback>
                 </Avatar>

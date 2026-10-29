@@ -122,10 +122,10 @@ export function ProductForm({ mode, product, currentUserRole }: ProductFormProps
             <ArrowLeft size={18} />
           </Button>
           <div className="min-w-0">
-            <h1 className="text-sm font-semibold tracking-tight truncate">
+            <h1 className="type-label truncate">
               {mode === "create" ? "Thêm sản phẩm" : form.watch("name") || "Sửa sản phẩm"}
             </h1>
-            {saveMutation.isPending && <p className="text-xs text-muted-foreground">Đang lưu...</p>}
+            {saveMutation.isPending && <p className="type-legal text-muted-foreground">Đang lưu...</p>}
           </div>
         </div>
         <div className="flex items-center gap-3 shrink-0">
@@ -144,7 +144,7 @@ export function ProductForm({ mode, product, currentUserRole }: ProductFormProps
           <div className="flex flex-col gap-6 min-w-0">
             <Card>
               <CardHeader className="pb-4">
-                <CardTitle className="text-sm font-semibold tracking-tight text-foreground">
+                <CardTitle className="type-label text-foreground">
                   Thông tin sản phẩm
                 </CardTitle>
               </CardHeader>
@@ -165,7 +165,7 @@ export function ProductForm({ mode, product, currentUserRole }: ProductFormProps
 
             <Card>
               <CardHeader className="pb-4 flex flex-row items-center justify-between">
-                <CardTitle className="text-sm font-semibold tracking-tight text-foreground">Nội dung</CardTitle>
+                <CardTitle className="type-label text-foreground">Nội dung</CardTitle>
                 <Badge variant="outline" className="font-normal">cấp Sản phẩm</Badge>
               </CardHeader>
               <CardContent className="pt-0 flex flex-col gap-6">
@@ -176,7 +176,7 @@ export function ProductForm({ mode, product, currentUserRole }: ProductFormProps
 
             <Card id="product-variants-card">
               <CardHeader className="pb-4 flex flex-row items-center justify-between">
-                <CardTitle className="text-sm font-semibold tracking-tight text-foreground">
+                <CardTitle className="type-label text-foreground">
                   Tùy chọn &amp; Biến thể
                 </CardTitle>
                 <Badge variant="outline" className="font-normal">cấp Biến thể</Badge>
@@ -196,7 +196,7 @@ export function ProductForm({ mode, product, currentUserRole }: ProductFormProps
 
             <Card>
               <CardHeader className="pb-4 flex flex-row items-center justify-between">
-                <CardTitle className="text-sm font-semibold tracking-tight text-foreground">
+                <CardTitle className="type-label text-foreground">
                   Thông số kỹ thuật
                 </CardTitle>
                 <Badge variant="outline" className="font-normal">cấp Sản phẩm</Badge>
@@ -213,7 +213,7 @@ export function ProductForm({ mode, product, currentUserRole }: ProductFormProps
             {mode === "edit" && product && (
               <Card>
                 <CardHeader className="pb-4 flex flex-row items-center justify-between">
-                  <CardTitle className="text-sm font-semibold tracking-tight text-foreground">
+                  <CardTitle className="type-label text-foreground">
                     Câu hỏi thường gặp (FAQ)
                   </CardTitle>
                   <Badge variant="outline" className="font-normal">cấp Sản phẩm</Badge>
@@ -229,7 +229,7 @@ export function ProductForm({ mode, product, currentUserRole }: ProductFormProps
           <div className="flex flex-col gap-6 min-w-0 md:sticky md:top-20">
             <Card>
               <CardHeader className="pb-4">
-                <CardTitle className="text-sm font-semibold tracking-tight text-foreground">Trạng thái</CardTitle>
+                <CardTitle className="type-label text-foreground">Trạng thái</CardTitle>
               </CardHeader>
               <CardContent className="pt-0">
                 <ProductStatusCard
@@ -245,7 +245,7 @@ export function ProductForm({ mode, product, currentUserRole }: ProductFormProps
 
             <Card>
               <CardHeader className="pb-4">
-                <CardTitle className="text-sm font-semibold tracking-tight text-foreground">Phân loại</CardTitle>
+                <CardTitle className="type-label text-foreground">Phân loại</CardTitle>
               </CardHeader>
               <CardContent className="pt-0">
                 <ProductOrganizationCard
@@ -260,7 +260,7 @@ export function ProductForm({ mode, product, currentUserRole }: ProductFormProps
 
             <Card>
               <CardHeader className="pb-4">
-                <CardTitle className="text-sm font-semibold tracking-tight text-foreground">SEO</CardTitle>
+                <CardTitle className="type-label text-foreground">SEO</CardTitle>
               </CardHeader>
               <CardContent className="pt-0">
                 <ProductSeoCard form={form} />

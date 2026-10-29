@@ -171,7 +171,7 @@ export function ProductVariantsTab({
             <div key={field.id} className="border p-4 rounded-xl bg-muted/5 space-y-4">
               <div className="flex items-start gap-3">
                 <Field className="flex-1">
-                  <FieldLabel className="text-xs">Tên tùy chọn</FieldLabel>
+                  <FieldLabel className="type-legal">Tên tùy chọn</FieldLabel>
                   <Input placeholder="VD: Màu sắc" {...form.register(`options.${i}.name`)} />
                 </Field>
                 <Button
@@ -185,7 +185,7 @@ export function ProductVariantsTab({
                 </Button>
               </div>
               <Field>
-                <FieldLabel className="text-xs">Giá trị</FieldLabel>
+                <FieldLabel className="type-legal">Giá trị</FieldLabel>
                 <TagInput
                   values={form.watch(`options.${i}.values`) || []}
                   onChange={(next) => form.setValue(`options.${i}.values`, next)}
@@ -195,7 +195,7 @@ export function ProductVariantsTab({
             </div>
           ))}
           {optionsFields.length === 0 && (
-            <p className="text-xs text-muted-foreground text-center py-2">
+            <p className="type-legal text-muted-foreground text-center py-2">
               Chưa có tùy chọn nào — sản phẩm chỉ có 1 biến thể mặc định.
             </p>
           )}
@@ -261,7 +261,7 @@ export function ProductVariantsTab({
             return (
               <div key={field.id} className="border p-4 rounded-xl bg-muted/5 space-y-4">
                 <div className="flex items-center justify-between border-b pb-3">
-                  <label className="flex items-center gap-2 text-sm font-medium cursor-pointer">
+                  <label className="flex items-center gap-2 type-caption cursor-pointer">
                     <RadioGroupItem value={String(i)} />
                     Biến thể mặc định
                   </label>
@@ -277,7 +277,7 @@ export function ProductVariantsTab({
                 </div>
 
                 <Field>
-                  <FieldLabel className="text-xs">MPN (mã nhà sản xuất) *</FieldLabel>
+                  <FieldLabel className="type-legal">MPN (mã nhà sản xuất) *</FieldLabel>
                   <Input placeholder="VD: FTKB25ZVMV" {...form.register(`variants.${i}.mpn`)} />
                   <FieldDescription>Mã khách hàng thực sự Google tìm kiếm, không phải SKU nội bộ.</FieldDescription>
                   <FieldError errors={[form.formState.errors.variants?.[i]?.mpn]} />
@@ -285,7 +285,7 @@ export function ProductVariantsTab({
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <Field>
-                    <FieldLabel className="text-xs">Giá gốc *</FieldLabel>
+                    <FieldLabel className="type-legal">Giá gốc *</FieldLabel>
                     <Input
                       type="number"
                       onFocus={(e) => e.target.select()}
@@ -295,7 +295,7 @@ export function ProductVariantsTab({
                     <FieldError errors={[form.formState.errors.variants?.[i]?.originalPrice]} />
                   </Field>
                   <Field>
-                    <FieldLabel className="text-xs">Giá bán</FieldLabel>
+                    <FieldLabel className="type-legal">Giá bán</FieldLabel>
                     <Input
                       type="number"
                       onFocus={(e) => e.target.select()}
@@ -304,7 +304,7 @@ export function ProductVariantsTab({
                     <FieldDescription>{formatPrice(variant?.salePrice || variant?.originalPrice || 0)}</FieldDescription>
                   </Field>
                   <Field>
-                    <FieldLabel className="text-xs">Trạng thái kho</FieldLabel>
+                    <FieldLabel className="type-legal">Trạng thái kho</FieldLabel>
                     <Select
                       value={variant?.stockStatus || VARIANT_STOCK_STATUS.IN_STOCK}
                       onValueChange={(val) => form.setValue(`variants.${i}.stockStatus`, val as ProductVariantFormValue["stockStatus"])}
@@ -323,7 +323,7 @@ export function ProductVariantsTab({
                   </Field>
                 </div>
 
-                <label className="flex items-center gap-2 text-sm cursor-pointer">
+                <label className="flex items-center gap-2 type-body-sm cursor-pointer">
                   <Checkbox
                     checked={variant?.isActive ?? true}
                     onCheckedChange={(v) => form.setValue(`variants.${i}.isActive`, !!v)}
@@ -338,7 +338,7 @@ export function ProductVariantsTab({
                       const current = selections.find((s) => s.optionName === opt.name)?.value || "";
                       return (
                         <Field key={opt.name}>
-                          <FieldLabel className="text-xs">{opt.name || "(chưa đặt tên)"}</FieldLabel>
+                          <FieldLabel className="type-legal">{opt.name || "(chưa đặt tên)"}</FieldLabel>
                           <Select
                             value={current}
                             onValueChange={(val) => {
@@ -378,15 +378,15 @@ export function ProductVariantsTab({
                   <CollapsibleContent className="flex flex-col gap-4 pt-4">
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                       <Field>
-                        <FieldLabel className="text-xs">SKU nội bộ</FieldLabel>
+                        <FieldLabel className="type-legal">SKU nội bộ</FieldLabel>
                         <Input placeholder="Để trống sẽ tự tạo" {...form.register(`variants.${i}.sku`)} />
                       </Field>
                       <Field>
-                        <FieldLabel className="text-xs">GTIN (Barcode)</FieldLabel>
+                        <FieldLabel className="type-legal">GTIN (Barcode)</FieldLabel>
                         <Input placeholder="Tùy chọn" {...form.register(`variants.${i}.gtin`)} />
                       </Field>
                       <Field>
-                        <FieldLabel className="text-xs">Trọng lượng (kg)</FieldLabel>
+                        <FieldLabel className="type-legal">Trọng lượng (kg)</FieldLabel>
                         <Input
                           type="number"
                           step="0.01"
@@ -398,7 +398,7 @@ export function ProductVariantsTab({
 
                     {variant?.stockStatus === VARIANT_STOCK_STATUS.ORDER_FROM_SUPPLIER && (
                       <Field>
-                        <FieldLabel className="text-xs">Thời gian chờ hàng (ngày)</FieldLabel>
+                        <FieldLabel className="type-legal">Thời gian chờ hàng (ngày)</FieldLabel>
                         <Input
                           type="number"
                           className="max-w-40"
@@ -409,7 +409,7 @@ export function ProductVariantsTab({
                       </Field>
                     )}
 
-                    <label className="flex items-center gap-2 text-sm cursor-pointer">
+                    <label className="flex items-center gap-2 type-body-sm cursor-pointer">
                       <Checkbox
                         checked={variant?.isComponentOnly ?? false}
                         onCheckedChange={(v) => form.setValue(`variants.${i}.isComponentOnly`, !!v)}
@@ -419,7 +419,7 @@ export function ProductVariantsTab({
 
                     {/* Bundle components — split-system (dàn lạnh/dàn nóng)
                         etc. Rare, thêm 1 lớp collapse nữa bên trong. */}
-                    <label className="flex items-center gap-2 text-sm cursor-pointer">
+                    <label className="flex items-center gap-2 type-body-sm cursor-pointer">
                       <Checkbox
                         checked={bundleExpanded.has(i)}
                         onCheckedChange={(v) => toggleBundle(i, !!v)}
@@ -429,7 +429,7 @@ export function ProductVariantsTab({
                     {bundleExpanded.has(i) && (
                     <div className="space-y-3">
                       <div className="flex items-center justify-between">
-                        <FieldLabel className="text-xs">Linh kiện cấu thành</FieldLabel>
+                        <FieldLabel className="type-legal">Linh kiện cấu thành</FieldLabel>
                         <Button
                           type="button"
                           variant="outline"
@@ -508,7 +508,7 @@ export function ProductVariantsTab({
           })}
         </RadioGroup>
         {variantsFields.length === 0 && (
-          <p className="text-xs text-muted-foreground text-center py-4">
+          <p className="type-legal text-muted-foreground text-center py-4">
             Chưa có biến thể nào — bấm &quot;Thêm biến thể&quot; ở trên, mọi sản phẩm cần ít nhất 1 biến thể để có giá/SKU/tồn kho.
           </p>
         )}

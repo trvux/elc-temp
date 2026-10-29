@@ -22,7 +22,7 @@ export const getShippingZoneColumns = ({ onEdit, onDelete }: ShippingZoneColumns
     header: "Tên khu vực",
     cell: ({ row }) => (
       <div className="flex items-center gap-2">
-        <span className="font-semibold text-sm text-foreground">{row.original.name}</span>
+        <span className="type-label text-foreground">{row.original.name}</span>
         {row.original.isDefault && (
           <Badge variant="secondary" className="gap-1">
             <CheckCircle size={12} /> Mặc định

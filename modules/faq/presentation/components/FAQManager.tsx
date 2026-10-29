@@ -8,7 +8,6 @@ import { Button } from "@/shared/components/ui/button";
 import { Input } from "@/shared/components/ui/input";
 import { Textarea } from "@/shared/components/ui/textarea";
 import { Switch } from "@/shared/components/ui/switch";
-import { TypographySmall } from "@/shared/components/ui/typography";
 import { Plus, Trash, PencilSimple, X } from "@phosphor-icons/react";
 
 import { FAQ, FAQOwnerType } from "../../domain/types";
@@ -115,14 +114,14 @@ export function FAQManager({ ownerType, ownerId }: FAQManagerProps) {
   return (
     <div className="space-y-3">
       {isLoading && (
-        <TypographySmall className="text-muted-foreground">Đang tải...</TypographySmall>
+        <span className="type-caption text-muted-foreground">Đang tải...</span>
       )}
 
       {!isLoading && faqs.length === 0 && !isAdding && (
-        <TypographySmall className="text-muted-foreground italic">
+        <span className="type-caption text-muted-foreground italic">
           Chưa có câu hỏi nào — thêm ít nhất vài câu hỏi cụ thể (mã lỗi, cách xử lý...) để tăng khả năng
           được AI trích dẫn.
-        </TypographySmall>
+        </span>
       )}
 
       {faqs.map((faq) => (
@@ -152,8 +151,8 @@ export function FAQManager({ ownerType, ownerId }: FAQManagerProps) {
           ) : (
             <div className="flex items-start justify-between gap-3">
               <div className="space-y-1 min-w-0">
-                <p className="font-medium text-sm">{faq.question}</p>
-                <p className="text-sm text-muted-foreground whitespace-pre-line">{faq.answer}</p>
+                <p className="type-caption">{faq.question}</p>
+                <p className="type-body-sm text-muted-foreground whitespace-pre-line">{faq.answer}</p>
               </div>
               <div className="flex items-center gap-1 shrink-0">
                 <Switch

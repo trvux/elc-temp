@@ -170,8 +170,8 @@ export function NewsManagement() {
     <div>
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 mb-8">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">Tin tức</h1>
-          <p className="text-sm text-muted-foreground">
+          <h1 className="type-title">Tin tức</h1>
+          <p className="type-body-sm text-muted-foreground">
             Quản lý các bài viết tin tức và nội dung cộng đồng.
           </p>
         </div>
@@ -262,7 +262,7 @@ export function NewsManagement() {
                               ) : (
                                 <label className="flex flex-col items-center justify-center h-full w-full cursor-pointer">
                                   <Upload size={24} className="text-muted-foreground mb-2" />
-                                  <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                                  <span className="type-tag uppercase text-muted-foreground">
                                     {uploading ? "Đang tải..." : "Tải ảnh lên"}
                                   </span>
                                   <input
@@ -282,7 +282,7 @@ export function NewsManagement() {
                                   field.onChange([{ ...current, alt: e.target.value }])
                                 }
                                 placeholder="Mô tả ảnh (alt text)"
-                                className="text-xs h-8"
+                                className="type-legal h-8"
                               />
                             )}
                           </div>
@@ -439,7 +439,7 @@ export function NewsManagement() {
                       <Field>
                         <div className="flex items-center justify-between">
                           <FieldLabel>Tóm tắt</FieldLabel>
-                          <span className="text-xs text-muted-foreground">{(field.value || "").length}/300</span>
+                          <span className="type-legal text-muted-foreground">{(field.value || "").length}/300</span>
                         </div>
                         <Textarea
                           {...field}
@@ -460,8 +460,8 @@ export function NewsManagement() {
               {/* SEO Section */}
               <div className="space-y-6 border p-6 rounded-2xl bg-muted/10">
                 <div className="border-b pb-2">
-                  <h3 className="text-sm font-semibold tracking-tight">Cấu hình SEO</h3>
-                  <p className="text-xs text-muted-foreground">Tối ưu hóa hiển thị trên các công cụ tìm kiếm (Google, Bing,...).</p>
+                  <h3 className="type-label">Cấu hình SEO</h3>
+                  <p className="type-legal text-muted-foreground">Tối ưu hóa hiển thị trên các công cụ tìm kiếm (Google, Bing,...).</p>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <Controller
@@ -471,7 +471,7 @@ export function NewsManagement() {
                       <Field>
                         <div className="flex items-center justify-between">
                           <FieldLabel>Tiêu đề SEO</FieldLabel>
-                          <span className="text-xs text-muted-foreground">{(field.value || "").length}/70</span>
+                          <span className="type-legal text-muted-foreground">{(field.value || "").length}/70</span>
                         </div>
                         <Input {...field} value={field.value || ""} placeholder="Để trống sẽ tự động dùng tiêu đề..." />
                         <FieldError errors={[fieldState.error]} />
@@ -486,7 +486,7 @@ export function NewsManagement() {
                       <Field>
                         <div className="flex items-center justify-between">
                           <FieldLabel>Mô tả SEO</FieldLabel>
-                          <span className="text-xs text-muted-foreground">{(field.value || "").length}/160</span>
+                          <span className="type-legal text-muted-foreground">{(field.value || "").length}/160</span>
                         </div>
                         <Textarea {...field} value={field.value || ""} placeholder="Mô tả tóm tắt bài viết để hiển thị trên Google..." className="min-h-20" />
                         <FieldError errors={[fieldState.error]} />
@@ -504,8 +504,8 @@ export function NewsManagement() {
               {/* Editor Section */}
               <div className="space-y-4">
                 <div className="flex items-center justify-between border-b pb-2">
-                  <h3 className="text-sm font-semibold tracking-tight">Nội dung bài viết</h3>
-                  <span className="text-xs text-muted-foreground uppercase tracking-widest">Tiptap</span>
+                  <h3 className="type-label">Nội dung bài viết</h3>
+                  <span className="type-legal text-muted-foreground uppercase">Tiptap</span>
                 </div>
                 <Controller
                   control={form.control}

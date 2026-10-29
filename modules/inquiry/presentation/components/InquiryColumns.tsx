@@ -36,7 +36,7 @@ export const getInquiryColumns = ({ onView }: ColumnProps): ColumnDef<Inquiry>[]
     accessorKey: "createdAt",
     header: "Ngày gửi",
     cell: ({ row }) => (
-      <span className="text-sm text-muted-foreground whitespace-nowrap">
+      <span className="type-body-sm text-muted-foreground whitespace-nowrap">
         {new Date(row.original.createdAt).toLocaleString("vi-VN")}
       </span>
     ),
@@ -86,7 +86,7 @@ export const getInquiryColumns = ({ onView }: ColumnProps): ColumnDef<Inquiry>[]
         inquiry.subType;
       return (
         <div className="flex flex-col gap-1">
-          <span className="text-sm text-muted-foreground">
+          <span className="type-body-sm text-muted-foreground">
             {LEAD_TYPE_LABEL[inquiry.leadType]}
             {subTypeLabel ? ` · ${subTypeLabel}` : ""}
           </span>

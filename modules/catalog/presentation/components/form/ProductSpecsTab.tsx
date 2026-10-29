@@ -188,7 +188,7 @@ export function ProductSpecsTab({ form, attributeDefinitions, isLoading }: Produ
         <div key={group.label}>
           {gi > 0 && <FieldSeparator className="my-6" />}
           {group.label !== GLOBAL_GROUP_KEY && (
-            <h4 className="text-sm font-semibold text-muted-foreground mb-3">{group.label}</h4>
+            <h4 className="type-label text-muted-foreground mb-3">{group.label}</h4>
           )}
           <FieldGroup className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-5">
             {group.entries.map(({ def, index }) => {
@@ -289,7 +289,7 @@ export function ProductSpecsTab({ form, attributeDefinitions, isLoading }: Produ
                         return (
                           <div className="flex flex-wrap gap-3 pt-1">
                             {def.options.map((opt) => (
-                              <label key={opt} className="flex items-center gap-2 text-sm">
+                              <label key={opt} className="flex items-center gap-2 type-body-sm">
                                 <Checkbox checked={selected.includes(opt)} onCheckedChange={() => toggle(opt)} />
                                 {opt}
                               </label>

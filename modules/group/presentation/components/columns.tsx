@@ -36,7 +36,7 @@ export function getColumns({ onEdit, onDelete }: ColumnsProps): ColumnDef<GroupR
             </AspectRatio>
           </div>
         ) : (
-          <div className="w-10 h-10 bg-muted/50 rounded-md flex items-center justify-center text-muted-foreground/40 text-xs font-bold leading-none text-center px-1 capitalize tracking-tighter">
+          <div className="w-10 h-10 bg-muted/50 rounded-md flex items-center justify-center text-muted-foreground/40 type-tag text-center px-1 capitalize">
             N/A
           </div>
         );
@@ -47,13 +47,13 @@ export function getColumns({ onEdit, onDelete }: ColumnsProps): ColumnDef<GroupR
       header: "Tên nhóm",
       cell: ({ row }) => (
         <div className="flex flex-col gap-0.5">
-          <span className="font-semibold text-sm text-foreground">{row.original.name}</span>
+          <span className="type-label text-foreground">{row.original.name}</span>
           {row.original.slug && (
             <a
               href={`/san-pham/${row.original.slug}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-xs text-foreground/75 hover:text-foreground hover:underline flex items-center gap-1 w-fit"
+              className="type-legal text-foreground/75 hover:text-foreground hover:underline flex items-center gap-1 w-fit"
             >
               /{row.original.slug}
               <ArrowSquareOut size={11} />

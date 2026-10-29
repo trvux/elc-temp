@@ -68,8 +68,8 @@ export function TagManagement() {
     <div>
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 mb-8">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">Thẻ (Tags)</h1>
-          <p className="text-sm text-muted-foreground">
+          <h1 className="type-title">Thẻ (Tags)</h1>
+          <p className="type-body-sm text-muted-foreground">
             Taxonomy dùng chung cho tin tức, sản phẩm, dự án — dùng để liên kết nội dung liên quan với nhau.
           </p>
         </div>

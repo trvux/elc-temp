@@ -38,7 +38,7 @@ export function getColumns({
             />
           </div>
         ) : (
-          <div className="w-10 h-10 bg-muted rounded-md flex items-center justify-center text-muted-foreground/40 text-xs font-bold">
+          <div className="w-10 h-10 bg-muted rounded-md flex items-center justify-center text-muted-foreground/40 type-tag">
             N/A
           </div>
         );
@@ -49,13 +49,13 @@ export function getColumns({
       header: "Tên loại hình",
       cell: ({ row }) => (
         <div className="flex flex-col gap-0.5">
-          <span className="font-semibold text-sm text-foreground">{row.original.name}</span>
+          <span className="type-label text-foreground">{row.original.name}</span>
           {row.original.slug && (
             <a
               href={`/${row.original.slug}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-xs text-foreground/75 hover:text-foreground hover:underline flex items-center gap-1 w-fit"
+              className="type-legal text-foreground/75 hover:text-foreground hover:underline flex items-center gap-1 w-fit"
             >
               /{row.original.slug}
               <ArrowSquareOut size={11} />
@@ -71,7 +71,7 @@ export function getColumns({
         const categories = row.original.categories || [];
         if (categories.length === 0) {
           return (
-            <span className="text-muted-foreground italic text-xs">
+            <span className="text-muted-foreground italic type-legal">
               Chưa có liên kết
             </span>
           );
@@ -91,14 +91,14 @@ export function getColumns({
           <div className="flex flex-col gap-2 py-1 max-w-70">
             {Object.entries(grouped).map(([groupName, catNames]) => (
               <div key={groupName} className="flex flex-col gap-1">
-                <span className="font-semibold text-xs text-foreground w-fit">
+                <span className="type-tag text-foreground w-fit">
                   {groupName}
                 </span>
                 <div className="flex flex-wrap gap-1">
                   {catNames.map((name) => (
                     <span
                       key={name}
-                      className="text-xs bg-muted text-muted-foreground px-1.5 py-0.5 rounded"
+                      className="type-legal bg-muted text-muted-foreground px-1.5 py-0.5 rounded"
                     >
                       {name}
                     </span>
@@ -133,7 +133,7 @@ export function getColumns({
       accessorKey: "orderIndex",
       header: "Thứ tự",
       cell: ({ row }) => (
-        <span className="text-sm font-medium text-muted-foreground">
+        <span className="type-caption text-muted-foreground">
           {row.original.orderIndex}
         </span>
       ),
@@ -144,7 +144,7 @@ export function getColumns({
       cell: ({ row }) => {
         const date = new Date(row.original.createdAt);
         return (
-          <span className="text-muted-foreground text-xs">
+          <span className="text-muted-foreground type-legal">
             {date.toLocaleDateString("vi-VN")}
           </span>
         );

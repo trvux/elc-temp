@@ -44,17 +44,17 @@ export function MetricCard({ card }: { card: MetricCardData }) {
   return (
     <Card className="h-full gap-3 p-4 shadow-sm" size="sm">
       <div className="flex items-start justify-between gap-2 px-0">
-        <h3 id={titleId} className="flex items-center gap-2 text-sm font-semibold text-muted-foreground">
+        <h3 id={titleId} className="flex items-center gap-2 type-label text-muted-foreground">
           <Icon className="size-4 shrink-0" aria-hidden="true" />
           {card.title}
         </h3>
         <StatusBadge status={card.status} />
       </div>
-      <p className="text-3xl font-bold tracking-tight tabular-nums">
+      <p className="type-headline tabular-nums">
         {card.value}
       </p>
-      <p className="text-sm leading-relaxed text-muted-foreground">{card.description}</p>
-      {card.detail && <p className="text-sm leading-relaxed">{card.detail}</p>}
+      <p className="type-body-sm text-muted-foreground">{card.description}</p>
+      {card.detail && <p className="type-body-sm">{card.detail}</p>}
     </Card>
   );
 }

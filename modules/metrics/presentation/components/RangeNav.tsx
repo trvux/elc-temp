@@ -16,7 +16,7 @@ export function RangeNav({ current }: { current: MetricsRange }) {
               <Link
                 href={`/admin/metrics?range=${key}`}
                 aria-current={active ? "page" : undefined}
-                className={`inline-flex min-h-11 min-w-11 items-center justify-center rounded-md border px-4 text-sm font-medium outline-none transition-colors focus-visible:ring-3 focus-visible:ring-ring/50 ${
+                className={`inline-flex min-h-11 min-w-11 items-center justify-center rounded-md border px-4 type-caption outline-none transition-colors focus-visible:ring-3 focus-visible:ring-ring/50 ${
                   active ? "border-primary bg-primary text-primary-foreground" : "bg-background hover:bg-muted"
                 }`}
               >

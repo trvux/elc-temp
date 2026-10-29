@@ -19,7 +19,7 @@ const ICONS = { ok: CheckCircle, warn: WarningCircle, bad: XCircle, info: Info, 
 export function StatusBadge({ status }: { status: Status }) {
   const Icon = ICONS[status];
   return (
-    <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold ring-1 ring-inset ${STYLES[status]}`}>
+    <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 type-tag ring-1 ring-inset ${STYLES[status]}`}>
       <Icon weight="fill" className="size-4 shrink-0" aria-hidden="true" />
       <span className="sr-only">Trạng thái: </span>
       {STATUS_LABEL[status]}

@@ -149,8 +149,8 @@ export function AttributeDefinitionManagement() {
     <div>
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 mb-8">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">Thuộc tính sản phẩm</h1>
-          <p className="text-sm text-muted-foreground">
+          <h1 className="type-title">Thuộc tính sản phẩm</h1>
+          <p className="type-body-sm text-muted-foreground">
             Định nghĩa thông số kỹ thuật theo danh mục — thay cho việc gõ nhãn tự do (VD: Công suất làm lạnh, Độ ồn...).
           </p>
         </div>
@@ -167,12 +167,12 @@ export function AttributeDefinitionManagement() {
       />
 
       {isLoading ? (
-        <div className="flex items-center justify-center gap-2 h-24 text-sm text-muted-foreground">
+        <div className="flex items-center justify-center gap-2 h-24 type-body-sm text-muted-foreground">
           <div className="w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin" />
           Đang tải dữ liệu...
         </div>
       ) : categoryGroups.length === 0 ? (
-        <div className="flex items-center justify-center h-24 text-sm text-muted-foreground border rounded-md">
+        <div className="flex items-center justify-center h-24 type-body-sm text-muted-foreground border rounded-md">
           Không có dữ liệu.
         </div>
       ) : (
@@ -187,7 +187,7 @@ export function AttributeDefinitionManagement() {
               </AccordionTrigger>
               <AccordionContent>
                 <div className="rounded-md border overflow-hidden overflow-x-auto">
-                  <table className="w-full min-w-180 text-sm table-fixed">
+                  <table className="w-full min-w-180 type-body-sm table-fixed">
                     <colgroup>
                       <col className="w-40" />
                       <col />
@@ -209,15 +209,15 @@ export function AttributeDefinitionManagement() {
                     <tbody>
                       {group.defs.map((def) => (
                         <tr key={def.id} className="border-b last:border-0 hover:bg-muted/50">
-                          <td className="p-3 align-middle font-mono text-xs text-muted-foreground">{def.code}</td>
+                          <td className="p-3 align-middle type-mono text-muted-foreground">{def.code}</td>
                           <td className="p-3 align-middle">
                             <div className="flex flex-col gap-0.5">
                               <span className="font-semibold text-foreground">{def.name}</span>
-                              {def.unit && <span className="text-xs text-muted-foreground">Đơn vị: {def.unit}</span>}
+                              {def.unit && <span className="type-legal text-muted-foreground">Đơn vị: {def.unit}</span>}
                               {(def.dataType === "select" || def.dataType === "multiselect") && def.options.length > 0 && (
                                 <div className="flex flex-wrap gap-1 mt-1">
                                   {def.options.map((opt) => (
-                                    <Badge key={opt} variant="outline" className="text-xs px-1 py-0 h-4 font-normal">
+                                    <Badge key={opt} variant="outline" className="type-legal px-1 py-0 h-4">
                                       {opt}
                                     </Badge>
                                   ))}

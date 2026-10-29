@@ -104,7 +104,7 @@ export default function SettingsPage() {
     return (
       <div className="flex flex-col items-center justify-center py-20 text-muted-foreground gap-4">
         <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
-        <p className="text-sm font-medium">Đang tải cấu hình...</p>
+        <p className="type-caption">Đang tải cấu hình...</p>
       </div>
     );
 
@@ -112,10 +112,10 @@ export default function SettingsPage() {
     <div className="max-w-4xl pb-20">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">
+          <h1 className="type-title">
             Cài đặt hệ thống
           </h1>
-          <p className="text-sm text-muted-foreground">
+          <p className="type-body-sm text-muted-foreground">
             Quản lý nội dung trang chủ và thông tin doanh nghiệp.
           </p>
         </div>
@@ -128,10 +128,10 @@ export default function SettingsPage() {
             className="overflow-hidden border-border/40 shadow-sm rounded-2xl"
           >
             <CardHeader className="bg-muted/30">
-              <CardTitle className="text-lg font-bold tracking-tight">
+              <CardTitle className="type-heading">
                 {section.section}
               </CardTitle>
-              <CardDescription className="text-sm">
+              <CardDescription className="type-body-sm">
                 {section.description}
               </CardDescription>
             </CardHeader>

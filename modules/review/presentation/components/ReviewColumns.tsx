@@ -17,7 +17,7 @@ export const getReviewColumns = ({ onView }: ColumnProps): ColumnDef<AdminReview
     accessorKey: "createdAt",
     header: "Ngày gửi",
     cell: ({ row }) => (
-      <span className="text-sm text-muted-foreground whitespace-nowrap">
+      <span className="type-body-sm text-muted-foreground whitespace-nowrap">
         {new Date(row.original.createdAt).toLocaleString("vi-VN")}
       </span>
     ),
@@ -38,12 +38,12 @@ export const getReviewColumns = ({ onView }: ColumnProps): ColumnDef<AdminReview
     cell: ({ row }) => {
       const { productId, productName } = row.original;
       if (!productId || !productName) {
-        return <span className="text-sm text-muted-foreground">—</span>;
+        return <span className="type-body-sm text-muted-foreground">—</span>;
       }
       return (
         <Link
           href={`/admin/products/${productId}`}
-          className="text-sm text-primary hover:underline line-clamp-1 max-w-55"
+          className="type-body-sm text-primary hover:underline line-clamp-1 max-w-55"
         >
           {productName}
         </Link>

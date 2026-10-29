@@ -11,7 +11,6 @@ import { LocationCombobox } from "./LocationCombobox";
 import { useLocationPicker } from "@/shared/providers/location-picker-provider";
 import { Button } from "@/shared/components/ui/button";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogDescription } from "@/shared/components/ui/dialog";
-import { TypographySmall } from "@/shared/components/ui/typography";
 
 const DISMISSED_KEY = "elc-location-picker-dismissed";
 
@@ -114,6 +113,7 @@ export function LocationPickerDialog({ autoOpen }: { autoOpen: boolean }) {
               setWardCode("");
             }}
             placeholder="Chọn tỉnh/thành"
+            label="Tỉnh/thành"
             emptyText="Không tìm thấy tỉnh/thành."
             className="w-full"
           />
@@ -122,14 +122,15 @@ export function LocationPickerDialog({ autoOpen }: { autoOpen: boolean }) {
             value={wardCode}
             onValueChange={setWardCode}
             placeholder="Chọn phường/xã (tùy chọn)"
+            label="Phường/xã"
             disabled={!provinceCode}
             emptyText="Không tìm thấy phường/xã."
             className="w-full"
           />
           {preview && (
-            <TypographySmall className="text-muted-foreground">
+            <span className="type-caption text-muted-foreground">
               {preview.zoneName}: {formatVnd(preview.feeVnd)} — Giao trong {preview.minDays}-{preview.maxDays} ngày
-            </TypographySmall>
+            </span>
           )}
         </div>
 

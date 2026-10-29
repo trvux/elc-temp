@@ -92,8 +92,8 @@ export function SystemPageManagement() {
     <div>
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 mb-8">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-foreground">SEO Trang hệ thống</h1>
-          <p className="text-sm text-muted-foreground">
+          <h1 className="type-title text-foreground">SEO Trang hệ thống</h1>
+          <p className="type-body-sm text-muted-foreground">
             Cấu hình Tiêu đề và Mô tả SEO cho các trang hub chính của website.
           </p>
         </div>
@@ -140,7 +140,7 @@ export function SystemPageManagement() {
                   <Field>
                     <div className="flex justify-between items-center w-full">
                       <FieldLabel>Tiêu đề SEO</FieldLabel>
-                      <span className="text-xs text-muted-foreground font-medium">
+                      <span className="type-tag text-muted-foreground">
                         {(field.value || "").length}/70 ký tự (Khuyên dùng)
                       </span>
                     </div>
@@ -157,7 +157,7 @@ export function SystemPageManagement() {
                   <Field>
                     <div className="flex justify-between items-center w-full">
                       <FieldLabel>Mô tả SEO</FieldLabel>
-                      <span className="text-xs text-muted-foreground font-medium">
+                      <span className="type-tag text-muted-foreground">
                         {(field.value || "").length}/160 ký tự (Khuyên dùng)
                       </span>
                     </div>

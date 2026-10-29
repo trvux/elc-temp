@@ -88,8 +88,8 @@ export function ShippingZoneManagement() {
     <div>
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 mb-8">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">Khu vực giao hàng</h1>
-          <p className="text-sm text-muted-foreground">
+          <h1 className="type-title">Khu vực giao hàng</h1>
+          <p className="type-body-sm text-muted-foreground">
             Cấu hình phí và thời gian giao hàng theo tỉnh/thành — dùng cho hiển thị trên trang sản phẩm và dữ liệu SEO.
           </p>
         </div>
@@ -145,8 +145,8 @@ export function ShippingZoneManagement() {
                 <Field className="flex flex-col justify-between border p-4 rounded-xl bg-muted/10">
                   <div className="flex items-center justify-between">
                     <div className="space-y-0.5">
-                      <FieldLabel className="text-sm font-medium">Khu vực mặc định</FieldLabel>
-                      <FieldDescription className="text-xs leading-tight">
+                      <FieldLabel className="type-caption">Khu vực mặc định</FieldLabel>
+                      <FieldDescription className="type-legal">
                         Áp dụng cho tỉnh/thành chưa cấu hình khu vực nào.
                       </FieldDescription>
                     </div>

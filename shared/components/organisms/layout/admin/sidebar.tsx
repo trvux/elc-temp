@@ -119,7 +119,7 @@ function NavItemRow({
         asChild
         tooltip={item.label}
         isActive={pathname === item.href}
-        className="text-sm transition-all data-[active=true]:bg-primary data-[active=true]:text-primary-foreground data-[active=true]:font-medium active:scale-[0.98]"
+        className="type-body-sm transition-all data-[active=true]:bg-primary data-[active=true]:text-primary-foreground data-[active=true]:font-medium active:scale-[0.98]"
       >
         <Link href={item.href}>
           <item.icon className="size-4" />
@@ -167,10 +167,10 @@ function NavUser({ user }: { user: UserInfo }) {
                 </AvatarFallback>
               </Avatar>
               <div className="grid flex-1 text-left leading-tight">
-                <span className="truncate text-sm font-semibold">
+                <span className="truncate type-label">
                   {user.name}
                 </span>
-                <span className="truncate text-xs text-muted-foreground">
+                <span className="truncate type-legal text-muted-foreground">
                   {user.email}
                 </span>
               </div>
@@ -184,7 +184,7 @@ function NavUser({ user }: { user: UserInfo }) {
             sideOffset={4}
           >
             <DropdownMenuLabel className="p-0 font-normal">
-              <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
+              <div className="flex items-center gap-2 px-1 py-1.5 text-left type-body-sm">
                 <Avatar className="h-8 w-8 rounded-lg">
                   <AvatarImage src={user.avatar} alt={user.name} />
                   <AvatarFallback className="rounded-lg">
@@ -192,10 +192,10 @@ function NavUser({ user }: { user: UserInfo }) {
                   </AvatarFallback>
                 </Avatar>
                 <div className="grid flex-1 text-left leading-tight">
-                  <span className="truncate text-sm font-semibold">
+                  <span className="truncate type-label">
                     {user.name}
                   </span>
-                  <span className="truncate text-xs text-muted-foreground">
+                  <span className="truncate type-legal text-muted-foreground">
                     {user.email}
                   </span>
                 </div>
@@ -256,10 +256,10 @@ export default function AdminSidebar({ user }: { user: UserInfo }) {
                   <ShieldCheck className="size-4" />
                 </div>
                 <div className="grid flex-1 text-left leading-tight">
-                  <span className="truncate text-sm font-bold capitalize tracking-tight">
+                  <span className="truncate type-label capitalize">
                     ELC ADMIN
                   </span>
-                  <span className="truncate text-xs text-muted-foreground font-medium capitalize tracking-wider">
+                  <span className="truncate type-tag text-muted-foreground capitalize">
                     Hệ thống quản trị
                   </span>
                 </div>

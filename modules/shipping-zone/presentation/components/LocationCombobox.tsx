@@ -26,6 +26,9 @@ interface LocationComboboxProps {
   value: string;
   onValueChange: (code: string) => void;
   placeholder?: string;
+  // What this field is ("Tỉnh/thành"); becomes the combobox accessible name
+  // together with the current value, since the visible text alone is the value.
+  label?: string;
   disabled?: boolean;
   emptyText?: string;
   // Defaults to fit-content (no forced width) — pass "w-full" when the
@@ -53,6 +56,7 @@ export function LocationCombobox({
   value,
   onValueChange,
   placeholder,
+  label,
   disabled,
   emptyText = "Không tìm thấy.",
   className,
@@ -70,6 +74,7 @@ export function LocationCombobox({
           variant={variant}
           role="combobox"
           aria-expanded={open}
+          aria-label={label ? `${label}: ${selected?.name || placeholder || "chưa chọn"}` : undefined}
           disabled={disabled}
           className={cn("justify-between font-normal", className)}
         >
@@ -79,7 +84,7 @@ export function LocationCombobox({
       </PopoverTrigger>
       <PopoverContent className="w-72 p-0" align="start">
         <Command>
-          <CommandInput placeholder="Tìm kiếm..." />
+          <CommandInput aria-label={label ? `Tìm ${label.toLowerCase()}` : "Tìm kiếm"} placeholder="Tìm kiếm..." />
           {/* Base CommandList's own scrolling relies on a "no-scrollbar"
               class (hides the thumb but still scrolls via wheel/trackpad in
               theory) that repeatedly read as "the list just stops" — plain

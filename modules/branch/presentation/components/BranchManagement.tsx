@@ -156,8 +156,8 @@ export function BranchManagement() {
     <div>
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 mb-8">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">Chi nhánh</h1>
-          <p className="text-sm text-muted-foreground">
+          <h1 className="type-title">Chi nhánh</h1>
+          <p className="type-body-sm text-muted-foreground">
             Quản lý địa điểm chi nhánh và thông tin liên hệ.
           </p>
         </div>
@@ -299,7 +299,7 @@ export function BranchManagement() {
                                 field.onChange([{ ...current, alt: e.target.value }])
                               }
                               placeholder="Mô tả ảnh (alt text)"
-                              className="mt-2 text-xs h-8"
+                              className="mt-2 type-legal h-8"
                             />
                           )}
                         </Field>
@@ -343,6 +343,7 @@ export function BranchManagement() {
                           <FieldLabel>Tỉnh/thành</FieldLabel>
                           <LocationCombobox
                             items={provinces}
+                            label="Tỉnh/thành"
                             value={field.value || ""}
                             onValueChange={(code) => {
                               field.onChange(code);
@@ -367,6 +368,7 @@ export function BranchManagement() {
                           <FieldLabel>Phường/xã</FieldLabel>
                           <LocationCombobox
                             items={wards}
+                            label="Phường/xã"
                             value={field.value || ""}
                             onValueChange={(code) => {
                               field.onChange(code);
@@ -418,10 +420,10 @@ export function BranchManagement() {
               {/* Maps Section */}
               <div className="space-y-4 pt-4 border-t">
                 <div className="flex items-center justify-between">
-                  <h3 className="text-sm font-semibold tracking-tight">
+                  <h3 className="type-label">
                     Vị trí & Bản đồ
                   </h3>
-                  <span className="text-xs text-muted-foreground uppercase tracking-widest">
+                  <span className="type-legal text-muted-foreground uppercase">
                     Google Maps Integration
                   </span>
                 </div>
@@ -477,8 +479,8 @@ export function BranchManagement() {
               {/* SEO Section */}
               <div className="space-y-6 border p-6 rounded-2xl bg-muted/10">
                 <div className="border-b pb-2">
-                  <h3 className="text-sm font-semibold tracking-tight">Cấu hình SEO</h3>
-                  <p className="text-xs text-muted-foreground">Tối ưu hóa hiển thị trên các công cụ tìm kiếm (Google, Bing,...).</p>
+                  <h3 className="type-label">Cấu hình SEO</h3>
+                  <p className="type-legal text-muted-foreground">Tối ưu hóa hiển thị trên các công cụ tìm kiếm (Google, Bing,...).</p>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <Controller
@@ -510,10 +512,10 @@ export function BranchManagement() {
               {/* Editor Section */}
               <div className="space-y-4">
                 <div className="flex items-center justify-between border-b pb-2">
-                  <h3 className="text-sm font-semibold tracking-tight">
+                  <h3 className="type-label">
                     Giới thiệu chi nhánh
                   </h3>
-                  <span className="text-xs text-muted-foreground uppercase tracking-widest">
+                  <span className="type-legal text-muted-foreground uppercase">
                     Tiptap Editor
                   </span>
                 </div>

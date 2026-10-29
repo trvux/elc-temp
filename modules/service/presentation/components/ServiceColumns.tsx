@@ -34,7 +34,7 @@ export const getServiceColumns = ({
           />
         </div>
       ) : (
-        <div className="w-10 h-10 bg-muted/50 rounded-md flex items-center justify-center text-muted-foreground/40 text-xs font-bold leading-none text-center px-1 capitalize tracking-tighter">
+        <div className="w-10 h-10 bg-muted/50 rounded-md flex items-center justify-center text-muted-foreground/40 type-tag text-center px-1 capitalize">
           N/A
         </div>
       );
@@ -47,10 +47,10 @@ export const getServiceColumns = ({
       const service = row.original;
       return (
         <div className="flex flex-col gap-0.5">
-          <span className="font-medium text-sm text-foreground">
+          <span className="type-caption text-foreground">
             {service.title}
           </span>
-          <span className="text-xs text-muted-foreground font-mono">
+          <span className="type-mono text-muted-foreground">
             {service.slug}
           </span>
         </div>
@@ -65,14 +65,14 @@ export const getServiceColumns = ({
       return (
         <div className="flex flex-col gap-1">
           {service.group ? (
-            <span className="text-foreground/90 font-medium text-xs w-fit">
+            <span className="text-foreground/90 type-tag w-fit">
               {service.group.name}
             </span>
           ) : (
-            <span className="text-muted-foreground italic text-xs">-</span>
+            <span className="text-muted-foreground italic type-legal">-</span>
           )}
           {service.category && (
-            <span className="text-xs text-muted-foreground">
+            <span className="type-legal text-muted-foreground">
               {service.category.name}
             </span>
           )}
@@ -87,7 +87,7 @@ export const getServiceColumns = ({
       const service = row.original;
       if (service.priceDisplayText) {
         return (
-          <span className="text-sm font-medium text-foreground">
+          <span className="type-caption text-foreground">
             {service.priceDisplayText}
           </span>
         );
@@ -102,17 +102,17 @@ export const getServiceColumns = ({
           : service.originalPrice;
         return (
           <div className="flex flex-col">
-            <span className="font-bold text-sm text-red-600">
+            <span className="type-label text-red-600">
               {formatCurrency(salePrice)}
             </span>
             {hasDiscount ? (
               <div className="flex items-center gap-1.5 mt-0.5">
-                <span className="text-xs text-muted-foreground line-through">
+                <span className="type-legal text-muted-foreground line-through">
                   {formatCurrency(service.originalPrice)}
                 </span>
                 <Badge
                   variant="destructive"
-                  className="px-1 py-0 h-4 text-xs leading-none"
+                  className="px-1 py-0 h-4 type-legal"
                 >
                   -{discount}%
                 </Badge>
@@ -122,7 +122,7 @@ export const getServiceColumns = ({
         );
       }
       return (
-        <span className="text-xs text-muted-foreground italic">
+        <span className="type-legal text-muted-foreground italic">
           Chưa thiết lập
         </span>
       );
@@ -141,7 +141,7 @@ export const getServiceColumns = ({
             <Badge
               key={l}
               variant="outline"
-              className="text-xs px-1.5 py-0.5 font-normal"
+              className="type-legal px-1.5 py-0.5"
             >
               {l}
             </Badge>
@@ -154,7 +154,7 @@ export const getServiceColumns = ({
     accessorKey: "orderIndex",
     header: "Thứ tự",
     cell: ({ row }) => (
-      <span className="text-sm">{row.original.orderIndex}</span>
+      <span className="type-body-sm">{row.original.orderIndex}</span>
     ),
   },
   {
@@ -201,7 +201,7 @@ export const getServiceColumns = ({
     cell: ({ row }) => {
       const date = new Date(row.original.createdAt);
       return (
-        <span className="text-muted-foreground text-sm">
+        <span className="text-muted-foreground type-body-sm">
           {date.toLocaleDateString("vi-VN")}
         </span>
       );

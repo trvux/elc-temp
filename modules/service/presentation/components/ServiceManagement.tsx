@@ -229,8 +229,8 @@ export function ServiceManagement({
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h2 className="text-2xl font-bold tracking-tight">Dịch vụ</h2>
-          <p className="text-muted-foreground mt-1 text-sm">
+          <h2 className="type-title">Dịch vụ</h2>
+          <p className="text-muted-foreground mt-1 type-body-sm">
             Quản lý danh sách các gói dịch vụ, giá bán và nhãn dán hiển thị
           </p>
         </div>
@@ -484,7 +484,7 @@ export function ServiceManagement({
                       <FieldLegend>Cấu hình giá / Hiển thị</FieldLegend>
                       <div className="border rounded-xl p-5 bg-muted/5 space-y-5">
                         <div className="space-y-1.5">
-                          <p className="text-xs text-muted-foreground">
+                          <p className="type-legal text-muted-foreground">
                             Chọn hiển thị dạng Giá tiền thực tế hoặc Văn bản tuỳ
                             chỉnh (vd: Liên hệ).
                           </p>
@@ -503,7 +503,7 @@ export function ServiceManagement({
                                 <RadioGroupItem value="price" id="mode-price" />
                                 <label
                                   htmlFor="mode-price"
-                                  className="text-sm cursor-pointer"
+                                  className="type-body-sm cursor-pointer"
                                 >
                                   Giá tiền
                                 </label>
@@ -512,7 +512,7 @@ export function ServiceManagement({
                                 <RadioGroupItem value="text" id="mode-text" />
                                 <label
                                   htmlFor="mode-text"
-                                  className="text-sm cursor-pointer"
+                                  className="type-body-sm cursor-pointer"
                                 >
                                   Văn bản tuỳ chỉnh
                                 </label>
@@ -572,10 +572,10 @@ export function ServiceManagement({
                               />
 
                               <div className="col-span-2 mt-2 p-3 bg-primary/5 rounded-lg border border-primary/20 flex justify-between items-center">
-                                <span className="text-sm text-primary font-medium">
+                                <span className="type-caption text-primary">
                                   Giá bán tự động tính:
                                 </span>
-                                <span className="text-base font-bold text-red-600">
+                                <span className="type-body-strong text-red-600">
                                   {previewSalePrice
                                     ? new Intl.NumberFormat("vi-VN", {
                                         style: "currency",
@@ -633,7 +633,7 @@ export function ServiceManagement({
                                     field.onChange([{ ...current, alt: e.target.value }])
                                   }
                                   placeholder="Mô tả ảnh (alt text)"
-                                  className="mt-2 text-xs h-8"
+                                  className="mt-2 type-legal h-8"
                                 />
                               )}
                               <FieldError errors={[fieldState.error]} />
@@ -656,10 +656,10 @@ export function ServiceManagement({
                               <Field>
                                 <div className="flex items-center justify-between border rounded-xl p-4 bg-muted/10 h-full">
                                   <div className="space-y-0.5">
-                                    <FieldLabel className="text-sm font-semibold tracking-tight">
+                                    <FieldLabel className="type-label">
                                       Hiển thị
                                     </FieldLabel>
-                                    <span className="text-xs text-muted-foreground block">
+                                    <span className="type-legal text-muted-foreground block">
                                       Công khai
                                     </span>
                                   </div>
@@ -679,10 +679,10 @@ export function ServiceManagement({
                               <Field>
                                 <div className="flex items-center justify-between border rounded-xl p-4 bg-muted/10 h-full">
                                   <div className="space-y-0.5">
-                                    <FieldLabel className="text-sm font-semibold tracking-tight">
+                                    <FieldLabel className="type-label">
                                       Nổi bật
                                     </FieldLabel>
-                                    <span className="text-xs text-muted-foreground block">
+                                    <span className="type-legal text-muted-foreground block">
                                       Lên đầu
                                     </span>
                                   </div>
@@ -723,7 +723,7 @@ export function ServiceManagement({
                       <FieldLegend>Nhãn hiển thị (Badges)</FieldLegend>
                       <div className="border rounded-xl p-5 bg-muted/5 space-y-3">
                         <div className="space-y-1">
-                          <p className="text-xs text-muted-foreground">
+                          <p className="type-legal text-muted-foreground">
                             Ví dụ: Bảo hành 1 năm, Khảo sát miễn phí...
                           </p>
                         </div>
@@ -769,7 +769,7 @@ export function ServiceManagement({
                           ))}
                           {(!form.watch("labels") ||
                             form.watch("labels")?.length === 0) && (
-                            <span className="text-xs text-muted-foreground italic">
+                            <span className="type-legal text-muted-foreground italic">
                               Chưa có nhãn dán nào
                             </span>
                           )}
@@ -782,10 +782,10 @@ export function ServiceManagement({
                 {/* SEO Section */}
                 <div className="space-y-6 border p-6 rounded-2xl bg-muted/10">
                   <div className="border-b pb-2">
-                    <h3 className="text-sm font-semibold tracking-tight">
+                    <h3 className="type-label">
                       Cấu hình SEO
                     </h3>
-                    <p className="text-xs text-muted-foreground">
+                    <p className="type-legal text-muted-foreground">
                       Tối ưu hóa hiển thị trên các công cụ tìm kiếm.
                     </p>
                   </div>
@@ -796,10 +796,10 @@ export function ServiceManagement({
                       render={({ field, fieldState }) => (
                         <Field>
                           <div className="flex items-center justify-between">
-                            <FieldLabel className="text-xs">
+                            <FieldLabel className="type-legal">
                               Tiêu đề SEO
                             </FieldLabel>
-                            <span className="text-xs text-muted-foreground">{(field.value || "").length}/70</span>
+                            <span className="type-legal text-muted-foreground">{(field.value || "").length}/70</span>
                           </div>
                           <Input
                             {...field}
@@ -817,8 +817,8 @@ export function ServiceManagement({
                       render={({ field, fieldState }) => (
                         <Field>
                           <div className="flex items-center justify-between">
-                            <FieldLabel className="text-xs">Mô tả SEO</FieldLabel>
-                            <span className="text-xs text-muted-foreground">{(field.value || "").length}/160</span>
+                            <FieldLabel className="type-legal">Mô tả SEO</FieldLabel>
+                            <span className="type-legal text-muted-foreground">{(field.value || "").length}/160</span>
                           </div>
                           <Textarea
                             {...field}
@@ -841,8 +841,8 @@ export function ServiceManagement({
                 {/* Editor Section */}
                 <div className="space-y-4">
                   <div className="flex items-center justify-between border-b pb-2">
-                    <h3 className="text-sm font-semibold tracking-tight">Nội dung chi tiết dịch vụ</h3>
-                    <span className="text-xs text-muted-foreground uppercase tracking-widest">Tiptap</span>
+                    <h3 className="type-label">Nội dung chi tiết dịch vụ</h3>
+                    <span className="type-legal text-muted-foreground uppercase">Tiptap</span>
                   </div>
                   <Controller
                     control={form.control}
@@ -866,10 +866,10 @@ export function ServiceManagement({
                 {activeService !== "new" && activeService?.id && (
                   <div className="space-y-4">
                     <div className="border-b pb-2">
-                      <h3 className="text-sm font-semibold tracking-tight">
+                      <h3 className="type-label">
                         Câu hỏi thường gặp (FAQ)
                       </h3>
-                      <p className="text-xs text-muted-foreground">
+                      <p className="type-legal text-muted-foreground">
                         Hiển thị công khai dạng accordion + giúp AI (Google AI Overview, ChatGPT...)
                         trích dẫn trực tiếp nội dung này.
                       </p>

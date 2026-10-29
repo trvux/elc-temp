@@ -34,7 +34,7 @@ export const getNewsColumns = ({
               className="object-cover"
             />
           ) : (
-            <div className="flex h-full w-full items-center justify-center text-xs text-muted-foreground">
+            <div className="flex h-full w-full items-center justify-center type-legal text-muted-foreground">
               No image
             </div>
           )}
@@ -47,10 +47,10 @@ export const getNewsColumns = ({
     header: "Tiêu đề",
     cell: ({ row }) => (
       <div className="flex flex-col">
-        <span className="text-sm font-semibold tracking-tight text-foreground">
+        <span className="type-label text-foreground">
           {row.original.title}
         </span>
-        <span className="text-xs text-muted-foreground">
+        <span className="type-legal text-muted-foreground">
           Thứ tự: {row.original.orderIndex}
         </span>
       </div>
@@ -64,7 +64,7 @@ export const getNewsColumns = ({
         href={`/tin-tuc/${row.original.slug}`}
         target="_blank"
         rel="noopener noreferrer"
-        className="text-xs text-foreground/75 font-medium hover:text-foreground hover:underline flex items-center gap-1 transition-colors"
+        className="type-tag text-foreground/75 hover:text-foreground hover:underline flex items-center gap-1 transition-colors"
       >
         /tin-tuc/{row.original.slug}
         <ArrowSquareOut size={12} className="shrink-0" />
@@ -84,7 +84,7 @@ export const getNewsColumns = ({
     accessorKey: "createdAt",
     header: "Ngày tạo",
     cell: ({ row }) => (
-      <span className="text-xs text-muted-foreground whitespace-nowrap">
+      <span className="type-legal text-muted-foreground whitespace-nowrap">
         {new Date(row.original.createdAt).toLocaleDateString("vi-VN")}
       </span>
     ),

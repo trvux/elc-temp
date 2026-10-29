@@ -56,7 +56,7 @@ export function WardMultiSelect({ provinceCodes, value, onChange, placeholder }:
   }
 
   if (provinceCodes.length === 0) {
-    return <p className="text-xs text-muted-foreground">Chọn tỉnh/thành trước để chọn phường/xã cụ thể.</p>;
+    return <p className="type-legal text-muted-foreground">Chọn tỉnh/thành trước để chọn phường/xã cụ thể.</p>;
   }
 
   return (

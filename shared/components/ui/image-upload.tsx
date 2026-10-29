@@ -161,10 +161,10 @@ export function ImageUpload({
                 <Upload size={24} strokeWidth={1.5} className="text-muted-foreground" />
               </div>
               <div className="flex flex-col items-center gap-1 text-center">
-                <span className="text-sm font-semibold text-foreground">
+                <span className="type-label text-foreground">
                   Kéo thả ảnh hoặc nhấp để chọn tệp
                 </span>
-                <span className="text-xs text-muted-foreground">
+                <span className="type-legal text-muted-foreground">
                   Hỗ trợ định dạng PNG, JPG, WebP tối đa {maxSizeMB}MB
                 </span>
               </div>
@@ -181,7 +181,7 @@ export function ImageUpload({
           {uploading && (
             <div className="absolute inset-0 bg-background/80 backdrop-blur-[1px] flex flex-col items-center justify-center gap-2 z-20">
               <Spinner className="h-8 w-8 animate-spin text-primary" />
-              <span className="text-xs font-semibold text-primary uppercase tracking-wider animate-pulse">
+              <span className="type-tag text-primary uppercase animate-pulse">
                 Đang xử lý ảnh...
               </span>
             </div>

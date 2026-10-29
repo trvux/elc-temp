@@ -143,8 +143,8 @@ export function ProjectTypeManagement() {
     <div>
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 mb-8">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">Loại hình công trình</h1>
-          <p className="text-sm text-muted-foreground">
+          <h1 className="type-title">Loại hình công trình</h1>
+          <p className="type-body-sm text-muted-foreground">
             Quản lý các loại hình công trình (Villa, Biệt thự...) và liên kết các dòng sản phẩm phù hợp.
           </p>
         </div>
@@ -235,8 +235,8 @@ export function ProjectTypeManagement() {
                           <Field>
                             <div className="flex items-center justify-between border rounded-xl p-4 bg-muted/10">
                               <div className="space-y-0.5">
-                                <FieldLabel className="text-sm font-semibold tracking-tight">Nổi bật</FieldLabel>
-                                <span className="text-xs text-muted-foreground block">Hiện trang chủ</span>
+                                <FieldLabel className="type-label">Nổi bật</FieldLabel>
+                                <span className="type-legal text-muted-foreground block">Hiện trang chủ</span>
                               </div>
                               <Switch
                                 checked={field.value}
@@ -270,19 +270,19 @@ export function ProjectTypeManagement() {
                     {/* Right Column: Relations selection */}
                     <div className="lg:col-span-8 space-y-6">
                       <Field className="flex flex-col gap-3">
-                        <FieldLabel className="text-sm font-semibold tracking-tight block">
+                        <FieldLabel className="type-label block">
                           Dòng sản phẩm liên kết (Nhóm danh mục → Danh mục chi tiết)
                         </FieldLabel>
                         <div className="space-y-4 mt-2">
                           {Object.keys(groupedCategories).length === 0 ? (
-                            <span className="text-sm text-muted-foreground italic block">
+                            <span className="type-body-sm text-muted-foreground italic block">
                               Chưa có danh mục sản phẩm nào, vui lòng tạo danh mục trước.
                             </span>
                           ) : (
                             Object.entries(groupedCategories).map(([groupName, groupCats]) => (
                               <div key={groupName} className="border rounded-xl p-5 bg-muted/5 space-y-4">
                                 <div>
-                                  <h3 className="font-semibold text-xs text-foreground bg-muted border border-border px-2.5 py-1 rounded-md w-fit">
+                                  <h3 className="type-tag text-foreground bg-muted border border-border px-2.5 py-1 rounded-md w-fit">
                                     {groupName}
                                   </h3>
                                 </div>
@@ -290,7 +290,7 @@ export function ProjectTypeManagement() {
                                   {groupCats.map((cat) => (
                                     <label
                                       key={cat.id}
-                                      className="flex items-center gap-3 text-sm font-medium text-foreground/80 cursor-pointer hover:text-primary transition-colors select-none p-3 border rounded-xl bg-background hover:bg-muted/30"
+                                      className="flex items-center gap-3 type-caption text-foreground/80 cursor-pointer hover:text-primary transition-colors select-none p-3 border rounded-xl bg-background hover:bg-muted/30"
                                     >
                                       <input
                                         type="checkbox"
@@ -343,10 +343,10 @@ export function ProjectTypeManagement() {
                   <div className="max-w-2xl space-y-4">
                     <div className="flex items-center justify-between border-b pb-2">
                       <div>
-                        <h3 className="text-sm font-semibold tracking-tight">Đoạn giới thiệu</h3>
-                        <p className="text-xs text-muted-foreground">Nội dung hiển thị ở trang phân khúc /du-an/&lt;slug&gt;.</p>
+                        <h3 className="type-label">Đoạn giới thiệu</h3>
+                        <p className="type-legal text-muted-foreground">Nội dung hiển thị ở trang phân khúc /du-an/&lt;slug&gt;.</p>
                       </div>
-                      <span className="text-xs text-muted-foreground uppercase tracking-widest">Tiptap Editor</span>
+                      <span className="type-legal text-muted-foreground uppercase">Tiptap Editor</span>
                     </div>
                     <Controller
                       control={form.control}

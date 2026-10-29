@@ -36,7 +36,7 @@ export const getServiceGroupColumns = ({
           />
         </div>
       ) : (
-        <div className="w-10 h-10 bg-muted/50 rounded-md flex items-center justify-center text-muted-foreground/40 text-xs font-bold leading-none text-center px-1 capitalize tracking-tighter">
+        <div className="w-10 h-10 bg-muted/50 rounded-md flex items-center justify-center text-muted-foreground/40 type-tag text-center px-1 capitalize">
           N/A
         </div>
       );
@@ -47,10 +47,10 @@ export const getServiceGroupColumns = ({
     header: "Tên nhóm",
     cell: ({ row }) => (
       <div className="flex flex-col">
-        <span className="font-medium text-sm text-foreground">
+        <span className="type-caption text-foreground">
           {row.original.name}
         </span>
-        <span className="text-xs text-muted-foreground mt-0.5">
+        <span className="type-legal text-muted-foreground mt-0.5">
           {row.original.slug}
         </span>
       </div>
@@ -63,7 +63,7 @@ export const getServiceGroupColumns = ({
       const categoryIds = row.original.categoryIds || [];
       if (categoryIds.length === 0) {
         return (
-          <span className="text-muted-foreground italic text-xs">
+          <span className="text-muted-foreground italic type-legal">
             Chưa có liên kết
           </span>
         );
@@ -76,7 +76,7 @@ export const getServiceGroupColumns = ({
 
       if (linkedCats.length === 0) {
         return (
-          <span className="text-muted-foreground italic text-xs">
+          <span className="text-muted-foreground italic type-legal">
             Chưa có liên kết
           </span>
         );
@@ -96,14 +96,14 @@ export const getServiceGroupColumns = ({
         <div className="flex flex-col gap-2 py-1 max-w-70">
           {Object.entries(grouped).map(([groupName, catNames]) => (
             <div key={groupName} className="flex flex-col gap-1">
-              <span className="font-semibold text-xs text-foreground w-fit">
+              <span className="type-tag text-foreground w-fit">
                 {groupName}
               </span>
               <div className="flex flex-wrap gap-1">
                 {catNames.map((name) => (
                   <span
                     key={name}
-                    className="text-xs bg-muted text-muted-foreground px-1.5 py-0.5 rounded"
+                    className="type-legal bg-muted text-muted-foreground px-1.5 py-0.5 rounded"
                   >
                     {name}
                   </span>
@@ -119,7 +119,7 @@ export const getServiceGroupColumns = ({
     accessorKey: "orderIndex",
     header: "Thứ tự",
     cell: ({ row }) => (
-      <span className="text-sm">{row.original.orderIndex}</span>
+      <span className="type-body-sm">{row.original.orderIndex}</span>
     ),
   },
   {
@@ -147,7 +147,7 @@ export const getServiceGroupColumns = ({
     cell: ({ row }) => {
       const date = new Date(row.original.createdAt);
       return (
-        <span className="text-muted-foreground text-sm">
+        <span className="text-muted-foreground type-body-sm">
           {date.toLocaleDateString("vi-VN")}
         </span>
       );

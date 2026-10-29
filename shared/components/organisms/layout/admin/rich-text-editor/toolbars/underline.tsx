@@ -42,7 +42,7 @@ const UnderlineToolbar = React.forwardRef<HTMLButtonElement, ButtonProps>(
         </TooltipTrigger>
         <TooltipContent>
           <span>Underline</span>
-          <span className="ml-1 text-xs text-muted-foreground">(cmd + u)</span>
+          <span className="ml-1 type-legal text-muted-foreground">(cmd + u)</span>
         </TooltipContent>
       </Tooltip>
     );

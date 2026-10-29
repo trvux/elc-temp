@@ -74,14 +74,14 @@ export function ProductGalleryTab({ form }: ProductGalleryTabProps) {
                           field.onChange(next);
                         }}
                         placeholder="Mô tả ảnh (alt text)"
-                        className="rounded-none border-0 border-t text-xs h-8"
+                        className="rounded-none border-0 border-t type-legal h-8"
                       />
                     </div>
                   ))}
                 </div>
               ) : (
                 <div className="py-12 flex flex-col items-center justify-center border border-dashed rounded-xl bg-muted/5">
-                  <p className="text-xs font-bold">
+                  <p className="type-tag">
                     Chưa có hình ảnh nào được tải lên
                   </p>
                 </div>

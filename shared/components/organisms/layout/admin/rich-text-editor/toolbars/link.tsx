@@ -186,7 +186,7 @@ const LinkToolbar = React.forwardRef<HTMLButtonElement, ButtonProps>(
               }}
             >
               <Label>Link</Label>
-              <p className="text-sm text-muted-foreground">
+              <p className="type-body-sm text-muted-foreground">
                 Attach a link to the selected text
               </p>
               <div className="mt-3 flex flex-col items-end justify-end gap-3">

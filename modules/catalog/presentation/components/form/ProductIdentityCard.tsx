@@ -95,7 +95,7 @@ export function ProductIdentityCard({
                   type="button"
                   variant="ghost"
                   size="sm"
-                  className="h-6 px-2 text-xs text-muted-foreground hover:text-primary"
+                  className="h-6 px-2 type-legal text-muted-foreground hover:text-primary"
                   disabled={!currentCategoryId && !currentBrandId}
                   onClick={() => (field.value?.trim() ? setConfirmComposeOpen(true) : composeFromFields())}
                 >
@@ -162,7 +162,7 @@ export function ProductIdentityCard({
                 type="button"
                 variant="ghost"
                 size="sm"
-                className="h-6 px-2 text-xs text-muted-foreground hover:text-primary"
+                className="h-6 px-2 type-legal text-muted-foreground hover:text-primary"
                 onClick={() => (isLiveOrWasLive ? setConfirmSlugOpen(true) : regenerateSlug())}
               >
                 Tạo lại slug từ tên

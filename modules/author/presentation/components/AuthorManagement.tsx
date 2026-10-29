@@ -82,8 +82,8 @@ export function AuthorManagement() {
     <div>
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 mb-8">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">Tác giả</h1>
-          <p className="text-sm text-muted-foreground">
+          <h1 className="type-title">Tác giả</h1>
+          <p className="type-body-sm text-muted-foreground">
             Quản lý người viết bài cho blog/tin tức — dùng làm byline hiển thị công khai.
           </p>
         </div>

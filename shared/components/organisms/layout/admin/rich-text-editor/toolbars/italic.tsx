@@ -42,7 +42,7 @@ const ItalicToolbar = React.forwardRef<HTMLButtonElement, ButtonProps>(
         </TooltipTrigger>
         <TooltipContent>
           <span>Italic</span>
-          <span className="ml-1 text-xs text-muted-foreground">(cmd + i)</span>
+          <span className="ml-1 type-legal text-muted-foreground">(cmd + i)</span>
         </TooltipContent>
       </Tooltip>
     );

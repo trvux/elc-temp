@@ -38,7 +38,7 @@ export const getUserColumns = ({
         {/* Google/magic-link accounts (role=member) have no username — only
             invited admin-panel accounts ever set one. */}
         {row.original.username && (
-          <span className="text-xs text-muted-foreground">@{row.original.username}</span>
+          <span className="type-legal text-muted-foreground">@{row.original.username}</span>
         )}
       </div>
     ),
@@ -97,7 +97,7 @@ export const getUserColumns = ({
       const user = row.original;
       const isSelf = user.id === currentUserId;
       if (isSelf) {
-        return <span className="text-xs text-muted-foreground">Tài khoản của bạn</span>;
+        return <span className="type-legal text-muted-foreground">Tài khoản của bạn</span>;
       }
       return user.status === "active" ? (
         <Button

@@ -169,8 +169,8 @@ export function ServiceGroupManagement({ initialData }: ServiceGroupManagementPr
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h2 className="text-2xl font-bold tracking-tight">Nhóm dịch vụ</h2>
-          <p className="text-muted-foreground mt-1 text-sm">
+          <h2 className="type-title">Nhóm dịch vụ</h2>
+          <p className="text-muted-foreground mt-1 type-body-sm">
             Quản lý các nhóm dịch vụ (vd: Cơ Điện Lạnh, Điện Máy, Xây Dựng...)
           </p>
         </div>
@@ -287,7 +287,7 @@ export function ServiceGroupManagement({ initialData }: ServiceGroupManagementPr
                     <FieldLegend>Dòng sản phẩm liên kết (Nhóm danh mục → Danh mục chi tiết)</FieldLegend>
                     <div className="space-y-4 mt-2">
                       {Object.keys(groupedCategories).length === 0 ? (
-                        <span className="text-sm text-muted-foreground italic block">
+                        <span className="type-body-sm text-muted-foreground italic block">
                           Chưa có danh mục sản phẩm nào, vui lòng tạo danh mục trước.
                         </span>
                       ) : (
@@ -302,7 +302,7 @@ export function ServiceGroupManagement({ initialData }: ServiceGroupManagementPr
                               <button
                                 type="button"
                                 onClick={() => toggleGroup(groupName)}
-                                className="flex items-center justify-between w-full font-semibold text-xs text-foreground bg-muted/80 border border-border px-2.5 py-1.5 rounded-md cursor-pointer hover:bg-muted transition-colors"
+                                className="flex items-center justify-between w-full type-tag text-foreground bg-muted/80 border border-border px-2.5 py-1.5 rounded-md cursor-pointer hover:bg-muted transition-colors"
                               >
                                 <span>
                                   {groupName} ({selectedInGroupCount}/{groupCats.length})
@@ -316,7 +316,7 @@ export function ServiceGroupManagement({ initialData }: ServiceGroupManagementPr
                                   {groupCats.map((cat) => (
                                     <label
                                       key={cat.id}
-                                      className="flex items-center gap-3 text-sm font-medium text-foreground/80 cursor-pointer hover:text-primary transition-colors select-none p-3 border rounded-xl bg-background hover:bg-muted/30"
+                                      className="flex items-center gap-3 type-caption text-foreground/80 cursor-pointer hover:text-primary transition-colors select-none p-3 border rounded-xl bg-background hover:bg-muted/30"
                                     >
                                       <input
                                         type="checkbox"
@@ -385,7 +385,7 @@ export function ServiceGroupManagement({ initialData }: ServiceGroupManagementPr
                           name="isFeatured"
                           render={({ field, fieldState }) => (
                             <Field orientation="horizontal" className="justify-between items-center border px-3 py-2 rounded-xl self-end h-11 gap-2">
-                              <FieldLabel className="font-normal text-xs whitespace-nowrap mb-0">Nổi bật</FieldLabel>
+                              <FieldLabel className="type-legal whitespace-nowrap mb-0">Nổi bật</FieldLabel>
                               <Switch checked={field.value} onCheckedChange={field.onChange} />
                               <FieldError errors={[fieldState.error]} />
                             </Field>
@@ -400,8 +400,8 @@ export function ServiceGroupManagement({ initialData }: ServiceGroupManagementPr
               {/* SEO Section */}
               <div className="space-y-6 border p-6 rounded-2xl bg-muted/10">
                 <div className="border-b pb-2">
-                  <h3 className="text-sm font-semibold tracking-tight">Cấu hình SEO</h3>
-                  <p className="text-xs text-muted-foreground">Tối ưu hóa hiển thị trên các công cụ tìm kiếm.</p>
+                  <h3 className="type-label">Cấu hình SEO</h3>
+                  <p className="type-legal text-muted-foreground">Tối ưu hóa hiển thị trên các công cụ tìm kiếm.</p>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <Controller
@@ -409,7 +409,7 @@ export function ServiceGroupManagement({ initialData }: ServiceGroupManagementPr
                     name="metaTitle"
                     render={({ field, fieldState }) => (
                       <Field>
-                        <FieldLabel className="text-xs">Tiêu đề SEO</FieldLabel>
+                        <FieldLabel className="type-legal">Tiêu đề SEO</FieldLabel>
                         <Input {...field} value={field.value || ""} placeholder="Để trống sẽ tự động dùng tên nhóm..." />
                         <FieldError errors={[fieldState.error]} />
                       </Field>
@@ -421,7 +421,7 @@ export function ServiceGroupManagement({ initialData }: ServiceGroupManagementPr
                     name="metaDescription"
                     render={({ field, fieldState }) => (
                       <Field>
-                        <FieldLabel className="text-xs">Mô tả SEO</FieldLabel>
+                        <FieldLabel className="type-legal">Mô tả SEO</FieldLabel>
                         <Textarea {...field} value={field.value || ""} placeholder="Nhập mô tả SEO..." className="min-h-20" />
                         <FieldError errors={[fieldState.error]} />
                       </Field>

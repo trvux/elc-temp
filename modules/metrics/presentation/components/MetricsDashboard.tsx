@@ -15,8 +15,8 @@ export function MetricsDashboard({ snapshot }: { snapshot: MetricsSnapshot }) {
     <div className="flex flex-col gap-8">
       <header className="flex flex-col gap-3">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">Tình trạng hệ thống</h1>
-          <p className="text-sm text-muted-foreground">
+          <h1 className="type-title">Tình trạng hệ thống</h1>
+          <p className="type-body-sm text-muted-foreground">
             Website và máy chủ đang hoạt động ra sao. Trang này chỉ để xem, không thay đổi được gì.
           </p>
         </div>
@@ -29,10 +29,10 @@ export function MetricsDashboard({ snapshot }: { snapshot: MetricsSnapshot }) {
       {snapshot.sections.map((section) => (
         <section key={section.id} aria-labelledby={`section-${section.id}`} className="flex flex-col gap-3">
           <div>
-            <h2 id={`section-${section.id}`} className="text-lg font-semibold">
+            <h2 id={`section-${section.id}`} className="type-heading">
               {section.title}
             </h2>
-            <p className="text-sm text-muted-foreground">{section.description}</p>
+            <p className="type-body-sm text-muted-foreground">{section.description}</p>
           </div>
           <ul role="list" className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
             {section.cards.map((card) => (
@@ -47,15 +47,15 @@ export function MetricsDashboard({ snapshot }: { snapshot: MetricsSnapshot }) {
       <section aria-labelledby="charts-heading" className="flex flex-col gap-3">
         <div className="flex flex-wrap items-end justify-between gap-3">
           <div>
-            <h2 id="charts-heading" className="text-lg font-semibold">
+            <h2 id="charts-heading" className="type-heading">
               Biểu đồ trong {RANGES[snapshot.range].label} qua
             </h2>
-            <p className="text-sm text-muted-foreground">Mỗi biểu đồ có thể xem dạng bảng ở phía dưới.</p>
+            <p className="type-body-sm text-muted-foreground">Mỗi biểu đồ có thể xem dạng bảng ở phía dưới.</p>
           </div>
           <RangeNav current={snapshot.range} />
         </div>
         {snapshot.charts.length === 0 ? (
-          <p className="rounded-lg border bg-card p-4 text-sm">Chưa có đủ số liệu để vẽ biểu đồ trong khoảng thời gian này.</p>
+          <p className="rounded-lg border bg-card p-4 type-body-sm">Chưa có đủ số liệu để vẽ biểu đồ trong khoảng thời gian này.</p>
         ) : (
           <div className="grid gap-4 xl:grid-cols-2">
             {snapshot.charts.map((chart) => (

@@ -13,14 +13,14 @@ interface SeoSnippetPreviewProps {
 export function SeoSnippetPreview({ title, description, url }: SeoSnippetPreviewProps) {
   return (
     <div className="rounded-lg border bg-background p-4 font-sans">
-      <p className="mb-1 text-xs font-medium text-muted-foreground">Xem trước trên Google</p>
-      <div className="flex items-center gap-2 text-sm">
-        <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-muted text-xs font-semibold text-muted-foreground">
+      <p className="mb-1 type-tag text-muted-foreground">Xem trước trên Google</p>
+      <div className="flex items-center gap-2 type-body-sm">
+        <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-muted type-tag text-muted-foreground">
           {SITE_NAME.charAt(0)}
         </div>
         <div className="flex flex-col leading-tight">
           <span className="text-foreground">{SITE_NAME}</span>
-          <span className="text-xs text-muted-foreground truncate max-w-80">{url}</span>
+          <span className="type-legal text-muted-foreground truncate max-w-80">{url}</span>
         </div>
       </div>
       {/* Màu hex tay = đúng màu Google SERP thật (light/dark), cố ý không dùng token app (xem docs/design-system.md §4) */}

@@ -187,12 +187,12 @@ export function SearchAndReplaceToolbar({ className }: SearchAndReplaceToolbarPr
               >
                 <ArrowLeft className="h-4 w-4" />
               </Button>
-              <h2 className="text-sm font-medium">Search and replace</h2>
+              <h2 className="type-caption">Search and replace</h2>
             </div>
 
             <div className="my-2 w-full">
               <div className="mb-3">
-                <Label className="mb-1 text-xs text-muted-foreground">
+                <Label className="mb-1 type-legal text-muted-foreground">
                   Search
                 </Label>
                 <Input
@@ -206,7 +206,7 @@ export function SearchAndReplaceToolbar({ className }: SearchAndReplaceToolbarPr
                 {results?.length}
               </div>
               <div className="mb-2">
-                <Label className="mb-1 text-xs text-muted-foreground">
+                <Label className="mb-1 type-legal text-muted-foreground">
                   Replace with
                 </Label>
                 <Input
@@ -228,7 +228,7 @@ export function SearchAndReplaceToolbar({ className }: SearchAndReplaceToolbarPr
                 />
                 <Label
                   htmlFor="match_case"
-                  className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                  className="type-caption peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
                 >
                   Match case
                 </Label>
@@ -258,7 +258,7 @@ export function SearchAndReplaceToolbar({ className }: SearchAndReplaceToolbarPr
               <div className="main-actions flex items-center gap-2">
                 <Button
                   size="sm"
-                  className="h-7 px-3 text-xs"
+                  className="h-7 px-3 type-legal"
                   variant="secondary"
                   onClick={replaceAll}
                 >
@@ -267,7 +267,7 @@ export function SearchAndReplaceToolbar({ className }: SearchAndReplaceToolbarPr
                 <Button
                   onClick={replace}
                   size="sm"
-                  className="h-7 px-3 text-xs"
+                  className="h-7 px-3 type-legal"
                 >
                   Replace
                 </Button>

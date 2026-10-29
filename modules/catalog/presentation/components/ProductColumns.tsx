@@ -41,7 +41,7 @@ export const getProductColumns = ({
               </AspectRatio>
             </div>
           ) : (
-            <div className="w-10 h-10 shrink-0 bg-muted/50 rounded-md flex items-center justify-center text-muted-foreground/40 text-xs font-bold leading-none text-center px-1 capitalize tracking-tighter">
+            <div className="w-10 h-10 shrink-0 bg-muted/50 rounded-md flex items-center justify-center text-muted-foreground/40 type-tag text-center px-1 capitalize">
               N/A
             </div>
           )}
@@ -51,7 +51,7 @@ export const getProductColumns = ({
               href={url}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-xs text-foreground/75 hover:text-foreground hover:underline font-mono truncate"
+              className="type-mono text-foreground/75 hover:text-foreground hover:underline truncate"
             >
               {url}
             </a>
@@ -92,7 +92,7 @@ export const getProductColumns = ({
       if (!status) return <span className="text-muted-foreground">—</span>;
 
       return (
-        <StockBadge status={status} className="whitespace-nowrap px-2 py-0 h-5 text-xs" />
+        <StockBadge status={status} className="whitespace-nowrap px-2 py-0 h-5 type-legal" />
       );
     },
   },

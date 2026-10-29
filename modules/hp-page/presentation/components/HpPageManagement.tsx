@@ -152,8 +152,8 @@ export function HpPageManagement() {
     <div>
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 mb-8">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">Trang công suất (HP)</h1>
-          <p className="text-sm text-muted-foreground">
+          <h1 className="type-title">Trang công suất (HP)</h1>
+          <p className="type-body-sm text-muted-foreground">
             Trang landing SEO theo mức công suất máy lạnh (VD "Máy lạnh 1HP"), liệt kê sản phẩm trên toàn bộ danh mục.
           </p>
         </div>
@@ -222,7 +222,7 @@ export function HpPageManagement() {
                           <Field>
                             <FieldLabel>Slug / Đường dẫn (Tự động)</FieldLabel>
                             <Input {...field} placeholder="vd: may-lanh-1hp" />
-                            <FieldDescription className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                            <FieldDescription className="flex items-center gap-1.5 type-legal text-muted-foreground">
                               <ArrowSquareOut size={12} />
                               /san-pham/{field.value || "..."}
                             </FieldDescription>
@@ -270,7 +270,7 @@ export function HpPageManagement() {
 
                 <TabsContent value="filter" className="m-0 space-y-8">
                   <div className="max-w-2xl space-y-6">
-                    <FieldDescription className="text-sm">
+                    <FieldDescription className="type-body-sm">
                       3 điều kiện lọc dưới đây kết hợp với nhau (AND) — chọn ít nhất 1. VD "Máy lạnh Daikin" chỉ cần chọn Danh mục (các category máy lạnh) + Thương hiệu (Daikin), không cần thuộc tính.
                     </FieldDescription>
 
@@ -410,10 +410,10 @@ export function HpPageManagement() {
                   <div className="space-y-4">
                     <div className="flex items-center justify-between border-b pb-2">
                       <div>
-                        <h3 className="text-sm font-semibold tracking-tight">Bài viết chi tiết SEO</h3>
-                        <p className="text-xs text-muted-foreground">Nội dung hiển thị ở cuối danh sách sản phẩm.</p>
+                        <h3 className="type-label">Bài viết chi tiết SEO</h3>
+                        <p className="type-legal text-muted-foreground">Nội dung hiển thị ở cuối danh sách sản phẩm.</p>
                       </div>
-                      <span className="text-xs text-muted-foreground uppercase tracking-widest">Tiptap Editor</span>
+                      <span className="type-legal text-muted-foreground uppercase">Tiptap Editor</span>
                     </div>
                     <Controller
                       control={form.control}

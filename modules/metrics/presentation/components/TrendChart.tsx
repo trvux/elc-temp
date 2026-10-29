@@ -53,11 +53,11 @@ export function TrendChart({ chart }: { chart: ChartData }) {
   return (
     <figure className="flex flex-col gap-3 rounded-xl border bg-card p-4" aria-labelledby={headingId}>
       <figcaption>
-        <h3 id={headingId} className="text-base font-semibold">
+        <h3 id={headingId} className="type-body-strong">
           {chart.title}
         </h3>
-        <p className="text-sm text-muted-foreground">{chart.description}</p>
-        <p className="mt-1 text-sm">{summary}</p>
+        <p className="type-body-sm text-muted-foreground">{chart.description}</p>
+        <p className="mt-1 type-body-sm">{summary}</p>
       </figcaption>
 
       <ChartContainer
@@ -77,7 +77,7 @@ export function TrendChart({ chart }: { chart: ChartData }) {
         </LineChart>
       </ChartContainer>
 
-      <details className="text-sm">
+      <details className="type-body-sm">
         <summary className="min-h-11 cursor-pointer rounded-md py-2 font-medium outline-none focus-visible:ring-3 focus-visible:ring-ring/50">Xem số liệu dạng bảng</summary>
         <div className="mt-2 overflow-x-auto">
           <table className="w-full min-w-96 border-collapse text-left">

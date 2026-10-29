@@ -31,7 +31,7 @@ export const getBrandColumns = ({
             className="object-contain p-1"
           />
         ) : (
-          <span className="text-xs text-muted-foreground uppercase font-bold tracking-tighter text-center">No Logo</span>
+          <span className="type-tag text-muted-foreground uppercase text-center">No Logo</span>
         )}
       </div>
     ),
@@ -41,13 +41,13 @@ export const getBrandColumns = ({
     header: "Tên thương hiệu",
     cell: ({ row }) => (
       <div className="flex flex-col gap-0.5">
-        <span className="font-semibold text-sm text-foreground">{row.original.name}</span>
+        <span className="type-label text-foreground">{row.original.name}</span>
         {row.original.slug && (
           <a
             href={`/san-pham/all/${row.original.slug}`}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-xs text-foreground/75 hover:text-foreground hover:underline flex items-center gap-1 w-fit"
+            className="type-legal text-foreground/75 hover:text-foreground hover:underline flex items-center gap-1 w-fit"
           >
             /{row.original.slug}
             <ArrowSquareOut size={11} />

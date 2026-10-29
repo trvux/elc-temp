@@ -221,7 +221,7 @@ export function DeleteDialog({
         <AlertDialogHeader>
           <AlertDialogTitle>{title}</AlertDialogTitle>
           <AlertDialogDescription asChild>
-            <div className="space-y-3 text-sm text-muted-foreground">
+            <div className="space-y-3 type-body-sm text-muted-foreground">
               {description ? (
                 description
               ) : (
@@ -234,10 +234,10 @@ export function DeleteDialog({
                     if (section.items.length === 0) return null;
                     return (
                       <div key={idx} className="space-y-1">
-                        <p className="font-semibold text-sm text-foreground">
+                        <p className="type-label text-foreground">
                           {section.title} (tổng cộng {section.items.length}):
                         </p>
-                        <ul className="list-disc pl-5 space-y-1 text-xs max-h-30 overflow-y-auto">
+                        <ul className="list-disc pl-5 space-y-1 type-legal max-h-30 overflow-y-auto">
                           {section.items.map((item) => (
                             <li key={item.id}>{item.name}</li>
                           ))}
@@ -246,7 +246,7 @@ export function DeleteDialog({
                     );
                   })}
                   {computedWarningText && (
-                    <p className="text-xs pt-1 font-medium text-muted-foreground">
+                    <p className="type-tag pt-1 text-muted-foreground">
                       {computedWarningText}
                     </p>
                   )}

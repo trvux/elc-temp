@@ -166,7 +166,7 @@ export function TiptapContentVariableNodeView({ node, updateAttributes, deleteNo
           <button
             type="button"
             className={cn(
-              "inline-flex items-center gap-1.5 rounded-full border px-2 py-0.5 text-sm font-medium align-baseline",
+              "inline-flex items-center gap-1.5 rounded-full border px-2 py-0.5 type-caption align-baseline",
               "bg-primary/10 border-primary/30 text-primary hover:bg-primary/15",
               selected && "ring-2 ring-primary/40",
             )}
@@ -177,14 +177,14 @@ export function TiptapContentVariableNodeView({ node, updateAttributes, deleteNo
         </PopoverTrigger>
         <PopoverContent className="w-80 space-y-3" align="start">
           <div className="flex items-center justify-between">
-            <p className="text-sm font-medium">Biến động (số liệu sống)</p>
+            <p className="type-caption">Biến động (số liệu sống)</p>
             <Button type="button" variant="ghost" size="icon" className="size-6" onClick={() => setOpen(false)}>
               <X className="size-3.5" />
             </Button>
           </div>
 
           <div className="space-y-1.5">
-            <p className="text-xs text-muted-foreground">Số liệu</p>
+            <p className="type-legal text-muted-foreground">Số liệu</p>
             <Select value={metric} onValueChange={(v) => setAttrs({ metric: v as ContentVariableMetric })}>
               <SelectTrigger className="w-full">
                 <SelectValue />
@@ -200,7 +200,7 @@ export function TiptapContentVariableNodeView({ node, updateAttributes, deleteNo
           </div>
 
           <div className="space-y-1.5">
-            <p className="text-xs text-muted-foreground">Phạm vi</p>
+            <p className="type-legal text-muted-foreground">Phạm vi</p>
             <Select
               value={scopeType}
               onValueChange={(v) =>
@@ -220,7 +220,7 @@ export function TiptapContentVariableNodeView({ node, updateAttributes, deleteNo
           </div>
 
           <div className="space-y-1.5">
-            <p className="text-xs text-muted-foreground">
+            <p className="type-legal text-muted-foreground">
               {scopeType === "group" ? "Nhóm" : "Danh mục"}
             </p>
             <Select
@@ -241,7 +241,7 @@ export function TiptapContentVariableNodeView({ node, updateAttributes, deleteNo
           </div>
 
           <div className="space-y-1.5">
-            <p className="text-xs text-muted-foreground">Thương hiệu (không bắt buộc)</p>
+            <p className="type-legal text-muted-foreground">Thương hiệu (không bắt buộc)</p>
             <Select value={brandSlug || NO_BRAND} onValueChange={(v) => setAttrs({ brandSlug: v === NO_BRAND ? "" : v })}>
               <SelectTrigger className="w-full">
                 <SelectValue placeholder="Tất cả thương hiệu">{brandLabel ?? "Tất cả thương hiệu"}</SelectValue>
@@ -259,7 +259,7 @@ export function TiptapContentVariableNodeView({ node, updateAttributes, deleteNo
 
           {metric === "count" && (
             <div className="space-y-1.5 border-t pt-3">
-              <p className="text-xs text-muted-foreground">Lọc thêm theo thuộc tính (không bắt buộc)</p>
+              <p className="type-legal text-muted-foreground">Lọc thêm theo thuộc tính (không bắt buộc)</p>
               <Select
                 value={attributeCode || NO_ATTRIBUTE}
                 onValueChange={(v) => setAttrs({ attributeCode: v === NO_ATTRIBUTE ? "" : v, attributeValue: "" })}
@@ -294,7 +294,7 @@ export function TiptapContentVariableNodeView({ node, updateAttributes, deleteNo
             </div>
           )}
 
-          <p className="text-xs text-muted-foreground">
+          <p className="type-legal text-muted-foreground">
             {loadingPreview ? "Đang tính số liệu..." : fallbackText ? `Hiện tại: ${fallbackText}` : "Chưa có số liệu"}
           </p>
 
