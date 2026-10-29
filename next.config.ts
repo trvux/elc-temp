@@ -62,6 +62,17 @@ const nextConfig: NextConfig = {
     //   python3 scripts/nginx-live/redirects.py deploy/nginx/elc-live.conf.json <gsc pages_all.csv> deploy/nginx/elc-redirects.conf
     // then scp it to the VPS and run deploy/nginx/install.sh (see docs/rfc-crawl-budget-410-allowlist.md).
     return [
+      // English trust-anchor aliases that AI agents / is-agentic probe for
+      // (/about, /contact, /privacy). Point at the real Vietnamese pages rather
+      // than duplicating them. Also in nginx's map (AGENT_ALIASES in
+      // scripts/nginx-live/redirects.py).
+      { source: "/about", destination: "/gioi-thieu-ve-dien-may-elc", permanent: true },
+      { source: "/contact", destination: "/thong-tin", permanent: true },
+      {
+        source: "/privacy",
+        destination: "/chinh-sach-thu-thap-va-xu-ly-du-lieu-ca-nhan",
+        permanent: true,
+      },
       // 2026-10-10: "thanh lý" and "thu cũ đổi mới" are one intent (both empty
       // template pages) - merged into the trade-in page. Also in nginx's static
       // map (scripts/nginx-live/redirects.py).

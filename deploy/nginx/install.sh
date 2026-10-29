@@ -69,6 +69,17 @@ if "default_server" not in s:
         "\n# Catch-all: unknown Host/SNI never reaches Next\n"
         "server {\n    listen 80 default_server;\n    listen [::]:80 default_server;\n    server_name _;\n    return 444;\n}\n"
         "server {\n    listen 443 ssl default_server;\n    listen [::]:443 ssl default_server;\n    server_name _;\n    ssl_reject_handshake on;\n}\n")
+# Markdown 410 for agents (Accept: text/markdown): rewrite dead paths to Next's DB-free /agent-md/gone,
+# and mark the bare nginx 410s as varying on Accept. Needs $elc_gone_md from elc-normalize.conf and the
+# /agent-md/gone route deployed in the app BEFORE this runs.
+if "elc_gone_md" not in s:
+    s = s.replace("        if ($elc_redir) { return 308 $elc_redir; }\n",
+        "        if ($elc_redir) { return 308 $elc_redir; }\n"
+        "        # Agents asking for Markdown get a Markdown 410 body from Next (no DB), not nginx's HTML one\n"
+        "        if ($elc_gone_md) { rewrite ^ /agent-md/gone break; }\n", 1)
+if 'Vary "Accept"' not in s:
+    s = s.replace('add_header Cache-Control "no-store" always; return 410;',
+                  'add_header Cache-Control "no-store" always; add_header Vary "Accept" always; return 410;')
 open(p, "w").write(s)
 PY
 
@@ -89,6 +100,9 @@ if nginx -t 2>&1 | tail -1 | grep -q successful; then
   code=$(curl -sk -o /dev/null -w '%{http_code}' --resolve dienmayelc.com.vn:443:127.0.0.1 https://dienmayelc.com.vn/ || true)
   if [ "$code" != "200" ]; then echo "health check failed ($code), rolling back"; rollback; exit 1; fi
   echo "RELOADED (health $code). backup: $BK"
+  # Markdown 410 needs the app's /agent-md/gone route; warn (don't roll back) if it is not live yet.
+  gone=$(curl -sk -o /dev/null -w '%{http_code} %{content_type}' -H 'Accept: text/markdown' --resolve dienmayelc.com.vn:443:127.0.0.1 https://dienmayelc.com.vn/__elc-md-probe || true)
+  case "$gone" in "410 text/markdown"*) echo "markdown 410 OK ($gone)";; *) echo "WARNING: markdown 410 probe returned '$gone' - deploy the app (app/agent-md/gone) first";; esac
 else
   echo "nginx -t FAILED, restoring"
   cp -a "$BK/site.orig" "$SITE"

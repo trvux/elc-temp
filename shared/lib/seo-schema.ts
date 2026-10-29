@@ -3,6 +3,11 @@ import { primaryImageUrl } from "./image-asset";
 
 export const BASE_URL = process.env.NEXT_PUBLIC_APP_URL || "https://dienmayelc.com.vn";
 
+// One description reused by Organization JSON-LD, llms.txt and the Markdown
+// homepage so every machine-readable surface describes the business the same way.
+export const ORGANIZATION_DESCRIPTION =
+  "Điện máy ELC (Công ty cổ phần giải pháp công nghệ TMDV ELC) cung cấp và thi công máy lạnh Daikin, LG, hệ thống cấp khí tươi thu hồi nhiệt Menred và máy lọc nước chính hãng tại TP.HCM và toàn quốc, kèm dịch vụ lắp đặt, sửa chữa, bảo trì, vệ sinh máy lạnh.";
+
 // sameAs is pure entity disambiguation ("this Brand named X is the same
 // entity as the one described at this URL") — NOT an authorized-dealer or
 // distributor claim, schema.org has no property for that. Each URL is the
@@ -264,6 +269,7 @@ export const SEOSchema = {
       "@id": `${BASE_URL}/#organization`,
       "name": "Công ty cổ phần giải pháp công nghệ TMDV ELC",
       "alternateName": "Điện máy ELC",
+      "description": ORGANIZATION_DESCRIPTION,
       "url": BASE_URL,
       "logo": {
         "@type": "ImageObject",

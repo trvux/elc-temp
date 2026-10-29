@@ -11,6 +11,7 @@ import { getPagesAction } from "@/modules/page/presentation/actions";
 import { getProjectsAction } from "@/modules/project/presentation/actions";
 import { getProjectTypesAction } from "@/modules/project-type/presentation/actions";
 import { getNewsAction } from "@/modules/news/presentation/actions";
+import { buildLlmsIntro, TRUST_PAGES } from "@/shared/lib/agent-markdown/render";
 import { BASE_URL } from "@/shared/lib/seo-schema";
 
 export async function GET(request: Request) {
@@ -48,9 +49,7 @@ export async function GET(request: Request) {
   const contacts = allContacts.filter((c) => c.isActive);
   const pages = allPages.filter((p) => p.isPublished);
 
-  let markdown = `# Dien may ELC - Sitemap for LLMs & AI Search Bot\n\n`;
-  markdown += `Dien may ELC (Cong ty Co phan Giai phap Cong nghe TMDV ELC) specializes in supplying and installing genuine air conditioning systems, VRV/VRF central air conditioning, fresh air ventilation systems, and water purifiers in Ho Chi Minh City and nationwide.\n\n`;
-  markdown += `For a comprehensive directory including detailed product specifications, pricing, stock statuses, and descriptions, see the [Full Specification](${BASE_URL}/llms-full.txt).\n\n`;
+  let markdown = buildLlmsIntro();
 
   // Contact Information Section
   markdown += `## Contact & Branch Information\n\n`;
@@ -78,7 +77,7 @@ export async function GET(request: Request) {
   markdown += `- [Services](${BASE_URL}/dich-vu): Professional installation, maintenance, and repair services.\n`;
   markdown += `- [Projects](${BASE_URL}/du-an): Portfolio of ELC air conditioning & HVAC projects.\n`;
   markdown += `- [News](${BASE_URL}/tin-tuc): Technical guides and news.\n`;
-  markdown += `- [About Us](${BASE_URL}/gioi-thieu-ve-dien-may-elc): Contact and company overview.\n\n`;
+  markdown += `- [About Us](${TRUST_PAGES.about}): Company overview. Also [Contact](${TRUST_PAGES.contact}) and [Privacy](${TRUST_PAGES.privacy}).\n\n`;
 
   // Categories, Groups, and Brands
   markdown += `## Product Categories & Brands\n\n`;
