@@ -1,5 +1,31 @@
 import { clsx, type ClassValue } from "clsx"
-import { twMerge } from "tailwind-merge"
+import { extendTailwindMerge } from "tailwind-merge"
+
+// Vai trò chữ trong app/globals.css (`@utility type-*`). Mỗi `type-*` đã mang
+// cỡ + weight + line-height + tracking, nên nó xung đột hai chiều với
+// text-<size>, font-<weight>, leading-*, tracking-*: cái đứng sau thắng.
+// Khi thêm `@utility type-*` mới phải thêm tên vào đây (test sẽ bắt thiếu).
+export const TYPE_ROLES = [
+  "display", "headline", "title", "heading", "subhead",
+  "body", "body-strong", "body-sm", "callout",
+  "caption", "label", "tag", "legal",
+  "price", "price-lg", "mono",
+] as const
+
+const twMerge = extendTailwindMerge<"type">({
+  extend: {
+    classGroups: {
+      type: [{ type: [...TYPE_ROLES] }],
+    },
+    conflictingClassGroups: {
+      type: ["font-size", "font-weight", "leading", "tracking"],
+      "font-size": ["type"],
+      "font-weight": ["type"],
+      leading: ["type"],
+      tracking: ["type"],
+    },
+  },
+})
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))

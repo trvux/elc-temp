@@ -4,17 +4,12 @@
 @import "./typeset.css";
 
 .typeset-docs {
-  /* Heading uses the same sans (Inter) as body, not --font-heading
-     (Merriweather) — measured against Linear's own blog for comparison
-     (2026-09-24): Linear renders h1/h2/body all in one Inter family, which
-     reads as one cohesive voice. Mixing in a serif for headings only
-     created a visible seam between title and body that Linear's uniform
-     type doesn't have. --font-geist-mono is the one font loaded
-     specifically for typeset's code blocks (the site's own --font-mono is
-     JetBrains Mono). */
+  /* Heading uses the same sans (Inter) as body, not a serif: one uniform
+     family reads as one voice, and a serif for headings only created a visible
+     seam between title and body. Code blocks use --font-mono (Geist Mono). */
   --typeset-font-body: var(--font-sans);
   --typeset-font-heading: var(--font-sans);
-  --typeset-font-mono: var(--font-geist-mono);
+  --typeset-font-mono: var(--font-mono);
   --typeset-size: var(--text-base);
   --typeset-leading: 1.6;
   --typeset-flow: 1.25em;
@@ -478,6 +473,172 @@
 [data-slot=sidebar][data-mobile=true] {
   top: var(--header-height, 64px) !important;
   height: calc(100dvh - var(--header-height, 64px)) !important;
+}
+
+/* ---- Type scale (nguồn: elc-v2/app/globals.css, giữ hai file đồng bộ) -----------------------------------------------------------
+   Tên theo VAI TRÒ, không theo component. Chỉ mang hình dạng chữ (cỡ, weight,
+   line-height, tracking); tag HTML do chỗ dùng quyết định.
+   Không đặt màu hay margin ở đây. Không kết hợp với text-<size>, font-<weight>,
+   leading-*, tracking-* trên cùng phần tử.
+   Display/subhead/callout lấy số đo từ apple.com (xem tile-* ở trên); breakpoint
+   theo Tailwind (md = 48rem, lg = 64rem) thay vì 735/1069px của Apple. */
+@utility type-display {
+  font-size: 2rem;
+  line-height: 1.125;
+  font-weight: 600;
+  letter-spacing: -0.005em;
+  text-wrap: balance;
+  @media (width >= theme(--breakpoint-md)) {
+    font-size: 3rem;
+    line-height: 1.0833;
+  }
+  @media (width >= theme(--breakpoint-lg)) {
+    font-size: 3.5rem;
+    line-height: 1.0714;
+  }
+}
+
+@utility type-headline {
+  font-size: 1.75rem;
+  line-height: 1.1429;
+  font-weight: 600;
+  letter-spacing: -0.005em;
+  text-wrap: balance;
+  @media (width >= theme(--breakpoint-md)) {
+    font-size: 2.5rem;
+    line-height: 1.1;
+  }
+}
+
+@utility type-title {
+  font-size: 1.5rem;
+  line-height: 1.25;
+  font-weight: 600;
+  letter-spacing: -0.003em;
+  text-wrap: balance;
+  @media (width >= theme(--breakpoint-md)) {
+    font-size: 2rem;
+    line-height: 1.125;
+  }
+}
+
+@utility type-heading {
+  font-size: 1.3125rem;
+  line-height: 1.2857;
+  font-weight: 600;
+  letter-spacing: 0.001em;
+  @media (width >= theme(--breakpoint-md)) {
+    font-size: 1.5rem;
+    line-height: 1.25;
+  }
+}
+
+@utility type-subhead {
+  font-size: 1.3125rem;
+  line-height: 1.1429;
+  font-weight: 400;
+  letter-spacing: 0.007em;
+  @media (width >= theme(--breakpoint-md)) {
+    font-size: 1.75rem;
+  }
+}
+
+/* Body để thoáng (1.6) vì tiếng Việt có dấu cần chỗ cho dấu, không chặt như Apple. */
+@utility type-body {
+  font-size: 1rem;
+  line-height: 1.6;
+  font-weight: 400;
+  @media (width >= theme(--breakpoint-md)) {
+    font-size: 1.0625rem;
+  }
+}
+
+@utility type-callout {
+  font-size: 1.0625rem;
+  line-height: 1.2105;
+  font-weight: 400;
+  letter-spacing: 0.012em;
+  @media (width >= theme(--breakpoint-md)) {
+    font-size: 1.1875rem;
+  }
+}
+
+@utility type-caption {
+  font-size: 0.875rem;
+  line-height: 1.4286;
+  font-weight: 500;
+}
+
+@utility type-price {
+  font-size: 1.125rem;
+  line-height: 1.3;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  @media (width >= theme(--breakpoint-md)) {
+    font-size: 1.25rem;
+  }
+}
+
+@utility type-price-lg {
+  font-size: 1.75rem;
+  line-height: 1.15;
+  font-weight: 600;
+  letter-spacing: -0.005em;
+  font-variant-numeric: tabular-nums;
+  @media (width >= theme(--breakpoint-md)) {
+    font-size: 2.5rem;
+    line-height: 1.1;
+  }
+}
+
+@utility type-legal {
+  font-size: 0.75rem;
+  line-height: 1.5;
+  font-weight: 400;
+}
+
+/* ---- Mở rộng thang cho chữ nhỏ (đo từ elc-temp: 632/750 chỗ là 12px và 14px) ----
+   Công thức giữ nguyên của thang trên: weight chỉ có 400/500/600; chữ <= 14px
+   dùng line-height 1.4286-1.5 (đủ chỗ cho dấu tiếng Việt), không responsive
+   (giống caption/legal); chữ 16px dùng body 1.6. Lưới còn thiếu:
+
+            400 thường      500           600 đậm
+     16px   type-body       -             type-body-strong
+     14px   type-body-sm    type-caption  type-label
+     12px   type-legal      -             type-tag                          */
+@utility type-body-strong {
+  font-size: 1rem;
+  line-height: 1.6;
+  font-weight: 600;
+  @media (width >= theme(--breakpoint-md)) {
+    font-size: 1.0625rem;
+  }
+}
+
+@utility type-body-sm {
+  font-size: 0.875rem;
+  line-height: 1.5;
+  font-weight: 400;
+}
+
+@utility type-label {
+  font-size: 0.875rem;
+  line-height: 1.4286;
+  font-weight: 600;
+}
+
+@utility type-tag {
+  font-size: 0.75rem;
+  line-height: 1.5;
+  font-weight: 600;
+}
+
+@utility type-mono {
+  font-family: var(--font-mono);
+  font-size: 0.875rem;
+  line-height: 1.5;
+  font-weight: 400;
+  font-variant-numeric: tabular-nums;
 }
 
 /* Header flyout items (see header/desktop-menu.tsx). Timings follow

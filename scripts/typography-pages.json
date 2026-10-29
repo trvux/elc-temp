@@ -1,0 +1,22 @@
+{
+  "viewports": [375, 768, 1280],
+  "pages": [
+    "/",
+    "/san-pham",
+    "/san-pham/may-lanh",
+    "/san-pham/daikin",
+    "/dich-vu",
+    "/dich-vu/ve-sinh-bao-tri-cac-dong-may-lanh",
+    "/du-an",
+    "/du-an/biet-thu",
+    "/tin-tuc",
+    "/thong-tin",
+    "/thong-tin/van-phong",
+    "/gioi-thieu-ve-dien-may-elc",
+    "/chinh-sach-bao-hanh-san-pham",
+    "/yeu-thich",
+    "/form",
+    "/__probe-404"
+  ],
+  "_notes": "Product, project and news DETAIL pages are added by the slice that migrates them (their slugs depend on the DB). Keep this list identical between 'before' and 'after' snapshots."
+}
