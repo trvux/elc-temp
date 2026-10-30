@@ -88,7 +88,6 @@ Tầng `platform` cung cấp các dịch vụ dùng chung cho toàn bộ hệ th
 - `cmd/generate-image-crops`: Script tự động tạo các bản crop ảnh theo chuẩn giao diện.
 - `cmd/migrate-images`: Script chuyển đổi và lưu trữ tài nguyên hình ảnh lên S3.
 - `cmd/migrate-specs-to-attributes`: Script chuyển đổi dữ liệu thông số kỹ thuật cũ sang hệ thống thuộc tính linh hoạt (Attribute Definitions).
-- `cmd/train-chat-classifier`: Script huấn luyện bộ phân loại ý định tìm kiếm bài viết / sản phẩm cho trợ lý AI chat.
 
 ---
 

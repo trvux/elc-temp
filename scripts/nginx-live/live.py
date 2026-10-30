@@ -30,7 +30,7 @@ INFRA = [
     '"/robots.txt" 1;', '"/favicon.ico" 1;', '"/icon.svg" 1;', '"/apple-icon.svg" 1;',
     '"/llms.txt" 1;', '"/llms-full.txt" 1;', '"/sitemap.xml" 1;',
     '"~^/sitemap/(categories|pages|posts|products)\\.xml$" 1;',
-    '"~^/zalo_verifier" 1;', '"~^/[0-9a-f]{32}\\.txt$" 1;',
+    '"~^/[0-9a-f]{32}\\.txt$" 1;',
 ]
 MIN_URLS, MIN_RATIO = 300, 0.85
 
