@@ -11,7 +11,6 @@ import { AdminDialog } from "@/shared/components/organisms/layout/admin/admin-di
 import { DeleteDialog } from "@/shared/components/organisms/layout/admin/delete-dialog";
 import { Button } from "@/shared/components/ui/button";
 import { SeoSnippetPreview } from "@/shared/components/organisms/layout/admin/seo-snippet-preview";
-import { TagMultiSelect } from "@/shared/components/ui/tag-multi-select";
 import {
   Card,
   CardContent,
@@ -273,7 +272,6 @@ export function ProjectManagement() {
             metaTitle: p.metaTitle || "",
             metaDescription: p.metaDescription || "",
             orderIndex: p.orderIndex,
-            tagIds: (p.tags || []).map((t) => t.id),
             clientName: p.clientName || "",
             location: p.location || "",
             completedAt: p.completedAt ? p.completedAt.slice(0, 10) : "",
@@ -303,7 +301,6 @@ export function ProjectManagement() {
       metaTitle: "",
       metaDescription: "",
       orderIndex: 0,
-      tagIds: [],
       clientName: "",
       location: "",
       completedAt: "",
@@ -703,20 +700,6 @@ export function ProjectManagement() {
                       />
                     </div>
                   </div>
-
-                  <Controller
-                    control={form.control}
-                    name="tagIds"
-                    render={({ field }) => (
-                      <Field>
-                        <FieldLabel>Thẻ (Tags)</FieldLabel>
-                        <TagMultiSelect value={field.value || []} onChange={field.onChange} />
-                        <FieldDescription>
-                          Dùng để liên kết dự án với sản phẩm/tin tức cùng chủ đề.
-                        </FieldDescription>
-                      </Field>
-                    )}
-                  />
 
                   {/* Portfolio / Case-study Section */}
                   <div className="space-y-6 border p-6 rounded-2xl bg-muted/10">

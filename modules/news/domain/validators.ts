@@ -29,7 +29,6 @@ export const newsSchema = z.object({
     metaTitle: z.string().max(70, { message: "Tiêu đề SEO không nên quá 70 ký tự" }).nullable().optional(),
     metaDescription: z.string().max(160, { message: "Mô tả SEO không nên quá 160 ký tự" }).nullable().optional(),
     orderIndex: z.number().int().default(0),
-    tagIds: z.array(z.string()).optional(),
     createdAt: z.iso.datetime({
         message: "Thời gian tạo không đúng định dạng ISO",
     }),

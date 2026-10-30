@@ -14,7 +14,6 @@ const product = {
   images: [{ url: "https://img/1.webp" }],
   displayStockStatus: "in_stock",
   variants: [{ id: "v1", sku: "SKU1" }],
-  tags: [{ id: "t1", name: "Hot", slug: "hot" }],
   brand: { id: "b1", name: "Daikin", slug: "daikin", content: big, warrantyPolicy: "long", logoUrl: "" },
   category: { id: "c1", name: "Máy lạnh", slug: "may-lanh", metaTitle: "m", metaDescription: "n" },
 } as unknown as ProductWithRelations;
@@ -30,7 +29,6 @@ describe("slimProductForCard", () => {
     expect(slim.name).toBe(product.name);
     expect(slim.images).toEqual(product.images);
     expect(slim.variants).toEqual(product.variants);
-    expect(slim.tags).toEqual(product.tags);
   });
 
   it("shrinks the serialized payload", () => {

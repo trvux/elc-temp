@@ -9,10 +9,7 @@ import { Input } from "@/shared/components/ui/input";
 // Free-text chip list editor (type a value, press Enter or click + to add,
 // click the x on a chip to remove) — for a freeform set of strings where
 // there's no fixed list to select from (e.g. option values like "Đỏ"/"Đen",
-// or product-line MPN prefixes like "FTF"/"FTC"). Distinct from
-// TagMultiSelect (shared/components/ui/tag-multi-select.tsx), which picks
-// from an existing fixed entity list (the `tags` module) rather than
-// accepting arbitrary typed values.
+// or product-line MPN prefixes like "FTF"/"FTC").
 export function TagInput({
   values,
   onChange,

@@ -145,7 +145,6 @@ interface GoProductResponse {
   deleted_at: string | null;
   category: GoCategoryRef | null;
   brand: GoBrandRef | null;
-  tags: { id: string; name: string; slug: string }[] | null;
   options: GoProductOption[] | null;
   variants: GoProductVariant[] | null;
   attribute_values: GoAttributeValue[] | null;
@@ -365,7 +364,6 @@ function mapGoProduct(row: GoProductResponse): ProductWithRelations {
           deletedAt: null,
         }
       : null,
-    tags: row.tags ?? [],
   };
 }
 

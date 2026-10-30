@@ -28,9 +28,8 @@ interface AttributeValueMultiSelectProps {
   disabled?: boolean;
 }
 
-// Same Popover+Command multi-select shape as shared/components/ui/tag-multi-select.tsx,
-// generalized to a plain string value list (this attribute's own `options`,
-// e.g. phan_khuc_hp's "1 HP".."10 HP") instead of a hardcoded tags endpoint —
+// Popover+Command multi-select over a plain string value list (this
+// attribute's own `options`, e.g. phan_khuc_hp's "1 HP".."10 HP") —
 // value IS the label here, no separate id.
 export function AttributeValueMultiSelect({
   options,

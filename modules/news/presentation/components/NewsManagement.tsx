@@ -37,7 +37,6 @@ import {
   getNewsAction,
 } from "../actions";
 import { getCategoriesAction } from "@/modules/category/presentation/actions";
-import { TagMultiSelect } from "@/shared/components/ui/tag-multi-select";
 import { getNewsColumns } from "./NewsColumns";
 import { useNewsForm } from "../hooks/useNewsForm";
 import { convertToWebP } from "@/shared/lib/image";
@@ -126,7 +125,6 @@ export function NewsManagement() {
             metaTitle: n.metaTitle || "",
             metaDescription: n.metaDescription || "",
             orderIndex: n.orderIndex,
-            tagIds: (n.tags || []).map((t) => t.id),
           });
           setIsDialogOpen(true);
         },
@@ -149,7 +147,6 @@ export function NewsManagement() {
       metaTitle: "",
       metaDescription: "",
       orderIndex: 0,
-      tagIds: [],
     });
     setIsDialogOpen(true);
   }
@@ -328,20 +325,6 @@ export function NewsManagement() {
                               ))}
                             </SelectContent>
                           </Select>
-                        </Field>
-                      )}
-                    />
-
-                    <Controller
-                      control={form.control}
-                      name="tagIds"
-                      render={({ field }) => (
-                        <Field>
-                          <FieldLabel>Thẻ (Tags)</FieldLabel>
-                          <TagMultiSelect value={field.value || []} onChange={field.onChange} />
-                          <FieldDescription>
-                            Dùng để liên kết bài viết với sản phẩm/dự án cùng chủ đề.
-                          </FieldDescription>
                         </Field>
                       )}
                     />

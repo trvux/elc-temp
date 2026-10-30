@@ -60,7 +60,6 @@ export interface ProjectWithCategory extends Project {
     group?: { id: string; name: string } | null;
     condition: "new" | "used";
   }[];
-  tags?: { id: string; name: string; slug: string }[];
 }
 
 export interface CreateProjectInput {
@@ -77,7 +76,6 @@ export interface CreateProjectInput {
   projectTypeId?: string | null;
   serviceIds?: string[];
   categories?: { id: string; condition: "new" | "used" }[];
-  tagIds?: string[];
   clientName?: string;
   location?: string;
   completedAt?: string | null;

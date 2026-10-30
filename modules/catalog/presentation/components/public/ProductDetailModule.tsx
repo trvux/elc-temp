@@ -18,7 +18,6 @@ import { RecentlyViewedSection } from "@/shared/components/organisms/layout/user
 import { ScrollToTop } from "@/shared/components/organisms/layout/user/scroll-to-top";
 import { TrackProductView } from "@/shared/components/organisms/layout/user/track-product-view";
 import { InView } from "@/shared/components/molecules/motion-primitives/in-view";
-import { Badge } from "@/shared/components/ui/badge";
 import { CheckCircle } from "@phosphor-icons/react/dist/ssr";
 import { primaryImageUrl } from "@/shared/lib/image-asset";
 import { AVAILABILITY_SCHEMA, BASE_URL, BRAND_SAME_AS, SEOSchema, toJsonLdHtml } from "@/shared/lib/seo-schema";
@@ -193,14 +192,6 @@ export async function ProductDetailModule({
             />
 
             <div className="flex flex-col gap-4">
-              {product.tags && product.tags.length > 0 && (
-                <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
-                  {product.tags.map((tag) => (
-                    <Badge key={tag.id} variant="outline">{tag.name}</Badge>
-                  ))}
-                </div>
-              )}
-
               <h1
                 className={cn(
                   "type-headline w-full wrap-break-word",

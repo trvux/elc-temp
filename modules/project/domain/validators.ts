@@ -41,7 +41,6 @@ export const projectSchema = z.object({
       })
     )
     .optional(),
-  tagIds: z.array(z.string()).optional(),
   clientName: z.string().max(150, { message: "Tên khách hàng không nên quá 150 ký tự" }).optional(),
   location: z.string().max(200, { message: "Địa điểm không nên quá 200 ký tự" }).optional(),
   completedAt: z.string().nullable().optional(),

@@ -5,7 +5,6 @@ import {
   toLegacyStockStatusForBadge,
 } from "@/modules/catalog/domain";
 import { FormattedPrice } from "@/modules/catalog/presentation/components/FormattedPrice";
-import { Badge } from "@/shared/components/ui/badge";
 import {
   Card,
   CardContent,
@@ -39,7 +38,6 @@ export function ProductCard({
   // see elc-go/docs/product-v2-design.md) is always populated.
   const currentPrice = resolveProductDisplayPrice(product);
   const imageUrl = primaryImageUrl(product.images);
-  const primaryTag = product.tags?.[0];
 
   return (
     <Card className="relative mx-auto w-full h-full max-w-sm pt-0 gap-0 overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-lg">
@@ -71,9 +69,6 @@ export function ProductCard({
               instead of its own full-width bar below the image — "còn hàng"
               is the expected default on most cards, it doesn't need a whole
               row to itself. */}
-          <div className="absolute top-2 left-2 z-10 flex flex-col items-start gap-1">
-            {primaryTag && <Badge variant="secondary">{primaryTag.name}</Badge>}
-          </div>
           <div className="absolute top-2 right-2 z-10">
             <StockBadge status={toLegacyStockStatusForBadge(product.displayStockStatus)} />
           </div>

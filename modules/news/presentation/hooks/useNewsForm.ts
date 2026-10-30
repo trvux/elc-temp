@@ -34,7 +34,6 @@ export type NewsFormValues = {
   metaTitle: string;
   metaDescription: string;
   orderIndex: number;
-  tagIds: string[];
 };
 
 export function useNewsForm(
@@ -58,7 +57,6 @@ export function useNewsForm(
       metaTitle: "",
       metaDescription: "",
       orderIndex: 0,
-      tagIds: (editingNews?.tags || []).map((t) => t.id),
     },
   });
 

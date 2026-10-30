@@ -160,7 +160,6 @@ export interface ProductWithRelations extends Product {
         metaDescription?: string | null;
     } | null;
     brand?: Brand | null;
-    tags?: { id: string; name: string; slug: string }[];
     options?: ProductOption[];
     variants?: ProductVariant[];
     // Only ever populated on single-product reads (GetByID/GetBySlug) — see
@@ -225,7 +224,6 @@ export interface CreateProductInput {
     orderIndex?: number;
     categoryId: string;
     brandId: string;
-    tagIds?: string[];
     productLineId?: string | null;
     highlights?: string[] | null;
     options?: ProductOptionInput[];

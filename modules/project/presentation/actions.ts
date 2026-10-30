@@ -73,7 +73,6 @@ interface GoProjectResponse {
   project_type: GoRefResponse | null;
   categories: GoProjectCategoryResponse[] | null;
   services: GoProjectServiceResponse[] | null;
-  tags: { id: string; name: string; slug: string }[] | null;
 }
 
 interface GoErrorResponse {
@@ -149,7 +148,6 @@ function mapGoProject(row: GoProjectResponse): ProjectWithCategory {
       group: c.group ? { id: c.group.id, name: c.group.name } : null,
       condition: c.condition,
     })),
-    tags: row.tags ?? [],
   };
 }
 

@@ -4,7 +4,6 @@ import { useState } from "react";
 import { Controller, UseFormReturn } from "react-hook-form";
 import { Field, FieldDescription, FieldError, FieldGroup, FieldLabel } from "@/shared/components/ui/field";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/shared/components/ui/select";
-import { TagMultiSelect } from "@/shared/components/ui/tag-multi-select";
 import { Brand } from "@/modules/catalog/domain";
 import { Group } from "@/modules/group/domain/types";
 import { CategoryWithGroup } from "@/modules/category/domain/types";
@@ -165,17 +164,6 @@ export function ProductOrganizationCard({
         />
         <FieldDescription>Quản lý ở trang &quot;Dòng sản phẩm&quot; trong sidebar.</FieldDescription>
       </Field>
-
-      <Controller
-        control={form.control}
-        name="tagIds"
-        render={({ field }) => (
-          <Field>
-            <FieldLabel>Thẻ (Tags)</FieldLabel>
-            <TagMultiSelect value={field.value || []} onChange={field.onChange} />
-          </Field>
-        )}
-      />
     </FieldGroup>
   );
 }

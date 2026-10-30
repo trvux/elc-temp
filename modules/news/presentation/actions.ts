@@ -23,7 +23,6 @@ interface GoNewsResponse {
   meta_title: string | null;
   meta_description: string | null;
   order_index: number;
-  tags: { id: string; name: string; slug: string }[] | null;
   created_at: string;
   updated_at: string;
   deleted_at: string | null;
@@ -49,7 +48,6 @@ function mapGoNews(row: GoNewsResponse): News {
     metaTitle: row.meta_title,
     metaDescription: row.meta_description,
     orderIndex: row.order_index,
-    tags: row.tags ?? [],
     createdAt: row.created_at,
     updatedAt: row.updated_at,
     deletedAt: row.deleted_at,

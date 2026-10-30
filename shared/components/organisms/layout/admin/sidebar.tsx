@@ -77,7 +77,6 @@ const navGroups: { label: string; items: NavItemDef[] }[] = [
     label: "Nội dung",
     items: [
       { href: "/admin/news", label: "Tin tức", icon: Newspaper },
-      { href: "/admin/tags", label: "Thẻ (Tags)", icon: TagSimple },
       { href: "/admin/pages", label: "Trang tĩnh", icon: FileText },
     ],
   },

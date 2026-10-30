@@ -27,7 +27,6 @@ export type ProjectFormValues = {
   serviceGroupId?: string;
   serviceIds: string[];
   categories: { id: string; condition: "new" | "used" }[];
-  tagIds: string[];
   clientName: string;
   location: string;
   completedAt: string;
@@ -59,7 +58,6 @@ export function useProjectForm(
       metaTitle: "",
       metaDescription: "",
       orderIndex: 0,
-      tagIds: [],
       clientName: "",
       location: "",
       completedAt: "",

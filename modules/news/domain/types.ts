@@ -24,7 +24,6 @@ export interface News {
   metaTitle?: string | null;
   metaDescription?: string | null;
   orderIndex: number;
-  tags?: { id: string; name: string; slug: string }[];
   createdAt: string;
   updatedAt: string;
   deletedAt: string | null;
@@ -42,7 +41,6 @@ export interface CreateNewsInput {
   metaTitle?: string | null;
   metaDescription?: string | null;
   orderIndex?: number;
-  tagIds?: string[];
 }
 
 export interface UpdateNewsInput extends Partial<CreateNewsInput> {

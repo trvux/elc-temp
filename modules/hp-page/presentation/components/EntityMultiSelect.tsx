@@ -32,9 +32,8 @@ interface EntityMultiSelectProps {
   placeholder?: string;
 }
 
-// Same Popover+Command multi-select shape as AttributeValueMultiSelect/
-// tag-multi-select.tsx, generalized to {id, name} entities (categories,
-// brands) — value stores ids, label shown is name.
+// Same Popover+Command multi-select shape as AttributeValueMultiSelect,
+// generalized to {id, name} entities (categories, brands) — value stores ids, label shown is name.
 export function EntityMultiSelect({ options, value, onChange, placeholder }: EntityMultiSelectProps) {
   const [open, setOpen] = useState(false);
   const selected = options.filter((o) => value.includes(o.id));
