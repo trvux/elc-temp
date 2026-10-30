@@ -315,8 +315,8 @@ export interface ProductFacets {
 
 // CatalogPage is the singleton content/SEO config for "Tất cả sản phẩm" (the
 // catch-all/root product listing) — it lives in Product's own bounded
-// context (not modules/system-page, an unrelated set of pages), since
-// there's exactly one such page. No id/create/delete — only get/update.
+// context since there's exactly one such page. No id/create/delete — only
+// get/update.
 export interface CatalogPage {
     content: Json | null;
     metaTitle?: string | null;

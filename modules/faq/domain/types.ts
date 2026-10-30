@@ -2,7 +2,6 @@
 // of page/entity kinds a FAQ can attach to. Keep in sync with that file's
 // enum and the DB's chk_faq_owner_type constraint.
 export type FAQOwnerType =
-  | "system_page"
   | "product"
   | "project"
   | "service"
