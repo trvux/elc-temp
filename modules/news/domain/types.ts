@@ -20,7 +20,6 @@ export interface News {
   content: Json;
   excerpt?: string;
   categoryId?: string | null;
-  authorId?: string | null;
   isPublished: boolean;
   metaTitle?: string | null;
   metaDescription?: string | null;
@@ -39,7 +38,6 @@ export interface CreateNewsInput {
   content?: Json;
   excerpt?: string;
   categoryId?: string | null;
-  authorId?: string | null;
   isPublished?: boolean;
   metaTitle?: string | null;
   metaDescription?: string | null;

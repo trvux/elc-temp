@@ -30,7 +30,6 @@ export type NewsFormValues = {
   content: unknown;
   excerpt: string;
   categoryId: string;
-  authorId: string;
   isPublished: boolean;
   metaTitle: string;
   metaDescription: string;
@@ -55,7 +54,6 @@ export function useNewsForm(
       content: "",
       excerpt: editingNews?.excerpt || "",
       categoryId: editingNews?.categoryId || "",
-      authorId: editingNews?.authorId || "",
       isPublished: true,
       metaTitle: "",
       metaDescription: "",
@@ -105,7 +103,6 @@ export function useNewsForm(
       const payload = {
         ...values,
         categoryId: values.categoryId || null,
-        authorId: values.authorId || null,
         content: JSON.parse(JSON.stringify(values.content)) as Json,
       };
       if (editingNews) {

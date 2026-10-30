@@ -89,10 +89,6 @@ export interface ArticleInput {
   images?: { url: string }[];
   datePublished: string; // ISO 8601
   dateModified?: string; // ISO 8601
-  // Only set once a real byline (Author entity) is wired end-to-end;
-  // until then "author" falls back to the Organization, which Google's
-  // Article schema explicitly allows.
-  authorName?: string;
 }
 
 export interface BranchInput {
@@ -491,9 +487,8 @@ export const SEOSchema = {
       "url": `${BASE_URL}/tin-tuc/${article.slug}`,
       "datePublished": article.datePublished,
       "dateModified": article.dateModified || article.datePublished,
-      "author": article.authorName
-        ? { "@type": "Person", "name": article.authorName }
-        : { "@id": `${BASE_URL}/#organization` },
+      // No per-article byline: Google's Article schema allows the Organization.
+      "author": { "@id": `${BASE_URL}/#organization` },
       "publisher": { "@id": `${BASE_URL}/#organization` },
       "mainEntityOfPage": {
         "@type": "WebPage",

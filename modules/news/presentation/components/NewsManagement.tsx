@@ -37,7 +37,6 @@ import {
   getNewsAction,
 } from "../actions";
 import { getCategoriesAction } from "@/modules/category/presentation/actions";
-import { getAuthorsAction } from "@/modules/author";
 import { TagMultiSelect } from "@/shared/components/ui/tag-multi-select";
 import { getNewsColumns } from "./NewsColumns";
 import { useNewsForm } from "../hooks/useNewsForm";
@@ -68,15 +67,6 @@ export function NewsManagement() {
     queryKey: ["categories"],
     queryFn: async () => {
       const { data, error } = await getCategoriesAction();
-      if (error) throw new Error(error);
-      return data || [];
-    },
-  });
-
-  const { data: authors = [] } = useQuery({
-    queryKey: ["authors"],
-    queryFn: async () => {
-      const { data, error } = await getAuthorsAction();
       if (error) throw new Error(error);
       return data || [];
     },
@@ -132,7 +122,6 @@ export function NewsManagement() {
             content: n.content as unknown,
             excerpt: n.excerpt || "",
             categoryId: n.categoryId || "",
-            authorId: n.authorId || "",
             isPublished: n.isPublished,
             metaTitle: n.metaTitle || "",
             metaDescription: n.metaDescription || "",
@@ -156,7 +145,6 @@ export function NewsManagement() {
       content: "",
       excerpt: "",
       categoryId: "",
-      authorId: "",
       isPublished: true,
       metaTitle: "",
       metaDescription: "",
@@ -340,35 +328,6 @@ export function NewsManagement() {
                               ))}
                             </SelectContent>
                           </Select>
-                        </Field>
-                      )}
-                    />
-
-                    <Controller
-                      control={form.control}
-                      name="authorId"
-                      render={({ field }) => (
-                        <Field>
-                          <FieldLabel>Tác giả</FieldLabel>
-                          <Select
-                            value={field.value || "none"}
-                            onValueChange={(val) => field.onChange(val === "none" ? "" : val)}
-                          >
-                            <SelectTrigger className="w-full">
-                              <SelectValue placeholder="Không gán tác giả" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="none">Không gán tác giả</SelectItem>
-                              {authors.map((a) => (
-                                <SelectItem key={a.id} value={a.id}>
-                                  {a.name}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                          <FieldDescription>
-                            Hiển thị làm byline công khai trên bài viết.
-                          </FieldDescription>
                         </Field>
                       )}
                     />

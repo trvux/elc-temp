@@ -25,7 +25,6 @@ export const newsSchema = z.object({
     content: z.custom<Json>().default({}),
     excerpt: z.string().max(300, { message: "Tóm tắt không nên quá 300 ký tự" }).optional(),
     categoryId: z.string().nullable().optional().or(z.literal("")),
-    authorId: z.string().nullable().optional().or(z.literal("")),
     isPublished: z.boolean().default(false),
     metaTitle: z.string().max(70, { message: "Tiêu đề SEO không nên quá 70 ký tự" }).nullable().optional(),
     metaDescription: z.string().max(160, { message: "Mô tả SEO không nên quá 160 ký tự" }).nullable().optional(),

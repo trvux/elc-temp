@@ -19,7 +19,6 @@ interface GoNewsResponse {
   content: unknown;
   excerpt: string;
   category_id: string | null;
-  author_id: string | null;
   is_published: boolean;
   meta_title: string | null;
   meta_description: string | null;
@@ -46,7 +45,6 @@ function mapGoNews(row: GoNewsResponse): News {
     content: row.content as News["content"],
     excerpt: row.excerpt,
     categoryId: row.category_id,
-    authorId: row.author_id,
     isPublished: row.is_published,
     metaTitle: row.meta_title,
     metaDescription: row.meta_description,
