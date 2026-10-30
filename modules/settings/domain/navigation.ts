@@ -47,7 +47,8 @@ interface BuildNavInput {
   groupCategories: GroupCategoryRef[];
   categoriesList: CategoryRef[];
   brands: BrandNavRef[];
-  services: ServiceNavRef[];
+  /** Unused while the Dịch vụ menu entry is hidden; kept so callers still compile. */
+  services?: ServiceNavRef[];
   projectTypes: NamedSlugRef[];
 }
 
@@ -75,7 +76,6 @@ export function buildNavGroups({
   groupCategories,
   categoriesList,
   brands,
-  services,
   projectTypes,
 }: BuildNavInput): NavGroup[] {
   const rank = (slug: string) => {
@@ -140,23 +140,6 @@ export function buildNavGroups({
       label: "Sản phẩm",
       href: "/san-pham",
       columns: productColumns.length > 0 ? productColumns : undefined,
-    },
-    {
-      label: "Dịch vụ",
-      href: "/dich-vu",
-      columns:
-        services.length > 0
-          ? [
-              {
-                heading: "Dịch vụ",
-                big: true,
-                links: [
-                  { label: "Tất cả dịch vụ", href: "/dich-vu" },
-                  ...services.map((s) => ({ label: s.name, href: s.href })),
-                ],
-              },
-            ]
-          : undefined,
     },
     {
       label: "Dự án",
