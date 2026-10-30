@@ -55,5 +55,3 @@ eslint-errors-grouped.txt
 # build/debug artifacts
 tmp/
 
-# scratchpad — working files, not app source (see docs/fe-dead-code-audit.md group B)
-scratch/
