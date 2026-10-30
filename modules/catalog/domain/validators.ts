@@ -47,7 +47,6 @@ const productVariantInputSchema = z.object({
   isDefault: z.boolean().default(false),
   isComponentOnly: z.boolean().default(false),
   stockStatus: z.nativeEnum(VARIANT_STOCK_STATUS).default(VARIANT_STOCK_STATUS.IN_STOCK),
-  leadTimeDays: z.coerce.number().int().nullable().optional(),
   originalPrice: z.coerce.number().min(0, { message: "Giá gốc không được nhỏ hơn 0" }),
   salePrice: z.coerce.number().min(0).nullable().optional(),
   discountPercent: z.coerce.number().min(0).max(100).default(0),

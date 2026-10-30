@@ -10,8 +10,7 @@ import { useRef } from "react";
 // AdminDialog/Dialog form). preventDefault() doesn't stop propagation
 // though, so our own handlers still fire — drive scrollTop manually
 // instead of relying on the browser's now-blocked default scroll behavior.
-// A combobox NOT nested in any Dialog (e.g. DeliveryEstimate on the public
-// product page) never hits this — native scroll just works there, this
+// A combobox NOT nested in any Dialog (e.g. on a public page) never hits this — native scroll just works there, this
 // hook is a no-op harmless addition in that case.
 export function useManualScroll() {
   const touchStartY = useRef(0);

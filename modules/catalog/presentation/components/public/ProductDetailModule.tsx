@@ -9,8 +9,6 @@ import { getReviewsAction } from "@/modules/review";
 import { ReviewSection } from "@/modules/review/presentation/components/ReviewSection";
 import { getProductLineByIdAction } from "@/modules/product-line/presentation/actions";
 import { getCategoryByIdAction } from "@/modules/category/presentation/actions";
-import { getDefaultShippingZoneAction, getPersonalizedShippingZoneAction } from "@/modules/shipping-zone";
-import { getSavedProvinceCode, getSavedWardCode } from "@/modules/shipping-zone/presentation/delivery-cookie";
 import { Breadcrumbs } from "@/shared/components/organisms/layout/user/breadcrumbs";
 import { ExpandableContent } from "@/shared/components/organisms/layout/user/expandable-content";
 import { ProductDescription } from "@/shared/components/organisms/layout/user/product-description";
@@ -71,6 +69,20 @@ export const MERCHANT_RETURN_POLICY = {
   returnPolicyUrl: `${BASE_URL}/chinh-sach-doi-tra-va-hoan-tien`,
 };
 
+// Site-wide default (no per-zone fee/time data exists any more): free
+// shipping, dispatched within 0-1 day, delivered within 1-7 days. Shared by
+// the detail page's Offer and the list pages' ItemList Offers.
+export const MERCHANT_SHIPPING_DETAILS = {
+  "@type": "OfferShippingDetails",
+  shippingRate: { "@type": "MonetaryAmount", value: "0", currency: "VND" },
+  shippingDestination: { "@type": "DefinedRegion", addressCountry: "VN" },
+  deliveryTime: {
+    "@type": "ShippingDeliveryTime",
+    handlingTime: { "@type": "QuantitativeValue", minValue: 0, maxValue: 1, unitCode: "DAY" },
+    transitTime: { "@type": "QuantitativeValue", minValue: 1, maxValue: 7, unitCode: "DAY" },
+  },
+};
+
 async function getCachedProductDetailData() {
   const { data: rawContacts } = await getContactsAction();
   const contacts = (rawContacts || []).filter((c) => c.isActive);
@@ -97,15 +109,11 @@ export async function ProductDetailModule({
   product: ProductWithRelations;
 }) {
   const { contacts, currentYear, priceValidUntil } = await getCachedProductDetailData();
-  const [relatedProducts, { data: reviews, aggregate }, { data: productLine }, { data: categoryWithGroup }, { data: defaultShippingZone }, savedProvinceCode, savedWardCode, { data: personalizedShippingZone }, { data: faqs }] = await Promise.all([
+  const [relatedProducts, { data: reviews, aggregate }, { data: productLine }, { data: categoryWithGroup }, { data: faqs }] = await Promise.all([
     getRelatedProducts(product),
     getReviewsAction("product", product.id),
     product.productLineId ? getProductLineByIdAction(product.productLineId) : Promise.resolve({ data: null }),
     product.category?.id ? getCategoryByIdAction(product.category.id) : Promise.resolve({ data: null }),
-    getDefaultShippingZoneAction(),
-    getSavedProvinceCode(),
-    getSavedWardCode(),
-    getPersonalizedShippingZoneAction(),
     getFAQsAction("product", product.id),
   ]);
 
@@ -211,8 +219,6 @@ export async function ProductDetailModule({
                 options={product.options || []}
                 contacts={contacts || []}
                 compareItem={compareItem}
-                savedProvinceCode={savedProvinceCode}
-                savedWardCode={savedWardCode}
               />
             </div>
           </div>
@@ -355,7 +361,7 @@ export async function ProductDetailModule({
             <h2 id="related-products-heading" className="type-title">
               Sản phẩm liên quan
             </h2>
-            <ProductGrid products={relatedProducts} shippingZone={personalizedShippingZone} headingAs="h3" />
+            <ProductGrid products={relatedProducts} headingAs="h3" />
           </div>
         </section>
       )}
@@ -426,47 +432,6 @@ export async function ProductDetailModule({
 
         const hasDiscount = !!defaultVariant && defaultVariant.discountPercent > 0;
 
-        // Sourced from the admin-configured default shipping zone (see
-        // modules/shipping-zone) instead of a hardcoded constant — this is
-        // the site-wide default, not the customer's live address selection
-        // from <DeliveryEstimate> on this same page (that can only run
-        // client-side, after this JSON-LD has already been server-rendered).
-        // Falls back to a free/no-estimate value only if no zone is
-        // configured yet (shouldn't happen once the seed migration ran).
-        const shippingDetails = {
-          "@type": "OfferShippingDetails",
-          shippingRate: {
-            "@type": "MonetaryAmount",
-            value: String(defaultShippingZone?.feeVnd ?? 0),
-            currency: "VND",
-          },
-          shippingDestination: { "@type": "DefinedRegion", addressCountry: "VN" },
-          ...(defaultShippingZone
-            ? {
-                deliveryTime: {
-                  "@type": "ShippingDeliveryTime",
-                  // Order processing time before it leaves the warehouse —
-                  // distinct from transitTime (carrier time to the buyer).
-                  // Recommended by Google, not admin-configurable anywhere
-                  // yet, so a fixed same-day/next-day default until there's
-                  // an actual setting to source it from.
-                  handlingTime: {
-                    "@type": "QuantitativeValue",
-                    minValue: 0,
-                    maxValue: 1,
-                    unitCode: "DAY",
-                  },
-                  transitTime: {
-                    "@type": "QuantitativeValue",
-                    minValue: defaultShippingZone.minDays,
-                    maxValue: defaultShippingZone.maxDays,
-                    unitCode: "DAY",
-                  },
-                },
-              }
-            : {}),
-        };
-
         // Always a single Offer off the default variant, even for the small
         // set of products with >1 sellable variant (different Điện áp) —
         // Google's own guidance is that AggregateOffer isn't meant to
@@ -504,7 +469,7 @@ export async function ProductDetailModule({
               seller: { "@id": `${BASE_URL}/#organization` },
               itemCondition,
               hasMerchantReturnPolicy: MERCHANT_RETURN_POLICY,
-              shippingDetails,
+              shippingDetails: MERCHANT_SHIPPING_DETAILS,
               priceSpecification: hasDiscount
                 ? {
                     "@type": "UnitPriceSpecification",

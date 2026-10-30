@@ -15,13 +15,12 @@ import { ProductFilterDialogButton } from "@/modules/catalog/presentation/compon
 import { ProductSearchBox } from "@/modules/catalog/presentation/components/public/ProductSearchBox";
 import { ProductSortSelect } from "@/modules/catalog/presentation/components/public/ProductSortSelect";
 import { ResolvedEntity } from "@/modules/catalog/presentation/resolveProductPath";
-import { MERCHANT_RETURN_POLICY } from "@/modules/catalog/presentation/components/public/ProductDetailModule";
+import { MERCHANT_RETURN_POLICY, MERCHANT_SHIPPING_DETAILS } from "@/modules/catalog/presentation/components/public/ProductDetailModule";
 import { getCategoriesAction } from "@/modules/category/presentation/actions";
 import { CategoryWithGroup } from "@/modules/category/domain/types";
 import { HpPage } from "@/modules/hp-page/domain/types";
 import { getHpPagesAction } from "@/modules/hp-page/presentation/actions";
 import { FAQAccordion, getFAQsAction } from "@/modules/faq";
-import { getPersonalizedShippingZoneAction } from "@/modules/shipping-zone";
 import { Breadcrumbs } from "@/shared/components/organisms/layout/user/breadcrumbs";
 import { CompareLinkButton } from "@/shared/components/organisms/layout/user/compare-link-button";
 import { ProductDescription } from "@/shared/components/organisms/layout/user/product-description";
@@ -469,7 +468,6 @@ export async function ProductListModule({
     currentYear,
     priceValidUntil,
   } = await getCachedListModuleData(entity, searchParams);
-  const { data: shippingZone } = await getPersonalizedShippingZoneAction();
 
   // See PREVIEW_LIMIT's own comment — only group/brand pages get bounded,
   // and only when they actually exceed it (most brands/all categories
@@ -606,7 +604,7 @@ export async function ProductListModule({
         </div>
 
         {displayProducts.length > 0 ? (
-          <ProductGrid products={displayProducts} shippingZone={shippingZone} headingAs="h2" />
+          <ProductGrid products={displayProducts} headingAs="h2" />
         ) : (
           <div className="py-24 text-center min-h-75 w-full">
             <p className="text-muted-foreground/60 italic type-body-sm">
@@ -744,29 +742,7 @@ export async function ProductListModule({
                               // shows up, not just on the product's own page.
                               seller: { "@id": `${BASE_URL}/#organization` },
                               hasMerchantReturnPolicy: MERCHANT_RETURN_POLICY,
-                              ...(shippingZone
-                                ? {
-                                    shippingDetails: {
-                                      "@type": "OfferShippingDetails",
-                                      shippingRate: {
-                                        "@type": "MonetaryAmount",
-                                        value: String(shippingZone.feeVnd),
-                                        currency: "VND",
-                                      },
-                                      shippingDestination: { "@type": "DefinedRegion", addressCountry: "VN" },
-                                      deliveryTime: {
-                                        "@type": "ShippingDeliveryTime",
-                                        handlingTime: { "@type": "QuantitativeValue", minValue: 0, maxValue: 1, unitCode: "DAY" },
-                                        transitTime: {
-                                          "@type": "QuantitativeValue",
-                                          minValue: shippingZone.minDays,
-                                          maxValue: shippingZone.maxDays,
-                                          unitCode: "DAY",
-                                        },
-                                      },
-                                    },
-                                  }
-                                : {}),
+                              shippingDetails: MERCHANT_SHIPPING_DETAILS,
                             },
                           }
                         : {}),

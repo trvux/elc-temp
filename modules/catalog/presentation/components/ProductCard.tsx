@@ -2,7 +2,6 @@ import {
   ProductWithRelations,
   resolveProductDisplayPrice,
   resolveDefaultVariant,
-  resolveDeliveryLabel,
   toLegacyStockStatusForBadge,
 } from "@/modules/catalog/domain";
 import { FormattedPrice } from "@/modules/catalog/presentation/components/FormattedPrice";
@@ -15,11 +14,9 @@ import {
 } from "@/shared/components/ui/card";
 import { StockBadge } from "@/shared/components/ui/stock-badge";
 import { primaryImageUrl } from "@/shared/lib/image-asset";
-import { ZoneLookupResult } from "@/modules/shipping-zone";
 import { BuyNowButton } from "@/shared/components/organisms/layout/user/buy-now-button";
 import { WishlistButton } from "@/shared/components/organisms/layout/user/wishlist-button";
 import { CompareToggleButton } from "@/shared/components/organisms/layout/user/compare-toggle-button";
-import { Truck } from "@phosphor-icons/react/dist/ssr";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -29,15 +26,12 @@ interface ProductCardProps {
   // Heading level follows where the card sits in the page outline (h2 right
   // under the page h1, h3 under an h2, h4 under an h3), not how it looks.
   headingAs?: "h2" | "h3" | "h4";
-  // Fetched once by the parent ProductGrid, not per-card — see its comment.
-  defaultShippingZone?: ZoneLookupResult | null;
 }
 
 export function ProductCard({
   product,
   priority = false,
   headingAs: Heading = "h3",
-  defaultShippingZone,
 }: ProductCardProps) {
   const productUrl = `/san-pham/${product.slug}`;
 
@@ -48,8 +42,6 @@ export function ProductCard({
   const currentPrice = resolveProductDisplayPrice(product);
   const imageUrl = primaryImageUrl(product.images);
   const primaryTag = product.tags?.[0];
-
-  const deliveryLabel = resolveDeliveryLabel(defaultVariant, defaultShippingZone);
 
   return (
     <Card className="relative mx-auto w-full h-full max-w-sm pt-0 gap-0 overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-lg">
@@ -116,13 +108,6 @@ export function ProductCard({
               </>
             )}
           </div>
-
-          {deliveryLabel && (
-            <div className="flex items-center gap-1.5 text-muted-foreground">
-              <Truck className="size-3.5 shrink-0" />
-              <span className="type-caption text-muted-foreground">{deliveryLabel}</span>
-            </div>
-          )}
         </CardContent>
 
         <div className="flex-1" />

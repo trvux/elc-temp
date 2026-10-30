@@ -82,7 +82,6 @@ interface GoProductVariant {
   is_default: boolean;
   is_standalone: boolean;
   stock_status: string;
-  lead_time_days: number | null;
   original_price: number;
   sale_price: number | null;
   discount_percent: number;
@@ -302,7 +301,6 @@ function mapGoProduct(row: GoProductResponse): ProductWithRelations {
       isDefault: v.is_default,
       isStandalone: v.is_standalone,
       stockStatus: v.stock_status as VariantStockStatus,
-      leadTimeDays: v.lead_time_days,
       originalPrice: v.original_price,
       salePrice: v.sale_price,
       discountPercent: v.discount_percent,
@@ -568,7 +566,6 @@ function toGoVariantsPayload(variants: ProductVariantInput[] | undefined) {
     is_default: v.isDefault ?? false,
     is_component_only: v.isComponentOnly ?? false,
     stock_status: v.stockStatus,
-    lead_time_days: v.leadTimeDays ?? undefined,
     cost_price: undefined, // never entered/edited in this UI — internal-only field
     original_price: v.originalPrice,
     sale_price: v.salePrice ?? undefined,

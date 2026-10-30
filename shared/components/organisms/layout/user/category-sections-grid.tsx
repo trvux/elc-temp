@@ -2,7 +2,6 @@
 
 import type { ProductWithRelations } from "@/modules/catalog/domain";
 import { ProductGrid } from "@/modules/catalog/presentation/components/ProductGrid";
-import type { ZoneLookupResult } from "@/modules/shipping-zone";
 import { Button } from "@/shared/components/ui/button";
 import { Separator } from "@/shared/components/ui/separator";
 import { ArrowRight, Spinner } from "@phosphor-icons/react";
@@ -26,8 +25,7 @@ function CategorySection({
   categorySlug,
   initialProducts,
   totalCount,
-  shippingZone,
-}: CategorySectionData & { shippingZone?: ZoneLookupResult | null }) {
+}: CategorySectionData) {
   const [products, setProducts] = useState(initialProducts);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
 
@@ -84,7 +82,7 @@ function CategorySection({
           <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5" />
         </Link>
       </div>
-      <ProductGrid products={products} shippingZone={shippingZone} headingAs="h4" />
+      <ProductGrid products={products} headingAs="h4" />
 
       {hasMore && (
         <div className="flex justify-center pt-1">
@@ -112,15 +110,8 @@ function CategorySection({
 
 export function CategorySectionsGrid({
   sections,
-  shippingZone,
 }: {
   sections: CategorySectionData[];
-  // Fetched once by the page (a real Server Component) and passed down —
-  // this whole tree is "use client" (client-side "load more" pagination
-  // state), so a ProductGrid rendered from in here can't fetch its own
-  // Server Action data without tripping Next's "Server Functions cannot be
-  // called during initial render" guard.
-  shippingZone?: ZoneLookupResult | null;
 }) {
   if (sections.length === 0) {
     return (
@@ -159,7 +150,7 @@ export function CategorySectionsGrid({
                 </Link>
               </h2>
             )}
-            <CategorySection {...section} shippingZone={shippingZone} />
+            <CategorySection {...section} />
             {i < sections.length - 1 && <Separator />}
           </div>
         );

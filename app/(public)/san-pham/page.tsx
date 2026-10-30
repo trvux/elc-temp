@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { getCatalogPageAction, getProductsAction } from "@/modules/catalog/presentation/actions";
 import { PRODUCT_STATUS } from "@/modules/catalog/domain";
 import { getCategoriesAction } from "@/modules/category/presentation/actions";
-import { getPersonalizedShippingZoneAction } from "@/modules/shipping-zone";
 import { getSystemPageBySlugAction } from "@/modules/system-page/presentation/actions";
 import { FAQAccordion, getFAQsAction } from "@/modules/faq";
 import {
@@ -140,10 +139,9 @@ async function getCachedCategorySections(): Promise<CategorySectionData[]> {
 }
 
 export default async function ProductsPage() {
-  const [sections, { data: catalogPage }, { data: shippingZone }, { data: systemPage }] = await Promise.all([
+  const [sections, { data: catalogPage }, { data: systemPage }] = await Promise.all([
     getCachedCategorySections(),
     getCatalogPageAction(),
-    getPersonalizedShippingZoneAction(),
     getSystemPageBySlugAction("san-pham"),
   ]);
 
@@ -172,7 +170,7 @@ export default async function ProductsPage() {
           </div>
         </div>
 
-        <CategorySectionsGrid sections={sections} shippingZone={shippingZone} />
+        <CategorySectionsGrid sections={sections} />
 
         {/* Sau lưới sản phẩm, không phải trước — người xem cần thấy sản
             phẩm trước tiên; nội dung này chỉ dành cho ai muốn tìm hiểu

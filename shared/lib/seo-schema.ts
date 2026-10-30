@@ -215,8 +215,7 @@ export const SEOSchema = {
 
     // Real structured location (tỉnh/thành + phường/xã + mã bưu chính) from
     // the branch record itself — set via the cascading combobox in
-    // BranchManagement.tsx, reusing internal/shippingzone's real
-    // provinces/wards data — instead of guessing locality/region/postcode by
+    // BranchManagement.tsx — instead of guessing locality/region/postcode by
     // splitting a free-text address string on commas.
     const companyBranchCoverage = (branches || [])
       .filter((b) => b.isPublished)

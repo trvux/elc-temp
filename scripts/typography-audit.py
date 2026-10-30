@@ -18,7 +18,7 @@ SRC = ['app', 'modules', 'shared']
 SKIP = ('shared/components/ui/typography.tsx',)  # the thing being replaced
 
 ADMIN = re.compile(r'app/\(admin\)|layout/admin|/form/|Management|Columns|columns\.tsx|Form\.tsx|FAQManager|'
-                   r'modules/(dashboard|admin-users|metrics|attribute-definition|shipping-zone)/')
+                   r'modules/(dashboard|admin-users|metrics|attribute-definition)/')
 AUTH = re.compile(r'app/\(auth\)|layout/auth|modules/auth/')
 PUBLIC = re.compile(r'app/\((public|auth|fullscreen)\)|layout/user|layout/auth|organisms/(sections|link-preview)|/public/|'
                     r'modules/(inquiry|auth|faq|review|hp-page|page)/|app/not-found|'

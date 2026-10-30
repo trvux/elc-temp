@@ -67,7 +67,7 @@ export function ProductVariantsTab({
     () =>
       new Set(
         variants
-          .map((v, i) => (v.sku || v.gtin || v.leadTimeDays || v.weight || v.isComponentOnly ? i : -1))
+          .map((v, i) => (v.sku || v.gtin || v.weight || v.isComponentOnly ? i : -1))
           .filter((i) => i >= 0)
       )
   );
@@ -131,7 +131,6 @@ export function ProductVariantsTab({
         isDefault: variantsFields.length === 0 && added === 0,
         isComponentOnly: false,
         stockStatus: VARIANT_STOCK_STATUS.IN_STOCK,
-        leadTimeDays: null,
         originalPrice: 0,
         salePrice: 0,
         discountPercent: 0,
@@ -229,7 +228,6 @@ export function ProductVariantsTab({
                   isDefault: variantsFields.length === 0,
                   isComponentOnly: false,
                   stockStatus: VARIANT_STOCK_STATUS.IN_STOCK,
-                  leadTimeDays: null,
                   originalPrice: 0,
                   salePrice: 0,
                   discountPercent: 0,
@@ -395,19 +393,6 @@ export function ProductVariantsTab({
                         />
                       </Field>
                     </div>
-
-                    {variant?.stockStatus === VARIANT_STOCK_STATUS.ORDER_FROM_SUPPLIER && (
-                      <Field>
-                        <FieldLabel className="type-legal">Thời gian chờ hàng (ngày)</FieldLabel>
-                        <Input
-                          type="number"
-                          className="max-w-40"
-                          placeholder="VD: 7"
-                          {...form.register(`variants.${i}.leadTimeDays`, { valueAsNumber: true })}
-                        />
-                        <FieldDescription>Số ngày dự kiến để có hàng khi đặt từ nhà cung cấp.</FieldDescription>
-                      </Field>
-                    )}
 
                     <label className="flex items-center gap-2 type-body-sm cursor-pointer">
                       <Checkbox

@@ -124,7 +124,6 @@ export interface ProductVariant {
     isDefault: boolean;
     isStandalone: boolean;
     stockStatus: VariantStockStatus;
-    leadTimeDays?: number | null;
     originalPrice: number;
     salePrice?: number | null;
     discountPercent: number;
@@ -201,7 +200,6 @@ export interface ProductVariantInput {
     isDefault?: boolean;
     isComponentOnly?: boolean;
     stockStatus?: VariantStockStatus;
-    leadTimeDays?: number | null;
     originalPrice: number;
     salePrice?: number | null;
     discountPercent?: number;
