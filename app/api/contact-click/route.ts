@@ -2,7 +2,6 @@ import { cookies } from "next/headers";
 import type { NextRequest } from "next/server";
 import { clientIpHeaders, toSnakeCaseBody } from "@/shared/lib/go-api";
 import { readAttribution, readGAClientID } from "@/shared/lib/attribution";
-import { reverseGeocode } from "@/shared/lib/geocode";
 
 const GO_API_URL = process.env.GO_API_URL;
 // Mirrors modules/event/presentation/actions.ts's SESSION_COOKIE — same
@@ -33,23 +32,15 @@ export async function POST(request: NextRequest) {
     return Response.json({ ok: false }, { status: 200 });
   }
 
-  // lat/lng (see shared/lib/geolocation.ts) never reach elc-go directly —
-  // reverse-geocoded here into a plain "khu vực" string instead, same
-  // reasoning as createInquiryAction: this proxy is the only place with
-  // both the raw coords and GEOCODING_API_KEY.
-  const { lat, lng, ...clickFields } = body;
-  const hasCoords = typeof lat === "number" && typeof lng === "number";
-
-  const [attribution, gaClientId, cookieStore, location] = await Promise.all([
+  const [attribution, gaClientId, cookieStore] = await Promise.all([
     readAttribution(),
     readGAClientID(),
     cookies(),
-    hasCoords ? reverseGeocode(lat as number, lng as number) : Promise.resolve(null),
   ]);
   const sessionId = cookieStore.get(SESSION_COOKIE)?.value;
 
   const payload = toSnakeCaseBody({
-    ...clickFields,
+    ...body,
     sessionId,
     gclid: attribution?.gclid,
     utmSource: attribution?.utmSource,
@@ -58,7 +49,6 @@ export async function POST(request: NextRequest) {
     utmTerm: attribution?.utmTerm,
     utmContent: attribution?.utmContent,
     gaClientId,
-    location,
   });
 
   try {

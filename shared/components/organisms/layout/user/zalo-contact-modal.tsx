@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -13,7 +13,6 @@ import { buildZaloProductsMessage, ZaloProductInfo } from "@/shared/lib/zalo-mes
 import { ZaloIcon } from "@/shared/components/ui/social-icons";
 import { toast } from "sonner";
 import { trackContactClick } from "@/modules/inquiry";
-import { primeLocation } from "@/shared/lib/geolocation";
 import type { LeadType } from "@/modules/inquiry/domain";
 
 interface ZaloContactModalProps {
@@ -64,14 +63,6 @@ export function ZaloContactModal({
   // Same single-entity restriction as trackableEntityId — an array click
   // has no one name to attribute either.
   const trackableEntityName = Array.isArray(productInfo) ? undefined : (subtitle ?? products[0]?.productName);
-
-  // Opening this modal already signals real contact intent, and there's a
-  // natural beat before the customer copies the message and actually
-  // navigates to Zalo — enough time for the permission prompt to resolve
-  // before trackContactClick fires below.
-  useEffect(() => {
-    if (open) primeLocation();
-  }, [open]);
 
   const handleCopyMessage = async () => {
     try {

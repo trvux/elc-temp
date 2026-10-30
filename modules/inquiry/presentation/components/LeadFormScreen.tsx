@@ -29,7 +29,6 @@ import { FieldError } from "@/shared/components/ui/field";
 import { Input } from "@/shared/components/ui/input";
 import { Textarea } from "@/shared/components/ui/textarea";
 import * as gtag from "@/shared/lib/gtag";
-import { awaitLocation, primeLocation } from "@/shared/lib/geolocation";
 
 import { getCategoriesAction } from "@/modules/category/presentation/actions";
 import type { CategoryWithGroup } from "@/modules/category/domain/types";
@@ -636,13 +635,6 @@ export function LeadFormScreen({
   // unlike the product branch.
   const [serviceCategoryFacets, setServiceCategoryFacets] = useState<ProductFacets | null>(null);
 
-  // Prime on mount — filling out this whole multi-step form takes at least
-  // several seconds, plenty of time for the permission prompt to resolve
-  // before submitMutation below needs it.
-  useEffect(() => {
-    primeLocation();
-  }, []);
-
   useEffect(() => {
     // Category catalog is shared by the product branch's own picker and the
     // service branch's "dòng máy nào" follow-up (see ServiceCategoryPickerStep)
@@ -931,8 +923,6 @@ export function LeadFormScreen({
         : branch === "project" ? picked.projectTypeSlug
         : undefined;
 
-      const coords = await awaitLocation();
-
       return createInquiryAction(
         {
           ...values,
@@ -944,7 +934,6 @@ export function LeadFormScreen({
           qualifyData: qualify,
           attachments: attachmentUrls,
         },
-        coords ?? undefined,
       );
     },
     onSuccess: (res) => {

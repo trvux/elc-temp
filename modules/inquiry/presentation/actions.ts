@@ -3,7 +3,6 @@
 import { revalidatePath } from "next/cache";
 import { authHeaders, clientIpHeaders, toSnakeCaseBody } from "@/shared/lib/go-api";
 import { readAttribution, readGAClientID } from "@/shared/lib/attribution";
-import { reverseGeocode } from "@/shared/lib/geocode";
 import { logEventAction } from "@/modules/event";
 import {
   CreateInquiryInput,
@@ -98,13 +97,6 @@ async function extractErrorMessage(res: Response): Promise<string> {
 // here (see elc-go internal/inquiry/presentation/handler.go), not auth.
 export async function createInquiryAction(
   input: CreateInquiryInput,
-  // Raw browser Geolocation coords (see shared/lib/geolocation.ts) — kept
-  // out of CreateInquiryInput itself since that type otherwise mirrors
-  // elc-go's createInquiryRequest 1:1; reverse-geocoded here (server-only,
-  // needs GEOCODING_API_KEY) into a plain "khu vực" string folded into
-  // qualifyData below, same flexible JSONB bag as every other choice-step
-  // answer.
-  coords?: { lat: number; lng: number },
 ) {
   if (!GO_API_URL) {
     return { data: null, error: "GO_API_URL is not configured" };
@@ -116,14 +108,12 @@ export async function createInquiryAction(
     // read here rather than round-tripped through the client); gaClientId
     // from GA4's own _ga cookie — both needed to tie a later "converted"
     // outcome back to the campaign/session that produced this lead.
-    const [attribution, gaClientId, location] = await Promise.all([
+    const [attribution, gaClientId] = await Promise.all([
       readAttribution(),
       readGAClientID(),
-      coords ? reverseGeocode(coords.lat, coords.lng) : Promise.resolve(null),
     ]);
     const payload = {
       ...input,
-      qualifyData: location ? { ...input.qualifyData, location } : input.qualifyData,
       channel: "form" as const,
       gclid: attribution?.gclid,
       utmSource: attribution?.utmSource,
