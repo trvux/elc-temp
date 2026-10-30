@@ -3,8 +3,8 @@ import { cookies } from "next/headers";
 import { clientIpHeaders } from "@/shared/lib/go-api";
 
 /**
- * Helpers for the Wishlist/Recently-Viewed Route Handlers (app/api/wishlist,
- * app/api/recently-viewed) proxying to elc-go's anonymous visitor_id cookie
+ * Helpers for the Recently-Viewed Route Handler (app/api/recently-viewed)
+ * proxying to elc-go's anonymous visitor_id cookie
  * mechanism (internal/platform/httpserver.EnsureVisitorID) — no login
  * involved, no customer account, see elc_product_be_features_shipped memory.
  *
@@ -21,7 +21,7 @@ const VISITOR_COOKIE_MAX_AGE = 60 * 60 * 24 * 365; // 1 year, matches Go's cooki
 
 export async function forwardVisitorCookieHeader(): Promise<Record<string, string>> {
   const value = (await cookies()).get(VISITOR_COOKIE_NAME)?.value;
-  // Also carries the visitor's IP: Go rate-limits wishlist/recently-viewed
+  // Also carries the visitor's IP: Go rate-limits recently-viewed
   // writes by IP, and every request through these routes needs it.
   return { ...(value ? { Cookie: `${VISITOR_COOKIE_NAME}=${value}` } : {}), ...(await clientIpHeaders()) };
 }

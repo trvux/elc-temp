@@ -18,7 +18,7 @@ shared/components/
 
 - **Atom** = `shared/components/ui/*`. Đây là output của `npx shadcn add`. Không được sửa file trong `ui/` — cần biến thể thì tạo molecule bọc ngoài, dùng `cva`/`className` compose, không đổi file gốc.
 - **Molecule** = ghép 2–5 atom thành 1 unit tái dùng được ở nhiều nơi, không biết gì về domain (không import từ `modules/*`). Ví dụ: `password-checklist`, `spotlight`, `in-view`.
-- **Organism** = có domain logic, gọi API/action, biết về `modules/*`. Ví dụ: `header`, `footer`, `wishlist-dialog`, `hero`.
+- **Organism** = có domain logic, gọi API/action, biết về `modules/*`. Ví dụ: `header`, `footer`, `hero`.
 - Trong `modules/*/presentation/components/`: cùng nguyên tắc — component nhỏ dùng lại trong module thì tách riêng thay vì nhét hết vào 1 file trăm dòng; không cần tạo subfolder atoms/molecules/organisms trong module (module đã là 1 domain boundary rồi), chỉ cần tách theo trách nhiệm đơn lẻ.
 - Component mới cần primitive chưa có → `npx shadcn add <name>` trước, không tự viết tay bản thay thế.
 

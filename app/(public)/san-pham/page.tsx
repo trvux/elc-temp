@@ -11,7 +11,6 @@ import {
 import { Breadcrumbs } from "@/shared/components/organisms/layout/user/breadcrumbs";
 import { ProductDescription } from "@/shared/components/organisms/layout/user/product-description";
 import { PreviewContent } from "@/shared/components/organisms/layout/user/preview-content";
-import { WishlistDialogButton } from "@/shared/components/organisms/layout/user/wishlist-dialog-button";
 import { ScrollToTop } from "@/shared/components/organisms/layout/user/scroll-to-top";
 import { RecentlyViewedSection } from "@/shared/components/organisms/layout/user/recently-viewed-section";
 import { unwrapActionResult } from "@/shared/lib/action-result";
@@ -163,7 +162,6 @@ export default async function ProductsPage() {
         <div className="flex items-start justify-between gap-4 pb-4 border-b border-border/40">
           <h1 className="type-headline">Tất cả sản phẩm</h1>
           <div className="flex items-center gap-2 shrink-0">
-            <WishlistDialogButton />
             {/* Nút "Lọc" (facet/filter) sẽ vào đây khi filter theo thuộc tính được xây */}
           </div>
         </div>

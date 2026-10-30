@@ -11,7 +11,6 @@ import {
   ZaloProductInfo,
 } from "@/shared/lib/zalo-message";
 import { ZaloContactModal } from "@/shared/components/organisms/layout/user/zalo-contact-modal";
-import { WishlistButton } from "@/shared/components/organisms/layout/user/wishlist-button";
 import { trackContactClick } from "@/modules/inquiry";
 import { toast } from "sonner";
 import { AnimatePresence, m } from "motion/react";
@@ -164,7 +163,6 @@ export function ProductFloatingBar({
                       Tư vấn ngay
                     </a>
                   </Button>
-                  <WishlistButton productId={productId} size="icon-sm" />
                 </div>
               </div>
 
@@ -194,7 +192,6 @@ export function ProductFloatingBar({
                     </div>
                   )}
                 </div>
-                <WishlistButton productId={productId} />
                 <Button size="lg" asChild className="px-10">
                   <a
                     href={zaloContact.href}

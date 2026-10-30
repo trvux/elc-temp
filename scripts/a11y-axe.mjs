@@ -13,7 +13,7 @@ import { createRequire } from "node:module";
 const args = process.argv.slice(2);
 const opt = (n, d) => (args.includes(n) ? args[args.indexOf(n) + 1] : d);
 const base = opt("--base", "http://localhost:3000").replace(/\/$/, "");
-const DEFAULT = ["/", "/san-pham", "/san-pham/may-lanh", "/san-pham/daikin", "/dich-vu", "/du-an", "/du-an/biet-thu", "/tin-tuc", "/thong-tin", "/thong-tin/van-phong", "/gioi-thieu-ve-dien-may-elc", "/chinh-sach-bao-hanh-san-pham", "/yeu-thich", "/login", "/login/verify?email=a@b.c", "/form", "/trang-khong-ton-tai"];
+const DEFAULT = ["/", "/san-pham", "/san-pham/may-lanh", "/san-pham/daikin", "/dich-vu", "/du-an", "/du-an/biet-thu", "/tin-tuc", "/thong-tin", "/thong-tin/van-phong", "/gioi-thieu-ve-dien-may-elc", "/chinh-sach-bao-hanh-san-pham", "/login", "/login/verify?email=a@b.c", "/form", "/trang-khong-ton-tai"];
 const routes = opt("--routes", "") ? opt("--routes").split(",") : DEFAULT;
 const axePath = createRequire(import.meta.url).resolve("axe-core");
 

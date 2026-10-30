@@ -17,17 +17,15 @@ interface GoRecentlyViewedItem {
 }
 
 // Visitor-specific (keyed by the visitor_id cookie) — must never be cached
-// by Cloudflare or anyone else. See app/api/wishlist/route.ts's comment for
-// the full story: no explicit Cache-Control here let Cloudflare's edge
-// cache this route for ~4h and serve one visitor's data (and drop the
-// Set-Cookie that mints a visitor_id) to everyone else hitting it in that
-// window. `cache: "no-store"` below only governs Next's own server-side
+// by Cloudflare or anyone else. Without an explicit Cache-Control here,
+// Cloudflare's edge once cached a route like this for ~4h and served one
+// visitor's data (and dropped the Set-Cookie that mints a visitor_id) to
+// everyone else hitting it in that window. `cache: "no-store"` below only governs Next's own server-side
 // fetch to Go — it says nothing about what this route tells the client/CDN.
 export const dynamic = "force-dynamic";
 
-// Thin BFF proxy to elc-go's /recently-viewed — same rationale as
-// app/api/wishlist/route.ts (visitor_id cookie relay + reactive client
-// fetch). GET only (no delete/clear-all — the API doesn't support it, see
+// Thin BFF proxy to elc-go's /recently-viewed (visitor_id cookie relay +
+// reactive client fetch). GET only (no delete/clear-all — the API doesn't support it, see
 // shared/hooks/use-recently-viewed.ts's doc comment).
 export async function GET() {
   if (!GO_API_URL) {

@@ -81,7 +81,7 @@ export interface ProductFilterDialogButtonProps {
 }
 
 // Nút mở dialog (desktop) / drawer đáy màn hình (mobile + tablet) chọn
-// filter/facet — đặt cạnh WishlistDialogButton trên header trang listing.
+// filter/facet — đặt trên header trang listing.
 // Lựa chọn bên trong là DRAFT (không tự áp dụng ngay khi tick) — chỉ khi
 // bấm "Xác nhận" mới build lại URL params và refetch, để người dùng chọn
 // nhiều tiêu chí một lượt thay vì giật kết quả mỗi lần tick 1 ô.

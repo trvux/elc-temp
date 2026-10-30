@@ -79,7 +79,7 @@ Tầng `platform` cung cấp các dịch vụ dùng chung cho toàn bộ hệ th
 1. **Product V2 & Catalog**: `product`, `category`, `brand`, `attribute`, `group`, `slug-registry`, `tag`.
 2. **CMS & Nội dung**: `news`, `author`, `page`, `hp-page`, `system-page`, `event`.
 3. **Dịch vụ & Dự án Thương mại**: `service`, `service-group`, `project`, `project-type`, `branch`, `shippingzone`, `inquiry`, `contact`.
-4. **Người dùng & Tương tác**: `auth`, `review`, `wishlist`, `recently-viewed`, `chat-log`, `settings`, `upload`.
+4. **Người dùng & Tương tác**: `auth`, `review`, `recently-viewed`, `chat-log`, `settings`, `upload`.
 
 ### 2.4. Công cụ Command Line (`cmd/`)
 

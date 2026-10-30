@@ -24,7 +24,6 @@ import { FAQAccordion, getFAQsAction } from "@/modules/faq";
 import { Breadcrumbs } from "@/shared/components/organisms/layout/user/breadcrumbs";
 import { ProductDescription } from "@/shared/components/organisms/layout/user/product-description";
 import { PreviewContent } from "@/shared/components/organisms/layout/user/preview-content";
-import { WishlistDialogButton } from "@/shared/components/organisms/layout/user/wishlist-dialog-button";
 import { RecentlyViewedSection } from "@/shared/components/organisms/layout/user/recently-viewed-section";
 import { ScrollToTop } from "@/shared/components/organisms/layout/user/scroll-to-top";
 import { unwrapActionResult } from "@/shared/lib/action-result";
@@ -585,12 +584,8 @@ export async function ProductListModule({
             />
           </div>
 
-          {/* forces Wishlist/Sort onto their own line on mobile only */}
+          {/* forces Sort onto its own line on mobile only */}
           <div className="basis-full order-3 sm:hidden" />
-
-          <div className="order-4 sm:order-2">
-            <WishlistDialogButton />
-          </div>
 
           <div className="order-6 sm:order-5">
             <ProductSortSelect />

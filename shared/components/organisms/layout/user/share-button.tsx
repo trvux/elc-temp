@@ -24,8 +24,7 @@ interface ShareButtonProps {
   className?: string;
 }
 
-// Same icon-overlay pattern as WishlistButton (ProductImageGallery,
-// ServiceDetailModule hero). On mobile, the OS native share sheet
+// Icon-overlay button (ProductImageGallery, ServiceDetailModule hero). On mobile, the OS native share sheet
 // (navigator.share) already covers every app the user has installed, so the
 // popover fallback below only renders when that API is unavailable
 // (desktop browsers without navigator.share support).

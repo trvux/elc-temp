@@ -186,7 +186,6 @@ export async function ProductDetailModule({
         >
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-start">
             <ProductImageGallery
-              productId={product.id}
               images={images}
               fallbackAlt={`${product.name} ${defaultVariant?.sku ? `(${defaultVariant.sku})` : ""} - ${product.brand?.name || "ELC"} - Điện máy ELC`}
               shareUrl={`${BASE_URL}/san-pham/${product.slug}`}

@@ -47,7 +47,6 @@ erDiagram
     TAGS ||--o{ NEWS_TAGS : "tag_id"
 
     PRODUCTS ||--o{ REVIEWS : "product_id"
-    PRODUCTS ||--o{ WISHLIST_ITEMS : "product_id"
     PRODUCTS ||--o{ RECENTLY_VIEWED_ITEMS : "product_id"
 ```
 
@@ -79,7 +78,7 @@ erDiagram
 
 ### Nhóm Tương tác và Hệ thống (User Interactions and System)
 - products -> reviews (1 - N): Đánh giá của khách hàng cho sản phẩm.
-- products -> wishlist_items / recently_viewed_items (1 - N): Danh sách sản phẩm yêu thích và đã xem.
+- products -> recently_viewed_items (1 - N): Danh sách sản phẩm đã xem.
 - slug_registry: Bảng quản lý tập trung tất cả URL Slug trên toàn hệ thống.
 
 ## 3. Bảng tổng hợp các ràng buộc khóa ngoại (Foreign Keys)

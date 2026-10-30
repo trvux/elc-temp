@@ -63,7 +63,7 @@ interface ReviewFormSheetProps {
 }
 
 // Trigger + responsive Drawer(mobile)/Dialog(desktop) submission sheet —
-// same useIsMobile() split as shared/components/layout/user/wishlist-dialog.tsx,
+// same useIsMobile() split as the other Drawer/Dialog sheets,
 // same react-hook-form + zod + honeypot + mutation shape as
 // modules/inquiry/presentation/components/LeadForm.tsx. Submit button lives
 // in DrawerFooter/DialogFooter so it stays pinned at the bottom of the sheet.

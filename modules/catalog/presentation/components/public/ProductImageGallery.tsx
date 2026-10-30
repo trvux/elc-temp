@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react";
 import Image from "next/image";
 
-import { WishlistButton } from "@/shared/components/organisms/layout/user/wishlist-button";
 import { ShareButton } from "@/shared/components/organisms/layout/user/share-button";
 import { Spotlight } from "@/shared/components/molecules/motion-primitives/spotlight";
 import { AspectRatio } from "@/shared/components/ui/aspect-ratio";
@@ -21,7 +20,6 @@ interface GalleryImage {
 }
 
 interface ProductImageGalleryProps {
-  productId: string;
   images: GalleryImage[];
   fallbackAlt: string;
   shareUrl: string;
@@ -31,7 +29,7 @@ interface ProductImageGalleryProps {
 // Extracted to its own client component because the thumbnail strip needs
 // to track/drive the main Carousel's selected slide (embla's own API,
 // via setApi) — state a server component (ProductDetailModule) can't hold.
-export function ProductImageGallery({ productId, images, fallbackAlt, shareUrl, shareTitle }: ProductImageGalleryProps) {
+export function ProductImageGallery({ images, fallbackAlt, shareUrl, shareTitle }: ProductImageGalleryProps) {
   const [api, setApi] = useState<CarouselApi>();
   const [selectedIndex, setSelectedIndex] = useState(0);
 
@@ -52,7 +50,6 @@ export function ProductImageGallery({ productId, images, fallbackAlt, shareUrl, 
         <Spotlight size={280} />
         <div className="absolute top-3 right-3 z-40 flex items-center gap-2">
           <ShareButton url={shareUrl} title={shareTitle} size="icon" />
-          <WishlistButton productId={productId} size="icon" />
         </div>
         <Carousel className="w-full" setApi={setApi} aria-label="Ảnh sản phẩm">
           <CarouselContent>
