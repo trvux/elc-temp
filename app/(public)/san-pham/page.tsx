@@ -9,7 +9,6 @@ import {
   type CategorySectionData,
 } from "@/shared/components/organisms/layout/user/category-sections-grid";
 import { Breadcrumbs } from "@/shared/components/organisms/layout/user/breadcrumbs";
-import { CompareLinkButton } from "@/shared/components/organisms/layout/user/compare-link-button";
 import { ProductDescription } from "@/shared/components/organisms/layout/user/product-description";
 import { PreviewContent } from "@/shared/components/organisms/layout/user/preview-content";
 import { WishlistDialogButton } from "@/shared/components/organisms/layout/user/wishlist-dialog-button";
@@ -165,7 +164,6 @@ export default async function ProductsPage() {
           <h1 className="type-headline">Tất cả sản phẩm</h1>
           <div className="flex items-center gap-2 shrink-0">
             <WishlistDialogButton />
-            <CompareLinkButton />
             {/* Nút "Lọc" (facet/filter) sẽ vào đây khi filter theo thuộc tính được xây */}
           </div>
         </div>

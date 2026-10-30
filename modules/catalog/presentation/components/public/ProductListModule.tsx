@@ -22,7 +22,6 @@ import { HpPage } from "@/modules/hp-page/domain/types";
 import { getHpPagesAction } from "@/modules/hp-page/presentation/actions";
 import { FAQAccordion, getFAQsAction } from "@/modules/faq";
 import { Breadcrumbs } from "@/shared/components/organisms/layout/user/breadcrumbs";
-import { CompareLinkButton } from "@/shared/components/organisms/layout/user/compare-link-button";
 import { ProductDescription } from "@/shared/components/organisms/layout/user/product-description";
 import { PreviewContent } from "@/shared/components/organisms/layout/user/preview-content";
 import { WishlistDialogButton } from "@/shared/components/organisms/layout/user/wishlist-dialog-button";
@@ -586,17 +585,12 @@ export async function ProductListModule({
             />
           </div>
 
-          {/* forces Wishlist/Compare/Sort onto their own line on mobile only */}
+          {/* forces Wishlist/Sort onto their own line on mobile only */}
           <div className="basis-full order-3 sm:hidden" />
 
           <div className="order-4 sm:order-2">
             <WishlistDialogButton />
           </div>
-          {totalCount >= 2 && (
-            <div className="order-5 sm:order-3">
-              <CompareLinkButton />
-            </div>
-          )}
 
           <div className="order-6 sm:order-5">
             <ProductSortSelect />

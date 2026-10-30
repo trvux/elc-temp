@@ -20,7 +20,7 @@ PREFIX = {
 }
 PUBLISHED = {'news', 'projects', 'services', 'pages', 'branches'}
 STATIC = ['/', '/san-pham', '/dich-vu', '/du-an', '/tin-tuc', '/thong-tin', '/yeu-thich',
-          '/san-pham/so-sanh', '/form', '/magic-link', '/login', '/login/verify']
+          '/form', '/magic-link', '/login', '/login/verify']
 # Real routes only (app/api/*). Scanners probing /api/.env etc. must not reach Next.
 INFRA = [
     '"~^/_next/" 1;', '"~^/admin(/|$)" 1;',

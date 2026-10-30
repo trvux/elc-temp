@@ -60,7 +60,7 @@ export const metadata: Metadata = {
   // to "standard" preview size — which also caps the image size Google
   // Discover is willing to show for blog/tin-tuc articles, regardless of
   // how large the source image actually is. Pages that need noindex (form,
-  // so-sanh, hidden products) already set their own `robots` and fully
+  // hidden products) already set their own `robots` and fully
   // override this, so this default only reaches indexable pages.
   robots: {
     index: true,

@@ -22,7 +22,7 @@ ADMIN = re.compile(r'app/\(admin\)|layout/admin|/form/|Management|Columns|column
 AUTH = re.compile(r'app/\(auth\)|layout/auth|modules/auth/')
 PUBLIC = re.compile(r'app/\((public|auth|fullscreen)\)|layout/user|layout/auth|organisms/(sections|link-preview)|/public/|'
                     r'modules/(inquiry|auth|faq|review|hp-page|page)/|app/not-found|'
-                    r'catalog/presentation/components/(ProductCard|ComparisonTable|FormattedPrice)|'
+                    r'catalog/presentation/components/(ProductCard|FormattedPrice)|'
                     r'(BranchCard|CardService|ProjectCard)\.tsx|providers/')
 
 

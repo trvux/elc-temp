@@ -5,9 +5,7 @@ import { ChunkErrorListener } from "@/shared/components/organisms/layout/user/ch
 import { FilterTransitionProvider } from "@/shared/providers/filter-transition-provider";
 import { ProductFloatingProvider } from "@/shared/providers/product-floating-provider";
 import { WishlistProvider } from "@/shared/providers/wishlist-provider";
-import { CompareProvider } from "@/shared/providers/compare-provider";
 import { ContactProvider } from "@/shared/providers/contact-provider";
-import { CompareTray } from "@/shared/components/organisms/layout/user/compare-tray";
 import { WishlistDialog } from "@/shared/components/organisms/layout/user/wishlist-dialog";
 import { TopProgressBar } from "@/shared/components/organisms/layout/user/top-progress-bar";
 import { StickyContactActions } from "@/shared/components/organisms/sections/sticky-contact-actions";
@@ -54,7 +52,6 @@ export default async function PublicLayout({ children }: PublicLayoutProps) {
   return (
     <ContactProvider contacts={contacts || []}>
     <WishlistProvider>
-    <CompareProvider>
     <ProductFloatingProvider>
     <FilterTransitionProvider>
       {/* Organization + WebSite — the only two site-wide JSON-LD entities,
@@ -134,13 +131,11 @@ export default async function PublicLayout({ children }: PublicLayoutProps) {
           currentYear={currentYear}
         />
         <StickyContactActions contacts={contacts || []} />
-        <CompareTray />
         <WishlistDialog />
       </div>
       <ConsentBanner initialConsent={storedConsent} />
     </FilterTransitionProvider>
     </ProductFloatingProvider>
-    </CompareProvider>
     </WishlistProvider>
     </ContactProvider>
   );

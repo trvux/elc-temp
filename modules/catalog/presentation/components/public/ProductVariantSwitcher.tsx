@@ -14,9 +14,7 @@ import { FormattedPrice } from "@/modules/catalog/presentation/components/Format
 import { Contact } from "@/modules/contact/domain";
 import { Button } from "@/shared/components/ui/button";
 import { OrderButton } from "@/shared/components/organisms/layout/user/order-button";
-import { CompareToggleButton } from "@/shared/components/organisms/layout/user/compare-toggle-button";
 import { StockBadge } from "@/shared/components/ui/stock-badge";
-import type { CompareItem } from "@/shared/providers/compare-provider";
 import { ZaloProductInfo } from "@/shared/lib/zalo-message";
 import { ShieldCheck } from "@phosphor-icons/react";
 
@@ -25,7 +23,6 @@ interface ProductVariantSwitcherProps {
   variants: ProductVariant[];
   options: ProductOption[];
   contacts: Contact[];
-  compareItem: CompareItem;
 }
 
 // Everything from here down to the CTAs is one continuous block — a single
@@ -33,7 +30,7 @@ interface ProductVariantSwitcherProps {
 // (price/stock/CTAs), instead of the previous stack of separately bordered
 // boxes (specs box, SKU+stock box, delivery box) that read as disconnected
 // modules bolted together rather than one designed unit.
-export function ProductVariantSwitcher({ product, variants, options, contacts, compareItem }: ProductVariantSwitcherProps) {
+export function ProductVariantSwitcher({ product, variants, options, contacts }: ProductVariantSwitcherProps) {
   // Only variants meant to be independently purchasable — bundle parts
   // (is_standalone=false, e.g. "Dàn lạnh FTKB25") never appear as a
   // selectable option here.
@@ -84,7 +81,6 @@ export function ProductVariantSwitcher({ product, variants, options, contacts, c
         variant={selected}
         product={product}
         contacts={contacts}
-        compareItem={compareItem}
       />
     </div>
   );
@@ -116,12 +112,10 @@ function BuyBox({
   variant,
   product,
   contacts,
-  compareItem,
 }: {
   variant?: ProductVariant;
   product: ProductWithRelations;
   contacts: Contact[];
-  compareItem: CompareItem;
 }) {
   const price = variant?.displayPrice || 0;
   const originalPrice = variant?.originalPrice || 0;
@@ -171,7 +165,6 @@ function BuyBox({
             productSlug: product.slug,
           } satisfies ZaloProductInfo}
         />
-        <CompareToggleButton variant="button" size="lg" item={compareItem} />
       </div>
     </div>
   );

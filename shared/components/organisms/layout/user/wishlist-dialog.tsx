@@ -44,8 +44,7 @@ interface WishlistItem {
   } | null;
 }
 
-// Single global instance (mounted once in the public layout, next to
-// CompareTray) driven entirely by WishlistProvider's isDialogOpen state —
+// Single global instance (mounted once in the public layout) driven entirely by WishlistProvider's isDialogOpen state —
 // both the header's WishlistDialogButton trigger and the "Xem danh sách"
 // toast action after a wishlist add just flip that same state, so there's
 // one dialog/drawer to keep in sync instead of duplicating this content per

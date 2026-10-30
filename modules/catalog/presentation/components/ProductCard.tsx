@@ -16,7 +16,6 @@ import { StockBadge } from "@/shared/components/ui/stock-badge";
 import { primaryImageUrl } from "@/shared/lib/image-asset";
 import { BuyNowButton } from "@/shared/components/organisms/layout/user/buy-now-button";
 import { WishlistButton } from "@/shared/components/organisms/layout/user/wishlist-button";
-import { CompareToggleButton } from "@/shared/components/organisms/layout/user/compare-toggle-button";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -45,7 +44,7 @@ export function ProductCard({
 
   return (
     <Card className="relative mx-auto w-full h-full max-w-sm pt-0 gap-0 overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-lg">
-      {/* Wishlist/compare live in their own footer row below, as a
+      {/* Wishlist lives in its own footer row below, as a
           sibling of this Link rather than nested inside it — nesting real
           interactive elements (button/checkbox) inside an <a> is invalid
           HTML and browsers handle it inconsistently (a tap on the nested
@@ -117,11 +116,6 @@ export function ProductCard({
         <div className="flex items-center gap-2 sm:contents">
           <WishlistButton productId={product.id} variant="button" className="flex-1 sm:hidden" />
           <WishlistButton productId={product.id} variant="icon" className="hidden sm:inline-flex sm:order-2" />
-          <CompareToggleButton
-            variant="icon"
-            className="rounded-md sm:order-3 sm:rounded-full"
-            item={{ id: product.id, name: product.name, slug: product.slug, categoryId: product.categoryId }}
-          />
         </div>
         <BuyNowButton
           productId={product.id}

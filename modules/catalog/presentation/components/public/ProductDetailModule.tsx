@@ -156,7 +156,6 @@ export async function ProductDetailModule({
   const finalPrice = resolveProductDisplayPrice(product);
   const defaultVariant = resolveDefaultVariant(product);
   const images = product.images || [];
-  const compareItem = { id: product.id, name: product.name, slug: product.slug, categoryId: product.categoryId };
 
   const breadcrumbItems = [
     { label: "Sản phẩm", href: "/san-pham" },
@@ -218,7 +217,6 @@ export async function ProductDetailModule({
                 variants={product.variants || []}
                 options={product.options || []}
                 contacts={contacts || []}
-                compareItem={compareItem}
               />
             </div>
           </div>
