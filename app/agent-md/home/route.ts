@@ -3,7 +3,6 @@ import { getBranchesAction } from "@/modules/branch/presentation/actions";
 import { getBrandsAction } from "@/modules/brand/presentation/actions";
 import { getCategoriesAction } from "@/modules/category/presentation/actions";
 import { getContactsAction } from "@/modules/contact/presentation/actions";
-import { getProjectsAction } from "@/modules/project/presentation/actions";
 import { getServicesAction } from "@/modules/service/presentation/actions";
 import { buildHomeMarkdown, MARKDOWN_HEADERS } from "@/shared/lib/agent-markdown/render";
 
@@ -13,13 +12,12 @@ import { buildHomeMarkdown, MARKDOWN_HEADERS } from "@/shared/lib/agent-markdown
 export async function GET() {
   await connection();
 
-  const [contacts, branches, categories, brands, services, projects] = await Promise.all([
+  const [contacts, branches, categories, brands, services] = await Promise.all([
     getContactsAction(),
     getBranchesAction({ isPublished: true }),
     getCategoriesAction(),
     getBrandsAction({ limit: 100 }),
     getServicesAction({ isPublished: true }),
-    getProjectsAction({ isPublished: true, limit: 200 }),
   ]);
 
   const body = buildHomeMarkdown({
@@ -30,7 +28,6 @@ export async function GET() {
       .map((c) => ({ name: c.name, slug: c.slug })),
     brands: brands.data,
     services: services.data,
-    projects: projects.data.filter((p) => p.isFeatured).slice(0, 15),
   });
 
   return new Response(body, { status: 200, headers: MARKDOWN_HEADERS });

@@ -2,11 +2,9 @@ import type { Metadata } from "next";
 
 import { CTASection } from "@/shared/components/organisms/sections/cta";
 import { HeroSection } from "@/shared/components/organisms/sections/hero";
-import { ProjectBounceCardsSection } from "@/shared/components/organisms/sections/project-bounce-cards";
 
 import { getBrandsAction } from "@/modules/brand/presentation/actions";
 import { getContactsAction } from "@/modules/contact/presentation/actions";
-import { getProjectsAction } from "@/modules/project/presentation/actions";
 
 import { unwrapActionResult } from "@/shared/lib/action-result";
 import { BASE_URL } from "@/shared/lib/seo-schema";
@@ -19,38 +17,18 @@ export const metadata: Metadata = {
 };
 
 async function getCachedHomeData() {
-  const [projects, contacts, brands] = await Promise.all([
-    getProjectsAction({
-      isPublished: true,
-      limit: 200,
-    }).then(unwrapActionResult),
+  const [contacts, brands] = await Promise.all([
     getContactsAction().then(unwrapActionResult),
     getBrandsAction({ limit: 100 }).then(unwrapActionResult),
   ]);
 
-  return { projects, contacts, brands };
+  return { contacts, brands };
 }
 
 export default async function Home() {
-  const { projects, contacts, brands } = await getCachedHomeData();
+  const { contacts, brands } = await getCachedHomeData();
 
   const sections = [
-    {
-      id: "project-marquee",
-      component: (
-        <ProjectBounceCardsSection
-          projects={(projects || [])
-            .filter((p) => p.isFeatured)
-            .map(({ id, slug, title, images }) => ({
-              id,
-              slug,
-              title,
-              images: images.slice(0, 1),
-            }))}
-          title="Dự án tiêu biểu nổi bật"
-        />
-      ),
-    },
     {
       id: "cta",
       component: <CTASection contacts={contacts || []} />,

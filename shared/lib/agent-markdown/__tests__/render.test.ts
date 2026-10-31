@@ -39,7 +39,6 @@ describe("buildHomeMarkdown", () => {
     branches: [{ name: "Showroom", address: "06 Dương Quảng Hàm", phone: "0901" }],
     categories: [{ name: "Máy lạnh", slug: "may-lanh" }],
     services: [{ title: "Vệ sinh máy lạnh", slug: "ve-sinh" }],
-    projects: [{ title: "Biệt thự Quận 7", slug: "biet-thu-q7" }],
     brands: [{ name: "Daikin", slug: "daikin" }],
   });
 
@@ -48,7 +47,6 @@ describe("buildHomeMarkdown", () => {
     expect(md).toContain(`> ${ORGANIZATION_DESCRIPTION}`);
     expect(md).toContain(`[Máy lạnh](${BASE_URL}/san-pham/may-lanh)`);
     expect(md).toContain(`(${BASE_URL}/dich-vu/ve-sinh)`);
-    expect(md).toContain(`(${BASE_URL}/du-an/biet-thu-q7)`);
   });
 
   it("includes active contacts only, plus branches", () => {

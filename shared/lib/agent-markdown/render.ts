@@ -14,7 +14,6 @@ export interface HomeMarkdownInput {
   branches: Array<{ name: string; address: string; phone?: string | null }>;
   categories: Array<{ name: string; slug: string }>;
   services: Array<{ title: string; slug: string }>;
-  projects: Array<{ title: string; slug: string }>;
   brands: Array<{ name: string; slug: string }>;
 }
 
@@ -39,12 +38,6 @@ export function buildHomeMarkdown(input: HomeMarkdownInput): string {
   if (input.services.length > 0) {
     out.push("## Dịch vụ", "");
     for (const s of input.services) out.push(`- [${s.title}](${BASE_URL}/dich-vu/${s.slug})`);
-    out.push("");
-  }
-
-  if (input.projects.length > 0) {
-    out.push("## Dự án tiêu biểu", "");
-    for (const p of input.projects) out.push(`- [${p.title}](${BASE_URL}/du-an/${p.slug})`);
     out.push("");
   }
 
