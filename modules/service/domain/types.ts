@@ -3,7 +3,7 @@ import { CategoryWithGroup } from "@/modules/category/domain/types";
 import type { ImageAsset } from "@/shared/lib/image-asset";
 export type { ImageAsset };
 import type { TitleAlign } from "@/shared/lib/title-align";
-export type { TitleAlign };
+;
 
 type Json =
   | string

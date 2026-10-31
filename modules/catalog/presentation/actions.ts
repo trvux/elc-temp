@@ -449,28 +449,6 @@ export async function getProductsAction(filter?: ProductFilter) {
   }
 }
 
-export async function getProductBySlugAction(slug: string) {
-  if (!GO_API_URL) {
-    return { data: null, error: null };
-  }
-  try {
-    const res = await fetch(`${GO_API_URL}/products/slug/${encodeURIComponent(slug)}`, { cache: "no-store" });
-    if (res.status === 404) {
-      return { data: null, error: null };
-    }
-    if (!res.ok) {
-      return { data: null, error: await extractErrorMessage(res, "Không thể tải thông tin sản phẩm") };
-    }
-
-    const row = (await res.json()) as GoProductResponse;
-    return { data: mapGoProduct(row), error: null };
-  } catch (error) {
-    if (isPrerenderError(error)) throw error;
-    console.error("getProductBySlugAction error:", error);
-    return { data: null, error: "Không thể tải thông tin sản phẩm" };
-  }
-}
-
 export async function getProductByIdAction(id: string) {
   if (!GO_API_URL) {
     return { data: null, error: null };
@@ -490,31 +468,6 @@ export async function getProductByIdAction(id: string) {
     if (isPrerenderError(error)) throw error;
     console.error("getProductByIdAction error:", error);
     return { data: null, error: "Không thể tải thông tin sản phẩm" };
-  }
-}
-
-export async function getProductsByIdsAction(ids: string[]) {
-  if (!GO_API_URL || ids.length === 0) {
-    return { data: [] as ProductWithRelations[], error: null };
-  }
-  try {
-    const res = await fetch(`${GO_API_URL}/products/by-ids`, {
-      // Public read-only route (batch fetch by ID) — no auth header needed.
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ ids }),
-      cache: "no-store",
-    });
-    if (!res.ok) {
-      return { data: [], error: await extractErrorMessage(res, "Không thể tải danh sách sản phẩm") };
-    }
-
-    const rows = (await res.json()) as GoProductResponse[] | null;
-    return { data: (rows ?? []).map(mapGoProduct), error: null };
-  } catch (error) {
-    if (isPrerenderError(error)) throw error;
-    console.error("getProductsByIdsAction error:", error);
-    return { data: [], error: "Không thể tải danh sách sản phẩm" };
   }
 }
 

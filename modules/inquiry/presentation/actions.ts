@@ -235,27 +235,6 @@ export async function countInquiriesAction(filter?: InquiryFilter) {
   }
 }
 
-export async function getInquiryByIdAction(id: string) {
-  if (!GO_API_URL) {
-    return { data: null, error: "GO_API_URL is not configured" };
-  }
-  try {
-    const res = await fetch(`${GO_API_URL}/inquiries/${id}`, {
-      headers: await authHeaders(),
-      cache: "no-store",
-    });
-    if (!res.ok) {
-      return { data: null, error: await extractErrorMessage(res) };
-    }
-
-    const row = (await res.json()) as GoInquiryResponse;
-    return { data: mapGoInquiry(row), error: null };
-  } catch (error) {
-    console.error("getInquiryByIdAction error:", error);
-    return { data: null, error: "Failed to fetch inquiry" };
-  }
-}
-
 export async function updateInquiryStatusAction(input: UpdateInquiryStatusInput) {
   if (!GO_API_URL) {
     return { data: null, error: "GO_API_URL is not configured" };

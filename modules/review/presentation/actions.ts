@@ -155,24 +155,3 @@ export async function getAdminReviewsAction(filter?: AdminReviewFilter) {
     return { data: [], error: "Không thể tải danh sách đánh giá" };
   }
 }
-
-export async function countAdminReviewsAction() {
-  if (!GO_API_URL) {
-    return { data: 0, error: null };
-  }
-  try {
-    const res = await fetch(`${GO_API_URL}/admin/reviews/count`, {
-      headers: await authHeaders(),
-      cache: "no-store",
-    });
-    if (!res.ok) {
-      return { data: 0, error: await extractErrorMessage(res, "Không thể đếm đánh giá") };
-    }
-
-    const body = (await res.json()) as { count: number };
-    return { data: body.count, error: null };
-  } catch (error) {
-    console.error("countAdminReviewsAction error:", error);
-    return { data: 0, error: "Không thể đếm đánh giá" };
-  }
-}

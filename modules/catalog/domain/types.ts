@@ -1,4 +1,3 @@
-
 import { Brand } from "../../brand/domain";
 export type { Brand };
 import type { AttributeDataType } from "../../attribute-definition/domain";
@@ -6,7 +5,7 @@ export type { AttributeDataType };
 import { ProductStatus, VariantStockStatus } from "./constants";
 import type { ImageAsset } from "@/shared/lib/image-asset";
 import type { TitleAlign } from "@/shared/lib/title-align";
-export type { TitleAlign };
+;
 
 export type Json =
     | string

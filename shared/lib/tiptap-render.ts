@@ -94,7 +94,7 @@ export const HEADING_LEVELS = [2, 3] as const;
 // below — like HEADING_LEVELS, kept as one constant so admin and render
 // can't drift apart on which node types are allowed to carry a textAlign
 // attribute.
-export const TEXT_ALIGN_TYPES = ["heading", "paragraph"] as const;
+const TEXT_ALIGN_TYPES = ["heading", "paragraph"] as const;
 
 function normalizeHeadingAttrs(node: TiptapNode): TiptapNode {
   let normalizedContent = node.content

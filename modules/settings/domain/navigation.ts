@@ -4,12 +4,12 @@ import {
   type GroupCategoryRef,
 } from "@/shared/lib/group-categories";
 
-export interface NavLinkItem {
+interface NavLinkItem {
   label: string;
   href: string;
 }
 
-export interface NavColumn {
+interface NavColumn {
   heading: string;
   /** First column of a panel is rendered large (apple.com style). */
   big?: boolean;
@@ -149,8 +149,4 @@ export function buildNavGroups({
     { label: "Tin tức", href: "/tin-tuc" },
     { label: "Giới thiệu", href: "/thong-tin" },
   ];
-}
-
-export function checkActiveLink(href: string, pathname: string) {
-  return pathname.startsWith(href);
 }

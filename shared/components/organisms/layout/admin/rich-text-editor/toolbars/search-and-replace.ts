@@ -220,7 +220,7 @@ const selectPrevious = (editor: CoreEditor) => {
   }
 };
 
-export const searchAndReplacePluginKey = new PluginKey(
+const searchAndReplacePluginKey = new PluginKey(
   "searchAndReplacePlugin",
 );
 
@@ -405,4 +405,3 @@ export const SearchAndReplace = Extension.create<
   },
 });
 
-export default SearchAndReplace;

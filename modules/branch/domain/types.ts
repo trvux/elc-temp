@@ -9,7 +9,7 @@ export type Json =
 import type { ImageAsset } from "@/shared/lib/image-asset";
 export type { ImageAsset };
 import type { TitleAlign } from "@/shared/lib/title-align";
-export type { TitleAlign };
+;
 
 export interface Branch {
   id: string;

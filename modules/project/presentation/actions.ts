@@ -239,7 +239,7 @@ export async function countProjectsAction(
   }
 }
 
-export async function getProjectByIdAction(id: string) {
+async function getProjectByIdAction(id: string) {
   if (!GO_API_URL) {
     return { data: null, error: null };
   }
@@ -283,10 +283,6 @@ export async function resolveProjectDetailAction(slug: string) {
     console.error("resolveProjectDetailAction error:", error);
     return { data: null, error: "Failed to fetch project detail" };
   }
-}
-
-export async function getFeaturedProjectsAction(limit: number = 4) {
-  return getProjectsAction({ isPublished: true, isFeatured: true, limit });
 }
 
 export async function getAdjacentProjectsAction(currentId: string, projectTypeId?: string | null) {
@@ -421,77 +417,6 @@ export async function deleteProjectAction(id: string) {
   } catch (error) {
     console.error("deleteProjectAction error:", error);
     return { error: "Failed to delete project" };
-  }
-}
-
-export async function toggleProjectPublishAction(id: string, isPublished: boolean) {
-  if (!GO_API_URL) {
-    return { error: "GO_API_URL is not configured" };
-  }
-  try {
-    const res = await fetch(`${GO_API_URL}/projects/${id}/publish`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json", ...(await authHeaders()) },
-      body: JSON.stringify({ value: isPublished }),
-    });
-    if (!res.ok) {
-      return { error: await extractErrorMessage(res, "Failed to toggle publish status") };
-    }
-    const proj = await getProjectByIdAction(id).then((r) => r.data);
-    revalidatePaths(proj?.slug);
-    if (isPublished && proj?.slug) {
-      const url = `${BASE_URL}/du-an/${proj.slug}`;
-      submitToIndexNow([url]).catch((err) => console.error("IndexNow project toggle error:", err));
-      warmCache([url]);
-    }
-    return { error: null };
-  } catch (error) {
-    console.error("toggleProjectPublishAction error:", error);
-    return { error: "Failed to toggle publish status" };
-  }
-}
-
-export async function toggleProjectFeaturedAction(id: string, isFeatured: boolean) {
-  if (!GO_API_URL) {
-    return { error: "GO_API_URL is not configured" };
-  }
-  try {
-    const proj = await getProjectByIdAction(id).then((r) => r.data);
-    const res = await fetch(`${GO_API_URL}/projects/${id}/featured`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json", ...(await authHeaders()) },
-      body: JSON.stringify({ value: isFeatured }),
-    });
-    if (!res.ok) {
-      return { error: await extractErrorMessage(res, "Failed to toggle featured status") };
-    }
-    revalidatePaths(proj?.slug);
-    return { error: null };
-  } catch (error) {
-    console.error("toggleProjectFeaturedAction error:", error);
-    return { error: "Failed to toggle featured status" };
-  }
-}
-
-export async function updateProjectOrderAction(id: string, orderIndex: number) {
-  if (!GO_API_URL) {
-    return { error: "GO_API_URL is not configured" };
-  }
-  try {
-    const proj = await getProjectByIdAction(id).then((r) => r.data);
-    const res = await fetch(`${GO_API_URL}/projects/${id}/order`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json", ...(await authHeaders()) },
-      body: JSON.stringify({ order_index: orderIndex }),
-    });
-    if (!res.ok) {
-      return { error: await extractErrorMessage(res, "Failed to update project order") };
-    }
-    revalidatePaths(proj?.slug);
-    return { error: null };
-  } catch (error) {
-    console.error("updateProjectOrderAction error:", error);
-    return { error: "Failed to update project order" };
   }
 }
 

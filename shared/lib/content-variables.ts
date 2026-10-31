@@ -13,7 +13,7 @@
 import type { ContentVariableMetric } from "@/shared/lib/tiptap-content-variable";
 export type { ContentVariableMetric };
 
-export interface ContentVariableFilter {
+interface ContentVariableFilter {
   groupSlug?: string;
   categorySlug?: string;
   brandSlug?: string;
@@ -44,7 +44,7 @@ function isTiptapNode(value: unknown): value is TiptapNodeLike {
  * match the resolve response back to the right node within this one call,
  * never persisted or sent anywhere else.
  */
-export function collectContentVariables(doc: unknown): ContentVariableRequest[] {
+function collectContentVariables(doc: unknown): ContentVariableRequest[] {
   const out: ContentVariableRequest[] = [];
   let index = 0;
 
@@ -81,7 +81,7 @@ export function collectContentVariables(doc: unknown): ContentVariableRequest[] 
  * whatever resolvedText it already had (i.e. none, so it falls back to
  * `fallbackText` at render time — see tiptap-content-variable.ts).
  */
-export function applyContentVariableValues(
+function applyContentVariableValues(
   doc: unknown,
   formattedValues: Record<string, string>,
 ): unknown {

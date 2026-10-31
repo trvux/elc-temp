@@ -22,7 +22,7 @@ export interface HomeMarkdownInput {
   brands: Array<{ name: string; slug: string }>;
 }
 
-export const HOME_MARKDOWN_TITLE = "Điện máy ELC - Máy lạnh, cấp khí tươi, lọc nước chính hãng";
+const HOME_MARKDOWN_TITLE = "Điện máy ELC - Máy lạnh, cấp khí tươi, lọc nước chính hãng";
 
 export function buildHomeMarkdown(input: HomeMarkdownInput): string {
   const out: string[] = [];

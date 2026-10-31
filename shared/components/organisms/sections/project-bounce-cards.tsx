@@ -13,7 +13,7 @@ import { ArrowRight } from "@phosphor-icons/react/dist/ssr";
 
 // Only what the card renders — callers slim projects before crossing the
 // server/client boundary so full project content isn't serialized into the page.
-export type ProjectBounceCard = Pick<ProjectWithCategory, "id" | "slug" | "title" | "images">;
+type ProjectBounceCard = Pick<ProjectWithCategory, "id" | "slug" | "title" | "images">;
 
 interface ProjectBounceCardsSectionProps {
   title?: string;

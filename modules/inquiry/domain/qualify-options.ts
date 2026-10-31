@@ -258,7 +258,7 @@ function mergeMaps(...optionSets: ChoiceOption[][]): Record<string, string> {
 // "khong" style value across two *different* keys' entries here — that's
 // why tradeIn (YES_NO_OPTIONS) and siteVisit (SITE_VISIT_OPTIONS) stay
 // scoped to their own key even though both happen to use "co".
-export const QUALIFY_VALUE_LABELS: Record<string, Record<string, string>> = {
+const QUALIFY_VALUE_LABELS: Record<string, Record<string, string>> = {
   scale: mergeMaps(SCALE_OPTIONS, PROJECT_SCALE_OPTIONS_SMALL, PROJECT_SCALE_OPTIONS_MEDIUM, PROJECT_SCALE_OPTIONS_LARGE),
   budget: mergeMaps(
     PRODUCT_BUDGET_OPTIONS,

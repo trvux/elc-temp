@@ -12,7 +12,7 @@
 export const CONSENT_COOKIE_NAME = "elc_consent";
 export const CONSENT_COOKIE_MAX_AGE = 60 * 60 * 24 * 180; // 6 tháng
 
-export type ConsentChoice = "granted" | "denied";
+type ConsentChoice = "granted" | "denied";
 
 export interface ConsentState {
   analytics: ConsentChoice;

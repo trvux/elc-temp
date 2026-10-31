@@ -3,7 +3,7 @@
 import { cn } from "@/shared/lib/utils";
 import type { ChoiceOption } from "../../../domain";
 
-export type { ChoiceOption };
+;
 
 interface ChoiceStepProps {
   question: string;

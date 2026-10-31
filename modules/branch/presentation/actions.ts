@@ -114,46 +114,6 @@ export async function getBranchesAction(options?: BranchFilter) {
   }
 }
 
-export async function getBranchesWithCountAction(options?: BranchFilter) {
-  if (!GO_API_URL) {
-    return { data: [] as Branch[], total: 0, error: null };
-  }
-  try {
-    const params = new URLSearchParams();
-    if (options?.isPublished !== undefined) params.set("is_published", String(options.isPublished));
-    if (options?.search) params.set("search", options.search);
-    if (options?.limit) params.set("limit", String(options.limit));
-    if (options?.offset) params.set("offset", String(options.offset));
-
-    const [listRes, countRes] = await Promise.all([
-      fetch(`${GO_API_URL}/branches?${params.toString()}`, { cache: "no-store" }),
-      fetch(`${GO_API_URL}/branches/count?${params.toString()}`, { cache: "no-store" }),
-    ]);
-
-    if (!listRes.ok) {
-      return { data: [], total: 0, error: await extractErrorMessage(listRes, "Không thể tải danh sách chi nhánh") };
-    }
-    if (!countRes.ok) {
-      return { data: [], total: 0, error: await extractErrorMessage(countRes, "Không thể đếm số lượng chi nhánh") };
-    }
-
-    const [rows, countData] = await Promise.all([
-      listRes.json() as Promise<GoBranchResponse[] | null>,
-      countRes.json() as Promise<{ count: number }>,
-    ]);
-
-    return {
-      data: (rows ?? []).map(mapGoBranch),
-      total: countData.count,
-      error: null,
-    };
-  } catch (error) {
-    if (isPrerenderError(error)) throw error;
-    console.error("getBranchesWithCountAction error:", error);
-    return { data: [], total: 0, error: "Không thể tải danh sách chi nhánh" };
-  }
-}
-
 export async function getBranchBySlugAction(slug: string) {
   if (!GO_API_URL) {
     return { data: null, error: null };
@@ -258,33 +218,6 @@ export async function deleteBranchAction(id: string) {
     return {
       success: false,
       error: error instanceof Error ? error.message : "Không thể xóa chi nhánh",
-    };
-  }
-}
-
-export async function updateBranchOrderAction(id: string, orderIndex: number) {
-  if (!GO_API_URL) {
-    return { success: false, error: "GO_API_URL is not configured" };
-  }
-  try {
-    const res = await fetch(`${GO_API_URL}/branches/${id}/order`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json", ...(await authHeaders()) },
-      body: JSON.stringify({ order_index: orderIndex }),
-    });
-    if (!res.ok) {
-      return { success: false, error: await extractErrorMessage(res, "Không thể cập nhật thứ tự chi nhánh") };
-    }
-
-    revalidatePath("/admin/branches");
-    revalidateTag("layout", { expire: 0 });
-    return { success: true, error: null };
-  } catch (error) {
-    if (isPrerenderError(error)) throw error;
-    console.error("updateBranchOrderAction error:", error);
-    return {
-      success: false,
-      error: error instanceof Error ? error.message : "Không thể cập nhật thứ tự chi nhánh",
     };
   }
 }
