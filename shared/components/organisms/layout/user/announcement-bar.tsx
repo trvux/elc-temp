@@ -13,10 +13,10 @@ export function AnnouncementBar() {
   return (
     <aside
       aria-label="Thông báo từ Điện máy ELC"
-      className="dark bg-secondary text-foreground px-4 py-2 text-center"
+      className="dark bg-muted text-foreground px-4 py-2 text-center"
     >
-      <p className="type-caption">
-        Điện máy ELC đang nâng cấp website và cập nhật nội dung. Cảm ơn bạn đã thông cảm.
+      <p className="type-body-sm">
+        Thông báo: Điện máy ELC đang nâng cấp website và cập nhật nội dung nên đôi khi chưa hoàn thiện.
       </p>
     </aside>
   );
