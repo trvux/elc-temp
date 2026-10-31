@@ -6,17 +6,23 @@ describe("Product Validators", () => {
     id: "550e8400-e29b-411d-a716-446655440000",
     name: "iPhone 15 Pro",
     slug: "iphone-15-pro",
-    sku: "IP15P-128-BLU",
     description: { content: "Detailed description" },
-    originalPrice: 25000000,
-    salePrice: 23500000,
-    discountPercent: 6,
     images: [{ url: "https://example.com/iphone.jpg" }],
     isFeatured: true,
-    isPublished: true,
     orderIndex: 1,
     categoryId: "550e8400-e29b-411d-a716-446655440001",
     brandId: "550e8400-e29b-411d-a716-446655440002",
+    // Product itself carries no sku/price — they live on its variants, and at
+    // least one variant is required.
+    variants: [
+      {
+        mpn: "IP15P-128-BLU",
+        sku: "IP15P-128-BLU",
+        originalPrice: 25000000,
+        salePrice: 23500000,
+        discountPercent: 6,
+      },
+    ],
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
     deletedAt: null,
@@ -41,8 +47,16 @@ describe("Product Validators", () => {
       expect(result.success).toBe(false);
     });
 
-    it("should fail if price is negative", () => {
-      const result = productSchema.safeParse({ ...validProduct, originalPrice: -100 });
+    it("should fail if a variant price is negative", () => {
+      const result = productSchema.safeParse({
+        ...validProduct,
+        variants: [{ ...validProduct.variants[0], originalPrice: -100 }],
+      });
+      expect(result.success).toBe(false);
+    });
+
+    it("should fail if there is no variant", () => {
+      const result = productSchema.safeParse({ ...validProduct, variants: [] });
       expect(result.success).toBe(false);
     });
 
@@ -54,22 +68,21 @@ describe("Product Validators", () => {
 
   describe("createProductSchema", () => {
     it("should validate valid create input", () => {
-      const { id, createdAt, updatedAt, deletedAt, discountPercent, ...createInput } = validProduct;
+      const { id, createdAt, updatedAt, deletedAt, ...createInput } = validProduct;
       const result = createProductSchema.safeParse(createInput);
       expect(result.success).toBe(true);
     });
 
-    it("should require name, slug, sku, originalPrice, categoryId, and brandId", () => {
+    it("should require name, slug, categoryId, brandId and variants", () => {
       const result = createProductSchema.safeParse({});
       expect(result.success).toBe(false);
       if (!result.success) {
         const paths = result.error.issues.map(e => e.path[0]);
         expect(paths).toContain("name");
         expect(paths).toContain("slug");
-        expect(paths).toContain("sku");
-        expect(paths).toContain("originalPrice");
         expect(paths).toContain("categoryId");
         expect(paths).toContain("brandId");
+        expect(paths).toContain("variants");
       }
     });
   });
