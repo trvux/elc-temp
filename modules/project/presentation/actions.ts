@@ -1,6 +1,6 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
 import {
   CreateProjectInput,
   UpdateProjectInput,
@@ -396,6 +396,7 @@ export async function deleteProjectAction(id: string) {
 }
 
 function revalidatePaths() {
+  revalidateTag("projects", { expire: 0 });
   revalidatePath("/admin/projects");
   revalidatePath("/du-an", "layout");
 }

@@ -1,13 +1,13 @@
 import { getPagesAction } from "@/modules/page/presentation/actions";
 import { getContactsAction } from "@/modules/contact/presentation/actions";
 import { getBranchesAction } from "@/modules/branch/presentation/actions";
-import { getProjectsAction } from "@/modules/project/presentation/actions";
 import { getGroupsAction } from "@/modules/group/presentation/actions";
 import { getCategoriesAction } from "@/modules/category/presentation/actions";
 import { getBrandsAction } from "@/modules/brand/presentation/actions";
 import { getProjectTypesAction } from "@/modules/project-type/presentation/actions";
 import { unstable_cache } from "next/cache";
 import { getProductsAction } from "@/modules/catalog/presentation/actions";
+import { getProjectsAction } from "@/modules/project/presentation/actions";
 import { PRODUCT_STATUS } from "@/modules/catalog/domain";
 import { getServicesAction } from "@/modules/service/presentation/actions";
 import { getServiceGroupsAction } from "@/modules/service-group/presentation/actions";
@@ -30,24 +30,46 @@ const getBrandIdsWithProducts = unstable_cache(
   { revalidate: 300, tags: ["products"] },
 );
 
+// Slugs of the project types that have more than one published project,
+// most projects first. Feeds the footer's "Loại hình công trình" column so it
+// never links to an empty or single-project page. The full project list is
+// ~1MB, so it is cached for 5 minutes under the "projects" tag (revalidated by
+// the project mutation actions); failures throw so they are never cached.
+const getProjectTypeSlugsWithProjects = unstable_cache(
+  async (): Promise<string[]> => {
+    const res = await getProjectsAction({ isPublished: true, limit: 2000 });
+    if (res.error) throw new Error(res.error);
+    const counts = new Map<string, number>();
+    for (const project of res.data) {
+      const slug = project.projectType?.slug;
+      if (slug) counts.set(slug, (counts.get(slug) ?? 0) + 1);
+    }
+    return [...counts]
+      .filter(([, count]) => count > 1)
+      .sort((a, b) => b[1] - a[1])
+      .map(([slug]) => slug);
+  },
+  ["layout-project-type-slugs-with-projects"],
+  { revalidate: 300, tags: ["projects"] },
+);
+
 export async function getPublicLayoutData() {
   const [
     contactsResult,
     branchesResult,
-    projectsResult,
     pagesResult,
     groupsResult,
     catsResult,
     brandsResult,
     projectTypesResult,
     brandIdsResult,
+    projectTypeSlugsResult,
     hpPagesResult,
     servicesResult,
     serviceGroupsResult,
   ] = await Promise.allSettled([
     getContactsAction(),
     getBranchesAction({ isPublished: true }),
-    getProjectsAction({ isPublished: true, limit: 40 }),
     getPagesAction(),
     getGroupsAction(),
     getCategoriesAction(),
@@ -57,6 +79,7 @@ export async function getPublicLayoutData() {
     // something for sale, the same "0 products -> excluded" rule already
     // applied to brand pages going noindex and to sitemap.
     getBrandIdsWithProducts(),
+    getProjectTypeSlugsWithProjects(),
     // No options -> Go API's default already excludes soft-deleted rows
     // (includeDeleted only set via include_deleted=true, never passed here)
     // — the dead 6HP/10HP hp_pages from earlier this session are already
@@ -71,9 +94,6 @@ export async function getPublicLayoutData() {
     : null;
   const branches = branchesResult.status === "fulfilled" && !branchesResult.value.error
     ? branchesResult.value.data
-    : null;
-  const projects = projectsResult.status === "fulfilled" && !projectsResult.value.error
-    ? projectsResult.value.data
     : null;
   const pages = pagesResult.status === "fulfilled" && !pagesResult.value.error
     ? pagesResult.value.data
@@ -173,14 +193,12 @@ export async function getPublicLayoutData() {
       }];
     });
 
-  const mappedProjects = (projects || []).map((p) => ({
-    id: p.id,
-    title: p.title,
-    slug: p.slug,
-    projectTypeId: p.projectTypeId,
-    projectTypeName: p.projectType?.name ?? null,
-    projectTypeSlug: p.projectType?.slug ?? null,
-  }));
+  const projectTypeBySlug = new Map((projectTypesData || []).map((st) => [st.slug || "", st]));
+  const projectTypeSlugs = projectTypeSlugsResult.status === "fulfilled" ? projectTypeSlugsResult.value : [];
+  const projectTypesWithProjects = projectTypeSlugs.flatMap((slug) => {
+    const st = projectTypeBySlug.get(slug);
+    return st ? [{ id: st.id, name: st.name, slug }] : [];
+  });
 
   const projectTypes = (projectTypesData || []).map((st) => ({
     id: st.id,
@@ -191,7 +209,6 @@ export async function getPublicLayoutData() {
   return {
     contacts: (contacts || []).filter((c) => c.isActive),
     branches: branches || [],
-    projects: mappedProjects,
     pages: pages || [],
     categories: categories || [],
     brands: brands || [],
@@ -200,6 +217,7 @@ export async function getPublicLayoutData() {
     groupCategories: groupCategories || [],
     categoriesList: categoriesList || [],
     projectTypes,
+    projectTypesWithProjects,
     services,
     currentYear: new Date().getFullYear(),
   };

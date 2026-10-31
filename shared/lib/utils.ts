@@ -9,7 +9,7 @@ export const TYPE_ROLES = [
   "display", "headline", "title", "heading", "subhead",
   "body", "body-strong", "body-sm", "callout",
   "caption", "label", "tag", "legal",
-  "price", "price-lg", "mono",
+  "price", "price-lg", "mono", "wordmark",
 ] as const
 
 const twMerge = extendTailwindMerge<"type">({

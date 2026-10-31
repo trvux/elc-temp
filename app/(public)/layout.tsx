@@ -28,32 +28,17 @@ export default async function PublicLayout({ children }: PublicLayoutProps) {
   const {
     contacts,
     branches,
-    projects,
     pages,
     brands,
     brandsWithProducts,
     groupCategories,
     categoriesList,
     projectTypes,
+    projectTypesWithProjects,
     services,
     currentYear,
     hpPagesForCatalog,
   } = await getPublicLayoutData();
-
-  // Footer is a client component: everything passed to it is serialized into
-  // the HTML a second time as RSC payload, on EVERY page. branches/pages come
-  // back from the API with rich-text content and map embeds (~80KB), but the
-  // footer only renders a name/title and a link, so pass just those fields.
-  const footerBranches = (branches || []).map((b) => ({
-    id: b.id,
-    name: b.name,
-    slug: b.slug,
-    address: b.address,
-    orderIndex: b.orderIndex,
-  }));
-  const footerPages = sortByOrderIndex(pages || [])
-    .slice(0, 8)
-    .map((p) => ({ id: p.id, title: p.title, slug: p.slug, orderIndex: p.orderIndex }));
 
   // Đọc lựa chọn cookie đã lưu (nếu có) để set đúng default ngay từ đầu —
   // tránh trường hợp khách đã đồng ý trước đó vẫn bị coi là "denied" cho
@@ -129,14 +114,10 @@ export default async function PublicLayout({ children }: PublicLayoutProps) {
         />
         <div className="flex-1">{children}</div>
         <Footer
-          branches={footerBranches}
-          projects={projects}
-          pages={footerPages}
+          groups={groupCategories}
+          projectTypes={projectTypesWithProjects}
+          pages={sortByOrderIndex(pages || []).map(({ id, title, slug }) => ({ id, title, slug }))}
           contacts={contacts}
-          brands={brands}
-          groupCategories={groupCategories}
-          categoriesList={categoriesList}
-          projectTypes={projectTypes}
           currentYear={currentYear}
         />
         <StickyContactActions contacts={contacts || []} />
