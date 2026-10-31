@@ -12,11 +12,7 @@ export const TRUST_PAGES = {
 export interface HomeMarkdownInput {
   contacts: Array<{ label: string | null; type: string; value: string; isActive: boolean }>;
   branches: Array<{ name: string; address: string; phone?: string | null }>;
-  categories: Array<{
-    name: string;
-    slug: string;
-    products: Array<{ name: string; slug: string; displayPrice?: number | null }>;
-  }>;
+  categories: Array<{ name: string; slug: string }>;
   services: Array<{ title: string; slug: string }>;
   projects: Array<{ title: string; slug: string }>;
   brands: Array<{ name: string; slug: string }>;
@@ -28,15 +24,11 @@ export function buildHomeMarkdown(input: HomeMarkdownInput): string {
   const out: string[] = [];
   out.push(`# ${HOME_MARKDOWN_TITLE}`, "", `> ${ORGANIZATION_DESCRIPTION}`, "");
 
-  out.push("## Sản phẩm", "");
-  for (const cat of input.categories) {
-    out.push(`### [${cat.name}](${BASE_URL}/san-pham/${cat.slug})`, "");
-    for (const p of cat.products) {
-      const price = p.displayPrice ? ` - ${formatCurrency(p.displayPrice)}` : "";
-      out.push(`- [${p.name}](${BASE_URL}/san-pham/${p.slug})${price}`);
-    }
-    out.push("");
-  }
+  // Category links only: each category page owns its product list (and the
+  // keywords for it). llms-full.txt carries the per-product detail for agents.
+  out.push("## Danh mục sản phẩm", "");
+  for (const cat of input.categories) out.push(`- [${cat.name}](${BASE_URL}/san-pham/${cat.slug})`);
+  out.push("");
 
   if (input.brands.length > 0) {
     out.push("## Thương hiệu", "");

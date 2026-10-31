@@ -37,13 +37,7 @@ describe("buildHomeMarkdown", () => {
       { label: "Hidden", type: "phone", value: "000", isActive: false },
     ],
     branches: [{ name: "Showroom", address: "06 Dương Quảng Hàm", phone: "0901" }],
-    categories: [
-      {
-        name: "Máy lạnh",
-        slug: "may-lanh",
-        products: [{ name: "Daikin FTKB25", slug: "daikin-ftkb25", displayPrice: 9500000 }],
-      },
-    ],
+    categories: [{ name: "Máy lạnh", slug: "may-lanh" }],
     services: [{ title: "Vệ sinh máy lạnh", slug: "ve-sinh" }],
     projects: [{ title: "Biệt thự Quận 7", slug: "biet-thu-q7" }],
     brands: [{ name: "Daikin", slug: "daikin" }],
@@ -52,7 +46,7 @@ describe("buildHomeMarkdown", () => {
   it("has one H1, the org description, and real links", () => {
     expect(md.match(/^# /gm)).toHaveLength(1);
     expect(md).toContain(`> ${ORGANIZATION_DESCRIPTION}`);
-    expect(md).toContain(`[Daikin FTKB25](${BASE_URL}/san-pham/daikin-ftkb25)`);
+    expect(md).toContain(`[Máy lạnh](${BASE_URL}/san-pham/may-lanh)`);
     expect(md).toContain(`(${BASE_URL}/dich-vu/ve-sinh)`);
     expect(md).toContain(`(${BASE_URL}/du-an/biet-thu-q7)`);
   });

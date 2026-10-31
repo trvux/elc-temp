@@ -1,8 +1,6 @@
 import { connection } from "next/server";
 import { getBranchesAction } from "@/modules/branch/presentation/actions";
 import { getBrandsAction } from "@/modules/brand/presentation/actions";
-import { PRODUCT_STATUS } from "@/modules/catalog/domain";
-import { getProductsAction } from "@/modules/catalog/presentation/actions";
 import { getCategoriesAction } from "@/modules/category/presentation/actions";
 import { getContactsAction } from "@/modules/contact/presentation/actions";
 import { getProjectsAction } from "@/modules/project/presentation/actions";
@@ -24,22 +22,12 @@ export async function GET() {
     getProjectsAction({ isPublished: true, limit: 200 }),
   ]);
 
-  const categoriesWithProducts = await Promise.all(
-    categories.data.map(async (category) => {
-      const { data: products } = await getProductsAction({
-        status: PRODUCT_STATUS.PUBLISHED,
-        categoryId: category.id,
-        limit: 12,
-        offset: 0,
-      });
-      return { name: category.name, slug: category.slug, products: products ?? [] };
-    }),
-  );
-
   const body = buildHomeMarkdown({
     contacts: contacts.data,
     branches: branches.data,
-    categories: categoriesWithProducts.filter((c) => c.products.length > 0),
+    categories: categories.data
+      .filter((c) => !c.isHidden)
+      .map((c) => ({ name: c.name, slug: c.slug })),
     brands: brands.data,
     services: services.data,
     projects: projects.data.filter((p) => p.isFeatured).slice(0, 15),

@@ -1,15 +1,10 @@
 import type { Metadata } from "next";
 
 import { CTASection } from "@/shared/components/organisms/sections/cta";
-import { FeaturesSection } from "@/shared/components/organisms/sections/features";
 import { HeroSection } from "@/shared/components/organisms/sections/hero";
 import { ProjectBounceCardsSection } from "@/shared/components/organisms/sections/project-bounce-cards";
 
 import { getBrandsAction } from "@/modules/brand/presentation/actions";
-import { getProductsAction } from "@/modules/catalog/presentation/actions";
-import { PRODUCT_STATUS } from "@/modules/catalog/domain";
-import { slimProductForCard } from "@/modules/catalog/presentation/lib/slim-product-card";
-import { getCategoriesAction } from "@/modules/category/presentation/actions";
 import { getContactsAction } from "@/modules/contact/presentation/actions";
 import { getProjectsAction } from "@/modules/project/presentation/actions";
 
@@ -24,68 +19,22 @@ export const metadata: Metadata = {
 };
 
 async function getCachedHomeData() {
-  const [projects, categories, contacts, brands] =
-    await Promise.all([
-      getProjectsAction({
-        isPublished: true,
-        limit: 200,
-      }).then(unwrapActionResult),
-      getCategoriesAction().then(unwrapActionResult),
-      getContactsAction().then(unwrapActionResult),
-      getBrandsAction({ limit: 100 }).then(unwrapActionResult),
-    ]);
+  const [projects, contacts, brands] = await Promise.all([
+    getProjectsAction({
+      isPublished: true,
+      limit: 200,
+    }).then(unwrapActionResult),
+    getContactsAction().then(unwrapActionResult),
+    getBrandsAction({ limit: 100 }).then(unwrapActionResult),
+  ]);
 
-  // Fetch products for each category in parallel
-  // limit: 12 = highly divisible for responsive grids (2, 3, 4, 6 columns)
-  const categoriesWithProducts = await Promise.all(
-    (categories || []).map(async (category) => {
-      const { data: products, totalCount } = await getProductsAction({
-        status: PRODUCT_STATUS.PUBLISHED,
-        categoryId: category.id,
-        limit: 12,
-        offset: 0,
-      });
-      return {
-        category,
-        products: products.map(slimProductForCard),
-        totalCount,
-      };
-    })
-  );
-
-  // Only keep categories that have products
-  const activeCategoriesWithProducts = categoriesWithProducts.filter(
-    (item) => item.products && item.products.length > 0
-  );
-
-  return {
-    projects,
-    categoriesWithProducts: activeCategoriesWithProducts,
-    contacts,
-    brands,
-  };
+  return { projects, contacts, brands };
 }
 
 export default async function Home() {
-  const { projects, categoriesWithProducts, contacts, brands } =
-    await getCachedHomeData();
-
-  const categorySections = (categoriesWithProducts || []).map((catData, idx) => ({
-    id: `category-${catData.category.slug}`,
-    component: (
-      <FeaturesSection
-        title={catData.category.name}
-        slug={catData.category.slug}
-        products={catData.products || []}
-        categoryId={catData.category.id}
-        totalCount={catData.totalCount}
-        priorityCount={idx === 0 ? 4 : 0}
-      />
-    ),
-  }));
+  const { projects, contacts, brands } = await getCachedHomeData();
 
   const sections = [
-    ...categorySections,
     {
       id: "project-marquee",
       component: (
