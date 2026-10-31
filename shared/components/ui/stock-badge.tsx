@@ -1,12 +1,10 @@
-"use client";
-
 import {
   STOCK_STATUS,
   STOCK_STATUS_MAP,
 } from "@/modules/catalog/domain/constants";
 import { Badge } from "@/shared/components/ui/badge";
 import { cn } from "@/shared/lib/utils";
-import { Archive, BellSimple, Check, X } from "@phosphor-icons/react";
+import { Archive, BellSimple, Check, X } from "@phosphor-icons/react/dist/ssr";
 
 interface StockBadgeProps {
   status?: string;

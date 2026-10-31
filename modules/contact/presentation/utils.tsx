@@ -1,16 +1,14 @@
-"use client";
-
 import {
   EnvelopeSimpleIcon,
   FacebookLogoIcon,
   GlobeIcon,
-  IconProps,
   LinkIcon,
   MessengerLogoIcon,
   PhoneIcon,
   TiktokLogoIcon,
   YoutubeLogoIcon,
-} from "@phosphor-icons/react";
+} from "@phosphor-icons/react/dist/ssr";
+import type { IconProps } from "@phosphor-icons/react";
 
 import { IconLetterZ } from "@tabler/icons-react";
 
