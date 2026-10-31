@@ -2,6 +2,7 @@
 // site_settings table and edited from /admin/settings; now fixed here.
 export const COMPANY_NAME = "Công ty cổ phần giải pháp công nghệ TMDV ELC";
 
-// Scope as stated by the company: the whole job, from first advice to upkeep.
+// What a visitor gets, not how ELC works internally: the products sold, that
+// they are genuine, and the service around them.
 export const COMPANY_SHORT_DESC =
-  "Tổng thầu EPC thông gió và điều hòa không khí cho nhà xưởng, văn phòng, nhà hàng, biệt thự. Từ tư vấn, khảo sát, thiết kế, cung cấp, thi công, giám sát, nghiệm thu đến bảo trì.";
+  "Máy lạnh, hệ thống cấp khí tươi và máy lọc nước chính hãng cho gia đình và công trình. Tư vấn đúng nhu cầu, lắp đặt chuẩn kỹ thuật, bảo hành và bảo trì.";
