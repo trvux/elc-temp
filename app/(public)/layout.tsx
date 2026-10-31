@@ -1,5 +1,6 @@
 import { getPublicLayoutData } from "@/modules/settings";
 import { Footer } from "@/shared/components/organisms/layout/user/footer";
+import { AnnouncementBar } from "@/shared/components/organisms/layout/user/announcement-bar";
 import { Header } from "@/shared/components/organisms/layout/user/header";
 import { ChunkErrorListener } from "@/shared/components/organisms/layout/user/chunk-error-listener";
 import { FilterTransitionProvider } from "@/shared/providers/filter-transition-provider";
@@ -103,6 +104,7 @@ export default async function PublicLayout({ children }: PublicLayoutProps) {
       <TopProgressBar />
       <div className="flex flex-col min-h-screen">
         <ChunkErrorListener />
+        <AnnouncementBar />
         <Header
           groupCategories={groupCategories}
           categoriesList={categoriesList}
