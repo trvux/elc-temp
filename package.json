@@ -15,7 +15,8 @@
     "start": "NODE_OPTIONS='--no-deprecation' next start",
     "lint": "eslint",
     "graph:circular": "madge --circular --extensions ts,tsx .",
-    "graph:orphans": "madge --orphans --extensions ts,tsx ."
+    "graph:orphans": "madge --orphans --extensions ts,tsx .",
+    "knip": "knip"
   },
   "dependencies": {
     "@base-ui/react": "^1.9.0",

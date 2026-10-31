@@ -1,0 +1,10 @@
+{
+  "$schema": "https://unpkg.com/knip@latest/schema.json",
+  "ignoreIssues": {
+    "shared/components/ui/**": ["exports", "types"]
+  },
+  "ignoreDependencies": [
+    "sharp",
+    "@types/google.accounts"
+  ]
+}
