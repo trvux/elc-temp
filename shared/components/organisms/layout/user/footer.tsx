@@ -1,5 +1,6 @@
 "use client";
 import { getFooterLogic } from "@/modules/settings/domain/footer";
+import { COMPANY_NAME, COMPANY_SHORT_DESC } from "@/shared/lib/company-info";
 import {
   Tooltip,
   TooltipContent,
@@ -68,7 +69,6 @@ interface FooterProps {
   branches?: BranchFooter[];
   projects?: ProjectFooter[];
   pages?: PageFooter[];
-  settings?: Record<string, string>;
   contacts?: Contact[];
   categories?: CategoryFooter[];
   brands?: BrandFooter[];
@@ -82,7 +82,6 @@ export function Footer({
   branches = [],
   projects = [],
   pages = [],
-  settings,
   contacts = [],
   brands = [],
   groupCategories = [],
@@ -133,11 +132,9 @@ export function Footer({
                 className="h-8 md:h-9 w-auto"
               />
             </Link>
-            {settings?.company_short_desc && (
-              <p className="type-body-sm text-muted-foreground max-w-sm">
-                {settings.company_short_desc}
-              </p>
-            )}
+            <p className="type-body-sm text-muted-foreground max-w-sm">
+              {COMPANY_SHORT_DESC}
+            </p>
 
             {displayContacts.length > 0 && (
               <ul aria-label="Liên hệ nhanh" className="flex flex-wrap items-center gap-1.5 mt-2">
@@ -442,7 +439,7 @@ export function Footer({
           <div className="grid grid-cols-1 lg:grid-cols-10 gap-6 items-start">
             <div className="lg:col-span-4 flex flex-col gap-2 text-center lg:text-left items-center lg:items-start">
               <p className="type-caption text-foreground">
-                © {currentYear} {settings?.company_name || "Điện máy ELC"}
+                © {currentYear} {COMPANY_NAME}
               </p>
               <button
                 type="button"

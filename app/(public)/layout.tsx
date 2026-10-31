@@ -25,7 +25,6 @@ interface PublicLayoutProps {
 
 export default async function PublicLayout({ children }: PublicLayoutProps) {
   const {
-    settings,
     contacts,
     branches,
     projects,
@@ -118,7 +117,6 @@ export default async function PublicLayout({ children }: PublicLayoutProps) {
           branches={branches}
           projects={projects}
           pages={pages}
-          settings={settings}
           contacts={contacts}
           categories={categories}
           brands={brands}

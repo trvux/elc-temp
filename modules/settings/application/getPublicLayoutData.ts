@@ -1,4 +1,3 @@
-import { getSiteSettingsAction } from "@/modules/settings/presentation/actions";
 import { getPagesAction } from "@/modules/page/presentation/actions";
 import { getContactsAction } from "@/modules/contact/presentation/actions";
 import { getBranchesAction } from "@/modules/branch/presentation/actions";
@@ -15,7 +14,6 @@ import { getHpPagesAction } from "@/modules/hp-page/presentation/actions";
 
 export async function getPublicLayoutData() {
   const [
-    settingsResult,
     contactsResult,
     branchesResult,
     projectsResult,
@@ -29,7 +27,6 @@ export async function getPublicLayoutData() {
     servicesResult,
     serviceGroupsResult,
   ] = await Promise.allSettled([
-    getSiteSettingsAction(),
     getContactsAction(),
     getBranchesAction({ isPublished: true }),
     getProjectsAction({ isPublished: true, limit: 40 }),
@@ -53,9 +50,6 @@ export async function getPublicLayoutData() {
     getServiceGroupsAction(),
   ]);
 
-  const settingsData = settingsResult.status === "fulfilled" && !settingsResult.value.error
-    ? settingsResult.value.data
-    : null;
   const contacts = contactsResult.status === "fulfilled" && !contactsResult.value.error
     ? contactsResult.value.data
     : null;
@@ -166,11 +160,6 @@ export async function getPublicLayoutData() {
       }];
     });
 
-  const settings: Record<string, string> = {};
-  settingsData?.forEach((item) => {
-    settings[item.key] = item.value || "";
-  });
-
   const mappedProjects = (projects || []).map((p) => ({
     id: p.id,
     title: p.title,
@@ -187,7 +176,6 @@ export async function getPublicLayoutData() {
   }));
 
   return {
-    settings,
     contacts: (contacts || []).filter((c) => c.isActive),
     branches: branches || [],
     projects: mappedProjects,

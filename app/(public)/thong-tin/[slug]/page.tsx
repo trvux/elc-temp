@@ -83,11 +83,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 async function getBranchData(slug: string) {
   const branch = await getBranchBySlugAction(slug).then(unwrapActionResult);
   const currentYear = new Date().getFullYear();
-  const { settings, contacts, branches } = await getPublicLayoutData();
+  const { contacts, branches } = await getPublicLayoutData();
   return {
     branch,
     branches,
-    settings,
     contacts,
     currentYear,
   };

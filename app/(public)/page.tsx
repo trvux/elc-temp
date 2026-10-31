@@ -12,7 +12,6 @@ import { slimProductForCard } from "@/modules/catalog/presentation/lib/slim-prod
 import { getCategoriesAction } from "@/modules/category/presentation/actions";
 import { getContactsAction } from "@/modules/contact/presentation/actions";
 import { getProjectsAction } from "@/modules/project/presentation/actions";
-import { getSiteSettingsAction } from "@/modules/settings/presentation/actions";
 
 import { unwrapActionResult } from "@/shared/lib/action-result";
 import { BASE_URL } from "@/shared/lib/seo-schema";
@@ -25,9 +24,8 @@ export const metadata: Metadata = {
 };
 
 async function getCachedHomeData() {
-  const [settingsData, projects, categories, contacts, brands] =
+  const [projects, categories, contacts, brands] =
     await Promise.all([
-      getSiteSettingsAction().then(unwrapActionResult),
       getProjectsAction({
         isPublished: true,
         limit: 200,
@@ -36,12 +34,6 @@ async function getCachedHomeData() {
       getContactsAction().then(unwrapActionResult),
       getBrandsAction({ limit: 100 }).then(unwrapActionResult),
     ]);
-
-  // Convert settings array to a more usable object
-  const settings: Record<string, string> = {};
-  settingsData?.forEach((item) => {
-    settings[item.key] = item.value || "";
-  });
 
   // Fetch products for each category in parallel
   // limit: 12 = highly divisible for responsive grids (2, 3, 4, 6 columns)
@@ -67,7 +59,6 @@ async function getCachedHomeData() {
   );
 
   return {
-    settings,
     projects,
     categoriesWithProducts: activeCategoriesWithProducts,
     contacts,
@@ -76,7 +67,7 @@ async function getCachedHomeData() {
 }
 
 export default async function Home() {
-  const { settings, projects, categoriesWithProducts, contacts, brands } =
+  const { projects, categoriesWithProducts, contacts, brands } =
     await getCachedHomeData();
 
   const categorySections = (categoriesWithProducts || []).map((catData, idx) => ({
@@ -113,7 +104,7 @@ export default async function Home() {
     },
     {
       id: "cta",
-      component: <CTASection settings={settings} contacts={contacts || []} />,
+      component: <CTASection contacts={contacts || []} />,
     },
   ];
 

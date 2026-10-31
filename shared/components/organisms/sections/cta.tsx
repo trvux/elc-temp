@@ -13,19 +13,17 @@ import { Contact, getDisplayContacts } from "@/modules/contact/domain";
 import { trackContactClick } from "@/modules/inquiry";
 
 interface CTASectionProps {
-  settings?: Record<string, string>;
   contacts: Contact[];
 }
 
-export function CTASection({ settings, contacts }: CTASectionProps) {
+export function CTASection({ contacts }: CTASectionProps) {
   const phoneContact =
     contacts.find((c) => c.type === "phone" && c.isActive) ||
     contacts.find((c) => c.type === "phone");
   const phone = phoneContact?.value || "0789978898";
   const phoneHref = phoneContact?.href || `tel:${phone.replace(/\s+/g, "")}`;
-  const title = settings?.cta_title || "Nâng tầm chuẩn mực không gian.";
+  const title = "Nâng tầm chuẩn mực không gian.";
   const description =
-    settings?.cta_description ||
     "Đội ngũ chuyên gia của ELC sẵn sàng đồng hành tư vấn giải pháp điều hòa, hệ thống cấp khí tươi thu hồi nhiệt và lọc không khí kết hợp Smart home tối ưu, phù hợp với đặc tính của từng không gian kiến trúc.";
 
   const displayContacts = useMemo(
@@ -71,7 +69,7 @@ export function CTASection({ settings, contacts }: CTASectionProps) {
                   }
                   onClick={() => trackContactClick({ channel: "zalo" })}
                 >
-                  {settings?.cta_primary_btn_text || "Tư vấn lắp đặt miễn phí"}
+                  Tư vấn lắp đặt miễn phí
                 </a>
               </Button>
             ) : null;
