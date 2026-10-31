@@ -1,5 +1,4 @@
 import { BASE_URL, ORGANIZATION_DESCRIPTION } from "@/shared/lib/seo-schema";
-import { formatCurrency } from "@/shared/lib/format";
 
 // Canonical targets of the /about, /contact, /privacy aliases (next.config.ts).
 // Link these directly so agents don't spend a redirect hop.
