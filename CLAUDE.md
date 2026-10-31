@@ -25,4 +25,4 @@ under its title gets a heading whose level follows where it sits).
   (`cn()` in `shared/lib/utils.ts` resolves such conflicts, but the later class silently wins).
 - Adding a role means adding `@utility type-<name>` in `app/globals.css` AND the name to `TYPE_ROLES`
   in `shared/lib/utils.ts` (a test fails if they drift).
-- `python3 scripts/typography-audit.py --check` must exit 0. Plan and history: `docs/typography-strangler-plan.md`.
+- `python3 scripts/typography-audit.py --check` must exit 0.

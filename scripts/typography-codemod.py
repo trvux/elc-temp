@@ -14,7 +14,7 @@ listed as MANUAL. Residual standalone font-<weight>/leading-/tracking- tokens in
 also listed: with cn()'s two-way merge (shared/lib/utils.ts) a later font-weight REMOVES an earlier
 type-* role, so those must be resolved by hand before shipping.
 
-Mapping (weights collapse to 400 / 500 / 600; same scale as elc-v2, see docs/typography-strangler-plan.md):
+Mapping (weights collapse to 400 / 500 / 600; same scale as elc-v2):
   xs   : 400 legal         | 500,600 tag
   sm   : 400 body-sm       | 500 caption       | 600 label
   base : 400 body          | 500,600 body-strong

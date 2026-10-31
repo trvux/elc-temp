@@ -1,6 +1,6 @@
 # Ratchet for `python3 scripts/typography-audit.py --check` (exit 1 on regression).
 # Every file matched by a pattern below must not contain a Typography* component or an ad-hoc
-# text-<size> class (use a type-* role: see app/globals.css and docs/typography-strangler-plan.md).
+# text-<size> class (use a type-* role: see app/globals.css).
 # fnmatch globs relative to elc-temp; a leading "!" is an exception and needs a reason.
 app/*
 modules/*
