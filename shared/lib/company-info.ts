@@ -2,5 +2,6 @@
 // site_settings table and edited from /admin/settings; now fixed here.
 export const COMPANY_NAME = "Công ty cổ phần giải pháp công nghệ TMDV ELC";
 
+// V&AC = ventilation and air conditioning (thông gió và điều hòa không khí).
 export const COMPANY_SHORT_DESC =
-  "Tiên phong cung cấp giải pháp HVAC tổng thể, tích hợp công nghệ điều tiết khí thông minh và lọc khí tươi chuyên sâu cho không gian sống hiện đại";
+  "Nhà thầu EPC thông gió và điều hòa không khí (V&AC): thiết kế, cung cấp thiết bị và thi công trọn gói.";
