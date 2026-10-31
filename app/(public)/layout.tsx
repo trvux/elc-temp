@@ -30,14 +30,12 @@ export default async function PublicLayout({ children }: PublicLayoutProps) {
     branches,
     pages,
     brands,
-    brandsWithProducts,
     groupCategories,
     categoriesList,
     projectTypes,
     projectTypesWithProjects,
     services,
     currentYear,
-    hpPagesForCatalog,
   } = await getPublicLayoutData();
 
   // Đọc lựa chọn cookie đã lưu (nếu có) để set đúng default ngay từ đầu —
@@ -57,7 +55,7 @@ export default async function PublicLayout({ children }: PublicLayoutProps) {
         dangerouslySetInnerHTML={{
           __html: toJsonLdHtml({
             "@context": "https://schema.org",
-            "@graph": [SEOSchema.getOrganization(branches, contacts, groupCategories, categoriesList, brandsWithProducts, hpPagesForCatalog), SEOSchema.getWebSite()],
+            "@graph": [SEOSchema.getOrganization(branches, contacts), SEOSchema.getWebSite()],
           }),
         }}
       />

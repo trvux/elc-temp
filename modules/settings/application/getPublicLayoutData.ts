@@ -6,29 +6,9 @@ import { getCategoriesAction } from "@/modules/category/presentation/actions";
 import { getBrandsAction } from "@/modules/brand/presentation/actions";
 import { getProjectTypesAction } from "@/modules/project-type/presentation/actions";
 import { unstable_cache } from "next/cache";
-import { getProductsAction } from "@/modules/catalog/presentation/actions";
 import { getProjectsAction } from "@/modules/project/presentation/actions";
-import { PRODUCT_STATUS } from "@/modules/catalog/domain";
 import { getServicesAction } from "@/modules/service/presentation/actions";
 import { getServiceGroupsAction } from "@/modules/service-group/presentation/actions";
-import { getHpPagesAction } from "@/modules/hp-page/presentation/actions";
-
-// Which brands have at least one published product — only feeds the
-// Organization JSON-LD's hasOfferCatalog. It was the slowest call the layout
-// makes (~100ms server-side to compute facets, 10x any other) on every single
-// request, for a number that changes only when a product is published or
-// unpublished. Cached for 5 minutes under the "products" tag, which the
-// product mutation actions already revalidate, so edits still show up at once.
-// Throws on failure so a transient API error is never cached.
-const getBrandIdsWithProducts = unstable_cache(
-  async (): Promise<string[]> => {
-    const res = await getProductsAction({ status: PRODUCT_STATUS.PUBLISHED, limit: 1 });
-    if (res.error) throw new Error(res.error);
-    return res.facets.brands.filter((b) => b.count > 0).map((b) => b.id);
-  },
-  ["layout-brand-ids-with-products"],
-  { revalidate: 300, tags: ["products"] },
-);
 
 // Slugs of the project types that have more than one published project,
 // most projects first. Feeds the footer's "Loại hình công trình" column so it
@@ -62,9 +42,7 @@ export async function getPublicLayoutData() {
     catsResult,
     brandsResult,
     projectTypesResult,
-    brandIdsResult,
     projectTypeSlugsResult,
-    hpPagesResult,
     servicesResult,
     serviceGroupsResult,
   ] = await Promise.allSettled([
@@ -75,16 +53,7 @@ export async function getPublicLayoutData() {
     getCategoriesAction(),
     getBrandsAction(),
     getProjectTypesAction(),
-    // Lets hasOfferCatalog (below) list only brands that actually have
-    // something for sale, the same "0 products -> excluded" rule already
-    // applied to brand pages going noindex and to sitemap.
-    getBrandIdsWithProducts(),
     getProjectTypeSlugsWithProjects(),
-    // No options -> Go API's default already excludes soft-deleted rows
-    // (includeDeleted only set via include_deleted=true, never passed here)
-    // — the dead 6HP/10HP hp_pages from earlier this session are already
-    // gone at this layer, no extra per-page product-count check needed.
-    getHpPagesAction(),
     getServicesAction({ isPublished: true }),
     getServiceGroupsAction(),
   ]);
@@ -107,7 +76,6 @@ export async function getPublicLayoutData() {
   const brandsData = brandsResult.status === "fulfilled" && !brandsResult.value.error
     ? brandsResult.value.data
     : null;
-  const brandIdsWithProducts = new Set(brandIdsResult.status === "fulfilled" ? brandIdsResult.value : []);
   const projectTypesData = projectTypesResult.status === "fulfilled" && !projectTypesResult.value.error
     ? projectTypesResult.value.data
     : null;
@@ -131,30 +99,6 @@ export async function getPublicLayoutData() {
       isFeatured: b.isFeatured ?? false,
       orderIndex: b.orderIndex ?? 0,
     }));
-
-  // Separate from `brands` above (which the header nav uses as-is) — this
-  // is specifically for hasOfferCatalog, where listing a brand with zero
-  // real products would repeat the exact "claims a brand ELC doesn't
-  // actually carry" bug found and fixed across meta_description/content
-  // this same audit. isFeatured does NOT reliably track this (checked:
-  // Panasonic/Mitsubishi/Hagisu are all isFeatured=true with 0 products) —
-  // only a real product count does.
-  const brandsWithProducts = brands.filter((b) => brandIdsWithProducts.has(b.id));
-
-  // HP-tier landing pages are a real, distinct search-intent cross-cut ("máy
-  // lạnh 1hp", "máy lạnh Daikin 2hp") — same class of thing as brand, not a
-  // redundant view of category. getHpPagesAction() with no options already
-  // excludes soft-deleted rows (see call site), so this list is real by
-  // construction — no separate product-count check needed here the way
-  // brand needed one.
-  const hpPagesData = hpPagesResult.status === "fulfilled" && !hpPagesResult.value.error
-    ? hpPagesResult.value.data
-    : null;
-  const hpPagesForCatalog = (hpPagesData || []).map((hp) => ({
-    id: hp.id,
-    name: hp.name,
-    slug: hp.slug || "",
-  }));
 
   const groupCategories = (groupsData || [])
     .filter((g) => !g.isHidden)
@@ -212,8 +156,6 @@ export async function getPublicLayoutData() {
     pages: pages || [],
     categories: categories || [],
     brands: brands || [],
-    brandsWithProducts,
-    hpPagesForCatalog,
     groupCategories: groupCategories || [],
     categoriesList: categoriesList || [],
     projectTypes,

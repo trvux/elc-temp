@@ -101,108 +101,10 @@ export interface BranchInput {
   mapsUrl?: string | null;
 }
 
-export interface CatalogGroupInput {
-  id: string;
-  name: string;
-  slug: string;
-}
-
-export interface CatalogCategoryInput {
-  id: string;
-  name: string;
-  slug: string;
-  groupId?: string | null;
-}
-
 export const SEOSchema = {
-  // hasOfferCatalog is what actually answers "does Google understand my
-  // business as a whole, not just N disconnected product pages" — every
-  // other entity here (LocalBusiness, Product, Offer...) says who ELC IS or
-  // describes one single thing; this is the only one that says, from the
-  // Organization itself, WHAT ELC sells, structured group -> category, real
-  // names/slugs straight from the same groups/categories already fetched
-  // for the header nav (getPublicLayoutData) — no extra query, no
-  // fabrication risk (nothing here is text a model could get wrong, it's
-  // literally the same rows nav-mega-menu renders).
-  //
-  // `brands` is a SEPARATE top-level branch (not nested under any group)
-  // since brand is a cross-cutting facet, not a child of one product line —
-  // caller MUST pre-filter this to brands with real published products
-  // (getPublicLayoutData's brandsWithProducts, derived from facets.brands'
-  // real count) — passing the raw brand list back in would repeat the exact
-  // "claims a brand ELC doesn't actually carry" bug found and fixed
-  // elsewhere this same audit (isFeatured does NOT track this reliably).
-  getOfferCatalog(
-    groups?: CatalogGroupInput[],
-    categories?: CatalogCategoryInput[],
-    brands?: CatalogGroupInput[],
-    hpPages?: CatalogGroupInput[],
-  ) {
-    const groupBranches = (groups || []).map((g) => {
-      const childCategories = (categories || []).filter((c) => c.groupId === g.id);
-      return {
-        "@type": "OfferCatalog",
-        "name": g.name,
-        "url": `${BASE_URL}/san-pham/${g.slug}`,
-        ...(childCategories.length > 0
-          ? {
-              itemListElement: childCategories.map((c) => ({
-                "@type": "OfferCatalog",
-                "name": c.name,
-                "url": `${BASE_URL}/san-pham/${c.slug}`,
-              })),
-            }
-          : {}),
-      };
-    });
-
-    const brandBranch =
-      brands && brands.length > 0
-        ? [
-            {
-              "@type": "OfferCatalog",
-              "name": "Thương hiệu",
-              "itemListElement": brands.map((b) => ({
-                "@type": "OfferCatalog",
-                "name": b.name,
-                "url": `${BASE_URL}/san-pham/${b.slug}`,
-              })),
-            },
-          ]
-        : [];
-
-    // Same top-level cross-cutting treatment as brand — "máy lạnh 1hp",
-    // "máy lạnh Daikin 2hp" is real, distinct search intent (by capacity,
-    // not by install type or brand), not a redundant view of category.
-    const hpBranch =
-      hpPages && hpPages.length > 0
-        ? [
-            {
-              "@type": "OfferCatalog",
-              "name": "Phân khúc công suất (HP)",
-              "itemListElement": hpPages.map((hp) => ({
-                "@type": "OfferCatalog",
-                "name": hp.name,
-                "url": `${BASE_URL}/san-pham/${hp.slug}`,
-              })),
-            },
-          ]
-        : [];
-
-    return {
-      "@type": "OfferCatalog",
-      "name": "Danh mục sản phẩm Điện máy ELC",
-      "itemListElement": [...groupBranches, ...brandBranch, ...hpBranch],
-    };
-  },
-
   getOrganization(
     branches?: Branch[],
     contacts?: Array<{ type: string; value: string; isActive: boolean }>,
-    groups?: CatalogGroupInput[],
-    categories?: CatalogCategoryInput[],
-    catalogBrands?: CatalogGroupInput[],
-    catalogHpPages?: CatalogGroupInput[],
   ) {
     const sameAsLinks = this.getSameAs(contacts, branches);
 
@@ -240,13 +142,13 @@ export const SEOSchema = {
     // to the old contacts-string heuristic only if that branch record is
     // somehow missing.
     const showroomBranch = branches?.find((b) => b.slug === "van-phong");
-    const mainAddress = contacts?.find((c) => c.type === "address" && c.isActive)?.value || "06 Dương Quảng Hàm, phường An Nhơn, Quận Gò Vấp, Thành phố Hồ Chí Minh";
+    const mainAddress = contacts?.find((c) => c.type === "address" && c.isActive)?.value || "06 Dương Quảng Hàm, phường An Nhơn, Thành phố Hồ Chí Minh";
     const parsedMainAddress = parseAddress(mainAddress);
     const organizationAddress = showroomBranch
       ? {
           "@type": "PostalAddress",
           "streetAddress": showroomBranch.address,
-          "addressLocality": showroomBranch.wardName || "Gò Vấp",
+          "addressLocality": showroomBranch.wardName || "Phường An Nhơn",
           "addressRegion": showroomBranch.provinceName || "Thành phố Hồ Chí Minh",
           "postalCode": showroomBranch.postalCode || undefined,
           "addressCountry": "VN",
@@ -254,7 +156,7 @@ export const SEOSchema = {
       : {
           "@type": "PostalAddress",
           "streetAddress": parsedMainAddress.streetAddress,
-          "addressLocality": parsedMainAddress.addressLocality || "Gò Vấp",
+          "addressLocality": parsedMainAddress.addressLocality || "Phường An Nhơn",
           "addressRegion": parsedMainAddress.addressRegion || "Thành phố Hồ Chí Minh",
           "addressCountry": "VN",
         };
@@ -284,7 +186,6 @@ export const SEOSchema = {
       "sameAs": sameAsLinks,
       "areaServed": companyBranchCoverage,
       ...(subOrganizations.length > 0 ? { "subOrganization": subOrganizations } : {}),
-      ...(groups && groups.length > 0 ? { "hasOfferCatalog": this.getOfferCatalog(groups, categories, catalogBrands, catalogHpPages) } : {}),
     };
   },
 
