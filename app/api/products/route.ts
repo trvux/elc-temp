@@ -1,5 +1,6 @@
 import { getProductsAction } from "@/modules/catalog/presentation/actions";
 import { PRODUCT_STATUS } from "@/modules/catalog/domain";
+import { slimProductForCard } from "@/modules/catalog/presentation/lib/slim-product-card";
 import { getCategoriesAction } from "@/modules/category/presentation/actions";
 import { unstable_cache } from "next/cache";
 import type { NextRequest } from "next/server";
@@ -59,7 +60,8 @@ export async function GET(request: NextRequest) {
     const hasMore = offset + products.length < totalCount;
 
     return Response.json(
-      { products, totalCount, hasMore, offset },
+      // Consumed only by the client "Xem thêm" grid, which renders ProductCard.
+      { products: products.map(slimProductForCard), totalCount, hasMore, offset },
       {
         headers: {
           "Cache-Control": "public, s-maxage=3600, stale-while-revalidate=86400",

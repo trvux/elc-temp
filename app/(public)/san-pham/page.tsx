@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { getCatalogPageAction, getProductsAction } from "@/modules/catalog/presentation/actions";
 import { PRODUCT_STATUS } from "@/modules/catalog/domain";
+import { slimProductForCard } from "@/modules/catalog/presentation/lib/slim-product-card";
 import { getCategoriesAction } from "@/modules/category/presentation/actions";
 import {
   CategorySectionsGrid,
@@ -119,7 +120,7 @@ async function getCachedCategorySections(): Promise<CategorySectionData[]> {
         groupId: cat.group?.id ?? null,
         groupName: cat.group?.name ?? null,
         groupSlug: cat.group?.slug ?? null,
-        initialProducts: products,
+        initialProducts: products.map(slimProductForCard),
         totalCount,
       };
     }),
