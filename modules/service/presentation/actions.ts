@@ -1,10 +1,9 @@
 "use server";
 
-import { revalidatePath, revalidateTag } from "next/cache";
+import { revalidatePath } from "next/cache";
 import { Service, CreateServiceInput, UpdateServiceInput, ServiceFilter, ServiceWithRelations, ImageAsset } from "../domain/types";
 import { authHeaders, toSnakeCaseBody } from "@/shared/lib/go-api";
 import { submitToIndexNow } from "@/shared/lib/indexnow";
-import { warmCache } from "@/shared/lib/cache-warm";
 import { getServiceGroupsAction } from "@/modules/service-group/presentation/actions";
 import { unwrapActionResult } from "@/shared/lib/action-result";
 import { BASE_URL } from "@/shared/lib/seo-schema";
@@ -158,17 +157,11 @@ export async function createServiceAction(input: CreateServiceInput) {
 
     const row = (await res.json()) as GoServiceResponse;
     const data = mapGoService(row);
-
-    revalidateTag("services-list", { expire: 0 });
-    if (data.slug) {
-      revalidateTag(`service-slug:${data.slug}`, { expire: 0 });
-    }
     revalidatePath("/dich-vu", "layout");
     revalidatePath("/admin/services");
     if (data.isPublished && data.slug) {
       const url = `${BASE_URL}/dich-vu/${data.slug}`;
       submitToIndexNow([url]).catch((err) => console.error("IndexNow service create error:", err));
-      warmCache([url]);
     }
     return { data, error: null };
   } catch (error) {
@@ -197,17 +190,11 @@ export async function updateServiceAction(input: UpdateServiceInput) {
 
     const row = (await res.json()) as GoServiceResponse;
     const data = mapGoService(row);
-
-    revalidateTag("services-list", { expire: 0 });
-    if (data.slug) {
-      revalidateTag(`service-slug:${data.slug}`, { expire: 0 });
-    }
     revalidatePath("/dich-vu", "layout");
     revalidatePath("/admin/services");
     if (data.isPublished && data.slug) {
       const url = `${BASE_URL}/dich-vu/${data.slug}`;
       submitToIndexNow([url]).catch((err) => console.error("IndexNow service update error:", err));
-      warmCache([url]);
     }
     return { data, error: null };
   } catch (error) {
@@ -351,17 +338,9 @@ export async function deleteServiceAction(id: string) {
     return { error: "GO_API_URL is not configured" };
   }
   try {
-    const getRes = await fetch(`${GO_API_URL}/services/${id}`, { cache: "no-store" });
-    const slug = getRes.ok ? ((await getRes.json()) as GoServiceResponse).slug : null;
-
     const res = await fetch(`${GO_API_URL}/services/${id}`, { method: "DELETE", headers: await authHeaders() });
     if (!res.ok) {
       return { error: await extractErrorMessage(res) };
-    }
-
-    revalidateTag("services-list", { expire: 0 });
-    if (slug) {
-      revalidateTag(`service-slug:${slug}`, { expire: 0 });
     }
     revalidatePath("/dich-vu", "layout");
     revalidatePath("/admin/services");

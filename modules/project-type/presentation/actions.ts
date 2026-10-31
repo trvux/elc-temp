@@ -1,6 +1,6 @@
 "use server";
 
-import { revalidatePath, revalidateTag } from "next/cache";
+import { revalidatePath } from "next/cache";
 import {
   ProjectType,
   ProjectTypeWithCategories,
@@ -205,8 +205,6 @@ export async function createProjectTypeAction(input: CreateProjectTypeInput) {
 
     const row = (await res.json()) as GoProjectTypeResponse;
     revalidatePath("/admin/project-types");
-    revalidateTag("layout", { expire: 0 });
-    revalidateTag("projects", { expire: 0 });
     return { data: mapGoProjectType(row) as ProjectType, error: null };
   } catch (error) {
     console.error("createProjectTypeAction error:", error);
@@ -234,8 +232,6 @@ export async function updateProjectTypeAction(input: UpdateProjectTypeInput) {
 
     const row = (await res.json()) as GoProjectTypeResponse;
     revalidatePath("/admin/project-types");
-    revalidateTag("layout", { expire: 0 });
-    revalidateTag("projects", { expire: 0 });
     return { data: mapGoProjectType(row) as ProjectType, error: null };
   } catch (error) {
     console.error("updateProjectTypeAction error:", error);
@@ -257,8 +253,6 @@ export async function deleteProjectTypeAction(id: string) {
     }
 
     revalidatePath("/admin/project-types");
-    revalidateTag("layout", { expire: 0 });
-    revalidateTag("projects", { expire: 0 });
     return { error: null };
   } catch (error) {
     console.error("deleteProjectTypeAction error:", error);

@@ -1,6 +1,6 @@
 "use server";
 
-import { revalidatePath, revalidateTag } from "next/cache";
+import { revalidatePath } from "next/cache";
 import {
   CreateProjectInput,
   UpdateProjectInput,
@@ -9,7 +9,6 @@ import {
 } from "../domain/index";
 import { authHeaders, toSnakeCaseBody } from "@/shared/lib/go-api";
 import { submitToIndexNow } from "@/shared/lib/indexnow";
-import { warmCache } from "@/shared/lib/cache-warm";
 import { BASE_URL } from "@/shared/lib/seo-schema";
 import type { ImageAsset } from "@/shared/lib/image-asset";
 import { normalizeTitleAlign } from "@/shared/lib/title-align";
@@ -239,27 +238,6 @@ export async function countProjectsAction(
   }
 }
 
-async function getProjectByIdAction(id: string) {
-  if (!GO_API_URL) {
-    return { data: null, error: null };
-  }
-  try {
-    const res = await fetch(`${GO_API_URL}/projects/${id}`, { cache: "no-store" });
-    if (res.status === 404) {
-      return { data: null, error: null };
-    }
-    if (!res.ok) {
-      return { data: null, error: await extractErrorMessage(res, "Failed to fetch project") };
-    }
-    const row = (await res.json()) as GoProjectResponse;
-    return { data: mapGoProject(row), error: null };
-  } catch (error) {
-    if (isPrerenderError(error)) throw error;
-    console.error("getProjectByIdAction error:", error);
-    return { data: null, error: "Failed to fetch project" };
-  }
-}
-
 // resolveProjectDetailAction fetches a project by slug — used only by the
 // public project detail page, replacing the old infrastructure/
 // resolveProjectPath.ts's "project" branch. See
@@ -344,11 +322,10 @@ export async function createProjectAction(input: CreateProjectInput) {
     const row = (await res.json()) as GoProjectResponse;
     const data = mapGoProject(row);
 
-    revalidatePaths(data.slug);
+    revalidatePaths();
     if (data.isPublished && data.slug) {
       const url = `${BASE_URL}/du-an/${data.slug}`;
       submitToIndexNow([url]).catch((err) => console.error("IndexNow project create error:", err));
-      warmCache([url]);
     }
     return { data, error: null };
   } catch (error) {
@@ -386,11 +363,10 @@ export async function updateProjectAction(input: UpdateProjectInput) {
     const row = (await res.json()) as GoProjectResponse;
     const data = mapGoProject(row);
 
-    revalidatePaths(data.slug);
+    revalidatePaths();
     if (data.isPublished && data.slug) {
       const url = `${BASE_URL}/du-an/${data.slug}`;
       submitToIndexNow([url]).catch((err) => console.error("IndexNow project update error:", err));
-      warmCache([url]);
     }
     return { data, error: null };
   } catch (error) {
@@ -407,12 +383,11 @@ export async function deleteProjectAction(id: string) {
     return { error: "GO_API_URL is not configured" };
   }
   try {
-    const proj = await getProjectByIdAction(id).then((r) => r.data);
     const res = await fetch(`${GO_API_URL}/projects/${id}`, { method: "DELETE", headers: await authHeaders() });
     if (!res.ok) {
       return { error: await extractErrorMessage(res, "Failed to delete project") };
     }
-    revalidatePaths(proj?.slug);
+    revalidatePaths();
     return { error: null };
   } catch (error) {
     console.error("deleteProjectAction error:", error);
@@ -420,11 +395,7 @@ export async function deleteProjectAction(id: string) {
   }
 }
 
-function revalidatePaths(slug?: string) {
+function revalidatePaths() {
   revalidatePath("/admin/projects");
   revalidatePath("/du-an", "layout");
-  revalidateTag("projects-list", { expire: 0 });
-  if (slug) {
-    revalidateTag(`slug:${slug}`, { expire: 0 });
-  }
 }

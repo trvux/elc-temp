@@ -1,6 +1,6 @@
 "use server";
 
-import { revalidatePath, revalidateTag } from "next/cache";
+import { revalidatePath } from "next/cache";
 import { Branch, CreateBranchInput, UpdateBranchInput, BranchFilter, Json, ImageAsset } from "../domain";
 import { authHeaders, toSnakeCaseBody } from "@/shared/lib/go-api";
 import { normalizeTitleAlign } from "@/shared/lib/title-align";
@@ -154,7 +154,6 @@ export async function createBranchAction(input: CreateBranchInput) {
     revalidatePath("/admin/branches");
     revalidatePath("/co-so-ha-tang");
     revalidatePath("/thong-tin");
-    revalidateTag("layout", { expire: 0 });
     return { data: mapGoBranch(row), error: null };
   } catch (error) {
     if (isPrerenderError(error)) throw error;
@@ -185,7 +184,6 @@ export async function updateBranchAction(input: UpdateBranchInput) {
     revalidatePath("/admin/branches");
     revalidatePath("/co-so-ha-tang");
     revalidatePath("/thong-tin");
-    revalidateTag("layout", { expire: 0 });
     return { data: mapGoBranch(row), error: null };
   } catch (error) {
     if (isPrerenderError(error)) throw error;
@@ -210,7 +208,6 @@ export async function deleteBranchAction(id: string) {
     revalidatePath("/admin/branches");
     revalidatePath("/co-so-ha-tang");
     revalidatePath("/thong-tin");
-    revalidateTag("layout", { expire: 0 });
     return { success: true, error: null };
   } catch (error) {
     if (isPrerenderError(error)) throw error;

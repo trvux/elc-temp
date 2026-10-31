@@ -1,10 +1,9 @@
 "use server";
 
-import { revalidatePath, revalidateTag } from "next/cache";
+import { revalidatePath } from "next/cache";
 import { News, CreateNewsInput, UpdateNewsInput, NewsFilter, ImageAsset } from "../domain";
 import { authHeaders, toSnakeCaseBody } from "@/shared/lib/go-api";
 import { submitToIndexNow } from "@/shared/lib/indexnow";
-import { warmCache } from "@/shared/lib/cache-warm";
 import { BASE_URL } from "@/shared/lib/seo-schema";
 import { normalizeTitleAlign } from "@/shared/lib/title-align";
 
@@ -173,7 +172,6 @@ export async function createNewsAction(input: CreateNewsInput) {
     if (data.isPublished && data.slug) {
       const url = `${BASE_URL}/tin-tuc/${data.slug}`;
       submitToIndexNow([url]).catch((err) => console.error("IndexNow news create error:", err));
-      warmCache([url]);
     }
     return { data, error: null };
   } catch (error) {
@@ -206,7 +204,6 @@ export async function updateNewsAction(input: UpdateNewsInput) {
     if (data.isPublished && data.slug) {
       const url = `${BASE_URL}/tin-tuc/${data.slug}`;
       submitToIndexNow([url]).catch((err) => console.error("IndexNow news update error:", err));
-      warmCache([url]);
     }
     return { data, error: null };
   } catch (error) {
@@ -262,9 +259,7 @@ async function getNewsByIdAction(id: string) {
 function revalidatePaths(slug?: string) {
   revalidatePath("/admin/news");
   revalidatePath("/tin-tuc");
-  revalidateTag("news-list", { expire: 0 });
   if (slug) {
     revalidatePath(`/tin-tuc/${slug}`);
-    revalidateTag(`news-slug:${slug}`, { expire: 0 });
   }
 }

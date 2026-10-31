@@ -1,6 +1,6 @@
 "use server";
 
-import { revalidatePath, revalidateTag } from "next/cache";
+import { revalidatePath } from "next/cache";
 import {
   ProductLine,
   ProductLineFilter,
@@ -117,7 +117,6 @@ export async function createProductLineAction(input: CreateProductLineInput) {
 
     const row = (await res.json()) as GoProductLineResponse;
     revalidatePath("/admin/product-lines");
-    revalidateTag("layout", { expire: 0 });
     return { data: mapGoProductLine(row), error: null };
   } catch (error) {
     console.error("createProductLineAction error:", error);
@@ -145,7 +144,6 @@ export async function updateProductLineAction(input: UpdateProductLineInput) {
 
     const row = (await res.json()) as GoProductLineResponse;
     revalidatePath("/admin/product-lines");
-    revalidateTag("layout", { expire: 0 });
     return { data: mapGoProductLine(row), error: null };
   } catch (error) {
     console.error("updateProductLineAction error:", error);
@@ -167,7 +165,6 @@ export async function deleteProductLineAction(id: string) {
     }
 
     revalidatePath("/admin/product-lines");
-    revalidateTag("layout", { expire: 0 });
     return { success: true, error: null };
   } catch (error) {
     console.error("deleteProductLineAction error:", error);

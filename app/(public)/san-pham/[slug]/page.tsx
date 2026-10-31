@@ -16,7 +16,6 @@ type Props = {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 };
 
-const SITE_NAME = "Điện máy ELC";
 
 function metadataForEntity(entity: ResolvedEntity, slug: string): Metadata {
   const pageUrl = `${BASE_URL}/san-pham/${slug}`;

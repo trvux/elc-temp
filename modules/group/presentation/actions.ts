@@ -118,7 +118,7 @@ export async function createGroupAction(input: CreateGroupInput) {
 
     const row = (await res.json()) as GoGroupResponse;
     revalidatePath("/admin/group-categories");
-    revalidateTag("layout", { expire: 0 });
+    revalidateTag("categories", { expire: 0 });
     revalidateTag("products", { expire: 0 });
     return { data: mapGoGroup(row), error: null };
   } catch (error) {
@@ -147,7 +147,7 @@ export async function updateGroupAction(input: UpdateGroupInput) {
 
     const row = (await res.json()) as GoGroupResponse;
     revalidatePath("/admin/group-categories");
-    revalidateTag("layout", { expire: 0 });
+    revalidateTag("categories", { expire: 0 });
     revalidateTag("products", { expire: 0 });
     return { data: mapGoGroup(row), error: null };
   } catch (error) {
@@ -170,7 +170,7 @@ export async function deleteGroupAction(id: string) {
     }
 
     revalidatePath("/admin/group-categories");
-    revalidateTag("layout", { expire: 0 });
+    revalidateTag("categories", { expire: 0 });
     revalidateTag("products", { expire: 0 });
     return { error: null };
   } catch (error) {

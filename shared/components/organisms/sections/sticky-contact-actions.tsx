@@ -5,7 +5,6 @@ import { ContactLink } from "@/modules/contact/presentation/components/ContactLi
 import { Button } from "@/shared/components/ui/button";
 import { useIsOverHero } from "@/shared/hooks/use-is-over-hero";
 import { useProductFloating } from "@/shared/providers/product-floating-provider";
-import { cn } from "@/shared/lib/utils";
 import { AnimatePresence, m, Variants } from "motion/react";
 import { Plus } from "@phosphor-icons/react";
 import { useEffect, useMemo, useRef, useState } from "react";

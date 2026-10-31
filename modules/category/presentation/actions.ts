@@ -182,7 +182,7 @@ export async function createCategoryAction(input: CreateCategoryInput) {
 
     const row = (await res.json()) as GoCategoryResponse;
     revalidatePath("/admin/categories");
-    revalidateTag("layout", { expire: 0 });
+    revalidateTag("categories", { expire: 0 });
     revalidateTag("products", { expire: 0 });
     return { data: mapGoCategory(row) as Category, error: null };
   } catch (error) {
@@ -211,7 +211,7 @@ export async function updateCategoryAction(input: UpdateCategoryInput) {
 
     const row = (await res.json()) as GoCategoryResponse;
     revalidatePath("/admin/categories");
-    revalidateTag("layout", { expire: 0 });
+    revalidateTag("categories", { expire: 0 });
     revalidateTag("products", { expire: 0 });
     return { data: mapGoCategory(row) as Category, error: null };
   } catch (error) {
@@ -234,7 +234,7 @@ export async function deleteCategoryAction(id: string) {
     }
 
     revalidatePath("/admin/categories");
-    revalidateTag("layout", { expire: 0 });
+    revalidateTag("categories", { expire: 0 });
     revalidateTag("products", { expire: 0 });
     return { error: null };
   } catch (error) {

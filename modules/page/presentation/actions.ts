@@ -1,6 +1,6 @@
 "use server";
 
-import { revalidatePath, revalidateTag } from "next/cache";
+import { revalidatePath } from "next/cache";
 import { CreatePageInput, Page, UpdatePageInput } from "../domain";
 import { authHeaders } from "@/shared/lib/go-api";
 import { normalizeTitleAlign } from "@/shared/lib/title-align";
@@ -136,7 +136,6 @@ export async function createPageAction(input: CreatePageInput) {
 
     revalidatePath("/admin/pages");
     revalidatePath(`/${domainPage.slug}`);
-    revalidateTag("layout", { expire: 0 });
     return { data: domainPage, error: null };
   } catch (error) {
     if (isPrerenderError(error)) throw error;
@@ -175,7 +174,6 @@ export async function updatePageAction(input: UpdatePageInput) {
 
     revalidatePath("/admin/pages");
     revalidatePath(`/${domainPage.slug}`);
-    revalidateTag("layout", { expire: 0 });
     return { data: domainPage, error: null };
   } catch (error) {
     if (isPrerenderError(error)) throw error;
@@ -201,7 +199,6 @@ export async function deletePageAction(id: string) {
     }
 
     revalidatePath("/admin/pages");
-    revalidateTag("layout", { expire: 0 });
     return { success: true, error: null };
   } catch (error) {
     if (isPrerenderError(error)) throw error;

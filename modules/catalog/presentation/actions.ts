@@ -1,6 +1,6 @@
 "use server";
 
-import { revalidatePath, revalidateTag } from "next/cache";
+import { revalidatePath } from "next/cache";
 import {
   CreateProductInput,
   UpdateProductInput,
@@ -24,7 +24,6 @@ import {
 } from "../domain";
 import { authHeaders, toSnakeCaseBody } from "@/shared/lib/go-api";
 import { submitToIndexNow } from "@/shared/lib/indexnow";
-import { warmCache } from "@/shared/lib/cache-warm";
 import { BASE_URL } from "@/shared/lib/seo-schema";
 import type { ImageAsset } from "@/shared/lib/image-asset";
 import { normalizeTitleAlign } from "@/shared/lib/title-align";
@@ -568,10 +567,6 @@ export async function createProductAction(input: CreateProductInput) {
     revalidatePath("/admin/products");
     revalidatePath("/san-pham", "layout");
     revalidatePath("/", "layout");
-    revalidateTag("products-list", { expire: 0 });
-    if (data?.slug) {
-      revalidateTag(`slug:${data.slug}`, { expire: 0 });
-    }
     // No IndexNow submission here — a created product always starts as
     // draft (see domain.NewProduct), never published, so there is nothing
     // to index yet. That happens in approveProductAction/
@@ -616,14 +611,9 @@ export async function updateProductAction(input: UpdateProductInput) {
     revalidatePath("/admin/products");
     revalidatePath("/san-pham", "layout");
     revalidatePath("/", "layout");
-    revalidateTag("products-list", { expire: 0 });
-    if (data?.slug) {
-      revalidateTag(`slug:${data.slug}`, { expire: 0 });
-    }
     if (data?.status === PRODUCT_STATUS.PUBLISHED && data?.slug) {
       const url = `${BASE_URL}/san-pham/${data.slug}`;
       submitToIndexNow([url]).catch((err) => console.error("IndexNow product update error:", err));
-      warmCache([url]);
     }
     return { data, error: null };
   } catch (error) {
@@ -666,10 +656,6 @@ async function postProductTransition(
     revalidatePath("/admin/products");
     revalidatePath("/san-pham", "layout");
     revalidatePath("/", "layout");
-    revalidateTag("products-list", { expire: 0 });
-    if (data?.slug) {
-      revalidateTag(`slug:${data.slug}`, { expire: 0 });
-    }
     // The two transitions that actually make a product publicly visible —
     // this is the real "went live" moment createProductAction/
     // updateProductAction no longer trigger it at.
@@ -679,7 +665,6 @@ async function postProductTransition(
     ) {
       const url = `${BASE_URL}/san-pham/${data.slug}`;
       submitToIndexNow([url]).catch((err) => console.error("IndexNow product publish error:", err));
-      warmCache([url]);
     }
     return { data, error: null };
   } catch (error) {
@@ -717,8 +702,6 @@ export async function deleteProductAction(id: string) {
     return { data: null, error: "GO_API_URL is not configured" };
   }
   try {
-    const { data: product } = await getProductByIdAction(id);
-
     const res = await fetch(`${GO_API_URL}/products/${id}`, { method: "DELETE", headers: await authHeaders() });
     if (!res.ok) {
       return { data: null, error: await extractErrorMessage(res, "Không thể xóa sản phẩm") };
@@ -727,10 +710,6 @@ export async function deleteProductAction(id: string) {
     revalidatePath("/admin/products");
     revalidatePath("/san-pham", "layout");
     revalidatePath("/", "layout");
-    revalidateTag("products-list", { expire: 0 });
-    if (product?.slug) {
-      revalidateTag(`slug:${product.slug}`, { expire: 0 });
-    }
     return { data: true, error: null };
   } catch (error) {
     if (isPrerenderError(error)) throw error;

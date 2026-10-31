@@ -1,6 +1,6 @@
 "use server";
 
-import { revalidatePath, revalidateTag } from "next/cache";
+import { revalidatePath } from "next/cache";
 import { HpPage, HpPageFilter, CreateHpPageInput, UpdateHpPageInput } from "../domain";
 import { authHeaders, toSnakeCaseBody } from "@/shared/lib/go-api";
 
@@ -122,7 +122,6 @@ export async function createHpPageAction(input: CreateHpPageInput) {
 
     const row = (await res.json()) as GoHpPageResponse;
     revalidatePath("/admin/hp-pages");
-    revalidateTag("layout", { expire: 0 });
     return { data: mapGoHpPage(row), error: null };
   } catch (error) {
     console.error("createHpPageAction error:", error);
@@ -150,7 +149,6 @@ export async function updateHpPageAction(input: UpdateHpPageInput) {
 
     const row = (await res.json()) as GoHpPageResponse;
     revalidatePath("/admin/hp-pages");
-    revalidateTag("layout", { expire: 0 });
     return { data: mapGoHpPage(row), error: null };
   } catch (error) {
     console.error("updateHpPageAction error:", error);
@@ -172,7 +170,6 @@ export async function deleteHpPageAction(id: string) {
     }
 
     revalidatePath("/admin/hp-pages");
-    revalidateTag("layout", { expire: 0 });
     return { success: true, error: null };
   } catch (error) {
     console.error("deleteHpPageAction error:", error);

@@ -1,6 +1,6 @@
 "use server";
 
-import { revalidatePath, revalidateTag } from "next/cache";
+import { revalidatePath } from "next/cache";
 import {
   AttributeDefinition,
   AttributeDefinitionFilter,
@@ -102,7 +102,6 @@ export async function createAttributeDefinitionAction(input: CreateAttributeDefi
 
     const row = (await res.json()) as GoAttributeDefinitionResponse;
     revalidatePath("/admin/attribute-definitions");
-    revalidateTag("layout", { expire: 0 });
     return { data: mapGoAttributeDefinition(row), error: null };
   } catch (error) {
     console.error("createAttributeDefinitionAction error:", error);
@@ -130,7 +129,6 @@ export async function updateAttributeDefinitionAction(input: UpdateAttributeDefi
 
     const row = (await res.json()) as GoAttributeDefinitionResponse;
     revalidatePath("/admin/attribute-definitions");
-    revalidateTag("layout", { expire: 0 });
     return { data: mapGoAttributeDefinition(row), error: null };
   } catch (error) {
     console.error("updateAttributeDefinitionAction error:", error);
@@ -204,7 +202,6 @@ export async function deleteAttributeDefinitionAction(id: string) {
     }
 
     revalidatePath("/admin/attribute-definitions");
-    revalidateTag("layout", { expire: 0 });
     return { success: true, error: null };
   } catch (error) {
     console.error("deleteAttributeDefinitionAction error:", error);

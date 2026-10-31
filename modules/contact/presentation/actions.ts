@@ -1,6 +1,6 @@
 "use server";
 
-import { revalidatePath, revalidateTag } from "next/cache";
+import { revalidatePath } from "next/cache";
 import { Contact, CreateContactInput, UpdateContactInput, ContactFilter } from "../domain";
 import { authHeaders, toSnakeCaseBody } from "@/shared/lib/go-api";
 
@@ -85,7 +85,6 @@ export async function createContactAction(input: CreateContactInput) {
 
     const row = (await res.json()) as GoContactResponse;
     revalidatePath("/admin/contacts");
-    revalidateTag("layout", { expire: 0 });
     return { data: mapGoContact(row), error: null };
   } catch (error) {
     console.error("createContactAction error:", error);
@@ -113,7 +112,6 @@ export async function updateContactAction(input: UpdateContactInput) {
 
     const row = (await res.json()) as GoContactResponse;
     revalidatePath("/admin/contacts");
-    revalidateTag("layout", { expire: 0 });
     return { data: mapGoContact(row), error: null };
   } catch (error) {
     console.error("updateContactAction error:", error);
@@ -135,7 +133,6 @@ export async function deleteContactAction(id: string) {
     }
 
     revalidatePath("/admin/contacts");
-    revalidateTag("layout", { expire: 0 });
     return { success: true, error: null };
   } catch (error) {
     console.error("deleteContactAction error:", error);

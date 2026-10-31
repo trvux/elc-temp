@@ -96,19 +96,15 @@ export async function getAdminFAQsAction(ownerType: FAQOwnerType, ownerId: strin
 function revalidatePathsFor(ownerType: FAQOwnerType) {
   switch (ownerType) {
     case "service":
-      revalidateTag("services", { expire: 0 });
       return;
     case "product":
       revalidateTag("products", { expire: 0 });
       return;
     case "project":
-      revalidateTag("projects", { expire: 0 });
       return;
     case "news":
-      revalidateTag("news", { expire: 0 });
       return;
     default:
-      revalidateTag("layout", { expire: 0 });
   }
 }
 
