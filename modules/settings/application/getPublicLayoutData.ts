@@ -6,11 +6,29 @@ import { getGroupsAction } from "@/modules/group/presentation/actions";
 import { getCategoriesAction } from "@/modules/category/presentation/actions";
 import { getBrandsAction } from "@/modules/brand/presentation/actions";
 import { getProjectTypesAction } from "@/modules/project-type/presentation/actions";
+import { unstable_cache } from "next/cache";
 import { getProductsAction } from "@/modules/catalog/presentation/actions";
 import { PRODUCT_STATUS } from "@/modules/catalog/domain";
 import { getServicesAction } from "@/modules/service/presentation/actions";
 import { getServiceGroupsAction } from "@/modules/service-group/presentation/actions";
 import { getHpPagesAction } from "@/modules/hp-page/presentation/actions";
+
+// Which brands have at least one published product — only feeds the
+// Organization JSON-LD's hasOfferCatalog. It was the slowest call the layout
+// makes (~100ms server-side to compute facets, 10x any other) on every single
+// request, for a number that changes only when a product is published or
+// unpublished. Cached for 5 minutes under the "products" tag, which the
+// product mutation actions already revalidate, so edits still show up at once.
+// Throws on failure so a transient API error is never cached.
+const getBrandIdsWithProducts = unstable_cache(
+  async (): Promise<string[]> => {
+    const res = await getProductsAction({ status: PRODUCT_STATUS.PUBLISHED, limit: 1 });
+    if (res.error) throw new Error(res.error);
+    return res.facets.brands.filter((b) => b.count > 0).map((b) => b.id);
+  },
+  ["layout-brand-ids-with-products"],
+  { revalidate: 300, tags: ["products"] },
+);
 
 export async function getPublicLayoutData() {
   const [
@@ -22,7 +40,7 @@ export async function getPublicLayoutData() {
     catsResult,
     brandsResult,
     projectTypesResult,
-    productFacetsResult,
+    brandIdsResult,
     hpPagesResult,
     servicesResult,
     serviceGroupsResult,
@@ -35,12 +53,10 @@ export async function getPublicLayoutData() {
     getCategoriesAction(),
     getBrandsAction(),
     getProjectTypesAction(),
-    // limit: 1 — only here for facets.brands (per-brand published-product
-    // counts, computed server-side in one query), not the products array
-    // itself. Lets hasOfferCatalog (below) list only brands that actually
-    // have something for sale, the same "0 products -> excluded" rule
-    // already applied to brand pages going noindex and to sitemap.
-    getProductsAction({ status: PRODUCT_STATUS.PUBLISHED, limit: 1 }),
+    // Lets hasOfferCatalog (below) list only brands that actually have
+    // something for sale, the same "0 products -> excluded" rule already
+    // applied to brand pages going noindex and to sitemap.
+    getBrandIdsWithProducts(),
     // No options -> Go API's default already excludes soft-deleted rows
     // (includeDeleted only set via include_deleted=true, never passed here)
     // — the dead 6HP/10HP hp_pages from earlier this session are already
@@ -71,10 +87,7 @@ export async function getPublicLayoutData() {
   const brandsData = brandsResult.status === "fulfilled" && !brandsResult.value.error
     ? brandsResult.value.data
     : null;
-  const brandFacets = productFacetsResult.status === "fulfilled" && !productFacetsResult.value.error
-    ? productFacetsResult.value.facets.brands
-    : [];
-  const brandIdsWithProducts = new Set(brandFacets.filter((b) => b.count > 0).map((b) => b.id));
+  const brandIdsWithProducts = new Set(brandIdsResult.status === "fulfilled" ? brandIdsResult.value : []);
   const projectTypesData = projectTypesResult.status === "fulfilled" && !projectTypesResult.value.error
     ? projectTypesResult.value.data
     : null;
