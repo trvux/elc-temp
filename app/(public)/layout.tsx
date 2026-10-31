@@ -11,6 +11,7 @@ import { SEOSchema, toJsonLdHtml } from "@/shared/lib/seo-schema";
 import { ConsentBanner } from "@/shared/components/organisms/layout/user/consent-banner";
 import { DEFAULT_CONSENT, toGtagConsentPayload } from "@/shared/lib/consent";
 import { getStoredConsent } from "@/shared/lib/consent-server";
+import { sortByOrderIndex } from "@/shared/lib/helpers";
 import Script from "next/script";
 
 // No caching anywhere in this tree anymore (see cacheComponents removal in
@@ -29,7 +30,6 @@ export default async function PublicLayout({ children }: PublicLayoutProps) {
     branches,
     projects,
     pages,
-    categories,
     brands,
     brandsWithProducts,
     groupCategories,
@@ -39,6 +39,21 @@ export default async function PublicLayout({ children }: PublicLayoutProps) {
     currentYear,
     hpPagesForCatalog,
   } = await getPublicLayoutData();
+
+  // Footer is a client component: everything passed to it is serialized into
+  // the HTML a second time as RSC payload, on EVERY page. branches/pages come
+  // back from the API with rich-text content and map embeds (~80KB), but the
+  // footer only renders a name/title and a link, so pass just those fields.
+  const footerBranches = (branches || []).map((b) => ({
+    id: b.id,
+    name: b.name,
+    slug: b.slug,
+    address: b.address,
+    orderIndex: b.orderIndex,
+  }));
+  const footerPages = sortByOrderIndex(pages || [])
+    .slice(0, 8)
+    .map((p) => ({ id: p.id, title: p.title, slug: p.slug, orderIndex: p.orderIndex }));
 
   // Đọc lựa chọn cookie đã lưu (nếu có) để set đúng default ngay từ đầu —
   // tránh trường hợp khách đã đồng ý trước đó vẫn bị coi là "denied" cho
@@ -114,11 +129,10 @@ export default async function PublicLayout({ children }: PublicLayoutProps) {
         />
         <div className="flex-1">{children}</div>
         <Footer
-          branches={branches}
+          branches={footerBranches}
           projects={projects}
-          pages={pages}
+          pages={footerPages}
           contacts={contacts}
-          categories={categories}
           brands={brands}
           groupCategories={groupCategories}
           categoriesList={categoriesList}

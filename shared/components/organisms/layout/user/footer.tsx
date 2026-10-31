@@ -51,12 +51,14 @@ interface BranchFooter {
   name: string;
   slug: string;
   address?: string;
+  orderIndex?: number;
 }
 
 interface PageFooter {
   id: string;
   title: string;
   slug: string;
+  orderIndex?: number;
 }
 
 interface ProjectTypeFooter {
@@ -70,7 +72,6 @@ interface FooterProps {
   projects?: ProjectFooter[];
   pages?: PageFooter[];
   contacts?: Contact[];
-  categories?: CategoryFooter[];
   brands?: BrandFooter[];
   groupCategories?: GroupCategoryFooter[];
   categoriesList?: CategoryFooter[];
