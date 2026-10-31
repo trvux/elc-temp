@@ -59,11 +59,11 @@ function FooterColumn({
   children: React.ReactNode;
 }) {
   return (
-    <div className="flex flex-col gap-4">
-      <p id={id} className="type-label text-foreground">
+    <div className="flex flex-col gap-5">
+      <p id={id} className="type-body-strong text-foreground">
         {title}
       </p>
-      <ul aria-labelledby={id} className="flex flex-col gap-1.5">
+      <ul aria-labelledby={id} className="flex flex-col gap-3">
         {children}
       </ul>
     </div>
@@ -87,38 +87,38 @@ export function Footer({
   const companyPages = pages.filter((page) => !isLegalPage(page));
 
   return (
-    <footer className="w-full bg-background">
+    <footer className="w-full bg-muted">
       <div className="mx-auto w-full max-w-350 min-[112.5rem]:max-w-384 px-4 py-16 md:px-6 md:py-20 lg:px-12">
-        <div className="grid grid-cols-1 gap-12 xl:grid-cols-[18rem_minmax(0,1fr)] xl:gap-16">
-          <div className="flex max-w-md flex-col gap-6 xl:max-w-none">
+        <div className="grid grid-cols-1 gap-12 min-[90rem]:grid-cols-[18rem_minmax(0,1fr)] min-[90rem]:gap-12">
+          <div className="flex max-w-md flex-col gap-6 min-[90rem]:max-w-none">
             <Link
               href="/"
-              aria-label="Điện máy ELC - Trang chủ"
-              className="w-fit transition-opacity hover:opacity-80"
+              className="flex w-fit items-center gap-3 transition-opacity hover:opacity-80"
             >
               <Image
                 src="/logo/logo.svg?v=footer"
-                alt="Điện máy ELC"
-                width={36}
-                height={36}
+                alt=""
+                width={44}
+                height={44}
                 loading="lazy"
                 style={{ width: "auto" }}
-                className="h-9 w-auto md:h-10"
+                className="h-10 w-auto md:h-12"
               />
+              <span className="type-heading text-foreground">Điện máy ELC</span>
             </Link>
-            <p className="type-body text-foreground">{COMPANY_SHORT_DESC}</p>
+            <p className="type-body-sm text-foreground">{COMPANY_SHORT_DESC}</p>
 
             {socials.length > 0 && (
-              <ul aria-label="Mạng xã hội" className="flex flex-wrap items-center gap-2">
+              <ul aria-label="Mạng xã hội" className="flex flex-wrap items-center gap-3">
                 {socials.map((contact) => (
                   <li key={contact.id}>
                     <ContactLink
                       contact={contact}
                       showLabel={false}
                       showValue={false}
-                      iconProps={{ size: 22, weight: "bold" }}
-                      className="flex size-10 cursor-pointer items-center justify-center gap-0 rounded-md bg-transparent p-0 text-foreground transition-colors hover:bg-muted"
-                      iconClassName="flex items-center justify-center"
+                      iconProps={{ size: 24, weight: "fill" }}
+                      className="flex size-11 cursor-pointer items-center justify-center gap-0 rounded-md bg-transparent p-0 text-foreground transition-opacity hover:opacity-70"
+                      iconClassName="flex items-center justify-center drop-shadow-[0_8px_5px_rgb(0_0_0/0.14)]"
                       aria-label={contact.label || contact.type}
                       title={contact.label || contact.type}
                     />
@@ -130,7 +130,7 @@ export function Footer({
 
           <nav
             aria-label="Chân trang"
-            className="grid grid-cols-2 gap-x-8 gap-y-10 md:grid-cols-3 lg:grid-cols-5"
+            className="grid grid-cols-1 gap-x-8 gap-y-10 min-[24rem]:grid-cols-2 md:grid-cols-3 min-[80rem]:grid-cols-5 min-[90rem]:gap-x-6"
           >
             {groups.length > 0 && (
               <FooterColumn id="footer-products" title="Sản phẩm">
