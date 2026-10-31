@@ -34,6 +34,13 @@ interface FooterProps {
 
 const SOCIAL_TYPES = ["facebook", "zalo", "messenger", "youtube", "tiktok"];
 
+// Page titles are written for the page itself (H1, SEO) and can be long; the
+// footer shows a short label for those. Keyed by slug, anything else shows its
+// own title.
+const FOOTER_LABELS: Record<string, string> = {
+  "quy-trinh-thi-cong-lap-dat-may-lanh-chuan-ky-thuat-tai-dien-may-elc": "Quy trình lắp đặt",
+};
+
 // /thong-tin pages are admin-managed. Policy pages (chinh-sach-...) are the
 // "Pháp lý" column; every other page is "Công ty".
 const isLegalPage = (page: FooterPage) => page.slug.startsWith("chinh-sach-");
@@ -80,8 +87,8 @@ export function Footer({
   const companyPages = pages.filter((page) => !isLegalPage(page));
 
   return (
-    <footer className="relative w-full overflow-hidden bg-background">
-      <div className="mx-auto w-full max-w-350 min-[112.5rem]:max-w-384 px-4 pt-16 md:px-6 md:pt-20 lg:px-12">
+    <footer className="w-full bg-background">
+      <div className="mx-auto w-full max-w-350 min-[112.5rem]:max-w-384 px-4 py-16 md:px-6 md:py-20 lg:px-12">
         <div className="grid grid-cols-1 gap-12 xl:grid-cols-[18rem_minmax(0,1fr)] xl:gap-16">
           <div className="flex max-w-md flex-col gap-6 xl:max-w-none">
             <Link
@@ -161,7 +168,7 @@ export function Footer({
               {companyPages.map((page) => (
                 <li key={page.id}>
                   <Link href={`/${page.slug}`} className={`${LINK_CLASS} line-clamp-2`}>
-                    {page.title}
+                    {FOOTER_LABELS[page.slug] ?? page.title}
                   </Link>
                 </li>
               ))}
@@ -176,7 +183,7 @@ export function Footer({
               {legalPages.map((page) => (
                 <li key={page.id}>
                   <Link href={`/${page.slug}`} className={`${LINK_CLASS} line-clamp-2`}>
-                    {page.title}
+                    {FOOTER_LABELS[page.slug] ?? page.title}
                   </Link>
                 </li>
               ))}
@@ -191,14 +198,6 @@ export function Footer({
           <small className="type-caption text-foreground">
             © {currentYear} {COMPANY_NAME}
           </small>
-        </p>
-      </div>
-
-      {/* Decorative brand name, cropped by the footer's overflow-hidden. Hidden
-          from assistive tech and crawlers' text: the logo already names the brand. */}
-      <div aria-hidden="true" className="pointer-events-none select-none">
-        <p className="type-wordmark translate-y-[14%] bg-linear-to-b from-brand to-transparent bg-clip-text text-center text-transparent">
-          ELC
         </p>
       </div>
     </footer>

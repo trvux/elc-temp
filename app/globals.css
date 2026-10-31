@@ -366,7 +366,6 @@
   --color-secondary: var(--secondary);
   --color-primary-foreground: var(--primary-foreground);
   --color-primary: var(--primary);
-  --color-brand: var(--brand);
   --color-popover-foreground: var(--popover-foreground);
   --color-popover: var(--popover);
   --color-card-foreground: var(--card-foreground);
@@ -391,7 +390,6 @@
   --popover-foreground: oklch(0.145 0 0);
   --primary: oklch(0.205 0 0);
   --primary-foreground: oklch(0.985 0 0);
-  --brand: #243f95; /* blue of public/logo/logo.svg */
   --secondary: oklch(0.97 0 0);
   --secondary-foreground: oklch(0.205 0 0);
   --muted: oklch(0.97 0 0);
@@ -427,7 +425,6 @@
   --popover-foreground: oklch(0.985 0 0);
   --primary: oklch(0.922 0 0);
   --primary-foreground: oklch(0.205 0 0);
-  --brand: #243f95;
   --secondary: oklch(0.269 0 0);
   --secondary-foreground: oklch(0.985 0 0);
   --muted: oklch(0.269 0 0);
@@ -644,15 +641,6 @@
   font-variant-numeric: tabular-nums;
 }
 
-/* Chữ thương hiệu khổng lồ trang trí ở đáy footer (aria-hidden, không mang nghĩa).
-   Cỡ theo chiều rộng khung nhìn để luôn chiếm gần hết bề ngang; line-height < 1 vì
-   chỉ dùng chữ hoa không dấu và đáy bị cắt có chủ đích. */
-@utility type-wordmark {
-  font-size: clamp(7rem, 30vw, 30rem);
-  line-height: 0.8;
-  font-weight: 600;
-  letter-spacing: -0.04em;
-}
 
 /* Header flyout items (see header/desktop-menu.tsx). Timings follow
    apple.com's globalheader: 4px up + transparent, .32s, delay = item * 20ms
