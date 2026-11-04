@@ -1,9 +1,8 @@
-import Image from "next/image";
 import Link from "next/link";
 
 import { getDisplayContacts, type Contact } from "@/modules/contact/domain";
 import { ContactLink } from "@/modules/contact/presentation/components/ContactLink";
-import { COMPANY_NAME, COMPANY_SHORT_DESC } from "@/shared/lib/company-info";
+import { COMPANY_NAME } from "@/shared/lib/company-info";
 import { CookieSettingsButton } from "./cookie-settings-button";
 
 interface FooterGroup {
@@ -87,118 +86,97 @@ export function Footer({
   const companyPages = pages.filter((page) => !isLegalPage(page));
 
   return (
-    <footer className="w-full bg-muted">
+    <footer className="w-full bg-background">
       <div className="mx-auto w-full max-w-350 min-[112.5rem]:max-w-384 px-4 py-16 md:px-6 md:py-20 lg:px-12">
-        <div className="grid grid-cols-1 gap-12 min-[90rem]:grid-cols-[18rem_minmax(0,1fr)] min-[90rem]:gap-12">
-          <div className="flex max-w-md flex-col gap-6 min-[90rem]:max-w-none">
-            <Link
-              href="/"
-              className="flex w-fit items-center gap-3 transition-opacity hover:opacity-80"
+        <nav
+          aria-label="Chân trang"
+          className="grid grid-cols-1 gap-x-8 gap-y-10 min-[24rem]:grid-cols-2 md:grid-cols-3 min-[80rem]:grid-cols-5 min-[90rem]:gap-x-6"
+        >
+          {groups.length > 0 && (
+            <FooterColumn id="footer-products" title="Sản phẩm">
+              {groups.map((group) => (
+                <li key={group.id}>
+                  <Link href={`/san-pham/${group.slug}`} className={LINK_CLASS}>
+                    {group.name}
+                  </Link>
+                </li>
+              ))}
+            </FooterColumn>
+          )}
+
+          {projectTypes.length > 0 && (
+            <FooterColumn id="footer-project-types" title="Loại hình công trình">
+              {projectTypes.map((type) => (
+                <li key={type.id}>
+                  <Link href={`/du-an/${type.slug}`} className={LINK_CLASS}>
+                    {type.name}
+                  </Link>
+                </li>
+              ))}
+            </FooterColumn>
+          )}
+
+          <FooterColumn id="footer-resources" title="Tài nguyên">
+            <li>
+              <Link href="/tin-tuc" className={LINK_CLASS}>
+                Tin tức
+              </Link>
+            </li>
+          </FooterColumn>
+
+          <FooterColumn id="footer-company" title="Công ty">
+            {companyPages.map((page) => (
+              <li key={page.id}>
+                <Link href={`/${page.slug}`} className={`${LINK_CLASS} line-clamp-2`}>
+                  {FOOTER_LABELS[page.slug] ?? page.title}
+                </Link>
+              </li>
+            ))}
+            <li>
+              <Link href="/thong-tin" className={LINK_CLASS}>
+                Liên hệ &amp; chi nhánh
+              </Link>
+            </li>
+          </FooterColumn>
+
+          <FooterColumn id="footer-legal" title="Pháp lý">
+            {legalPages.map((page) => (
+              <li key={page.id}>
+                <Link href={`/${page.slug}`} className={`${LINK_CLASS} line-clamp-2`}>
+                  {FOOTER_LABELS[page.slug] ?? page.title}
+                </Link>
+              </li>
+            ))}
+            <li>
+              <CookieSettingsButton className={`${LINK_CLASS} cursor-pointer text-left`} />
+            </li>
+          </FooterColumn>
+        </nav>
+
+        <div className="mt-16 flex flex-col items-center gap-3 text-center">
+          <p>
+            <small className="type-caption text-foreground">
+              © {currentYear} {COMPANY_NAME}
+            </small>
+          </p>
+
+          {socials.length > 0 && (
+            <ul
+              aria-label="Liên hệ"
+              className="flex flex-wrap items-center justify-center gap-x-6 gap-y-1"
             >
-              <Image
-                src="/logo/logo.svg?v=footer"
-                alt=""
-                width={44}
-                height={44}
-                loading="lazy"
-                style={{ width: "auto" }}
-                className="h-10 w-auto md:h-12"
-              />
-              <span className="type-heading text-foreground">Điện máy ELC</span>
-            </Link>
-            <p className="type-body-sm text-foreground">{COMPANY_SHORT_DESC}</p>
-
-            {socials.length > 0 && (
-              <ul aria-label="Mạng xã hội" className="flex flex-wrap items-center gap-3">
-                {socials.map((contact) => (
-                  <li key={contact.id}>
-                    <ContactLink
-                      contact={contact}
-                      showLabel={false}
-                      showValue={false}
-                      iconProps={{ size: 24, weight: "fill" }}
-                      className="flex size-11 cursor-pointer items-center justify-center gap-0 rounded-md bg-transparent p-0 text-foreground transition-opacity hover:opacity-70"
-                      iconClassName="flex items-center justify-center drop-shadow-[0_8px_5px_rgb(0_0_0/0.14)]"
-                      aria-label={contact.label || contact.type}
-                      title={contact.label || contact.type}
-                    />
-                  </li>
-                ))}
-              </ul>
-            )}
-          </div>
-
-          <nav
-            aria-label="Chân trang"
-            className="grid grid-cols-1 gap-x-8 gap-y-10 min-[24rem]:grid-cols-2 md:grid-cols-3 min-[80rem]:grid-cols-5 min-[90rem]:gap-x-6"
-          >
-            {groups.length > 0 && (
-              <FooterColumn id="footer-products" title="Sản phẩm">
-                {groups.map((group) => (
-                  <li key={group.id}>
-                    <Link href={`/san-pham/${group.slug}`} className={LINK_CLASS}>
-                      {group.name}
-                    </Link>
-                  </li>
-                ))}
-              </FooterColumn>
-            )}
-
-            {projectTypes.length > 0 && (
-              <FooterColumn id="footer-project-types" title="Loại hình công trình">
-                {projectTypes.map((type) => (
-                  <li key={type.id}>
-                    <Link href={`/du-an/${type.slug}`} className={LINK_CLASS}>
-                      {type.name}
-                    </Link>
-                  </li>
-                ))}
-              </FooterColumn>
-            )}
-
-            <FooterColumn id="footer-resources" title="Tài nguyên">
-              <li>
-                <Link href="/tin-tuc" className={LINK_CLASS}>
-                  Tin tức
-                </Link>
-              </li>
-            </FooterColumn>
-
-            <FooterColumn id="footer-company" title="Công ty">
-              {companyPages.map((page) => (
-                <li key={page.id}>
-                  <Link href={`/${page.slug}`} className={`${LINK_CLASS} line-clamp-2`}>
-                    {FOOTER_LABELS[page.slug] ?? page.title}
-                  </Link>
+              {socials.map((contact) => (
+                <li key={contact.id}>
+                  <ContactLink
+                    contact={contact}
+                    iconClassName="hidden"
+                    className="block py-1 type-caption text-muted-foreground transition-colors hover:text-foreground"
+                  />
                 </li>
               ))}
-              <li>
-                <Link href="/thong-tin" className={LINK_CLASS}>
-                  Liên hệ &amp; chi nhánh
-                </Link>
-              </li>
-            </FooterColumn>
-
-            <FooterColumn id="footer-legal" title="Pháp lý">
-              {legalPages.map((page) => (
-                <li key={page.id}>
-                  <Link href={`/${page.slug}`} className={`${LINK_CLASS} line-clamp-2`}>
-                    {FOOTER_LABELS[page.slug] ?? page.title}
-                  </Link>
-                </li>
-              ))}
-              <li>
-                <CookieSettingsButton className={`${LINK_CLASS} cursor-pointer text-left`} />
-              </li>
-            </FooterColumn>
-          </nav>
+            </ul>
+          )}
         </div>
-
-        <p className="mt-16 text-center">
-          <small className="type-caption text-foreground">
-            © {currentYear} {COMPANY_NAME}
-          </small>
-        </p>
       </div>
     </footer>
   );

@@ -41,7 +41,7 @@ interface HeaderProps {
 // come from buildNavGroups (real categories/brands/services/project types),
 // links are next/link. Rendered dark like the v2 apple page; no hotline/search icon.
 const navItem =
-  "h-11 rounded-none px-2 type-legal text-foreground/80 hover:bg-transparent hover:text-foreground focus:bg-transparent data-popup-open:bg-transparent data-popup-open:text-foreground data-popup-open:hover:bg-transparent data-open:bg-transparent data-open:hover:bg-transparent data-open:focus:bg-transparent";
+  "h-11 rounded-none px-2 type-caption text-foreground/80 hover:bg-transparent hover:text-foreground focus:bg-transparent data-popup-open:bg-transparent data-popup-open:text-foreground data-popup-open:hover:bg-transparent data-open:bg-transparent data-open:hover:bg-transparent data-open:focus:bg-transparent";
 const ease = "ease-[cubic-bezier(0.4,0,0.6,1)]";
 
 export function Header({
@@ -102,10 +102,10 @@ export function Header({
       <header
         ref={headerRef}
         className={cn(
-          "dark sticky top-0 z-200 text-foreground backdrop-blur-xl backdrop-saturate-180 transition-colors delay-80 duration-270 motion-reduce:transition-none",
+          "sticky top-0 z-200 text-foreground backdrop-blur-xl backdrop-saturate-180 transition-colors delay-80 duration-270 motion-reduce:transition-none",
           ease,
           // closed: bar takes the page colour; open: bar + panel become ONE colour
-          openValue ? "bg-[#161617]" : "bg-background",
+          openValue ? "bg-[#fafafc] dark:bg-[#161617]" : "bg-background",
         )}
       >
         <div className="mx-auto flex h-12 max-w-[1024px] items-center justify-between px-[22px] min-[834px]:h-11">
@@ -121,7 +121,6 @@ export function Header({
           <NavigationMenu
             aria-label="Menu chính"
             anchor={headerRef}
-            positionerClassName="dark"
             onValueChange={setOpenValue}
             className="hidden max-w-none min-[834px]:flex"
           >
