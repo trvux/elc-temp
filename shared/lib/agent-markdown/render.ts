@@ -16,7 +16,7 @@ export interface HomeMarkdownInput {
   brands: Array<{ name: string; slug: string }>;
 }
 
-const HOME_MARKDOWN_TITLE = "Điện máy ELC - Máy lạnh, cấp khí tươi, lọc nước chính hãng";
+const HOME_MARKDOWN_TITLE = "Điện máy ELC - Nhà thầu EPC điều hòa không khí và thông gió";
 
 export function buildHomeMarkdown(input: HomeMarkdownInput): string {
   const out: string[] = [];

@@ -6,7 +6,7 @@ export const BASE_URL = process.env.NEXT_PUBLIC_APP_URL || "https://dienmayelc.c
 // One description reused by Organization JSON-LD, llms.txt and the Markdown
 // homepage so every machine-readable surface describes the business the same way.
 export const ORGANIZATION_DESCRIPTION =
-  "Điện máy ELC (Công ty cổ phần giải pháp công nghệ TMDV ELC) cung cấp và thi công máy lạnh Daikin, LG, hệ thống cấp khí tươi thu hồi nhiệt Menred và máy lọc nước chính hãng tại TP.HCM và toàn quốc, kèm dịch vụ lắp đặt, sửa chữa, bảo trì, vệ sinh máy lạnh.";
+  "Điện máy ELC (Công ty cổ phần giải pháp công nghệ TMDV ELC) là nhà thầu EPC chuyên hệ thống điều hòa không khí (máy lạnh) và thông gió cơ khí (MV&AC) tại TP.HCM và toàn quốc: làm mát, khử ẩm, lọc không khí, trao đổi khí tươi. Thiết kế, cung ứng, thi công.";
 
 // sameAs is pure entity disambiguation ("this Brand named X is the same
 // entity as the one described at this URL") — NOT an authorized-dealer or

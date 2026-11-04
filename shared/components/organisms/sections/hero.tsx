@@ -11,8 +11,8 @@ interface HeroSectionProps {
 // Tileable fractal-noise grain, laid between the bg photo and the dark
 // scrim below — breaks up the sky photo's smooth gradient banding without
 // needing an extra image asset. The matrix zeroes out RGB and drives only
-// alpha from the turbulence (gain 0.5, so alpha stays mostly in the
-// 0-0.4 range — fine specks, not a wash), so this paints translucent
+// alpha from the turbulence (gain 0.8, so alpha stays mostly in the
+// 0-0.6 range — visible specks, not a wash), so this paints translucent
 // black specks straight onto whatever's beneath — visible on any
 // photo/color, unlike a flat gray tile blended with mix-blend-mode. (An
 // earlier gain of 8 clipped nearly every pixel to full alpha, which is
@@ -20,8 +20,8 @@ interface HeroSectionProps {
 const NOISE_SVG = `
 <svg xmlns="http://www.w3.org/2000/svg" width="180" height="180">
   <filter id="n">
-    <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="3" stitchTiles="stitch" />
-    <feColorMatrix type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.5 0" />
+    <feTurbulence type="fractalNoise" baseFrequency="0.75" numOctaves="3" stitchTiles="stitch" />
+    <feColorMatrix type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.8 0" />
   </filter>
   <rect width="100%" height="100%" filter="url(#n)" />
 </svg>
@@ -54,12 +54,17 @@ export function HeroSection({ brands = [] }: HeroSectionProps) {
         // shorter, so the same 35% bias crops almost all the way past the
         // clouds, leaving just a sliver at the very bottom. lg: reverts to
         // plain center, matching how this looked before the bias existed.
-        className="object-cover object-[center_35%] lg:object-center"
+        // blur-[1.5px] softens the photo; a CSS blur fades the image's own
+        // edges to transparent, so scale-105 pushes those edges outside the
+        // section's overflow-hidden box instead of showing a pale rim. The
+        // grain layer below stays unblurred on top, which is what gives the
+        // frosted look.
+        className="scale-105 object-cover object-[center_35%] blur-[1.5px] lg:object-center"
       />
 
       <div
         aria-hidden
-        className="pointer-events-none absolute inset-0 z-[2] opacity-40"
+        className="pointer-events-none absolute inset-0 z-[2] opacity-60"
         style={{ backgroundImage: NOISE_BG_IMAGE, backgroundRepeat: "repeat" }}
       />
 
@@ -88,13 +93,17 @@ export function HeroSection({ brands = [] }: HeroSectionProps) {
         </p>
 
         <h1 id="hero-heading" className="type-display text-white drop-shadow-sm">
-          Đối Tác Điện Lạnh Trọn Gói
+          Nhà thầu EPC{" "}
+          <span className="type-body-strong md:type-title mt-2 block text-balance md:whitespace-nowrap">
+            (Engineering - Procurement - Construction)
+          </span>
         </h1>
 
         <p className="type-body max-w-md text-white/80 drop-shadow-sm">
-          Phân phối chính hãng máy lạnh và hệ thống cấp khí tươi thu hồi
-          nhiệt Menred, thi công công trình trọn gói từ dân dụng đến công
-          nghiệp, cùng dịch vụ bảo trì, vệ sinh, sửa chữa chuyên nghiệp.
+          Chuyên về Hệ thống Điều hòa Không khí và Thông gió Cơ khí
+          (Mechanical Ventilation &amp; Air Conditioning - MV&amp;AC). Tập
+          trung hoàn toàn vào làm mát, khử ẩm, lọc không khí và trao đổi
+          khí tươi.
         </p>
 
         {/* Single CTA into the full-screen consultation form at /form
