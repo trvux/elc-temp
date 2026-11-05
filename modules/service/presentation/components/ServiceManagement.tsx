@@ -627,14 +627,24 @@ export function ServiceManagement({
                                 folderPath="services"
                               />
                               {current?.url && (
-                                <Input
-                                  value={current.alt || ""}
-                                  onChange={(e) =>
-                                    field.onChange([{ ...current, alt: e.target.value }])
-                                  }
-                                  placeholder="Mô tả ảnh (alt text)"
-                                  className="mt-2 type-legal h-8"
-                                />
+                                <>
+                                  <Input
+                                    value={current.alt || ""}
+                                    onChange={(e) =>
+                                      field.onChange([{ ...current, alt: e.target.value }])
+                                    }
+                                    placeholder="Mô tả ảnh (alt text, bắt buộc khi công khai)"
+                                    className="mt-2 type-legal h-8"
+                                  />
+                                  <Input
+                                    value={current.caption || ""}
+                                    onChange={(e) =>
+                                      field.onChange([{ ...current, caption: e.target.value }])
+                                    }
+                                    placeholder="Chú thích ảnh (caption, hiện dưới ảnh, bắt buộc khi công khai)"
+                                    className="mt-2 type-legal h-8"
+                                  />
+                                </>
                               )}
                               <FieldError errors={[fieldState.error]} />
                             </Field>

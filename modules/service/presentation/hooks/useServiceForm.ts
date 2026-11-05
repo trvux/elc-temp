@@ -34,6 +34,21 @@ const serviceSchema = z.object({
   isFeatured: z.boolean().optional(),
   isPublished: z.boolean().optional(),
   orderIndex: z.number().int().optional(),
+}).superRefine((values, ctx) => {
+  // SEO/GEO rule: an image on a public service page needs an alt (screen
+  // readers, image search) and a caption (shown under the image and read by
+  // answer engines). Drafts may stay incomplete; publishing may not.
+  if (!values.isPublished) return;
+  const incomplete = (values.images ?? []).some(
+    (img) => !img.alt?.trim() || !img.caption?.trim(),
+  );
+  if (incomplete) {
+    ctx.addIssue({
+      code: "custom",
+      path: ["images"],
+      message: "Ảnh đại diện cần có alt và caption trước khi công khai dịch vụ.",
+    });
+  }
 });
 
 type ServiceFormValues = z.infer<typeof serviceSchema>;

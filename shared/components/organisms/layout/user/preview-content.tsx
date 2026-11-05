@@ -19,6 +19,7 @@ import { cn } from "@/shared/lib/utils";
 // the real cause: @tiptap/html's browser generateHTML always drags in
 // @tiptap/core's EditorView import no matter what.
 import { generateHTML } from "@tiptap/html/server";
+import { enhanceTiptapHtml } from "@/shared/lib/tiptap-html";
 import { WithLinkPreview } from "@/shared/components/organisms/link-preview/with-link-preview";
 
 interface PreviewContentProps {
@@ -114,7 +115,7 @@ export const PreviewContent = ({
           className,
         )}
         dangerouslySetInnerHTML={{
-          __html: html.replace(/<table/g, '<div class="table-wrapper" tabindex="0" role="region" aria-label="Bảng dữ liệu"><table').replace(/<\/table>/g, '</table></div>')
+          __html: enhanceTiptapHtml(html),
         }}
       />
     </WithLinkPreview>

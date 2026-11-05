@@ -82,7 +82,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       title,
       description,
       url: pageUrl,
-      images: image ? [{ url: image }] : undefined,
+      images: image ? [{ url: image, alt: service.images[0]?.alt || service.title }] : undefined,
     },
     twitter: {
       card: "summary_large_image",

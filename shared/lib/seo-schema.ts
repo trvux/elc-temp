@@ -69,6 +69,21 @@ export interface ServiceInput {
   title: string;
   slug: string;
   metaDescription?: string | null;
+  // Visible lead paragraph, used when no meta description is set.
+  description?: string | null;
+  // Absolute URL of the hero image plus its alt/caption (ImageObject).
+  image?: { url: string; alt?: string | null; caption?: string | null } | null;
+}
+
+export interface WebPageInput {
+  name: string;
+  url: string;
+  description?: string | null;
+  datePublished?: string | null; // ISO 8601
+  dateModified?: string | null; // ISO 8601
+  imageUrl?: string | null;
+  // @id of the entity this page is about (e.g. its Service).
+  aboutId?: string;
 }
 
 export interface ProjectInput {
@@ -289,12 +304,23 @@ export const SEOSchema = {
   },
 
   getService(svc: ServiceInput) {
+    const url = `${BASE_URL}/dich-vu/${svc.slug}`;
     return {
       "@type": "Service",
-      "@id": `${BASE_URL}/dich-vu/${svc.slug}#service`,
+      "@id": `${url}#service`,
       "name": svc.title,
-      "description": svc.metaDescription || undefined,
-      "url": `${BASE_URL}/dich-vu/${svc.slug}`,
+      "serviceType": svc.title,
+      "description": svc.metaDescription || svc.description || undefined,
+      "url": url,
+      "mainEntityOfPage": { "@id": `${url}#webpage` },
+      "image": svc.image
+        ? {
+            "@type": "ImageObject",
+            "url": svc.image.url,
+            "caption": svc.image.caption || undefined,
+            "description": svc.image.alt || undefined,
+          }
+        : undefined,
       "provider": {
         "@id": `${BASE_URL}/#organization`
       },
@@ -312,6 +338,28 @@ export const SEOSchema = {
           "name": "Đồng Nai",
         },
       ]
+    };
+  },
+
+  // The page itself, tied to its Service by @id and to the site by WebSite
+  // @id. dateModified is what answer engines read for freshness.
+  getWebPage(page: WebPageInput) {
+    return {
+      "@type": "WebPage",
+      "@id": `${page.url}#webpage`,
+      "url": page.url,
+      "name": page.name,
+      "description": page.description || undefined,
+      "inLanguage": "vi-VN",
+      "isPartOf": { "@id": `${BASE_URL}/#website` },
+      ...(page.aboutId
+        ? { "about": { "@id": page.aboutId }, "mainEntity": { "@id": page.aboutId } }
+        : {}),
+      "datePublished": page.datePublished || undefined,
+      "dateModified": page.dateModified || undefined,
+      "primaryImageOfPage": page.imageUrl
+        ? { "@type": "ImageObject", "url": page.imageUrl }
+        : undefined,
     };
   },
 

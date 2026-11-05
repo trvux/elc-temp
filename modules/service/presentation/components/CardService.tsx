@@ -2,8 +2,7 @@
 import { useState } from "react";
 import { toast } from "sonner";
 import { Badge } from "@/shared/components/ui/badge";
-import { Button, buttonVariants } from "@/shared/components/ui/button";
-import { ArrowRight } from "@phosphor-icons/react/dist/ssr";
+import { Button } from "@/shared/components/ui/button";
 import Image from "next/image";
 import Link from "next/link";
 import { trackContactClick } from "@/modules/inquiry";
@@ -25,10 +24,10 @@ export interface CardServiceProps {
   headingAs?: "h2" | "h3";
 }
 
-// Tạm thời tắt việc click vào card để vào trang chi tiết dịch vụ —
-// khách chỉ dừng ở trang /dich-vu và bấm "Đặt lịch". Đổi lại thành `true`
-// khi cần bật lại trang chi tiết (mũi tên truy cập sẽ hiện lại theo).
-const ENABLE_DETAIL_LINK = false;
+// Bật/tắt việc click vào card để vào trang chi tiết dịch vụ (mũi tên truy
+// cập hiện theo). Từng tắt khi các trang chi tiết chưa có nội dung; bật lại
+// 2026-11-06 sau khi các trang đã được viết lại.
+const ENABLE_DETAIL_LINK = true;
 
 export function CardService({
   id,
@@ -82,7 +81,9 @@ export function CardService({
   };
 
   return (
-    <div className="rounded-2xl bg-muted/30 p-1 flex h-full flex-col gap-1.5 border border-border shadow-xs">
+    // `group relative`: the title link below stretches over this whole card
+    // (see the Heading), so the card itself is the click target.
+    <div className="group relative rounded-2xl bg-muted/30 p-1 flex h-full flex-col gap-1.5 border border-border shadow-xs">
       {/* Card con: ảnh + tên + badge + mô tả + giá dịch vụ */}
       <div className="flex flex-1 flex-col overflow-hidden rounded-xl border border-border bg-background">
         <div className="relative aspect-video w-full overflow-hidden">
@@ -91,32 +92,30 @@ export function CardService({
             alt={title || ""}
             fill
             sizes="(max-width: 768px) 100vw, 384px"
-            className="object-cover"
+            className={
+              isLinked
+                ? "object-cover transition-transform duration-300 group-hover:scale-[1.03]"
+                : "object-cover"
+            }
           />
         </div>
 
         <div className="flex flex-1 flex-col gap-2 p-3">
-          {/* Tên dịch vụ (trái) + mũi tên truy cập (phải, chỉ hiện khi bật lại trang chi tiết) */}
-          <div className="flex items-center justify-between gap-3">
-            <Heading className="type-body-strong line-clamp-1 min-w-0">
-              {isLinked ? (
-                <Link href={href!} className="hover:text-primary transition-colors">
-                  {title}
-                </Link>
-              ) : (
-                title
-              )}
-            </Heading>
-            {isLinked && (
+          {/* Tên dịch vụ. Khi bật trang chi tiết, link này phủ kín cả thẻ
+              (after:absolute after:inset-0): bấm đâu trong thẻ cũng vào trang
+              chi tiết, chỉ có nút Đặt lịch bên dưới nổi lên trên lớp phủ. */}
+          <Heading className="type-body-strong line-clamp-2 min-w-0">
+            {isLinked ? (
               <Link
                 href={href!}
-                aria-label={`Xem chi tiết ${title}`}
-                className={buttonVariants({ variant: "ghost", size: "icon-sm", className: "shrink-0" })}
+                className="transition-colors group-hover:text-primary after:absolute after:inset-0 after:content-['']"
               >
-                <ArrowRight weight="bold" />
+                {title}
               </Link>
+            ) : (
+              title
             )}
-          </div>
+          </Heading>
 
           {price && (
             <p className="truncate type-price text-muted-foreground" title={price}>
@@ -149,7 +148,7 @@ export function CardService({
           navigate thật; desktop mở modal xem trước tin nhắn. Tin nhắn kèm
           đúng link riêng của dịch vụ này (/dich-vu/{slug}), không phải link
           /dich-vu chung — nhân viên nhận tin biết ngay khách hỏi dịch vụ nào. */}
-      <div className="px-1 pb-1">
+      <div className="relative z-10 px-1 pb-1">
         <Button asChild className="w-full">
           <a href={zaloHref} target="_blank" rel="noopener noreferrer" onClick={handleBookClick}>
             Đặt lịch

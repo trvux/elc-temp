@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" width="1600" height="900">
+<defs>
+<linearGradient id="g" gradientUnits="userSpaceOnUse" x1="640" y1="0" x2="960" y2="0"><stop offset="0" stop-color="#E8744F"/><stop offset="1" stop-color="#2F6FDB"/></linearGradient>
+<clipPath id="u"><rect x="640" y="280" width="320" height="340" rx="28"/></clipPath>
+</defs>
+<rect width="1600" height="900" fill="#E9EFF8"/>
+<g stroke="#111111" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" fill="none">
+  <circle cx="210" cy="190" r="58" fill="#F5B800"/>
+  <line x1="296.0" y1="190.0" x2="322.0" y2="190.0"/><line x1="270.8" y1="250.8" x2="289.2" y2="269.2"/><line x1="210.0" y1="276.0" x2="210.0" y2="302.0"/><line x1="149.2" y1="250.8" x2="130.8" y2="269.2"/><line x1="124.0" y1="190.0" x2="98.0" y2="190.0"/><line x1="149.2" y1="129.2" x2="130.8" y2="110.8"/><line x1="210.0" y1="104.0" x2="210.0" y2="78.0"/><line x1="270.8" y1="129.2" x2="289.2" y2="110.8"/>
+  <rect x="800" y="170" width="700" height="560" rx="36" fill="#FFFFFF" fill-opacity="0.6"/>
+  <line x1="60" y1="730" x2="1540" y2="730"/>
+</g>
+<rect x="640" y="280" width="320" height="340" rx="28" fill="#FFFFFF"/>
+<g clip-path="url(#u)" stroke="#111111" stroke-opacity="0.16" stroke-width="4"><line x1="280" y1="280" x2="620" y2="620"/><line x1="320" y1="280" x2="660" y2="620"/><line x1="360" y1="280" x2="700" y2="620"/><line x1="400" y1="280" x2="740" y2="620"/><line x1="440" y1="280" x2="780" y2="620"/><line x1="480" y1="280" x2="820" y2="620"/><line x1="520" y1="280" x2="860" y2="620"/><line x1="560" y1="280" x2="900" y2="620"/><line x1="600" y1="280" x2="940" y2="620"/><line x1="640" y1="280" x2="980" y2="620"/><line x1="680" y1="280" x2="1020" y2="620"/><line x1="720" y1="280" x2="1060" y2="620"/><line x1="760" y1="280" x2="1100" y2="620"/><line x1="800" y1="280" x2="1140" y2="620"/><line x1="840" y1="280" x2="1180" y2="620"/><line x1="880" y1="280" x2="1220" y2="620"/><line x1="920" y1="280" x2="1260" y2="620"/><line x1="960" y1="280" x2="1300" y2="620"/></g>
+<rect x="640" y="280" width="320" height="340" rx="28" fill="none" stroke="#111111" stroke-width="6"/>
+<g stroke="url(#g)" stroke-width="18" fill="none">
+  <line x1="120" y1="395" x2="1436" y2="395"/>
+  <line x1="1480" y1="505" x2="166" y2="505"/>
+</g>
+<polygon points="1430,363 1494,395 1430,427" fill="#2F6FDB"/>
+<polygon points="172,473 108,505 172,537" fill="#E8744F"/>
+<g fill="#111111"><circle cx="190" cy="362" r="7"/><circle cx="262" cy="338" r="7"/><circle cx="335" cy="366" r="7"/><circle cx="410" cy="342" r="7"/><circle cx="485" cy="364" r="7"/><circle cx="555" cy="340" r="7"/><circle cx="610" cy="360" r="7"/><circle cx="1370" cy="545" r="7"/><circle cx="1290" cy="570" r="7"/><circle cx="1215" cy="542" r="7"/><circle cx="1135" cy="568" r="7"/><circle cx="1060" cy="544" r="7"/></g>
+<g fill="#FFFFFF" stroke="#2F6FDB" stroke-width="4"><circle cx="1075" cy="360" r="11"/><circle cx="1150" cy="334" r="11"/><circle cx="1230" cy="362" r="11"/><circle cx="1310" cy="336" r="11"/><circle cx="1390" cy="360" r="11"/></g>
+</svg>

@@ -23,9 +23,13 @@ interface OrderButtonProps {
   leadType?: LeadType;
   entityId?: string;
   className?: string;
+  // Defaults keep the product-page look ("Mua ngay", solid button with the
+  // layered shadow); the service page passes its own label and a quieter variant.
+  label?: string;
+  variant?: React.ComponentProps<typeof Button>["variant"];
 }
 
-export function OrderButton({ contacts, productInfo, leadType, entityId, className }: OrderButtonProps) {
+export function OrderButton({ contacts, productInfo, leadType, entityId, className, label = "Mua ngay", variant = "default" }: OrderButtonProps) {
   const [modalOpen, setModalOpen] = useState(false);
 
   const zaloContact =
@@ -69,10 +73,11 @@ export function OrderButton({ contacts, productInfo, leadType, entityId, classNa
   return (
     <>
       <Button
-        variant="default"
+        variant={variant}
         size="lg"
         className={cn(
-          "shadow-[0_0.84px_0.84px_-0.31px_rgba(36,36,36,0.15),0_1.99px_1.99px_-0.625px_rgba(36,36,36,0.15),0_3.63px_3.63px_-0.9375px_rgba(36,36,36,0.15),0_6.04px_6.04px_-1.25px_rgba(36,36,36,0.15),0_9.75px_9.75px_-1.56px_rgba(36,36,36,0.15),0_15.96px_15.96px_-1.875px_rgba(36,36,36,0.15),0_27.48px_27.48px_-2.19px_rgba(36,36,36,0.15),0_50px_50px_-2.5px_rgba(36,36,36,0.15)] border-none",
+          variant === "default" &&
+            "shadow-[0_0.84px_0.84px_-0.31px_rgba(36,36,36,0.15),0_1.99px_1.99px_-0.625px_rgba(36,36,36,0.15),0_3.63px_3.63px_-0.9375px_rgba(36,36,36,0.15),0_6.04px_6.04px_-1.25px_rgba(36,36,36,0.15),0_9.75px_9.75px_-1.56px_rgba(36,36,36,0.15),0_15.96px_15.96px_-1.875px_rgba(36,36,36,0.15),0_27.48px_27.48px_-2.19px_rgba(36,36,36,0.15),0_50px_50px_-2.5px_rgba(36,36,36,0.15)] border-none",
           className,
         )}
         asChild
@@ -83,7 +88,7 @@ export function OrderButton({ contacts, productInfo, leadType, entityId, classNa
           rel={zaloContact.isExternal ? "noopener noreferrer" : undefined}
           onClick={handleClick}
         >
-          Mua ngay
+          {label}
         </a>
       </Button>
 

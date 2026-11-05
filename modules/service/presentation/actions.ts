@@ -221,53 +221,6 @@ export async function getServiceBySlugAction(slug: string): Promise<ServiceWithR
   return mapGoService(row);
 }
 
-interface AdjacentService {
-  title: string;
-  slug: string;
-}
-
-export interface AdjacentServices {
-  prev: AdjacentService | null;
-  next: AdjacentService | null;
-}
-
-// Mirrors the old modules/service/application/index.ts getAdjacentServices —
-// prefer siblings in the same group, fall back to the full published list if
-// the group has fewer than 2 services, sort featured-first then by order.
-export async function getAdjacentServicesAction(
-  service: Pick<ServiceWithRelations, "id" | "groupId">
-): Promise<AdjacentServices> {
-  let { data: siblings } = await getServicesAction({
-    isPublished: true,
-    groupId: service.groupId || undefined,
-  });
-
-  if (siblings.length < 2) {
-    ({ data: siblings } = await getServicesAction({ isPublished: true }));
-  }
-
-  const sorted = [...siblings].sort((a, b) => {
-    if (a.isFeatured && !b.isFeatured) return -1;
-    if (!a.isFeatured && b.isFeatured) return 1;
-    return a.orderIndex - b.orderIndex;
-  });
-
-  const currentIndex = sorted.findIndex((s) => s.id === service.id);
-  if (currentIndex === -1 || sorted.length < 2) {
-    return { prev: null, next: null };
-  }
-
-  const toItem = (s: ServiceWithRelations): AdjacentService => ({
-    title: s.title,
-    slug: s.slug || "",
-  });
-
-  return {
-    prev: currentIndex > 0 ? toItem(sorted[currentIndex - 1]) : null,
-    next: currentIndex < sorted.length - 1 ? toItem(sorted[currentIndex + 1]) : null,
-  };
-}
-
 export interface GroupedServices {
   name: string;
   orderIndex: number;

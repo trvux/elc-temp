@@ -1,30 +1,12 @@
 import { getContactsAction } from "@/modules/contact/presentation/actions";
 import { TrackView } from "@/modules/event";
 import { LeadForm } from "@/modules/inquiry/presentation/components/LeadForm";
-import { getAdjacentServicesAction } from "@/modules/service/presentation/actions";
 import { ServiceWithRelations } from "@/modules/service/domain/types";
 import { Breadcrumbs } from "@/shared/components/organisms/layout/user/breadcrumbs";
-import { DetailPager } from "@/shared/components/organisms/layout/user/detail-pager";
 import { OrderButton } from "@/shared/components/organisms/layout/user/order-button";
-import { ProductDescription } from "@/shared/components/organisms/layout/user/product-description";
 import { PreviewContent } from "@/shared/components/organisms/layout/user/preview-content";
 import RelatedServices from "@/shared/components/organisms/layout/user/related-services";
-import { ScrollToTop } from "@/shared/components/organisms/layout/user/scroll-to-top";
-import { ShareButton } from "@/shared/components/organisms/layout/user/share-button";
-import { AspectRatio } from "@/shared/components/ui/aspect-ratio";
-import { Badge } from "@/shared/components/ui/badge";
-import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-} from "@/shared/components/ui/carousel";
 import Image from "next/image";
-import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-} from "@/shared/components/ui/tabs";
 import { cn } from "@/shared/lib/utils";
 import { formatCurrency } from "@/shared/lib/format";
 import { BASE_URL, SEOSchema, toJsonLdHtml } from "@/shared/lib/seo-schema";
@@ -34,77 +16,86 @@ interface ServiceDetailModuleProps {
   service: ServiceWithRelations;
 }
 
+// Three widths, nothing else: `wide` for the image and the closing block,
+// `hero` for the centred title block, `prose` for everything that is read
+// (body text, FAQ, pager). A single reading column keeps the left edge of
+// the text identical from the first paragraph to the last.
+const GUTTER = "mx-auto w-full px-4 md:px-6";
 const STYLES = {
-  main: cn("w-full bg-background min-h-screen flex flex-col"),
-  // The old GridSection component (dashed-line + diamond dividers between
-  // sections) was removed entirely (2026-09-24) — sections are now
-  // separated by plain spacing only. Every section below is a plain div
-  // pair sharing this container class, plus its own py-* override.
-  sectionContainer: cn(
-    "mx-auto h-full w-full max-w-350 min-[112.5rem]:max-w-384 px-4 md:px-6 lg:px-12 relative",
-  ),
-  topSection: cn(
-    "grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-start",
-  ),
-  imageArea: cn("space-y-4"),
-  carouselWrapper: cn(
-    "w-full bg-white border border-border/50 rounded-2xl overflow-hidden shadow-sm",
-  ),
-  carouselImage: cn("object-contain p-4"),
-  noImage: cn(
-    "w-full h-full flex items-center justify-center text-muted-foreground type-legal",
-  ),
-  infoArea: cn("flex flex-col gap-4 h-full justify-center"),
-  serviceName: cn(
-    "type-headline w-full wrap-break-word",
-  ),
-  subInfo: cn("flex flex-col gap-3"),
-  priceArea: cn("space-y-2"),
-  price: cn("type-price-lg text-foreground"),
-  originalPriceWrapper: cn("flex items-center gap-2"),
-  originalPrice: cn("type-body-sm text-muted-foreground"),
-
-  tabsListWrapper: cn("mx-auto w-fit"),
-  tabsContent: cn("pt-10 focus-visible:outline-none"),
-  descriptionWrapper: cn("max-w-4xl mx-auto"),
-  footer: cn(
-    "w-full flex flex-col md:flex-row justify-between items-center gap-6 text-muted-foreground",
-  ),
-  scrollToTop: cn(
-    "flex items-center gap-2 cursor-pointer hover:text-foreground transition-colors",
-  ),
+  main: cn("w-full bg-background flex flex-col"),
+  wide: cn(GUTTER, "max-w-5xl"),
+  hero: cn(GUTTER, "max-w-3xl"),
+  prose: cn(GUTTER, "max-w-2xl"),
+  // One vertical rhythm between sections (3rem on mobile, 4rem from md).
+  section: cn("pb-12 md:pb-16"),
 };
-
-async function getCachedServiceDetailModuleData() {
-  const { data: rawContacts } = await getContactsAction();
-  const contacts = (rawContacts || []).filter((c) => c.isActive);
-
-  return {
-    contacts,
-    currentYear: new Date().getFullYear(),
-  };
-}
 
 export async function ServiceDetailModule({
   service,
 }: ServiceDetailModuleProps) {
-  const { contacts, currentYear } = await getCachedServiceDetailModuleData();
-  const { prev, next } = await getAdjacentServicesAction(service);
+  const { data: rawContacts } = await getContactsAction();
+  const contacts = (rawContacts || []).filter((c) => c.isActive);
   const { data: faqs } = await getFAQsAction("service", service.id);
 
-  const images = service.images || [];
+  const image = service.images?.[0];
+  // Every hero image carries an alt and a visible caption: alt for screen
+  // readers and image search, caption for the reader and for answer engines.
+  const imageAlt = image?.alt?.trim() || `${service.title} - Điện máy ELC`;
+  const imageCaption = image?.caption?.trim();
+  const pageUrl = `${BASE_URL}/dich-vu/${service.slug}`;
+  const imageUrl = image
+    ? image.url.startsWith("/")
+      ? `${BASE_URL}${image.url}`
+      : image.url
+    : undefined;
+  const updatedAt = new Date(service.updatedAt);
+  const hasUpdatedAt = !Number.isNaN(updatedAt.getTime());
   const finalPrice = service.salePrice || service.originalPrice;
+
+  // The strip under the image is driven entirely by data: the service's own
+  // labels ("Bảo hành 24 tháng chính hãng", "Khảo sát báo giá miễn phí", ...),
+  // plus a starting price only when a real number is set and there is no
+  // free-text price. No claim is hard-coded here, because this component
+  // renders every service.
+  const facts: string[] = [...(service.labels ?? [])];
+  if (!service.priceDisplayText && finalPrice) {
+    facts.unshift(`Từ ${formatCurrency(finalPrice)}`);
+  }
+
+  // The group name is only useful above the title when it adds something: a
+  // single-service group ("Cho thuê" over "Cho thuê máy lạnh") would just
+  // repeat the title, so those fall back to the generic "Dịch vụ".
+  const groupName = service.group?.name;
+  const eyebrow =
+    groupName && !service.title.toLowerCase().includes(groupName.toLowerCase())
+      ? groupName
+      : "Dịch vụ";
 
   const serviceSchema = SEOSchema.getService({
     title: service.title,
     slug: service.slug,
     metaDescription: service.metaDescription,
+    description: service.description,
+    image: imageUrl ? { url: imageUrl, alt: imageAlt, caption: imageCaption } : null,
+  });
+  const webPageSchema = SEOSchema.getWebPage({
+    name: service.metaTitle || service.title,
+    url: pageUrl,
+    description: service.metaDescription || service.description,
+    datePublished: service.createdAt,
+    dateModified: service.updatedAt,
+    imageUrl,
+    aboutId: `${pageUrl}#service`,
   });
   const faqSchema = faqs.length > 0 ? SEOSchema.getFAQPage(faqs) : null;
 
   return (
     <main className={STYLES.main}>
       <TrackView entityType="service" entityId={service.id} entityName={service.title} />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: toJsonLdHtml({ "@context": "https://schema.org", ...webPageSchema }) }}
+      />
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: toJsonLdHtml({ "@context": "https://schema.org", ...serviceSchema }) }}
@@ -115,206 +106,133 @@ export async function ServiceDetailModule({
           dangerouslySetInnerHTML={{ __html: toJsonLdHtml({ "@context": "https://schema.org", ...faqSchema }) }}
         />
       )}
-      {/* ===== SECTION 1: IMAGE + SERVICE INFO ===== */}
-      <div id="service-detail-top" className="w-full relative">
-        <div className={cn(STYLES.sectionContainer, "py-6 md:py-8 lg:py-10")}>
-        <div className="w-full animate-fade-in-up">
-          <div className={STYLES.topSection}>
-            <div className={STYLES.imageArea}>
-              <div className={cn(STYLES.carouselWrapper, "relative")}>
-                <div className="absolute top-3 right-3 z-40">
-                  <ShareButton
-                    url={`${BASE_URL}/dich-vu/${service.slug}`}
-                    title={service.title}
-                    size="icon"
-                  />
-                </div>
-                <Carousel className="w-full">
-                  <CarouselContent>
-                    {images.length > 0 ? (
-                      images.map((img, i) => (
-                        <CarouselItem key={i}>
-                          <AspectRatio ratio={16 / 9}>
-                            <Image
-                              src={img.url}
-                              alt={img.alt || `${service.title} - Điện máy ELC`}
-                              fill
-                              className={STYLES.carouselImage}
-                              priority={i === 0}
-                              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 800px"
-                            />
-                          </AspectRatio>
-                        </CarouselItem>
-                      ))
-                    ) : (
-                      <CarouselItem>
-                        <AspectRatio ratio={4 / 3}>
-                          <div className={STYLES.noImage}>Chưa có ảnh</div>
-                        </AspectRatio>
-                      </CarouselItem>
-                    )}
-                  </CarouselContent>
-                </Carousel>
-              </div>
-            </div>
 
-            <div className={STYLES.infoArea}>
-              <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
-                {service.group?.name && (
-                  <Badge variant="secondary">{service.group.name}</Badge>
-                )}
-                {service.category?.name && (
-                  <span className="type-caption text-muted-foreground">
-                    {service.category.name}
-                  </span>
-                )}
-              </div>
-
-              <h1
-                className={cn(
-                  STYLES.serviceName,
-                  service.titleAlign === "center" && "text-center",
-                  service.titleAlign === "right" && "text-right",
-                )}
-              >
-                {service.title}
-              </h1>
-
-              {service.labels && service.labels.length > 0 && (
-                <div className="flex flex-wrap gap-1.5">
-                  {service.labels.map((label: string, index: number) => (
-                    <Badge key={index} variant="outline">
-                      {label}
-                    </Badge>
-                  ))}
-                </div>
-              )}
-
-              {service.description && (
-                <p className="type-body-sm text-muted-foreground">
-                  {service.description}
-                </p>
-              )}
-
-              <div className={STYLES.priceArea}>
-                {service.priceDisplayText ? (
-                  <p className={STYLES.price}>{service.priceDisplayText}</p>
-                ) : (
-                  <>
-                    <p className={STYLES.price}>{formatCurrency(finalPrice)}</p>
-                    {(service.discountPercent || 0) > 0 && (
-                      <div className={STYLES.originalPriceWrapper}>
-                        <s className={STYLES.originalPrice}>
-                          {formatCurrency(service.originalPrice)}
-                        </s>
-                        <Badge variant="destructive">
-                          Giảm giá: {service.discountPercent}%
-                        </Badge>
-                      </div>
-                    )}
-                  </>
-                )}
-              </div>
-
-              <div className="flex flex-wrap items-center gap-3">
-                <OrderButton contacts={contacts || []} leadType="service" entityId={service.id} />
-                <LeadForm serviceId={service.id} entityName={service.title} entityKind="service" />
-              </div>
-            </div>
-          </div>
-        </div>
-        </div>
+      <div className={cn(STYLES.wide, "pt-2")}>
+        <Breadcrumbs
+          items={[
+            { label: "Dịch vụ", href: "/dich-vu" },
+            { label: service.title, active: true },
+          ]}
+        />
       </div>
 
-      {/* ===== SECTION 2: SERVICE DESCRIPTION TABS ===== */}
+      {/* One focus: label, title, one sentence, one primary action. */}
+      <header
+        className={cn(
+          STYLES.hero,
+          "flex flex-col items-center gap-4 pt-8 pb-10 text-center md:gap-6 md:pt-12 md:pb-14",
+        )}
+      >
+        <p className="type-label text-muted-foreground">{eyebrow}</p>
+        <h1 className="type-display">{service.title}</h1>
+        {service.description && (
+          <p className="type-body max-w-xl text-balance text-muted-foreground">
+            {service.description}
+          </p>
+        )}
+        <div className="mt-2 flex flex-wrap items-center justify-center gap-3">
+          <LeadForm
+            serviceId={service.id}
+            entityName={service.title}
+            entityKind="service"
+            triggerLabel="Yêu cầu tư vấn"
+            triggerVariant="default"
+            showIcon={false}
+          />
+          <OrderButton
+            contacts={contacts}
+            leadType="service"
+            entityId={service.id}
+            label="Nhắn Zalo"
+            variant="ghost"
+          />
+        </div>
+      </header>
+
+      {image && (
+        <figure className={STYLES.wide}>
+          <div className="relative aspect-video overflow-hidden rounded-2xl bg-muted">
+            <Image
+              src={image.url}
+              alt={imageAlt}
+              fill
+              priority
+              className="object-cover"
+              sizes="(min-width: 1024px) 1024px, 100vw"
+            />
+          </div>
+          {imageCaption && (
+            <figcaption className="type-caption mt-3 text-center text-muted-foreground">
+              {imageCaption}
+            </figcaption>
+          )}
+        </figure>
+      )}
+
+      {facts.length > 0 && (
+        <div className={cn(STYLES.wide, "mt-10 md:mt-12")}>
+          <ul className="flex flex-col divide-y divide-border border-y border-border sm:flex-row sm:divide-x sm:divide-y-0">
+            {facts.map((fact) => (
+              <li key={fact} className="type-body-sm flex-1 px-4 py-5 text-center">
+                {fact}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
+      {/* The article is shown in full: this page is the reading material, so
+          it is not collapsed behind a "show more" button the way product
+          descriptions are. */}
       {service.content && (
-        <div id="service-detail-tabs" className="w-full relative">
-          <div className={cn(STYLES.sectionContainer, "py-6 md:py-8 lg:py-10")}>
-          <div className="w-full">
-            <Tabs defaultValue="description" className="w-full">
-              <TabsList className={STYLES.tabsListWrapper}>
-                <TabsTrigger value="description">Chi tiết dịch vụ</TabsTrigger>
-              </TabsList>
-
-              <TabsContent value="description" className={STYLES.tabsContent}>
-                <div className={STYLES.descriptionWrapper}>
-                  <ProductDescription>
-                    <PreviewContent content={service.content} size="lg" />
-                  </ProductDescription>
-                </div>
-              </TabsContent>
-            </Tabs>
-          </div>
-          </div>
-        </div>
+        <section className={cn(STYLES.prose, "py-12 md:py-16")}>
+          <PreviewContent
+            content={service.content}
+            size="lg"
+            fallbackAlt={service.title}
+          />
+          {hasUpdatedAt && (
+            <p className="type-caption mt-10 text-muted-foreground">
+              Cập nhật lần cuối:{" "}
+              <time dateTime={updatedAt.toISOString()}>
+                {new Intl.DateTimeFormat("vi-VN", { timeZone: "Asia/Ho_Chi_Minh" }).format(updatedAt)}
+              </time>
+            </p>
+          )}
+        </section>
       )}
 
-      {/* ===== SECTION 2.5: FAQ ===== */}
       {faqs.length > 0 && (
-        <div id="service-detail-faq" className="w-full relative">
-          <div className={cn(STYLES.sectionContainer, "py-6 md:py-8 lg:py-10")}>
-            <FAQAccordion faqs={faqs} />
-          </div>
+        <div className={cn(STYLES.prose, STYLES.section)}>
+          <FAQAccordion faqs={faqs} />
         </div>
       )}
 
-      {/* ===== SECTION 3: SERVICE PAGER ===== */}
-      {(prev || next) && (
-        <div id="service-detail-pager" className="w-full relative">
-          <div className={cn(STYLES.sectionContainer, "py-6 md:py-8 lg:py-10")}>
-            <DetailPager
-              prevLabel="Dịch vụ trước"
-              nextLabel="Dịch vụ tiếp theo"
-              prev={
-                prev ? { title: prev.title, href: `/dich-vu/${prev.slug}` } : null
-              }
-              next={
-                next ? { title: next.title, href: `/dich-vu/${next.slug}` } : null
-              }
-            />
-          </div>
+      <section className={cn(STYLES.wide, STYLES.section)}>
+        <div className="flex flex-col items-center gap-6 rounded-2xl bg-muted px-6 py-12 text-center md:py-16">
+          <h2 className="type-headline">Cần tư vấn cho công trình của bạn?</h2>
+          <p className="type-body max-w-md text-balance text-muted-foreground">
+            Để lại thông tin, đội ngũ ELC sẽ liên hệ tư vấn và báo giá.
+          </p>
+          <LeadForm
+            serviceId={service.id}
+            entityName={service.title}
+            entityKind="service"
+            triggerLabel="Yêu cầu tư vấn"
+            triggerVariant="default"
+            showIcon={false}
+          />
         </div>
-      )}
+      </section>
 
-      {/* ===== SECTION 4: RELATED SERVICES ===== */}
       {service.groupId && (
-        <div id="service-detail-related" className="w-full relative">
-          <div className={cn(STYLES.sectionContainer, "py-6 md:py-8 lg:py-10")}>
-            <div className="w-full">
-              <RelatedServices
-                groupId={service.groupId}
-                currentServiceId={service.id}
-              />
-            </div>
-          </div>
+        <div className={cn(STYLES.wide, STYLES.section)}>
+          <RelatedServices
+            groupId={service.groupId}
+            currentServiceId={service.id}
+          />
         </div>
       )}
-
-      {/* ===== SECTION 5: FOOTER ===== */}
-      <div id="service-detail-footer" className="w-full relative">
-        <div className={cn(STYLES.sectionContainer, "py-6 md:py-8 lg:py-10")}>
-          <footer className={STYLES.footer}>
-            <small className="type-caption">&copy; {currentYear} Điện máy ELC.</small>
-            <ScrollToTop className={STYLES.scrollToTop}>
-              <small className="type-caption">Quay lại đầu trang</small>
-            </ScrollToTop>
-          </footer>
-        </div>
-      </div>
-
-      {/* ===== SECTION 6: BREADCRUMBS ===== */}
-      <div id="service-detail-breadcrumbs" className="w-full relative">
-        <div className={cn(STYLES.sectionContainer, "py-1")}>
-          <div className="w-full">
-            <Breadcrumbs
-              items={[
-                { label: "Dịch vụ", href: "/dich-vu" },
-                { label: service.title, active: true },
-              ]}
-            />
-          </div>
-        </div>
-      </div>
     </main>
   );
 }

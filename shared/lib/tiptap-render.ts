@@ -132,12 +132,29 @@ function normalizeHeadingAttrs(node: TiptapNode): TiptapNode {
     : node;
 }
 
+// ProseMirror refuses empty text nodes ({ type: "text", text: "" }) and
+// generateHTML() throws on them, which PreviewContent turns into an empty
+// render: one stray empty node (for example a table header cell built with
+// "") makes the WHOLE body disappear with only a console.error to show for
+// it. Dropping them here, before the JSON reaches generateHTML or an editor,
+// keeps the rest of the document. Only text nodes are removed; a paragraph
+// left without children is a valid empty paragraph.
+function dropEmptyTextNodes(node: TiptapNode): TiptapNode {
+  if (!node.content) return node;
+  const kept = node.content
+    .filter((child) => !(child.type === "text" && !child.text))
+    .map(dropEmptyTextNodes);
+  const { content: _dropped, ...rest } = node;
+  void _dropped;
+  return kept.length > 0 ? { ...rest, content: kept } : rest;
+}
+
 export function normalizeTiptapJson(value: unknown): unknown {
   if (!value || typeof value !== "object") return value;
   const doc = value as TiptapNode;
   if (!doc.content || doc.content.length === 0) return doc;
 
-  return { ...doc, content: doc.content.map(normalizeHeadingAttrs) };
+  return dropEmptyTextNodes({ ...doc, content: doc.content.map(normalizeHeadingAttrs) });
 }
 
 // Exported (not just inlined into sharedNodeExtensions below) so
