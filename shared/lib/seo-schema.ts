@@ -65,6 +65,23 @@ function formatPhone(phone: string) {
   return phone;
 }
 
+// Where ELC has actually delivered work, taken from the location of every
+// published project (2026-11-06: 71 projects). Names are the provinces in force
+// since the 1/7/2025 reorganisation into 34 units (Resolution 202/2025/QH15);
+// alternateName keeps the former province names people still search for.
+// Counts of projects behind each entry: TP.HCM 49 (HCM 43, Binh Duong 3,
+// Ba Ria - Vung Tau 3), Dong Nai 8, Tay Ninh 4 (Long An 3, Tay Ninh 1),
+// An Giang 2 (Kien Giang), Lam Dong 1 (Dak Nong), Vinh Long 2 (Vinh Long,
+// Tra Vinh). Add an area only when a real project backs it.
+const SERVICE_AREAS = [
+  { name: "Thành phố Hồ Chí Minh", alternateName: ["TP.HCM", "Bình Dương", "Bà Rịa - Vũng Tàu"] },
+  { name: "Đồng Nai", alternateName: ["Bình Phước"] },
+  { name: "Tây Ninh", alternateName: ["Long An"] },
+  { name: "An Giang", alternateName: ["Kiên Giang", "Phú Quốc"] },
+  { name: "Lâm Đồng", alternateName: ["Đắk Nông"] },
+  { name: "Vĩnh Long", alternateName: ["Trà Vinh", "Bến Tre"] },
+].map((area) => ({ "@type": "AdministrativeArea" as const, ...area }));
+
 export interface ServiceInput {
   title: string;
   slug: string;
@@ -324,20 +341,7 @@ export const SEOSchema = {
       "provider": {
         "@id": `${BASE_URL}/#organization`
       },
-      "areaServed": [
-        {
-          "@type": "AdministrativeArea",
-          "name": "Thành phố Hồ Chí Minh",
-        },
-        {
-          "@type": "AdministrativeArea",
-          "name": "Bình Dương",
-        },
-        {
-          "@type": "AdministrativeArea",
-          "name": "Đồng Nai",
-        },
-      ]
+      "areaServed": SERVICE_AREAS,
     };
   },
 
