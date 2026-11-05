@@ -1,7 +1,6 @@
 import { NextResponse, connection } from 'next/server';
 import { getPagesAction } from '@/modules/page/presentation/actions';
 import { getServicesAction } from '@/modules/service/presentation/actions';
-import { getServiceGroupsAction } from '@/modules/service-group/presentation/actions';
 import { getBranchesAction } from '@/modules/branch/presentation/actions';
 import { toSitemapLastmod } from '@/shared/lib/sitemap-lastmod';
 import { BASE_URL } from '@/shared/lib/seo-schema';
@@ -9,11 +8,10 @@ import { BASE_URL } from '@/shared/lib/seo-schema';
 export async function GET() {
   await connection();
 
-  const [{ data: pages }, { data: services }, { data: branches }, { data: serviceGroups }] = await Promise.all([
+  const [{ data: pages }, { data: services }, { data: branches }] = await Promise.all([
     getPagesAction({ isPublished: true }),
     getServicesAction({ isPublished: true }),
     getBranchesAction({ isPublished: true }),
-    getServiceGroupsAction(),
   ]);
 
   const staticRoutes = [
@@ -42,15 +40,6 @@ export async function GET() {
       lastmod: serv.updatedAt,
     }));
 
-  // Group landing pages exist only for groups with 2+ published services
-  // (see getServiceGroupPageAction).
-  const serviceGroupRoutes = serviceGroups
-    .filter((g) => g.slug && services.filter((s) => s.groupId === g.id).length >= 2)
-    .map((g) => ({
-      url: `${BASE_URL}/dich-vu/${g.slug}`,
-      lastmod: g.updatedAt,
-    }));
-
   const branchRoutes = branches
     .filter((b) => b.slug)
     .map((b) => ({
@@ -62,7 +51,6 @@ export async function GET() {
     ...staticRoutes,
     ...pageRoutes,
     ...serviceRoutes,
-    ...serviceGroupRoutes,
     ...branchRoutes,
   ];
 

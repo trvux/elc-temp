@@ -8,7 +8,6 @@ import { getProjectTypesAction } from "@/modules/project-type/presentation/actio
 import { unstable_cache } from "next/cache";
 import { getProjectsAction } from "@/modules/project/presentation/actions";
 import { getServicesAction } from "@/modules/service/presentation/actions";
-import { getServiceGroupsAction } from "@/modules/service-group/presentation/actions";
 
 // Slugs of the project types that have more than one published project,
 // most projects first. Feeds the footer's "Loại hình công trình" column so it
@@ -44,7 +43,6 @@ export async function getPublicLayoutData() {
     projectTypesResult,
     projectTypeSlugsResult,
     servicesResult,
-    serviceGroupsResult,
   ] = await Promise.allSettled([
     getContactsAction(),
     getBranchesAction({ isPublished: true }),
@@ -55,7 +53,6 @@ export async function getPublicLayoutData() {
     getProjectTypesAction(),
     getProjectTypeSlugsWithProjects(),
     getServicesAction({ isPublished: true }),
-    getServiceGroupsAction(),
   ]);
 
   const contacts = contactsResult.status === "fulfilled" && !contactsResult.value.error
@@ -117,25 +114,13 @@ export async function getPublicLayoutData() {
   const servicesData = servicesResult.status === "fulfilled" && !servicesResult.value.error
     ? servicesResult.value.data
     : null;
-  const serviceGroupsData = serviceGroupsResult.status === "fulfilled" && !serviceGroupsResult.value.error
-    ? serviceGroupsResult.value.data
-    : null;
-  // One nav entry per service group (short name, like apple.com's flyouts).
-  // A group with a single published service links straight to it; a group
-  // with several links to its own landing page (/dich-vu/{group.slug}, see
-  // getServiceGroupPageAction). Groups with no published service are dropped.
-  const services = (serviceGroupsData || [])
-    .slice()
-    .sort((a, b) => a.orderIndex - b.orderIndex)
-    .flatMap((g) => {
-      const inGroup = (servicesData || []).filter((s) => s.groupId === g.id);
-      if (inGroup.length === 0) return [];
-      return [{
-        id: g.id,
-        name: g.name.replace(/\s+/g, " ").trim(),
-        href: inGroup.length === 1 ? `/dich-vu/${inGroup[0].slug}` : `/dich-vu/${g.slug}`,
-      }];
-    });
+  // One nav entry per published service; the nav builder groups them by line.
+  const services = (servicesData || []).map((svc) => ({
+    id: svc.id,
+    name: svc.title.replace(/\s+/g, " ").trim(),
+    href: `/dich-vu/${svc.slug}`,
+    line: svc.line,
+  }));
 
   const projectTypeBySlug = new Map((projectTypesData || []).map((st) => [st.slug || "", st]));
   const projectTypeSlugs = projectTypeSlugsResult.status === "fulfilled" ? projectTypeSlugsResult.value : [];

@@ -3,6 +3,7 @@ import {
   type CategoryRef,
   type GroupCategoryRef,
 } from "@/shared/lib/group-categories";
+import { SERVICE_LINES, groupServicesByLine, type ServiceLine } from "@/modules/service/domain/line";
 
 interface NavLinkItem {
   label: string;
@@ -41,13 +42,13 @@ export interface ServiceNavRef {
   id: string;
   name: string;
   href: string;
+  line: ServiceLine;
 }
 
 interface BuildNavInput {
   groupCategories: GroupCategoryRef[];
   categoriesList: CategoryRef[];
   brands: BrandNavRef[];
-  /** Unused while the Dịch vụ menu entry is hidden; kept so callers still compile. */
   services?: ServiceNavRef[];
   projectTypes: NamedSlugRef[];
 }
@@ -76,6 +77,7 @@ export function buildNavGroups({
   groupCategories,
   categoriesList,
   brands,
+  services = [],
   projectTypes,
 }: BuildNavInput): NavGroup[] {
   const rank = (slug: string) => {
@@ -135,11 +137,27 @@ export function buildNavGroups({
   if (projectColumns.length > 0) projectColumns[0].big = true;
   projectColumns.push({ heading: "Xem thêm", links: [{ label: "Tất cả dự án", href: "/du-an" }] });
 
+  // One column per line, in hub order, each listing its services; the hub link
+  // closes the row. Hidden until at least one service is published.
+  const serviceColumns: NavColumn[] = groupServicesByLine(services).map(({ line, services: inLine }) => ({
+    heading: SERVICE_LINES[line].label,
+    links: inLine.map((svc) => ({ label: svc.name, href: svc.href })),
+  }));
+  if (serviceColumns.length > 0) {
+    serviceColumns[0].big = true;
+    serviceColumns.push({ heading: "Xem thêm", links: [{ label: "Tất cả dịch vụ", href: "/dich-vu" }] });
+  }
+
   return [
     {
       label: "Sản phẩm",
       href: "/san-pham",
       columns: productColumns.length > 0 ? productColumns : undefined,
+    },
+    {
+      label: "Dịch vụ",
+      href: "/dich-vu",
+      columns: serviceColumns.length > 0 ? serviceColumns : undefined,
     },
     {
       label: "Dự án",

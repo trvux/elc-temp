@@ -3,7 +3,8 @@ import type { Metadata } from "next";
 // note in dich-vu/[slug]/page.tsx for why (that barrel's `export *` also
 // re-exports the admin ServiceManagement/TiptapEditor chain).
 import { CardService } from "@/modules/service/presentation/components/CardService";
-import { getPublishedServicesGroupedAction } from "@/modules/service/presentation/actions";
+import { getPublishedServicesByLineAction } from "@/modules/service/presentation/actions";
+import { SERVICE_LINES } from "@/modules/service/domain/line";
 import { mapServiceToCardData } from "@/modules/service/domain/mappers";
 import { Breadcrumbs } from "@/shared/components/organisms/layout/user/breadcrumbs";
 import { ScrollToTop } from "@/shared/components/organisms/layout/user/scroll-to-top";
@@ -12,10 +13,13 @@ import { BASE_URL, toJsonLdHtml } from "@/shared/lib/seo-schema";
 import { primaryImageUrl } from "@/shared/lib/image-asset";
 import { cn } from "@/shared/lib/utils";
 
+const HUB_TITLE = "Thi công điều hòa VRV, cấp gió tươi, dịch vụ máy lạnh | ELC";
+const HUB_DESCRIPTION =
+  "ELC thi công điều hòa trung tâm VRV, cấp gió tươi thu hồi nhiệt, lắp đặt máy lạnh; vệ sinh, sửa chữa, cho thuê, thu cũ đổi mới. Nhắn Zalo để được tư vấn.";
+
 export const metadata: Metadata = {
-  title: "Dịch vụ máy lạnh & hệ thống khí tươi | Điện máy ELC",
-  description:
-    "Giải pháp chuyên nghiệp cho hệ thống lạnh công nghiệp, điều hòa trung tâm và bảo trì hệ thống — lắp đặt, sửa chữa, vệ sinh, bảo trì máy lạnh.",
+  title: HUB_TITLE,
+  description: HUB_DESCRIPTION,
   alternates: { canonical: `${BASE_URL}/dich-vu` },
 };
 
@@ -36,20 +40,10 @@ const STYLES = {
   ),
 };
 
-async function getCachedServicesData() {
-  const groupedServices = await getPublishedServicesGroupedAction();
-  const currentYear = new Date().getFullYear();
-
-  return {
-    groupedServices: groupedServices ?? [],
-    currentYear,
-  };
-}
-
 export default async function ServicesHub() {
-  const { groupedServices: allGroups, currentYear } =
-    await getCachedServicesData();
-  const services = (allGroups ?? []).flatMap((group) => group.items);
+  const sections = await getPublishedServicesByLineAction();
+  const currentYear = new Date().getFullYear();
+  const services = sections.flatMap((section) => section.services);
 
   if (services.length === 0) {
     return (
@@ -66,16 +60,13 @@ export default async function ServicesHub() {
     );
   }
 
-  // ItemList schema — same gap dienmayelc's other listing hubs had before
-  // this pass: /san-pham and /du-an already declared one for their listed
-  // items, /dich-vu never did, so Google had no structured signal for
-  // "what does this hub actually list."
+  // ItemList in hub order (main business first), so the structured data lists
+  // the same services in the same order as the page.
   const itemListSchema = {
     "@context": "https://schema.org",
     "@type": "ItemList",
-    name: "Dịch vụ",
-    description:
-      "Giải pháp chuyên nghiệp dành cho hệ thống lạnh công nghiệp, điều hòa trung tâm và bảo trì hệ thống",
+    name: "Dịch vụ điều hòa và thông gió",
+    description: HUB_DESCRIPTION,
     url: `${BASE_URL}/dich-vu`,
     numberOfItems: services.length,
     itemListElement: services.map((service, idx) => ({
@@ -96,26 +87,42 @@ export default async function ServicesHub() {
       <div id="services-header" className="w-full relative">
         <div className={cn(STYLES.sectionContainer, "py-6 md:py-8 lg:py-10")}>
           <PageHero
-            title="Dịch vụ"
-            description="Giải pháp chuyên nghiệp dành cho hệ thống lạnh công nghiệp, điều hòa trung tâm và bảo trì hệ thống"
+            title="Dịch vụ điều hòa và thông gió"
+            description="Từ thi công hệ thống cho công trình đến chăm sóc máy lạnh bạn đang dùng. Chọn đúng việc, nhắn Zalo để được tư vấn."
           />
         </div>
       </div>
 
-      <div id="services-content" className="w-full relative">
-        <div className={cn(STYLES.sectionContainer, "py-6 md:py-8 lg:py-10")}>
-          <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-            {services.map((service) => {
-              const cardProps = mapServiceToCardData(service);
-              return (
-                <li key={service.id} className="flex flex-col">
-                  <CardService {...cardProps} headingAs="h2" />
-                </li>
-              );
-            })}
-          </ul>
-        </div>
-      </div>
+      {sections.map(({ line, services: lineServices }) => {
+        const info = SERVICE_LINES[line];
+        return (
+          <section
+            key={line}
+            id={`services-${line}`}
+            aria-labelledby={`services-${line}-heading`}
+            className="w-full relative"
+          >
+            <div className={cn(STYLES.sectionContainer, "py-6 md:py-8 lg:py-10")}>
+              <div className="mb-6 flex max-w-3xl flex-col gap-2 md:mb-8">
+                <h2 id={`services-${line}-heading`} className="type-title">
+                  {info.label}
+                </h2>
+                <p className="type-body text-muted-foreground">{info.hubIntro}</p>
+              </div>
+              <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+                {lineServices.map((service) => {
+                  const cardProps = mapServiceToCardData(service);
+                  return (
+                    <li key={service.id} className="flex flex-col">
+                      <CardService {...cardProps} headingAs="h3" />
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+          </section>
+        );
+      })}
 
       <div id="services-footer" className="w-full relative">
         <div className={cn(STYLES.sectionContainer, "py-6 md:py-8 lg:py-10")}>

@@ -1,23 +1,19 @@
 "use client";
-import { useState } from "react";
-import { toast } from "sonner";
 import { Badge } from "@/shared/components/ui/badge";
-import { Button } from "@/shared/components/ui/button";
 import Image from "next/image";
 import Link from "next/link";
-import { trackContactClick } from "@/modules/inquiry";
-import { ZaloContactModal } from "@/shared/components/organisms/layout/user/zalo-contact-modal";
-import { buildZaloServiceMessage, isMobileDevice } from "@/shared/lib/zalo-message";
-import { useContacts } from "@/shared/providers/contact-provider";
+import { ServiceZaloButton } from "./ServiceZaloButton";
+import type { ServiceLine } from "../../domain/line";
 
 export interface CardServiceProps {
   id?: string;
   title?: string;
-  price?: string;
   image?: string;
   description?: string;
   badges?: string[];
   slug?: string;
+  line?: ServiceLine;
+  briefPrompts?: string[];
   locationSlug?: string;
   // Heading level is decided by where the card sits in the page outline:
   // h2 directly under the page h1 (hub), h3 under an h2 (related services).
@@ -32,11 +28,12 @@ const ENABLE_DETAIL_LINK = true;
 export function CardService({
   id,
   title,
-  price,
   image,
   description,
   badges,
   slug,
+  line = "dich-vu",
+  briefPrompts = [],
   locationSlug,
   headingAs: Heading = "h3",
 }: CardServiceProps) {
@@ -47,38 +44,6 @@ export function CardService({
       : `/dich-vu/${slug}`
     : undefined;
   const isLinked = ENABLE_DETAIL_LINK && !!href;
-
-  const [modalOpen, setModalOpen] = useState(false);
-  const contacts = useContacts();
-  const zaloContact =
-    contacts.find((c) => c.type === "zalo" && c.isActive) || contacts.find((c) => c.type === "zalo");
-  const phoneContact =
-    contacts.find((c) => c.type === "phone" && c.isActive) || contacts.find((c) => c.type === "phone");
-  // Falls back to the same hardcoded number the old plain link used, for
-  // the edge case where contacts haven't loaded/aren't configured — the
-  // booking button should never just disappear.
-  const zaloHref = zaloContact?.href ?? "https://zalo.me/0789978898";
-  const zaloPhoneValue = zaloContact?.value ?? "0789978898";
-  const message = slug ? buildZaloServiceMessage({ serviceName: title ?? "", priceDisplay: price ?? "", serviceSlug: slug }) : undefined;
-
-  const handleBookClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
-    if (isMobileDevice()) {
-      // Copy fire-and-forget, no preventDefault — let href open the Zalo
-      // app natively, which needs the original click gesture to work.
-      if (message) {
-        navigator.clipboard.writeText(message).catch(() => {});
-        toast.success("Thông tin dịch vụ đã được sao chép", {
-          description: "Paste vào Zalo để gửi cho tư vấn viên.",
-          duration: 4000,
-        });
-      }
-      trackContactClick({ channel: "zalo", leadType: "service", entityId: id, entityName: title });
-    } else {
-      e.preventDefault();
-      setModalOpen(true);
-      // Tracked inside ZaloContactModal's own actions instead.
-    }
-  };
 
   return (
     // `group relative`: the title link below stretches over this whole card
@@ -117,12 +82,6 @@ export function CardService({
             )}
           </Heading>
 
-          {price && (
-            <p className="truncate type-price text-muted-foreground" title={price}>
-              {price}
-            </p>
-          )}
-
           {description && (
             <p className="type-body-sm text-muted-foreground line-clamp-2">
               {description}
@@ -143,32 +102,21 @@ export function CardService({
         </div>
       </div>
 
-      {/* Đặt lịch — ngoài card con. Cùng pattern mobile/desktop với
-          BuyNowButton bên sản phẩm: mobile sao chép tin nhắn + để href
-          navigate thật; desktop mở modal xem trước tin nhắn. Tin nhắn kèm
-          đúng link riêng của dịch vụ này (/dich-vu/{slug}), không phải link
-          /dich-vu chung — nhân viên nhận tin biết ngay khách hỏi dịch vụ nào. */}
-      <div className="relative z-10 px-1 pb-1">
-        <Button asChild className="w-full">
-          <a href={zaloHref} target="_blank" rel="noopener noreferrer" onClick={handleBookClick}>
-            Đặt lịch
-          </a>
-        </Button>
-      </div>
-
-      {message && (
-        <ZaloContactModal
-          open={modalOpen}
-          onOpenChange={setModalOpen}
-          zaloHref={zaloHref}
-          zaloPhone={zaloPhoneValue}
-          phoneHref={phoneContact?.href}
-          phoneNumber={phoneContact?.value}
-          message={message}
-          subtitle={title}
-          leadType="service"
-          entityId={id}
-        />
+      {/* Nút Zalo nằm ngoài card con. Cùng một component với trang chi tiết
+          (ServiceZaloButton): lời nút và tin nhắn theo mảng dịch vụ, tin nhắn
+          kèm link riêng của dịch vụ và các dòng thông tin nhân viên cần để
+          báo giá. */}
+      {slug && (
+        <div className="relative z-10 px-1 pb-1">
+          <ServiceZaloButton
+            id={id ?? ""}
+            title={title ?? ""}
+            slug={slug}
+            line={line}
+            briefPrompts={briefPrompts}
+            className="w-full"
+          />
+        </div>
       )}
     </div>
   );

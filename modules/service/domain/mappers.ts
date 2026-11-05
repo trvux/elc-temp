@@ -1,37 +1,29 @@
 import { ServiceWithRelations } from "./types";
-import { formatCurrency } from "@/shared/lib/format";
+import type { ServiceLine } from "./line";
 import { primaryImageUrl } from "@/shared/lib/image-asset";
 
 export interface ServiceCardData {
   id: string;
   title: string;
-  price: string;
   image: string;
   description: string;
   badges: string[];
   slug: string;
+  line: ServiceLine;
+  briefPrompts: string[];
 }
 
+// Services are sold by quote over Zalo, so a card carries no price: the
+// summary and the trust labels are what help someone decide to start a chat.
 export function mapServiceToCardData(service: ServiceWithRelations): ServiceCardData {
-  let price = "";
-  if (service.priceDisplayText) {
-    price = service.priceDisplayText;
-  } else if (service.originalPrice !== null && service.originalPrice !== undefined) {
-    const discount = service.discountPercent;
-    const hasDiscount = discount !== null && discount !== undefined && discount > 0;
-    const finalPrice = hasDiscount
-      ? service.originalPrice - Math.round(service.originalPrice * (discount / 100))
-      : service.originalPrice;
-    price = formatCurrency(finalPrice).replace(/\s?₫/g, " đ");
-  }
-
   return {
     id: service.id,
     title: service.title,
-    price,
     image: primaryImageUrl(service.images) || "/placeholder.png",
     description: service.description || "",
     badges: service.labels || [],
     slug: service.slug,
+    line: service.line,
+    briefPrompts: service.briefPrompts,
   };
 }

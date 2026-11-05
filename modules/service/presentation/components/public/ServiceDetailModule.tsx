@@ -1,14 +1,13 @@
-import { getContactsAction } from "@/modules/contact/presentation/actions";
 import { TrackView } from "@/modules/event";
 import { LeadForm } from "@/modules/inquiry/presentation/components/LeadForm";
 import { ServiceWithRelations } from "@/modules/service/domain/types";
+import { SERVICE_LINES } from "@/modules/service/domain/line";
+import { ServiceZaloButton } from "@/modules/service/presentation/components/ServiceZaloButton";
 import { Breadcrumbs } from "@/shared/components/organisms/layout/user/breadcrumbs";
-import { OrderButton } from "@/shared/components/organisms/layout/user/order-button";
 import { PreviewContent } from "@/shared/components/organisms/layout/user/preview-content";
 import RelatedServices from "@/shared/components/organisms/layout/user/related-services";
 import Image from "next/image";
 import { cn } from "@/shared/lib/utils";
-import { formatCurrency } from "@/shared/lib/format";
 import { BASE_URL, SEOSchema, toJsonLdHtml } from "@/shared/lib/seo-schema";
 import { FAQAccordion, getFAQsAction } from "@/modules/faq";
 
@@ -33,8 +32,6 @@ const STYLES = {
 export async function ServiceDetailModule({
   service,
 }: ServiceDetailModuleProps) {
-  const { data: rawContacts } = await getContactsAction();
-  const contacts = (rawContacts || []).filter((c) => c.isActive);
   const { data: faqs } = await getFAQsAction("service", service.id);
 
   const image = service.images?.[0];
@@ -50,26 +47,17 @@ export async function ServiceDetailModule({
     : undefined;
   const updatedAt = new Date(service.updatedAt);
   const hasUpdatedAt = !Number.isNaN(updatedAt.getTime());
-  const finalPrice = service.salePrice || service.originalPrice;
+  const lineInfo = SERVICE_LINES[service.line];
 
   // The strip under the image is driven entirely by data: the service's own
-  // labels ("Bảo hành 24 tháng chính hãng", "Khảo sát báo giá miễn phí", ...),
-  // plus a starting price only when a real number is set and there is no
-  // free-text price. No claim is hard-coded here, because this component
-  // renders every service.
-  const facts: string[] = [...(service.labels ?? [])];
-  if (!service.priceDisplayText && finalPrice) {
-    facts.unshift(`Từ ${formatCurrency(finalPrice)}`);
-  }
+  // labels ("Bảo hành 24 tháng chính hãng", "Khảo sát báo giá miễn phí", ...).
+  // No claim is hard-coded here, because this component renders every service,
+  // and there is no price: services are quoted in the Zalo conversation.
+  const facts: string[] = service.labels ?? [];
 
-  // The group name is only useful above the title when it adds something: a
-  // single-service group ("Cho thuê" over "Cho thuê máy lạnh") would just
-  // repeat the title, so those fall back to the generic "Dịch vụ".
-  const groupName = service.group?.name;
-  const eyebrow =
-    groupName && !service.title.toLowerCase().includes(groupName.toLowerCase())
-      ? groupName
-      : "Dịch vụ";
+  // The line label sits above the title so the reader knows which of the two
+  // offerings this is (system installation vs. service on an existing unit).
+  const eyebrow = lineInfo.label;
 
   const serviceSchema = SEOSchema.getService({
     title: service.title,
@@ -131,20 +119,21 @@ export async function ServiceDetailModule({
           </p>
         )}
         <div className="mt-2 flex flex-wrap items-center justify-center gap-3">
+          <ServiceZaloButton
+            id={service.id}
+            title={service.title}
+            slug={service.slug}
+            line={service.line}
+            briefPrompts={service.briefPrompts}
+            size="lg"
+          />
           <LeadForm
             serviceId={service.id}
             entityName={service.title}
             entityKind="service"
             triggerLabel="Yêu cầu tư vấn"
-            triggerVariant="default"
+            triggerVariant="ghost"
             showIcon={false}
-          />
-          <OrderButton
-            contacts={contacts}
-            leadType="service"
-            entityId={service.id}
-            label="Nhắn Zalo"
-            variant="ghost"
           />
         </div>
       </header>
@@ -210,29 +199,48 @@ export async function ServiceDetailModule({
 
       <section className={cn(STYLES.wide, STYLES.section)}>
         <div className="flex flex-col items-center gap-6 rounded-2xl bg-muted px-6 py-12 text-center md:py-16">
-          <h2 className="type-headline">Cần tư vấn cho công trình của bạn?</h2>
+          <h2 className="type-headline max-w-xl text-balance">
+            {service.briefPrompts.length > 0 ? lineInfo.briefHeading : "Nhắn Zalo để được tư vấn và báo giá"}
+          </h2>
+          {service.briefPrompts.length > 0 && (
+            <ul className="type-body flex max-w-md flex-col gap-2 text-left">
+              {service.briefPrompts.map((prompt) => (
+                <li key={prompt} className="flex gap-3">
+                  <span aria-hidden="true" className="text-muted-foreground">
+                    –
+                  </span>
+                  <span>{prompt}</span>
+                </li>
+              ))}
+            </ul>
+          )}
           <p className="type-body max-w-md text-balance text-muted-foreground">
-            Để lại thông tin, đội ngũ ELC sẽ liên hệ tư vấn và báo giá.
+            Bấm nút bên dưới, nội dung được soạn sẵn, bạn chỉ cần điền và gửi trong Zalo.
           </p>
-          <LeadForm
-            serviceId={service.id}
-            entityName={service.title}
-            entityKind="service"
-            triggerLabel="Yêu cầu tư vấn"
-            triggerVariant="default"
-            showIcon={false}
-          />
+          <div className="flex flex-wrap items-center justify-center gap-3">
+            <ServiceZaloButton
+              id={service.id}
+              title={service.title}
+              slug={service.slug}
+              line={service.line}
+              briefPrompts={service.briefPrompts}
+              size="lg"
+            />
+            <LeadForm
+              serviceId={service.id}
+              entityName={service.title}
+              entityKind="service"
+              triggerLabel="Yêu cầu tư vấn"
+              triggerVariant="ghost"
+              showIcon={false}
+            />
+          </div>
         </div>
       </section>
 
-      {service.groupId && (
-        <div className={cn(STYLES.wide, STYLES.section)}>
-          <RelatedServices
-            groupId={service.groupId}
-            currentServiceId={service.id}
-          />
-        </div>
-      )}
+      <div className={cn(STYLES.wide, STYLES.section)}>
+        <RelatedServices line={service.line} currentServiceId={service.id} />
+      </div>
     </main>
   );
 }

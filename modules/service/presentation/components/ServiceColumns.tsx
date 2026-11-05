@@ -1,11 +1,11 @@
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
 import { ButtonGroup } from "@/shared/components/ui/button-group";
-import { formatCurrency } from "@/shared/lib/format";
 import { ColumnDef } from "@tanstack/react-table";
-import { Check, PencilSimple, Minus, Star, Trash, X } from "@phosphor-icons/react/dist/ssr";
+import { Check, PencilSimple, Trash, X } from "@phosphor-icons/react/dist/ssr";
 import Image from "next/image";
 import { ServiceWithRelations } from "../../domain/types";
+import { SERVICE_LINES } from "../../domain/line";
 import { primaryImageUrl } from "@/shared/lib/image-asset";
 
 interface ServiceColumnsProps {
@@ -58,75 +58,13 @@ export const getServiceColumns = ({
     },
   },
   {
-    accessorKey: "group",
-    header: "Nhóm / Danh mục",
-    cell: ({ row }) => {
-      const service = row.original;
-      return (
-        <div className="flex flex-col gap-1">
-          {service.group ? (
-            <span className="text-foreground/90 type-tag w-fit">
-              {service.group.name}
-            </span>
-          ) : (
-            <span className="text-muted-foreground italic type-legal">-</span>
-          )}
-          {service.category && (
-            <span className="type-legal text-muted-foreground">
-              {service.category.name}
-            </span>
-          )}
-        </div>
-      );
-    },
-  },
-  {
-    accessorKey: "price",
-    header: "Giá / Hiển thị",
-    cell: ({ row }) => {
-      const service = row.original;
-      if (service.priceDisplayText) {
-        return (
-          <span className="type-caption text-foreground">
-            {service.priceDisplayText}
-          </span>
-        );
-      }
-      if (service.originalPrice !== null) {
-        const discount = service.discountPercent;
-        const hasDiscount =
-          discount !== null && discount !== undefined && discount > 0;
-        const salePrice = hasDiscount
-          ? service.originalPrice -
-            Math.round(service.originalPrice * (discount / 100))
-          : service.originalPrice;
-        return (
-          <div className="flex flex-col">
-            <span className="type-label text-red-600">
-              {formatCurrency(salePrice)}
-            </span>
-            {hasDiscount ? (
-              <div className="flex items-center gap-1.5 mt-0.5">
-                <span className="type-legal text-muted-foreground line-through">
-                  {formatCurrency(service.originalPrice)}
-                </span>
-                <Badge
-                  variant="destructive"
-                  className="px-1 py-0 h-4 type-legal"
-                >
-                  -{discount}%
-                </Badge>
-              </div>
-            ) : null}
-          </div>
-        );
-      }
-      return (
-        <span className="type-legal text-muted-foreground italic">
-          Chưa thiết lập
-        </span>
-      );
-    },
+    accessorKey: "line",
+    header: "Mảng",
+    cell: ({ row }) => (
+      <span className="type-tag text-foreground/90 w-fit">
+        {SERVICE_LINES[row.original.line].label}
+      </span>
+    ),
   },
   {
     accessorKey: "labels",
@@ -155,25 +93,6 @@ export const getServiceColumns = ({
     header: "Thứ tự",
     cell: ({ row }) => (
       <span className="type-body-sm">{row.original.orderIndex}</span>
-    ),
-  },
-  {
-    accessorKey: "isFeatured",
-    header: "Nổi bật",
-    cell: ({ row }) => (
-      <Badge variant={row.original.isFeatured ? "secondary" : "outline"}>
-        {row.original.isFeatured ? (
-          <>
-            <Star size={12} className="fill-amber-400 text-amber-400 mr-1" />
-            <span>Nổi bật</span>
-          </>
-        ) : (
-          <>
-            <Minus size={12} className="mr-1" />
-            <span>Thường</span>
-          </>
-        )}
-      </Badge>
     ),
   },
   {

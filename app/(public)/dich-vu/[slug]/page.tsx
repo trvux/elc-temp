@@ -12,11 +12,8 @@ import type { Metadata } from "next";
 // barrel) — this matches that pattern.
 import {
   getServiceBySlugAction,
-  getServiceGroupPageAction,
   getServicesAction,
 } from "@/modules/service/presentation/actions";
-import { getServiceGroupsAction } from "@/modules/service-group/presentation/actions";
-import { ServiceGroupModule } from "@/modules/service/presentation/components/public/ServiceGroupModule";
 import { ServiceDetailModule } from "@/modules/service/presentation/components/public/ServiceDetailModule";
 import { BASE_URL } from "@/shared/lib/seo-schema";
 import { primaryImageUrl } from "@/shared/lib/image-asset";
@@ -27,19 +24,11 @@ interface PageProps {
 }
 
 export async function generateStaticParams() {
-  const [{ data: services }, { data: groups }] = await Promise.all([
-    getServicesAction({ isPublished: true }),
-    getServiceGroupsAction(),
-  ]);
-  // Group landing pages (2+ services) live under the same /dich-vu/{slug}
-  // namespace as individual services; a service slug wins on any clash.
-  const multiGroupSlugs = groups
-    .filter((g) => services.filter((s) => s.groupId === g.id).length >= 2)
-    .map((g) => g.slug);
-
-  return [...services.map((s) => s.slug), ...multiGroupSlugs]
+  const { data: services } = await getServicesAction({ isPublished: true });
+  return services
+    .map((s) => s.slug)
     .filter(Boolean)
-    .map((slug) => ({ slug: slug as string }));
+    .map((slug) => ({ slug }));
 }
 
 // ─── Cached fetchers ────────────────────────────────────────────────────────
@@ -53,20 +42,7 @@ async function getCachedService(slug: string) {
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug } = await params;
   const service = await getCachedService(slug);
-  if (!service) {
-    const page = await getServiceGroupPageAction(slug);
-    if (!page) return {};
-    const { group } = page;
-    const title = group.metaTitle || `${group.name} | Điện máy ELC`;
-    const description = group.metaDescription || undefined;
-    const pageUrl = `${BASE_URL}/dich-vu/${slug}`;
-    return {
-      title,
-      description,
-      alternates: { canonical: pageUrl },
-      openGraph: { type: "website", title, description, url: pageUrl },
-    };
-  }
+  if (!service) return {};
 
   const title = service.metaTitle || `${service.title} | Điện máy ELC`;
   const description = service.metaDescription || service.description || undefined;
@@ -99,11 +75,7 @@ export default async function ServiceSlugPage({ params }: PageProps) {
   const { slug } = await params;
 
   const service = await getCachedService(slug);
-  if (!service) {
-    const page = await getServiceGroupPageAction(slug);
-    if (!page) notFound();
-    return <ServiceGroupModule group={page.group} services={page.services} />;
-  }
+  if (!service) notFound();
 
   return <ServiceDetailModule service={service} />;
 }

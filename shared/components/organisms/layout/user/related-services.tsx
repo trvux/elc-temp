@@ -2,9 +2,10 @@ import { cn } from "@/shared/lib/utils";
 import { CardService } from "@/modules/service/presentation/components/CardService";
 import { mapServiceToCardData } from "@/modules/service/domain/mappers";
 import { getServicesAction } from "@/modules/service/presentation/actions";
+import type { ServiceLine } from "@/modules/service/domain/line";
 
 interface RelatedServicesProps {
-  groupId: string;
+  line: ServiceLine;
   currentServiceId: string;
 }
 
@@ -15,14 +16,14 @@ const STYLES = {
 };
 
 export default async function RelatedServices({
-  groupId,
+  line,
   currentServiceId,
 }: RelatedServicesProps) {
-  // Fetch related services in the same group
-  const { data: groupServices } = await getServicesAction({ groupId, isPublished: true });
+  // Related = the other services of the same line (same kind of need).
+  const { data: published } = await getServicesAction({ isPublished: true });
 
-  const services = groupServices
-    .filter((s) => s.id !== currentServiceId)
+  const services = published
+    .filter((s) => s.line === line && s.id !== currentServiceId)
     .slice(0, 3);
 
   if (services.length === 0) return null;

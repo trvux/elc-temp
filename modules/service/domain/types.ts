@@ -3,7 +3,7 @@ import { CategoryWithGroup } from "@/modules/category/domain/types";
 import type { ImageAsset } from "@/shared/lib/image-asset";
 export type { ImageAsset };
 import type { TitleAlign } from "@/shared/lib/title-align";
-;
+import type { ServiceLine } from "./line";
 
 type Json =
   | string
@@ -25,6 +25,8 @@ export interface Service {
   discountPercent: number | null;
   priceDisplayText: string | null;
   labels: string[] | null;
+  line: ServiceLine;
+  briefPrompts: string[];
   description: string | null;
   content: Json;
   images: ImageAsset[];
@@ -54,6 +56,8 @@ export interface CreateServiceInput {
   discountPercent?: number | null;
   priceDisplayText?: string | null;
   labels?: string[] | null;
+  line?: ServiceLine;
+  briefPrompts?: string[];
   description?: string | null;
   content?: Json;
   images?: ImageAsset[];

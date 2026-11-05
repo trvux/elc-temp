@@ -42,24 +42,26 @@ function formatZaloProductLine(info: ZaloProductInfo): string {
 
 export interface ZaloServiceInfo {
   serviceName: string;
-  // Already display-ready (mapServiceToCardData's `price` — either a
-  // formatted number or a literal override like "Liên hệ để nhận giá ưu
-  // đãi"), unlike ZaloProductInfo's raw salePrice — services don't always
-  // resolve to one number the way a product variant's price does.
-  priceDisplay: string;
   serviceSlug: string;
+  /** First line of the message, written for the service's line (see modules/service/domain/line.ts). */
+  opener: string;
+  /** What the customer should fill in, one per line; becomes "- ...:" lines staff can quote from. */
+  briefPrompts?: string[];
 }
 
 /**
- * Build a pre-formatted Zalo message for a service inquiry — mirrors
- * buildZaloProductMessage, but under /dich-vu/ instead of /san-pham/ so the
- * link staff receive actually points at the specific service asked about,
- * not just the generic /dich-vu listing.
+ * Build the pre-formatted Zalo message for a service. Zalo cannot be opened with
+ * a message, so the customer pastes this one: it names the service, links the
+ * exact page, and lists the blanks staff need to give a quote, so the first
+ * reply can be a price instead of a round of questions.
  */
 export function buildZaloServiceMessage(info: ZaloServiceInfo): string {
   const serviceUrl = `${SITE_URL}/dich-vu/${info.serviceSlug}`;
-  const price = info.priceDisplay || "Liên hệ để nhận giá ưu đãi";
-  return `Chào shop, tôi muốn tư vấn về dịch vụ:\n${info.serviceName}\n${price}\nLink: ${serviceUrl}`;
+  const head = `${info.opener}\n${info.serviceName}\nLink: ${serviceUrl}`;
+  const prompts = (info.briefPrompts ?? []).map((p) => p.trim()).filter(Boolean);
+  if (prompts.length === 0) return head;
+  const blanks = prompts.map((p) => (/[:?]$/.test(p) ? `- ${p}` : `- ${p}:`));
+  return `${head}\n\n${blanks.join("\n")}`;
 }
 
 /**

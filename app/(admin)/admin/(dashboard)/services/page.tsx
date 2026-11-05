@@ -1,8 +1,6 @@
 import { Metadata } from "next";
 import { ServiceManagement } from "@/modules/service";
 import { getServicesAction } from "@/modules/service";
-import { getServiceGroupsAction } from "@/modules/service-group";
-import { getCategoriesAction } from "@/modules/category/presentation/actions";
 import { connection } from "next/server";
 
 export const metadata: Metadata = {
@@ -11,17 +9,7 @@ export const metadata: Metadata = {
 
 export default async function ServicesPage() {
   await connection();
-  const [{ data: services }, { data: groups }, { data: categories }] = await Promise.all([
-    getServicesAction(),
-    getServiceGroupsAction(),
-    getCategoriesAction()
-  ]);
+  const { data: services } = await getServicesAction();
 
-  return (
-    <ServiceManagement 
-      initialData={services || []} 
-      groups={groups || []}
-      categories={categories || []}
-    />
-  );
+  return <ServiceManagement initialData={services || []} />;
 }

@@ -1,7 +1,5 @@
 "use client";
 
-import { CategoryWithGroup } from "@/modules/category/domain/types";
-import { ServiceGroup } from "@/modules/service-group/domain/types";
 import { capitalize } from "@/shared/lib/helpers";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useMemo, useState } from "react";
@@ -16,6 +14,7 @@ import {
   deleteServiceAction,
   updateServiceAction,
 } from "../actions";
+import { SERVICE_LINES, SERVICE_LINE_ORDER, type ServiceLine } from "../../domain/line";
 import { useServiceForm } from "../hooks/useServiceForm";
 import { getServiceColumns } from "./ServiceColumns";
 
@@ -36,7 +35,6 @@ import {
 } from "@/shared/components/ui/field";
 import { ImageUpload } from "@/shared/components/ui/image-upload";
 import { Input } from "@/shared/components/ui/input";
-import { RadioGroup, RadioGroupItem } from "@/shared/components/ui/radio-group";
 import {
   Select,
   SelectContent,
@@ -55,15 +53,9 @@ import { FAQManager } from "@/modules/faq";
 
 interface ServiceManagementProps {
   initialData: ServiceWithRelations[];
-  groups: ServiceGroup[];
-  categories: CategoryWithGroup[];
 }
 
-export function ServiceManagement({
-  initialData,
-  groups,
-  categories,
-}: ServiceManagementProps) {
+export function ServiceManagement({ initialData }: ServiceManagementProps) {
   const [activeService, setActiveService] = useState<
     ServiceWithRelations | "new" | null
   >(null);
@@ -71,44 +63,18 @@ export function ServiceManagement({
   const queryClient = useQueryClient();
 
   // Filters
-  const [filterGroupId, setFilterGroupId] = useState<string>("all");
-  const [filterCategoryId, setFilterCategoryId] = useState<string>("all");
-  const [filterIsFeatured, setFilterIsFeatured] = useState<string>("all");
+  const [filterLine, setFilterLine] = useState<string>("all");
   const [filterIsPublished, setFilterIsPublished] = useState<string>("all");
-
-  const handleGroupIdChange = (val: string) => {
-    setFilterGroupId(val);
-    setFilterCategoryId("all");
-  };
-
-  const filteredCategoriesForFilter = useMemo(() => {
-    if (filterGroupId === "all") {
-      return categories;
-    }
-    const selectedGroup = groups.find((g) => g.id === filterGroupId);
-    if (!selectedGroup || !selectedGroup.categoryIds) return [];
-    return categories.filter((c) => selectedGroup.categoryIds?.includes(c.id));
-  }, [categories, groups, filterGroupId]);
 
   const filteredServices = useMemo(() => {
     return initialData.filter((s) => {
-      const matchGroup =
-        filterGroupId === "all" || s.groupId === filterGroupId;
-
-      const matchCategory =
-        filterCategoryId === "all" || s.categoryId === filterCategoryId;
-
-      const matchFeatured =
-        filterIsFeatured === "all" ||
-        (filterIsFeatured === "true" ? s.isFeatured : !s.isFeatured);
-
+      const matchLine = filterLine === "all" || s.line === filterLine;
       const matchPublished =
         filterIsPublished === "all" ||
         (filterIsPublished === "true" ? s.isPublished : !s.isPublished);
-
-      return matchGroup && matchCategory && matchFeatured && matchPublished;
+      return matchLine && matchPublished;
     });
-  }, [initialData, filterGroupId, filterCategoryId, filterIsFeatured, filterIsPublished]);
+  }, [initialData, filterLine, filterIsPublished]);
 
   const {
     form,
@@ -119,31 +85,10 @@ export function ServiceManagement({
     removeLabel,
   } = useServiceForm(activeService === "new" ? null : activeService);
 
-  const watchGroupId = form.watch("groupId");
   const previewTitle = form.watch("title");
   const previewSlug = form.watch("slug");
   const previewMetaTitle = form.watch("metaTitle");
   const previewMetaDescription = form.watch("metaDescription");
-
-  const filteredCategories = useMemo(() => {
-    if (!watchGroupId || watchGroupId === "none") return [];
-    const selectedGroup = groups.find((g) => g.id === watchGroupId);
-    if (!selectedGroup || !selectedGroup.categoryIds) return [];
-
-    return categories.filter((c) => selectedGroup.categoryIds?.includes(c.id));
-  }, [watchGroupId, groups, categories]);
-
-  useEffect(() => {
-    const currentCatId = form.getValues("categoryId");
-    if (currentCatId && currentCatId !== "none") {
-      const isStillValid = filteredCategories.some(
-        (c) => c.id === currentCatId,
-      );
-      if (!isStillValid) {
-        form.setValue("categoryId", null);
-      }
-    }
-  }, [filteredCategories, form]);
 
   // --- Mutations ---
   const saveMutation = useMutation({
@@ -214,24 +159,13 @@ export function ServiceManagement({
     onDelete: (id) => setDeletingId(id),
   });
 
-  const watchPriceMode = form.watch("priceMode");
-  const watchOriginalPrice = form.watch("originalPrice");
-  const watchDiscountPercent = form.watch("discountPercent");
-
-  // Calculate preview sale price
-  const previewSalePrice =
-    watchOriginalPrice && watchDiscountPercent
-      ? watchOriginalPrice -
-        Math.round(watchOriginalPrice * (watchDiscountPercent / 100))
-      : watchOriginalPrice;
-
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h2 className="type-title">Dịch vụ</h2>
           <p className="text-muted-foreground mt-1 type-body-sm">
-            Quản lý danh sách các gói dịch vụ, giá bán và nhãn dán hiển thị
+            Quản lý dịch vụ, nhãn hiển thị và thông tin khách cần gửi để được báo giá
           </p>
         </div>
         <Button onClick={() => setActiveService("new")}>
@@ -241,45 +175,18 @@ export function ServiceManagement({
       </div>
 
       <div className="flex flex-wrap items-center gap-4">
-        {/* Service Group Filter */}
-        <Select value={filterGroupId} onValueChange={handleGroupIdChange}>
-          <SelectTrigger className="w-full md:w-45">
-            <SelectValue placeholder="Nhóm dịch vụ" />
+        {/* Line Filter */}
+        <Select value={filterLine} onValueChange={setFilterLine}>
+          <SelectTrigger className="w-full md:w-48">
+            <SelectValue placeholder="Mảng dịch vụ" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">Tất cả nhóm</SelectItem>
-            {groups.map((g) => (
-              <SelectItem key={g.id} value={g.id}>
-                {g.name}
+            <SelectItem value="all">Tất cả mảng</SelectItem>
+            {SERVICE_LINE_ORDER.map((line) => (
+              <SelectItem key={line} value={line}>
+                {SERVICE_LINES[line].label}
               </SelectItem>
             ))}
-          </SelectContent>
-        </Select>
-
-        {/* Category Filter */}
-        <Select value={filterCategoryId} onValueChange={setFilterCategoryId}>
-          <SelectTrigger className="w-full md:w-50">
-            <SelectValue placeholder="Dòng sản phẩm" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">Tất cả dòng sản phẩm</SelectItem>
-            {filteredCategoriesForFilter.map((c) => (
-              <SelectItem key={c.id} value={c.id}>
-                {c.name}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-
-        {/* Featured Filter */}
-        <Select value={filterIsFeatured} onValueChange={setFilterIsFeatured}>
-          <SelectTrigger className="w-full md:w-38">
-            <SelectValue placeholder="Mức độ" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">Tất cả mức độ</SelectItem>
-            <SelectItem value="true">Nổi bật</SelectItem>
-            <SelectItem value="false">Thường</SelectItem>
           </SelectContent>
         </Select>
 
@@ -295,16 +202,11 @@ export function ServiceManagement({
           </SelectContent>
         </Select>
 
-        {(filterGroupId !== "all" ||
-          filterCategoryId !== "all" ||
-          filterIsFeatured !== "all" ||
-          filterIsPublished !== "all") && (
+        {(filterLine !== "all" || filterIsPublished !== "all") && (
           <Button
             variant="ghost"
             onClick={() => {
-              setFilterGroupId("all");
-              setFilterCategoryId("all");
-              setFilterIsFeatured("all");
+              setFilterLine("all");
               setFilterIsPublished("all");
             }}
             className="h-9 px-3 text-muted-foreground hover:text-foreground"
@@ -383,78 +285,34 @@ export function ServiceManagement({
                           )}
                         />
 
-                        <div className="grid grid-cols-2 gap-4">
-                          <Controller
-                            control={form.control}
-                            name="groupId"
-                            render={({ field, fieldState }) => (
-                              <Field>
-                                <FieldLabel>Nhóm dịch vụ</FieldLabel>
-                                <Select
-                                  value={field.value || "none"}
-                                  onValueChange={(v) =>
-                                    field.onChange(v === "none" ? null : v)
-                                  }
-                                >
-                                  <SelectTrigger>
-                                    <SelectValue placeholder="Chọn nhóm" />
-                                  </SelectTrigger>
-                                  <SelectContent>
-                                    <SelectItem value="none">
-                                      Không thuộc nhóm nào
+                        <Controller
+                          control={form.control}
+                          name="line"
+                          render={({ field, fieldState }) => (
+                            <Field>
+                              <FieldLabel>Mảng dịch vụ</FieldLabel>
+                              <Select
+                                value={field.value}
+                                onValueChange={(v) => field.onChange(v as ServiceLine)}
+                              >
+                                <SelectTrigger>
+                                  <SelectValue placeholder="Chọn mảng" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  {SERVICE_LINE_ORDER.map((line) => (
+                                    <SelectItem key={line} value={line}>
+                                      {SERVICE_LINES[line].label}
                                     </SelectItem>
-                                    {groups.map((g) => (
-                                      <SelectItem key={g.id} value={g.id}>
-                                        {g.name}
-                                      </SelectItem>
-                                    ))}
-                                  </SelectContent>
-                                </Select>
-                                <FieldError errors={[fieldState.error]} />
-                              </Field>
-                            )}
-                          />
-
-                          <Controller
-                            control={form.control}
-                            name="categoryId"
-                            render={({ field, fieldState }) => (
-                              <Field>
-                                <FieldLabel>Danh mục liên kết</FieldLabel>
-                                <Select
-                                  value={field.value || "none"}
-                                  disabled={
-                                    !watchGroupId || watchGroupId === "none"
-                                  }
-                                  onValueChange={(v) =>
-                                    field.onChange(v === "none" ? null : v)
-                                  }
-                                >
-                                  <SelectTrigger>
-                                    <SelectValue
-                                      placeholder={
-                                        watchGroupId && watchGroupId !== "none"
-                                          ? "Chọn danh mục"
-                                          : "Vui lòng chọn nhóm trước"
-                                      }
-                                    />
-                                  </SelectTrigger>
-                                  <SelectContent>
-                                    <SelectItem value="none">
-                                      Không thuộc danh mục nào
-                                    </SelectItem>
-                                    {filteredCategories.map((c) => (
-                                      <SelectItem key={c.id} value={c.id}>
-                                        {c.name}
-                                      </SelectItem>
-                                    ))}
-                                  </SelectContent>
-                                </Select>
-                                <FieldError errors={[fieldState.error]} />
-                              </Field>
-                            )}
-                          />
-                        </div>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                              <span className="type-legal text-muted-foreground">
+                                Quyết định mục trên trang Dịch vụ, chữ trên nút và lời mở đầu tin nhắn Zalo.
+                              </span>
+                              <FieldError errors={[fieldState.error]} />
+                            </Field>
+                          )}
+                        />
 
                         <Controller
                           control={form.control}
@@ -477,133 +335,31 @@ export function ServiceManagement({
                       </FieldGroup>
                     </FieldSet>
 
+
                     <FieldSeparator />
 
-                    {/* Pricing Block */}
+                    {/* Brief prompts: the blanks the Zalo message gives the customer. */}
                     <FieldSet>
-                      <FieldLegend>Cấu hình giá / Hiển thị</FieldLegend>
-                      <div className="border rounded-xl p-5 bg-muted/5 space-y-5">
-                        <div className="space-y-1.5">
-                          <p className="type-legal text-muted-foreground">
-                            Chọn hiển thị dạng Giá tiền thực tế hoặc Văn bản tuỳ
-                            chỉnh (vd: Liên hệ).
-                          </p>
-                        </div>
-
-                        <Controller
-                          control={form.control}
-                          name="priceMode"
-                          render={({ field }) => (
-                            <RadioGroup
-                              value={field.value}
-                              onValueChange={field.onChange}
-                              className="flex gap-6"
-                            >
-                              <div className="flex items-center space-x-2">
-                                <RadioGroupItem value="price" id="mode-price" />
-                                <label
-                                  htmlFor="mode-price"
-                                  className="type-body-sm cursor-pointer"
-                                >
-                                  Giá tiền
-                                </label>
-                              </div>
-                              <div className="flex items-center space-x-2">
-                                <RadioGroupItem value="text" id="mode-text" />
-                                <label
-                                  htmlFor="mode-text"
-                                  className="type-body-sm cursor-pointer"
-                                >
-                                  Văn bản tuỳ chỉnh
-                                </label>
-                              </div>
-                            </RadioGroup>
-                          )}
-                        />
-
-                        <div className="pt-2">
-                          {watchPriceMode === "price" ? (
-                            <div className="grid grid-cols-2 gap-4">
-                              <Controller
-                                control={form.control}
-                                name="originalPrice"
-                                render={({ field, fieldState }) => (
-                                  <Field>
-                                    <FieldLabel>Giá gốc (VNĐ)</FieldLabel>
-                                    <Input
-                                      type="number"
-                                      value={field.value || ""}
-                                      onChange={(e) =>
-                                        field.onChange(
-                                          e.target.value
-                                            ? Number(e.target.value)
-                                            : null,
-                                        )
-                                      }
-                                      placeholder="vd: 5000000"
-                                    />
-                                    <FieldError errors={[fieldState.error]} />
-                                  </Field>
-                                )}
-                              />
-                              <Controller
-                                control={form.control}
-                                name="discountPercent"
-                                render={({ field, fieldState }) => (
-                                  <Field>
-                                    <FieldLabel>Phần trăm giảm (%)</FieldLabel>
-                                    <Input
-                                      type="number"
-                                      min={0}
-                                      max={100}
-                                      value={field.value || ""}
-                                      onChange={(e) =>
-                                        field.onChange(
-                                          e.target.value
-                                            ? Number(e.target.value)
-                                            : null,
-                                        )
-                                      }
-                                      placeholder="vd: 15"
-                                    />
-                                    <FieldError errors={[fieldState.error]} />
-                                  </Field>
-                                )}
-                              />
-
-                              <div className="col-span-2 mt-2 p-3 bg-primary/5 rounded-lg border border-primary/20 flex justify-between items-center">
-                                <span className="type-caption text-primary">
-                                  Giá bán tự động tính:
-                                </span>
-                                <span className="type-body-strong text-red-600">
-                                  {previewSalePrice
-                                    ? new Intl.NumberFormat("vi-VN", {
-                                        style: "currency",
-                                        currency: "VND",
-                                      }).format(previewSalePrice)
-                                    : "Chưa thiết lập"}
-                                </span>
-                              </div>
-                            </div>
-                          ) : (
-                            <Controller
-                              control={form.control}
-                              name="priceDisplayText"
-                              render={({ field, fieldState }) => (
-                                <Field>
-                                  <FieldLabel>Văn bản hiển thị</FieldLabel>
-                                  <Input
-                                    {...field}
-                                    value={field.value || ""}
-                                    placeholder="vd: Liên hệ, Theo khảo sát thực tế..."
-                                  />
-                                  <FieldError errors={[fieldState.error]} />
-                                </Field>
-                              )}
+                      <FieldLegend>Thông tin khách cần gửi để được báo giá</FieldLegend>
+                      <Controller
+                        control={form.control}
+                        name="briefPrompts"
+                        render={({ field, fieldState }) => (
+                          <Field>
+                            <Textarea
+                              value={(field.value ?? []).join("\n")}
+                              onChange={(e) => field.onChange(e.target.value.split("\n"))}
+                              placeholder={"Địa chỉ công trình\nSố tầng và tổng diện tích sàn\nĐã có bản vẽ mặt bằng chưa"}
+                              rows={6}
                             />
-                          )}
-                        </div>
-                      </div>
+                            <span className="type-legal text-muted-foreground">
+                              Mỗi dòng một ý. Hiện trên trang dịch vụ và thành các dòng để khách điền trong tin nhắn
+                              Zalo, để nhân viên báo giá được ngay. Dòng trống sẽ bị bỏ.
+                            </span>
+                            <FieldError errors={[fieldState.error]} />
+                          </Field>
+                        )}
+                      />
                     </FieldSet>
                   </FieldGroup>
 
@@ -671,29 +427,6 @@ export function ServiceManagement({
                                     </FieldLabel>
                                     <span className="type-legal text-muted-foreground block">
                                       Công khai
-                                    </span>
-                                  </div>
-                                  <Switch
-                                    checked={field.value}
-                                    onCheckedChange={field.onChange}
-                                  />
-                                </div>
-                                <FieldError errors={[fieldState.error]} />
-                              </Field>
-                            )}
-                          />
-                          <Controller
-                            control={form.control}
-                            name="isFeatured"
-                            render={({ field, fieldState }) => (
-                              <Field>
-                                <div className="flex items-center justify-between border rounded-xl p-4 bg-muted/10 h-full">
-                                  <div className="space-y-0.5">
-                                    <FieldLabel className="type-label">
-                                      Nổi bật
-                                    </FieldLabel>
-                                    <span className="type-legal text-muted-foreground block">
-                                      Lên đầu
                                     </span>
                                   </div>
                                   <Switch

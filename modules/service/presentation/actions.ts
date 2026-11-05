@@ -4,8 +4,8 @@ import { revalidatePath } from "next/cache";
 import { Service, CreateServiceInput, UpdateServiceInput, ServiceFilter, ServiceWithRelations, ImageAsset } from "../domain/types";
 import { authHeaders, toSnakeCaseBody } from "@/shared/lib/go-api";
 import { submitToIndexNow } from "@/shared/lib/indexnow";
-import { getServiceGroupsAction } from "@/modules/service-group/presentation/actions";
 import { unwrapActionResult } from "@/shared/lib/action-result";
+import { groupServicesByLine, normalizeServiceLine } from "../domain/line";
 import { BASE_URL } from "@/shared/lib/seo-schema";
 import { normalizeTitleAlign } from "@/shared/lib/title-align";
 
@@ -28,6 +28,8 @@ interface GoServiceResponse {
   discount_percent: number | null;
   price_display_text: string | null;
   labels: string[] | null;
+  line: string;
+  brief_prompts: string[] | null;
   description: string | null;
   content: unknown;
   images: ImageAsset[];
@@ -62,6 +64,8 @@ function mapGoService(row: GoServiceResponse): ServiceWithRelations {
     discountPercent: row.discount_percent,
     priceDisplayText: row.price_display_text,
     labels: row.labels,
+    line: normalizeServiceLine(row.line),
+    briefPrompts: row.brief_prompts ?? [],
     description: row.description,
     content: row.content as Service["content"],
     images: row.images || [],
@@ -221,69 +225,10 @@ export async function getServiceBySlugAction(slug: string): Promise<ServiceWithR
   return mapGoService(row);
 }
 
-export interface GroupedServices {
-  name: string;
-  orderIndex: number;
-  items: ServiceWithRelations[];
-  createdAt: string;
-}
-
-// Mirrors the old modules/service/application/index.ts getPublishedServicesGrouped,
-// but composes two already-Go-backed Server Actions instead of two repos.
-export async function getPublishedServicesGroupedAction(): Promise<GroupedServices[]> {
-  const [servicesResult, groupsResult] = await Promise.all([
-    getServicesAction({ isPublished: true }),
-    getServiceGroupsAction(),
-  ]);
-  const allServices = unwrapActionResult(servicesResult);
-  const allGroups = unwrapActionResult(groupsResult);
-
-  const groupsMap = new Map<
-    string,
-    { name: string; orderIndex: number; items: ServiceWithRelations[]; createdAt: string }
-  >();
-
-  allGroups.forEach((group) => {
-    groupsMap.set(group.id, {
-      name: group.name,
-      orderIndex: group.orderIndex,
-      items: [],
-      createdAt: group.createdAt,
-    });
-  });
-
-  const hasUngroupedServices = allServices.some((s) => !s.groupId);
-  if (hasUngroupedServices && !groupsMap.has("khac")) {
-    groupsMap.set("khac", {
-      name: "Khác",
-      orderIndex: 9999,
-      items: [],
-      createdAt: new Date().toISOString(),
-    });
-  }
-
-  allServices.forEach((service) => {
-    const groupId = service.groupId || "khac";
-    if (groupsMap.has(groupId)) {
-      groupsMap.get(groupId)!.items.push(service);
-    } else {
-      const groupName = service.group?.name || "Khác";
-      const groupOrder = 9999;
-      groupsMap.set(groupId, {
-        name: groupName,
-        orderIndex: groupOrder,
-        items: [service],
-        createdAt: new Date().toISOString(),
-      });
-    }
-  });
-
-  return Array.from(groupsMap.values()).sort((a, b) => {
-    if (a.orderIndex !== b.orderIndex) {
-      return a.orderIndex - b.orderIndex;
-    }
-    return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
-  });
+// The hub shows services in two sections, one per line (see domain/line.ts).
+export async function getPublishedServicesByLineAction() {
+  const services = unwrapActionResult(await getServicesAction({ isPublished: true }));
+  return groupServicesByLine(services);
 }
 
 export async function deleteServiceAction(id: string) {
@@ -304,18 +249,4 @@ export async function deleteServiceAction(id: string) {
       error: error instanceof Error ? error.message : "Failed to delete service",
     };
   }
-}
-
-// A service group has its own page (/dich-vu/{group.slug}) only when it
-// lists 2+ published services — with a single service the page would just
-// duplicate that service's own page, so such groups return null (404).
-export async function getServiceGroupPageAction(slug: string) {
-  const [servicesResult, groupsResult] = await Promise.all([
-    getServicesAction({ isPublished: true }),
-    getServiceGroupsAction(),
-  ]);
-  const group = unwrapActionResult(groupsResult).find((g) => g.slug === slug);
-  if (!group) return null;
-  const services = unwrapActionResult(servicesResult).filter((s) => s.groupId === group.id);
-  return services.length >= 2 ? { group, services } : null;
 }
