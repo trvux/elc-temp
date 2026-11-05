@@ -181,7 +181,7 @@ export function RedirectManagement() {
         </ButtonGroup>
       </div>
 
-      <DataTable columns={columns} data={items} isLoading={isLoading} getRowId={(r) => r.id} />
+      <DataTable columns={columns} data={items} isLoading={isLoading} getRowId={(r) => r.id} hideSearch />
 
       <div className="flex items-center justify-between mt-4">
         <span className="type-body-sm text-muted-foreground">{total} chuyển hướng</span>

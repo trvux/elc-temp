@@ -62,6 +62,8 @@ interface DataTableProps<TData, TValue> {
   data: TData[];
   searchKey?: string;
   searchPlaceholder?: string;
+  // For callers that search on the server and render their own search box.
+  hideSearch?: boolean;
   isLoading?: boolean;
   rowClassName?: (data: TData) => string;
   // Opt-in — without it react-table falls back to index-based row identity,
@@ -77,6 +79,7 @@ export function DataTable<TData, TValue>({
   data,
   searchKey,
   searchPlaceholder = "Tìm kiếm...",
+  hideSearch = false,
   isLoading = false,
   rowClassName,
   getRowId,
@@ -107,7 +110,7 @@ export function DataTable<TData, TValue>({
 
   return (
     <div className="w-full max-w-full overflow-hidden">
-      {(searchKey || globalFilter !== undefined) && (
+      {!hideSearch && (searchKey || globalFilter !== undefined) && (
         <div className="flex items-center py-4">
           <Input
             placeholder={searchPlaceholder}
