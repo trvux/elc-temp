@@ -72,6 +72,8 @@ import { ChoiceStep } from "./steps/ChoiceStep";
 import { ProductCategoryPickerStep, type PickedProductCategory } from "./steps/ProductCategoryPickerStep";
 import { ServicePickerStep } from "./steps/ServicePickerStep";
 import { BriefStep } from "./steps/BriefStep";
+import { areaBand, parseAreaM2 } from "../../domain/area";
+import { briefPromptsForForm } from "../../domain/brief";
 import { ServiceZaloButton } from "@/modules/service/presentation/components/ServiceZaloButton";
 import { ProjectTypePickerStep, type PickedProjectType } from "./steps/ProjectTypePickerStep";
 import { ProjectCategoryPickerStep, type PickedProjectCategory } from "./steps/ProjectCategoryPickerStep";
@@ -511,14 +513,23 @@ function buildBriefQualify(
   service: ServiceWithRelations | undefined,
   answers: Record<string, string>,
 ): Record<string, string> {
-  if (!service || service.briefPrompts.length === 0) return {};
-  const answered = service.briefPrompts.filter((prompt) => answers[prompt]?.trim());
+  const prompts = service ? briefPromptsForForm(service.briefPrompts) : [];
+  if (!service || prompts.length === 0) return {};
+  const answered = prompts.filter((prompt) => answers[prompt]?.trim());
   if (answered.length === 0) return {};
-  return {
+  const qualify: Record<string, string> = {
     brief: answered.map((prompt) => `${prompt}: ${answers[prompt].trim()}`).join("\n"),
     briefAnswered: String(answered.length),
-    briefTotal: String(service.briefPrompts.length),
+    briefTotal: String(prompts.length),
   };
+  // A system installation gets its size band from the area typed in the brief, so the
+  // "Giá trị cao" badge works without a second "how big" question.
+  if (service.line === "thi-cong") {
+    const areaPrompt = answered.find((prompt) => /diện tích/i.test(prompt));
+    const area = areaPrompt ? parseAreaM2(answers[areaPrompt]) : null;
+    if (area !== null) qualify.scale = areaBand(area);
+  }
+  return qualify;
 }
 
 interface PickedState {
@@ -712,18 +723,11 @@ export function LeadFormScreen({
       // One screen of the service's own brief prompts replaces the old
       // per-kind question sets; the visitor can skip every field.
       if (!serviceId) list.push({ id: "service-picker", kind: "service-picker" });
-      if (pickedService && pickedService.briefPrompts.length > 0) list.push({ id: "brief", kind: "brief" });
+      if (pickedService && briefPromptsForForm(pickedService.briefPrompts).length > 0) list.push({ id: "brief", kind: "brief" });
       if (activeLine === "thi-cong") {
-        // A system for a building: three quick taps that tell sales how big and how
-        // ready it is. Scale feeds the "Giá trị cao" badge, so it stays structured.
-        list.push({
-          id: "scale",
-          kind: "choice",
-          question: "Quy mô ước tính?",
-          description: "Mức tham khảo, đội ngũ tư vấn sẽ khảo sát chính xác khi liên hệ.",
-          options: PROJECT_SCALE_OPTIONS_MEDIUM,
-        });
-        list.push({ id: "stage", kind: "choice", question: "Giai đoạn hiện tại của công trình?", options: PROJECT_STAGE_OPTIONS });
+        // One structured question beyond the brief: whether to book a site visit. The
+        // size comes from the area typed in the brief (see buildBriefQualify), so it is
+        // not asked twice.
         list.push({ id: "siteVisit", kind: "choice", question: "Bạn có muốn hẹn khảo sát công trình miễn phí không?", options: SITE_VISIT_OPTIONS });
       } else {
         // How soon matters for work on a unit the customer already has.
@@ -772,11 +776,15 @@ export function LeadFormScreen({
           ? "Gửi ảnh mặt bằng / công trình nếu có?"
           : "Gửi ảnh liên quan nếu có?";
     if (!skipAttachment) list.push({ id: "attachment", kind: "attachment", question: attachmentQuestion });
-    list.push({
-      id: "khuVuc",
-      kind: "address",
-      question: branch === "project" ? "Công trình ở khu vực nào?" : "Bạn ở khu vực nào?",
-    });
+    // The brief of a service already asks for the address, so the area is not asked again.
+    const briefAsksAddress = branch === "service" && Boolean(pickedService && briefPromptsForForm(pickedService.briefPrompts).length > 0);
+    if (!briefAsksAddress) {
+      list.push({
+        id: "khuVuc",
+        kind: "address",
+        question: branch === "project" ? "Công trình ở khu vực nào?" : "Bạn ở khu vực nào?",
+      });
+    }
     if (branch !== "service") {
       list.push({ id: "message", kind: "rhf-textarea", question: "Còn điều gì khác bạn muốn nói không?", description: "Không bắt buộc.", placeholder: "Ghi chú thêm..." });
     }
@@ -1166,7 +1174,7 @@ export function LeadFormScreen({
 
               {currentStep.kind === "brief" && pickedService && (
                 <BriefStep
-                  prompts={pickedService.briefPrompts}
+                  prompts={briefPromptsForForm(pickedService.briefPrompts)}
                   answers={briefAnswers}
                   onChange={(prompt, value) => setBriefAnswers((a) => ({ ...a, [prompt]: value }))}
                   onKeyDown={handleKeyDown}
