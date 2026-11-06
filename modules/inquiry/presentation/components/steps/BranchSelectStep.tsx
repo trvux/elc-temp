@@ -40,8 +40,8 @@ const BRANCH_OPTIONS: BranchOption[] = [
   {
     key: "dich-vu",
     choice: { branch: "service", line: "dich-vu" },
-    label: "Dịch vụ cho máy lạnh đang dùng",
-    description: "Vệ sinh bảo trì, sửa chữa, cho thuê, thu cũ đổi mới...",
+    label: "Dịch vụ máy lạnh",
+    description: "Vệ sinh bảo trì, sửa chữa, thu cũ đổi mới, cho thuê...",
   },
 ];
 

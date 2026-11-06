@@ -31,7 +31,7 @@ export const SERVICE_LINES: Record<ServiceLine, ServiceLineInfo> = {
   },
   "dich-vu": {
     label: "Dịch vụ máy lạnh",
-    hubIntro: "Vệ sinh bảo trì, sửa chữa, cho thuê và thu cũ đổi mới cho máy lạnh bạn đang dùng.",
+    hubIntro: "Vệ sinh bảo trì, sửa chữa, thu cũ đổi mới và cho thuê máy lạnh.",
     ctaLabel: "Đặt lịch",
     messageOpener: "Chào ELC, tôi muốn đặt lịch dịch vụ:",
     briefHeading: "Chuẩn bị sẵn những thông tin này để đặt lịch nhanh hơn",

@@ -88,7 +88,7 @@ export default async function ServicesHub() {
         <div className={cn(STYLES.sectionContainer, "py-6 md:py-8 lg:py-10")}>
           <PageHero
             title="Dịch vụ điều hòa và thông gió"
-            description="Từ thi công hệ thống cho công trình đến chăm sóc máy lạnh bạn đang dùng. Chọn đúng việc, nhắn Zalo để được tư vấn."
+            description="Từ thi công hệ thống cho công trình đến vệ sinh, sửa chữa và cho thuê máy lạnh. Chọn đúng việc, nhắn Zalo để được tư vấn."
           />
         </div>
       </div>

@@ -1031,8 +1031,12 @@ export function LeadFormScreen({
           <div className="flex w-full max-w-xs flex-col gap-3 sm:max-w-none sm:w-auto sm:flex-row sm:justify-center sm:gap-4">
             <Button
               size="lg"
-              variant={branch === "service" && pickedService ? "outline" : "default"}
-              className="w-full sm:w-auto sm:min-w-48"
+              variant={branch === "service" && pickedService ? "ghost" : "outline"}
+              className={
+                branch === "service" && pickedService
+                  ? "w-full sm:w-auto sm:min-w-48 text-white hover:bg-white/15 hover:text-white"
+                  : "w-full sm:w-auto sm:min-w-48"
+              }
               onClick={() => router.push(exitHref)}
             >
               Xong
@@ -1048,6 +1052,7 @@ export function LeadFormScreen({
                 placement="lead-form-done"
                 label="Nhắn Zalo để được báo giá nhanh hơn"
                 size="lg"
+                variant="outline"
                 className="order-first w-full sm:w-auto sm:min-w-48"
               />
             ) : (
