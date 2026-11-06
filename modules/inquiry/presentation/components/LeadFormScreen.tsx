@@ -66,6 +66,7 @@ import {
   SITE_VISIT_OPTIONS,
   CONTACT_PREFERENCE_OPTIONS,
   formatMillion,
+  type UploadedFile,
 } from "../../domain";
 import { createInquiryAction } from "../actions";
 import { BranchSelectStep, type BranchChoice, type LeadBranch } from "./steps/BranchSelectStep";
@@ -577,7 +578,9 @@ export function LeadFormScreen({
   const [chosenLine, setChosenLine] = useState<ServiceLine | null>(null);
   const [picked, setPicked] = useState<PickedState>({});
   const [qualify, setQualify] = useState<Record<string, string>>({});
-  const [attachmentUrls, setAttachmentUrls] = useState<string[]>([]);
+  // Customer files already stored privately (see AttachmentStep), and whether one is still uploading.
+  const [attachments, setAttachments] = useState<UploadedFile[]>([]);
+  const [attachmentsBusy, setAttachmentsBusy] = useState(false);
   const [stepIndex, setStepIndex] = useState(0);
   const [submitted, setSubmitted] = useState(false);
 
@@ -886,7 +889,7 @@ export function LeadFormScreen({
             branch === "service"
               ? { ...qualify, ...buildServiceQualify(pickedService, activeLine), ...buildBriefQualify(pickedService?.line ?? activeLine, briefFieldsForForm(pickedService?.briefFields ?? []), briefAnswers) }
               : qualify,
-          attachments: attachmentUrls,
+          attachments,
         },
       );
     },
@@ -924,6 +927,11 @@ export function LeadFormScreen({
         setBriefMissing(missing.map((field) => field.key));
         return;
       }
+    }
+    // A file still going up would be left behind: wait for it.
+    if (currentStep.kind === "attachment" && attachmentsBusy) {
+      toast.info("Đang tải tệp lên, đợi một chút rồi tiếp tục.");
+      return;
     }
     // Region is required (it says whether ELC can come at all); the street address is not.
     if (currentStep.kind === "address") {
@@ -1251,7 +1259,13 @@ export function LeadFormScreen({
               )}
 
               {currentStep.kind === "attachment" && (
-                <AttachmentStep question={currentStep.question} urls={attachmentUrls} onChange={setAttachmentUrls} />
+                <AttachmentStep
+                  question={currentStep.question}
+                  files={attachments}
+                  onChange={setAttachments}
+                  onBusyChange={setAttachmentsBusy}
+                  zaloHref={zaloHref}
+                />
               )}
 
               {currentStep.kind === "free-text" && (

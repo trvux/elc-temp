@@ -1,3 +1,4 @@
+import { formatFileSize, type InquiryAttachment } from "./attachments";
 import { CHANNEL_LABEL, INQUIRY_STATUSES, LEAD_TYPE_LABEL } from "./constants";
 import { computeLeadPriority } from "./lead-priority";
 import { decodeQualifyValue, QUALIFY_STEP_LABELS } from "./qualify-options";
@@ -53,6 +54,16 @@ function interestOf(inquiry: Inquiry): string {
   return q.entityName || q.service || inquiry.interestHistory.find((t) => t.entityName)?.entityName || "";
 }
 
+/**
+ * One line per file. A private file has no permanent link (staff open it in the admin through
+ * a short-lived one), so the sheet names it and says where to find it; a legacy public photo
+ * still carries its URL.
+ */
+function describeAttachment(a: InquiryAttachment): string {
+  if (!a.private) return a.url ?? a.name;
+  return `${a.name}${a.size ? ` (${formatFileSize(a.size)})` : ""} - xem trong admin`;
+}
+
 const LEAD_COLUMNS: ExportColumn[] = [
   { header: "Ngày gửi", width: 18, numFmt: "dd/mm/yyyy hh:mm" },
   { header: "Họ tên", width: 22 },
@@ -70,6 +81,7 @@ const LEAD_COLUMNS: ExportColumn[] = [
   { header: "Ghi chú nội bộ", width: 36, wrap: true },
   { header: "Giá trị đơn (VNĐ)", width: 16, numFmt: "#,##0" },
   { header: "Nguồn", width: 14 },
+  { header: "Phương tiện", width: 12 },
   { header: "Chiến dịch", width: 22 },
   { header: "Mã Google Ads (gclid)", width: 24 },
   { header: "Cập nhật lần cuối", width: 18, numFmt: "dd/mm/yyyy hh:mm" },
@@ -90,10 +102,11 @@ export function buildLeadTable(inquiries: Inquiry[]): ExportTable {
     computeLeadPriority(i)?.label ?? "",
     i.message ?? "",
     formatQualifyLines(i.qualifyData),
-    i.attachments.join("\n"),
+    i.attachments.map(describeAttachment).join("\n"),
     i.internalNote ?? "",
     i.conversionValue,
     i.utmSource ?? "",
+    i.utmMedium ?? "",
     i.utmCampaign ?? "",
     i.gclid ?? "",
     parseDate(i.updatedAt),

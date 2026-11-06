@@ -15,7 +15,7 @@ export interface GoInquiryResponse {
   sub_type: string | null;
   qualify_data: Record<string, string> | null;
   interest_history: InterestTouch[] | null;
-  attachments: string[] | null;
+  attachments: Array<{ url?: string; private: boolean; name: string; size?: number; type?: string }> | null;
   channel: string;
   gclid: string | null;
   utm_source: string | null;

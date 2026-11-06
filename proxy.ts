@@ -32,6 +32,8 @@ export async function proxy(request: NextRequest) {
 
 export const config = {
   matcher: [
-    "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
+    // api/inquiries/files is excluded: a proxied body is buffered and truncated at 10 MB, and customer
+    // files go up to 15 MB. The route does its own checks and elc-go enforces the limits.
+    "/((?!_next/static|_next/image|favicon.ico|api/inquiries/files|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
   ],
 };

@@ -83,10 +83,24 @@ describe("buildLeadTable", () => {
   });
 
   it("lists attachments one per line and leaves the order value empty when unset", () => {
-    const r = row(lead({ attachments: ["https://a/1.jpg", "https://a/2.jpg"] }));
-    expect(r.byHeader("Tệp đính kèm")).toBe("https://a/1.jpg\nhttps://a/2.jpg");
+    const r = row(
+      lead({
+        attachments: [
+          { url: "https://a/1.jpg", private: false, name: "1.jpg" },
+          { private: true, name: "mat bang.dwg", size: 2.3 * 1024 * 1024, type: "image/vnd.dwg" },
+        ],
+      }),
+    );
+    expect(r.byHeader("Tệp đính kèm")).toBe("https://a/1.jpg\nmat bang.dwg (2,3 MB) - xem trong admin");
     expect(r.byHeader("Giá trị đơn (VNĐ)")).toBeNull();
     expect(row(lead({ conversionValue: 15000000 })).byHeader("Giá trị đơn (VNĐ)")).toBe(15000000);
+  });
+
+  it("shows source and medium side by side, blank for a direct visit", () => {
+    const organic = row(lead({ utmSource: "google", utmMedium: "organic" }));
+    expect([organic.byHeader("Nguồn"), organic.byHeader("Phương tiện")]).toEqual(["google", "organic"]);
+    const direct = row(base);
+    expect([direct.byHeader("Nguồn"), direct.byHeader("Phương tiện")]).toEqual(["", ""]);
   });
 
   it("does not choke on an unparseable date", () => {

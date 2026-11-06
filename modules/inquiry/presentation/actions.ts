@@ -93,35 +93,6 @@ export async function createInquiryAction(
   }
 }
 
-// Public — same anonymous-submission posture as createInquiryAction. Lets a
-// visitor attach photos (e.g. a leaking AC unit, a job site) before the
-// inquiry itself exists yet; the resulting URL rides along in the final
-// createInquiryAction call's `attachments` array. No authHeaders(): the Go
-// side rate-limits this per-IP instead (see elc-go internal/inquiry
-// presentation's UploadAttachment).
-export async function uploadInquiryAttachmentAction(
-  formData: FormData,
-): Promise<{ url: string | null; error: string | null }> {
-  if (!GO_API_URL) {
-    return { url: null, error: "GO_API_URL is not configured" };
-  }
-  try {
-    const res = await fetch(`${GO_API_URL}/inquiries/uploads`, {
-      method: "POST",
-      headers: await clientIpHeaders(),
-      body: formData,
-    });
-    if (!res.ok) {
-      return { url: null, error: await extractErrorMessage(res) };
-    }
-    const body = (await res.json()) as { url: string };
-    return { url: body.url, error: null };
-  } catch (error) {
-    console.error("uploadInquiryAttachmentAction error:", error);
-    return { url: null, error: "Không thể tải ảnh lên, vui lòng thử lại." };
-  }
-}
-
 // Admin-only from here down.
 
 export async function getInquiriesAction(filter?: InquiryFilter) {
@@ -225,5 +196,37 @@ export async function updateInquiryDetailsAction(input: UpdateInquiryDetailsInpu
   } catch (error) {
     console.error("updateInquiryDetailsAction error:", error);
     return { data: null, error: "Failed to update inquiry" };
+  }
+}
+
+export interface AttachmentLink {
+  url: string;
+  name: string;
+  size?: number;
+  type?: string;
+}
+
+/**
+ * A short-lived link (5 minutes) to one of a lead's files, by its position. `expired` means
+ * the file is gone: customer files are dropped after 12 months, and the admin says so
+ * instead of showing a broken image.
+ */
+export async function getInquiryAttachmentLinkAction(
+  inquiryId: string,
+  index: number,
+): Promise<{ data: AttachmentLink | null; expired: boolean; error: string | null }> {
+  if (!GO_API_URL) return { data: null, expired: false, error: "GO_API_URL is not configured" };
+  try {
+    const res = await fetch(`${GO_API_URL}/inquiries/${encodeURIComponent(inquiryId)}/attachments/${index}`, {
+      headers: await authHeaders(),
+      cache: "no-store",
+    });
+    if (res.status === 404) return { data: null, expired: true, error: null };
+    if (!res.ok) return { data: null, expired: false, error: await extractErrorMessage(res) };
+    const body = (await res.json()) as AttachmentLink;
+    return { data: { url: body.url, name: body.name, size: body.size, type: body.type }, expired: false, error: null };
+  } catch (error) {
+    console.error("getInquiryAttachmentLinkAction error:", error);
+    return { data: null, expired: false, error: "Không lấy được tệp." };
   }
 }

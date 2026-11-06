@@ -1,3 +1,4 @@
+import type { InquiryAttachment, UploadedFile } from "./attachments";
 export type InquiryStatus = "new" | "contacted" | "converted" | "closed";
 
 // Which of the lead-capture form's 3 branches (or none) the visitor went
@@ -48,7 +49,7 @@ export interface Inquiry {
   // splitInterestHistory) since it's an array, not a flat key/value pair.
   // Empty for a form-origin lead (only click-origin leads accumulate this).
   interestHistory: InterestTouch[];
-  attachments: string[];
+  attachments: InquiryAttachment[];
   channel: ContactChannel;
   gclid: string | null;
   utmSource: string | null;
@@ -80,8 +81,8 @@ export interface CreateInquiryInput {
   // Every ChoiceStep/picker answer as a flat {stepId: value} map — opaque
   // to the backend (stored as JSONB), only ever read back for admin display.
   qualifyData?: Record<string, string>;
-  // Photo URLs from uploadInquiryAttachmentAction, max 6.
-  attachments?: string[];
+  // Files already stored privately by /api/inquiries/files (see UploadedFile), max 6.
+  attachments?: UploadedFile[];
   // Honeypot: a hidden field real visitors never see or fill. Left here so
   // the request shape matches elc-go's createInquiryRequest exactly.
   website?: string;

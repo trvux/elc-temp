@@ -32,8 +32,8 @@ export const createInquirySchema = z.object({
   subType: z.string().optional(),
   qualifyData: z.record(z.string(), z.string()).optional(),
   attachments: z
-    .array(z.string().min(1))
-    .max(6, { message: "Tối đa 6 ảnh" })
+    .array(z.object({ key: z.string().min(1), name: z.string(), size: z.number().int().positive(), type: z.string().min(1) }))
+    .max(6, { message: "Tối đa 6 tệp" })
     .optional(),
   // Honeypot — hidden from real visitors via CSS, must stay empty.
   website: z.string().optional().default(""),

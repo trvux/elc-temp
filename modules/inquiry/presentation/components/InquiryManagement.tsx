@@ -29,6 +29,7 @@ import {
 } from "../../domain";
 import { getInquiriesAction, updateInquiryDetailsAction, updateInquiryStatusAction } from "../actions";
 import { downloadInquiryExport } from "../export-download";
+import { InquiryAttachments } from "./InquiryAttachments";
 import { getInquiryColumns } from "./InquiryColumns";
 
 export function InquiryManagement() {
@@ -326,16 +327,9 @@ export function InquiryManagement() {
             {activeInquiry.attachments.length > 0 && (
               <div>
                 <span className="type-caption text-muted-foreground">
-                  Ảnh khách gửi
+                  Tệp khách gửi ({activeInquiry.attachments.length})
                 </span>
-                <div className="mt-2 flex flex-wrap gap-2">
-                  {activeInquiry.attachments.map((url) => (
-                    <a key={url} href={url} target="_blank" rel="noopener noreferrer">
-                      {/* eslint-disable-next-line @next/next/no-img-element -- ad-hoc R2 URLs from visitor uploads, not worth wiring into next/image's remote patterns for an admin-only thumbnail */}
-                      <img src={url} alt="" className="size-20 rounded-lg border border-border object-cover" />
-                    </a>
-                  ))}
-                </div>
+                <InquiryAttachments inquiryId={activeInquiry.id} attachments={activeInquiry.attachments} />
               </div>
             )}
 
