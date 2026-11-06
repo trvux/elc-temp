@@ -18,6 +18,10 @@ interface ServiceZaloButtonProps {
   briefPrompts: string[];
   // Which button this is, for the qualify_lead event (see CtaPlacement).
   placement: CtaPlacement;
+  // Answers already collected (the lead form's brief step): put into the message.
+  answers?: Record<string, string>;
+  // Overrides the line's default button label.
+  label?: string;
   variant?: React.ComponentProps<typeof Button>["variant"];
   size?: React.ComponentProps<typeof Button>["size"];
   className?: string;
@@ -34,6 +38,8 @@ export function ServiceZaloButton({
   line,
   briefPrompts,
   placement,
+  answers,
+  label,
   variant = "default",
   size,
   className,
@@ -56,6 +62,7 @@ export function ServiceZaloButton({
     serviceSlug: slug,
     opener: info.messageOpener,
     briefPrompts,
+    answers,
   });
 
   const handleClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
@@ -79,7 +86,7 @@ export function ServiceZaloButton({
     <>
       <Button asChild variant={variant} size={size} className={className}>
         <a href={zaloHref} target="_blank" rel="noopener noreferrer" onClick={handleClick}>
-          {info.ctaLabel}
+          {label ?? info.ctaLabel}
         </a>
       </Button>
       <ZaloContactModal

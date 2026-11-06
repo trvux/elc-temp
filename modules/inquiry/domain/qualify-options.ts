@@ -230,6 +230,12 @@ export const QUALIFY_STEP_LABELS: Record<string, string> = {
   contactPreference: "Liên hệ qua",
   productCategory: "Dòng sản phẩm",
   serviceGroup: "Nhóm dịch vụ",
+  service: "Dịch vụ quan tâm",
+  serviceSlug: "Trang dịch vụ",
+  line: "Mảng dịch vụ",
+  brief: "Thông tin khách cung cấp",
+  briefAnswered: "Số mục đã điền",
+  briefTotal: "Tổng số mục",
   serviceCategory: "Dòng máy áp dụng",
   projectType: "Loại công trình",
   projectCategories: "Dòng máy cần lắp",
@@ -282,6 +288,7 @@ const QUALIFY_VALUE_LABELS: Record<string, Record<string, string>> = {
   siteVisit: toMap(SITE_VISIT_OPTIONS),
   contactPreference: toMap(CONTACT_PREFERENCE_OPTIONS),
   householdSize: toMap(WATER_FILTER_HOUSEHOLD_OPTIONS),
+  line: { "thi-cong": "Thi công hệ thống", "dich-vu": "Dịch vụ máy lạnh" },
 };
 
 // Decodes one qualifyData [key, value] pair for admin display. Falls back

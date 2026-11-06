@@ -19,7 +19,7 @@ const BRANCH_OPTIONS: BranchOption[] = [
   {
     value: "service",
     label: "Dịch vụ",
-    description: "Lắp đặt, bảo trì - vệ sinh, sửa chữa, thu cũ đổi mới...",
+    description: "Thi công VRV, cấp gió tươi, vệ sinh, sửa chữa, cho thuê...",
   },
   {
     value: "project",

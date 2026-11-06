@@ -39,4 +39,21 @@ describe("buildZaloServiceMessage", () => {
     expect(buildZaloServiceMessage({ ...base, briefPrompts: ["", "   "] })).toBe(buildZaloServiceMessage(base));
     expect(buildZaloServiceMessage({ ...base, briefPrompts: [] })).not.toContain("\n\n");
   });
+
+  it("fills in the answers already given and leaves the rest blank", () => {
+    const msg = buildZaloServiceMessage({
+      ...base,
+      briefPrompts: ["Địa chỉ công trình", "Số tầng và tổng diện tích sàn", "Đã có bản vẽ chưa?"],
+      answers: { "Địa chỉ công trình": " 12 Nguyễn Huệ, Quận 1 ", "Đã có bản vẽ chưa?": "Chưa" },
+    });
+    expect(msg).toContain("- Địa chỉ công trình: 12 Nguyễn Huệ, Quận 1");
+    expect(msg).toContain("- Số tầng và tổng diện tích sàn:\n");
+    expect(msg.endsWith("- Đã có bản vẽ chưa? Chưa")).toBe(true);
+  });
+
+  it("ignores an answer for a prompt that is not in the list", () => {
+    const msg = buildZaloServiceMessage({ ...base, briefPrompts: ["Địa chỉ"], answers: { "Khác": "x" } });
+    expect(msg).not.toContain("x");
+    expect(msg.endsWith("- Địa chỉ:")).toBe(true);
+  });
 });

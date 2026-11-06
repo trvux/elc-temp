@@ -12,7 +12,7 @@ export type ContactChannel = "form" | "zalo" | "messenger" | "hotline";
 // Where on the site a service call-to-action sat. Together with the service
 // slug and its line this answers "which service, which offering, which button
 // produced the lead" in GA4 without any per-report guesswork.
-export type CtaPlacement = "hub-card" | "related-card" | "detail-hero" | "detail-closing";
+export type CtaPlacement = "hub-card" | "related-card" | "detail-hero" | "detail-closing" | "lead-form" | "lead-form-done";
 
 // Extra dimensions attached to the qualify_lead / generate_lead events for a
 // service call-to-action. Optional everywhere: a product or header contact

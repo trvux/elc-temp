@@ -34,8 +34,8 @@ import { getCategoriesAction } from "@/modules/category/presentation/actions";
 import type { CategoryWithGroup } from "@/modules/category/domain/types";
 import { getProductsAction } from "@/modules/catalog/presentation/actions";
 import type { NumberBucket, PriceFacet, ProductFacets } from "@/modules/catalog/domain/types";
-import { getServiceGroupsAction } from "@/modules/service-group/presentation/actions";
-import type { ServiceGroup } from "@/modules/service-group/domain/types";
+import { getServicesAction } from "@/modules/service/presentation/actions";
+import type { ServiceWithRelations } from "@/modules/service/domain/types";
 import { getProjectTypesAction } from "@/modules/project-type/presentation/actions";
 import type { ProjectTypeWithCategories } from "@/modules/project-type/domain/types";
 
@@ -50,12 +50,8 @@ import {
   WATER_FILTER_HOUSEHOLD_OPTIONS,
   YES_NO_OPTIONS,
   PRODUCT_URGENCY_OPTIONS,
-  SERVICE_SUPPORT_TYPE_OPTIONS,
-  RENTAL_DURATION_OPTIONS,
   DEVICE_COUNT_OPTIONS,
-  SYMPTOM_OPTIONS,
   CONDITION_OPTIONS,
-  ACCESS_DIFFICULTY_OPTIONS,
   SERVICE_URGENCY_OPTIONS,
   PROJECT_SCALE_OPTIONS_SMALL,
   PROJECT_SCALE_OPTIONS_MEDIUM,
@@ -73,8 +69,9 @@ import { createInquiryAction } from "../actions";
 import { BranchSelectStep, type LeadBranch } from "./steps/BranchSelectStep";
 import { ChoiceStep } from "./steps/ChoiceStep";
 import { ProductCategoryPickerStep, type PickedProductCategory } from "./steps/ProductCategoryPickerStep";
-import { ServiceGroupPickerStep, type PickedServiceGroup } from "./steps/ServiceGroupPickerStep";
-import { ServiceCategoryPickerStep, type PickedServiceCategory } from "./steps/ServiceCategoryPickerStep";
+import { ServicePickerStep } from "./steps/ServicePickerStep";
+import { BriefStep } from "./steps/BriefStep";
+import { ServiceZaloButton } from "@/modules/service/presentation/components/ServiceZaloButton";
 import { ProjectTypePickerStep, type PickedProjectType } from "./steps/ProjectTypePickerStep";
 import { ProjectCategoryPickerStep, type PickedProjectCategory } from "./steps/ProjectCategoryPickerStep";
 import { AttachmentStep } from "./steps/AttachmentStep";
@@ -159,58 +156,6 @@ function defaultMessage(entityKind?: EntityKind, entityName?: string): string {
     case "project":
       return `Tôi xem dự án "${entityName}" và muốn được tư vấn một dự án/giải pháp tương tự.`;
   }
-}
-
-// Derives the behavioral bucket directly from the picked ServiceGroup's
-// slug — once a group is picked, re-asking "loại hỗ trợ nào?" would just
-// re-ask something the pick already answered (same conflict as the product
-// branch asking "quy mô/ngân sách" after a specific product was chosen).
-// The "Bạn cần loại hỗ trợ nào?" question is shown only when the group step
-// was skipped (see buildSteps) — this function is what silently drives
-// routing the rest of the time. Returns undefined for a real group this
-// doesn't recognize (e.g. "Thanh lý máy lạnh", "Khác", or any future
-// admin-added group) — that's not a bug, it's the signal to fall back to
-// the two generic questions instead of forcing a possibly-wrong bucket.
-function deriveSupportType(groupSlug?: string): string | undefined {
-  if (!groupSlug) return undefined;
-  if (groupSlug.includes("bao-tri") || groupSlug.includes("bao-duong") || groupSlug.includes("ve-sinh")) return "maintenance";
-  if (groupSlug.includes("sua-chua")) return "repair";
-  if (groupSlug.includes("thu-cu")) return "tradein";
-  if (groupSlug.includes("lap-dat") || groupSlug.includes("cung-cap")) return "install";
-  if (groupSlug.includes("cho-thue")) return "rental";
-  return undefined;
-}
-
-// Which product-category groups each real service group actually has a
-// Service for — verified against the live catalog (2026-09-06): only 6
-// Service rows exist system-wide, and every one of them is about máy lạnh,
-// plus a single "hệ thống cấp gió tươi, lọc không khí" entry under Cung
-// cấp & lắp đặt. None exist for máy lọc nước or nhà thông minh, in any
-// group. Before this table, ServiceCategoryPickerStep showed all 12
-// product categories for every service group, letting a visitor pick a
-// combination ELC has no actual service for (e.g. "Cho thuê" + "Cảm biến
-// thông minh") — user-reported, 2026-09-06. A group with no entry here
-// ("khac") is intentionally left unrestricted: it exists specifically for
-// requests that don't fit a defined bucket, so narrowing it would defeat
-// its purpose. Revisit/widen this table as admin adds real Service rows
-// for other product lines — this isn't a hard business rule, just what's
-// actually sellable today.
-const SERVICE_GROUP_ALLOWED_PRODUCT_GROUPS: Record<string, string[]> = {
-  "cung-cap-lap-dat": ["may-lanh", "may-loc-khong-khi"],
-  "ve-sinh-bao-tri": ["may-lanh"],
-  "thu-cu-doi-moi": ["may-lanh"],
-  "thanh-ly-may-lanh": ["may-lanh"],
-  "cho-thue": ["may-lanh"],
-};
-
-function filterCategoriesForServiceGroup(
-  categories: CategoryWithGroup[] | null,
-  serviceGroupSlug: string | undefined,
-): CategoryWithGroup[] | null {
-  if (!categories) return categories;
-  const allowed = serviceGroupSlug ? SERVICE_GROUP_ALLOWED_PRODUCT_GROUPS[serviceGroupSlug] : undefined;
-  if (!allowed) return categories;
-  return categories.filter((c) => c.group?.slug && allowed.includes(c.group.slug));
 }
 
 // Same fix, same evidence-based reasoning, for the project branch's own
@@ -549,18 +494,38 @@ function budgetFallbackFor(cluster: ProductCluster, capacityQuestionId: Capacity
   return cluster === "may-lanh" ? PRODUCT_BUDGET_OPTIONS : VENTILATION_BUDGET_FALLBACK_OPTIONS;
 }
 
+// Who the lead is about, written at submit so it is there whether the service
+// was preset (opened from its page) or picked in the form: the lead priority
+// badge reads `line`, and staff read the name.
+function buildServiceQualify(service: ServiceWithRelations | undefined): Record<string, string> {
+  if (!service) return {};
+  return { service: service.title, serviceSlug: service.slug, line: service.line };
+}
+
+// What the brief step adds to a service lead's qualify data, as flat strings
+// (qualify_data is a flat key/value map): the answered prompts as readable
+// lines for staff, and how many of the prompts were answered, which the lead
+// priority badge reads. Nothing is added when the visitor answered nothing.
+function buildBriefQualify(
+  service: ServiceWithRelations | undefined,
+  answers: Record<string, string>,
+): Record<string, string> {
+  if (!service || service.briefPrompts.length === 0) return {};
+  const answered = service.briefPrompts.filter((prompt) => answers[prompt]?.trim());
+  if (answered.length === 0) return {};
+  return {
+    brief: answered.map((prompt) => `${prompt}: ${answers[prompt].trim()}`).join("\n"),
+    briefAnswered: String(answered.length),
+    briefTotal: String(service.briefPrompts.length),
+  };
+}
+
 interface PickedState {
   productCategoryId?: string;
   productCategoryName?: string;
   productCategorySlug?: string;
   productGroupSlug?: string;
-  serviceGroupId?: string;
-  serviceGroupName?: string;
-  serviceGroupSlug?: string;
-  serviceCategoryId?: string;
-  serviceCategoryName?: string;
-  serviceCategorySlug?: string;
-  serviceCategoryGroupSlug?: string;
+  serviceId?: string;
   projectTypeId?: string;
   projectTypeName?: string;
   projectTypeSlug?: string;
@@ -571,8 +536,8 @@ interface PickedState {
 type StepDescriptor =
   | { id: string; kind: "branch-select" }
   | { id: string; kind: "product-category-picker" }
-  | { id: string; kind: "service-group-picker" }
-  | { id: string; kind: "service-category-picker" }
+  | { id: string; kind: "service-picker" }
+  | { id: string; kind: "brief" }
   | { id: string; kind: "project-type-picker" }
   | { id: string; kind: "project-category-picker" }
   | { id: string; kind: "choice"; question: string; description?: string; options: ChoiceOption[]; defaultValue?: string }
@@ -614,7 +579,9 @@ export function LeadFormScreen({
   // Lazily fetched catalog data, keyed by branch — undefined until needed,
   // null while loading, populated once fetched.
   const [productCategories, setProductCategories] = useState<CategoryWithGroup[] | null>(null);
-  const [serviceGroups, setServiceGroups] = useState<ServiceGroup[] | null>(null);
+  const [services, setServices] = useState<ServiceWithRelations[] | null>(null);
+  // Answers to the picked service's brief prompts, keyed by prompt text.
+  const [briefAnswers, setBriefAnswers] = useState<Record<string, string>>({});
   const [projectTypes, setProjectTypes] = useState<ProjectTypeWithCategories[] | null>(null);
   // Full facets (price + real spec attributes) for whichever product
   // category was just picked — unscoped, i.e. across every capacity tier
@@ -626,24 +593,13 @@ export function LeadFormScreen({
   // This is what actually fixes a >40m²/5 HP visitor seeing a budget floor
   // that only exists for the category's cheapest small unit.
   const [productScopedPriceFacet, setProductScopedPriceFacet] = useState<PriceFacet | null>(null);
-  // Same as productCategoryFacets but for the service branch's own category
-  // picker (ServiceCategoryPickerStep) — drives the "install" supportType's
-  // capacity question. No scoped-*price* facet equivalent: service pricing
-  // isn't fixed catalog pricing (every real Service row is
-  // price_display_text "Liên hệ" — verified against the DB, 2026-09-06),
-  // so this branch never asks a "Ngân sách dự kiến?" question at all,
-  // unlike the product branch.
-  const [serviceCategoryFacets, setServiceCategoryFacets] = useState<ProductFacets | null>(null);
-
   useEffect(() => {
-    // Category catalog is shared by the product branch's own picker and the
-    // service branch's "dòng máy nào" follow-up (see ServiceCategoryPickerStep)
-    // — fetch it for either.
-    if ((branch === "product" || branch === "service" || branch === "project") && productCategories === null) {
+    // The category catalog feeds the product and project pickers.
+    if ((branch === "product" || branch === "project") && productCategories === null) {
       void getCategoriesAction().then((res) => setProductCategories(res.data));
     }
-    if (branch === "service" && serviceGroups === null) {
-      void getServiceGroupsAction().then((res) => setServiceGroups(res.data));
+    if (branch === "service" && services === null) {
+      void getServicesAction({ isPublished: true }).then((res) => setServices(res.data));
     }
     if (branch === "project" && projectTypes === null) {
       void getProjectTypesAction().then((res) => setProjectTypes(res.data));
@@ -688,6 +644,14 @@ export function LeadFormScreen({
     }
   }, [branch, picked.productCategoryId, picked.productGroupSlug, qualify.scale]);
 
+  // The service this lead is about: preset when the form was opened from a
+  // service page (serviceId prop), otherwise whatever the visitor picks.
+  const effectiveServiceId = serviceId ?? picked.serviceId;
+  const pickedService = useMemo(
+    () => (effectiveServiceId ? (services ?? []).find((svc) => svc.id === effectiveServiceId) : undefined),
+    [services, effectiveServiceId],
+  );
+
   const steps = useMemo<StepDescriptor[]>(() => {
     if (!branch) return [{ id: "branch", kind: "branch-select" }];
 
@@ -699,7 +663,6 @@ export function LeadFormScreen({
     // which doesn't exist for "install a brand-new unit" or "rent a unit"
     // (user-reported screenshot, 2026-09-06 audit: this wording was fixed
     // regardless of supportType).
-    let serviceAttachmentQuestion: string | undefined;
 
     if (branch === "product") {
       if (!productId) list.push({ id: "product-picker", kind: "product-category-picker" });
@@ -737,66 +700,17 @@ export function LeadFormScreen({
       list.push({ id: "urgency", kind: "choice", question: "Thời gian mong muốn?", options: PRODUCT_URGENCY_OPTIONS });
       if (cq.skipAttachment) skipAttachment = true;
     } else if (branch === "service") {
-      if (!serviceId) {
-        list.push({ id: "service-group-picker", kind: "service-group-picker" });
-        if (picked.serviceGroupId) list.push({ id: "service-category-picker", kind: "service-category-picker" });
+      // Short on purpose: services are quoted in a Zalo conversation, so this
+      // form is the fallback for someone who would rather leave their number.
+      // One screen of the service's own brief prompts replaces the old
+      // per-kind question sets; the visitor can skip every field.
+      if (!serviceId) list.push({ id: "service-picker", kind: "service-picker" });
+      if (pickedService && pickedService.briefPrompts.length > 0) list.push({ id: "brief", kind: "brief" });
+      // How soon matters for work on a unit the customer already has; system
+      // installations have their own timing prompt in the brief.
+      if (pickedService?.line !== "thi-cong") {
+        list.push({ id: "urgency", kind: "choice", question: "Thời gian mong muốn?", options: SERVICE_URGENCY_OPTIONS });
       }
-
-      // Only ask "loại hỗ trợ nào" when the group step was skipped (or this
-      // is a serviceId-preset entry with no group at all) — that's the only
-      // case nothing else has told us yet. Picking a real group already
-      // answers this; re-asking it would be the exact conflict the product
-      // branch had (asking quy mô/ngân sách again after a specific product
-      // was already chosen).
-      const groupPicked = !serviceId && Boolean(picked.serviceGroupId);
-      if (!groupPicked) {
-        list.push({ id: "supportType", kind: "choice", question: "Bạn cần loại hỗ trợ nào?", options: SERVICE_SUPPORT_TYPE_OPTIONS });
-      }
-      const effectiveSupportType = groupPicked ? deriveSupportType(picked.serviceGroupSlug) : qualify.supportType;
-      serviceAttachmentQuestion =
-        effectiveSupportType === "install" || effectiveSupportType === "rental"
-          ? "Gửi ảnh mặt bằng lắp đặt nếu có?"
-          : "Gửi ảnh tình trạng máy nếu có?";
-
-      switch (effectiveSupportType) {
-        case "maintenance":
-          list.push({ id: "deviceCount", kind: "choice", question: "Số lượng thiết bị cần xử lý?", options: DEVICE_COUNT_OPTIONS });
-          break;
-        case "repair":
-          list.push({ id: "symptom", kind: "choice", question: "Máy đang gặp vấn đề gì?", options: SYMPTOM_OPTIONS });
-          break;
-        case "tradein":
-          list.push({ id: "oldDeviceInfo", kind: "free-text", question: "Đời máy / hãng máy cũ?", description: "Không bắt buộc.", placeholder: "VD: Daikin, khoảng 5 năm" });
-          list.push({ id: "condition", kind: "choice", question: "Tình trạng máy hiện tại?", options: CONDITION_OPTIONS });
-          break;
-        case "install": {
-          // Same capacity question as the product branch's own picker —
-          // no budget line, since service pricing isn't fixed (every real
-          // Service row is price_display_text "Liên hệ", verified against
-          // the DB 2026-09-06) — but the same category-mismatch bug
-          // applies equally here: this used to always ask "Quy mô cần
-          // lắp?" in m² regardless of which of the 12 categories was
-          // picked (user-reported screenshot, 2026-09-06: "Cung cấp & lắp
-          // đặt" + "Công tắc thông minh" asked for m²).
-          const cq = buildCapacityQuestion(picked.serviceCategorySlug, picked.serviceCategoryGroupSlug, serviceCategoryFacets);
-          list.push({ id: cq.id, kind: "choice", question: cq.question, options: cq.options });
-          if (cq.skipAttachment) skipAttachment = true;
-          break;
-        }
-        case "rental":
-          list.push({ id: "rentalDuration", kind: "choice", question: "Thời gian thuê dự kiến?", options: RENTAL_DURATION_OPTIONS });
-          break;
-        default:
-          // Group picked but not one of the known buckets (e.g. "Thanh lý
-          // máy lạnh", "Khác") — ask two generic, always-relevant questions
-          // instead of forcing a possibly-wrong bucket.
-          if (groupPicked) {
-            list.push({ id: "deviceCount", kind: "choice", question: "Số lượng thiết bị liên quan?", options: DEVICE_COUNT_OPTIONS });
-            list.push({ id: "condition", kind: "choice", question: "Tình trạng hiện tại?", options: CONDITION_OPTIONS });
-          }
-      }
-      list.push({ id: "accessDifficulty", kind: "choice", question: "Vị trí lắp đặt / độ khó tiếp cận?", options: ACCESS_DIFFICULTY_OPTIONS });
-      list.push({ id: "urgency", kind: "choice", question: "Thời gian mong muốn?", options: SERVICE_URGENCY_OPTIONS });
     } else if (branch === "project") {
       list.push({ id: "project-type-picker", kind: "project-type-picker" });
       list.push({ id: "project-category-picker", kind: "project-category-picker" });
@@ -833,7 +747,9 @@ export function LeadFormScreen({
 
     const attachmentQuestion =
       branch === "service"
-        ? (serviceAttachmentQuestion ?? "Gửi ảnh tình trạng máy nếu có?")
+        ? pickedService?.line === "thi-cong"
+          ? "Gửi bản vẽ mặt bằng hoặc ảnh hiện trạng nếu có?"
+          : "Gửi ảnh tình trạng máy nếu có?"
         : branch === "project"
           ? "Gửi ảnh mặt bằng / công trình nếu có?"
           : "Gửi ảnh liên quan nếu có?";
@@ -843,7 +759,9 @@ export function LeadFormScreen({
       kind: "address",
       question: branch === "project" ? "Công trình ở khu vực nào?" : "Bạn ở khu vực nào?",
     });
-    list.push({ id: "message", kind: "rhf-textarea", question: "Còn điều gì khác bạn muốn nói không?", description: "Không bắt buộc.", placeholder: "Ghi chú thêm..." });
+    if (branch !== "service") {
+      list.push({ id: "message", kind: "rhf-textarea", question: "Còn điều gì khác bạn muốn nói không?", description: "Không bắt buộc.", placeholder: "Ghi chú thêm..." });
+    }
     list.push({ id: "contactPreference", kind: "choice", question: "Bạn muốn được liên hệ qua?", options: CONTACT_PREFERENCE_OPTIONS });
     list.push({ id: "name", kind: "rhf-text", question: "Bạn tên là gì?", placeholder: "Nguyễn Văn A", type: "text", autoComplete: "name" });
     list.push({ id: "phone", kind: "rhf-text", question: "Số điện thoại của bạn?", placeholder: "09xx xxx xxx", type: "tel", autoComplete: "tel" });
@@ -856,16 +774,11 @@ export function LeadFormScreen({
     branch,
     productId,
     serviceId,
-    picked.serviceGroupId,
-    picked.serviceGroupSlug,
-    picked.serviceCategorySlug,
-    picked.serviceCategoryGroupSlug,
+    pickedService,
     picked.productGroupSlug,
     picked.projectTypeSlug,
     productCategoryFacets,
     productScopedPriceFacet,
-    serviceCategoryFacets,
-    qualify.supportType,
     qualify.tradeIn,
   ]);
 
@@ -919,7 +832,7 @@ export function LeadFormScreen({
       const values = form.getValues();
       const subType =
         branch === "product" ? picked.productCategorySlug
-        : branch === "service" ? picked.serviceGroupSlug
+        : branch === "service" ? pickedService?.slug
         : branch === "project" ? picked.projectTypeSlug
         : undefined;
 
@@ -928,10 +841,13 @@ export function LeadFormScreen({
           ...values,
           productId,
           projectId,
-          serviceId,
+          serviceId: effectiveServiceId,
           leadType: branch ?? "general",
           subType,
-          qualifyData: qualify,
+          qualifyData:
+            branch === "service"
+              ? { ...qualify, ...buildServiceQualify(pickedService), ...buildBriefQualify(pickedService, briefAnswers) }
+              : qualify,
           attachments: attachmentUrls,
         },
       );
@@ -946,6 +862,9 @@ export function LeadFormScreen({
       gtag.event("generate_lead", {
         lead_source: branch ?? "general",
         items: entityName ? [{ item_id: productId ?? projectId ?? serviceId, item_name: entityName }] : undefined,
+        service_slug: pickedService?.slug,
+        service_line: pickedService?.line,
+        cta_placement: "lead-form",
       });
       setSubmitted(true);
     },
@@ -1019,29 +938,11 @@ export function LeadFormScreen({
     advance();
   }
 
-  function selectServiceGroup(group: PickedServiceGroup) {
-    setPicked((p) => ({ ...p, serviceGroupId: group.id, serviceGroupName: group.name, serviceGroupSlug: group.slug }));
-    // Record the derived bucket into qualify_data too (not just used
-    // internally for step-routing) so admin sees the same `supportType`
-    // key whether it came from the question or was silently derived here.
-    const derived = deriveSupportType(group.slug);
-    setQualify((q) => ({ ...q, serviceGroup: group.name, ...(derived ? { supportType: derived } : {}) }));
-    advance();
-  }
-
-  function selectServiceCategory(category: PickedServiceCategory) {
-    setPicked((p) => ({
-      ...p,
-      serviceCategoryId: category.id,
-      serviceCategoryName: category.name,
-      serviceCategorySlug: category.slug,
-      serviceCategoryGroupSlug: category.groupSlug,
-    }));
-    setQualify((q) => ({ ...q, serviceCategory: category.name }));
-    setServiceCategoryFacets(null);
-    void getProductsAction({ categoryId: category.id, limit: 1 }).then((res) => {
-      setServiceCategoryFacets(res.facets);
-    });
+  function selectService(service: ServiceWithRelations) {
+    setPicked((p) => ({ ...p, serviceId: service.id }));
+    // A different service has different prompts: answers to the previous one no longer apply.
+    setBriefAnswers({});
+    setQualify((q) => ({ ...q, service: service.title, serviceSlug: service.slug, line: service.line }));
     advance();
   }
 
@@ -1085,15 +986,35 @@ export function LeadFormScreen({
             </p>
           </div>
           <div className="flex w-full max-w-xs flex-col gap-3 sm:max-w-none sm:w-auto sm:flex-row sm:justify-center sm:gap-4">
-            <Button size="lg" className="w-full sm:w-auto sm:min-w-48" onClick={() => router.push(exitHref)}>
+            <Button
+              size="lg"
+              variant={branch === "service" && pickedService ? "outline" : "default"}
+              className="w-full sm:w-auto sm:min-w-48"
+              onClick={() => router.push(exitHref)}
+            >
               Xong
             </Button>
-            {zaloHref && (
-              <Button size="lg" variant="outline" className="w-full sm:w-auto sm:min-w-48" asChild>
-                <a href={zaloHref} target="_blank" rel="noopener noreferrer">
-                  Cần gấp? Chat Zalo với kỹ thuật viên ngay
-                </a>
-              </Button>
+            {branch === "service" && pickedService ? (
+              <ServiceZaloButton
+                id={pickedService.id}
+                title={pickedService.title}
+                slug={pickedService.slug}
+                line={pickedService.line}
+                briefPrompts={pickedService.briefPrompts}
+                answers={briefAnswers}
+                placement="lead-form-done"
+                label="Nhắn Zalo để được báo giá nhanh hơn"
+                size="lg"
+                className="order-first w-full sm:w-auto sm:min-w-48"
+              />
+            ) : (
+              zaloHref && (
+                <Button size="lg" variant="outline" className="w-full sm:w-auto sm:min-w-48" asChild>
+                  <a href={zaloHref} target="_blank" rel="noopener noreferrer">
+                    Cần gấp? Chat Zalo với kỹ thuật viên ngay
+                  </a>
+                </Button>
+              )
             )}
           </div>
         </div>
@@ -1107,6 +1028,7 @@ export function LeadFormScreen({
     currentStep.kind === "free-text" ||
     currentStep.kind === "address" ||
     currentStep.kind === "attachment" ||
+    currentStep.kind === "brief" ||
     currentStep.kind === "project-category-picker";
 
   return (
@@ -1197,21 +1119,21 @@ export function LeadFormScreen({
                 />
               )}
 
-              {currentStep.kind === "service-group-picker" && (
-                <ServiceGroupPickerStep
-                  groups={serviceGroups}
-                  selectedId={picked.serviceGroupId}
-                  onSelect={selectServiceGroup}
+              {currentStep.kind === "service-picker" && (
+                <ServicePickerStep
+                  services={services}
+                  selectedId={picked.serviceId}
+                  onSelect={selectService}
                   onSkip={advance}
                 />
               )}
 
-              {currentStep.kind === "service-category-picker" && (
-                <ServiceCategoryPickerStep
-                  categories={filterCategoriesForServiceGroup(productCategories, picked.serviceGroupSlug)}
-                  selectedId={picked.serviceCategoryId}
-                  onSelect={selectServiceCategory}
-                  onSkip={advance}
+              {currentStep.kind === "brief" && pickedService && (
+                <BriefStep
+                  prompts={pickedService.briefPrompts}
+                  answers={briefAnswers}
+                  onChange={(prompt, value) => setBriefAnswers((a) => ({ ...a, [prompt]: value }))}
+                  onKeyDown={handleKeyDown}
                 />
               )}
 

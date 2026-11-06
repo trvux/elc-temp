@@ -214,7 +214,8 @@ export function InquiryManagement() {
                   {Object.entries(activeInquiry.qualifyData).map(([key, value]) => (
                     <div key={key} className="contents">
                       <dt className="text-muted-foreground">{QUALIFY_STEP_LABELS[key] ?? key}</dt>
-                      <dd>{decodeQualifyValue(key, value)}</dd>
+                      {/* whitespace-pre-line: the brief answers are one line per prompt. */}
+                      <dd className="whitespace-pre-line">{decodeQualifyValue(key, value)}</dd>
                     </div>
                   ))}
                 </dl>

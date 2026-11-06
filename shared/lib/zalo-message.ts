@@ -47,6 +47,8 @@ export interface ZaloServiceInfo {
   opener: string;
   /** What the customer should fill in, one per line; becomes "- ...:" lines staff can quote from. */
   briefPrompts?: string[];
+  /** Answers already given (e.g. in the lead form), by prompt text; filled in after the colon. */
+  answers?: Record<string, string>;
 }
 
 /**
@@ -60,7 +62,11 @@ export function buildZaloServiceMessage(info: ZaloServiceInfo): string {
   const head = `${info.opener}\n${info.serviceName}\nLink: ${serviceUrl}`;
   const prompts = (info.briefPrompts ?? []).map((p) => p.trim()).filter(Boolean);
   if (prompts.length === 0) return head;
-  const blanks = prompts.map((p) => (/[:?]$/.test(p) ? `- ${p}` : `- ${p}:`));
+  const blanks = prompts.map((p) => {
+    const label = /[:?]$/.test(p) ? p : `${p}:`;
+    const answer = info.answers?.[p]?.trim();
+    return answer ? `- ${label} ${answer}` : `- ${label}`;
+  });
   return `${head}\n\n${blanks.join("\n")}`;
 }
 

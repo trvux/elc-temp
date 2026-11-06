@@ -12,10 +12,13 @@ export interface LeadPriority {
 export function computeLeadPriority(inquiry: Inquiry): LeadPriority | null {
   const q = inquiry.qualifyData;
 
+  // Work on a unit the customer already has, needed within the hour. The
+  // legacy form recorded the kind of support (repair); the current one records
+  // the service's line. Both keep working so older leads still badge correctly.
   if (
     inquiry.leadType === "service" &&
-    q.supportType === "repair" &&
-    q.urgency === "gap-1-2-gio"
+    q.urgency === "gap-1-2-gio" &&
+    (q.line === "dich-vu" || q.supportType === "repair")
   ) {
     return { label: "Hỏa tốc", variant: "destructive" };
   }
@@ -25,6 +28,16 @@ export function computeLeadPriority(inquiry: Inquiry): LeadPriority | null {
     (q.scale === ">1000m2" || q.budget === ">1ty")
   ) {
     return { label: "Giá trị cao", variant: "default" };
+  }
+
+  // A service lead that answered every brief prompt can be quoted straight
+  // away, with no round of questions first.
+  if (
+    inquiry.leadType === "service" &&
+    Number(q.briefTotal) > 0 &&
+    q.briefAnswered === q.briefTotal
+  ) {
+    return { label: "Đủ thông tin báo giá", variant: "secondary" };
   }
 
   if (inquiry.leadType === "service" && q.supportType === "maintenance" && q.service) {
