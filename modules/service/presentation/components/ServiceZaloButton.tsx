@@ -20,6 +20,8 @@ interface ServiceZaloButtonProps {
   placement: CtaPlacement;
   // Answers already collected (the lead form's brief step): put into the message.
   answers?: Record<string, string>;
+  // The product the visitor is looking at, when the button sits on a product page.
+  product?: { name: string; slug: string };
   // Overrides the line's default button label.
   label?: string;
   variant?: React.ComponentProps<typeof Button>["variant"];
@@ -39,6 +41,7 @@ export function ServiceZaloButton({
   briefPrompts,
   placement,
   answers,
+  product,
   label,
   variant = "default",
   size,
@@ -63,6 +66,7 @@ export function ServiceZaloButton({
     opener: info.messageOpener,
     briefPrompts,
     answers,
+    product,
   });
 
   const handleClick = (e: React.MouseEvent<HTMLAnchorElement>) => {

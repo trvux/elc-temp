@@ -22,6 +22,7 @@ import { CheckCircle } from "@phosphor-icons/react/dist/ssr";
 import { primaryImageUrl } from "@/shared/lib/image-asset";
 import { AVAILABILITY_SCHEMA, BASE_URL, BRAND_SAME_AS, SEOSchema, toJsonLdHtml } from "@/shared/lib/seo-schema";
 import { FAQAccordion, getFAQsAction } from "@/modules/faq";
+import { ProductServicesSection } from "@/modules/service/presentation/components/public/ProductServicesSection";
 import { cn } from "@/shared/lib/utils";
 import { notFound } from "next/navigation";
 
@@ -313,6 +314,9 @@ export async function ProductDetailModule({
           </div>
         </section>
       )}
+
+      {/* ===== LẮP ĐẶT VÀ DỊCH VỤ ĐI KÈM ===== */}
+      <ProductServicesSection productName={product.name} productSlug={product.slug} categoryId={category.id} />
 
       {/* ===== SẢN PHẨM ĐÃ XEM =====
           No border-t here (unlike the sections around it) — RecentlyViewedSection

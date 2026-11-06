@@ -49,6 +49,8 @@ export interface ZaloServiceInfo {
   briefPrompts?: string[];
   /** Answers already given (e.g. in the lead form), by prompt text; filled in after the colon. */
   answers?: Record<string, string>;
+  /** The product the visitor was looking at (the services block on a product page). */
+  product?: { name: string; slug: string };
 }
 
 /**
@@ -59,7 +61,10 @@ export interface ZaloServiceInfo {
  */
 export function buildZaloServiceMessage(info: ZaloServiceInfo): string {
   const serviceUrl = `${SITE_URL}/dich-vu/${info.serviceSlug}`;
-  const head = `${info.opener}\n${info.serviceName}\nLink: ${serviceUrl}`;
+  const productLines = info.product
+    ? `\nSản phẩm quan tâm: ${info.product.name}\nLink sản phẩm: ${SITE_URL}/san-pham/${info.product.slug}`
+    : "";
+  const head = `${info.opener}\n${info.serviceName}\nLink: ${serviceUrl}${productLines}`;
   const prompts = (info.briefPrompts ?? []).map((p) => p.trim()).filter(Boolean);
   if (prompts.length === 0) return head;
   const blanks = prompts.map((p) => {

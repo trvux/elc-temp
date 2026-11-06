@@ -19,6 +19,8 @@ export interface Service {
   labels: string[] | null;
   line: ServiceLine;
   briefPrompts: string[];
+  // Product categories this service applies to (admin-edited).
+  categoryIds: string[];
   description: string | null;
   content: Json;
   images: ImageAsset[];
@@ -40,6 +42,7 @@ export interface CreateServiceInput {
   labels?: string[] | null;
   line?: ServiceLine;
   briefPrompts?: string[];
+  categoryIds?: string[];
   description?: string | null;
   content?: Json;
   images?: ImageAsset[];

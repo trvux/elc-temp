@@ -56,4 +56,15 @@ describe("buildZaloServiceMessage", () => {
     expect(msg).not.toContain("x");
     expect(msg.endsWith("- Địa chỉ:")).toBe(true);
   });
+
+  it("names the product and links it when the button is on a product page", () => {
+    const msg = buildZaloServiceMessage({ ...base, product: { name: "Daikin FTKZ35", slug: "may-lanh-daikin-ftkz35" } });
+    expect(msg).toContain("Sản phẩm quan tâm: Daikin FTKZ35");
+    expect(msg).toContain("Link sản phẩm: https://dienmayelc.com.vn/san-pham/may-lanh-daikin-ftkz35");
+    expect(msg.indexOf("Link: ")).toBeLessThan(msg.indexOf("Sản phẩm quan tâm"));
+  });
+
+  it("leaves the product lines out when there is no product", () => {
+    expect(buildZaloServiceMessage(base)).not.toContain("Sản phẩm quan tâm");
+  });
 });

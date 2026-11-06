@@ -1,5 +1,6 @@
 "use client";
 
+import { CategoryWithGroup } from "@/modules/category/domain/types";
 import { capitalize } from "@/shared/lib/helpers";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useMemo, useState } from "react";
@@ -53,9 +54,11 @@ import { FAQManager } from "@/modules/faq";
 
 interface ServiceManagementProps {
   initialData: ServiceWithRelations[];
+  // Product categories a service can be linked to.
+  categories: CategoryWithGroup[];
 }
 
-export function ServiceManagement({ initialData }: ServiceManagementProps) {
+export function ServiceManagement({ initialData, categories }: ServiceManagementProps) {
   const [activeService, setActiveService] = useState<
     ServiceWithRelations | "new" | null
   >(null);
@@ -359,6 +362,58 @@ export function ServiceManagement({ initialData }: ServiceManagementProps) {
                             <FieldError errors={[fieldState.error]} />
                           </Field>
                         )}
+                      />
+                    </FieldSet>
+
+                    <FieldSeparator />
+
+                    {/* Product categories: where this service shows on product pages. */}
+                    <FieldSet>
+                      <FieldLegend>Áp dụng cho sản phẩm</FieldLegend>
+                      <Controller
+                        control={form.control}
+                        name="categoryIds"
+                        render={({ field }) => {
+                          const selected = field.value ?? [];
+                          const byGroup = new Map<string, CategoryWithGroup[]>();
+                          for (const category of categories) {
+                            const key = category.group?.name ?? "Khác";
+                            byGroup.set(key, [...(byGroup.get(key) ?? []), category]);
+                          }
+                          const toggle = (id: string, checked: boolean) =>
+                            field.onChange(checked ? [...selected, id] : selected.filter((x) => x !== id));
+                          return (
+                            <Field>
+                              <span className="type-legal text-muted-foreground">
+                                Dịch vụ này hiện trong khối &ldquo;Lắp đặt và dịch vụ đi kèm&rdquo; của sản phẩm thuộc các danh mục
+                                được tích. Tối đa 3 dịch vụ hiện trên mỗi trang sản phẩm.
+                              </span>
+                              <div className="flex flex-col gap-4 rounded-xl border p-4">
+                                {[...byGroup.entries()].map(([groupName, items]) => (
+                                  <div key={groupName} className="flex flex-col gap-2">
+                                    <span className="type-label text-foreground">{groupName}</span>
+                                    <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+                                      {items.map((category) => (
+                                        <label
+                                          key={category.id}
+                                          className="flex cursor-pointer select-none items-center gap-3 type-tag text-foreground/80"
+                                        >
+                                          <input
+                                            type="checkbox"
+                                            className="h-4.5 w-4.5 shrink-0 cursor-pointer accent-primary"
+                                            checked={selected.includes(category.id)}
+                                            onChange={(e) => toggle(category.id, e.target.checked)}
+                                          />
+                                          {category.name}
+                                        </label>
+                                      ))}
+                                    </div>
+                                  </div>
+                                ))}
+                              </div>
+                            </Field>
+                          );
+                        }}
                       />
                     </FieldSet>
                   </FieldGroup>

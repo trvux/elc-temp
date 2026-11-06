@@ -19,6 +19,7 @@ interface GoServiceResponse {
   labels: string[] | null;
   line: string;
   brief_prompts: string[] | null;
+  category_ids: string[] | null;
   description: string | null;
   content: unknown;
   images: ImageAsset[];
@@ -46,6 +47,7 @@ function mapGoService(row: GoServiceResponse): ServiceWithRelations {
     labels: row.labels,
     line: normalizeServiceLine(row.line),
     briefPrompts: row.brief_prompts ?? [],
+    categoryIds: row.category_ids ?? [],
     description: row.description,
     content: row.content as Service["content"],
     images: row.images || [],
