@@ -9,6 +9,20 @@ export type LeadType = "product" | "service" | "project" | "general";
 // looking at). See elc-go internal/inquiry/domain's ContactChannel.
 export type ContactChannel = "form" | "zalo" | "messenger" | "hotline";
 
+// Where on the site a service call-to-action sat. Together with the service
+// slug and its line this answers "which service, which offering, which button
+// produced the lead" in GA4 without any per-report guesswork.
+export type CtaPlacement = "hub-card" | "related-card" | "detail-hero" | "detail-closing";
+
+// Extra dimensions attached to the qualify_lead / generate_lead events for a
+// service call-to-action. Optional everywhere: a product or header contact
+// link has none of them.
+export interface TrackingContext {
+  serviceSlug?: string;
+  serviceLine?: string;
+  ctaPlacement?: CtaPlacement;
+}
+
 // One entry in a click-origin lead's accumulated browsing trail — see
 // elc-go's domain.AppendInterestTouch. Ordered oldest to newest.
 export interface InterestTouch {

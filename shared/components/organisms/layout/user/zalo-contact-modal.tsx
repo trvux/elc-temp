@@ -13,7 +13,7 @@ import { buildZaloProductsMessage, ZaloProductInfo } from "@/shared/lib/zalo-mes
 import { ZaloIcon } from "@/shared/components/ui/social-icons";
 import { toast } from "sonner";
 import { trackContactClick } from "@/modules/inquiry";
-import type { LeadType } from "@/modules/inquiry/domain";
+import type { LeadType, TrackingContext } from "@/modules/inquiry/domain";
 
 interface ZaloContactModalProps {
   open: boolean;
@@ -37,6 +37,8 @@ interface ZaloContactModalProps {
   // productInfo is an array, since there's no single entity to attribute.
   leadType?: LeadType;
   entityId?: string;
+  // Service dimensions (slug, line, button) for the same signal.
+  trackingContext?: TrackingContext;
 }
 
 export function ZaloContactModal({
@@ -51,6 +53,7 @@ export function ZaloContactModal({
   subtitle,
   leadType,
   entityId,
+  trackingContext,
 }: ZaloContactModalProps) {
   const [copied, setCopied] = useState(false);
   const products = productInfo ? (Array.isArray(productInfo) ? productInfo : [productInfo]) : [];
@@ -76,7 +79,7 @@ export function ZaloContactModal({
       // The deliberate hand-off gesture on desktop (where no real
       // navigation happens elsewhere in this flow) — this IS the moment
       // the visitor commits to reaching out via Zalo.
-      trackContactClick({ channel: "zalo", leadType, entityId: trackableEntityId, entityName: trackableEntityName });
+      trackContactClick({ channel: "zalo", leadType, entityId: trackableEntityId, entityName: trackableEntityName, context: trackingContext });
     } catch {
       toast.error("Không thể sao chép, vui lòng chép thủ công.");
     }
@@ -85,11 +88,11 @@ export function ZaloContactModal({
   const handleOpenZaloWeb = () => {
     window.open(zaloHref, "_blank", "noopener,noreferrer");
     onOpenChange(false);
-    trackContactClick({ channel: "zalo", leadType, entityId: trackableEntityId, entityName: trackableEntityName });
+    trackContactClick({ channel: "zalo", leadType, entityId: trackableEntityId, entityName: trackableEntityName, context: trackingContext });
   };
 
   const handlePhoneClick = () => {
-    trackContactClick({ channel: "hotline", leadType, entityId: trackableEntityId, entityName: trackableEntityName });
+    trackContactClick({ channel: "hotline", leadType, entityId: trackableEntityId, entityName: trackableEntityName, context: trackingContext });
   };
 
   return (

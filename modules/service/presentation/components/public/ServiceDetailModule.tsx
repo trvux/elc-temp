@@ -125,6 +125,7 @@ export async function ServiceDetailModule({
             slug={service.slug}
             line={service.line}
             briefPrompts={service.briefPrompts}
+            placement="detail-hero"
             size="lg"
           />
           <LeadForm
@@ -224,6 +225,7 @@ export async function ServiceDetailModule({
               slug={service.slug}
               line={service.line}
               briefPrompts={service.briefPrompts}
+              placement="detail-closing"
               size="lg"
             />
             <LeadForm

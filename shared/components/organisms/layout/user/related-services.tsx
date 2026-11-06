@@ -36,7 +36,7 @@ export default async function RelatedServices({
           const cardProps = mapServiceToCardData(service);
           return (
             <li key={service.id} className="flex flex-col">
-              <CardService {...cardProps} headingAs="h3" />
+              <CardService {...cardProps} headingAs="h3" placement="related-card" />
             </li>
           );
         })}

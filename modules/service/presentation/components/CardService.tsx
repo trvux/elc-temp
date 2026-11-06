@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { ServiceZaloButton } from "./ServiceZaloButton";
 import type { ServiceLine } from "../../domain/line";
+import type { CtaPlacement } from "@/modules/inquiry/domain";
 
 export interface CardServiceProps {
   id?: string;
@@ -18,6 +19,8 @@ export interface CardServiceProps {
   // Heading level is decided by where the card sits in the page outline:
   // h2 directly under the page h1 (hub), h3 under an h2 (related services).
   headingAs?: "h2" | "h3";
+  // Where this card sits, for tracking: the hub grid or the related-services row.
+  placement?: Extract<CtaPlacement, "hub-card" | "related-card">;
 }
 
 // Bật/tắt việc click vào card để vào trang chi tiết dịch vụ (mũi tên truy
@@ -36,6 +39,7 @@ export function CardService({
   briefPrompts = [],
   locationSlug,
   headingAs: Heading = "h3",
+  placement = "hub-card",
 }: CardServiceProps) {
   const imageSrc = image || "/placeholder.png";
   const href = slug
@@ -114,6 +118,7 @@ export function CardService({
             slug={slug}
             line={line}
             briefPrompts={briefPrompts}
+            placement={placement}
             className="w-full"
           />
         </div>

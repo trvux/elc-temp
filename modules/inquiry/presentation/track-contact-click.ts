@@ -2,7 +2,7 @@
 
 import * as gtag from "@/shared/lib/gtag";
 import { logEventAction } from "@/modules/event";
-import type { ContactChannel, LeadType } from "../domain";
+import type { ContactChannel, LeadType, TrackingContext } from "../domain";
 
 interface TrackContactClickInput {
   channel: ContactChannel;
@@ -14,6 +14,8 @@ interface TrackContactClickInput {
   // (productName/title prop), so pass it here rather than have staff
   // resolve entityId by hand in the DB to see what a lead was about.
   entityName?: string;
+  // Service call-to-actions pass which service, which line and which button.
+  context?: TrackingContext;
 }
 
 const CONTACT_CLICK_ENDPOINT = "/api/contact-click";
@@ -24,7 +26,7 @@ const CONTACT_CLICK_ENDPOINT = "/api/contact-click";
 // the copy-message/modal flow, this just adds to it). Records the click as
 // a lead server-side (see app/api/contact-click/route.ts) and fires the
 // qualify_lead signal both to GA4 and our own tracking_events table.
-export function trackContactClick({ channel, leadType, entityId, entityName }: TrackContactClickInput) {
+export function trackContactClick({ channel, leadType, entityId, entityName, context }: TrackContactClickInput) {
   if (typeof window === "undefined") return;
 
   const pagePath = window.location.pathname;
@@ -50,7 +52,14 @@ export function trackContactClick({ channel, leadType, entityId, entityName }: T
   // posture as useTrackView's view_item. This is the GA4 key event already
   // configured as a primary Ads conversion goal, just never fired until now
   // (see elc-go internal/event's EventQualifyLead doc comment).
-  gtag.event("qualify_lead", { channel, lead_type: leadType, page_path: pagePath });
+  gtag.event("qualify_lead", {
+    channel,
+    lead_type: leadType,
+    page_path: pagePath,
+    service_slug: context?.serviceSlug,
+    service_line: context?.serviceLine,
+    cta_placement: context?.ctaPlacement,
+  });
 
   // Also logged to our own tracking_events table for the internal
   // dashboard — fire-and-forget, same posture as every other

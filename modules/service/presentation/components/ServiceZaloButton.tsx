@@ -4,6 +4,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/shared/components/ui/button";
 import { trackContactClick } from "@/modules/inquiry";
+import type { CtaPlacement, TrackingContext } from "@/modules/inquiry/domain";
 import { ZaloContactModal } from "@/shared/components/organisms/layout/user/zalo-contact-modal";
 import { buildZaloServiceMessage, isMobileDevice } from "@/shared/lib/zalo-message";
 import { useContacts } from "@/shared/providers/contact-provider";
@@ -15,6 +16,8 @@ interface ServiceZaloButtonProps {
   slug: string;
   line: ServiceLine;
   briefPrompts: string[];
+  // Which button this is, for the qualify_lead event (see CtaPlacement).
+  placement: CtaPlacement;
   variant?: React.ComponentProps<typeof Button>["variant"];
   size?: React.ComponentProps<typeof Button>["size"];
   className?: string;
@@ -30,6 +33,7 @@ export function ServiceZaloButton({
   slug,
   line,
   briefPrompts,
+  placement,
   variant = "default",
   size,
   className,
@@ -46,6 +50,7 @@ export function ServiceZaloButton({
   const zaloPhoneValue = zaloContact?.value ?? "0789978898";
 
   const info = SERVICE_LINES[line];
+  const trackingContext: TrackingContext = { serviceSlug: slug, serviceLine: line, ctaPlacement: placement };
   const message = buildZaloServiceMessage({
     serviceName: title,
     serviceSlug: slug,
@@ -62,7 +67,7 @@ export function ServiceZaloButton({
         description: "Dán vào Zalo để gửi cho tư vấn viên.",
         duration: 4000,
       });
-      trackContactClick({ channel: "zalo", leadType: "service", entityId: id, entityName: title });
+      trackContactClick({ channel: "zalo", leadType: "service", entityId: id, entityName: title, context: trackingContext });
     } else {
       e.preventDefault();
       setModalOpen(true);
@@ -88,6 +93,7 @@ export function ServiceZaloButton({
         subtitle={title}
         leadType="service"
         entityId={id}
+        trackingContext={trackingContext}
       />
     </>
   );
