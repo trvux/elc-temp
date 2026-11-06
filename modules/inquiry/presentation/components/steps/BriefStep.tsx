@@ -7,6 +7,8 @@ interface BriefStepProps {
   answers: Record<string, string>;
   onChange: (prompt: string, value: string) => void;
   onKeyDown?: (e: React.KeyboardEvent) => void;
+  // Shown under the fields when the visitor tries to continue with all of them empty.
+  error?: string | null;
 }
 
 // The same list the service page shows ("send these first") and the Zalo
@@ -14,7 +16,7 @@ interface BriefStepProps {
 // service's brief_prompts, edited in admin) instead of a hardcoded question set
 // per kind of support. Nothing here is required: whoever would rather answer in
 // the Zalo chat can continue straight through.
-export function BriefStep({ prompts, answers, onChange, onKeyDown }: BriefStepProps) {
+export function BriefStep({ prompts, answers, onChange, onKeyDown, error }: BriefStepProps) {
   return (
     <div>
       <h1 id="step-question" className="type-headline text-white drop-shadow-sm">
@@ -31,11 +33,17 @@ export function BriefStep({ prompts, answers, onChange, onKeyDown }: BriefStepPr
               value={answers[prompt] ?? ""}
               onChange={(e) => onChange(prompt, e.target.value)}
               onKeyDown={onKeyDown}
+              maxLength={300}
               className="h-auto border-0 border-b-2 border-white/40 rounded-none bg-transparent px-0 py-2 text-white shadow-none placeholder:text-white/50 focus-visible:border-white focus-visible:ring-0"
             />
           </label>
         ))}
       </div>
+      {error && (
+        <p role="alert" className="type-body-sm mt-5 text-white drop-shadow-sm">
+          {error}
+        </p>
+      )}
     </div>
   );
 }

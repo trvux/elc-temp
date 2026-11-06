@@ -9,7 +9,8 @@ const VN_MOBILE_REGEX = /^(0|84|\+84)[35789]\d{8}$/;
 export const createInquirySchema = z.object({
   name: z
     .string()
-    .min(1, { message: "Vui lòng nhập họ tên" })
+    .trim()
+    .min(2, { message: "Vui lòng nhập họ tên" })
     .max(255, { message: "Họ tên không được quá 255 ký tự" }),
   phone: z
     .string()

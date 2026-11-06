@@ -596,6 +596,7 @@ export function LeadFormScreen({
   const [services, setServices] = useState<ServiceWithRelations[] | null>(null);
   // Answers to the picked service's brief prompts, keyed by prompt text.
   const [briefAnswers, setBriefAnswers] = useState<Record<string, string>>({});
+  const [briefError, setBriefError] = useState<string | null>(null);
   const [projectTypes, setProjectTypes] = useState<ProjectTypeWithCategories[] | null>(null);
   // Full facets (price + real spec attributes) for whichever product
   // category was just picked — unscoped, i.e. across every capacity tier
@@ -905,6 +906,15 @@ export function LeadFormScreen({
   }
 
   function goNext() {
+    // The brief is optional field by field, but a visitor who fills none of it leaves staff
+    // with a name and a number and nothing to quote from: ask for at least one.
+    if (currentStep.kind === "brief" && pickedService) {
+      const shown = briefPromptsForForm(pickedService.briefPrompts);
+      if (!shown.some((prompt) => briefAnswers[prompt]?.trim())) {
+        setBriefError("Điền ít nhất một mục để ELC báo giá nhanh hơn.");
+        return;
+      }
+    }
     if (currentStep.kind === "rhf-text" || currentStep.kind === "rhf-textarea") {
       void form.trigger(currentStep.id).then((valid) => {
         if (!valid) return;
@@ -1181,8 +1191,12 @@ export function LeadFormScreen({
                 <BriefStep
                   prompts={briefPromptsForForm(pickedService.briefPrompts)}
                   answers={briefAnswers}
-                  onChange={(prompt, value) => setBriefAnswers((a) => ({ ...a, [prompt]: value }))}
+                  onChange={(prompt, value) => {
+                    setBriefAnswers((a) => ({ ...a, [prompt]: value }));
+                    setBriefError(null);
+                  }}
                   onKeyDown={handleKeyDown}
+                  error={briefError}
                 />
               )}
 
@@ -1288,7 +1302,11 @@ export function LeadFormScreen({
                         )
                       }
                     />
-                    <FieldError errors={[form.formState.errors[currentStep.id]]} />
+                    {/* On this blue screen the default red error text is nearly invisible; white, with the red field border, reads clearly. */}
+                    <FieldError
+                      errors={[form.formState.errors[currentStep.id]]}
+                      className="type-body-sm mt-3 text-white drop-shadow-sm"
+                    />
                   </div>
                 </div>
               )}
