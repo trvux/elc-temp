@@ -28,4 +28,23 @@ describe("computeLeadPriority: service leads from the current form", () => {
     expect(computeLeadPriority(lead("service", { line: "thi-cong", briefAnswered: "2", briefTotal: "5" }))).toBeNull();
     expect(computeLeadPriority(lead("service", { line: "thi-cong" }))).toBeNull();
   });
+
+  it("marks a large system installation (over 1000m²) as Giá trị cao", () => {
+    expect(computeLeadPriority(lead("service", { line: "thi-cong", scale: ">1000m2" }))?.label).toBe("Giá trị cao");
+  });
+
+  it("does not mark a smaller installation or a service on an existing unit as Giá trị cao", () => {
+    expect(computeLeadPriority(lead("service", { line: "thi-cong", scale: "200-500m2" }))).toBeNull();
+    expect(computeLeadPriority(lead("service", { line: "dich-vu", scale: ">1000m2" }))).toBeNull();
+  });
+
+  it("ranks Giá trị cao above Đủ thông tin báo giá for a big installation that answered everything", () => {
+    expect(
+      computeLeadPriority(lead("service", { line: "thi-cong", scale: ">1000m2", briefAnswered: "5", briefTotal: "5" }))?.label,
+    ).toBe("Giá trị cao");
+  });
+
+  it("keeps the project rule for a lead from a project page", () => {
+    expect(computeLeadPriority(lead("project", { scale: ">1000m2" }))?.label).toBe("Giá trị cao");
+  });
 });

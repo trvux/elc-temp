@@ -36,6 +36,7 @@ import { getProductsAction } from "@/modules/catalog/presentation/actions";
 import type { NumberBucket, PriceFacet, ProductFacets } from "@/modules/catalog/domain/types";
 import { getServicesAction } from "@/modules/service/presentation/actions";
 import type { ServiceWithRelations } from "@/modules/service/domain/types";
+import type { ServiceLine } from "@/modules/service/domain/line";
 import { getProjectTypesAction } from "@/modules/project-type/presentation/actions";
 import type { ProjectTypeWithCategories } from "@/modules/project-type/domain/types";
 
@@ -66,7 +67,7 @@ import {
   formatMillion,
 } from "../../domain";
 import { createInquiryAction } from "../actions";
-import { BranchSelectStep, type LeadBranch } from "./steps/BranchSelectStep";
+import { BranchSelectStep, type BranchChoice, type LeadBranch } from "./steps/BranchSelectStep";
 import { ChoiceStep } from "./steps/ChoiceStep";
 import { ProductCategoryPickerStep, type PickedProductCategory } from "./steps/ProductCategoryPickerStep";
 import { ServicePickerStep } from "./steps/ServicePickerStep";
@@ -497,8 +498,8 @@ function budgetFallbackFor(cluster: ProductCluster, capacityQuestionId: Capacity
 // Who the lead is about, written at submit so it is there whether the service
 // was preset (opened from its page) or picked in the form: the lead priority
 // badge reads `line`, and staff read the name.
-function buildServiceQualify(service: ServiceWithRelations | undefined): Record<string, string> {
-  if (!service) return {};
+function buildServiceQualify(service: ServiceWithRelations | undefined, fallbackLine: ServiceLine): Record<string, string> {
+  if (!service) return { line: fallbackLine };
   return { service: service.title, serviceSlug: service.slug, line: service.line };
 }
 
@@ -570,6 +571,8 @@ export function LeadFormScreen({
   const exitHref = returnTo || "/";
 
   const [branch, setBranch] = useState<LeadBranch | null>((entityKind as LeadBranch) ?? null);
+  // Which service door the menu opened (system installation or service on an existing unit).
+  const [chosenLine, setChosenLine] = useState<ServiceLine | null>(null);
   const [picked, setPicked] = useState<PickedState>({});
   const [qualify, setQualify] = useState<Record<string, string>>({});
   const [attachmentUrls, setAttachmentUrls] = useState<string[]>([]);
@@ -652,6 +655,10 @@ export function LeadFormScreen({
     [services, effectiveServiceId],
   );
 
+  // The line decides which follow-up questions are asked: the picked service's own,
+  // else the door chosen in the menu.
+  const activeLine: ServiceLine = pickedService?.line ?? chosenLine ?? "dich-vu";
+
   const steps = useMemo<StepDescriptor[]>(() => {
     if (!branch) return [{ id: "branch", kind: "branch-select" }];
 
@@ -706,9 +713,20 @@ export function LeadFormScreen({
       // per-kind question sets; the visitor can skip every field.
       if (!serviceId) list.push({ id: "service-picker", kind: "service-picker" });
       if (pickedService && pickedService.briefPrompts.length > 0) list.push({ id: "brief", kind: "brief" });
-      // How soon matters for work on a unit the customer already has; system
-      // installations have their own timing prompt in the brief.
-      if (pickedService?.line !== "thi-cong") {
+      if (activeLine === "thi-cong") {
+        // A system for a building: three quick taps that tell sales how big and how
+        // ready it is. Scale feeds the "Giá trị cao" badge, so it stays structured.
+        list.push({
+          id: "scale",
+          kind: "choice",
+          question: "Quy mô ước tính?",
+          description: "Mức tham khảo, đội ngũ tư vấn sẽ khảo sát chính xác khi liên hệ.",
+          options: PROJECT_SCALE_OPTIONS_MEDIUM,
+        });
+        list.push({ id: "stage", kind: "choice", question: "Giai đoạn hiện tại của công trình?", options: PROJECT_STAGE_OPTIONS });
+        list.push({ id: "siteVisit", kind: "choice", question: "Bạn có muốn hẹn khảo sát công trình miễn phí không?", options: SITE_VISIT_OPTIONS });
+      } else {
+        // How soon matters for work on a unit the customer already has.
         list.push({ id: "urgency", kind: "choice", question: "Thời gian mong muốn?", options: SERVICE_URGENCY_OPTIONS });
       }
     } else if (branch === "project") {
@@ -747,7 +765,7 @@ export function LeadFormScreen({
 
     const attachmentQuestion =
       branch === "service"
-        ? pickedService?.line === "thi-cong"
+        ? activeLine === "thi-cong"
           ? "Gửi bản vẽ mặt bằng hoặc ảnh hiện trạng nếu có?"
           : "Gửi ảnh tình trạng máy nếu có?"
         : branch === "project"
@@ -775,6 +793,7 @@ export function LeadFormScreen({
     productId,
     serviceId,
     pickedService,
+    activeLine,
     picked.productGroupSlug,
     picked.projectTypeSlug,
     productCategoryFacets,
@@ -846,7 +865,7 @@ export function LeadFormScreen({
           subType,
           qualifyData:
             branch === "service"
-              ? { ...qualify, ...buildServiceQualify(pickedService), ...buildBriefQualify(pickedService, briefAnswers) }
+              ? { ...qualify, ...buildServiceQualify(pickedService, activeLine), ...buildBriefQualify(pickedService, briefAnswers) }
               : qualify,
           attachments: attachmentUrls,
         },
@@ -903,6 +922,7 @@ export function LeadFormScreen({
       // project there is no menu to return to, so back leaves the form.
       if (branch !== null && !entityKind) {
         setBranch(null);
+        setChosenLine(null);
         setPicked({});
         setQualify({});
         setBriefAnswers({});
@@ -946,6 +966,11 @@ export function LeadFormScreen({
       setProductCategoryFacets(res.facets);
     });
     advance();
+  }
+
+  function selectBranchChoice(choice: BranchChoice) {
+    setBranch(choice.branch);
+    setChosenLine(choice.line ?? null);
   }
 
   function selectService(service: ServiceWithRelations) {
@@ -1108,7 +1133,7 @@ export function LeadFormScreen({
               exit={{ opacity: 0, y: -16 }}
               transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
             >
-              {currentStep.kind === "branch-select" && <BranchSelectStep onSelect={setBranch} />}
+              {currentStep.kind === "branch-select" && <BranchSelectStep onSelect={selectBranchChoice} />}
 
               {currentStep.kind === "choice" && (
                 <ChoiceStep
@@ -1132,6 +1157,7 @@ export function LeadFormScreen({
               {currentStep.kind === "service-picker" && (
                 <ServicePickerStep
                   services={services}
+                  line={chosenLine}
                   selectedId={picked.serviceId}
                   onSelect={selectService}
                   onSkip={advance}

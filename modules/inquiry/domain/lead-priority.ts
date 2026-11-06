@@ -30,6 +30,13 @@ export function computeLeadPriority(inquiry: Inquiry): LeadPriority | null {
     return { label: "Giá trị cao", variant: "default" };
   }
 
+  // The same triage for a building that needs a system: the "Thi công hệ thống"
+  // door replaced the project form, so a large site arrives as a thi-cong service
+  // lead (scale only; that door does not ask for a budget).
+  if (inquiry.leadType === "service" && q.line === "thi-cong" && q.scale === ">1000m2") {
+    return { label: "Giá trị cao", variant: "default" };
+  }
+
   // A service lead that answered every brief prompt can be quoted straight
   // away, with no round of questions first.
   if (
