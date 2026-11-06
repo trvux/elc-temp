@@ -11,17 +11,11 @@ import { normalizeTitleAlign } from "@/shared/lib/title-align";
 
 const GO_API_URL = process.env.GO_API_URL;
 
-interface GoRefResponse {
-  id: string;
-  name: string;
-}
-
 interface GoServiceResponse {
   id: string;
   title: string;
   title_align: string;
   slug: string;
-  group_id: string | null;
   labels: string[] | null;
   line: string;
   brief_prompts: string[] | null;
@@ -35,7 +29,6 @@ interface GoServiceResponse {
   created_at: string;
   updated_at: string;
   deleted_at: string | null;
-  group: GoRefResponse | null;
 }
 
 interface GoErrorResponse {
@@ -50,7 +43,6 @@ function mapGoService(row: GoServiceResponse): ServiceWithRelations {
     title: row.title,
     titleAlign: normalizeTitleAlign(row.title_align),
     slug: row.slug,
-    groupId: row.group_id,
     labels: row.labels,
     line: normalizeServiceLine(row.line),
     briefPrompts: row.brief_prompts ?? [],
@@ -66,21 +58,7 @@ function mapGoService(row: GoServiceResponse): ServiceWithRelations {
     deletedAt: row.deleted_at,
   };
 
-  return {
-    ...service,
-    group: row.group ? { ...emptyServiceGroupShape(), id: row.group.id, name: row.group.name } : null,
-  };
-}
-
-// Go only joins {id, name} for the group (the only fields any component reads).
-// The rest of this nested shape is unused filler so TypeScript's structural
-// types are satisfied without lying about data we don't actually have.
-function emptyServiceGroupShape() {
-  return {
-    slug: "", imageUrl: null, metaTitle: null, metaDescription: null,
-    isFeatured: false, isHidden: false, orderIndex: 0, categoryIds: null,
-    createdAt: "", updatedAt: "", deletedAt: null,
-  };
+  return service;
 }
 
 async function extractErrorMessage(res: Response): Promise<string> {
@@ -94,7 +72,6 @@ async function extractErrorMessage(res: Response): Promise<string> {
 
 function buildFilterParams(options?: ServiceFilter): URLSearchParams {
   const params = new URLSearchParams();
-  if (options?.groupId) params.set("group_id", options.groupId);
   if (options?.isPublished !== undefined) params.set("is_published", String(options.isPublished));
   if (options?.search) params.set("search", options.search);
   if (options?.includeDeleted) params.set("include_deleted", "true");

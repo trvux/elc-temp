@@ -24,7 +24,7 @@ export type ProjectFormValues = {
   metaDescription: string;
   orderIndex: number;
   projectTypeId: string;
-  serviceGroupId?: string;
+  serviceLine?: string;
   serviceIds: string[];
   categories: { id: string; condition: "new" | "used" }[];
   clientName: string;
@@ -49,7 +49,7 @@ export function useProjectForm(
       slug: "",
       description: null,
       projectTypeId: "",
-      serviceGroupId: "",
+      serviceLine: "",
       serviceIds: [],
       categories: [],
       images: [],
@@ -73,7 +73,7 @@ export function useProjectForm(
   const saveMutation = useMutation({
     mutationFn: async (values: ProjectFormValues) => {
       const payloadValues = { ...values };
-      delete payloadValues.serviceGroupId;
+      delete payloadValues.serviceLine;
       const payload = {
         ...payloadValues,
         description: JSON.parse(JSON.stringify(payloadValues.description)) as Json,

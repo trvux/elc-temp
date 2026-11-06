@@ -1,4 +1,5 @@
 "use client";
+import { SERVICE_LINES } from "@/modules/service/domain/line";
 
 import { AspectRatio } from "@/shared/components/ui/aspect-ratio";
 import { Badge } from "@/shared/components/ui/badge";
@@ -129,7 +130,7 @@ export const getColumns = ({
       // Nhóm các dịch vụ theo nhóm dịch vụ
       const groups = services.reduce(
         (acc, service) => {
-          const groupName = service.group?.name || "Khác";
+          const groupName = service.line ? SERVICE_LINES[service.line].label : "Khác";
           if (!acc[groupName]) {
             acc[groupName] = [];
           }

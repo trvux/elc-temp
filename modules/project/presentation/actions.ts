@@ -12,6 +12,7 @@ import { submitToIndexNow } from "@/shared/lib/indexnow";
 import { BASE_URL } from "@/shared/lib/seo-schema";
 import type { ImageAsset } from "@/shared/lib/image-asset";
 import { normalizeTitleAlign } from "@/shared/lib/title-align";
+import { normalizeServiceLine } from "@/modules/service/domain/line";
 
 const GO_API_URL = process.env.GO_API_URL;
 
@@ -24,12 +25,6 @@ interface GoRefResponse {
 interface GoCategoryGroupRefResponse {
   id: string;
   name: string;
-}
-
-interface GoServiceGroupRefResponse {
-  id: string;
-  name: string;
-  slug: string;
 }
 
 interface GoProjectCategoryResponse {
@@ -45,7 +40,7 @@ interface GoProjectServiceResponse {
   id: string;
   title: string;
   slug: string;
-  group: GoServiceGroupRefResponse | null;
+  line: string;
 }
 
 interface GoProjectResponse {
@@ -137,7 +132,7 @@ function mapGoProject(row: GoProjectResponse): ProjectWithCategory {
       id: s.id,
       title: s.title,
       slug: s.slug,
-      group: s.group ? { id: s.group.id, name: s.group.name, slug: s.group.slug } : null,
+      line: normalizeServiceLine(s.line),
     })),
     categories: (row.categories ?? []).map((c) => ({
       id: c.id,

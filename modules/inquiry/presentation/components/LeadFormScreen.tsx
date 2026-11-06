@@ -898,6 +898,16 @@ export function LeadFormScreen({
 
   function goPrev() {
     if (stepIndex === 0) {
+      // First step of a branch the visitor chose themselves: back is the branch
+      // menu. When the form was opened for a specific product, service or
+      // project there is no menu to return to, so back leaves the form.
+      if (branch !== null && !entityKind) {
+        setBranch(null);
+        setPicked({});
+        setQualify({});
+        setBriefAnswers({});
+        return;
+      }
       router.push(exitHref);
       return;
     }
@@ -1270,8 +1280,8 @@ export function LeadFormScreen({
           visible regardless of scroll position, same as a typical
           multi-step form's persistent nav bar. */}
       <div className="flex shrink-0 items-center justify-between gap-4 px-6 sm:px-12 pb-6 pt-2">
-        {/* Nothing to go back to on the first step; the X at the top leaves the form. */}
-        {stepIndex > 0 && (
+        {/* The branch menu is the entry point, so nothing to go back to there (the X leaves the form). */}
+        {currentStep.kind !== "branch-select" && (
           <Button type="button" variant="outline" onClick={goPrev}>
             <ArrowLeft aria-hidden="true" size={18} />
             Quay lại

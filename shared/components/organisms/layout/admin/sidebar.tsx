@@ -29,7 +29,7 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/shared/components/ui/sidebar";
-import { Medal, CaretUpDown, FileText, Kanban, Gauge, SignOut, MapPin, Package, Phone, ChatCircleText, ShieldCheck, GridFour, List, Stack, Briefcase, SquaresFour, Newspaper, UsersThree, TagSimple, UserCircle, Sliders, Notepad, Star, Fan, ArrowsLeftRight } from "@phosphor-icons/react";
+import { Medal, CaretUpDown, FileText, Kanban, Gauge, SignOut, MapPin, Package, Phone, ChatCircleText, ShieldCheck, GridFour, List, Stack, Briefcase, Newspaper, UsersThree, TagSimple, UserCircle, Sliders, Notepad, Star, Fan, ArrowsLeftRight } from "@phosphor-icons/react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
@@ -61,7 +61,6 @@ const navGroups: { label: string; items: NavItemDef[] }[] = [
     label: "Dự án & Dịch vụ",
     items: [
       { href: "/admin/projects", label: "Dự án", icon: Kanban },
-      { href: "/admin/service-groups", label: "Nhóm dịch vụ", icon: SquaresFour },
       { href: "/admin/services", label: "Dịch vụ", icon: Briefcase },
     ],
   },

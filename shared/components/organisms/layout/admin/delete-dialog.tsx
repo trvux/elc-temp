@@ -15,15 +15,13 @@ import {
 import { getCategoriesAction } from "@/modules/category/presentation/actions";
 import { getProductsAction } from "@/modules/catalog/presentation/actions";
 import { getProjectsAction } from "@/modules/project/presentation/actions";
-import { getServicesAction } from "@/modules/service/presentation/actions";
 import { CategoryWithGroup } from "@/modules/category/domain/types";
 import { Product } from "@/modules/catalog/domain/types";
 import { ProjectWithCategory } from "@/modules/project/domain/types";
-import { Service } from "@/modules/service/domain/types";
 
 const EMPTY_ARRAY: unknown[] = [];
 
-type DeleteEntityType = "group" | "category" | "project-type" | "service-group";
+type DeleteEntityType = "group" | "category" | "project-type";
 
 interface AffectedSection {
   title: string;
@@ -94,18 +92,6 @@ export function DeleteDialog({
   });
   const projects = (projectsData || EMPTY_ARRAY) as ProjectWithCategory[];
 
-  // Fetch Service Group services (for entityType === "service-group")
-  const isServiceGroup = entityType === "service-group" && !!entityId && open;
-  const { data: servicesData } = useQuery({
-    queryKey: ["admin-services-list"],
-    queryFn: async () => {
-      const { data } = await getServicesAction();
-      return data || [];
-    },
-    enabled: isServiceGroup,
-  });
-  const services = (servicesData || EMPTY_ARRAY) as Service[];
-
   // Compute affected sections based on entityType/entityId
   const affectedCategories = useMemo(() => {
     if (!isGroup || !entityId) return [];
@@ -134,13 +120,6 @@ export function DeleteDialog({
       .filter((p) => p.projectTypeId === entityId)
       .map((p) => ({ id: p.id, name: p.title }));
   }, [projects, entityType, entityId]);
-
-  const affectedServices = useMemo(() => {
-    if (!isServiceGroup || !entityId) return [];
-    return services
-      .filter((s) => s.groupId === entityId)
-      .map((s) => ({ id: s.id, name: s.title }));
-  }, [services, isServiceGroup, entityId]);
 
   const computedSections = useMemo(() => {
     if (affectedSections && affectedSections.length > 0) {
@@ -174,13 +153,6 @@ export function DeleteDialog({
             items: affectedProjectsForType,
           },
         ];
-      case "service-group":
-        return [
-          {
-            title: "Nhóm dịch vụ này đang được liên kết với các dịch vụ sau",
-            items: affectedServices,
-          },
-        ];
       default:
         return [];
     }
@@ -192,7 +164,6 @@ export function DeleteDialog({
     affectedProducts,
     affectedProjects,
     affectedProjectsForType,
-    affectedServices,
   ]);
 
   const computedWarningText = useMemo(() => {
@@ -206,8 +177,6 @@ export function DeleteDialog({
         return "Nếu xóa, các liên kết này sẽ bị loại bỏ khỏi hệ thống.";
       case "project-type":
         return "Nếu xóa, các dự án này sẽ bị đưa về trạng thái không có loại dự án.";
-      case "service-group":
-        return "Nếu xóa, các dịch vụ này sẽ bị đưa về trạng thái không có nhóm.";
       default:
         return undefined;
     }

@@ -1,4 +1,3 @@
-import { ServiceGroup } from "@/modules/service-group/domain/types";
 import type { ImageAsset } from "@/shared/lib/image-asset";
 export type { ImageAsset };
 import type { TitleAlign } from "@/shared/lib/title-align";
@@ -17,7 +16,6 @@ export interface Service {
   title: string;
   titleAlign: TitleAlign;
   slug: string;
-  groupId: string | null;
   labels: string[] | null;
   line: ServiceLine;
   briefPrompts: string[];
@@ -33,15 +31,12 @@ export interface Service {
   deletedAt: string | null;
 }
 
-export interface ServiceWithRelations extends Service {
-  group: ServiceGroup | null;
-}
+export type ServiceWithRelations = Service;
 
 export interface CreateServiceInput {
   title: string;
   titleAlign?: TitleAlign;
   slug: string;
-  groupId?: string | null;
   labels?: string[] | null;
   line?: ServiceLine;
   briefPrompts?: string[];
@@ -59,7 +54,6 @@ export interface UpdateServiceInput extends Partial<CreateServiceInput> {
 }
 
 export interface ServiceFilter {
-  groupId?: string;
   isPublished?: boolean;
   search?: string;
   includeDeleted?: boolean;

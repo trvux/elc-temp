@@ -1,4 +1,5 @@
 import type { ImageAsset } from "@/shared/lib/image-asset";
+import type { ServiceLine } from "@/modules/service/domain/line";
 export type { ImageAsset };
 import type { TitleAlign } from "@/shared/lib/title-align";
 export type { TitleAlign };
@@ -50,7 +51,7 @@ export interface ProjectWithCategory extends Project {
     id: string;
     title: string;
     slug: string;
-    group?: { id: string; name: string; slug: string } | null;
+    line?: ServiceLine;
   }[];
   categories?: {
     id: string;

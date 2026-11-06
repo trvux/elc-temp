@@ -51,7 +51,7 @@ import { generateSlug } from "@/shared/lib/helpers";
 import { getCategoriesAction } from "@/modules/category/presentation/actions";
 import { getGroupsAction } from "@/modules/group/presentation/actions";
 import { getProjectTypesAction } from "@/modules/project-type/presentation/actions";
-import { getServiceGroupsAction } from "@/modules/service-group/presentation/actions";
+import { SERVICE_LINES, SERVICE_LINE_ORDER } from "@/modules/service/domain/line";
 import { getServicesAction } from "@/modules/service/presentation/actions";
 import { ProjectWithCategory, ImageAsset } from "../../domain";
 import { deleteProjectAction, getProjectsAction } from "../actions";
@@ -71,13 +71,12 @@ export function ProjectManagement() {
   const [filterGroupId, setFilterGroupId] = useState<string>("all");
   const [filterCategoryId, setFilterCategoryId] = useState<string>("all");
   const [filterProjectTypeId, setFilterProjectTypeId] = useState<string>("all");
-  const [filterServiceGroupId, setFilterServiceGroupId] =
-    useState<string>("all");
+  const [filterServiceLine, setFilterServiceLine] = useState<string>("all");
   const [filterServiceId, setFilterServiceId] = useState<string>("all");
   const [filterCondition, setFilterCondition] = useState<string>("all");
 
-  const handleServiceGroupIdChange = (val: string) => {
-    setFilterServiceGroupId(val);
+  const handleServiceLineChange = (val: string) => {
+    setFilterServiceLine(val);
     setFilterServiceId("all");
   };
 
@@ -129,21 +128,12 @@ export function ProjectManagement() {
     },
   });
 
-  const { data: serviceGroups = [] } = useQuery({
-    queryKey: ["service-groups-list"],
-    queryFn: async () => {
-      const { data, error } = await getServiceGroupsAction();
-      if (error) throw new Error(error);
-      return data || [];
-    },
-  });
-
   const filteredServicesForFilter = useMemo(() => {
-    if (filterServiceGroupId === "all") {
+    if (filterServiceLine === "all") {
       return services;
     }
-    return services.filter((s) => s.groupId === filterServiceGroupId);
-  }, [services, filterServiceGroupId]);
+    return services.filter((s) => s.line === filterServiceLine);
+  }, [services, filterServiceLine]);
 
   // Group custom categories for checkbox display
   const groupedCategories = useMemo(() => {
@@ -218,8 +208,8 @@ export function ProjectManagement() {
         (filterIsPublished === "true" ? p.isPublished : !p.isPublished);
 
       const matchServiceGroup =
-        filterServiceGroupId === "all" ||
-        (p.services || []).some((s) => s.group?.id === filterServiceGroupId);
+        filterServiceLine === "all" ||
+        (p.services || []).some((s) => s.line === filterServiceLine);
 
       const matchService =
         filterServiceId === "all" ||
@@ -247,7 +237,7 @@ export function ProjectManagement() {
     filterProjectTypeId,
     filterIsFeatured,
     filterIsPublished,
-    filterServiceGroupId,
+    filterServiceLine,
     filterServiceId,
     filterCondition,
   ]);
@@ -263,7 +253,7 @@ export function ProjectManagement() {
             slug: p.slug || "",
             description: p.description,
             projectTypeId: p.projectTypeId || "",
-            serviceGroupId: p.services?.[0]?.group?.id || "",
+            serviceLine: p.services?.[0]?.line || "",
             serviceIds: (p.services || []).map((s) => s.id),
             categories: (p.categories || []).map((c) => ({ id: c.id, condition: c.condition })),
             images: p.images || [],
@@ -292,7 +282,7 @@ export function ProjectManagement() {
       slug: "",
       description: null,
       projectTypeId: "",
-      serviceGroupId: "",
+      serviceLine: "",
       serviceIds: [],
       categories: [],
       images: [],
@@ -408,19 +398,19 @@ export function ProjectManagement() {
           </SelectContent>
         </Select>
 
-        {/* Service Group Filter */}
+        {/* Service Line Filter */}
         <Select
-          value={filterServiceGroupId}
-          onValueChange={handleServiceGroupIdChange}
+          value={filterServiceLine}
+          onValueChange={handleServiceLineChange}
         >
           <SelectTrigger className="w-full md:w-45">
-            <SelectValue placeholder="Nhóm dịch vụ" />
+            <SelectValue placeholder="Mảng dịch vụ" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">Tất cả nhóm dịch vụ</SelectItem>
-            {serviceGroups.map((sg) => (
-              <SelectItem key={sg.id} value={sg.id}>
-                {sg.name}
+            <SelectItem value="all">Tất cả mảng dịch vụ</SelectItem>
+            {SERVICE_LINE_ORDER.map((line) => (
+              <SelectItem key={line} value={line}>
+                {SERVICE_LINES[line].label}
               </SelectItem>
             ))}
           </SelectContent>
@@ -446,7 +436,7 @@ export function ProjectManagement() {
           filterGroupId !== "all" ||
           filterCategoryId !== "all" ||
           filterProjectTypeId !== "all" ||
-          filterServiceGroupId !== "all" ||
+          filterServiceLine !== "all" ||
           filterServiceId !== "all" ||
           filterCondition !== "all") && (
           <Button
@@ -457,7 +447,7 @@ export function ProjectManagement() {
               setFilterGroupId("all");
               setFilterCategoryId("all");
               setFilterProjectTypeId("all");
-              setFilterServiceGroupId("all");
+              setFilterServiceLine("all");
               setFilterServiceId("all");
               setFilterCondition("all");
             }}
@@ -1105,56 +1095,35 @@ export function ProjectManagement() {
                   <div className="space-y-6">
                     <Controller
                       control={form.control}
-                      name="serviceGroupId"
+                      name="serviceLine"
                       render={({ field }) => (
                         <Field>
-                          <FieldLabel>Nhóm dịch vụ</FieldLabel>
+                          <FieldLabel>Mảng dịch vụ</FieldLabel>
                           <Select
                             value={field.value || "none"}
                             onValueChange={(v) => {
                               const val = v === "none" ? "" : v;
                               field.onChange(val);
 
-                              // Only pre-populate/reset if it is a new project or the user explicitly changed the service group (making the field dirty)
-                              const shouldPrepopulate =
+                              // A different line lists different services: only for a new
+                              // project or an explicit change, drop what was ticked before.
+                              if (
                                 activeProject === "new" ||
-                                !!form.formState.dirtyFields.serviceGroupId;
-
-                              if (shouldPrepopulate) {
-                                // Reset serviceIds selection when group changes
+                                !!form.formState.dirtyFields.serviceLine
+                              ) {
                                 form.setValue("serviceIds", []);
-
-                                // Pre-populate categories based on selected serviceGroup!
-                                if (val) {
-                                  const sGroup = serviceGroups.find(
-                                    (g) => g.id === val,
-                                  );
-                                  if (sGroup && sGroup.categoryIds) {
-                                    const selections = sGroup.categoryIds.map(
-                                      (id) => ({ id, condition: "new" as const }),
-                                    );
-                                    form.setValue("categories", selections);
-                                  }
-                                } else {
-                                  form.setValue("categories", []);
-                                }
                               }
                             }}
                           >
                             <SelectTrigger>
-                              <SelectValue placeholder="Chọn nhóm dịch vụ (nếu có)" />
+                              <SelectValue placeholder="Chọn mảng dịch vụ" />
                             </SelectTrigger>
-                            <SelectContent
-                              position="popper"
-                              className="max-h-60"
-                            >
+                            <SelectContent position="popper" className="max-h-60">
                               <ScrollArea className="h-full">
-                                <SelectItem value="none">
-                                  Không chọn nhóm dịch vụ
-                                </SelectItem>
-                                {serviceGroups.map((g) => (
-                                  <SelectItem key={g.id} value={g.id}>
-                                    {g.name}
+                                <SelectItem value="none">Chưa chọn mảng dịch vụ</SelectItem>
+                                {SERVICE_LINE_ORDER.map((line) => (
+                                  <SelectItem key={line} value={line}>
+                                    {SERVICE_LINES[line].label}
                                   </SelectItem>
                                 ))}
                               </ScrollArea>
@@ -1168,12 +1137,10 @@ export function ProjectManagement() {
                       control={form.control}
                       name="serviceIds"
                       render={({ field }) => {
-                        const selectedGroupId = form.watch("serviceGroupId");
+                        const selectedLine = form.watch("serviceLine");
                         const filteredServices =
-                          selectedGroupId && selectedGroupId !== "none"
-                            ? services.filter(
-                                (s) => s.groupId === selectedGroupId,
-                              )
+                          selectedLine && selectedLine !== "none"
+                            ? services.filter((s) => s.line === selectedLine)
                             : services;
                         const checkedIds = field.value || [];
                         const handleToggle = (id: string, checked: boolean) => {
@@ -1195,10 +1162,9 @@ export function ProjectManagement() {
                               </CardDescription>
                             </CardHeader>
                             <CardContent className="pt-0">
-                              {!selectedGroupId ||
-                              selectedGroupId === "none" ? (
+                              {!selectedLine || selectedLine === "none" ? (
                                 <div className="type-body-sm text-muted-foreground italic py-4 text-center bg-muted/30 rounded-md mt-2 border border-dashed">
-                                  Vui lòng chọn Nhóm dịch vụ phía trên để hiển
+                                  Vui lòng chọn Mảng dịch vụ phía trên để hiển
                                   thị danh sách dịch vụ thực hiện.
                                 </div>
                               ) : (
