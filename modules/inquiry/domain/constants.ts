@@ -1,4 +1,4 @@
-import { ContactChannel, InquiryStatus } from "./types";
+import { ContactChannel, InquiryStatus, LeadType } from "./types";
 
 export const INQUIRY_STATUSES: { value: InquiryStatus; label: string }[] = [
   { value: "new", label: "Mới" },
@@ -14,4 +14,11 @@ export const CHANNEL_LABEL: Record<ContactChannel, string> = {
   zalo: "Zalo",
   messenger: "Messenger",
   hotline: "Hotline",
+};
+
+export const LEAD_TYPE_LABEL: Record<LeadType, string> = {
+  product: "Sản phẩm",
+  service: "Dịch vụ",
+  project: "Dự án",
+  general: "Tư vấn chung",
 };

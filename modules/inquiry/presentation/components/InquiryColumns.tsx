@@ -3,6 +3,7 @@
 import { ColumnDef } from "@tanstack/react-table";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
+import { Checkbox } from "@/shared/components/ui/checkbox";
 import { Eye } from "@phosphor-icons/react";
 import {
   CHANNEL_LABEL,
@@ -10,7 +11,7 @@ import {
   INQUIRY_STATUSES,
   Inquiry,
   InquiryStatus,
-  LeadType,
+  LEAD_TYPE_LABEL,
 } from "../../domain";
 
 interface ColumnProps {
@@ -24,14 +25,26 @@ const STATUS_BADGE_VARIANT: Record<InquiryStatus, "default" | "secondary" | "des
   closed: "destructive",
 };
 
-const LEAD_TYPE_LABEL: Record<LeadType, string> = {
-  product: "Sản phẩm",
-  service: "Dịch vụ",
-  project: "Dự án",
-  general: "Tư vấn chung",
+const selectColumn: ColumnDef<Inquiry> = {
+  id: "select",
+  header: ({ table }) => (
+    <Checkbox
+      aria-label="Chọn tất cả"
+      checked={table.getIsAllRowsSelected()}
+      onCheckedChange={(checked) => table.toggleAllRowsSelected(checked === true)}
+    />
+  ),
+  cell: ({ row }) => (
+    <Checkbox
+      aria-label={`Chọn ${row.original.name || "yêu cầu này"}`}
+      checked={row.getIsSelected()}
+      onCheckedChange={(checked) => row.toggleSelected(checked === true)}
+    />
+  ),
 };
 
 export const getInquiryColumns = ({ onView }: ColumnProps): ColumnDef<Inquiry>[] => [
+  selectColumn,
   {
     accessorKey: "createdAt",
     header: "Ngày gửi",

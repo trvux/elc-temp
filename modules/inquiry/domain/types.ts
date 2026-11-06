@@ -107,4 +107,7 @@ export interface UpdateInquiryDetailsInput {
 export interface InquiryFilter {
   status?: string;
   search?: string;
+  /** YYYY-MM-DD, inclusive, Vietnam calendar day. */
+  from?: string;
+  to?: string;
 }

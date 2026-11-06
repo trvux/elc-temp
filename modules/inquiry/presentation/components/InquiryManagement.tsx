@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import type { RowSelectionState } from "@tanstack/react-table";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
@@ -27,11 +28,16 @@ import {
   QUALIFY_STEP_LABELS,
 } from "../../domain";
 import { getInquiriesAction, updateInquiryDetailsAction, updateInquiryStatusAction } from "../actions";
+import { downloadInquiryExport } from "../export-download";
 import { getInquiryColumns } from "./InquiryColumns";
 
 export function InquiryManagement() {
   const queryClient = useQueryClient();
   const [filterStatus, setFilterStatus] = useState<string>("all");
+  const [filterFrom, setFilterFrom] = useState("");
+  const [filterTo, setFilterTo] = useState("");
+  const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
+  const [exporting, setExporting] = useState(false);
   const [activeInquiry, setActiveInquiry] = useState<Inquiry | null>(null);
   const [draftStatus, setDraftStatus] = useState<InquiryStatus>("new");
   const [draftNote, setDraftNote] = useState("");
@@ -42,11 +48,13 @@ export function InquiryManagement() {
   const [draftConversionValue, setDraftConversionValue] = useState("");
 
   const { data: inquiries = [], isLoading } = useQuery({
-    queryKey: ["inquiries", filterStatus],
+    queryKey: ["inquiries", filterStatus, filterFrom, filterTo],
     queryFn: async () => {
-      const { data, error } = await getInquiriesAction(
-        filterStatus === "all" ? undefined : { status: filterStatus },
-      );
+      const { data, error } = await getInquiriesAction({
+        status: filterStatus === "all" ? undefined : filterStatus,
+        from: filterFrom || undefined,
+        to: filterTo || undefined,
+      });
       if (error) throw new Error(error);
       return data;
     },
@@ -105,6 +113,34 @@ export function InquiryManagement() {
 
   const columns = useMemo(() => getInquiryColumns({ onView: openDetail }), []);
 
+  // A new filter shows a different list, so a selection made on the old one
+  // must not silently ride along into the next export.
+  function changeFilter(apply: () => void) {
+    apply();
+    setRowSelection({});
+  }
+
+  // Only rows still in the list count (a row can leave it after a status change).
+  const selectedIds = useMemo(() => {
+    const visible = new Set(inquiries.map((i) => i.id));
+    return Object.keys(rowSelection).filter((id) => rowSelection[id] && visible.has(id));
+  }, [rowSelection, inquiries]);
+
+  const hasActiveFilter = filterStatus !== "all" || filterFrom !== "" || filterTo !== "";
+
+  async function exportExcel(ids?: string[]) {
+    setExporting(true);
+    const result = await downloadInquiryExport({
+      status: filterStatus,
+      from: filterFrom,
+      to: filterTo,
+      ids,
+    });
+    setExporting(false);
+    if (result.ok) toast.success(`Đã tải ${result.fileName}`);
+    else toast.error(result.error);
+  }
+
   return (
     <div>
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 mb-8">
@@ -118,8 +154,8 @@ export function InquiryManagement() {
         </div>
       </div>
 
-      <div className="flex flex-wrap items-center gap-4 mb-4">
-        <Select value={filterStatus} onValueChange={setFilterStatus}>
+      <div className="flex flex-wrap items-end gap-4 mb-4">
+        <Select value={filterStatus} onValueChange={(v) => changeFilter(() => setFilterStatus(v))}>
           <SelectTrigger className="w-full md:w-50">
             <SelectValue placeholder="Trạng thái" />
           </SelectTrigger>
@@ -133,15 +169,60 @@ export function InquiryManagement() {
           </SelectContent>
         </Select>
 
-        {filterStatus !== "all" && (
+        <label className="flex flex-col gap-1.5">
+          <span className="type-caption text-muted-foreground">Từ ngày</span>
+          <Input
+            type="date"
+            value={filterFrom}
+            max={filterTo || undefined}
+            onChange={(e) => changeFilter(() => setFilterFrom(e.target.value))}
+            className="w-full md:w-44"
+          />
+        </label>
+        <label className="flex flex-col gap-1.5">
+          <span className="type-caption text-muted-foreground">Đến ngày</span>
+          <Input
+            type="date"
+            value={filterTo}
+            min={filterFrom || undefined}
+            onChange={(e) => changeFilter(() => setFilterTo(e.target.value))}
+            className="w-full md:w-44"
+          />
+        </label>
+
+        {hasActiveFilter && (
           <Button
             variant="ghost"
-            onClick={() => setFilterStatus("all")}
+            onClick={() =>
+              changeFilter(() => {
+                setFilterStatus("all");
+                setFilterFrom("");
+                setFilterTo("");
+              })
+            }
             className="h-10 text-muted-foreground"
           >
             Xóa lọc
           </Button>
         )}
+
+        <div className="flex items-center gap-3 md:ml-auto">
+          <span className="type-legal text-muted-foreground">
+            {selectedIds.length > 0
+              ? `Đã chọn ${selectedIds.length} dòng`
+              : hasActiveFilter
+                ? "Xuất theo trạng thái và ngày đang lọc"
+                : "Xuất toàn bộ"}
+          </span>
+          <Button
+            variant="outline"
+            disabled={exporting || inquiries.length === 0}
+            onClick={() => exportExcel(selectedIds.length > 0 ? selectedIds : undefined)}
+            className="h-10"
+          >
+            {exporting ? "Đang xuất..." : selectedIds.length > 0 ? "Xuất dòng đã chọn" : "Xuất Excel"}
+          </Button>
+        </div>
       </div>
 
       <DataTable
@@ -151,6 +232,8 @@ export function InquiryManagement() {
         searchKey="name"
         searchPlaceholder="Tìm theo tên khách hàng..."
         getRowId={(row) => row.id}
+        rowSelection={rowSelection}
+        onRowSelectionChange={setRowSelection}
       />
 
       <AdminDialog
@@ -308,6 +391,14 @@ export function InquiryManagement() {
             </Field>
 
             <div className="flex justify-end gap-3 border-t pt-6">
+              <Button
+                variant="outline"
+                disabled={exporting}
+                onClick={() => exportExcel([activeInquiry.id])}
+                className="h-9 mr-auto"
+              >
+                Xuất Excel khách này
+              </Button>
               <Button variant="outline" onClick={() => setActiveInquiry(null)} className="h-9">
                 Đóng
               </Button>

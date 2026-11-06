@@ -10,6 +10,8 @@ import {
   ColumnFiltersState,
   getFilteredRowModel,
   FilterFn,
+  OnChangeFn,
+  RowSelectionState,
 } from "@tanstack/react-table";
 import { cn } from "@/shared/lib/utils";
 
@@ -72,6 +74,11 @@ interface DataTableProps<TData, TValue> {
   // position can shift after a mutation (e.g. sorting or a status change
   // moving it). Callers with a stable id field on TData should pass this.
   getRowId?: (row: TData) => string;
+  // Opt-in row selection, controlled by the caller (it needs the ids for bulk
+  // actions). Pair with a column that renders the checkboxes; needs getRowId so
+  // selection follows the record, not its position.
+  rowSelection?: RowSelectionState;
+  onRowSelectionChange?: OnChangeFn<RowSelectionState>;
 }
 
 export function DataTable<TData, TValue>({
@@ -83,6 +90,8 @@ export function DataTable<TData, TValue>({
   isLoading = false,
   rowClassName,
   getRowId,
+  rowSelection,
+  onRowSelectionChange,
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
@@ -97,6 +106,7 @@ export function DataTable<TData, TValue>({
     getSortedRowModel: getSortedRowModel(),
     onColumnFiltersChange: setColumnFilters,
     getFilteredRowModel: getFilteredRowModel(),
+    ...(onRowSelectionChange ? { enableRowSelection: true, onRowSelectionChange } : {}),
     globalFilterFn: fuzzyFilter as unknown as FilterFn<TData>,
     filterFns: {
       fuzzy: fuzzyFilter as unknown as FilterFn<TData>,
@@ -105,6 +115,7 @@ export function DataTable<TData, TValue>({
       sorting,
       columnFilters,
       globalFilter,
+      ...(rowSelection ? { rowSelection } : {}),
     },
   });
 
