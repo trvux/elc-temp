@@ -96,5 +96,28 @@ map $uri $elc_redir {
         self.assertNotIn("/same", sql)
 
 
+class ApiAllowlistTest(unittest.TestCase):
+    """A real app/api route missing here is answered 410 by nginx before it reaches Next."""
+
+    def allowed(self, path):
+        import re
+
+        for line in live.INFRA:
+            m = re.match(r'"~(\^/api/[^"]*)" 1;', line)
+            if m and re.search(m.group(1).replace("\\\\", "\\"), path):
+                return True
+        return False
+
+    def test_admin_lead_export_reaches_next(self):
+        self.assertTrue(self.allowed("/api/inquiries/export"))
+
+    def test_existing_routes_still_allowed(self):
+        self.assertTrue(self.allowed("/api/contact-click"))
+
+    def test_scanner_probes_and_the_bare_inquiries_path_stay_blocked(self):
+        self.assertFalse(self.allowed("/api/inquiries"))
+        self.assertFalse(self.allowed("/api/.env"))
+
+
 if __name__ == "__main__":
     unittest.main()

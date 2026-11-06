@@ -7,6 +7,16 @@ export interface ExportRequest extends Pick<InquiryFilter, "status" | "from" | "
 
 export type ExportResult = { ok: true; fileName: string } | { ok: false; error: string };
 
+// Our route answers with a short plain-text reason. Anything else (an nginx or
+// Cloudflare error page in front of it) is HTML the admin must never see raw.
+async function describeFailure(res: Response): Promise<string> {
+  if (res.headers.get("Content-Type")?.startsWith("text/plain")) {
+    const text = (await res.text()).trim();
+    if (text) return text;
+  }
+  return `Không xuất được file (lỗi ${res.status}). Thử lại sau, nếu vẫn lỗi hãy báo kỹ thuật.`;
+}
+
 // Fetches the .xlsx and hands it to the browser as a download. fetch + blob rather
 // than navigating to the URL, so a 403 for a non-admin becomes a message in the
 // admin page instead of replacing it with plain text.
@@ -24,7 +34,7 @@ export async function downloadInquiryExport(request: ExportRequest): Promise<Exp
     return { ok: false, error: "Không kết nối được máy chủ." };
   }
   if (!res.ok) {
-    return { ok: false, error: (await res.text()) || `Lỗi ${res.status}` };
+    return { ok: false, error: await describeFailure(res) };
   }
 
   const fileName = /filename="([^"]+)"/.exec(res.headers.get("Content-Disposition") ?? "")?.[1] ?? "lead.xlsx";
