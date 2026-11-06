@@ -230,6 +230,8 @@ export const QUALIFY_STEP_LABELS: Record<string, string> = {
   rentalDuration: "Thời gian thuê",
   khuVuc: "Khu vực",
   khuVucNgoai: "Ngoài khu vực phục vụ",
+  consent: "Đồng ý xử lý dữ liệu",
+  consentPolicyVersion: "Phiên bản chính sách đã hiển thị",
   address: "Địa chỉ cụ thể",
   areaBand: "Diện tích (khoảng)",
   briefUnknown: "Số mục khách chưa biết",
@@ -296,6 +298,7 @@ const QUALIFY_VALUE_LABELS: Record<string, Record<string, string>> = {
   householdSize: toMap(WATER_FILTER_HOUSEHOLD_OPTIONS),
   line: { "thi-cong": "Thi công hệ thống", "dich-vu": "Dịch vụ máy lạnh" },
   khuVucNgoai: { "1": "Có" },
+  consent: { "form-submit": "Bấm gửi form tư vấn" },
   areaBand: Object.fromEntries(AREA_BANDS.map((b) => [b.value, b.label])),
 };
 

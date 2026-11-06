@@ -1,11 +1,14 @@
 "use client";
 
+import { useEffect, useRef } from "react";
+import { Check } from "@phosphor-icons/react";
+
 import { Input } from "@/shared/components/ui/input";
 import { cn } from "@/shared/lib/utils";
 import type { BriefField } from "@/modules/service/domain/brief-fields";
 
 import { AREA_BANDS } from "../../../domain/area";
-import { isUnknown, UNKNOWN_ANSWER, YES_NO_OPTIONS } from "../../../domain/brief";
+import { isSettled, isUnknown, UNKNOWN_ANSWER, YES_NO_OPTIONS } from "../../../domain/brief";
 
 interface BriefStepProps {
   fields: BriefField[];
@@ -97,10 +100,26 @@ function FieldControl({
   );
 }
 
-// One screen with every field the service needs to quote: the right control for each
-// kind and a "Chưa biết" on every one. Nothing may be left blank, so staff never get
-// a lead with a name and nothing to quote from, but nothing forces a guess either.
+// One screen with every field the service needs to quote: the right control for each kind
+// and a "Chưa biết" on every one. Each field is its own block so it is plain which label
+// goes with which answer, a finished block looks finished and a missing one cannot be missed.
+// Nothing may be left blank, so staff never get a lead with a name and nothing to quote from,
+// but nothing forces a guess either.
 export function BriefStep({ fields, answers, onChange, onUnknownAll, onKeyDown, missingKeys = [] }: BriefStepProps) {
+  const blocks = useRef(new Map<string, HTMLElement>());
+  const done = fields.filter((f) => isSettled(answers[f.key])).length;
+  const missingLabels = fields.filter((f) => missingKeys.includes(f.key)).map((f) => f.label);
+
+  // After a failed Tiếp tục, bring the first missing block into view: on a phone it may be
+  // above the fold, and a screen that does not move looks like a button that does nothing.
+  const firstMissing = missingKeys.length > 0 ? fields.find((f) => missingKeys.includes(f.key))?.key : undefined;
+  const missingSignature = missingKeys.join("|");
+  useEffect(() => {
+    if (firstMissing) blocks.current.get(firstMissing)?.scrollIntoView({ behavior: "smooth", block: "center" });
+    // Only a new set of missing fields should scroll; typing in a block must not.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [missingSignature]);
+
   return (
     <div>
       <h1 id="step-question" className="type-headline text-white drop-shadow-sm">
@@ -109,28 +128,51 @@ export function BriefStep({ fields, answers, onChange, onUnknownAll, onKeyDown, 
       <p id="step-description" className="type-body mt-3 text-white/80 drop-shadow-sm">
         Điền hoặc chọn &ldquo;Chưa biết&rdquo; ở từng mục, nhân viên sẽ hỏi lại phần chưa rõ.
       </p>
-      <div className="mt-8 flex flex-col gap-6">
+
+      {missingLabels.length > 0 ? (
+        <p role="alert" className="type-body-sm mt-4 rounded-lg border-2 border-white bg-white/15 px-4 py-3 text-white drop-shadow-sm">
+          Còn {missingLabels.length} mục chưa trả lời: {missingLabels.join(", ")}. Điền hoặc bấm &ldquo;Chưa biết&rdquo; ở mỗi mục.
+        </p>
+      ) : (
+        <p aria-live="polite" className="type-body-sm mt-4 text-white/80 drop-shadow-sm">
+          Đã xong {done}/{fields.length} mục
+        </p>
+      )}
+
+      <div className="mt-5 flex flex-col gap-4">
         {fields.map((field) => {
           const missing = missingKeys.includes(field.key);
+          const settled = isSettled(answers[field.key]);
           return (
-            <div key={field.key} className="flex flex-col gap-2">
-              <span className={cn("type-body-sm drop-shadow-sm", missing ? "text-white underline decoration-2 underline-offset-4" : "text-white/90")}>
-                {field.label}
-              </span>
-              <FieldControl field={field} value={answers[field.key] ?? ""} onChange={(v) => onChange(field.key, v)} onKeyDown={onKeyDown} />
-              {missing && (
-                <span role="alert" className="type-legal text-white drop-shadow-sm">
-                  Điền hoặc chọn &ldquo;Chưa biết&rdquo;.
-                </span>
+            <section
+              key={field.key}
+              ref={(el) => {
+                if (el) blocks.current.set(field.key, el);
+                else blocks.current.delete(field.key);
+              }}
+              aria-labelledby={`brief-${field.key}`}
+              className={cn(
+                "flex flex-col gap-3 rounded-xl border-2 p-4 transition-colors sm:p-5",
+                missing ? "border-white bg-white/15" : settled ? "border-white/40 bg-white/5" : "border-white/20 bg-white/5",
               )}
-            </div>
+            >
+              <div className="flex items-center justify-between gap-3">
+                <h2 id={`brief-${field.key}`} className="type-body-strong text-white drop-shadow-sm">
+                  {field.label}
+                </h2>
+                {settled && <Check aria-label="Đã trả lời" weight="bold" size={18} className="shrink-0 text-white" />}
+              </div>
+              <FieldControl field={field} value={answers[field.key] ?? ""} onChange={(v) => onChange(field.key, v)} onKeyDown={onKeyDown} />
+              {missing && <p className="type-legal text-white drop-shadow-sm">Mục này chưa trả lời: điền hoặc chọn &ldquo;Chưa biết&rdquo;.</p>}
+            </section>
           );
         })}
       </div>
+
       <button
         type="button"
         onClick={onUnknownAll}
-        className="type-body-sm mt-8 text-white/90 underline underline-offset-4 hover:text-white"
+        className="type-body-sm mt-6 text-white/90 underline underline-offset-4 hover:text-white"
       >
         Chưa biết hết, để nhân viên hỏi lại
       </button>

@@ -67,6 +67,7 @@ import {
   CONTACT_PREFERENCE_OPTIONS,
   formatMillion,
   type UploadedFile,
+  buildConsentQualify,
 } from "../../domain";
 import { createInquiryAction } from "../actions";
 import { BranchSelectStep, type BranchChoice, type LeadBranch } from "./steps/BranchSelectStep";
@@ -86,6 +87,7 @@ import { ServiceZaloButton } from "@/modules/service/presentation/components/Ser
 import { ProjectTypePickerStep, type PickedProjectType } from "./steps/ProjectTypePickerStep";
 import { ProjectCategoryPickerStep, type PickedProjectCategory } from "./steps/ProjectCategoryPickerStep";
 import { AttachmentStep } from "./steps/AttachmentStep";
+import { ConsentNotice } from "./ConsentNotice";
 import { AreaStep, type AreaAnswer } from "./steps/AreaStep";
 
 
@@ -885,10 +887,13 @@ export function LeadFormScreen({
           serviceId: effectiveServiceId,
           leadType: branch ?? "general",
           subType,
-          qualifyData:
-            branch === "service"
+          qualifyData: {
+            ...(branch === "service"
               ? { ...qualify, ...buildServiceQualify(pickedService, activeLine), ...buildBriefQualify(pickedService?.line ?? activeLine, briefFieldsForForm(pickedService?.briefFields ?? []), briefAnswers) }
-              : qualify,
+              : qualify),
+            // Sending the form is the consent; this keeps which wording the visitor was shown.
+            ...buildConsentQualify(),
+          },
           attachments,
         },
       );
@@ -1374,6 +1379,7 @@ export function LeadFormScreen({
                       errors={[form.formState.errors[currentStep.id]]}
                       className="type-body-sm mt-3 text-white drop-shadow-sm"
                     />
+                    {isLastStep && <ConsentNotice />}
                   </div>
                 </div>
               )}
@@ -1404,9 +1410,15 @@ export function LeadFormScreen({
           visible regardless of scroll position, same as a typical
           multi-step form's persistent nav bar. */}
       <div className="flex shrink-0 items-center justify-between gap-4 px-6 sm:px-12 pb-6 pt-2">
-        {/* The branch menu is the entry point, so nothing to go back to there (the X leaves the form). */}
+        {/* The branch menu is the entry point, so nothing to go back to there (the X leaves the form).
+            Back is a true outline (clear fill, white edge) so "Tiếp tục", the solid one, is the obvious next move. */}
         {currentStep.kind !== "branch-select" && (
-          <Button type="button" variant="outline" onClick={goPrev}>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={goPrev}
+            className="border-white/70 bg-transparent text-white shadow-none hover:bg-white/15 hover:text-white dark:border-white/70 dark:bg-transparent dark:hover:bg-white/15"
+          >
             <ArrowLeft aria-hidden="true" size={18} />
             Quay lại
           </Button>
