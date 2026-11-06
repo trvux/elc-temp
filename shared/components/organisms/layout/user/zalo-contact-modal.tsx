@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -41,8 +41,41 @@ interface ZaloContactModalProps {
   trackingContext?: TrackingContext;
 }
 
-export function ZaloContactModal({
-  open,
+// Used by the product buttons on desktop (on a phone the app copies the message and
+// opens Zalo directly; service buttons do that on every device, without this dialog).
+// One goal: send this message to ELC on Zalo. One button copies the text and opens
+// Zalo; in Zalo the visitor just pastes and sends. The body is a separate component
+// so its state starts fresh every time the dialog opens.
+export function ZaloContactModal(props: ZaloContactModalProps) {
+  const { open, onOpenChange, subtitle, productInfo } = props;
+  const products = productInfo ? (Array.isArray(productInfo) ? productInfo : [productInfo]) : [];
+  const description =
+    subtitle ?? (products.length > 1 ? `${products.length} sản phẩm đã gợi ý` : products[0]?.productName);
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-md p-0 overflow-hidden gap-0">
+        <DialogHeader className="px-5 pt-5 pb-4 border-b border-border/50">
+          <div className="flex items-center gap-3">
+            {/* #0068ff = đúng xanh brand Zalo, cố ý không dùng token app (xem docs/design-system.md §4) */}
+            <div className="w-9 h-9 rounded-full bg-[#0068ff] flex items-center justify-center shrink-0">
+              <ZaloIcon aria-hidden="true" size={16} className="text-white" />
+            </div>
+            <div className="min-w-0">
+              <DialogTitle className="type-label">Gửi yêu cầu qua Zalo</DialogTitle>
+              <DialogDescription className="type-legal text-muted-foreground mt-0.5 line-clamp-1">
+                {description}
+              </DialogDescription>
+            </div>
+          </div>
+        </DialogHeader>
+        <ZaloModalBody {...props} />
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+function ZaloModalBody({
   onOpenChange,
   zaloHref,
   zaloPhone,
@@ -55,117 +88,107 @@ export function ZaloContactModal({
   entityId,
   trackingContext,
 }: ZaloContactModalProps) {
-  const [copied, setCopied] = useState(false);
   const products = productInfo ? (Array.isArray(productInfo) ? productInfo : [productInfo]) : [];
-  const message = messageOverride ?? buildZaloProductsMessage(products);
-  // Only attributable to a single entity when this modal is about exactly
-  // one product/service — an array (multi-product) click can't point at
-  // one id, so it's tracked without an entityId rather than picking one
-  // arbitrarily.
+  const text = messageOverride ?? buildZaloProductsMessage(products);
+  const [sent, setSent] = useState(false);
+  const tracked = useRef(false);
+
+  // Only attributable to a single entity when this modal is about exactly one
+  // product/service — an array (multi-product) click can't point at one id.
   const trackableEntityId = Array.isArray(productInfo) ? undefined : entityId;
-  // Same single-entity restriction as trackableEntityId — an array click
-  // has no one name to attribute either.
   const trackableEntityName = Array.isArray(productInfo) ? undefined : (subtitle ?? products[0]?.productName);
 
-  const handleCopyMessage = async () => {
+  // One qualify_lead per opening, at the first real hand-off (copy or open Zalo);
+  // the server also dedups per session. Counting both would report one visitor twice.
+  const trackOnce = () => {
+    if (tracked.current) return;
+    tracked.current = true;
+    trackContactClick({
+      channel: "zalo",
+      leadType,
+      entityId: trackableEntityId,
+      entityName: trackableEntityName,
+      context: trackingContext,
+    });
+  };
+
+  const copyText = async (): Promise<boolean> => {
     try {
-      await navigator.clipboard.writeText(message);
-      setCopied(true);
-      toast.success("Đã sao chép tin nhắn", {
-        description: "Mở Zalo, paste vào cuộc trò chuyện.",
-        duration: 3000,
-      });
-      setTimeout(() => setCopied(false), 3000);
-      // The deliberate hand-off gesture on desktop (where no real
-      // navigation happens elsewhere in this flow) — this IS the moment
-      // the visitor commits to reaching out via Zalo.
-      trackContactClick({ channel: "zalo", leadType, entityId: trackableEntityId, entityName: trackableEntityName, context: trackingContext });
+      await navigator.clipboard.writeText(text);
+      return true;
     } catch {
       toast.error("Không thể sao chép, vui lòng chép thủ công.");
+      return false;
     }
   };
 
-  const handleOpenZaloWeb = () => {
+  // The main action. window.open runs synchronously inside the click so the
+  // browser keeps the user gesture; the copy runs alongside it.
+  const handleCopyAndOpen = () => {
     window.open(zaloHref, "_blank", "noopener,noreferrer");
-    onOpenChange(false);
-    trackContactClick({ channel: "zalo", leadType, entityId: trackableEntityId, entityName: trackableEntityName, context: trackingContext });
+    void copyText().then((ok) => {
+      if (ok) setSent(true);
+    });
+    trackOnce();
   };
 
   const handlePhoneClick = () => {
-    trackContactClick({ channel: "hotline", leadType, entityId: trackableEntityId, entityName: trackableEntityName, context: trackingContext });
+    trackContactClick({
+      channel: "hotline",
+      leadType,
+      entityId: trackableEntityId,
+      entityName: trackableEntityName,
+      context: trackingContext,
+    });
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-sm p-0 overflow-hidden gap-0">
-        {/* Header */}
-        <DialogHeader className="px-5 pt-5 pb-4 border-b border-border/50">
-          <div className="flex items-center gap-3">
-            {/* #0068ff = đúng xanh brand Zalo, cố ý không dùng token app (xem docs/design-system.md §4) */}
-            <div className="w-9 h-9 rounded-full bg-[#0068ff] flex items-center justify-center shrink-0">
-              <ZaloIcon aria-hidden="true" size={16} className="text-white" />
-            </div>
-            <div>
-              <DialogTitle className="type-label">
-                Liên hệ tư vấn qua Zalo
-              </DialogTitle>
-              <DialogDescription className="type-legal text-muted-foreground mt-0.5 line-clamp-1">
-                {subtitle ?? (products.length > 1 ? `${products.length} sản phẩm đã gợi ý` : products[0]?.productName)}
-              </DialogDescription>
-            </div>
-          </div>
-        </DialogHeader>
+    <div className="px-5 py-5 space-y-5">
+      <p
+        role="group"
+        aria-label="Nội dung tin nhắn sẽ gửi"
+        className="rounded-xl border border-border/60 bg-muted/30 px-4 py-3 type-body-sm whitespace-pre-line text-muted-foreground"
+      >
+        {text}
+      </p>
 
-        <div className="px-5 py-4 space-y-4">
-          {/* Message preview */}
-          <div role="group" aria-label="Nội dung tin nhắn sẽ gửi" className="bg-muted/40 rounded-xl px-4 py-3 type-legal whitespace-pre-line border border-border/40 text-muted-foreground">
-            {message}
-          </div>
-
-          {/* Primary CTA: Copy message */}
-          <Button
-            onClick={handleCopyMessage}
-            variant={copied ? "secondary" : "default"}
-            className="w-full"
-            size="default"
-          >
-            {copied ? "Đã sao chép" : "Sao chép tin nhắn"}
-          </Button>
-
-          <p className="type-legal text-muted-foreground text-center">
-            Mở Zalo, tìm số{" "}
-            <span className="type-tag text-foreground">{zaloPhone}</span>
-            {" "}và dán tin nhắn
+      {sent ? (
+        <div role="status" className="space-y-3">
+          <p className="type-body-sm text-foreground">
+            Đã sao chép. Trong Zalo, dán (Ctrl+V) vào cuộc trò chuyện rồi bấm gửi.
           </p>
-
-          {/* Phone fallback */}
-          {phoneHref && phoneNumber && (
-            <>
-              <div className="flex items-center gap-3 text-muted-foreground">
-                <div className="flex-1 h-px bg-border" />
-                <span className="type-legal">hoặc</span>
-                <div className="flex-1 h-px bg-border" />
-              </div>
-              <a
-                href={phoneHref}
-                onClick={handlePhoneClick}
-                className="flex items-center justify-center rounded-lg border border-border/60 bg-background hover:bg-muted/50 transition-colors px-4 py-2.5 type-label text-foreground w-full"
-              >
-                Gọi {phoneNumber}
-              </a>
-            </>
-          )}
-
-          {/* Fallback: open zalo web */}
-          <button
-            onClick={handleOpenZaloWeb}
-            type="button"
-            className="w-full type-legal text-muted-foreground hover:text-foreground transition-colors underline underline-offset-2 text-center"
-          >
-            Mở Zalo Web
-          </button>
+          <div className="flex gap-3">
+            <Button variant="outline" className="flex-1" onClick={handleCopyAndOpen}>
+              Mở lại Zalo
+            </Button>
+            <Button variant="ghost" className="flex-1" onClick={() => onOpenChange(false)}>
+              Đóng
+            </Button>
+          </div>
+          <p className="type-legal text-muted-foreground">
+            Nếu Zalo không tự mở đúng cuộc trò chuyện, tìm số{" "}
+            <span className="type-tag text-foreground">{zaloPhone}</span>.
+          </p>
         </div>
-      </DialogContent>
-    </Dialog>
+      ) : (
+        <div className="space-y-3">
+          <Button onClick={handleCopyAndOpen} className="w-full" size="lg">
+            Mở Zalo để gửi
+          </Button>
+          <p className="type-legal text-muted-foreground text-center">
+            Nội dung được sao chép sẵn, trong Zalo chỉ cần dán và gửi.
+          </p>
+        </div>
+      )}
+
+      {phoneHref && phoneNumber && (
+        <p className="type-legal text-muted-foreground text-center">
+          Hoặc gọi{" "}
+          <a href={phoneHref} onClick={handlePhoneClick} className="type-tag text-foreground underline underline-offset-2">
+            {phoneNumber}
+          </a>
+        </p>
+      )}
+    </div>
   );
 }

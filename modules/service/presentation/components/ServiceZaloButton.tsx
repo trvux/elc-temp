@@ -1,11 +1,9 @@
 "use client";
 
-import { useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/shared/components/ui/button";
 import { trackContactClick } from "@/modules/inquiry";
 import type { CtaPlacement, TrackingContext } from "@/modules/inquiry/domain";
-import { ZaloContactModal } from "@/shared/components/organisms/layout/user/zalo-contact-modal";
 import { buildZaloServiceMessage, isMobileDevice } from "@/shared/lib/zalo-message";
 import { useContacts } from "@/shared/providers/contact-provider";
 import { SERVICE_LINES, type ServiceLine } from "../../domain/line";
@@ -47,65 +45,45 @@ export function ServiceZaloButton({
   size,
   className,
 }: ServiceZaloButtonProps) {
-  const [modalOpen, setModalOpen] = useState(false);
   const contacts = useContacts();
   const zaloContact =
     contacts.find((c) => c.type === "zalo" && c.isActive) || contacts.find((c) => c.type === "zalo");
-  const phoneContact =
-    contacts.find((c) => c.type === "phone" && c.isActive) || contacts.find((c) => c.type === "phone");
-  // Same hardcoded fallback the old card used: the button must never disappear
   // just because contacts have not loaded or are not configured.
   const zaloHref = zaloContact?.href ?? "https://zalo.me/0789978898";
-  const zaloPhoneValue = zaloContact?.value ?? "0789978898";
 
   const info = SERVICE_LINES[line];
   const trackingContext: TrackingContext = { serviceSlug: slug, serviceLine: line, ctaPlacement: placement };
-  const message = buildZaloServiceMessage({
-    serviceName: title,
-    serviceSlug: slug,
-    opener: info.messageOpener,
-    briefPrompts,
-    answers,
-    product,
-  });
+  const compose = (given?: Record<string, string>) =>
+    buildZaloServiceMessage({
+      serviceName: title,
+      serviceSlug: slug,
+      opener: info.messageOpener,
+      briefPrompts,
+      answers: given,
+      product,
+    });
+  // What a phone copies straight away: the answers already collected (lead form), if any.
+  const message = compose(answers);
 
-  const handleClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
-    if (isMobileDevice()) {
-      // Copy fire-and-forget, no preventDefault: the href must open the Zalo
-      // app natively, which needs the original click gesture.
-      navigator.clipboard.writeText(message).catch(() => {});
-      toast.success("Nội dung đã được sao chép", {
-        description: "Dán vào Zalo để gửi cho tư vấn viên.",
-        duration: 4000,
-      });
-      trackContactClick({ channel: "zalo", leadType: "service", entityId: id, entityName: title, context: trackingContext });
-    } else {
-      e.preventDefault();
-      setModalOpen(true);
-      // Tracked inside ZaloContactModal's own actions instead.
-    }
+  // One click on every device: copy the message, open Zalo (the href does it, in a
+  // new tab), and say what to do next. No popup in between. Copy is fire-and-forget
+  // with no preventDefault: the link must open from the original click gesture.
+  const handleClick = () => {
+    navigator.clipboard.writeText(message).catch(() => {});
+    toast.success("Đã sao chép nội dung", {
+      description: isMobileDevice()
+        ? "Dán vào Zalo để gửi cho tư vấn viên."
+        : "Dán (Ctrl+V) vào cuộc trò chuyện Zalo rồi gửi.",
+      duration: 5000,
+    });
+    trackContactClick({ channel: "zalo", leadType: "service", entityId: id, entityName: title, context: trackingContext });
   };
 
   return (
-    <>
-      <Button asChild variant={variant} size={size} className={className}>
-        <a href={zaloHref} target="_blank" rel="noopener noreferrer" onClick={handleClick}>
-          {label ?? info.ctaLabel}
-        </a>
-      </Button>
-      <ZaloContactModal
-        open={modalOpen}
-        onOpenChange={setModalOpen}
-        zaloHref={zaloHref}
-        zaloPhone={zaloPhoneValue}
-        phoneHref={phoneContact?.href}
-        phoneNumber={phoneContact?.value}
-        message={message}
-        subtitle={title}
-        leadType="service"
-        entityId={id}
-        trackingContext={trackingContext}
-      />
-    </>
+    <Button asChild variant={variant} size={size} className={className}>
+      <a href={zaloHref} target="_blank" rel="noopener noreferrer" onClick={handleClick}>
+        {label ?? info.ctaLabel}
+      </a>
+    </Button>
   );
 }
