@@ -80,6 +80,10 @@ if "elc_gone_md" not in s:
 if 'Vary "Accept"' not in s:
     s = s.replace('add_header Cache-Control "no-store" always; return 410;',
                   'add_header Cache-Control "no-store" always; add_header Vary "Accept" always; return 410;')
+# A 308 must carry the query string: Google Ads auto-tagging appends ?gclid=... to the
+# final URL, and UTM links carry ?utm_*; a redirect that drops them loses the attribution.
+# (idempotent: the patched text no longer contains the old one)
+s = s.replace("return 308 $elc_redir; }", "return 308 $elc_redir$is_args$args; }")
 open(p, "w").write(s)
 PY
 
