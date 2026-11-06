@@ -111,6 +111,9 @@ class ApiAllowlistTest(unittest.TestCase):
     def test_admin_lead_export_reaches_next(self):
         self.assertTrue(self.allowed("/api/inquiries/export"))
 
+    def test_customer_file_upload_reaches_next(self):
+        self.assertTrue(self.allowed("/api/inquiries/files"))
+
     def test_existing_routes_still_allowed(self):
         self.assertTrue(self.allowed("/api/contact-click"))
 

@@ -30,7 +30,7 @@ STATIC = ['/', '/san-pham', '/dich-vu', '/du-an', '/tin-tuc', '/thong-tin',
 # Real routes only (app/api/*). Scanners probing /api/.env etc. must not reach Next.
 INFRA = [
     '"~^/_next/" 1;', '"~^/admin(/|$)" 1;',
-    '"~^/api/(contact-click|inquiries/export|link-preview|product-feed|products|recently-viewed)(/[^/]+)?$" 1;',
+    '"~^/api/(contact-click|inquiries/export|inquiries/files|link-preview|product-feed|products|recently-viewed)(/[^/]+)?$" 1;',
     '"~^/(images|logo|brands|fonts)/" 1;', '"~^/\\.well-known/" 1;',
     '"~^/(opengraph|twitter)-image" 1;',
     '"/robots.txt" 1;', '"/favicon.ico" 1;', '"/icon.svg" 1;', '"/apple-icon.svg" 1;',
