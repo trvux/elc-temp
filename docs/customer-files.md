@@ -1,6 +1,6 @@
 # Tệp khách gửi kèm yêu cầu tư vấn (bản vẽ PDF/DWG/DXF, ảnh)
 
-**Status:** Code xong 2026-11-06 (elc-go nhánh `feat/private-attachments`, elc-temp), chờ deploy. Các bước vận hành ở mục "Triển khai" phải làm đủ thì tính năng mới chạy.
+**Status:** Đã deploy 2026-11-06 (elc-go `6c75a9e`, elc-temp `f33d3de`; nginx và `live.py` đã cài trên VPS; chính sách riêng tư đã cập nhật). Self-test lúc khởi động đã `passed` trên R2 thật và một tệp PDF nhỏ đã đi trọn chuỗi trên live. **Còn thiếu: rule hết hạn 365 ngày trên Cloudflare (bước 4), chưa có rule thì tệp chưa tự xoá như chính sách đã nói.**
 
 ## Vì sao có tài liệu này
 
