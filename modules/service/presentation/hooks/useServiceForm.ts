@@ -4,6 +4,7 @@ import * as z from "zod";
 import { useEffect, useState, useRef } from "react";
 import { CreateServiceInput, ServiceWithRelations } from "../../domain/types";
 import { generateSlug } from "@/shared/lib/helpers";
+import { BRIEF_FIELD_KINDS, briefLabels, cleanBriefFieldsForSave } from "../../domain/brief-fields";
 
 const imageAssetSchema = z.object({
   url: z.string(),
@@ -18,7 +19,17 @@ const serviceSchema = z.object({
   line: z.enum(["thi-cong", "dich-vu"]),
   labels: z.array(z.string()).optional(),
   // What the customer should send in the Zalo chat so staff can quote; one per line.
-  briefPrompts: z.array(z.string()).optional(),
+  briefFields: z
+    .array(
+      z.object({
+        key: z.string(),
+        label: z.string(),
+        kind: z.enum(BRIEF_FIELD_KINDS),
+        unit: z.string().optional(),
+        options: z.array(z.string()).optional(),
+      }),
+    )
+    .optional(),
   // Product categories this service applies to (shows the service on those product pages).
   categoryIds: z.array(z.string()).optional(),
   description: z.string().nullable().optional(),
@@ -56,7 +67,7 @@ export function useServiceForm(initialData?: ServiceWithRelations | null) {
       slug: "",
       line: "dich-vu",
       labels: [],
-      briefPrompts: [],
+      briefFields: [],
       categoryIds: [],
       description: null,
       content: null,
@@ -79,7 +90,7 @@ export function useServiceForm(initialData?: ServiceWithRelations | null) {
         slug: initialData.slug,
         line: initialData.line,
         labels: initialData.labels || [],
-        briefPrompts: initialData.briefPrompts,
+        briefFields: initialData.briefFields,
         categoryIds: initialData.categoryIds,
         description: initialData.description,
         content: initialData.content,
@@ -97,7 +108,7 @@ export function useServiceForm(initialData?: ServiceWithRelations | null) {
         slug: "",
         line: "dich-vu",
         labels: [],
-        briefPrompts: [],
+        briefFields: [],
         categoryIds: [],
         description: null,
         content: null,
@@ -150,14 +161,18 @@ export function useServiceForm(initialData?: ServiceWithRelations | null) {
 
   const getFormData = (): CreateServiceInput => {
     const values = form.getValues();
-    
+    // Typed fields are the source; the labels are sent too so the old prompt column stays
+    // consistent for as long as it exists (rollback, and readers that predate typed fields).
+    const briefFields = cleanBriefFieldsForSave(values.briefFields ?? []);
+
     return {
       title: values.title,
       titleAlign: values.titleAlign,
       slug: values.slug,
       line: values.line,
       labels: values.labels,
-      briefPrompts: values.briefPrompts,
+      briefFields,
+      briefPrompts: briefLabels(briefFields),
       categoryIds: values.categoryIds,
       description: values.description,
       content: values.content,

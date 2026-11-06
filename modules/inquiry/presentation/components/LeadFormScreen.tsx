@@ -29,6 +29,7 @@ import { FieldError } from "@/shared/components/ui/field";
 import { Input } from "@/shared/components/ui/input";
 import { Textarea } from "@/shared/components/ui/textarea";
 import * as gtag from "@/shared/lib/gtag";
+import { trackFormStep, trackFormUnknown } from "../track-form-steps";
 
 import { getCategoriesAction } from "@/modules/category/presentation/actions";
 import type { CategoryWithGroup } from "@/modules/category/domain/types";
@@ -72,13 +73,19 @@ import { ChoiceStep } from "./steps/ChoiceStep";
 import { ProductCategoryPickerStep, type PickedProductCategory } from "./steps/ProductCategoryPickerStep";
 import { ServicePickerStep } from "./steps/ServicePickerStep";
 import { BriefStep } from "./steps/BriefStep";
-import { areaBand, parseAreaM2 } from "../../domain/area";
-import { briefPromptsForForm } from "../../domain/brief";
+import {
+  briefFieldsForForm,
+  buildBriefQualify,
+  displayAnswer,
+  isUnknown,
+  UNKNOWN_ANSWER,
+  unsettledFields,
+} from "../../domain/brief";
 import { ServiceZaloButton } from "@/modules/service/presentation/components/ServiceZaloButton";
 import { ProjectTypePickerStep, type PickedProjectType } from "./steps/ProjectTypePickerStep";
 import { ProjectCategoryPickerStep, type PickedProjectCategory } from "./steps/ProjectCategoryPickerStep";
 import { AttachmentStep } from "./steps/AttachmentStep";
-import { AddressStep } from "./steps/AddressStep";
+import { AreaStep, type AreaAnswer } from "./steps/AreaStep";
 
 
 type LeadFormValues = {
@@ -505,31 +512,15 @@ function buildServiceQualify(service: ServiceWithRelations | undefined, fallback
   return { service: service.title, serviceSlug: service.slug, line: service.line };
 }
 
-// What the brief step adds to a service lead's qualify data, as flat strings
-// (qualify_data is a flat key/value map): the answered prompts as readable
-// lines for staff, and how many of the prompts were answered, which the lead
-// priority badge reads. Nothing is added when the visitor answered nothing.
-function buildBriefQualify(
-  service: ServiceWithRelations | undefined,
-  answers: Record<string, string>,
-): Record<string, string> {
-  const prompts = service ? briefPromptsForForm(service.briefPrompts) : [];
-  if (!service || prompts.length === 0) return {};
-  const answered = prompts.filter((prompt) => answers[prompt]?.trim());
-  if (answered.length === 0) return {};
-  const qualify: Record<string, string> = {
-    brief: answered.map((prompt) => `${prompt}: ${answers[prompt].trim()}`).join("\n"),
-    briefAnswered: String(answered.length),
-    briefTotal: String(prompts.length),
-  };
-  // A system installation gets its size band from the area typed in the brief, so the
-  // "Giá trị cao" badge works without a second "how big" question.
-  if (service.line === "thi-cong") {
-    const areaPrompt = answered.find((prompt) => /diện tích/i.test(prompt));
-    const area = areaPrompt ? parseAreaM2(answers[areaPrompt]) : null;
-    if (area !== null) qualify.scale = areaBand(area);
+// What the Zalo message after the form pre-fills: the real answers, by question text. A
+// "Chưa biết" stays blank there, so the visitor can still fill it in while chatting.
+function zaloAnswers(fields: ServiceWithRelations["briefFields"], answers: Record<string, string>): Record<string, string> {
+  const result: Record<string, string> = {};
+  for (const field of fields) {
+    const value = answers[field.key]?.trim();
+    if (value && !isUnknown(value)) result[field.label] = displayAnswer(field, value);
   }
-  return qualify;
+  return result;
 }
 
 interface PickedState {
@@ -596,7 +587,10 @@ export function LeadFormScreen({
   const [services, setServices] = useState<ServiceWithRelations[] | null>(null);
   // Answers to the picked service's brief prompts, keyed by prompt text.
   const [briefAnswers, setBriefAnswers] = useState<Record<string, string>>({});
-  const [briefError, setBriefError] = useState<string | null>(null);
+  // Keys of the brief fields left blank when the visitor tried to continue.
+  const [briefMissing, setBriefMissing] = useState<string[]>([]);
+  const [area, setArea] = useState<AreaAnswer>({ region: "", other: false, address: "" });
+  const [areaError, setAreaError] = useState<string | null>(null);
   const [projectTypes, setProjectTypes] = useState<ProjectTypeWithCategories[] | null>(null);
   // Full facets (price + real spec attributes) for whichever product
   // category was just picked — unscoped, i.e. across every capacity tier
@@ -724,7 +718,7 @@ export function LeadFormScreen({
       // One screen of the service's own brief prompts replaces the old
       // per-kind question sets; the visitor can skip every field.
       if (!serviceId) list.push({ id: "service-picker", kind: "service-picker" });
-      if (pickedService && briefPromptsForForm(pickedService.briefPrompts).length > 0) list.push({ id: "brief", kind: "brief" });
+      if (pickedService && briefFieldsForForm(pickedService.briefFields).length > 0) list.push({ id: "brief", kind: "brief" });
       if (activeLine === "thi-cong") {
         // One structured question beyond the brief: whether to book a site visit. The
         // size comes from the area typed in the brief (see buildBriefQualify), so it is
@@ -777,15 +771,13 @@ export function LeadFormScreen({
           ? "Gửi ảnh mặt bằng / công trình nếu có?"
           : "Gửi ảnh liên quan nếu có?";
     if (!skipAttachment) list.push({ id: "attachment", kind: "attachment", question: attachmentQuestion });
-    // The brief of a service already asks for the address, so the area is not asked again.
-    const briefAsksAddress = branch === "service" && Boolean(pickedService && briefPromptsForForm(pickedService.briefPrompts).length > 0);
-    if (!briefAsksAddress) {
-      list.push({
-        id: "khuVuc",
-        kind: "address",
-        question: branch === "project" ? "Công trình ở khu vực nào?" : "Bạn ở khu vực nào?",
-      });
-    }
+    // Region is always asked here (required, chips) and the street address is optional, so
+    // the brief never asks for an address of its own.
+    list.push({
+      id: "khuVuc",
+      kind: "address",
+      question: branch === "project" ? "Công trình ở khu vực nào?" : "Bạn ở khu vực nào?",
+    });
     if (branch !== "service") {
       list.push({ id: "message", kind: "rhf-textarea", question: "Còn điều gì khác bạn muốn nói không?", description: "Không bắt buộc.", placeholder: "Ghi chú thêm..." });
     }
@@ -833,6 +825,24 @@ export function LeadFormScreen({
   const currentStep = steps[Math.min(stepIndex, steps.length - 1)];
   const isLastStep = stepIndex === steps.length - 1;
 
+  // One event each time a step is shown, so GA4 can chart how many visitors reach each
+  // question. Not for the door menu (no branch yet) or the thank-you screen.
+  const shownStepId = currentStep.id;
+  const shownServiceSlug = pickedService?.slug;
+  useEffect(() => {
+    if (!branch || submitted) return;
+    trackFormStep({
+      stepId: shownStepId,
+      stepIndex: stepIndex + 1,
+      stepTotal: steps.length,
+      branch,
+      serviceSlug: shownServiceSlug,
+      serviceLine: branch === "service" ? activeLine : undefined,
+    });
+    // Only a change of step or door is a new view; the other values are read at that moment.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [shownStepId, branch, submitted]);
+
   // Each step swap re-enters this scroll region at the top — otherwise a
   // step reached while scrolled down a long card grid would carry that
   // scroll offset into the next (possibly short) step.
@@ -874,7 +884,7 @@ export function LeadFormScreen({
           subType,
           qualifyData:
             branch === "service"
-              ? { ...qualify, ...buildServiceQualify(pickedService, activeLine), ...buildBriefQualify(pickedService, briefAnswers) }
+              ? { ...qualify, ...buildServiceQualify(pickedService, activeLine), ...buildBriefQualify(pickedService?.line ?? activeLine, briefFieldsForForm(pickedService?.briefFields ?? []), briefAnswers) }
               : qualify,
           attachments: attachmentUrls,
         },
@@ -906,12 +916,19 @@ export function LeadFormScreen({
   }
 
   function goNext() {
-    // The brief is optional field by field, but a visitor who fills none of it leaves staff
-    // with a name and a number and nothing to quote from: ask for at least one.
+    // Every brief field needs an answer or an explicit "Chưa biết": a visitor who skips them all
+    // leaves staff a name and a number and nothing to quote from, but nobody has to guess.
     if (currentStep.kind === "brief" && pickedService) {
-      const shown = briefPromptsForForm(pickedService.briefPrompts);
-      if (!shown.some((prompt) => briefAnswers[prompt]?.trim())) {
-        setBriefError("Điền ít nhất một mục để ELC báo giá nhanh hơn.");
+      const missing = unsettledFields(briefFieldsForForm(pickedService.briefFields), briefAnswers);
+      if (missing.length > 0) {
+        setBriefMissing(missing.map((field) => field.key));
+        return;
+      }
+    }
+    // Region is required (it says whether ELC can come at all); the street address is not.
+    if (currentStep.kind === "address") {
+      if (area.region.trim() === "") {
+        setAreaError(area.other ? "Nhập tỉnh/thành phố của bạn." : "Chọn khu vực của bạn.");
         return;
       }
     }
@@ -944,6 +961,9 @@ export function LeadFormScreen({
         setPicked({});
         setQualify({});
         setBriefAnswers({});
+        setBriefMissing([]);
+        setArea({ region: "", other: false, address: "" });
+        setAreaError(null);
         return;
       }
       router.push(exitHref);
@@ -1058,7 +1078,7 @@ export function LeadFormScreen({
                 slug={pickedService.slug}
                 line={pickedService.line}
                 briefPrompts={pickedService.briefPrompts}
-                answers={briefAnswers}
+                answers={zaloAnswers(pickedService.briefFields, briefAnswers)}
                 placement="lead-form-done"
                 label="Nhắn Zalo để được báo giá nhanh hơn"
                 size="lg"
@@ -1189,14 +1209,26 @@ export function LeadFormScreen({
 
               {currentStep.kind === "brief" && pickedService && (
                 <BriefStep
-                  prompts={briefPromptsForForm(pickedService.briefPrompts)}
+                  fields={briefFieldsForForm(pickedService.briefFields)}
                   answers={briefAnswers}
-                  onChange={(prompt, value) => {
-                    setBriefAnswers((a) => ({ ...a, [prompt]: value }));
-                    setBriefError(null);
+                  onChange={(key, value) => {
+                    if (value === UNKNOWN_ANSWER) trackFormUnknown(key, pickedService.slug);
+                    setBriefAnswers((a) => ({ ...a, [key]: value }));
+                    setBriefMissing((m) => m.filter((k) => k !== key));
+                  }}
+                  onUnknownAll={() => {
+                    trackFormUnknown("all", pickedService.slug);
+                    setBriefAnswers((a) => {
+                      const next = { ...a };
+                      for (const field of briefFieldsForForm(pickedService.briefFields)) {
+                        if ((next[field.key] ?? "").trim() === "") next[field.key] = UNKNOWN_ANSWER;
+                      }
+                      return next;
+                    });
+                    setBriefMissing([]);
                   }}
                   onKeyDown={handleKeyDown}
-                  error={briefError}
+                  missingKeys={briefMissing}
                 />
               )}
 
@@ -1244,11 +1276,32 @@ export function LeadFormScreen({
               )}
 
               {currentStep.kind === "address" && (
-                <AddressStep
+                <AreaStep
                   question={currentStep.question}
                   description={currentStep.description}
-                  onChange={(v) => setQualify((q) => ({ ...q, [currentStep.id]: v }))}
+                  value={area}
+                  onChange={(next) => {
+                    setArea(next);
+                    setAreaError(null);
+                    // Same flat qualify shape as every other step: region, whether it is outside
+                    // the served area, and the optional street address.
+                    setQualify((q) => {
+                      const { khuVuc: _r, khuVucNgoai: _o, address: _a, ...rest } = q;
+                      void _r;
+                      void _o;
+                      void _a;
+                      const region = next.region.trim();
+                      const address = next.address.trim();
+                      return {
+                        ...rest,
+                        ...(region ? { khuVuc: region } : {}),
+                        ...(region && next.other ? { khuVucNgoai: "1" } : {}),
+                        ...(address ? { address } : {}),
+                      };
+                    });
+                  }}
                   onKeyDown={handleKeyDown}
+                  error={areaError}
                 />
               )}
 

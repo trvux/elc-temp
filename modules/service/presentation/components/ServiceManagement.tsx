@@ -45,6 +45,7 @@ import {
 } from "@/shared/components/ui/select";
 import { Switch } from "@/shared/components/ui/switch";
 import { Textarea } from "@/shared/components/ui/textarea";
+import { BriefFieldsEditor } from "./BriefFieldsEditor";
 import { Plus, X } from "@phosphor-icons/react";
 import { Controller } from "react-hook-form";
 import { TiptapEditor } from "@/shared/components/ui/tiptap-editor";
@@ -341,23 +342,19 @@ export function ServiceManagement({ initialData, categories }: ServiceManagement
 
                     <FieldSeparator />
 
-                    {/* Brief prompts: the blanks the Zalo message gives the customer. */}
+                    {/* Brief fields: what the customer is asked for before staff can quote. */}
                     <FieldSet>
                       <FieldLegend>Thông tin khách cần gửi để được báo giá</FieldLegend>
                       <Controller
                         control={form.control}
-                        name="briefPrompts"
+                        name="briefFields"
                         render={({ field, fieldState }) => (
                           <Field>
-                            <Textarea
-                              value={(field.value ?? []).join("\n")}
-                              onChange={(e) => field.onChange(e.target.value.split("\n"))}
-                              placeholder={"Địa chỉ công trình\nSố tầng và tổng diện tích sàn\nĐã có bản vẽ mặt bằng chưa"}
-                              rows={6}
-                            />
+                            <BriefFieldsEditor value={field.value ?? []} onChange={field.onChange} />
                             <span className="type-legal text-muted-foreground">
-                              Mỗi dòng một ý. Hiện trên trang dịch vụ và thành các dòng để khách điền trong tin nhắn
-                              Zalo, để nhân viên báo giá được ngay. Dòng trống sẽ bị bỏ.
+                              Hiện trên trang dịch vụ, trong tin nhắn Zalo và thành các ô khách điền ở form tư vấn
+                              (mỗi ô có nút &ldquo;Chưa biết&rdquo;). Mục để trống sẽ bị bỏ khi lưu. Mục hỏi địa chỉ,
+                              bản vẽ hoặc ảnh chỉ hiện trên trang và trong Zalo: form đã có bước riêng cho khu vực và tệp đính kèm.
                             </span>
                             <FieldError errors={[fieldState.error]} />
                           </Field>

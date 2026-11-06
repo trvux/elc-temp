@@ -37,6 +37,13 @@ export function computeLeadPriority(inquiry: Inquiry): LeadPriority | null {
     return { label: "Giá trị cao", variant: "default" };
   }
 
+  // The visitor picked "Nơi khác" for the region: ELC has not served that place, so the
+  // question is whether to go there at all, which comes before whether the brief is complete.
+  // Urgent and high-value leads above still win: those are worth a call either way.
+  if (q.khuVucNgoai === "1") {
+    return { label: "Ngoài khu vực", variant: "outline" };
+  }
+
   // A service lead that answered every brief prompt can be quoted straight
   // away, with no round of questions first.
   if (

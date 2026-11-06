@@ -28,7 +28,7 @@ const STATUS_LABEL = Object.fromEntries(INQUIRY_STATUSES.map((s) => [s.value, s.
 
 // Left out of "Thông tin khảo sát": either shown in their own column already, or
 // bookkeeping that means nothing to whoever reads the sheet (counts, a slug).
-const QUALIFY_KEYS_NOT_LISTED = new Set(["khuVuc", "entityName", "briefAnswered", "briefTotal", "serviceSlug"]);
+const QUALIFY_KEYS_NOT_LISTED = new Set(["khuVuc", "khuVucNgoai", "entityName", "briefAnswered", "briefTotal", "briefUnknown", "serviceSlug", "areaBand"]);
 
 function parseDate(iso: string): Date | null {
   const d = new Date(iso);

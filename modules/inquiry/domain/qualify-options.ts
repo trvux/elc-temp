@@ -7,6 +7,8 @@
 // in LeadFormScreen, which is exactly how the admin dialog ended up
 // printing raw codes like "budget: 10-20tr" instead of "10 - 20 triệu".
 
+import { AREA_BANDS } from "./area";
+
 export interface ChoiceOption {
   value: string;
   label: string;
@@ -227,6 +229,10 @@ export const QUALIFY_STEP_LABELS: Record<string, string> = {
   accessDifficulty: "Độ khó tiếp cận",
   rentalDuration: "Thời gian thuê",
   khuVuc: "Khu vực",
+  khuVucNgoai: "Ngoài khu vực phục vụ",
+  address: "Địa chỉ cụ thể",
+  areaBand: "Diện tích (khoảng)",
+  briefUnknown: "Số mục khách chưa biết",
   contactPreference: "Liên hệ qua",
   productCategory: "Dòng sản phẩm",
   serviceGroup: "Nhóm dịch vụ",
@@ -289,6 +295,8 @@ const QUALIFY_VALUE_LABELS: Record<string, Record<string, string>> = {
   contactPreference: toMap(CONTACT_PREFERENCE_OPTIONS),
   householdSize: toMap(WATER_FILTER_HOUSEHOLD_OPTIONS),
   line: { "thi-cong": "Thi công hệ thống", "dich-vu": "Dịch vụ máy lạnh" },
+  khuVucNgoai: { "1": "Có" },
+  areaBand: Object.fromEntries(AREA_BANDS.map((b) => [b.value, b.label])),
 };
 
 // Decodes one qualifyData [key, value] pair for admin display. Falls back

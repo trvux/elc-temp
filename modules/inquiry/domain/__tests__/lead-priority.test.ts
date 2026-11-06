@@ -48,3 +48,20 @@ describe("computeLeadPriority: service leads from the current form", () => {
     expect(computeLeadPriority(lead("project", { scale: ">1000m2" }))?.label).toBe("Giá trị cao");
   });
 });
+
+describe("computeLeadPriority: region outside the served area", () => {
+  it("flags a lead that picked 'Nơi khác'", () => {
+    expect(computeLeadPriority(lead("service", { line: "dich-vu", khuVuc: "Hà Nội", khuVucNgoai: "1" }))?.label).toBe("Ngoài khu vực");
+  });
+
+  it("comes before 'Đủ thông tin báo giá': a complete brief is moot when ELC cannot go there", () => {
+    expect(
+      computeLeadPriority(lead("service", { line: "thi-cong", khuVucNgoai: "1", briefAnswered: "5", briefTotal: "5" }))?.label,
+    ).toBe("Ngoài khu vực");
+  });
+
+  it("does not hide a rush request or a large site", () => {
+    expect(computeLeadPriority(lead("service", { line: "dich-vu", urgency: "gap-1-2-gio", khuVucNgoai: "1" }))?.label).toBe("Hỏa tốc");
+    expect(computeLeadPriority(lead("service", { line: "thi-cong", scale: ">1000m2", khuVucNgoai: "1" }))?.label).toBe("Giá trị cao");
+  });
+});

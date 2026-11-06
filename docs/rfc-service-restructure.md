@@ -1,6 +1,6 @@
 # RFC: tái cấu trúc dịch vụ (schema, hub, trang chi tiết, Zalo)
 
-**Status:** Đề xuất 2026-11-06, đã thống nhất hướng với chủ dự án, chờ bắt đầu Pha A. Chưa có code nào đổi.
+**Status:** Đề xuất 2026-11-06. Pha A, B, C, D đã chạy trên live (line, bỏ nhóm/giá, khối dịch vụ trên trang sản phẩm, form 3 cửa, tracking). Còn lại: **brief có kiểu** (mục "Brief có kiểu" bên dưới), code xong 2026-11-06, chờ deploy và chạy seed; khối "Dự án đã thực hiện" trên trang dịch vụ chưa làm.
 
 ## Vấn đề
 
@@ -124,3 +124,27 @@ Cột `line` và `slug` ổn định là điều kiện để báo cáo "mảng 
 - `project.service.group` trong Go (`ServiceGroupRef`) phải đổi cùng đợt, nếu không API dự án vỡ.
 - `brief_prompts` bản nháp do tao viết theo thông lệ ngành, chưa qua sếp. Phải đánh dấu để sếp duyệt trước khi coi là nội dung chính thức.
 - Pha A không đổi form tư vấn và tracking nên không ảnh hưởng chuyển đổi Ads hiện có.
+
+## Brief có kiểu (`brief_fields`)
+
+`brief_prompts` (chuỗi tự do) không đủ để form khách thu thập dữ liệu dùng được: không biết câu nào là số, câu nào là lựa chọn, và nhiều câu ghép hai ý ("Số tầng **và** tổng diện tích sàn"). Thay bằng `services.brief_fields jsonb`, mỗi phần tử:
+
+```
+{ "key": "area_m2", "label": "Diện tích cần làm lạnh", "kind": "area" }
+```
+
+| kind | Form khách hiển thị | Lưu |
+|---|---|---|
+| `text` | một dòng chữ | chuỗi |
+| `number` (+ `unit`) | số nhỏ kèm đơn vị | chuỗi số |
+| `choice` (+ `options`) | chip chọn một | lựa chọn |
+| `yesno` | Có / Không | "Có" / "Không" |
+| `area` | 8 dải diện tích (dưới 50 m² đến trên 1.000 m²) | mã dải ("100-150") |
+
+- Mọi ô có chip **"Chưa biết"** và nút "Chưa biết hết, để nhân viên hỏi lại". Tiếp tục chỉ bật khi mọi ô đã điền hoặc đánh dấu. "Chưa biết" lưu là `(chưa biết)`, khác ô trống; badge "Đủ thông tin báo giá" chỉ đếm câu trả lời thật.
+- `key` ổn định (sinh từ nhãn, giữ nguyên khi sửa nhãn), để đổi chữ câu hỏi không làm mất nghĩa dữ liệu cũ.
+- Dải diện tích mịn có chủ đích: gộp lại sau được, tách thì không. Mỗi dải ánh xạ về 4 mã `scale` cũ nên badge "Giá trị cao" (> 1.000 m²) giữ nguyên. ELC chưa có số liệu diện tích công trình của riêng mình; xem lại các dải sau khoảng 30 lead qua form.
+- Khu vực luôn hỏi riêng (bắt buộc, chip 14 tỉnh từ `shared/lib/service-areas.ts`, chung nguồn với JSON-LD `areaServed`) kèm địa chỉ cụ thể không bắt buộc. Chọn "Nơi khác" thì lead mang `khuVucNgoai=1` và badge "Ngoài khu vực". Mục hỏi địa chỉ/bản vẽ/ảnh vẫn nằm trong danh sách (trang và tin nhắn Zalo cần) nhưng form bỏ qua vì đã có bước riêng.
+- Tracking: `lead_form_step` (mỗi lần một bước hiện ra) và `lead_form_unknown` (mỗi lần đánh dấu chưa biết).
+
+**Triển khai (expand/contract):** migration 000011 thêm cột, `brief_prompts` giữ nguyên làm đường lùi; chưa có `brief_fields` thì đọc `brief_prompts` như các ô text. Deploy Go trước, FE sau, rồi chạy seed bản nháp (`brief_fields` cho 8 dịch vụ, sếp sửa trong admin). Khi mọi dịch vụ đã có field có kiểu thì mới bỏ cột `brief_prompts` (bước contract riêng).

@@ -1,49 +1,139 @@
 "use client";
 
 import { Input } from "@/shared/components/ui/input";
+import { cn } from "@/shared/lib/utils";
+import type { BriefField } from "@/modules/service/domain/brief-fields";
+
+import { AREA_BANDS } from "../../../domain/area";
+import { isUnknown, UNKNOWN_ANSWER, YES_NO_OPTIONS } from "../../../domain/brief";
 
 interface BriefStepProps {
-  prompts: string[];
+  fields: BriefField[];
   answers: Record<string, string>;
-  onChange: (prompt: string, value: string) => void;
+  onChange: (key: string, value: string) => void;
+  /** "Chưa biết hết": marks every field still blank as unknown in one tap. */
+  onUnknownAll: () => void;
   onKeyDown?: (e: React.KeyboardEvent) => void;
-  // Shown under the fields when the visitor tries to continue with all of them empty.
-  error?: string | null;
+  /** Keys of the blank fields, highlighted after a failed Tiếp tục. */
+  missingKeys?: string[];
 }
 
-// The same list the service page shows ("send these first") and the Zalo
-// message lists, rendered as optional inputs on ONE screen. One source (the
-// service's brief_prompts, edited in admin) instead of a hardcoded question set
-// per kind of support. Nothing here is required: whoever would rather answer in
-// the Zalo chat can continue straight through.
-export function BriefStep({ prompts, answers, onChange, onKeyDown, error }: BriefStepProps) {
+const UNDERLINE_INPUT =
+  "h-auto border-0 border-b-2 border-white/40 rounded-none bg-transparent px-0 py-2 text-white shadow-none placeholder:text-white/50 focus-visible:border-white focus-visible:ring-0 disabled:opacity-40";
+
+function Chip({ selected, onClick, children }: { selected: boolean; onClick: () => void; children: React.ReactNode }) {
+  return (
+    <button
+      type="button"
+      aria-pressed={selected}
+      onClick={onClick}
+      className={cn(
+        "rounded-lg border-2 px-3.5 py-1.5 type-caption transition-colors drop-shadow-sm",
+        selected ? "border-primary bg-primary text-primary-foreground" : "border-white/40 text-white hover:border-white",
+      )}
+    >
+      {children}
+    </button>
+  );
+}
+
+function FieldControl({
+  field,
+  value,
+  onChange,
+  onKeyDown,
+}: {
+  field: BriefField;
+  value: string;
+  onChange: (value: string) => void;
+  onKeyDown?: (e: React.KeyboardEvent) => void;
+}) {
+  const unknown = isUnknown(value);
+  const current = unknown ? "" : value;
+
+  // Every kind ends with the same "Chưa biết" chip: one gesture for "I cannot say",
+  // so a visitor who does not know is never forced to invent an answer or to leave.
+  const unknownChip = (
+    <Chip selected={unknown} onClick={() => onChange(unknown ? "" : UNKNOWN_ANSWER)}>
+      Chưa biết
+    </Chip>
+  );
+
+  if (field.kind === "choice" || field.kind === "yesno" || field.kind === "area") {
+    const options =
+      field.kind === "area"
+        ? AREA_BANDS.map((b) => ({ value: b.value, label: b.label }))
+        : (field.kind === "yesno" ? [...YES_NO_OPTIONS] : (field.options ?? [])).map((o) => ({ value: o, label: o }));
+    return (
+      <div role="group" aria-label={field.label} className="flex flex-wrap gap-2">
+        {options.map((o) => (
+          <Chip key={o.value} selected={current === o.value} onClick={() => onChange(current === o.value ? "" : o.value)}>
+            {o.label}
+          </Chip>
+        ))}
+        {unknownChip}
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex items-end gap-3">
+      <div className="flex min-w-0 flex-1 items-end gap-2">
+        <Input
+          value={current}
+          onChange={(e) => onChange(e.target.value)}
+          onKeyDown={onKeyDown}
+          disabled={unknown}
+          aria-label={field.label}
+          maxLength={field.kind === "number" ? 4 : 300}
+          {...(field.kind === "number" ? { type: "text", inputMode: "numeric" as const, pattern: "[0-9]*" } : {})}
+          placeholder={unknown ? "Chưa biết" : ""}
+          className={UNDERLINE_INPUT}
+        />
+        {field.kind === "number" && field.unit && <span className="type-body-sm pb-2 text-white/80">{field.unit}</span>}
+      </div>
+      <div className="pb-1.5">{unknownChip}</div>
+    </div>
+  );
+}
+
+// One screen with every field the service needs to quote: the right control for each
+// kind and a "Chưa biết" on every one. Nothing may be left blank, so staff never get
+// a lead with a name and nothing to quote from, but nothing forces a guess either.
+export function BriefStep({ fields, answers, onChange, onUnknownAll, onKeyDown, missingKeys = [] }: BriefStepProps) {
   return (
     <div>
       <h1 id="step-question" className="type-headline text-white drop-shadow-sm">
         Thông tin giúp báo giá nhanh hơn
       </h1>
       <p id="step-description" className="type-body mt-3 text-white/80 drop-shadow-sm">
-        Không bắt buộc. Điền được gì thì điền, phần còn lại nhân viên sẽ hỏi lại.
+        Điền hoặc chọn &ldquo;Chưa biết&rdquo; ở từng mục, nhân viên sẽ hỏi lại phần chưa rõ.
       </p>
-      <div className="mt-8 flex flex-col gap-5">
-        {prompts.map((prompt) => (
-          <label key={prompt} className="flex flex-col gap-2">
-            <span className="type-body-sm text-white/90 drop-shadow-sm">{prompt}</span>
-            <Input
-              value={answers[prompt] ?? ""}
-              onChange={(e) => onChange(prompt, e.target.value)}
-              onKeyDown={onKeyDown}
-              maxLength={300}
-              className="h-auto border-0 border-b-2 border-white/40 rounded-none bg-transparent px-0 py-2 text-white shadow-none placeholder:text-white/50 focus-visible:border-white focus-visible:ring-0"
-            />
-          </label>
-        ))}
+      <div className="mt-8 flex flex-col gap-6">
+        {fields.map((field) => {
+          const missing = missingKeys.includes(field.key);
+          return (
+            <div key={field.key} className="flex flex-col gap-2">
+              <span className={cn("type-body-sm drop-shadow-sm", missing ? "text-white underline decoration-2 underline-offset-4" : "text-white/90")}>
+                {field.label}
+              </span>
+              <FieldControl field={field} value={answers[field.key] ?? ""} onChange={(v) => onChange(field.key, v)} onKeyDown={onKeyDown} />
+              {missing && (
+                <span role="alert" className="type-legal text-white drop-shadow-sm">
+                  Điền hoặc chọn &ldquo;Chưa biết&rdquo;.
+                </span>
+              )}
+            </div>
+          );
+        })}
       </div>
-      {error && (
-        <p role="alert" className="type-body-sm mt-5 text-white drop-shadow-sm">
-          {error}
-        </p>
-      )}
+      <button
+        type="button"
+        onClick={onUnknownAll}
+        className="type-body-sm mt-8 text-white/90 underline underline-offset-4 hover:text-white"
+      >
+        Chưa biết hết, để nhân viên hỏi lại
+      </button>
     </div>
   );
 }

@@ -2,6 +2,8 @@ import type { ImageAsset } from "@/shared/lib/image-asset";
 export type { ImageAsset };
 import type { TitleAlign } from "@/shared/lib/title-align";
 import type { ServiceLine } from "./line";
+import type { BriefField } from "./brief-fields";
+export type { BriefField };
 
 type Json =
   | string
@@ -18,7 +20,10 @@ export interface Service {
   slug: string;
   labels: string[] | null;
   line: ServiceLine;
+  // Derived from briefFields (their labels): what the page block and the Zalo message list.
   briefPrompts: string[];
+  // Typed fields of the brief. A service nobody has typed yet gets its old prompts as text fields.
+  briefFields: BriefField[];
   // Product categories this service applies to (admin-edited).
   categoryIds: string[];
   description: string | null;
@@ -42,6 +47,7 @@ export interface CreateServiceInput {
   labels?: string[] | null;
   line?: ServiceLine;
   briefPrompts?: string[];
+  briefFields?: BriefField[];
   categoryIds?: string[];
   description?: string | null;
   content?: Json;

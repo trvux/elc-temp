@@ -33,3 +33,13 @@ describe("areaBand", () => {
     expect(areaBand(1001)).toBe(">1000m2");
   });
 });
+
+describe("AREA_BANDS", () => {
+  it("lists the bands in ascending order and maps each onto a known scale code", async () => {
+    const { AREA_BANDS, areaBandOption } = await import("../area");
+    expect(AREA_BANDS.map((b) => b.value)).toEqual(["<50", "50-100", "100-150", "150-200", "200-300", "300-500", "500-1000", ">1000"]);
+    expect(areaBandOption(">1000")?.scale).toBe(">1000m2");
+    expect(areaBandOption("150-200")?.scale).toBe("<200m2");
+    expect(areaBandOption("nope")).toBeUndefined();
+  });
+});

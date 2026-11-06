@@ -8,6 +8,7 @@ import { unwrapActionResult } from "@/shared/lib/action-result";
 import { groupServicesByLine, normalizeServiceLine } from "../domain/line";
 import { BASE_URL } from "@/shared/lib/seo-schema";
 import { normalizeTitleAlign } from "@/shared/lib/title-align";
+import { briefLabels, effectiveBriefFields, parseBriefFields } from "../domain/brief-fields";
 
 const GO_API_URL = process.env.GO_API_URL;
 
@@ -19,6 +20,7 @@ interface GoServiceResponse {
   labels: string[] | null;
   line: string;
   brief_prompts: string[] | null;
+  brief_fields: unknown;
   category_ids: string[] | null;
   description: string | null;
   content: unknown;
@@ -39,6 +41,8 @@ interface GoErrorResponse {
 }
 
 function mapGoService(row: GoServiceResponse): ServiceWithRelations {
+  // Typed fields, or the old prompts as text fields; briefPrompts is just their labels.
+  const briefFields = effectiveBriefFields(parseBriefFields(row.brief_fields), row.brief_prompts ?? []);
   const service: Service = {
     id: row.id,
     title: row.title,
@@ -46,7 +50,8 @@ function mapGoService(row: GoServiceResponse): ServiceWithRelations {
     slug: row.slug,
     labels: row.labels,
     line: normalizeServiceLine(row.line),
-    briefPrompts: row.brief_prompts ?? [],
+    briefPrompts: briefLabels(briefFields),
+    briefFields,
     categoryIds: row.category_ids ?? [],
     description: row.description,
     content: row.content as Service["content"],
