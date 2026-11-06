@@ -1270,15 +1270,18 @@ export function LeadFormScreen({
           visible regardless of scroll position, same as a typical
           multi-step form's persistent nav bar. */}
       <div className="flex shrink-0 items-center justify-between gap-4 px-6 sm:px-12 pb-6 pt-2">
-        <Button type="button" variant="outline" onClick={goPrev}>
-          <ArrowLeft aria-hidden="true" size={18} />
-          Quay lại
-        </Button>
+        {/* Nothing to go back to on the first step; the X at the top leaves the form. */}
+        {stepIndex > 0 && (
+          <Button type="button" variant="outline" onClick={goPrev}>
+            <ArrowLeft aria-hidden="true" size={18} />
+            Quay lại
+          </Button>
+        )}
 
         {showOkButton && (
-          <div className="flex items-center gap-4">
+          <div className="ml-auto flex items-center gap-4">
             <span aria-hidden="true" className="hidden sm:inline type-body-sm text-white/70 drop-shadow-sm">nhấn Enter ↵</span>
-            <Button type="button" size="lg" onClick={goNext} disabled={submitMutation.isLoading}>
+            <Button type="button" size="lg" variant="outline" onClick={goNext} disabled={submitMutation.isLoading}>
               {isLastStep ? (
                 submitMutation.isLoading ? "Đang gửi..." : "Gửi yêu cầu"
               ) : (
