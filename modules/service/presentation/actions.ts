@@ -22,11 +22,6 @@ interface GoServiceResponse {
   title_align: string;
   slug: string;
   group_id: string | null;
-  category_id: string | null;
-  original_price: number | null;
-  sale_price: number | null;
-  discount_percent: number | null;
-  price_display_text: string | null;
   labels: string[] | null;
   line: string;
   brief_prompts: string[] | null;
@@ -35,14 +30,12 @@ interface GoServiceResponse {
   images: ImageAsset[];
   meta_title: string | null;
   meta_description: string | null;
-  is_featured: boolean;
   is_published: boolean;
   order_index: number;
   created_at: string;
   updated_at: string;
   deleted_at: string | null;
   group: GoRefResponse | null;
-  category: GoRefResponse | null;
 }
 
 interface GoErrorResponse {
@@ -58,11 +51,6 @@ function mapGoService(row: GoServiceResponse): ServiceWithRelations {
     titleAlign: normalizeTitleAlign(row.title_align),
     slug: row.slug,
     groupId: row.group_id,
-    categoryId: row.category_id,
-    originalPrice: row.original_price,
-    salePrice: row.sale_price,
-    discountPercent: row.discount_percent,
-    priceDisplayText: row.price_display_text,
     labels: row.labels,
     line: normalizeServiceLine(row.line),
     briefPrompts: row.brief_prompts ?? [],
@@ -71,7 +59,6 @@ function mapGoService(row: GoServiceResponse): ServiceWithRelations {
     images: row.images || [],
     metaTitle: row.meta_title,
     metaDescription: row.meta_description,
-    isFeatured: row.is_featured,
     isPublished: row.is_published,
     orderIndex: row.order_index,
     createdAt: row.created_at,
@@ -82,27 +69,17 @@ function mapGoService(row: GoServiceResponse): ServiceWithRelations {
   return {
     ...service,
     group: row.group ? { ...emptyServiceGroupShape(), id: row.group.id, name: row.group.name } : null,
-    category: row.category ? { ...emptyCategoryShape(), id: row.category.id, name: row.category.name } : null,
   };
 }
 
-// Go only joins {id, name} for group/category (the only fields any component
-// reads — see docs/service.md). The rest of these nested shapes are unused
-// filler so TypeScript's structural types are satisfied without lying about
-// data we don't actually have.
+// Go only joins {id, name} for the group (the only fields any component reads).
+// The rest of this nested shape is unused filler so TypeScript's structural
+// types are satisfied without lying about data we don't actually have.
 function emptyServiceGroupShape() {
   return {
     slug: "", imageUrl: null, metaTitle: null, metaDescription: null,
     isFeatured: false, isHidden: false, orderIndex: 0, categoryIds: null,
     createdAt: "", updatedAt: "", deletedAt: null,
-  };
-}
-
-function emptyCategoryShape() {
-  return {
-    slug: "", groupId: null, imageUrl: null, metaTitle: null, metaDescription: null,
-    isFeatured: false, isHidden: false, orderIndex: 0, createdAt: "", updatedAt: "", deletedAt: null,
-    group: null,
   };
 }
 
@@ -118,8 +95,6 @@ async function extractErrorMessage(res: Response): Promise<string> {
 function buildFilterParams(options?: ServiceFilter): URLSearchParams {
   const params = new URLSearchParams();
   if (options?.groupId) params.set("group_id", options.groupId);
-  if (options?.categoryId) params.set("category_id", options.categoryId);
-  if (options?.isFeatured !== undefined) params.set("is_featured", String(options.isFeatured));
   if (options?.isPublished !== undefined) params.set("is_published", String(options.isPublished));
   if (options?.search) params.set("search", options.search);
   if (options?.includeDeleted) params.set("include_deleted", "true");
