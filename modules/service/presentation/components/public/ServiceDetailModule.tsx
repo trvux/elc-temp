@@ -3,6 +3,7 @@ import { LeadForm } from "@/modules/inquiry/presentation/components/LeadForm";
 import { ServiceWithRelations } from "@/modules/service/domain/types";
 import { SERVICE_LINES } from "@/modules/service/domain/line";
 import { ServiceZaloButton } from "@/modules/service/presentation/components/ServiceZaloButton";
+import { ServiceDirectorCard } from "@/modules/service/presentation/components/public/ServiceDirectorCard";
 import { Breadcrumbs } from "@/shared/components/organisms/layout/user/breadcrumbs";
 import { PreviewContent } from "@/shared/components/organisms/layout/user/preview-content";
 import RelatedServices from "@/shared/components/organisms/layout/user/related-services";
@@ -191,6 +192,10 @@ export async function ServiceDetailModule({
           )}
         </section>
       )}
+
+      <div className={cn(STYLES.prose, STYLES.section)}>
+        <ServiceDirectorCard />
+      </div>
 
       {faqs.length > 0 && (
         <div className={cn(STYLES.prose, STYLES.section)}>
