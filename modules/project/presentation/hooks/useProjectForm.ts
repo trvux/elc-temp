@@ -9,7 +9,7 @@ import { convertToWebP } from "@/shared/lib/image";
 import { uploadImageFile } from "@/shared/lib/upload-image";
 
 
-import { createProjectSchema, ProjectWithCategory, Json, ImageAsset, TitleAlign } from "../../domain";
+import { createProjectSchema, EMPTY_FACTS, ProjectFacts, ProjectWithCategory, Json, ImageAsset, TitleAlign } from "../../domain";
 import { createProjectAction, updateProjectAction } from "../actions";
 
 export type ProjectFormValues = {
@@ -32,6 +32,7 @@ export type ProjectFormValues = {
   completedAt: string;
   testimonialQuote: string;
   testimonialAuthor: string;
+  facts: ProjectFacts;
 };
 
 export function useProjectForm(
@@ -53,7 +54,9 @@ export function useProjectForm(
       serviceIds: [],
       categories: [],
       images: [],
-      isPublished: true,
+      // New projects start as drafts: publishing is gated on complete facts
+      // (elc-go domain.PublishGaps), so "published" is a deliberate last step.
+      isPublished: false,
       isFeatured: false,
       metaTitle: "",
       metaDescription: "",
@@ -63,6 +66,7 @@ export function useProjectForm(
       completedAt: "",
       testimonialQuote: "",
       testimonialAuthor: "",
+      facts: { ...EMPTY_FACTS },
     },
   });
 

@@ -1,10 +1,36 @@
 import { z } from "zod";
 import { Json } from "./types";
+import { isProvince } from "./provinces";
 
 const imageAssetSchema = z.object({
   url: z.string().url({ message: "Đường dẫn ảnh không hợp lệ" }),
   alt: z.string().optional(),
   caption: z.string().optional(),
+  role: z.enum(["before", "during", "after"]).optional(),
+});
+
+const positiveInt = z
+  .number({ message: "Nhập một số" })
+  .int({ message: "Phải là số nguyên" })
+  .positive({ message: "Phải lớn hơn 0" })
+  .nullable();
+const positiveNum = z.number({ message: "Nhập một số" }).positive({ message: "Phải lớn hơn 0" }).nullable();
+
+export const factsSchema = z.object({
+  province: z.string().refine((v) => v === "" || isProvince(v), { message: "Chọn tỉnh/thành trong danh sách" }),
+  ward: z.string().max(100, { message: "Không nên quá 100 ký tự" }),
+  completedPrecision: z.enum(["day", "month", "year", "unknown"]),
+  clientKind: z.enum(["person", "business"]).nullable(),
+  clientConsentAt: z.string().nullable(),
+  clientConsentNote: z.string().max(300, { message: "Không nên quá 300 ký tự" }),
+  indoorUnits: positiveInt,
+  capacityHp: positiveNum,
+  airflowM3h: positiveInt,
+  areaM2: positiveNum,
+  floors: positiveInt,
+  durationDays: positiveInt,
+  warrantyMonths: positiveInt,
+  brands: z.array(z.string().trim().min(1).max(50)),
 });
 
 export const projectSchema = z.object({
@@ -46,6 +72,7 @@ export const projectSchema = z.object({
   completedAt: z.string().nullable().optional(),
   testimonialQuote: z.string().max(500, { message: "Nhận xét không nên quá 500 ký tự" }).optional(),
   testimonialAuthor: z.string().max(150, { message: "Tên người nhận xét không nên quá 150 ký tự" }).optional(),
+  facts: factsSchema.optional(),
   createdAt: z.iso.datetime({
     message: "Thời gian tạo không đúng định dạng ISO",
   }),

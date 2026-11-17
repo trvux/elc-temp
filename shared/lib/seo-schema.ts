@@ -99,11 +99,13 @@ export interface ProjectInput {
   title: string;
   slug: string;
   description?: string; // excerpt, không phải richtext gốc
-  location?: string;
   images?: { url: string }[];
-  testimonialQuote?: string;
-  testimonialAuthor?: string;
-  clientName?: string;
+  /** Current province name (display form), from the typed facts. */
+  province?: string;
+  /** Titles of the services (systems) the project delivered. */
+  serviceTypes?: string[];
+  /** Brands actually installed on this project. */
+  brands?: string[];
 }
 
 export interface ArticleInput {
@@ -380,7 +382,14 @@ export const SEOSchema = {
     };
   },
 
+  // Project case study. Deliberately NO self-authored Review (a Service
+  // reviewing itself is not eligible for rich results, and the author fell back
+  // to the client's name = personal data), and areaServed only comes from the
+  // typed province — never from the free-text legacy location. Empty fields are
+  // omitted, never emitted blank.
   getProject(project: ProjectInput) {
+    const serviceTypes = (project.serviceTypes ?? []).filter(Boolean);
+    const brands = (project.brands ?? []).filter(Boolean);
     return {
       "@type": "Service",
       "@id": `${BASE_URL}/du-an/${project.slug}#service`,
@@ -391,26 +400,28 @@ export const SEOSchema = {
       "provider": {
         "@id": `${BASE_URL}/#organization`,
       },
-      ...(project.location ? {
+      ...(serviceTypes.length > 0 ? { "serviceType": serviceTypes } : {}),
+      ...(brands.length > 0 ? { "brand": brands.map((name) => ({ "@type": "Brand", name })) } : {}),
+      ...(project.province ? {
         "areaServed": {
           "@type": "AdministrativeArea",
-          "name": project.location,
+          "name": project.province,
         },
       } : {}),
-      // Chỉ thêm review khi ĐÃ có testimonial thật — không tự bịa placeholder,
-      // tránh vi phạm Google structured data guidelines (dữ liệu không đúng
-      // thực tế trang hiển thị). Field này sẽ tự động xuất hiện dần khi nhân
-      // viên điền testimonial theo brief content_brief_eeat_projects.md.
-      ...(project.testimonialQuote ? {
-        "review": {
-          "@type": "Review",
-          "reviewBody": project.testimonialQuote,
-          "author": {
-            "@type": "Person",
-            "name": project.testimonialAuthor || project.clientName || "Khách hàng",
-          },
-        },
-      } : {}),
+    };
+  },
+
+  // The page node for a project: carries the freshness signal (dateModified)
+  // that a Service node cannot, and points at the Service as its main entity.
+  getProjectWebPage(page: { slug: string; title: string; dateModified?: string | null }) {
+    return {
+      "@type": "WebPage",
+      "@id": `${BASE_URL}/du-an/${page.slug}#webpage`,
+      "url": `${BASE_URL}/du-an/${page.slug}`,
+      "name": page.title,
+      "dateModified": page.dateModified || undefined,
+      "mainEntity": { "@id": `${BASE_URL}/du-an/${page.slug}#service` },
+      "isPartOf": { "@id": `${BASE_URL}/#website` },
     };
   },
 

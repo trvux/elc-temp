@@ -5,7 +5,9 @@ import {
   CreateProjectInput,
   UpdateProjectInput,
   ProjectFilter,
+  ProjectFacts,
   ProjectWithCategory,
+  EMPTY_FACTS,
 } from "../domain/index";
 import { authHeaders, toSnakeCaseBody } from "@/shared/lib/go-api";
 import { submitToIndexNow } from "@/shared/lib/indexnow";
@@ -43,6 +45,68 @@ interface GoProjectServiceResponse {
   line: string;
 }
 
+// Wire shape of elc-go's factsDTO (internal/project/presentation/dto.go).
+interface GoFactsResponse {
+  province: string;
+  ward: string;
+  completed_precision: ProjectFacts["completedPrecision"];
+  client_kind: ProjectFacts["clientKind"];
+  client_consent_at: string | null;
+  client_consent_note: string;
+  indoor_units: number | null;
+  capacity_hp: number | null;
+  airflow_m3h: number | null;
+  area_m2: number | null;
+  floors: number | null;
+  duration_days: number | null;
+  warranty_months: number | null;
+  brands: string[] | null;
+}
+
+function mapGoFacts(f: GoFactsResponse | undefined | null): ProjectFacts {
+  // An older Go binary (frontend deployed first) sends no `facts` at all.
+  if (!f) return { ...EMPTY_FACTS };
+  return {
+    province: f.province ?? "",
+    ward: f.ward ?? "",
+    completedPrecision: f.completed_precision ?? "unknown",
+    clientKind: f.client_kind ?? null,
+    clientConsentAt: f.client_consent_at ?? null,
+    clientConsentNote: f.client_consent_note ?? "",
+    indoorUnits: f.indoor_units ?? null,
+    capacityHp: f.capacity_hp ?? null,
+    airflowM3h: f.airflow_m3h ?? null,
+    areaM2: f.area_m2 ?? null,
+    floors: f.floors ?? null,
+    durationDays: f.duration_days ?? null,
+    warrantyMonths: f.warranty_months ?? null,
+    brands: f.brands ?? [],
+  };
+}
+
+// Go decodes a nested object with the same snake_case rule as the top level,
+// but toSnakeCaseBody only converts top-level keys — so facts are mapped by
+// hand. Every key is always sent (null clears a number): Go replaces facts as
+// a whole.
+function toGoFacts(f: ProjectFacts): GoFactsResponse {
+  return {
+    province: f.province,
+    ward: f.ward,
+    completed_precision: f.completedPrecision,
+    client_kind: f.clientKind,
+    client_consent_at: f.clientConsentAt,
+    client_consent_note: f.clientConsentNote,
+    indoor_units: f.indoorUnits,
+    capacity_hp: f.capacityHp,
+    airflow_m3h: f.airflowM3h,
+    area_m2: f.areaM2,
+    floors: f.floors,
+    duration_days: f.durationDays,
+    warranty_months: f.warrantyMonths,
+    brands: f.brands,
+  };
+}
+
 interface GoProjectResponse {
   id: string;
   title: string;
@@ -61,6 +125,8 @@ interface GoProjectResponse {
   completed_at: string | null;
   testimonial_quote: string;
   testimonial_author: string;
+  facts?: GoFactsResponse;
+  publish_gaps?: string[];
   created_at: string;
   updated_at: string;
   deleted_at: string | null;
@@ -121,6 +187,8 @@ function mapGoProject(row: GoProjectResponse): ProjectWithCategory {
     completedAt: row.completed_at,
     testimonialQuote: row.testimonial_quote,
     testimonialAuthor: row.testimonial_author,
+    facts: mapGoFacts(row.facts),
+    publishGaps: row.publish_gaps,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
     deletedAt: row.deleted_at,
@@ -148,6 +216,9 @@ function mapGoProject(row: GoProjectResponse): ProjectWithCategory {
 async function extractErrorMessage(res: Response, fallback: string): Promise<string> {
   try {
     const body = (await res.json()) as GoErrorResponse;
+    // Publish gate: spell out what is missing instead of the bare message.
+    const gaps = body.fields?.publish;
+    if (gaps && gaps.length > 0) return `Chưa đủ điều kiện xuất bản: ${gaps.join("; ")}`;
     return body.message || fallback;
   } catch {
     return fallback;
@@ -194,13 +265,26 @@ function buildProjectFilterParams(filter?: ProjectFilter): URLSearchParams {
   return params;
 }
 
+// Public reads send NO token (and so never call cookies(), which would make
+// every public page dynamic and risks staff-only data landing in a page other
+// people see). elc-go pins unauthenticated reads to published rows and masks
+// personal data; staff screens must use the *Admin* variants below.
 export async function getProjectsAction(options?: ProjectFilter) {
+  return fetchProjects(options, {});
+}
+
+// Staff-only: drafts, include_deleted, real client names, publish_gaps.
+export async function getProjectsAdminAction(options?: ProjectFilter) {
+  return fetchProjects(options, await authHeaders());
+}
+
+async function fetchProjects(options: ProjectFilter | undefined, headers: Record<string, string>) {
   if (!GO_API_URL) {
     return { data: [] as ProjectWithCategory[], error: null };
   }
   try {
     const params = buildProjectFilterParams(options);
-    const res = await fetch(`${GO_API_URL}/projects?${params.toString()}`, { cache: "no-store" });
+    const res = await fetch(`${GO_API_URL}/projects?${params.toString()}`, { cache: "no-store", headers });
     if (!res.ok) {
       return { data: [] as ProjectWithCategory[], error: await extractErrorMessage(res, "Failed to fetch projects") };
     }
@@ -213,15 +297,24 @@ export async function getProjectsAction(options?: ProjectFilter) {
   }
 }
 
-export async function countProjectsAction(
-  options?: Pick<ProjectFilter, "projectTypeId" | "categorySlug" | "categorySlugs" | "serviceSlug" | "serviceSlugs" | "isPublished" | "isFeatured" | "search" | "includeDeleted">,
-) {
+type CountOptions = Pick<ProjectFilter, "projectTypeId" | "categorySlug" | "categorySlugs" | "serviceSlug" | "serviceSlugs" | "isPublished" | "isFeatured" | "search" | "includeDeleted">;
+
+export async function countProjectsAction(options?: CountOptions) {
+  return fetchProjectCount(options, {});
+}
+
+// Staff-only: counts drafts too (dashboard).
+export async function countProjectsAdminAction(options?: CountOptions) {
+  return fetchProjectCount(options, await authHeaders());
+}
+
+async function fetchProjectCount(options: CountOptions | undefined, headers: Record<string, string>) {
   if (!GO_API_URL) {
     return { data: 0, error: null };
   }
   try {
     const params = buildProjectFilterParams(options);
-    const res = await fetch(`${GO_API_URL}/projects/count?${params.toString()}`, { cache: "no-store" });
+    const res = await fetch(`${GO_API_URL}/projects/count?${params.toString()}`, { cache: "no-store", headers });
     if (!res.ok) {
       return { data: 0, error: await extractErrorMessage(res, "Failed to count projects") };
     }
@@ -302,13 +395,14 @@ export async function createProjectAction(input: CreateProjectInput) {
     return { data: null, error: "GO_API_URL is not configured" };
   }
   try {
-    const { categories, ...rest } = input;
+    const { categories, facts, ...rest } = input;
     const res = await fetch(`${GO_API_URL}/projects`, {
       method: "POST",
       headers: { "Content-Type": "application/json", ...(await authHeaders()) },
       body: JSON.stringify({
         ...toSnakeCaseBody(rest),
         categories: toGoCategoryConditions(categories),
+        ...(facts ? { facts: toGoFacts(facts) } : {}),
       }),
     });
     if (!res.ok) {
@@ -337,7 +431,7 @@ export async function updateProjectAction(input: UpdateProjectInput) {
     return { data: null, error: "GO_API_URL is not configured" };
   }
   try {
-    const { id, categories, ...rest } = input;
+    const { id, categories, facts, ...rest } = input;
     const res = await fetch(`${GO_API_URL}/projects/${id}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json", ...(await authHeaders()) },
@@ -350,6 +444,8 @@ export async function updateProjectAction(input: UpdateProjectInput) {
         // "clear all" distinction Go's UpdateProjectInput.Categories
         // (a pointer-to-slice) relies on. See internal/project/domain/types.go.
         ...(categories !== undefined ? { categories: toGoCategoryConditions(categories) } : {}),
+        // Omitted = Go leaves facts untouched; present = replaced as a whole.
+        ...(facts ? { facts: toGoFacts(facts) } : {}),
       }),
     });
     if (!res.ok) {

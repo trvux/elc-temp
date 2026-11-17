@@ -53,10 +53,11 @@ import { getGroupsAction } from "@/modules/group/presentation/actions";
 import { getProjectTypesAction } from "@/modules/project-type/presentation/actions";
 import { SERVICE_LINES, SERVICE_LINE_ORDER } from "@/modules/service/domain/line";
 import { getServicesAction } from "@/modules/service/presentation/actions";
-import { ProjectWithCategory, ImageAsset } from "../../domain";
-import { deleteProjectAction, getProjectsAction } from "../actions";
+import { EMPTY_FACTS, ProjectWithCategory, ImageAsset } from "../../domain";
+import { deleteProjectAction, getProjectsAdminAction } from "../actions";
 import { useProjectForm } from "../hooks/useProjectForm";
 import { getColumns } from "./ProjectColumns";
+import { ProjectFactsSection } from "./ProjectFactsSection";
 
 export function ProjectManagement() {
   const queryClient = useQueryClient();
@@ -84,7 +85,7 @@ export function ProjectManagement() {
   const { data: projects = [], isLoading: isProjectsLoading } = useQuery({
     queryKey: ["projects"],
     queryFn: async () => {
-      const { data, error } = await getProjectsAction({
+      const { data, error } = await getProjectsAdminAction({
         includeDeleted: false,
       });
       if (error) throw new Error(error);
@@ -267,6 +268,7 @@ export function ProjectManagement() {
             completedAt: p.completedAt ? p.completedAt.slice(0, 10) : "",
             testimonialQuote: p.testimonialQuote || "",
             testimonialAuthor: p.testimonialAuthor || "",
+            facts: p.facts ?? { ...EMPTY_FACTS },
           });
         },
         onDelete: setDeletingId,
@@ -286,7 +288,7 @@ export function ProjectManagement() {
       serviceIds: [],
       categories: [],
       images: [],
-      isPublished: true,
+      isPublished: false,
       isFeatured: false,
       metaTitle: "",
       metaDescription: "",
@@ -296,6 +298,7 @@ export function ProjectManagement() {
       completedAt: "",
       testimonialQuote: "",
       testimonialAuthor: "",
+      facts: { ...EMPTY_FACTS },
     });
   }
 
@@ -679,6 +682,22 @@ export function ProjectManagement() {
                                           placeholder="Mô tả ảnh (alt text)"
                                           className="rounded-none border-0 border-t type-legal h-8"
                                         />
+                                        <select
+                                          value={img.role ?? ""}
+                                          onChange={(e) => {
+                                            const next = [...images];
+                                            const role = e.target.value as "" | "before" | "during" | "after";
+                                            next[i] = { ...next[i], role: role || undefined };
+                                            field.onChange(next);
+                                          }}
+                                          className="w-full border-0 border-t bg-transparent type-legal h-8 px-2"
+                                          aria-label="Giai đoạn chụp ảnh"
+                                        >
+                                          <option value="">Giai đoạn: chưa gắn</option>
+                                          <option value="before">Trước thi công</option>
+                                          <option value="during">Đang thi công</option>
+                                          <option value="after">Sau hoàn thiện</option>
+                                        </select>
                                       </div>
                                     ))}
                                   </div>
@@ -758,6 +777,11 @@ export function ProjectManagement() {
                       />
                     </div>
                   </div>
+
+                  <ProjectFactsSection
+                    form={form}
+                    publishGaps={activeProject && activeProject !== "new" ? activeProject.publishGaps : undefined}
+                  />
 
                   {/* SEO Section */}
                   <div className="space-y-6 border p-6 rounded-2xl bg-muted/10">

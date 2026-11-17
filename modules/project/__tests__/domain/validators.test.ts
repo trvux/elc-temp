@@ -83,3 +83,28 @@ describe("Project Domain Validators", () => {
     });
   });
 });
+
+import { factsSchema } from "../../domain/validators";
+import { EMPTY_FACTS } from "../../domain/types";
+
+describe("factsSchema", () => {
+  it("accepts an empty fact set (every number unknown)", () => {
+    expect(factsSchema.safeParse(EMPTY_FACTS).success).toBe(true);
+  });
+  it("only accepts a current province from the list", () => {
+    expect(factsSchema.safeParse({ ...EMPTY_FACTS, province: "Hồ Chí Minh" }).success).toBe(true);
+    expect(factsSchema.safeParse({ ...EMPTY_FACTS, province: "Bình Dương" }).success).toBe(false);
+  });
+  it("rejects zero/negative/fractional counts (null is how 'unknown' is expressed)", () => {
+    expect(factsSchema.safeParse({ ...EMPTY_FACTS, indoorUnits: 0 }).success).toBe(false);
+    expect(factsSchema.safeParse({ ...EMPTY_FACTS, floors: 2.5 }).success).toBe(false);
+    expect(factsSchema.safeParse({ ...EMPTY_FACTS, capacityHp: -1 }).success).toBe(false);
+    expect(factsSchema.safeParse({ ...EMPTY_FACTS, capacityHp: 12.5 }).success).toBe(true);
+  });
+  it("restricts the image role vocabulary", () => {
+    const ok = projectSchema.shape.images.safeParse([{ url: "https://x.com/a.jpg", role: "after" }]);
+    const bad = projectSchema.shape.images.safeParse([{ url: "https://x.com/a.jpg", role: "sideways" }]);
+    expect(ok.success).toBe(true);
+    expect(bad.success).toBe(false);
+  });
+});

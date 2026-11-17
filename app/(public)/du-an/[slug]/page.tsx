@@ -4,6 +4,8 @@ import {ProjectLeadFloatingBar} from "@/modules/inquiry/presentation/components/
 import {getAdjacentProjectsAction} from "@/modules/project/presentation/actions";
 import {ResolvedProjectEntity, resolveProjectPathFromDb} from "@/modules/project/presentation/resolveProjectPath";
 import {ProjectWithCategory} from "@/modules/project/domain/types";
+import {provinceLabel} from "@/modules/project/domain/provinces";
+import {ProjectFactsBlock} from "@/modules/project/presentation/components/public/ProjectFactsBlock";
 import {ProjectListModule} from "@/modules/project/presentation/components/public/ProjectListModule";
 import {RelatedProjects} from "@/modules/project/presentation/components/public/RelatedProjects";
 import {Breadcrumbs} from "@/shared/components/organisms/layout/user/breadcrumbs";
@@ -150,11 +152,15 @@ async function ProjectDetailView({
     title: project.title,
     slug: project.slug,
     description: excerptFromRichText(project.description),
-    location: project.location,
     images: project.images,
-    testimonialQuote: project.testimonialQuote,
-    testimonialAuthor: project.testimonialAuthor,
-    clientName: project.clientName,
+    province: project.facts.province ? provinceLabel(project.facts.province) : undefined,
+    serviceTypes: (project.services ?? []).map((s) => s.title),
+    brands: project.facts.brands,
+  });
+  const webPageSchema = SEOSchema.getProjectWebPage({
+    slug: project.slug,
+    title: project.title,
+    dateModified: project.updatedAt,
   });
 
   const breadcrumbItems = [
@@ -178,7 +184,7 @@ async function ProjectDetailView({
       <ProjectLeadFloatingBar projectId={project.id} entityName={project.title} />
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: toJsonLdHtml({ "@context": "https://schema.org", ...projectSchema }) }}
+        dangerouslySetInnerHTML={{ __html: toJsonLdHtml({ "@context": "https://schema.org", "@graph": [projectSchema, webPageSchema] }) }}
       />
       {/* ===== KHỐI 1: NỘI DUNG BÀI VIẾT ===== */}
       <div id="project-detail-content" className="w-full relative">
@@ -254,6 +260,7 @@ async function ProjectDetailView({
 
           {/* Article content */}
           <div className="mt-4 max-w-2xl mx-auto w-full">
+            <ProjectFactsBlock project={project} />
             <PreviewContent
               content={project.description}
               fallbackAlt={project.title}

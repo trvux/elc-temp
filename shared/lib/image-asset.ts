@@ -6,10 +6,15 @@
 // into `.images[0]`/`.image` directly — that scattering (50+ ad-hoc read
 // sites) is exactly what made the old plain-string-array shape expensive to
 // change once.
+export type ImageRole = "before" | "during" | "after";
+
 export interface ImageAsset {
   url: string;
   alt?: string;
   caption?: string;
+  // Where in the job a project photo was taken. Only project galleries set
+  // it; elc-go (internal/platform/media) round-trips it for every module.
+  role?: ImageRole;
   // Maps aspect ratio label ("4:3", "1:1") to a derivative crop of url,
   // generated at upload time by elc-go's products-folder crop-on-upload
   // (see internal/upload) — only ever populated for product gallery images

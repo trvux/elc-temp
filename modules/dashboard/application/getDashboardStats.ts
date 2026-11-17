@@ -1,7 +1,7 @@
 import { getProductsAction } from "@/modules/catalog/presentation/actions";
 import { CategoryWithGroup } from "@/modules/category/domain/types";
 import { Brand } from "@/modules/brand/domain";
-import { getProjectsAction, countProjectsAction } from "@/modules/project/presentation/actions";
+import { getProjectsAdminAction, countProjectsAdminAction } from "@/modules/project/presentation/actions";
 import { getNewsAction, countNewsAction } from "@/modules/news/presentation/actions";
 import {
   DashboardStats,
@@ -39,12 +39,12 @@ export async function getDashboardStats(
     { data: featuredProjectsRaw },
   ] = await Promise.all([
     getProductsAction({}),
-    countProjectsAction(),
+    countProjectsAdminAction(),
     countNewsAction(),
     getProductsAction({ limit: 5 }),
-    getProjectsAction({ limit: 5, orderBy: "createdAt", orderDirection: "desc" }),
+    getProjectsAdminAction({ limit: 5, orderBy: "createdAt", orderDirection: "desc" }),
     getNewsAction({ limit: 5 }),
-    getProjectsAction({ isFeatured: true }),
+    getProjectsAdminAction({ isFeatured: true }),
   ]);
 
   const productsCount = allProductsRes.totalCount;
