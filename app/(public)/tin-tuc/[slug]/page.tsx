@@ -18,6 +18,7 @@ import {
 import { unwrapActionResult } from "@/shared/lib/action-result";
 import { getExcerptFromContent } from "@/shared/lib/rich-text";
 import { BASE_URL, SEOSchema, toJsonLdHtml } from "@/shared/lib/seo-schema";
+import { FAQAccordion, getFAQsAction } from "@/modules/faq";
 import { ArrowLeft, ArrowRightIcon } from "@phosphor-icons/react/dist/ssr";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -203,6 +204,11 @@ export default async function NewsDetailPage({ params }: PageProps) {
     notFound();
   }
 
+  // FAQ rows for this article. Each answer is the paragraph already shown under
+  // the matching question heading, so the FAQPage markup mirrors visible text.
+  const { data: faqs } = await getFAQsAction("news", newsItem.id);
+  const faqSchema = faqs.length > 0 ? SEOSchema.getFAQPage(faqs) : null;
+
   const title = newsItem.title || "Tin tức";
   const createdAt = newsItem.createdAt || "";
 
@@ -230,6 +236,12 @@ export default async function NewsDetailPage({ params }: PageProps) {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: toJsonLdHtml({ "@context": "https://schema.org", ...articleSchema }) }}
       />
+      {faqSchema && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: toJsonLdHtml({ "@context": "https://schema.org", ...faqSchema }) }}
+        />
+      )}
       {/* Khối 1: Chi tiết bài viết */}
       <div id="news-detail-content" className="w-full relative">
         <div className={cn(STYLES.sectionContainer, "py-10 md:py-16")}>
@@ -297,6 +309,11 @@ export default async function NewsDetailPage({ params }: PageProps) {
               fallbackAlt={title}
             />
           </div>
+          {faqs.length > 0 && (
+            <div className="max-w-2xl mx-auto w-full">
+              <FAQAccordion faqs={faqs} />
+            </div>
+          )}
         </article>
         </div>
       </div>
