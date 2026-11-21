@@ -1,24 +1,37 @@
 import type { Metadata } from "next";
 
 import { HeroSection } from "@/shared/components/organisms/sections/hero";
+import {
+  HomeAbout,
+  HomeCapabilities,
+  HomeContact,
+  HomeFaq,
+  HomeIntentRouter,
+  HomeNews,
+  HomeProcess,
+  HomeProjects,
+} from "@/shared/components/organisms/sections/home-sections";
 
 import { getBrandsAction } from "@/modules/brand/presentation/actions";
+import { getNewsAction } from "@/modules/news/presentation/actions";
+import { getProjectsAction } from "@/modules/project/presentation/actions";
 
 import { unwrapActionResult } from "@/shared/lib/action-result";
-import { BASE_URL } from "@/shared/lib/seo-schema";
+import { HOME_FAQS } from "@/shared/lib/home-content";
+import { BASE_URL, SEOSchema, toJsonLdHtml } from "@/shared/lib/seo-schema";
 
-// Title/description mirror the hero's H1 ("Nhà thầu EPC") and paragraph
-// (làm mát, khử ẩm, lọc không khí, trao đổi khí tươi) so the SERP snippet
-// matches what the visitor lands on. Overrides the site-wide default in root
-// layout.tsx, which stays as the fallback for pages without their own.
-// Wording follows what people actually type (GSC 90 days to 2026-11-02, this
-// page: "điều hòa không khí", "điều hòa thông gió", "máy lạnh", "khí tươi"),
-// not the trade jargon: "MV&AC" and "EPC" had zero search impressions, so
-// "MV&AC" stays in the description only and the title leads with the
-// searched terms.
-const TITLE = "Nhà Thầu EPC Điều Hòa Không Khí & Thông Gió | Điện Máy ELC";
+// Brand + contractor positioning only (RFC §2, §5): the homepage owns "Điện máy
+// ELC" and "nhà thầu thi công điều hòa & thông gió". Product intents ("máy lạnh",
+// "máy lạnh daikin 2hp") stay with /san-pham/*, services with /dich-vu/*.
+// Keyword Planner (seo-harness/data/home_ideas.json, 2026-11-21): brand terms are
+// below the reporting floor ("điện máy elc" 0, "công ty elc" 40; bare "elc" is
+// polluted by a stock ticker), "nhà thầu cơ điện" 4.400 is M&E in general and
+// not ELC's scope, "thi công hệ thống thông gió" 210 and "hệ thống hvac là gì" 320
+// are the closest real demand, so the title leads with brand + "nhà thầu thi
+// công điều hòa & thông gió" and the HVAC definition lives in the FAQ.
+const TITLE = "Điện Máy ELC - Nhà Thầu Thi Công Điều Hòa & Thông Gió HVAC";
 const DESCRIPTION =
-  "Nhà thầu EPC chuyên điều hòa không khí (máy lạnh) và thông gió cơ khí (MV&AC): làm mát, khử ẩm, lọc không khí, trao đổi khí tươi. Thiết kế, cung ứng, thi công.";
+  "Điện máy ELC: nhà thầu EPC khảo sát, thiết kế, cung ứng và thi công điều hòa VRV/VRF, multi, cấp khí tươi thu hồi nhiệt cho biệt thự, văn phòng, nhà hàng tại TP.HCM.";
 
 // Every other page in the app sets its own alternates.canonical — the
 // homepage was the one exception (root layout.tsx's metadata has none),
@@ -44,11 +57,18 @@ export const metadata: Metadata = {
   },
 };
 
-// The homepage is the hero only. Product lists, featured projects and the
-// closing CTA used to follow it, repeating the category and project pages'
-// headings and links under an unrelated H1 (keyword cannibalization).
+// Hero, then sections that state who ELC is and route each intent to the page
+// that owns it. No product grid and no prices: those would repeat /san-pham/* and
+// /dich-vu/* under an unrelated H1 (the cannibalization the 2026-10 commits fixed).
 export default async function Home() {
-  const brands = await getBrandsAction({ limit: 100 }).then(unwrapActionResult);
+  const [brands, projects, news] = await Promise.all([
+    getBrandsAction({ limit: 100 }).then(unwrapActionResult),
+    getProjectsAction({ isPublished: true, orderBy: "orderIndex", orderDirection: "asc" }).then(unwrapActionResult),
+    getNewsAction({ isPublished: true, limit: 3, sortBy: "created_at", sortOrder: "desc" }).then(unwrapActionResult),
+  ]);
+  const featured = [...projects]
+    .sort((a, b) => Number(b.isFeatured) - Number(a.isFeatured))
+    .slice(0, 6);
 
   return (
     <main className="w-full flex flex-col mt-0 mb-0">
@@ -58,6 +78,20 @@ export default async function Home() {
       <div id="hero-chat-region">
         <HeroSection brands={brands || []} />
       </div>
+      <HomeAbout projectCount={projects.length} />
+      <HomeCapabilities />
+      <HomeIntentRouter />
+      <HomeProcess />
+      <HomeProjects projects={featured} />
+      <HomeFaq />
+      <HomeNews news={news} />
+      <HomeContact />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: toJsonLdHtml({ "@context": "https://schema.org", ...SEOSchema.getFAQPage(HOME_FAQS) }),
+        }}
+      />
     </main>
   );
 }

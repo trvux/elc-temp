@@ -105,17 +105,17 @@ export function HeroSection({ brands = [] }: HeroSectionProps) {
             id="hero-heading"
             className="type-display text-white drop-shadow-sm"
           >
-            Nhà thầu EPC{" "}
+            Nhà thầu EPC điều hòa &amp; thông gió{" "}
             <span className="type-body-strong md:type-title mt-2 block text-balance md:whitespace-nowrap">
               (Engineering - Procurement - Construction)
             </span>
           </h1>
 
           <p className="type-body max-w-md text-white/80 drop-shadow-sm">
-            Chuyên về Hệ thống Điều hòa Không khí và Thông gió Cơ khí
-            (Mechanical Ventilation &amp; Air Conditioning - MV&amp;AC). Tập
-            trung hoàn toàn vào làm mát, khử ẩm, lọc không khí và trao đổi khí
-            tươi.
+            Điện máy ELC khảo sát, thiết kế, cung ứng và thi công hệ thống Điều
+            hòa Không khí và Thông gió Cơ khí (Mechanical Ventilation &amp; Air
+            Conditioning - MV&amp;AC): làm mát, khử ẩm, lọc không khí và trao
+            đổi khí tươi.
           </p>
 
           {/* Single CTA into the full-screen consultation form at /form
