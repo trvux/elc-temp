@@ -24,7 +24,12 @@ function placeOf(p: ProjectLike): string {
   return place || p.location?.trim() || "";
 }
 
-export function buildProjectMarkdown(p: ProjectLike): string {
+export interface RelatedProjectItem {
+  title: string;
+  slug: string;
+}
+
+export function buildProjectMarkdown(p: ProjectLike, related: RelatedProjectItem[] = []): string {
   const url = `${BASE_URL}/du-an/${p.slug}`;
   const consented = Boolean(p.facts?.clientConsentAt);
   // Never pass clientName to the fact builder unless consent is on record.
@@ -63,6 +68,12 @@ export function buildProjectMarkdown(p: ProjectLike): string {
       const abs = new URL(img.url, BASE_URL).toString();
       out.push(`- ![${(img.alt || `${p.title} - ảnh ${i + 1}`).replace(/[\[\]\n]/g, " ")}](${abs})`);
     });
+    out.push("");
+  }
+  // Same heading/position as the HTML RelatedProjects block (its card shows only the title).
+  if (related.length > 0) {
+    out.push("## Dự án liên quan", "");
+    for (const r of related) out.push(`- [${r.title}](${BASE_URL}/du-an/${r.slug})`);
     out.push("");
   }
   out.push(`Xem trang đầy đủ: [${p.title}](${url})`, "");

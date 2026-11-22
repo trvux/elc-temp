@@ -50,6 +50,16 @@ describe("buildServiceDetailMarkdown", () => {
   });
 });
 
+describe("related services", () => {
+  it("renders the block with canonical links and descriptions", () => {
+    const base = { title: "A", slug: "a", content: null };
+    expect(buildServiceDetailMarkdown(base)).not.toContain("## Dịch vụ liên quan");
+    const out = buildServiceDetailMarkdown(base, [{ title: "B", slug: "b", description: "Mô tả B" }]);
+    expect(out).toContain("## Dịch vụ liên quan");
+    expect(out).toContain(`- [B](${BASE_URL}/dich-vu/b): Mô tả B`);
+  });
+});
+
 describe("buildServiceNotFoundMarkdown", () => {
   it("is a short 404 body", () => {
     expect(buildServiceNotFoundMarkdown()).toMatch(/^# 404/);

@@ -69,7 +69,10 @@ function serviceLine(s: ServiceIndexItem): string {
   return `- [${s.title}](${BASE_URL}/dich-vu/${s.slug})${d ? `: ${d}` : ""}`;
 }
 
-export function buildServiceDetailMarkdown(s: ServiceDetailInput): string {
+export function buildServiceDetailMarkdown(
+  s: ServiceDetailInput,
+  related: ServiceIndexItem[] = [],
+): string {
   const desc = descriptionText(s.description);
   const url = `${BASE_URL}/dich-vu/${s.slug}`;
   const out: string[] = [
@@ -98,6 +101,11 @@ export function buildServiceDetailMarkdown(s: ServiceDetailInput): string {
   if (s.briefPrompts?.length) {
     out.push("## Thông tin nên chuẩn bị khi liên hệ", "");
     for (const p of s.briefPrompts) out.push(`- ${p}`);
+    out.push("");
+  }
+  if (related.length > 0) {
+    out.push("## Dịch vụ liên quan", "");
+    for (const r of related) out.push(serviceLine(r));
     out.push("");
   }
   out.push(`Trang web: [${s.title}](${url})`, "", buildInquirySection());

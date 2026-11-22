@@ -111,3 +111,24 @@ describe("index and 404", () => {
   });
   it("404 body", () => expect(buildProductNotFoundMarkdown()).toMatch(/^# 404/));
 });
+
+describe("FAQ on list pages and services block on product", () => {
+  const entity = { type: "category" as const, name: "Máy lạnh", slug: "may-lanh" };
+  it("renders list FAQ only when present", () => {
+    const withFaq = buildProductListMarkdown({
+      entity,
+      products: [],
+      totalCount: 0,
+      faqs: [{ question: "Chọn công suất?", answer: "Theo diện tích" }],
+    });
+    expect(withFaq).toContain("## Câu hỏi thường gặp");
+    expect(withFaq).toContain("### Chọn công suất?");
+    expect(buildProductListMarkdown({ entity, products: [], totalCount: 0 })).not.toContain("Câu hỏi thường gặp");
+  });
+  it("renders services with absolute links", () => {
+    const md = buildProductMarkdown(product, { services: [{ title: "Lắp máy lạnh", slug: "lap-may-lanh", description: "Khảo sát" }] });
+    expect(md).toContain("## Lắp đặt và dịch vụ đi kèm");
+    expect(md).toContain(`[Lắp máy lạnh](${BASE_URL}/dich-vu/lap-may-lanh) - Khảo sát`);
+    expect(buildProductMarkdown(product)).not.toContain("Lắp đặt và dịch vụ");
+  });
+});

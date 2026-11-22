@@ -1,5 +1,7 @@
 import { buildFrontmatter, buildInquirySection } from "@/shared/lib/agent-markdown/render";
 import { richTextToMarkdown } from "@/shared/lib/agent-markdown/richtext-to-markdown";
+import type { FAQ } from "@/modules/faq/domain/types";
+import { formatPriceRange } from "@/shared/lib/agent-markdown/render-products";
 import { BASE_URL } from "@/shared/lib/seo-schema";
 
 // Hard safety ceiling only: every published post is listed up to this many.
@@ -17,6 +19,14 @@ export interface NewsDetailInput extends NewsMarkdownItem {
   content: unknown;
   metaDescription?: string | null;
   categoryName?: string | null;
+}
+
+export interface NewsDetailExtras {
+  faqs?: Pick<FAQ, "question" | "answer">[];
+  relatedProducts?: { name: string; slug: string; displayPrice?: number | null; priceMin?: number | null; priceMax?: number | null }[];
+  relatedProductsEntity?: { slug: string } | null;
+  relatedProductsTotal?: number;
+  relatedNews?: NewsMarkdownItem[];
 }
 
 function oneLine(s: string): string {
@@ -66,7 +76,7 @@ export function buildNewsIndexMarkdown(items: NewsMarkdownItem[], total = items.
   return out.join("\n");
 }
 
-export function buildNewsDetailMarkdown(n: NewsDetailInput): string {
+export function buildNewsDetailMarkdown(n: NewsDetailInput, extras: NewsDetailExtras = {}): string {
   const url = `${BASE_URL}/tin-tuc/${n.slug}`;
   const summary = n.excerpt ? oneLine(n.excerpt) : n.metaDescription ? oneLine(n.metaDescription) : "";
   const created = dateOnly(n.createdAt);
@@ -89,6 +99,36 @@ export function buildNewsDetailMarkdown(n: NewsDetailInput): string {
   if (summary) out.push(`> ${summary}`, "");
   const body = richTextToMarkdown(n.content, { baseUrl: BASE_URL });
   if (body) out.push(body, "");
+  const faqs = (extras.faqs ?? []).filter((f) => f.question?.trim() && f.answer?.trim());
+  if (faqs.length > 0) {
+    out.push("## Câu hỏi thường gặp", "");
+    for (const f of faqs) {
+      const a = richTextToMarkdown(f.answer, { baseUrl: BASE_URL }) || oneLine(f.answer);
+      out.push(`### ${oneLine(f.question)}`, "", a, "");
+    }
+  }
+  const products = extras.relatedProducts ?? [];
+  if (products.length > 0) {
+    out.push("## Sản phẩm liên quan", "");
+    for (const p of products) {
+      const price = formatPriceRange(p);
+      out.push(`- [${oneLine(p.name)}](${BASE_URL}/san-pham/${p.slug})${price ? `: ${price}` : ""}`);
+    }
+    const total = extras.relatedProductsTotal ?? 0;
+    if (extras.relatedProductsEntity && total > products.length) {
+      out.push(`- [Xem tất cả ${total} sản phẩm](${BASE_URL}/san-pham/${extras.relatedProductsEntity.slug})`);
+    }
+    out.push("");
+  }
+  const relNews = extras.relatedNews ?? [];
+  if (relNews.length > 0) {
+    out.push("## Bài viết liên quan", "");
+    for (const r of relNews) {
+      const d = dateOnly(r.createdAt);
+      out.push(`- [${oneLine(r.title)}](${BASE_URL}/tin-tuc/${r.slug})${d ? ` (${d})` : ""}`);
+    }
+    out.push("");
+  }
   out.push(`Bản HTML: [${url}](${url}) · [Tất cả tin tức](${BASE_URL}/tin-tuc)`, "", buildInquirySection());
   return out.join("\n");
 }

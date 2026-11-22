@@ -3,7 +3,10 @@ import { getBranchesAction } from "@/modules/branch/presentation/actions";
 import { getBrandsAction } from "@/modules/brand/presentation/actions";
 import { getCategoriesAction } from "@/modules/category/presentation/actions";
 import { getContactsAction } from "@/modules/contact/presentation/actions";
+import { getNewsAction } from "@/modules/news/presentation/actions";
+import { getProjectsAction } from "@/modules/project/presentation/actions";
 import { getServicesAction } from "@/modules/service/presentation/actions";
+import { unwrapActionResult } from "@/shared/lib/action-result";
 import { buildHomeMarkdown, markdownHeaders } from "@/shared/lib/agent-markdown/render";
 
 // Not a public URL: proxy.ts rewrites `GET /` here when the client prefers
@@ -12,13 +15,17 @@ import { buildHomeMarkdown, markdownHeaders } from "@/shared/lib/agent-markdown/
 export async function GET() {
   await connection();
 
-  const [contacts, branches, categories, brands, services] = await Promise.all([
+  const [contacts, branches, categories, brands, services, projects, news] = await Promise.all([
     getContactsAction(),
     getBranchesAction({ isPublished: true }),
     getCategoriesAction(),
     getBrandsAction({ limit: 100 }),
     getServicesAction({ isPublished: true }),
+    getProjectsAction({ isPublished: true, orderBy: "orderIndex", orderDirection: "asc" }).then(unwrapActionResult),
+    getNewsAction({ isPublished: true, limit: 3, sortBy: "created_at", sortOrder: "desc" }).then(unwrapActionResult),
   ]);
+  // Same selection as app/(public)/page.tsx.
+  const featured = [...projects].sort((a, b) => Number(b.isFeatured) - Number(a.isFeatured)).slice(0, 6);
 
   const body = buildHomeMarkdown({
     contacts: contacts.data,
@@ -28,6 +35,9 @@ export async function GET() {
       .map((c) => ({ name: c.name, slug: c.slug })),
     brands: brands.data,
     services: services.data,
+    projectCount: projects.length,
+    projects: featured.map((p) => ({ title: p.title, slug: p.slug })),
+    news: news.map((n) => ({ title: n.title, slug: n.slug, excerpt: n.excerpt })),
   });
 
   return new Response(body, { status: 200, headers: markdownHeaders("/") });

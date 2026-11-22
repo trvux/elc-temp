@@ -52,6 +52,25 @@ export interface ProductExtras {
   reviews?: Review[];
   aggregate?: ReviewAggregate | null;
   related?: ProductListItem[];
+  /** "Lắp đặt và dịch vụ đi kèm": services linked to the product's category (max 3). */
+  services?: ProductServiceLink[];
+}
+
+export interface ProductServiceLink {
+  title: string;
+  slug: string;
+  description?: string | null;
+  labels?: string[] | null;
+}
+
+function pushFaqs(out: string[], items: Pick<FAQ, "question" | "answer">[] | undefined) {
+  const faqs = (items ?? []).filter((f) => f.question?.trim() && f.answer?.trim());
+  if (faqs.length === 0) return;
+  out.push("## Câu hỏi thường gặp", "");
+  for (const f of faqs) {
+    const a = richTextToMarkdown(f.answer, { baseUrl: BASE_URL }) || oneLine(f.answer);
+    out.push(`### ${oneLine(f.question)}`, "", a, "");
+  }
 }
 
 const REVIEW_MAX = 10;
@@ -130,14 +149,23 @@ export function buildProductMarkdown(product: ProductWithRelations, extras: Prod
     out.push("");
   }
 
-  const faqs = (extras.faqs ?? []).filter((f) => f.question?.trim() && f.answer?.trim());
-  if (faqs.length > 0) {
-    out.push("## Câu hỏi thường gặp", "");
-    for (const f of faqs) {
-      const a = richTextToMarkdown(f.answer, { baseUrl: BASE_URL }) || oneLine(f.answer);
-      out.push(`### ${oneLine(f.question)}`, "", a, "");
+  const services = extras.services ?? [];
+  if (services.length > 0) {
+    out.push(
+      "## Lắp đặt và dịch vụ đi kèm",
+      "",
+      "Nhắn Zalo để được khảo sát và báo giá đúng với nơi bạn lắp. Tin nhắn có sẵn tên sản phẩm này.",
+      "",
+    );
+    for (const sv of services) {
+      const desc = sv.description ? ` - ${oneLine(sv.description)}` : "";
+      const labels = sv.labels && sv.labels.length > 0 ? ` (${sv.labels.join(", ")})` : "";
+      out.push(`- [${oneLine(sv.title)}](${BASE_URL}/dich-vu/${sv.slug})${desc}${labels}`);
     }
+    out.push("");
   }
+
+  pushFaqs(out, extras.faqs);
 
   const agg = extras.aggregate;
   if (agg && agg.count > 0) {
@@ -201,6 +229,7 @@ export function buildProductListMarkdown(input: {
   products: ProductListItem[];
   totalCount: number;
   childCategories?: ChildLink[];
+  faqs?: Pick<FAQ, "question" | "answer">[];
 }): string {
   const { entity, products, totalCount } = input;
   const url = productUrl(entity.slug);
@@ -236,6 +265,7 @@ export function buildProductListMarkdown(input: {
       out.push(`Đang hiển thị ${shown} trên tổng ${totalCount} sản phẩm. Xem đầy đủ tại [trang web](${url}).`, "");
     }
   }
+  pushFaqs(out, input.faqs);
   out.push(buildInquirySection());
   return out.join("\n");
 }

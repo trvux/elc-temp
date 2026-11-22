@@ -36,6 +36,35 @@ describe("buildNewsDetailMarkdown", () => {
   });
 });
 
+describe("buildNewsDetailMarkdown extras", () => {
+  const md = buildNewsDetailMarkdown(
+    { title: "X", slug: "x", content: null },
+    {
+      faqs: [{ question: "Hỏi?", answer: "Đáp" }, { question: " ", answer: "bỏ" }],
+      relatedProducts: [{ name: "SP", slug: "sp", displayPrice: 1000000 }, { name: "SP2", slug: "sp2" }],
+      relatedProductsEntity: { slug: "cat" },
+      relatedProductsTotal: 20,
+      relatedNews: [{ title: "B", slug: "b", createdAt: "2026-03-04T00:00:00Z" }],
+    },
+  );
+  it("renders FAQ, related products, related news in order", () => {
+    const i = [md.indexOf("## Câu hỏi thường gặp"), md.indexOf("## Sản phẩm liên quan"), md.indexOf("## Bài viết liên quan")];
+    expect(i.every((v) => v >= 0)).toBe(true);
+    expect([...i].sort((a, b) => a - b)).toEqual(i);
+    expect(md).toContain("### Hỏi?");
+    expect(md).not.toContain("bỏ");
+    expect(md).toContain(`- [SP](${BASE_URL}/san-pham/sp): 1.000.000 VND`);
+    expect(md).toContain(`- [SP2](${BASE_URL}/san-pham/sp2)\n`);
+    expect(md).toContain(`(${BASE_URL}/san-pham/cat)`);
+    expect(md).toContain(`- [B](${BASE_URL}/tin-tuc/b) (2026-03-04)`);
+  });
+  it("omits sections without data", () => {
+    const plain = buildNewsDetailMarkdown({ title: "X", slug: "x", content: null });
+    expect(plain).not.toContain("## Câu hỏi");
+    expect(plain).not.toContain("liên quan");
+  });
+});
+
 describe("buildNewsIndexMarkdown", () => {
   const items = Array.from({ length: 60 }, (_, i) => ({
     title: `T${i}`,

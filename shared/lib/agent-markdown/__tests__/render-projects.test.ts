@@ -47,6 +47,16 @@ describe("buildProjectMarkdown", () => {
   });
 });
 
+describe("related projects", () => {
+  it("renders the block only when related projects exist", () => {
+    expect(buildProjectMarkdown(mk())).not.toContain("## Dự án liên quan");
+    const out = buildProjectMarkdown(mk(), [{ title: "Dự án B", slug: "du-an-b" }]);
+    expect(out).toContain("## Dự án liên quan");
+    expect(out).toContain(`- [Dự án B](${BASE_URL}/du-an/du-an-b)`);
+    expect(out).not.toContain("Nguyen Van Secret");
+  });
+});
+
 describe("buildProjectIndexMarkdown", () => {
   it("lists every project up to the ceiling and flags only a ceiling hit", () => {
     const many = Array.from({ length: 150 }, (_, i) => mk({ title: `P${i}`, slug: `p${i}` }));

@@ -4,6 +4,8 @@ import { getProductsAction } from "@/modules/catalog/presentation/actions";
 import { resolveProductPathFromDb } from "@/modules/catalog/presentation/resolveProductPath";
 import { getRelatedProducts } from "@/modules/catalog/presentation/getRelatedProducts";
 import { getFAQsAction } from "@/modules/faq";
+import { getServicesAction } from "@/modules/service/presentation/actions";
+import { SERVICE_LINE_ORDER } from "@/modules/service/domain/line";
 import { getReviewsAction } from "@/modules/review";
 import { getCategoriesAction } from "@/modules/category/presentation/actions";
 import { MARKDOWN_HEADERS, markdownHeaders } from "@/shared/lib/agent-markdown/render";
@@ -31,12 +33,21 @@ export async function GET(_req: Request, ctx: { params: Promise<{ slug: string }
   if (resolved.type === "product") {
     const product = resolved.data;
     if (product.status === PRODUCT_STATUS.ARCHIVED || !product.category) return notFound();
-    const [related, { data: reviews, aggregate }, { data: faqs }] = await Promise.all([
+    const [related, { data: reviews, aggregate }, { data: faqs }, { data: published }] = await Promise.all([
       getRelatedProducts(product),
       getReviewsAction("product", product.id),
       getFAQsAction("product", product.id),
+      getServicesAction({ isPublished: true }),
     ]);
-    return new Response(buildProductMarkdown(product, { faqs, reviews, aggregate, related }), { status: 200, headers });
+    // Same selection as ProductServicesSection (category-linked, max 3).
+    const services = published
+      .filter((sv) => sv.categoryIds.includes(product.category!.id))
+      .sort(
+        (a, b) =>
+          SERVICE_LINE_ORDER.indexOf(a.line) - SERVICE_LINE_ORDER.indexOf(b.line) || a.orderIndex - b.orderIndex,
+      )
+      .slice(0, 3);
+    return new Response(buildProductMarkdown(product, { faqs, reviews, aggregate, related, services }), { status: 200, headers });
   }
 
   // Same product scoping as ProductListModule (without visitor filters).
@@ -70,7 +81,9 @@ export async function GET(_req: Request, ctx: { params: Promise<{ slug: string }
   });
 
   const d = resolved.data;
+  const { data: faqs } = await getFAQsAction(resolved.type, resolved.data.id);
   const body = buildProductListMarkdown({
+    faqs,
     entity: {
       type: resolved.type,
       name: d.name,

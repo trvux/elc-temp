@@ -17,7 +17,26 @@ export async function GET(_req: Request, ctx: { params: Promise<{ slug: string }
   const entity = await resolveProjectPathFromDb(slug);
 
   if (entity?.type === "project" && entity.data.isPublished !== false) {
-    return new Response(buildProjectMarkdown(entity.data), {
+    const project = entity.data;
+    // Same rule as the HTML RelatedProjects block: same project type (else all
+    // published), minus this one, featured first then orderIndex, first 3.
+    const { data: siblings } = await getProjectsAction({
+      isPublished: true,
+      projectTypeId: project.projectTypeId || undefined,
+    });
+    let pool = siblings.filter((p) => p.id !== project.id);
+    if (pool.length === 0) {
+      const { data: all } = await getProjectsAction({ isPublished: true });
+      pool = all.filter((p) => p.id !== project.id);
+    }
+    const related = pool
+      .sort((a, b) => {
+        if (a.isFeatured && !b.isFeatured) return -1;
+        if (!a.isFeatured && b.isFeatured) return 1;
+        return a.orderIndex - b.orderIndex;
+      })
+      .slice(0, 3);
+    return new Response(buildProjectMarkdown(project, related), {
       status: 200,
       headers: markdownHeaders(`/du-an/${slug}`),
     });

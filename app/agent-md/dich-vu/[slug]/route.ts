@@ -1,6 +1,6 @@
 import { connection } from "next/server";
 import { getFAQsAction } from "@/modules/faq";
-import { getServiceBySlugAction } from "@/modules/service/presentation/actions";
+import { getServiceBySlugAction, getServicesAction } from "@/modules/service/presentation/actions";
 import { MARKDOWN_HEADERS, markdownHeaders } from "@/shared/lib/agent-markdown/render";
 import {
   buildServiceDetailMarkdown,
@@ -16,6 +16,9 @@ export async function GET(_req: Request, ctx: { params: Promise<{ slug: string }
     return new Response(buildServiceNotFoundMarkdown(), { status: 404, headers: MARKDOWN_HEADERS });
   }
   const { data: faqs } = await getFAQsAction("service", service.id);
-  const body = buildServiceDetailMarkdown({ ...service, faqs });
+  // Same rule as the HTML RelatedServices block: other published services of the same line, first 3.
+  const { data: published } = await getServicesAction({ isPublished: true });
+  const related = published.filter((s) => s.line === service.line && s.id !== service.id).slice(0, 3);
+  const body = buildServiceDetailMarkdown({ ...service, faqs }, related);
   return new Response(body, { status: 200, headers: markdownHeaders(`/dich-vu/${service.slug}`) });
 }

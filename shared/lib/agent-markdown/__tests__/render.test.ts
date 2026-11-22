@@ -49,6 +49,34 @@ describe("buildHomeMarkdown", () => {
     expect(md).toContain(`(${BASE_URL}/dich-vu/ve-sinh)`);
   });
 
+  it("has frontmatter and mirrors the HTML homepage sections", () => {
+    expect(md.startsWith("---\n")).toBe(true);
+    expect(md).toContain(`canonical: ${BASE_URL}/`);
+    for (const h of [
+      "## Điện máy ELC là nhà thầu điều hòa và thông gió trọn gói",
+      "## Công trình của bạn cần hệ thống điều hòa, thông gió nào",
+      "## Quy trình nhà thầu EPC chìa khóa trao tay: 5 bước",
+      "## Câu hỏi thường gặp về nhà thầu điều hòa và thông gió",
+      "## Gửi bản vẽ hoặc mô tả công trình để ELC tư vấn",
+    ]) {
+      expect(md).toContain(h);
+    }
+    expect(md).toContain("### Bước 1: Khảo sát và tư vấn");
+    expect(md).toContain("### Điện máy ELC là công ty gì?");
+  });
+
+  it("renders projects and news only when provided", () => {
+    expect(md).not.toContain("## Kiến thức điều hòa");
+    const withData = buildHomeMarkdown({
+      contacts: [], branches: [], categories: [], services: [], brands: [],
+      projectCount: 2,
+      projects: [{ title: "Biệt thự A", slug: "a" }],
+      news: [{ title: "Tin 1", slug: "t1", excerpt: "Tóm tắt" }],
+    });
+    expect(withData).toContain(`[Biệt thự A](${BASE_URL}/du-an/a)`);
+    expect(withData).toContain(`[Tin 1](${BASE_URL}/tin-tuc/t1): Tóm tắt`);
+  });
+
   it("includes active contacts only, plus branches", () => {
     expect(md).toContain("**Hotline**: 0789978898");
     expect(md).not.toContain("Hidden");
