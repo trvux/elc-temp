@@ -178,6 +178,108 @@ export function HomeIntentRouter() {
   );
 }
 
+// Full years since COMPANY.founded ("dd/mm/yyyy"), so the copy never goes stale.
+function yearsInBusiness(): number {
+  const [d, m, y] = COMPANY.founded.split("/").map(Number);
+  const now = new Date();
+  let years = now.getFullYear() - y;
+  if (now.getMonth() + 1 < m || (now.getMonth() + 1 === m && now.getDate() < d)) years -= 1;
+  return Math.max(years, 0);
+}
+
+// Plain-text trust block: service area, commitment, experience. Only facts the
+// company has stated (founding date, "TP.HCM và các tỉnh phía Nam", quality and
+// reputation as the commitment); no prices, durations or warranty terms.
+export function HomeTrust() {
+  const years = yearsInBusiness();
+  const items = [
+    {
+      title: "Khu vực phục vụ: TP.HCM và các tỉnh phía Nam",
+      text: "ELC nhận khảo sát, tư vấn, cung ứng thiết bị và thi công điều hòa, thông gió cho công trình tại TP.HCM và các tỉnh phía Nam. Biệt thự, nhà phố, căn hộ, văn phòng, nhà hàng, cơ sở kinh doanh, trường học, cơ sở y tế và công trình công nghiệp đều nằm trong phạm vi ELC nhận làm. Địa chỉ văn phòng, kho kỹ thuật và số điện thoại liên hệ có trong trang thông tin của ELC.",
+    },
+    {
+      title: "Cam kết uy tín và chất lượng",
+      text: "ELC làm việc theo nguyên tắc uy tín và chất lượng: thiết bị chính hãng từ các thương hiệu như Daikin, LG, Menred, tư vấn đúng nhu cầu và đúng tải lạnh của công trình, thi công theo quy trình kỹ thuật và nghiệm thu bằng văn bản trước khi bàn giao. Khách hàng chỉ ký hợp đồng sau khi đã xem bản vẽ, thiết bị đề xuất và báo giá.",
+    },
+    {
+      title: `Hơn ${years} năm kinh nghiệm thi công điều hòa và thông gió`,
+      text: `Công ty thành lập ngày ${COMPANY.founded}. Trong ${years} năm hoạt động, ELC đã thi công nhiều công trình điều hòa trung tâm VRV/VRF, điều hòa multi, split và hệ thống cấp khí tươi thu hồi nhiệt, đồng thời chăm sóc sau bàn giao bằng dịch vụ vệ sinh, bảo trì và sửa chữa. Các công trình tiêu biểu được đăng đầy đủ ở mục dự án.`,
+    },
+  ];
+  return (
+    <section aria-labelledby="home-trust" className={SECTION}>
+      <SectionHeading
+        id="home-trust"
+        lead="Ba điều khách hàng thường hỏi trước khi chọn nhà thầu: ELC làm ở đâu, cam kết gì và đã làm được bao lâu."
+      >
+        Vì sao chọn Điện máy ELC làm nhà thầu điều hòa và thông gió
+      </SectionHeading>
+      <ul className="grid gap-6 md:grid-cols-3">
+        {items.map((item) => (
+          <li key={item.title} className="flex">
+            <Card className="w-full">
+              <CardHeader>
+                <CardTitle>
+                  <h3>{item.title}</h3>
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="type-body text-muted-foreground">{item.text}</p>
+              </CardContent>
+            </Card>
+          </li>
+        ))}
+      </ul>
+      {/* Prose built only from facts already published on the site (service pages,
+          project types, brand filters, the 5-step process): no price, duration
+          or warranty term. */}
+      <div className="mt-10 flex max-w-3xl flex-col gap-4 type-body text-muted-foreground">
+        <p>
+          Điện máy ELC nhận trọn gói điều hòa không khí và thông gió cho nhiều loại công trình: biệt thự, nhà phố, căn
+          hộ chung cư, văn phòng, trụ sở cơ quan, nhà hàng và trung tâm tiệc cưới, cơ sở kinh doanh, cơ sở giáo dục,
+          cơ sở y tế, khu vui chơi giải trí và công trình công nghiệp. Mỗi loại công trình có nhu cầu khác nhau về tải
+          lạnh, số phòng, mật độ người và chất lượng không khí, nên ELC khảo sát trước rồi mới đề xuất hệ thống phù
+          hợp.
+        </p>
+        <p>
+          Về hệ thống, ELC thi công điều hòa trung tâm VRV/VRF, điều hòa multi, máy lạnh treo tường, âm trần, giấu trần
+          nối ống gió, áp trần và tủ đứng, cùng hệ thống cấp gió tươi thu hồi nhiệt ERV/HRV. Với phòng kín, nhà hàng
+          hay trường học, khí tươi giúp không khí trong nhà không bị ngột trong khi điều hòa vẫn giữ được độ mát.
+          ELC cũng cung cấp máy lọc nước RO chính hãng.
+        </p>
+        <p>
+          Thiết bị được cung ứng từ các thương hiệu Daikin, LG, Menred, Panasonic, Mitsubishi, Toshiba, Samsung,
+          Midea, Gree, Carrier, Hagisu và Acis, chọn theo tải lạnh và ngân sách của từng công trình. Khách có thể xem
+          sản phẩm theo thương hiệu ở mục sản phẩm, hoặc gửi bản vẽ để nhân viên tư vấn đề xuất thiết bị phù hợp.
+        </p>
+        <p>
+          Quy trình làm việc gồm năm bước: khảo sát và tư vấn, thiết kế sơ đồ kỹ thuật, chuẩn bị vật tư, thi công lắp
+          đặt, kiểm tra vận hành và nghiệm thu. Tư vấn, tính tải lạnh, bản vẽ, bóc khối lượng, thi công và giám sát
+          đều do đội của ELC đảm nhận, nên khách chỉ làm việc với một đầu mối từ lúc nêu nhu cầu đến khi bàn giao.
+        </p>
+        <p>
+          Sau khi bàn giao, ELC tiếp tục đồng hành bằng dịch vụ vệ sinh bảo trì định kỳ, sửa chữa, thu cũ đổi mới và
+          cho thuê máy lạnh, áp dụng cho công trình ELC đã thi công và cả máy đang sử dụng. Khu vực phục vụ là TP.HCM
+          và các tỉnh phía Nam. Bạn có thể xem các công trình đã hoàn thành ở mục dự án để hình dung kết quả trước
+          khi liên hệ.
+        </p>
+        <h3 className="type-headline text-foreground">Chọn hệ thống điều hòa nào cho công trình</h3>
+        <p>
+          Công trình có nhiều phòng và cần điều khiển riêng từng khu vực thường phù hợp với điều hòa trung tâm VRV/VRF:
+          một cụm dàn nóng nối nhiều dàn lạnh, chạy theo tải thực tế của từng phòng. Nhà ở chỉ có vài phòng thường
+          dùng điều hòa multi hoặc máy lạnh split đặt riêng cho từng phòng, gọn hơn và dễ bảo trì hơn.
+        </p>
+        <p>
+          Công suất cần chọn phụ thuộc vào diện tích, chiều cao trần, hướng nắng, số người sử dụng và lượng nhiệt từ
+          thiết bị trong phòng, nên chọn theo tính tải lạnh thay vì chỉ theo diện tích. Phòng kín, đông người hoặc có
+          nhiều mùi và hơi nóng nên có thêm hệ thống cấp khí tươi thu hồi nhiệt để không khí trong nhà luôn được thay
+          mới mà điều hòa không phải gánh thêm tải.
+        </p>
+      </div>
+    </section>
+  );
+}
+
 export function HomeProcess() {
   return (
     <section aria-labelledby="home-process" className={SECTION}>

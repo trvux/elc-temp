@@ -661,3 +661,21 @@
     transition-delay: 0s;
   }
 }
+
+/* Hero brand marquee logo. A named class instead of ~20 utilities on every <img>:
+   each logo is rendered twice and serialized twice (HTML + RSC), so the long
+   class string was ~15KB of homepage markup. Hover state keys off the parent
+   link's `group`. */
+@utility brand-logo {
+  object-fit: contain;
+  opacity: 0.6;
+  filter: grayscale(1) invert(1) brightness(0);
+  transition-property: all;
+  transition-duration: 300ms;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+
+  &:where(.group:hover *) {
+    opacity: 1;
+    filter: none;
+  }
+}

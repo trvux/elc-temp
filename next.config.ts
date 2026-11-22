@@ -6,6 +6,11 @@ const nextConfig: NextConfig = {
   allowedDevOrigins: ["192.168.1.238"],
   images: {
     qualities: [75, 90],
+    // Fewer srcset candidates per <Image>: the default 8 deviceSizes + 7 imageSizes
+    // made each tag ~2.5KB, which pushed the homepage's content-to-markup ratio
+    // under the 5% is-agentic threshold (raw HTML and RSC payload both carry it).
+    deviceSizes: [640, 828, 1200, 1920],
+    imageSizes: [64, 128, 256],
     remotePatterns: [
       {
         protocol: "https",

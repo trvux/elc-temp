@@ -53,11 +53,15 @@ export function HeroBrandMarquee({ brands, caption, className }: HeroBrandMarque
                     <div className="relative h-7 w-20 md:h-8 md:w-24">
                       <Image
                         src={brand.logoUrl}
-                        alt={brand.name}
+                        alt={isDuplicate ? "" : brand.name}
                         fill
                         loading="lazy"
+                        // The duplicate pass is decorative and aria-hidden. Optimized, each
+                        // <Image> ships a ~2.5KB srcset, so the second copy of every logo
+                        // doubled the homepage's raw-HTML and RSC weight for no benefit.
+                        unoptimized={isDuplicate}
                         sizes="(max-width: 768px) 80px, 96px"
-                        className="object-contain opacity-60 grayscale invert brightness-0 transition-all duration-300 group-hover:opacity-100 group-hover:grayscale-0 group-hover:invert-0 group-hover:brightness-100"
+                        className="brand-logo"
                       />
                     </div>
                   ) : (

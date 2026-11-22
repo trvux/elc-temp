@@ -9,6 +9,7 @@ import {
   HomeIntentRouter,
   HomeNews,
   HomeProcess,
+  HomeTrust,
   HomeProjects,
 } from "@/shared/components/organisms/sections/home-sections";
 
@@ -49,11 +50,15 @@ export const metadata: Metadata = {
     siteName: "Điện máy ELC",
     locale: "vi_VN",
     type: "website",
+    // Setting openGraph here replaces the layout's object, which drops the
+    // file-convention app/opengraph-image.png, so the image is repeated here.
+    images: [{ url: "/opengraph-image.png", width: 1200, height: 630, alt: "Điện máy ELC" }],
   },
   twitter: {
     card: "summary_large_image",
     title: TITLE,
     description: DESCRIPTION,
+    images: ["/opengraph-image.png"],
   },
 };
 
@@ -82,6 +87,7 @@ export default async function Home() {
       <HomeCapabilities />
       <HomeIntentRouter />
       <HomeProcess />
+      <HomeTrust />
       <HomeProjects projects={featured} />
       <HomeFaq />
       <HomeNews news={news} />
