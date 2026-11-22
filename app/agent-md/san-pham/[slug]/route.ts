@@ -2,6 +2,9 @@ import { connection } from "next/server";
 import { PRODUCT_STATUS } from "@/modules/catalog/domain";
 import { getProductsAction } from "@/modules/catalog/presentation/actions";
 import { resolveProductPathFromDb } from "@/modules/catalog/presentation/resolveProductPath";
+import { getRelatedProducts } from "@/modules/catalog/presentation/getRelatedProducts";
+import { getFAQsAction } from "@/modules/faq";
+import { getReviewsAction } from "@/modules/review";
 import { getCategoriesAction } from "@/modules/category/presentation/actions";
 import { MARKDOWN_HEADERS, markdownHeaders } from "@/shared/lib/agent-markdown/render";
 import {
@@ -28,7 +31,12 @@ export async function GET(_req: Request, ctx: { params: Promise<{ slug: string }
   if (resolved.type === "product") {
     const product = resolved.data;
     if (product.status === PRODUCT_STATUS.ARCHIVED || !product.category) return notFound();
-    return new Response(buildProductMarkdown(product), { status: 200, headers });
+    const [related, { data: reviews, aggregate }, { data: faqs }] = await Promise.all([
+      getRelatedProducts(product),
+      getReviewsAction("product", product.id),
+      getFAQsAction("product", product.id),
+    ]);
+    return new Response(buildProductMarkdown(product, { faqs, reviews, aggregate, related }), { status: 200, headers });
   }
 
   // Same product scoping as ProductListModule (without visitor filters).

@@ -2,7 +2,8 @@ import { buildFrontmatter, buildInquirySection } from "@/shared/lib/agent-markdo
 import { richTextToMarkdown } from "@/shared/lib/agent-markdown/richtext-to-markdown";
 import { BASE_URL } from "@/shared/lib/seo-schema";
 
-export const NEWS_INDEX_LIMIT = 50;
+// Hard safety ceiling only: every published post is listed up to this many.
+export const NEWS_INDEX_LIMIT = 500;
 
 export interface NewsMarkdownItem {
   title: string;

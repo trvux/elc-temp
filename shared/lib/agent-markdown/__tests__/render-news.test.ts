@@ -43,11 +43,17 @@ describe("buildNewsIndexMarkdown", () => {
     createdAt: "2026-01-02T00:00:00Z",
     excerpt: "e",
   }));
-  it("caps and says so", () => {
-    const md = buildNewsIndexMarkdown(items, 180);
-    expect(md.match(/^- \[/gm)).toHaveLength(NEWS_INDEX_LIMIT);
-    expect(md).toContain("trên tổng số 180");
+  it("lists every item without a note when under the ceiling", () => {
+    const md = buildNewsIndexMarkdown(items, 60);
+    expect(md.match(/^- \[/gm)).toHaveLength(60);
+    expect(md).not.toContain("trên tổng số");
     expect(md).toContain(`[T0](${BASE_URL}/tin-tuc/t0) (2026-01-02): e`);
+  });
+  it("caps only at the safety ceiling and says so", () => {
+    const many = Array.from({ length: NEWS_INDEX_LIMIT + 1 }, (_, i) => ({ title: `T${i}`, slug: `t${i}` }));
+    const md = buildNewsIndexMarkdown(many, NEWS_INDEX_LIMIT + 1);
+    expect(md.match(/^- \[/gm)).toHaveLength(NEWS_INDEX_LIMIT);
+    expect(md).toContain(`trên tổng số ${NEWS_INDEX_LIMIT + 1}`);
   });
   it("handles empty", () => {
     expect(buildNewsIndexMarkdown([])).toContain("chưa có tin tức");

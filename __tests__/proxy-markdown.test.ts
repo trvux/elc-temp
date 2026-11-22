@@ -56,10 +56,23 @@ describe("proxy markdown negotiation", () => {
   });
 
   it("does not add Vary or rewrite on other paths", async () => {
-    // /form has no Markdown representation, so Accept: text/markdown must not change anything.
-    const res = await proxy(req("/form", "text/markdown"));
+    // /login has no Markdown representation, so Accept: text/markdown must not change anything.
+    const res = await proxy(req("/login", "text/markdown"));
     expect(res.headers.get("x-middleware-rewrite")).toBeNull();
     expect(res.headers.get("vary")).toBeNull();
+  });
+
+  it("rewrites any CMS page slug (Accept or .md), but not reserved routes", async () => {
+    const rewrite = async (path: string, accept?: string) =>
+      (await proxy(req(path, accept))).headers.get("x-middleware-rewrite");
+    expect(await rewrite("/trang-moi-tao", "text/markdown")).toBe("http://dienmayelc.com.vn/agent-md/trang/trang-moi-tao");
+    expect(await rewrite("/trang-moi-tao.md")).toBe("http://dienmayelc.com.vn/agent-md/trang/trang-moi-tao");
+    expect(await rewrite("/trang-moi-tao")).toBeNull();
+    expect(await rewrite("/form", "text/markdown")).toBe("http://dienmayelc.com.vn/agent-md/form");
+    expect(await rewrite("/form.md")).toBe("http://dienmayelc.com.vn/agent-md/form");
+    for (const p of ["/login", "/admin", "/api", "/about", "/magic-link"]) {
+      expect(await rewrite(p, "text/markdown"), p).toBeNull();
+    }
   });
 
   it("does not rewrite non-read methods", async () => {

@@ -48,12 +48,17 @@ describe("buildProjectMarkdown", () => {
 });
 
 describe("buildProjectIndexMarkdown", () => {
-  it("lists links and flags truncation", () => {
-    const many = Array.from({ length: PROJECT_INDEX_LIMIT + 1 }, (_, i) => mk({ title: `P${i}`, slug: `p${i}` }));
+  it("lists every project up to the ceiling and flags only a ceiling hit", () => {
+    const many = Array.from({ length: 150 }, (_, i) => mk({ title: `P${i}`, slug: `p${i}` }));
     const md = buildProjectIndexMarkdown(many);
-    expect(md).toContain(`(${BASE_URL}/du-an/p0)`);
-    expect(md).not.toContain(`/du-an/p${PROJECT_INDEX_LIMIT})`);
-    expect(md).toContain("Hiển thị");
+    expect(md.match(/^- \[/gm)).toHaveLength(150);
+    expect(md).toContain(`(${BASE_URL}/du-an/p149)`);
+    expect(md).not.toContain("Hiển thị");
+    const over = Array.from({ length: PROJECT_INDEX_LIMIT + 1 }, (_, i) => mk({ title: `P${i}`, slug: `p${i}` }));
+    const capped = buildProjectIndexMarkdown(over);
+    expect(capped.match(/^- \[/gm)).toHaveLength(PROJECT_INDEX_LIMIT);
+    expect(capped).not.toContain(`/du-an/p${PROJECT_INDEX_LIMIT})`);
+    expect(capped).toContain("Hiển thị");
     expect(md).not.toContain("Nguyen Van Secret");
   });
   it("no truncation note for short lists", () => {

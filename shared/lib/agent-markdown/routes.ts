@@ -1,6 +1,8 @@
 // Maps a public path to the internal /agent-md/* handler that renders its
 // Markdown twin. Pure so it can be unit-tested; proxy.ts only calls it.
 
+import redirectsMap from "@/shared/redirects-map.json";
+
 export const MARKDOWN_SECTIONS = ["san-pham", "dich-vu", "du-an", "tin-tuc"] as const;
 
 export interface MarkdownRoute {
@@ -12,16 +14,45 @@ export interface MarkdownRoute {
 
 const SLUG = /^[^/]+$/;
 
-// Top-level static pages (DB `pages` rows rendered by app/(public)/[slug]). The
-// route is a catch-all slug, so only these verified slugs are rewritten; anything
-// else (/form, /login, /api, unknown) must keep its normal HTML behaviour.
-export const STATIC_PAGE_SLUGS = [
-  "gioi-thieu-ve-dien-may-elc",
-  "chinh-sach-thu-thap-va-xu-ly-du-lieu-ca-nhan",
-  "chinh-sach-bao-hanh-san-pham",
-  "chinh-sach-doi-tra-va-hoan-tien",
-  "quy-trinh-thi-cong-lap-dat-may-lanh-chuan-ky-thuat-tai-dien-may-elc",
-] as const;
+// First path segments that are NOT CMS pages. Any other single-segment `/<slug>` is served by
+// app/(public)/[slug] (DB `pages` rows), so it gets a Markdown twin automatically. Everything
+// here must keep its normal behaviour. The unit test walks app/ and public/ and FAILS when a
+// top-level route exists that is neither listed here nor `[slug]`, so a new route is never
+// silently hijacked by the catch-all.
+export const RESERVED_FIRST_SEGMENTS: ReadonlySet<string> = new Set([
+  // app routes and route groups: (admin) (auth) (fullscreen) (public)
+  "admin", "login", "form", "magic-link", "co-so-ha-tang", "thong-tin",
+  "san-pham", "dich-vu", "du-an", "tin-tuc",
+  "api", "agent-md", "_next",
+  // metadata / machine files
+  "sitemap", "sitemap.xml", "robots.txt", "llms.txt", "llms-full.txt",
+  "favicon.ico", "icon.svg", "apple-icon.svg", "opengraph-image", "twitter-image",
+  // public/ folders
+  "images", "logo", "brands", "fonts", ".well-known",
+  // English trust-anchor aliases (308 in next.config.ts + nginx); must redirect, not 404
+  "about", "contact", "privacy",
+  // `/index.md` is the home twin; `/index` itself is not a page
+  "index",
+]);
+
+// Legacy single-segment slugs redirected by shared/proxy.ts (redirects-map.json) and the other
+// single-segment next.config redirects: let them redirect instead of answering Markdown 404.
+const LEGACY_REDIRECT_SLUGS: ReadonlySet<string> = new Set(
+  Object.keys(redirectsMap as Record<string, string>)
+    .filter((k) => k.split("/").length === 2)
+    .map((k) => k.slice(1)),
+);
+
+/** True when `/<slug>` may be a CMS static page (not reserved, not a file, not a legacy redirect). */
+export function isCmsPageSlug(slug: string): boolean {
+  return (
+    slug.length > 0 &&
+    !slug.includes(".") &&
+    !slug.startsWith("_") &&
+    !RESERVED_FIRST_SEGMENTS.has(slug) &&
+    !LEGACY_REDIRECT_SLUGS.has(slug)
+  );
+}
 
 export function resolveMarkdownRoute(pathname: string): MarkdownRoute | null {
   let path = pathname;
@@ -43,7 +74,8 @@ export function resolveMarkdownRoute(pathname: string): MarkdownRoute | null {
     if (parts.length === 2) return { target: "/agent-md/thong-tin", explicit };
     return SLUG.test(parts[2]) ? { target: `/agent-md/thong-tin/${parts[2]}`, explicit } : null;
   }
-  if (parts.length === 2 && (STATIC_PAGE_SLUGS as readonly string[]).includes(section)) {
+  if (parts.length === 2 && section === "form") return { target: "/agent-md/form", explicit };
+  if (parts.length === 2 && isCmsPageSlug(section)) {
     return { target: `/agent-md/trang/${section}`, explicit };
   }
   if (!(MARKDOWN_SECTIONS as readonly string[]).includes(section)) return null;

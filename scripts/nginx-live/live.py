@@ -86,6 +86,26 @@ def redirects_from_csv(p):
     return [(r['from_path'], r['to_path']) for r in csv.DictReader(open(p))]
 
 
+# English trust-anchor aliases probed by AI agents. Kept in sync with next.config.ts and
+# AGENT_ALIASES in redirects.py. Each one also gets a Markdown twin (/about.md -> /gioi-thieu...md).
+AGENT_ALIASES = {
+    '/about': '/gioi-thieu-ve-dien-may-elc',
+    '/contact': '/thong-tin',
+    '/privacy': '/chinh-sach-thu-thap-va-xu-ly-du-lieu-ca-nhan',
+}
+
+
+def add_agent_aliases(table, live):
+    """Add the alias redirects and their .md twins (only when the target is live; never overrides a
+    source that is itself a live page). Returns a new dict."""
+    out = dict(table)
+    for a, b in AGENT_ALIASES.items():
+        if b in live and a not in live:
+            out[a] = b
+            out[a + '.md'] = b + '.md'
+    return out
+
+
 def build_redirects(rows, live, max_hops=10):
     """Return ({source: final_target}, [(source, reason)]) after dropping unsafe rows."""
     live = set(live)
@@ -183,6 +203,7 @@ def main():
         if not rrows and rprev > 50:
             sys.exit(f'REFUSED: 0 redirects in DB (prev ~{rprev}); keeping old redirect map')
         table, skipped = build_redirects(rrows, paths)
+        table = add_agent_aliases(table, paths)
         for src, why in skipped:
             print(f'skipped redirect {src}: {why}', file=sys.stderr)
         targets.append((rout, rold, render_redirects(table)))

@@ -54,6 +54,35 @@ class BuildRedirects(unittest.TestCase):
         self.assertEqual(sorted(s[0] for s in skipped), ["/a", "/b"])
 
 
+class AgentAliases(unittest.TestCase):
+    LIVE_ALIASES = LIVE | {"/gioi-thieu-ve-dien-may-elc", "/thong-tin", "/chinh-sach-thu-thap-va-xu-ly-du-lieu-ca-nhan"}
+
+    def test_aliases_and_markdown_twins_are_added(self):
+        table = live.add_agent_aliases({}, self.LIVE_ALIASES)
+        self.assertEqual(table["/about"], "/gioi-thieu-ve-dien-may-elc")
+        self.assertEqual(table["/about.md"], "/gioi-thieu-ve-dien-may-elc.md")
+        self.assertEqual(table["/contact.md"], "/thong-tin.md")
+        self.assertEqual(table["/privacy.md"], "/chinh-sach-thu-thap-va-xu-ly-du-lieu-ca-nhan.md")
+
+    def test_alias_with_dead_target_is_not_added(self):
+        self.assertEqual(live.add_agent_aliases({}, LIVE), {})
+
+    def test_twins_render_in_the_map(self):
+        text = live.render_redirects(live.add_agent_aliases({}, self.LIVE_ALIASES))
+        self.assertIn('    "/about.md" "/gioi-thieu-ve-dien-may-elc.md";', text)
+
+    def test_aliases_match_redirects_py_and_next_config(self):
+        import re
+        root = HERE.parents[1]
+        src = (root / "scripts/nginx-live/redirects.py").read_text()
+        for a, b in live.AGENT_ALIASES.items():
+            self.assertIn(f"'{a}': '{b}'", src)
+        cfg = (root / "next.config.ts").read_text()
+        for a, b in live.AGENT_ALIASES.items():
+            for ext in ("", ".md"):
+                self.assertRegex(cfg, r'source:\s*"%s",\s*destination:\s*"%s"' % (re.escape(a + ext), re.escape(b + ext)))
+
+
 class RenderRedirects(unittest.TestCase):
     def test_emits_both_slash_variants_in_nginx_map_syntax(self):
         text = live.render_redirects({"/dich-vu/cu": "/dich-vu/moi"})

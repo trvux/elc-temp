@@ -3,12 +3,15 @@ import { STOCK_STATUS_MAP, VARIANT_STOCK_STATUS_MAP } from "@/modules/catalog/do
 import { excerptFromRichText } from "@/shared/lib/rich-text";
 import { BASE_URL } from "@/shared/lib/seo-schema";
 import { buildFrontmatter, buildInquirySection } from "./render";
+import type { FAQ } from "@/modules/faq/domain/types";
+import type { Review, ReviewAggregate } from "@/modules/review/domain/types";
 import { richTextToMarkdown } from "./richtext-to-markdown";
 
 // Pure Markdown builders for /san-pham and /san-pham/<slug>. No I/O: the route
 // handlers under app/agent-md/san-pham fetch and pass plain data in.
 
-export const PRODUCT_LIST_CAP = 50;
+// Hard safety ceiling for the Markdown list (all published products are listed below it).
+export const PRODUCT_LIST_CAP = 500;
 const LIST_CONTENT_MAX_CHARS = 3000;
 
 export const SAN_PHAM_URL = `${BASE_URL}/san-pham`;
@@ -44,7 +47,17 @@ function attributeValueText(av: NonNullable<ProductWithRelations["attributeValue
   return "";
 }
 
-export function buildProductMarkdown(product: ProductWithRelations): string {
+export interface ProductExtras {
+  faqs?: Pick<FAQ, "question" | "answer">[];
+  reviews?: Review[];
+  aggregate?: ReviewAggregate | null;
+  related?: ProductListItem[];
+}
+
+const REVIEW_MAX = 10;
+const oneLine = (s: string) => s.replace(/\s+/g, " ").trim();
+
+export function buildProductMarkdown(product: ProductWithRelations, extras: ProductExtras = {}): string {
   const url = productUrl(product.slug);
   const description =
     product.metaDescription || excerptFromRichText(product.description) || `${product.name} chính hãng tại Điện máy ELC`;
@@ -117,6 +130,42 @@ export function buildProductMarkdown(product: ProductWithRelations): string {
     out.push("");
   }
 
+  const faqs = (extras.faqs ?? []).filter((f) => f.question?.trim() && f.answer?.trim());
+  if (faqs.length > 0) {
+    out.push("## Câu hỏi thường gặp", "");
+    for (const f of faqs) {
+      const a = richTextToMarkdown(f.answer, { baseUrl: BASE_URL }) || oneLine(f.answer);
+      out.push(`### ${oneLine(f.question)}`, "", a, "");
+    }
+  }
+
+  const agg = extras.aggregate;
+  if (agg && agg.count > 0) {
+    out.push("## Đánh giá", "", `- **Điểm trung bình**: ${agg.average}/5 (${agg.count} đánh giá)`, "");
+    const recent = [...(extras.reviews ?? [])]
+      .sort((a, b) => Date.parse(b.createdAt) - Date.parse(a.createdAt))
+      .slice(0, REVIEW_MAX);
+    for (const r of recent) {
+      const d = Number.isNaN(Date.parse(r.createdAt)) ? "" : ` (${r.createdAt.slice(0, 10)})`;
+      const text = oneLine(r.comment ?? "");
+      out.push(`- **${oneLine(r.reviewerName || "Khách hàng")}** - ${r.rating}/5${d}${text ? `: ${text}` : ""}`);
+    }
+    if (recent.length > 0) out.push("");
+  }
+
+  const siblings = (product.capacitySiblings ?? []).filter((c) => !c.isCurrent);
+  const relatedSlugs = new Set((extras.related ?? []).map((r) => r.slug));
+  const siblingOnly = siblings.filter((c) => !relatedSlugs.has(c.slug));
+  if ((extras.related ?? []).length > 0 || siblingOnly.length > 0) {
+    out.push("## Sản phẩm liên quan", "");
+    for (const r of extras.related ?? []) {
+      const rp = formatPriceRange(r);
+      out.push(`- [${r.name}](${productUrl(r.slug)})${rp ? ` - ${rp}` : ""}`);
+    }
+    for (const c of siblingOnly) out.push(`- [${c.name}](${productUrl(c.slug)})${c.capacityLabel ? ` - ${c.capacityLabel}` : ""}`);
+    out.push("");
+  }
+
   out.push(buildInquirySection());
   return out.join("\n");
 }
@@ -176,13 +225,14 @@ export function buildProductListMarkdown(input: {
   if (products.length === 0) {
     out.push("Hiện chưa có sản phẩm nào trong mục này.", "");
   } else {
-    for (const p of products.slice(0, PRODUCT_LIST_CAP)) {
+    const capped = products.slice(0, PRODUCT_LIST_CAP);
+    for (const p of capped) {
       const price = formatPriceRange(p);
       out.push(`- [${p.name}](${productUrl(p.slug)})${price ? ` - ${price}` : ""}`);
     }
     out.push("");
-    const shown = Math.min(products.length, PRODUCT_LIST_CAP);
-    if (totalCount > shown) {
+    const shown = capped.length;
+    if (totalCount > shown && shown >= PRODUCT_LIST_CAP) {
       out.push(`Đang hiển thị ${shown} trên tổng ${totalCount} sản phẩm. Xem đầy đủ tại [trang web](${url}).`, "");
     }
   }

@@ -8,7 +8,7 @@ import { getExcerptFromContent } from "@/shared/lib/rich-text";
 export async function GET() {
   await connection();
   const [list, count] = await Promise.all([
-    getNewsAction({ isPublished: true, sortBy: "created_at", sortOrder: "desc", limit: NEWS_INDEX_LIMIT }),
+    getNewsAction({ isPublished: true, sortBy: "created_at", sortOrder: "desc", limit: NEWS_INDEX_LIMIT + 1 }),
     countNewsAction({ isPublished: true }),
   ]);
   const items = list.data.map((n) => ({

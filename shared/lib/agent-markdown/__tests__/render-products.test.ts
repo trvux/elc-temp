@@ -61,13 +61,42 @@ describe("buildProductMarkdown", () => {
   });
 });
 
+describe("buildProductMarkdown extras", () => {
+  it("renders FAQ, reviews and related", () => {
+    const md = buildProductMarkdown(product, {
+      faqs: [{ question: "Q1?", answer: "A1" }],
+      aggregate: { average: 4.5, count: 2 },
+      reviews: [
+        { id: "1", rating: 4, comment: "ok", reviewerName: "An", createdAt: "2026-01-01T00:00:00Z" },
+        { id: "2", rating: 5, comment: "tot", reviewerName: "Binh", createdAt: "2026-02-01T00:00:00Z" },
+      ],
+      related: [{ name: "R1", slug: "r1", displayPrice: 5000 }],
+    });
+    expect(md).toContain("## Câu hỏi thường gặp");
+    expect(md).toContain("### Q1?");
+    expect(md).toContain("4.5/5 (2 đánh giá)");
+    expect(md.indexOf("Binh")).toBeLessThan(md.indexOf("An"));
+    expect(md).toContain(`[R1](${BASE_URL}/san-pham/r1) - 5.000 VND`);
+  });
+  it("omits sections when empty", () => {
+    const md = buildProductMarkdown(product, { faqs: [], aggregate: { average: 0, count: 0 }, reviews: [], related: [] });
+    expect(md).not.toMatch(/## (Câu hỏi|Đánh giá|Sản phẩm liên quan)/);
+  });
+});
+
 describe("buildProductListMarkdown", () => {
-  const items = Array.from({ length: 60 }, (_, i) => ({ name: `P${i}`, slug: `p${i}`, displayPrice: 1000 }));
-  it("caps and says so", () => {
-    const md = buildProductListMarkdown({ entity: { type: "brand", name: "Daikin", slug: "daikin", content: doc("x") }, products: items, totalCount: 60 });
-    expect((md.match(/^- \[P/gm) ?? []).length).toBe(PRODUCT_LIST_CAP);
-    expect(md).toContain("Đang hiển thị 50 trên tổng 60");
+  const mk = (n: number) => Array.from({ length: n }, (_, i) => ({ name: `P${i}`, slug: `p${i}`, displayPrice: 1000 }));
+  const entity = { type: "brand" as const, name: "Daikin", slug: "daikin", content: doc("x") };
+  it("lists all products below the ceiling, no showing-line", () => {
+    const md = buildProductListMarkdown({ entity, products: mk(60), totalCount: 60 });
+    expect((md.match(/^- \[P/gm) ?? []).length).toBe(60);
+    expect(md).not.toContain("Đang hiển thị");
     expect(md).toContain(`${BASE_URL}/san-pham/p0`);
+  });
+  it("caps at the safety ceiling and says so", () => {
+    const md = buildProductListMarkdown({ entity, products: mk(PRODUCT_LIST_CAP + 5), totalCount: PRODUCT_LIST_CAP + 5 });
+    expect((md.match(/^- \[P/gm) ?? []).length).toBe(PRODUCT_LIST_CAP);
+    expect(md).toContain(`Đang hiển thị ${PRODUCT_LIST_CAP} trên tổng ${PRODUCT_LIST_CAP + 5}`);
   });
   it("handles empty", () => {
     expect(buildProductListMarkdown({ entity: { type: "category", name: "A", slug: "a" }, products: [], totalCount: 0 })).toContain("chưa có sản phẩm");

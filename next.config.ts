@@ -72,6 +72,14 @@ const nextConfig: NextConfig = {
         destination: "/chinh-sach-thu-thap-va-xu-ly-du-lieu-ca-nhan",
         permanent: true,
       },
+      // Markdown twins of the aliases (/about.md -> /gioi-thieu-ve-dien-may-elc.md). Also in nginx.
+      { source: "/about.md", destination: "/gioi-thieu-ve-dien-may-elc.md", permanent: true },
+      { source: "/contact.md", destination: "/thong-tin.md", permanent: true },
+      {
+        source: "/privacy.md",
+        destination: "/chinh-sach-thu-thap-va-xu-ly-du-lieu-ca-nhan.md",
+        permanent: true,
+      },
       // 2026-10-10: "thanh lý" and "thu cũ đổi mới" are one intent (both empty
       // template pages) - merged into the trade-in page. Also in nginx's static
       // map (scripts/nginx-live/redirects.py).

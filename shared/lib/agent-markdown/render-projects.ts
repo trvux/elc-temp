@@ -10,7 +10,8 @@ import { buildFrontmatter, buildInquirySection } from "./render";
 // emitted only when clientConsentAt is set; testimonials and client kind are
 // never emitted (the HTML page does not show them either).
 
-export const PROJECT_INDEX_LIMIT = 100;
+// Hard safety ceiling only: every published project is listed up to this many.
+export const PROJECT_INDEX_LIMIT = 500;
 
 type ProjectLike = Pick<
   ProjectWithCategory,

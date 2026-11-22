@@ -1,5 +1,7 @@
 import { describe, expect, it } from "vitest";
-import { resolveMarkdownRoute, STATIC_PAGE_SLUGS } from "@/shared/lib/agent-markdown/routes";
+import { readdirSync } from "node:fs";
+import { join } from "node:path";
+import { RESERVED_FIRST_SEGMENTS, resolveMarkdownRoute } from "@/shared/lib/agent-markdown/routes";
 import {
   buildFrontmatter,
   buildInquirySection,
@@ -23,7 +25,7 @@ describe("resolveMarkdownRoute", () => {
     expect(resolveMarkdownRoute("/index.md")).toEqual({ target: "/agent-md/home", explicit: true });
   });
   it("returns null for nested, unknown and malformed paths", () => {
-    for (const p of ["/san-pham/a/b", "/gioi-thieu", "/agent-md/home", "/index", "/.md", "/san-pham/.md", "/san-pham/", "/admin", "/a.md"]) {
+    for (const p of ["/san-pham/a/b", "/agent-md/home", "/index", "/.md", "/san-pham/.md", "/san-pham/", "/admin"]) {
       expect(resolveMarkdownRoute(p), p).toBeNull();
     }
   });
@@ -37,13 +39,75 @@ describe("resolveMarkdownRoute static/trust pages", () => {
     expect(resolveMarkdownRoute("/thong-tin/van-phong.md")).toEqual({ target: "/agent-md/thong-tin/van-phong", explicit: true });
     expect(resolveMarkdownRoute("/thong-tin/a/b")).toBeNull();
   });
-  it.each([...STATIC_PAGE_SLUGS])("maps allowlisted page %s", (slug) => {
+  it.each([
+    "gioi-thieu-ve-dien-may-elc",
+    "chinh-sach-bao-hanh-san-pham",
+    "a-brand-new-admin-page",
+  ])("maps CMS page %s (also unknown slugs)", (slug) => {
     expect(resolveMarkdownRoute(`/${slug}`)).toEqual({ target: `/agent-md/trang/${slug}`, explicit: false });
     expect(resolveMarkdownRoute(`/${slug}.md`)).toEqual({ target: `/agent-md/trang/${slug}`, explicit: true });
   });
-  it("does not hijack other top-level routes", () => {
-    for (const p of ["/form", "/form.md", "/login", "/magic-link", "/api", "/admin", "/about", "/co-so-ha-tang", "/gioi-thieu-ve-dien-may-elc/x", "/unknown-page"]) {
+  it("does not hijack reserved or file-like top-level routes", () => {
+    const paths = [...RESERVED_FIRST_SEGMENTS].filter((s) => s !== "form").flatMap((s) => [`/${s}`, `/${s}.md`]);
+    paths.push("/robots.txt", "/opengraph-image.png", "/5526e838bca84144ad7c1a84f3eb7d82.txt", "/_next", "/gioi-thieu-ve-dien-may-elc/x");
+    for (const p of paths) {
+      const r = resolveMarkdownRoute(p);
+      // thong-tin and the 4 sections intentionally have their own Markdown handlers
+      expect(r === null || !r.target.startsWith("/agent-md/trang/"), p).toBe(true);
+    }
+    expect(resolveMarkdownRoute("/form")).toEqual({ target: "/agent-md/form", explicit: false });
+    expect(resolveMarkdownRoute("/form.md")).toEqual({ target: "/agent-md/form", explicit: true });
+    for (const p of ["/login", "/magic-link", "/api", "/admin", "/about", "/about.md", "/contact", "/privacy", "/co-so-ha-tang", "/chi-nhanh"]) {
       expect(resolveMarkdownRoute(p), p).toBeNull();
+    }
+  });
+});
+
+// Guard: the catch-all `[slug]` swallows every top-level path, so a new app/ route must be
+// reserved explicitly or Markdown negotiation would rewrite it to a "page not found".
+describe("reserved first segments vs the real app/ tree", () => {
+  const root = process.cwd();
+  const NON_ROUTE = new Set([
+    "layout.tsx", "page.tsx", "error.tsx", "not-found.tsx", "loading.tsx", "global-error.tsx",
+    "template.tsx", "default.tsx", "globals.css", "typeset.css", "proxy.ts",
+  ]);
+  function topLevel(dir: string): string[] {
+    const out: string[] = [];
+    for (const e of readdirSync(dir, { withFileTypes: true })) {
+      if (e.name.startsWith("(") && e.isDirectory()) {
+        out.push(...topLevel(join(dir, e.name)));
+      } else if (!e.isDirectory() && NON_ROUTE.has(e.name)) {
+        continue;
+      } else if (e.name.startsWith("_") || e.name.endsWith(".alt.txt")) {
+        continue; // private folders / metadata alt text
+      } else {
+        out.push(e.name);
+      }
+    }
+    return out;
+  }
+  const known = (name: string) => {
+    if (RESERVED_FIRST_SEGMENTS.has(name)) return true;
+    const stem = name.replace(/\.[^.]+$/, "");
+    // robots.ts -> /robots.txt, sitemap.ts -> /sitemap.xml, opengraph-image.png -> /opengraph-image
+    return RESERVED_FIRST_SEGMENTS.has(stem) || RESERVED_FIRST_SEGMENTS.has(`${stem}.txt`) || RESERVED_FIRST_SEGMENTS.has(`${stem}.xml`);
+  };
+
+  it("every top-level app/ route is reserved or the [slug] catch-all", () => {
+    const unknown = topLevel(join(root, "app")).filter((n) => n !== "[slug]" && !known(n));
+    expect(unknown, `Add to RESERVED_FIRST_SEGMENTS in routes.ts: ${unknown.join(", ")}`).toEqual([]);
+  });
+  it("only [slug] is a dynamic top-level segment", () => {
+    const dyn = topLevel(join(root, "app")).filter((n) => n.startsWith("["));
+    expect(dyn).toEqual(["[slug]"]);
+  });
+  it("every public/ folder is reserved", () => {
+    const dirs = readdirSync(join(root, "public"), { withFileTypes: true }).filter((e) => e.isDirectory());
+    expect(dirs.map((d) => d.name).filter((n) => !RESERVED_FIRST_SEGMENTS.has(n))).toEqual([]);
+  });
+  it("reserves the real route folders explicitly", () => {
+    for (const s of ["admin", "login", "form", "magic-link", "co-so-ha-tang", "api", "agent-md", "thong-tin"]) {
+      expect(RESERVED_FIRST_SEGMENTS.has(s), s).toBe(true);
     }
   });
 });
