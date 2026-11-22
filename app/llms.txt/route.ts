@@ -12,6 +12,7 @@ import { getProjectsAction } from "@/modules/project/presentation/actions";
 import { getProjectTypesAction } from "@/modules/project-type/presentation/actions";
 import { getNewsAction } from "@/modules/news/presentation/actions";
 import { buildLlmsIntro, TRUST_PAGES } from "@/shared/lib/agent-markdown/render";
+import { richTextToMarkdown } from "@/shared/lib/agent-markdown/richtext-to-markdown";
 import { BASE_URL } from "@/shared/lib/seo-schema";
 
 export async function GET(request: Request) {
@@ -66,29 +67,31 @@ export async function GET(request: Request) {
       markdown += `  - Address: ${b.address}\n`;
       if (b.phone) markdown += `  - Phone: ${b.phone}\n`;
       if (b.email) markdown += `  - Email: ${b.email}\n`;
-      if (b.description) markdown += `  - Description: ${b.description}\n`;
+      // branch.description is rich-text JSON, not a string.
+      const description = richTextToMarkdown(b.description, { maxChars: 300 }).replace(/#+\s/g, "").replace(/\s+/g, " ").trim();
+      if (description) markdown += `  - Description: ${description}\n`;
     });
   }
   markdown += `\n`;
 
   markdown += `## Core Sections\n\n`;
-  markdown += `- [Homepage](${BASE_URL}): Official website of Dien may ELC.\n`;
-  markdown += `- [Products](${BASE_URL}/san-pham): All products catalog.\n`;
-  markdown += `- [Services](${BASE_URL}/dich-vu): Professional installation, maintenance, and repair services.\n`;
-  markdown += `- [Projects](${BASE_URL}/du-an): Portfolio of ELC air conditioning & HVAC projects.\n`;
-  markdown += `- [News](${BASE_URL}/tin-tuc): Technical guides and news.\n`;
+  markdown += `- [Homepage](${BASE_URL}): Official website of Dien may ELC ([md](${BASE_URL}/index.md)).\n`;
+  markdown += `- [Products](${BASE_URL}/san-pham): All products catalog ([md](${BASE_URL}/san-pham.md)).\n`;
+  markdown += `- [Services](${BASE_URL}/dich-vu) ([md](${BASE_URL}/dich-vu.md)): Professional installation, maintenance, and repair services.\n`;
+  markdown += `- [Projects](${BASE_URL}/du-an) ([md](${BASE_URL}/du-an.md)): Portfolio of ELC air conditioning & HVAC projects.\n`;
+  markdown += `- [News](${BASE_URL}/tin-tuc) ([md](${BASE_URL}/tin-tuc.md)): Technical guides and news.\n`;
   markdown += `- [About Us](${TRUST_PAGES.about}): Company overview. Also [Contact](${TRUST_PAGES.contact}) and [Privacy](${TRUST_PAGES.privacy}).\n\n`;
 
   // Categories, Groups, and Brands
   markdown += `## Product Categories & Brands\n\n`;
   groupCategories.forEach((g) => {
-    markdown += `- [Group: ${g.name}](${BASE_URL}/san-pham/${g.slug})\n`;
+    markdown += `- [Group: ${g.name}](${BASE_URL}/san-pham/${g.slug}) ([md](${BASE_URL}/san-pham/${g.slug}.md))\n`;
   });
   categories.forEach((c) => {
-    markdown += `- [Category: ${c.name}](${BASE_URL}/san-pham/${c.slug})\n`;
+    markdown += `- [Category: ${c.name}](${BASE_URL}/san-pham/${c.slug}) ([md](${BASE_URL}/san-pham/${c.slug}.md))\n`;
   });
   brands.forEach((b) => {
-    markdown += `- [Brand: ${b.name}](${BASE_URL}/san-pham/${b.slug})\n`;
+    markdown += `- [Brand: ${b.name}](${BASE_URL}/san-pham/${b.slug}) ([md](${BASE_URL}/san-pham/${b.slug}.md))\n`;
   });
   markdown += `\n`;
 
@@ -98,31 +101,31 @@ export async function GET(request: Request) {
     const defaultVariant = resolveDefaultVariant(p);
     const cleanSku = defaultVariant?.sku ? defaultVariant.sku.split(/[\s/]+/)[0] : "";
     const mpnStr = defaultVariant?.mpn ? ` | MPN: ${defaultVariant.mpn}` : "";
-    markdown += `- [${p.name} - SKU: ${cleanSku}${mpnStr}](${BASE_URL}/san-pham/${p.slug})\n`;
+    markdown += `- [${p.name} - SKU: ${cleanSku}${mpnStr}](${BASE_URL}/san-pham/${p.slug}) ([md](${BASE_URL}/san-pham/${p.slug}.md))\n`;
   });
   markdown += `\n`;
 
   // Services
   markdown += `## Services\n\n`;
   services.forEach((s) => {
-    markdown += `- [Service: ${s.title}](${BASE_URL}/dich-vu/${s.slug})\n`;
+    markdown += `- [Service: ${s.title}](${BASE_URL}/dich-vu/${s.slug}) ([md](${BASE_URL}/dich-vu/${s.slug}.md))\n`;
   });
   markdown += `\n`;
 
   // Projects
   markdown += `## Projects & Project Types\n\n`;
   projectTypes.forEach((pt) => {
-    markdown += `- [Project Type: ${pt.name}](${BASE_URL}/du-an/${pt.slug})\n`;
+    markdown += `- [Project Type: ${pt.name}](${BASE_URL}/du-an/${pt.slug}) ([md](${BASE_URL}/du-an/${pt.slug}.md))\n`;
   });
   projects.forEach((p) => {
-    markdown += `- [Project: ${p.title}](${BASE_URL}/du-an/${p.slug})\n`;
+    markdown += `- [Project: ${p.title}](${BASE_URL}/du-an/${p.slug}) ([md](${BASE_URL}/du-an/${p.slug}.md))\n`;
   });
   markdown += `\n`;
 
   // News
   markdown += `## News & Articles\n\n`;
   news.forEach((n) => {
-    markdown += `- [News: ${n.title}](${BASE_URL}/tin-tuc/${n.slug})\n`;
+    markdown += `- [News: ${n.title}](${BASE_URL}/tin-tuc/${n.slug}) ([md](${BASE_URL}/tin-tuc/${n.slug}.md))\n`;
   });
   markdown += `\n`;
 

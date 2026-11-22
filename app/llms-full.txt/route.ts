@@ -91,26 +91,27 @@ export async function GET() {
 
   // Core Sections
   markdown += `## Core Sections\n\n`;
-  markdown += `- [Homepage](${BASE_URL})\n`;
-  markdown += `- [Products](${BASE_URL}/san-pham)\n`;
-  markdown += `- [Services](${BASE_URL}/dich-vu)\n`;
-  markdown += `- [Projects](${BASE_URL}/du-an)\n`;
-  markdown += `- [News](${BASE_URL}/tin-tuc)\n`;
-  markdown += `- [About Us](${BASE_URL}/gioi-thieu-ve-dien-may-elc)\n\n`;
+  markdown += `Every product, service, project, news and listing page also has a Markdown version: send \`Accept: text/markdown\` or append \`.md\` to the URL (e.g. \`${BASE_URL}/san-pham/{slug}.md\`).\n\n`;
+  markdown += `- [Homepage](${BASE_URL}) ([md](${BASE_URL}/index.md))\n`;
+  markdown += `- [Products](${BASE_URL}/san-pham) ([md](${BASE_URL}/san-pham.md))\n`;
+  markdown += `- [Services](${BASE_URL}/dich-vu) ([md](${BASE_URL}/dich-vu.md))\n`;
+  markdown += `- [Projects](${BASE_URL}/du-an) ([md](${BASE_URL}/du-an.md))\n`;
+  markdown += `- [News](${BASE_URL}/tin-tuc) ([md](${BASE_URL}/tin-tuc.md))\n`;
+  markdown += `- [About Us](${BASE_URL}/gioi-thieu-ve-dien-may-elc) ([md](${BASE_URL}/gioi-thieu-ve-dien-may-elc.md))\n\n`;
 
   // Categories, Groups, and Brands
   markdown += `## Product Categories & Brands\n\n`;
   markdown += `### Group Categories\n`;
   groupCategories.forEach((g) => {
-    markdown += `- [${g.name}](${BASE_URL}/san-pham/${g.slug}): ${g.metaDescription || "Group of product categories"}\n`;
+    markdown += `- [${g.name}](${BASE_URL}/san-pham/${g.slug}) ([md](${BASE_URL}/san-pham/${g.slug}.md)): ${g.metaDescription || "Group of product categories"}\n`;
   });
   markdown += `\n### Categories\n`;
   categories.forEach((c) => {
-    markdown += `- [${c.name}](${BASE_URL}/san-pham/${c.slug}): ${c.metaDescription || "Product category"}\n`;
+    markdown += `- [${c.name}](${BASE_URL}/san-pham/${c.slug}) ([md](${BASE_URL}/san-pham/${c.slug}.md)): ${c.metaDescription || "Product category"}\n`;
   });
   markdown += `\n### Brands\n`;
   brands.forEach((b) => {
-    markdown += `- [${b.name}](${BASE_URL}/san-pham/${b.slug}): ${b.metaDescription || "Brand page"}\n`;
+    markdown += `- [${b.name}](${BASE_URL}/san-pham/${b.slug}) ([md](${BASE_URL}/san-pham/${b.slug}.md)): ${b.metaDescription || "Brand page"}\n`;
   });
   markdown += `\n`;
 
@@ -128,7 +129,7 @@ export async function GET() {
     const detailedDesc = tiptapToText(p.description);
 
     markdown += `### ${p.name}\n`;
-    markdown += `- **URL**: [${BASE_URL}/san-pham/${p.slug}](${BASE_URL}/san-pham/${p.slug})\n`;
+    markdown += `- **URL**: [${BASE_URL}/san-pham/${p.slug}](${BASE_URL}/san-pham/${p.slug}) | [Markdown](${BASE_URL}/san-pham/${p.slug}.md)\n`;
     markdown += `- **SKU**: ${cleanSku} (Full SKU: ${defaultVariant?.sku || "N/A"})\n`;
     if (defaultVariant?.mpn) markdown += `- **MPN**: ${defaultVariant.mpn}\n`;
     if (defaultVariant?.gtin) markdown += `- **GTIN/EAN/UPC**: ${defaultVariant.gtin}\n`;
@@ -164,7 +165,7 @@ export async function GET() {
   markdown += `## Service Details\n\n`;
   services.forEach((s) => {
     markdown += `### ${s.title}\n`;
-    markdown += `- **URL**: [${BASE_URL}/dich-vu/${s.slug}](${BASE_URL}/dich-vu/${s.slug})\n`;
+    markdown += `- **URL**: [${BASE_URL}/dich-vu/${s.slug}](${BASE_URL}/dich-vu/${s.slug}) | [Markdown](${BASE_URL}/dich-vu/${s.slug}.md)\n`;
     markdown += `- **Overview**: ${s.metaDescription || "Professional service provided by Dien may ELC."}\n\n`;
   });
 
@@ -172,18 +173,18 @@ export async function GET() {
   markdown += `## Project Details\n\n`;
   markdown += `### Project Types\n`;
   projectTypes.forEach((pt) => {
-    markdown += `- [${pt.name}](${BASE_URL}/du-an/${pt.slug}): ${pt.metaDescription || "Type of work"}\n`;
+    markdown += `- [${pt.name}](${BASE_URL}/du-an/${pt.slug}) ([md](${BASE_URL}/du-an/${pt.slug}.md)): ${pt.metaDescription || "Type of work"}\n`;
   });
   markdown += `\n### Reference Projects\n`;
   projects.forEach((p) => {
-    markdown += `- [${p.title}](${BASE_URL}/du-an/${p.slug}): ${p.metaDescription || "Reference construction project"}\n`;
+    markdown += `- [${p.title}](${BASE_URL}/du-an/${p.slug}) ([md](${BASE_URL}/du-an/${p.slug}.md)): ${p.metaDescription || "Reference construction project"}\n`;
   });
   markdown += `\n`;
 
   // News Details
   markdown += `## News & Articles\n\n`;
   news.forEach((n) => {
-    markdown += `- [${n.title}](${BASE_URL}/tin-tuc/${n.slug}): ${n.metaDescription || "Technical guide and news"}\n`;
+    markdown += `- [${n.title}](${BASE_URL}/tin-tuc/${n.slug}) ([md](${BASE_URL}/tin-tuc/${n.slug}.md)): ${n.metaDescription || "Technical guide and news"}\n`;
   });
   markdown += `\n`;
 

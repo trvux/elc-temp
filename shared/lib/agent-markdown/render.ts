@@ -84,9 +84,9 @@ export function buildLlmsIntro(): string {
     "",
     "## How an agent should use it",
     "",
-    `- Request any page with \`Accept: text/markdown\` to get a Markdown version (currently the [homepage](${BASE_URL}/)); other pages are HTML with JSON-LD (Product, Organization, LocalBusiness) you can parse.`,
+    `- Every product, service, project, news and listing page (and the [homepage](${BASE_URL}/index.md)) is available as Markdown: send \`Accept: text/markdown\` or add \`.md\` to the URL, e.g. \`${BASE_URL}/san-pham/{slug}.md\` or \`${BASE_URL}/san-pham.md\`. Markdown responses are \`noindex\` and point to the HTML page as canonical; the HTML pages also carry JSON-LD (Product, Organization, LocalBusiness).`,
     `- Look up a specific model through [llms-full.txt](${BASE_URL}/llms-full.txt) or [sitemap.xml](${BASE_URL}/sitemap.xml), then open \`${BASE_URL}/san-pham/{slug}\` for current price, stock and specs.`,
-    "- For quotes on projects, installation scope or anything not stated on a page, send the user to the phone/Zalo/branch details listed under Contact below rather than guessing.",
+    `- There is no cart or checkout API. For quotes, installation scope or anything not stated on a page, send the user to the [quote form](${BASE_URL}/form) or the contact details below (phone/Zalo/branch) rather than guessing.`,
     "",
     "",
   ].join("\n");
@@ -109,9 +109,58 @@ export function buildGoneMarkdown(): string {
   ].join("\n");
 }
 
+export interface FrontmatterInput {
+  title: string;
+  description: string;
+  canonicalUrl: string;
+  updatedAt?: string | Date | null;
+}
+
+const yamlString = (v: string) => JSON.stringify(v.replace(/\s+/g, " ").trim());
+
+export function buildFrontmatter(input: FrontmatterInput): string {
+  const updated =
+    input.updatedAt instanceof Date ? input.updatedAt.toISOString() : input.updatedAt;
+  const lines = [
+    "---",
+    `title: ${yamlString(input.title)}`,
+    `description: ${yamlString(input.description)}`,
+    `canonical: ${input.canonicalUrl}`,
+  ];
+  if (updated) lines.push(`updated: ${updated}`);
+  lines.push("---", "");
+  return lines.join("\n");
+}
+
+// ELC is B2B quote-and-install: no cart or checkout. The real quote form is /form
+// (noindex page, accepts ?productId=/projectId=/serviceId=&entityName=&entityKind=).
+export const INQUIRY_FORM_URL = `${BASE_URL}/form`;
+
+export function buildInquirySection(): string {
+  return [
+    "## Yêu cầu báo giá",
+    "",
+    "Điện máy ELC báo giá và lắp đặt theo từng công trình, không bán qua giỏ hàng. Để nhận báo giá hoặc tư vấn:",
+    "",
+    `- Gửi yêu cầu qua [biểu mẫu báo giá](${INQUIRY_FORM_URL})`,
+    `- Xem điện thoại, Zalo và chi nhánh tại [trang liên hệ](${TRUST_PAGES.contact})`,
+    "",
+  ].join("\n");
+}
+
+export const INQUIRY_CTA = buildInquirySection();
+
 export const MARKDOWN_HEADERS = {
   "Content-Type": "text/markdown; charset=utf-8",
   Vary: "Accept",
   "Cache-Control": "no-store",
   "X-Content-Type-Options": "nosniff",
 } as const;
+
+export function markdownHeaders(canonicalPath: string) {
+  return {
+    ...MARKDOWN_HEADERS,
+    "X-Robots-Tag": "noindex",
+    Link: `<${BASE_URL}${canonicalPath}>; rel="canonical"`,
+  };
+}

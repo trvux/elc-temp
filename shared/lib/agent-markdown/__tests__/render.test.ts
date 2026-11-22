@@ -69,6 +69,13 @@ describe("buildLlmsIntro (item: agent instruction / when-to-use)", () => {
       expect(md).toContain(job);
     }
   });
+  it("documents Markdown access and the no-checkout rule", () => {
+    expect(md).toContain("Accept: text/markdown");
+    expect(md).toContain(".md");
+    expect(md).toContain("noindex");
+    expect(md).toContain(`${BASE_URL}/form`);
+    expect(md).not.toContain("currently");
+  });
   it("links trust pages by canonical URL", () => {
     expect(md).toContain(TRUST_PAGES.about);
     expect(md).toContain(TRUST_PAGES.contact);

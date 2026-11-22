@@ -4,7 +4,7 @@ import { getBrandsAction } from "@/modules/brand/presentation/actions";
 import { getCategoriesAction } from "@/modules/category/presentation/actions";
 import { getContactsAction } from "@/modules/contact/presentation/actions";
 import { getServicesAction } from "@/modules/service/presentation/actions";
-import { buildHomeMarkdown, MARKDOWN_HEADERS } from "@/shared/lib/agent-markdown/render";
+import { buildHomeMarkdown, markdownHeaders } from "@/shared/lib/agent-markdown/render";
 
 // Not a public URL: proxy.ts rewrites `GET /` here when the client prefers
 // text/markdown over text/html (see shared/lib/agent-markdown/negotiate.ts).
@@ -30,5 +30,5 @@ export async function GET() {
     services: services.data,
   });
 
-  return new Response(body, { status: 200, headers: MARKDOWN_HEADERS });
+  return new Response(body, { status: 200, headers: markdownHeaders("/") });
 }
