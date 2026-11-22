@@ -109,7 +109,29 @@ describe("index and 404", () => {
     expect(md).toContain(`[C](${BASE_URL}/san-pham/c)`);
     expect(md).toContain(`[B](${BASE_URL}/san-pham/b)`);
   });
-  it("404 body", () => expect(buildProductNotFoundMarkdown()).toMatch(/^# 404/));
+  it("renders category sections with preview products", () => {
+    const md = buildProductsIndexMarkdown({
+      categories: [],
+      brands: [],
+      sections: [
+        {
+          name: "Máy lạnh treo tường",
+          slug: "treo-tuong",
+          groupName: "Máy lạnh",
+          groupSlug: "may-lanh",
+          totalCount: 7,
+          products: [{ name: "P1", slug: "p1", displayPrice: 1000000, compareAtPrice: 1200000 }],
+        },
+      ],
+    });
+    expect(md).toContain(`## [Máy lạnh](${BASE_URL}/san-pham/may-lanh)`);
+    expect(md).toContain("### Máy lạnh treo tường");
+    expect(md).toContain(`[Xem tất cả 7 sản phẩm](${BASE_URL}/san-pham/treo-tuong)`);
+    expect(md).toContain(`- [P1](${BASE_URL}/san-pham/p1): 1.000.000 VND (giá gốc 1.200.000 VND)`);
+    expect(md).toContain("Hiển thị thêm 6 sản phẩm");
+  });
+  it("description heading", () => expect(buildProductMarkdown(product)).toContain("## Mô tả sản phẩm"));
+  it("404 body",() => expect(buildProductNotFoundMarkdown()).toMatch(/^# 404/));
 });
 
 describe("FAQ on list pages and services block on product", () => {

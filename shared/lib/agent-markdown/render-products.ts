@@ -125,7 +125,7 @@ export function buildProductMarkdown(product: ProductWithRelations, extras: Prod
   }
 
   const descMd = richTextToMarkdown(product.description, { baseUrl: BASE_URL });
-  if (descMd) out.push("## Mô tả", "", descMd, "");
+  if (descMd) out.push("## Mô tả sản phẩm", "", descMd, "");
 
   const variants = (product.variants ?? []).filter((v) => v.isActive);
   if (variants.length > 0) {
@@ -270,7 +270,23 @@ export function buildProductListMarkdown(input: {
   return out.join("\n");
 }
 
+export interface IndexProductItem extends ProductListItem {
+  /** Default variant's original (compare-at) price. */
+  compareAtPrice?: number | null;
+}
+
+/** One category preview block, same as the HTML hub's CategorySection. */
+export interface IndexCategorySection {
+  name: string;
+  slug: string;
+  groupName?: string | null;
+  groupSlug?: string | null;
+  totalCount: number;
+  products: IndexProductItem[];
+}
+
 export function buildProductsIndexMarkdown(input: {
+  sections?: IndexCategorySection[];
   categories: ChildLink[];
   brands: ChildLink[];
   content?: unknown;
@@ -294,6 +310,23 @@ export function buildProductsIndexMarkdown(input: {
     "",
   ];
   if (body) out.push(body, "");
+  let prevGroup: string | null | undefined;
+  (input.sections ?? []).forEach((sec, i) => {
+    const catUrl = productUrl(sec.slug);
+    if (sec.groupName && sec.groupSlug && (i === 0 || sec.groupSlug !== prevGroup)) {
+      out.push(`## [${oneLine(sec.groupName)}](${productUrl(sec.groupSlug)})`, "");
+    }
+    prevGroup = sec.groupSlug;
+    out.push(`### ${oneLine(sec.name)}`, "", `[Xem tất cả ${sec.totalCount} sản phẩm](${catUrl})`, "");
+    for (const p of sec.products) {
+      const price = formatPriceRange(p);
+      const cmp = price && p.compareAtPrice && p.compareAtPrice > (p.displayPrice ?? 0) ? ` (giá gốc ${formatVnd(p.compareAtPrice)})` : "";
+      out.push(`- [${oneLine(p.name)}](${productUrl(p.slug)})${price ? `: ${price}${cmp}` : ""}`);
+    }
+    out.push("");
+    const more = sec.totalCount - sec.products.length;
+    if (more > 0) out.push(`Còn ${more} sản phẩm khác: [Hiển thị thêm ${more} sản phẩm](${catUrl}).`, "");
+  });
   out.push("## Danh mục sản phẩm", "");
   for (const c of input.categories) out.push(`- [${c.name}](${productUrl(c.slug)})`);
   out.push("");

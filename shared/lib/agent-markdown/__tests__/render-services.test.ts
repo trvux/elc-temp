@@ -48,6 +48,14 @@ describe("buildServiceDetailMarkdown", () => {
     const m = buildServiceDetailMarkdown({ title: "A", slug: "a", description: content, content: null });
     expect(m).toContain("> Nội dung chi tiết");
   });
+  it("uses the same brief heading as the HTML page, per service line", () => {
+    const brief = (line?: string) =>
+      buildServiceDetailMarkdown({ title: "A", slug: "a", line, content: null, briefPrompts: ["Số máy"] });
+    expect(brief("dich-vu")).toContain("## Chuẩn bị sẵn những thông tin này để đặt lịch nhanh hơn");
+    expect(brief("thi-cong")).toContain("## Gửi sẵn những thông tin này để được báo giá nhanh hơn");
+    // a missing/unknown line is a regular service, like normalizeServiceLine
+    expect(brief(undefined)).toContain("## Chuẩn bị sẵn những thông tin này để đặt lịch nhanh hơn");
+  });
 });
 
 describe("related services", () => {

@@ -1,4 +1,4 @@
-import { SERVICE_LINES, type ServiceLine } from "@/modules/service/domain/line";
+import { SERVICE_LINES, normalizeServiceLine, type ServiceLine } from "@/modules/service/domain/line";
 import { buildFrontmatter, buildInquirySection } from "@/shared/lib/agent-markdown/render";
 import { richTextToMarkdown } from "@/shared/lib/agent-markdown/richtext-to-markdown";
 import { BASE_URL } from "@/shared/lib/seo-schema";
@@ -99,7 +99,8 @@ export function buildServiceDetailMarkdown(
     for (const f of s.faqs) out.push(`### ${f.question}`, "", f.answer, "");
   }
   if (s.briefPrompts?.length) {
-    out.push("## Thông tin nên chuẩn bị khi liên hệ", "");
+    // Same heading the HTML page uses (ServiceDetailModule: lineInfo.briefHeading).
+    out.push(`## ${SERVICE_LINES[normalizeServiceLine(s.line)].briefHeading}`, "");
     for (const p of s.briefPrompts) out.push(`- ${p}`);
     out.push("");
   }
