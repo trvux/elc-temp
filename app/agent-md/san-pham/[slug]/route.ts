@@ -15,13 +15,13 @@ import {
   buildProductNotFoundMarkdown,
   PRODUCT_LIST_CAP,
 } from "@/shared/lib/agent-markdown/render-products";
+import { buildPublicPath } from "@/shared/lib/agent-markdown/fetch-html";
+import { servePageMarkdown } from "@/shared/lib/agent-markdown/page-markdown";
 
 // Not a public URL: proxy.ts rewrites `GET /san-pham/<slug>` here for Markdown
 // clients. Mirrors app/(public)/san-pham/[slug]/page.tsx: same slug resolution,
 // same 404 cases (unknown slug, archived product, product without category).
-export async function GET(_req: Request, ctx: { params: Promise<{ slug: string }> }) {
-  await connection();
-  const { slug } = await ctx.params;
+async function legacy(slug: string) {
 
   const notFound = () =>
     new Response(buildProductNotFoundMarkdown(), { status: 404, headers: MARKDOWN_HEADERS });
@@ -100,4 +100,13 @@ export async function GET(_req: Request, ctx: { params: Promise<{ slug: string }
     childCategories,
   });
   return new Response(body, { status: 200, headers });
+}
+
+export async function GET(request: Request, ctx: { params: Promise<{ slug: string }> }) {
+  await connection();
+  const { slug } = await ctx.params;
+  const legacyForSlug = () => legacy(slug);
+  const publicPath = buildPublicPath(["san-pham", slug]);
+  if (!publicPath) return legacyForSlug();
+  return servePageMarkdown({ request, publicPath, fallback: legacyForSlug });
 }

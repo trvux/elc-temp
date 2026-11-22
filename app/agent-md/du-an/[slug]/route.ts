@@ -8,12 +8,12 @@ import {
   buildProjectNotFoundMarkdown,
   PROJECT_INDEX_LIMIT,
 } from "@/shared/lib/agent-markdown/render-projects";
+import { buildPublicPath } from "@/shared/lib/agent-markdown/fetch-html";
+import { servePageMarkdown } from "@/shared/lib/agent-markdown/page-markdown";
 
 // Not a public URL: proxy.ts rewrites `GET /du-an/<slug>` here for Markdown
 // requests. The slug is either a project or a project type (listing).
-export async function GET(_req: Request, ctx: { params: Promise<{ slug: string }> }) {
-  await connection();
-  const { slug } = await ctx.params;
+async function legacy(slug: string) {
   const entity = await resolveProjectPathFromDb(slug);
 
   if (entity?.type === "project" && entity.data.isPublished !== false) {
@@ -56,4 +56,15 @@ export async function GET(_req: Request, ctx: { params: Promise<{ slug: string }
   }
 
   return new Response(buildProjectNotFoundMarkdown(), { status: 404, headers: MARKDOWN_HEADERS });
+}
+
+export async function GET(request: Request, ctx: { params: Promise<{ slug: string }> }) {
+  await connection();
+  const { slug } = await ctx.params;
+  const legacyForSlug = () => legacy(slug);
+  const publicPath = buildPublicPath(["du-an", slug]);
+  if (!publicPath) return legacyForSlug();
+  const res = await servePageMarkdown({ request, publicPath, fallback: legacyForSlug });
+  // page-markdown's 404 body is generic; the legacy builder has the right not-found text for this section.
+  return res.status === 404 ? legacyForSlug() : res;
 }

@@ -5,11 +5,12 @@ import { getCatalogPageAction, getProductsAction } from "@/modules/catalog/prese
 import { getCategoriesAction } from "@/modules/category/presentation/actions";
 import { markdownHeaders } from "@/shared/lib/agent-markdown/render";
 import { buildProductsIndexMarkdown } from "@/shared/lib/agent-markdown/render-products";
+import { servePageMarkdown } from "@/shared/lib/agent-markdown/page-markdown";
 
 const INITIAL_PER_SECTION = 5;
 
 // Not a public URL: proxy.ts rewrites `GET /san-pham` here for Markdown clients.
-export async function GET() {
+async function legacy() {
   await connection();
 
   const [categories, brands, catalogPage] = await Promise.all([
@@ -65,4 +66,9 @@ export async function GET() {
   });
 
   return new Response(body, { status: 200, headers: markdownHeaders("/san-pham") });
+}
+
+export async function GET(request: Request) {
+  await connection();
+  return servePageMarkdown({ request, publicPath: "/san-pham", fallback: legacy });
 }

@@ -8,12 +8,12 @@ import { getProjectsAction } from "@/modules/project/presentation/actions";
 import { getServicesAction } from "@/modules/service/presentation/actions";
 import { unwrapActionResult } from "@/shared/lib/action-result";
 import { buildHomeMarkdown, markdownHeaders } from "@/shared/lib/agent-markdown/render";
+import { servePageMarkdown } from "@/shared/lib/agent-markdown/page-markdown";
 
 // Not a public URL: proxy.ts rewrites `GET /` here when the client prefers
 // text/markdown over text/html (see shared/lib/agent-markdown/negotiate.ts).
 // Same data as the HTML homepage, flattened to Markdown.
-export async function GET() {
-  await connection();
+async function legacy() {
 
   const [contacts, branches, categories, brands, services, projects, news] = await Promise.all([
     getContactsAction(),
@@ -41,4 +41,10 @@ export async function GET() {
   });
 
   return new Response(body, { status: 200, headers: markdownHeaders("/") });
+}
+
+export async function GET(request: Request) {
+  await connection();
+  const res = await servePageMarkdown({ request, publicPath: "/", fallback: legacy });
+  return res.status === 404 ? legacy() : res;
 }

@@ -6,11 +6,11 @@ import {
   buildServiceDetailMarkdown,
   buildServiceNotFoundMarkdown,
 } from "@/shared/lib/agent-markdown/render-services";
+import { buildPublicPath } from "@/shared/lib/agent-markdown/fetch-html";
+import { servePageMarkdown } from "@/shared/lib/agent-markdown/page-markdown";
 
 // Internal target of the proxy.ts rewrite for `/dich-vu/<slug>` (Markdown requested).
-export async function GET(_req: Request, ctx: { params: Promise<{ slug: string }> }) {
-  await connection();
-  const { slug } = await ctx.params;
+async function legacy(slug: string) {
   const service = await getServiceBySlugAction(slug);
   if (!service || !service.isPublished) {
     return new Response(buildServiceNotFoundMarkdown(), { status: 404, headers: MARKDOWN_HEADERS });
@@ -21,4 +21,15 @@ export async function GET(_req: Request, ctx: { params: Promise<{ slug: string }
   const related = published.filter((s) => s.line === service.line && s.id !== service.id).slice(0, 3);
   const body = buildServiceDetailMarkdown({ ...service, faqs }, related);
   return new Response(body, { status: 200, headers: markdownHeaders(`/dich-vu/${service.slug}`) });
+}
+
+export async function GET(request: Request, ctx: { params: Promise<{ slug: string }> }) {
+  await connection();
+  const { slug } = await ctx.params;
+  const legacyForSlug = () => legacy(slug);
+  const publicPath = buildPublicPath(["dich-vu", slug]);
+  if (!publicPath) return legacyForSlug();
+  const res = await servePageMarkdown({ request, publicPath, fallback: legacyForSlug });
+  // page-markdown's 404 body is generic; the legacy builder has the right not-found text for this section.
+  return res.status === 404 ? legacyForSlug() : res;
 }

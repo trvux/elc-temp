@@ -10,6 +10,8 @@ import { matchLinksByName, type NamedLink } from "@/shared/lib/content-relevance
 import type { NewsDetailExtras } from "@/shared/lib/agent-markdown/render-news";
 import { MARKDOWN_HEADERS, markdownHeaders } from "@/shared/lib/agent-markdown/render";
 import { buildNewsDetailMarkdown, buildNewsNotFoundMarkdown } from "@/shared/lib/agent-markdown/render-news";
+import { buildPublicPath } from "@/shared/lib/agent-markdown/fetch-html";
+import { servePageMarkdown } from "@/shared/lib/agent-markdown/page-markdown";
 
 const RELATED_PRODUCTS_PREVIEW = 15;
 
@@ -59,9 +61,7 @@ async function loadRelated(slug: string) {
 }
 
 // Not a public URL: proxy.ts rewrites `GET /tin-tuc/<slug>` here for Markdown clients.
-export async function GET(_req: Request, ctx: { params: Promise<{ slug: string }> }) {
-  await connection();
-  const { slug } = await ctx.params;
+async function legacy(slug: string) {
   const { data: n } = await getNewsBySlugAction(slug);
   if (!n || !n.isPublished || n.deletedAt) {
     return new Response(buildNewsNotFoundMarkdown(), { status: 404, headers: MARKDOWN_HEADERS });
@@ -77,4 +77,13 @@ export async function GET(_req: Request, ctx: { params: Promise<{ slug: string }
     content: n.content,
   }, { faqs, ...related });
   return new Response(body, { status: 200, headers: markdownHeaders(`/tin-tuc/${n.slug}`) });
+}
+
+export async function GET(request: Request, ctx: { params: Promise<{ slug: string }> }) {
+  await connection();
+  const { slug } = await ctx.params;
+  const legacyForSlug = () => legacy(slug);
+  const publicPath = buildPublicPath(["tin-tuc", slug]);
+  if (!publicPath) return legacyForSlug();
+  return servePageMarkdown({ request, publicPath, fallback: legacyForSlug });
 }
