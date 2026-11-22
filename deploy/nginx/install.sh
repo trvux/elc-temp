@@ -73,10 +73,16 @@ if "default_server" not in s:
 # and mark the bare nginx 410s as varying on Accept. Needs $elc_gone_md from elc-normalize.conf and the
 # /agent-md/gone route deployed in the app BEFORE this runs.
 if "elc_gone_md" not in s:
-    s = s.replace("        if ($elc_redir) { return 308 $elc_redir; }\n",
-        "        if ($elc_redir) { return 308 $elc_redir; }\n"
-        "        # Agents asking for Markdown get a Markdown 410 body from Next (no DB), not nginx's HTML one\n"
-        "        if ($elc_gone_md) { rewrite ^ /agent-md/gone break; }\n", 1)
+    # Anchor on the line start only: a previous install may already have appended
+    # $is_args$args to the 308 (the query-string patch below), so an exact match fails.
+    marker = "        if ($elc_redir) { return 308 $elc_redir"
+    i = s.find(marker)
+    if i != -1:
+        j = s.index("\n", i) + 1
+        s = (s[:j]
+             + "        # Agents asking for Markdown get a Markdown 410 body from Next (no DB), not nginx's HTML one\n"
+             + "        if ($elc_gone_md) { rewrite ^ /agent-md/gone break; }\n"
+             + s[j:])
 if 'Vary "Accept"' not in s:
     s = s.replace('add_header Cache-Control "no-store" always; return 410;',
                   'add_header Cache-Control "no-store" always; add_header Vary "Accept" always; return 410;')
