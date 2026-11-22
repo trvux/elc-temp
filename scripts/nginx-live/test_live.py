@@ -122,5 +122,27 @@ class ApiAllowlistTest(unittest.TestCase):
         self.assertFalse(self.allowed("/api/.env"))
 
 
+class MarkdownTwinTest(unittest.TestCase):
+    """`/x.md` must be looked up as `/x`: live pages get a live .md twin, dead ones stay 410."""
+
+    def setUp(self):
+        self.conf = live.render({"/", "/san-pham/a"})
+
+    def test_live_lookup_uses_the_md_stripped_key(self):
+        self.assertIn("map $elc_live_key $elc_live {", self.conf)
+        self.assertNotIn("map $uri $elc_live {", self.conf)
+
+    def test_key_map_strips_md_and_maps_index_md_to_root(self):
+        self.assertIn("map $uri $elc_live_key {", self.conf)
+        self.assertIn('"~^/index\\.md$" "/";', self.conf)
+        self.assertIn('"~^(?<p>/.+)\\.md$" $p;', self.conf)
+
+    def test_key_map_is_defined_before_it_is_used(self):
+        self.assertLess(self.conf.index("map $uri $elc_live_key"), self.conf.index("map $elc_live_key $elc_live"))
+
+    def test_slash_map_is_untouched(self):
+        self.assertIn("map $uri $elc_slash {", self.conf)
+
+
 if __name__ == "__main__":
     unittest.main()
