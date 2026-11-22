@@ -14,7 +14,15 @@ export async function proxy(request: NextRequest) {
   // `.md` suffix always serves Markdown; otherwise Accept negotiation decides.
   const markdownRoute = isRead ? resolveMarkdownRoute(pathname) : null;
   if (markdownRoute && (markdownRoute.explicit || prefersMarkdown(request.headers.get("accept")))) {
-    return NextResponse.rewrite(new URL(markdownRoute.target, request.url));
+    // Behind nginx/Cloudflare, `X-Forwarded-Proto: https` makes request.url https://, but this
+    // Node server only speaks plain http. Next treats a rewrite target whose protocol differs from
+    // the server's own as an EXTERNAL URL and proxies it over TLS to itself (EPROTO -> 500).
+    // A rewrite is always internal, so pin the protocol the server really listens on.
+    const target = request.nextUrl.clone();
+    target.pathname = markdownRoute.target;
+    target.search = "";
+    target.protocol = "http:";
+    return NextResponse.rewrite(target);
   }
 
   const response = await sharedProxy(request);
